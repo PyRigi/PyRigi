@@ -1,5 +1,81 @@
 """
 This is a module for the functionality concerning frameworks.
+
+CLASSES:
+Realization
+Framework
+
+METHODS:
 """
 
-import __init__
+from __init__ import Graph
+
+class Realization(object):
+    """
+    This class represents a realization. It is a map from the set of vertices to R^d. 
+    The labeling is implicit and given by the placement's order.
+
+    METHODS:
+    + add_vertex
+    + add_vertex_list
+    """
+    placement = None
+    dimension = None
+
+    def __init__(self, points=[], dim=2):
+        for vector in points:
+            assert(len(vector))==dim
+        self.placement = points
+        self.dimension = dim
+    
+    def add_vertex(self, point):
+        assert len(point)==self.dimension
+        self.placement.append(point)
+
+    def add_vertex_list(self, points):
+        for vector in points:
+            assert(len(vector))==self.dimension
+        self.placement.append(points)
+
+    
+class Framework(object):
+    """
+    This class provides the functionality for frameworks. By definition, it is a tuple of a graph and a realization.
+    
+    METHODS:
+    + add_vertex
+    + add_vertex_list
+    + add_edge
+    + add_edge_list
+    """
+    graph = None
+    realization = None
+
+    def __init__(self, p=[], d=2):
+        self.realization = Realization(p, d)
+        self.graph = Graph()
+    
+    def add_vertex(self, point, label=None):
+        if label == None:
+            maxNode = max(self.graph.nodes) if len(self.graph.nodes)>0 else 0
+            label = maxNode + 1
+        self.realization.add_vertex(point)
+        self.graph.add_node(label)
+        
+    def add_vertex_list(self, points, labels=[]):
+        assert(len(points)==len(labels) or len(labels)==0)
+        if len(labels)==0:
+            for point in points:
+                self.add_vertex(point)
+        else:
+            for i in range(len(points)):
+                self.add_vertex(points[i], labels[i])
+
+    def add_edge(self, edge):
+        assert (len(edge))==2
+        assert (edge[0] in self.graph.nodes and edge[1] in self.graph.nodes)
+        self.graph.add_edge(*(edge))
+
+    def add_edge_list(self, edges):
+        for edge in edges:
+            self.add_edge(edge)
