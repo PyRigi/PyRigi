@@ -1,7 +1,9 @@
-Frameworks
+Motions
 =========================
 
-.. automodule:: pyrigi.framework
+This page documents the class Motion.
+
+.. automodule:: pyrigi.motion
    :members:
    :undoc-members:
    :show-inheritance:
