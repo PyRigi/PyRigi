@@ -1,11 +1,19 @@
 """
-This is a module for the functionality concerning frameworks.
 
-CLASSES:
-Realization
-Framework
+Module for the functionality concerning frameworks.
 
-METHODS:
+.. currentmodule:: pyrigi.framework
+
+Classes:
+
+.. autosummary::
+
+    Framework
+    Realization
+    
+    
+
+
 """
 
 
@@ -13,15 +21,19 @@ import networkx as nx
 
 
 class Realization(object):
-    """
+    r"""
     This class represents a realization.
     
     A realization is a map from the set of vertices to $\RR^d$. 
     The labeling is implicit and given by the placement's order.
 
     METHODS:
-    + add_vertex
-    + add_vertex_list
+    
+    .. autosummary::
+        add_vertex
+        add_vertex_list
+        
+    
     """
     placement = None
     dimension = None
@@ -47,10 +59,12 @@ class Framework(object):
     This class provides the functionality for frameworks. By definition, it is a tuple of a graph and a realization.
     
     METHODS:
-    + add_vertex
-    + add_vertex_list
-    + add_edge
-    + add_edge_list
+    
+    .. autosummary::
+        add_vertex
+        add_vertex_list
+        add_edge
+        add_edge_list
     """
     graph = None
     realization = None

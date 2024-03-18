@@ -1,4 +1,4 @@
-"""
+u"""
 This is a package for the rigidity and flexibility of graphs and bar-and-joint frameworks. 
 
 AUTHORS: 
@@ -13,5 +13,5 @@ Jan Legerský
 import numpy as np 
 import sympy as sp
 
-from pyrigi.framework import Framework
+from pyrigi.framework import Framework, Realization
 from pyrigi.motion import Motion

@@ -46,7 +46,11 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx_math_dollar',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autosummary',
 ]
+
+autosummary_generate = True
 
 mathjax3_config = {
   "tex": {
