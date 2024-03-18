@@ -8,7 +8,9 @@ Framework
 METHODS:
 """
 
-from __init__ import Graph
+
+import networkx as nx
+
 
 class Realization(object):
     """
@@ -53,7 +55,7 @@ class Framework(object):
 
     def __init__(self, p=[], d=2):
         self.realization = Realization(p, d)
-        self.graph = Graph()
+        self.graph = nx.Graph()
     
     def add_vertex(self, point, label=None):
         if label == None:

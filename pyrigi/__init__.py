@@ -12,6 +12,5 @@ Jan Legerský
 
 import numpy as np 
 import sympy as sp
-from networkx import Graph
 
 from pyrigi.framework import Framework
