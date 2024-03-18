@@ -14,3 +14,4 @@ import numpy as np
 import sympy as sp
 
 from pyrigi.framework import Framework
+from pyrigi.motion import Motion

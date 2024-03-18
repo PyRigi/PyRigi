@@ -45,8 +45,20 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'sphinx_math_dollar',
 ]
 
+mathjax3_config = {
+  "tex": {
+    "inlineMath": [['\\(', '\\)']],
+    "displayMath": [["\\[", "\\]"]],
+    "macros": {                 
+            "RR": '{\\mathbb{R}}', 
+            "CC": '{\\mathbb{C}}', 
+            "QQ": '{\\mathbb{Q}}',  
+            }    
+  }
+}
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

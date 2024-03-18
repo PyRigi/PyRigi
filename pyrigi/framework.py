@@ -14,7 +14,9 @@ import networkx as nx
 
 class Realization(object):
     """
-    This class represents a realization. It is a map from the set of vertices to R^d. 
+    This class represents a realization.
+    
+    A realization is a map from the set of vertices to $\RR^d$. 
     The labeling is implicit and given by the placement's order.
 
     METHODS:

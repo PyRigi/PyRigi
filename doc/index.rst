@@ -6,6 +6,7 @@ Welcome to pyrigi's documentation!
    :caption: Contents:
 
    module/framework
+   module/motion
 
 Indices and tables
 ==================

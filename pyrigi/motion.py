@@ -1,5 +1,12 @@
 """
-This is a package for 
+This file contains functionality related to finite flexes.
 """
 
-import __init__
+class Motion(object):
+    """Class representing a finite flex of a framework.
+    
+    TODO: implement this class
+    """
+    
+    def __init__(self):
+        pass
