@@ -16,6 +16,7 @@ Classes:
 
 """
 
+from copy import deepcopy
 from pyrigi.graph import Graph
 from pyrigi.matrix import Matrix
 
@@ -49,7 +50,8 @@ class Framework(object):
             assert v in realization
             assert len(realization[v])==dimension
         self.realization = {v:realization[v] for v in graph.vertices()}
-        self.graph = graph
+        self.graph = deepcopy(graph)
+        self.graph._part_of_framework = True
         self.dimension = dimension
 
     def dim(self):
@@ -85,3 +87,27 @@ class Framework(object):
     def add_edges(self, edges):
         for edge in edges:
             self.add_edge(edge)
+
+    @classmethod
+    def from_points(cls, points):
+        raise NotImplementedError()
+
+    @classmethod
+    def from_graph(cls, graph):
+        raise NotImplementedError()
+
+    @classmethod
+    def empty(cls, dimension):
+        raise NotImplementedError()
+
+    def delete_vertex(self, vertex):
+        raise NotImplementedError()
+
+    def delete_vertices(self, vertices):
+        raise NotImplementedError()
+
+    def delete_edge(self, edge):
+        raise NotImplementedError()
+
+    def delete_edges(self, edges):
+        raise NotImplementedError()
