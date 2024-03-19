@@ -9,10 +9,6 @@ Classes:
 .. autosummary::
 
     Framework
-    Realization
-
-
-
 
 """
 
@@ -113,4 +109,65 @@ class Framework(object):
         raise NotImplementedError()
 
     def delete_edges(self, edges):
+        raise NotImplementedError()
+
+    def set_vertex_position(self, vertex, point):
+        raise NotImplementedError()
+
+    def set_realization(self, realization):
+        raise NotImplementedError()
+
+    @cached
+    def rigidity_matrix(self):
+        # TODO: check whether @cached recognizes whether changes happened
+        r""" Construct the rigidity matrix of the framework
+        """
+        raise NotImplementedError()
+
+    def stress_matrix(self, data):
+        r""" Construct the stress matrix from a stress of from its support
+        """
+        raise NotImplementedError()
+
+    def infinitesimal_flexes(self, trivial=False):
+        r""" Returns a basis of the space of infinitesimal flexes
+        """
+        raise NotImplementedError()
+
+    def stresses(self):
+        r""" Returns a basis of the space of stresses
+        """
+        raise NotImplementedError()
+
+    def rigidity_matrix_rank(self):
+        raise NotImplementedError()
+
+    def is_infinitesimally_rigid(self):
+        raise NotImplementedError()
+
+    def is_infinitesimally_spanning(self):
+        raise NotImplementedError()
+
+    def is_minimally_infinitesimally_rigid(self):
+        raise NotImplementedError()
+
+    def is_infinitesimally_flexible(self):
+        raise NotImplementedError()
+
+    def is_independent(self):
+        raise NotImplementedError()
+
+    def is_prestress_stable(self):
+        raise NotImplementedError()
+
+    def is_congruent(self, framework_):
+        raise NotImplementedError()
+
+    def is_equivalent(self, framework_):
+        raise NotImplementedError()
+
+    def pin(self, vertices):
+        raise NotImplementedError()
+
+    def trivial_infinitesimal_flexes(self):
         raise NotImplementedError()
