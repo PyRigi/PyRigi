@@ -45,7 +45,7 @@ class Framework(object):
     def __init__(self, graph, realization):
         # TODO: check that graph and realization is not empty
         assert isinstance(graph, Graph)
-        dimension = len(list(realization.values())[0]
+        dimension = len(list(realization.values())[0])
         for v in graph.vertices():
             assert v in realization
             assert len(realization[v])==dimension
