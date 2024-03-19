@@ -138,18 +138,39 @@ class Graph(nx.Graph):
         Notes
         -----
         dim=1: Graphic Matroid
-        dim=2: 
+        dim=2: not (2,3)-sparse
         dim>=1: Compute the rank of the rigidity matrix and compare with edge count
         """
         raise NotImplementedError()
 
     def is_Rd_independent(self, dim=2):
+        """
+        Notes
+        -----
+        dim=1: Graphic Matroid
+        dim=2: (2,3)-sparse
+        dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+        """
         raise NotImplementedError()
 
     def is_Rd_circuit(self, dim=2):
+        """
+        Notes
+        -----
+        dim=1: Graphic Matroid
+        dim=2: Remove any edge and it becomes sparse (sparsity for every subgraph except whole graph?)
+        dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
+        """
         raise NotImplementedError()
     
     def is_Rd_closed(self, dim=2):
+        """
+        Notes
+        -----
+        dim=1: Graphic Matroid
+        dim=2: Ask Bill
+        dim>=1: Adding any edge does not increase the rigidity matrix rank
+        """
         raise NotImplementedError()
     
     def maximal_rigid_subgraphs(self, dim=2):
@@ -160,5 +181,12 @@ class Graph(nx.Graph):
         """List subgraph-minimal non-trivial (?) rigid subgraphs."""
         raise NotImplementedError()
     
-    def is_heavily_redundant(self, dim=2):
+    def is_isomorphic(self, graph):
+        return nx.is_isomorphic(self, graph)
+    
+    def graph_to_int(self):
+        raise NotImplementedError()
+    
+    @classmethod
+    def from_int(cls):
         raise NotImplementedError()
