@@ -14,7 +14,6 @@ Classes:
 
 from copy import deepcopy
 from pyrigi.graph import Graph
-from pyrigi.matrix import Matrix
 
 
 class Framework(object):
@@ -116,9 +115,7 @@ class Framework(object):
     def set_realization(self, realization):
         raise NotImplementedError()
 
-    @cached
     def rigidity_matrix(self):
-        # TODO: check whether @cached recognizes whether changes happened
         r""" Construct the rigidity matrix of the framework
         """
         raise NotImplementedError()
