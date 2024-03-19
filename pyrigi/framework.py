@@ -26,14 +26,6 @@ class Framework(object):
     realization : dict
     dim : int
 
-    METHODS:
-
-    .. autosummary::
-        dim
-        add_vertex
-        add_vertices
-        add_edge
-        add_edges
     """
 
     def __init__(self, graph, realization):
