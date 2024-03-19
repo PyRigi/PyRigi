@@ -50,8 +50,8 @@ class Framework(object):
             assert v in realization
             assert len(realization[v])==dimension
         self.realization = {v:realization[v] for v in graph.vertices()}
-        self.graph = deepcopy(graph)
-        self.graph._part_of_framework = True
+        self._graph = deepcopy(graph)
+        self._graph._part_of_framework = True
         self.dimension = dimension
 
     def dim(self):
@@ -63,12 +63,12 @@ class Framework(object):
     def add_vertex(self, point, vertex=None):
         # TODO: complain if the vertex is already contained in the graph
         if vertex == None:
-            candidate = len(self.graph.vertices())
-            while candidate in self.graph.vertices():
+            candidate = len(self._graph.vertices())
+            while candidate in self._graph.vertices():
                 candidate += 1
             vertex = candidate
         self.realization[vertex] = point
-        self.graph.add_node(vertex)
+        self._graph.add_node(vertex)
 
     def add_vertices(self, points, vertices=[]):
         assert(len(points)==len(vertices) or not vertices)
@@ -81,12 +81,15 @@ class Framework(object):
 
     def add_edge(self, edge):
         assert (len(edge))==2
-        assert (edge[0] in self.graph.nodes and edge[1] in self.graph.nodes)
-        self.graph.add_edge(*(edge))
+        assert (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes)
+        self._graph.add_edge(*(edge))
 
     def add_edges(self, edges):
         for edge in edges:
             self.add_edge(edge)
+
+    def underlying_graph(self):
+        return deepcopy(self._graph)
 
     @classmethod
     def from_points(cls, points):
