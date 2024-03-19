@@ -25,13 +25,12 @@ class Framework(object):
     ----------
     graph : Graph
     realization : dict
-    dimension : int
+    dim : int
 
     METHODS:
 
     .. autosummary::
         dim
-        dimension
         add_vertex
         add_vertices
         add_edge
@@ -41,20 +40,20 @@ class Framework(object):
     def __init__(self, graph, realization):
         # TODO: check that graph and realization is not empty
         assert isinstance(graph, Graph)
-        dimension = len(list(realization.values())[0])
+        dim = len(list(realization.values())[0])
         for v in graph.vertices():
             assert v in realization
-            assert len(realization[v])==dimension
+            assert len(realization[v])==dim
         self.realization = {v:realization[v] for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._graph._part_of_framework = True
-        self.dimension = dimension
+        self.dim = dim
 
     def dim(self):
-        return self.dimension()
+        return self.dim
 
     def dimension(self):
-        return self.dimension
+        return self.dim()
 
     def add_vertex(self, point, vertex=None):
         # TODO: complain if the vertex is already contained in the graph
@@ -96,7 +95,7 @@ class Framework(object):
         raise NotImplementedError()
 
     @classmethod
-    def empty(cls, dimension):
+    def empty(cls, dim):
         raise NotImplementedError()
 
     def delete_vertex(self, vertex):
@@ -170,4 +169,7 @@ class Framework(object):
         raise NotImplementedError()
 
     def trivial_infinitesimal_flexes(self):
+        raise NotImplementedError()
+
+    def redundantly_rigid(self):
         raise NotImplementedError()
