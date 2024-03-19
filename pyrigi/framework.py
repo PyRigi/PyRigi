@@ -173,3 +173,4 @@ class Framework(object):
 
     def redundantly_rigid(self):
         raise NotImplementedError()
+    
