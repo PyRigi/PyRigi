@@ -11,8 +11,8 @@ class Graph(nx.Graph):
     '''
 
 
-    def __init__(self, params):
+    def __init__(self, data):
         '''
-        Constructor
+        Constructor for Graph.
+        It accepts a networkx graph as data, or a list of edges, or a pair of vertices and edges.
         '''
-        

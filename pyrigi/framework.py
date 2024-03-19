@@ -17,12 +17,18 @@ Classes:
 """
 
 from pyrigi.graph import Graph
-
+from pyrigi.matrix import Matrix
 
 
 class Framework(object):
     """
     This class provides the functionality for frameworks. By definition, it is a tuple of a graph and a realization.
+
+    ATTRIBUTES
+    ----------
+    graph : Graph
+    realization : dict
+    dimension : int
 
     METHODS:
 
@@ -34,62 +40,42 @@ class Framework(object):
         add_edge
         add_edges
     """
-    graph = None
-    realization = None
 
-    class Realization(dict):
-        r"""
-        This class represents a realization.
-
-        A realization is a map from the set of vertices to $\RR^d$.
-        The labeling is implicit and given by the placement's order.
-
-        METHODS:
-
-        .. autosummary::
-            add_vertex
-            add_vertices
-        """
-
-        def __init__(self, vertices=[], points=[], dim=2):
-            self.add_vertices(vertices, points)
-            self.dimension = dim
-
-        def add_vertex(self, vertex, point):
-            assert len(point)==self.dimension
-            self[vertex] = point
-
-        def add_vertices(self, vertices, points):
-            assert len(vertices)==len(points)
-            for vector in points:
-                assert(len(vector))==self.dimension
-            self.update(zip(vertices, points))
-
-    def __init__(self, p=[], d=2):
-        self.realization = Realization(p, d)
-        self.graph = Graph()
+    def __init__(self, graph, realization):
+        # TODO: check that graph and realization is not empty
+        assert isinstance(graph, Graph)
+        dimension = len(realization.values()[0])
+        for v in graph.vertices():
+            assert v in realization
+            assert len(realization[v])==dimension
+        self.realization = {v:realization[v] for v in graph.vertices()}
+        self.graph = graph
+        self.dimension = dimension
 
     def dim(self):
         return self.dimension()
 
     def dimension(self):
-        return self.realization.dimension
+        return self.dimension
 
-    def add_vertex(self, point, label=None):
-        if label == None:
-            maxNode = max(self.graph.nodes) if len(self.graph.nodes)>0 else 0
-            label = maxNode + 1
-        self.realization.add_vertex(point)
-        self.graph.add_node(label)
+    def add_vertex(self, point, vertex=None):
+        # TODO: complain if the vertex is already contained in the graph
+        if vertex == None:
+            candidate = len(self.graph.vertices())
+            while candidate in self.graph.vertices():
+                candidate += 1
+            vertex = candidate
+        self.realization[vertex] = point
+        self.graph.add_node(vertex)
 
-    def add_vertices(self, points, labels=[]):
-        assert(len(points)==len(labels) or len(labels)==0)
-        if len(labels)==0:
+    def add_vertices(self, points, vertices=[]):
+        assert(len(points)==len(vertices) or not vertices)
+        if not vertices:
             for point in points:
                 self.add_vertex(point)
         else:
-            for i in range(len(points)):
-                self.add_vertex(points[i], labels[i])
+            for p, v in zip(points, vertices):
+                self.add_vertex(p, v)
 
     def add_edge(self, edge):
         assert (len(edge))==2
