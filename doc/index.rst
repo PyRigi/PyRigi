@@ -7,6 +7,7 @@ Welcome to pyrigi's documentation!
 
    module/framework
    module/motion
+   module/graph
 
 Indices and tables
 ==================

@@ -48,6 +48,7 @@ extensions = [
     'sphinx_math_dollar',
     'sphinx.ext.doctest',
     'sphinx.ext.autosummary',
+    'numpydoc',
 ]
 
 autosummary_generate = True
