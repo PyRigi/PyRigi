@@ -52,6 +52,7 @@ extensions = [
 ]
 
 autosummary_generate = True
+numpydoc_show_inherited_class_members = False
 
 mathjax3_config = {
   "tex": {
