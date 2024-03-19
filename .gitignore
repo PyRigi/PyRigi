@@ -9,3 +9,4 @@
 *.tex.bak
 *.dvi
 *.gz
+*.pyc
