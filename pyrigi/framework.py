@@ -27,7 +27,7 @@ class Framework(object):
     dim : int
 
     """
-
+    #TODO override decorator for empty constructor?
     def __init__(self, graph, realization):
         # TODO: check that graph and realization is not empty
         assert isinstance(graph, Graph)
@@ -47,12 +47,12 @@ class Framework(object):
         return self.dim()
 
     def add_vertex(self, point, vertex=None):
-        # TODO: complain if the vertex is already contained in the graph
         if vertex == None:
             candidate = len(self._graph.vertices())
             while candidate in self._graph.vertices():
                 candidate += 1
             vertex = candidate
+        assert vertex not in self._graph.vertices()
         self.realization[vertex] = point
         self._graph.add_node(vertex)
 
@@ -77,6 +77,10 @@ class Framework(object):
     def underlying_graph(self):
         return deepcopy(self._graph)
 
+    def print(self):
+        print(self._graph)
+        print(self.realization)
+        
     @classmethod
     def from_points(cls, points):
         raise NotImplementedError()

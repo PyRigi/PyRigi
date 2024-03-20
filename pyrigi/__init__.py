@@ -6,7 +6,6 @@ Matteo Gallet
 Georg Grasegger
 Matthias Himmelmann
 Jan Legerský
-
 """
 
 
