@@ -5,7 +5,7 @@ AUTHORS:
 Matteo Gallet
 Georg Grasegger
 Matthias Himmelmann
-Jan Legerský
+Jan Legersky
 """
 
 
