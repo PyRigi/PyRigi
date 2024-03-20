@@ -46,6 +46,10 @@ class Framework(object):
     def dimension(self):
         return self.dim()
 
+    def graph(self):
+        """Return an immutable copy of the graph object"""
+        return deepcopy(self._graph)
+    
     def add_vertex(self, point, vertex=None):
         if vertex == None:
             candidate = len(self._graph.vertices())
@@ -78,8 +82,8 @@ class Framework(object):
         return deepcopy(self._graph)
 
     def print(self):
-        print(self._graph)
-        print(self.realization)
+        print('Graph:\t\t', self._graph)
+        print('Realization:\t', self.realization)
         
     @classmethod
     def from_points(cls, points):

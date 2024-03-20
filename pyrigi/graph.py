@@ -2,7 +2,6 @@
 Module for rigidity related graph properties.
 """
 
-
 import networkx as nx
 
 class Graph(nx.Graph):
@@ -18,6 +17,9 @@ class Graph(nx.Graph):
     def from_vertices(cls, vertices):
         return Graph.from_vertices_and_edges(vertices, [])
 
+    def vertices(self):
+        return self.nodes
+    
     def delete_vertex(self, vertex):
         raise NotImplementedError()
 
