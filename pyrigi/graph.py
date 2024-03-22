@@ -4,6 +4,7 @@ Module for rigidity related graph properties.
 
 import networkx as nx
 
+
 class Graph(nx.Graph):
     '''
     Class representing a graph.
@@ -19,7 +20,7 @@ class Graph(nx.Graph):
 
     def vertices(self):
         return self.nodes
-    
+
     def delete_vertex(self, vertex):
         raise NotImplementedError()
 
@@ -47,7 +48,7 @@ class Graph(nx.Graph):
         Combinatorial Property
         """
         raise NotImplementedError()
-    
+
     def zero_extension(self, vertices, dim=2):
         """
         Parameters
@@ -55,7 +56,7 @@ class Graph(nx.Graph):
         Modifies self?
         """
         raise NotImplementedError()
-    
+
     def one_extension(self, vertices, edge, dim=2):
         """
         Parameters
@@ -118,12 +119,12 @@ class Graph(nx.Graph):
 
     def extension_sequence(self, dim=2):
         raise NotImplementedError()
-    
-    #def pebble_game(self, dim=2):    raise NotImplementedError()
-    
-    #def two_spanning_trees(self):    raise NotImplementedError()
-    
-    #def three_trees(self):           raise NotImplementedError()
+
+    # def pebble_game(self, dim=2):    raise NotImplementedError()
+
+    # def two_spanning_trees(self):    raise NotImplementedError()
+
+    # def three_trees(self):           raise NotImplementedError()
 
     def is_globally_rigid(self, dim=2):
         """
@@ -134,7 +135,7 @@ class Graph(nx.Graph):
         dim>=1: Randomized Rigidity Matrix => Stress (symbolic maybe?)
         """
         raise NotImplementedError()
-    
+
     def is_Rd_dependent(self, dim=2):
         """
         Notes
@@ -164,7 +165,7 @@ class Graph(nx.Graph):
         dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
         """
         raise NotImplementedError()
-    
+
     def is_Rd_closed(self, dim=2):
         """
         Notes
@@ -174,7 +175,7 @@ class Graph(nx.Graph):
         dim>=1: Adding any edge does not increase the rigidity matrix rank
         """
         raise NotImplementedError()
-    
+
     def maximal_rigid_subgraphs(self, dim=2):
         """List subgraph-maximal rigid subgraphs."""
         raise NotImplementedError()
@@ -182,13 +183,13 @@ class Graph(nx.Graph):
     def minimal_rigid_subgraphs(self, dim=2):
         """List subgraph-minimal non-trivial (?) rigid subgraphs."""
         raise NotImplementedError()
-    
+
     def is_isomorphic(self, graph):
         return nx.is_isomorphic(self, graph)
-    
+
     def graph_to_int(self):
         raise NotImplementedError()
-    
+
     @classmethod
     def from_int(cls):
         raise NotImplementedError()

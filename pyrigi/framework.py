@@ -27,15 +27,16 @@ class Framework(object):
     dim : int
 
     """
-    #TODO override decorator for empty constructor?
+    # TODO override decorator for empty constructor?
+
     def __init__(self, graph, realization):
         # TODO: check that graph and realization is not empty
         assert isinstance(graph, Graph)
         dim = len(list(realization.values())[0])
         for v in graph.vertices():
             assert v in realization
-            assert len(realization[v])==dim
-        self.realization = {v:realization[v] for v in graph.vertices()}
+            assert len(realization[v]) == dim
+        self.realization = {v: realization[v] for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._graph._part_of_framework = True
         self.dim = dim
@@ -49,9 +50,9 @@ class Framework(object):
     def graph(self):
         """Return an immutable copy of the graph object"""
         return deepcopy(self._graph)
-    
+
     def add_vertex(self, point, vertex=None):
-        if vertex == None:
+        if vertex is None:
             candidate = len(self._graph.vertices())
             while candidate in self._graph.vertices():
                 candidate += 1
@@ -61,7 +62,7 @@ class Framework(object):
         self._graph.add_node(vertex)
 
     def add_vertices(self, points, vertices=[]):
-        assert(len(points)==len(vertices) or not vertices)
+        assert (len(points) == len(vertices) or not vertices)
         if not vertices:
             for point in points:
                 self.add_vertex(point)
@@ -70,7 +71,7 @@ class Framework(object):
                 self.add_vertex(p, v)
 
     def add_edge(self, edge):
-        assert (len(edge))==2
+        assert (len(edge)) == 2
         assert (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes)
         self._graph.add_edge(*(edge))
 
@@ -84,7 +85,7 @@ class Framework(object):
     def print(self):
         print('Graph:\t\t', self._graph)
         print('Realization:\t', self.realization)
-        
+
     @classmethod
     def from_points(cls, points):
         raise NotImplementedError()
