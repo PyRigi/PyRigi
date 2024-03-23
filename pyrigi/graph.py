@@ -11,20 +11,20 @@ class Graph(nx.Graph):
     '''
 
     @classmethod
-    def from_vertices_and_edges(cls, vertices: list[Any], edges: list[tuple[int,int]]) -> Graph:
+    def from_vertices_and_edges(cls, vertices: list[any], edges: list[tuple[int,int]]) -> None:
         raise NotImplementedError()
 
     @classmethod
-    def from_vertices(cls, vertices: list[Any]) -> Graph:
-        return Graph.from_vertices_and_edges(vertices, [])
+    def from_vertices(cls, vertices: list[any]) -> None:
+        Graph.from_vertices_and_edges(vertices, [])
 
-    def vertices(self) -> list[Any]:
+    def vertices(self) -> list[any]:
         return self.nodes
 
-    def delete_vertex(self, vertex: Any) -> None:
+    def delete_vertex(self, vertex: any) -> None:
         raise NotImplementedError()
 
-    def delete_vertices(self, vertices: list[Any]) -> None:
+    def delete_vertices(self, vertices: list[any]) -> None:
         raise NotImplementedError()
 
     def delete_edge(self, edge: tuple[int,int]) -> None:
@@ -49,7 +49,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def zero_extension(self, vertices: list[Any], dim: int = 2) -> None:
+    def zero_extension(self, vertices: list[any], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -57,7 +57,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def one_extension(self, vertices: list[Any], edge: tuple[int,int], dim: int = 2) -> None:
+    def one_extension(self, vertices: list[any], edge: tuple[int,int], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -65,7 +65,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def k_extension(self, k: int, vertices: list[Any], edges: tuple[int,int], dim: int = 2) -> None:
+    def k_extension(self, k: int, vertices: list[any], edges: tuple[int,int], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -117,7 +117,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def extension_sequence(self, dim: int = 2) -> RETURNTYPE:
+    def extension_sequence(self, dim: int = 2) -> any:
         raise NotImplementedError()
 
     # def pebble_game(self, dim=2):    raise NotImplementedError()
@@ -176,20 +176,20 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def maximal_rigid_subgraphs(self, dim: int = 2) -> RETURNTYPE:
+    def maximal_rigid_subgraphs(self, dim: int = 2) -> any:
         """List subgraph-maximal rigid subgraphs."""
         raise NotImplementedError()
 
-    def minimal_rigid_subgraphs(self, dim: int = 2) -> RETURNTYPE:
+    def minimal_rigid_subgraphs(self, dim: int = 2) -> any:
         """List subgraph-minimal non-trivial (?) rigid subgraphs."""
         raise NotImplementedError()
 
-    def is_isomorphic(self, graph: Graph) -> bool:
+    def is_isomorphic(self, graph: nx.Graph) -> bool:
         return nx.is_isomorphic(self, graph)
 
     def graph_to_int(self) -> int:
         raise NotImplementedError()
 
     @classmethod
-    def from_int(cls) -> Graph:
+    def from_int(cls) -> nx.Graph:
         raise NotImplementedError()
