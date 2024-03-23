@@ -3,7 +3,9 @@ Module for rigidity related graph properties.
 """
 
 import networkx as nx
+from typing import TypeVar
 
+GraphType = TypeVar("Graph")
 
 class Graph(nx.Graph):
     '''
@@ -11,12 +13,12 @@ class Graph(nx.Graph):
     '''
 
     @classmethod
-    def from_vertices_and_edges(cls, vertices: list[any], edges: list[tuple[int, int]]) -> None:
+    def from_vertices_and_edges(cls, vertices: list[any], edges: list[tuple[int, int]]) -> GraphType:
         raise NotImplementedError()
 
     @classmethod
-    def from_vertices(cls, vertices: list[any]) -> None:
-        Graph.from_vertices_and_edges(vertices, [])
+    def from_vertices(cls, vertices: list[any]) -> GraphType:
+        return Graph.from_vertices_and_edges(vertices, [])
 
     def vertices(self) -> list[any]:
         return self.nodes
@@ -176,20 +178,20 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def maximal_rigid_subgraphs(self, dim: int = 2) -> any:
+    def maximal_rigid_subgraphs(self, dim: int = 2) -> list[GraphType]:
         """List subgraph-maximal rigid subgraphs."""
         raise NotImplementedError()
 
-    def minimal_rigid_subgraphs(self, dim: int = 2) -> any:
+    def minimal_rigid_subgraphs(self, dim: int = 2) -> list[GraphType]:
         """List subgraph-minimal non-trivial (?) rigid subgraphs."""
         raise NotImplementedError()
 
-    def is_isomorphic(self, graph: nx.Graph) -> bool:
+    def is_isomorphic(self, graph: GraphType) -> bool:
         return nx.is_isomorphic(self, graph)
 
     def graph_to_int(self) -> int:
         raise NotImplementedError()
 
     @classmethod
-    def from_int(cls) -> nx.Graph:
+    def from_int(cls) -> GraphType:
         raise NotImplementedError()
