@@ -11,7 +11,7 @@ class Graph(nx.Graph):
     '''
 
     @classmethod
-    def from_vertices_and_edges(cls, vertices: list[any], edges: list[tuple[int,int]]) -> None:
+    def from_vertices_and_edges(cls, vertices: list[any], edges: list[tuple[int, int]]) -> None:
         raise NotImplementedError()
 
     @classmethod
@@ -27,10 +27,10 @@ class Graph(nx.Graph):
     def delete_vertices(self, vertices: list[any]) -> None:
         raise NotImplementedError()
 
-    def delete_edge(self, edge: tuple[int,int]) -> None:
+    def delete_edge(self, edge: tuple[int, int]) -> None:
         raise NotImplementedError()
 
-    def delete_edges(self, edges: list[tuple[int,int]]) -> None:
+    def delete_edges(self, edges: list[tuple[int, int]]) -> None:
         raise NotImplementedError()
 
     def is_sparse(self, K: int, L: int) -> bool:
@@ -57,7 +57,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def one_extension(self, vertices: list[any], edge: tuple[int,int], dim: int = 2) -> None:
+    def one_extension(self, vertices: list[any], edge: tuple[int, int], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -65,7 +65,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def k_extension(self, k: int, vertices: list[any], edges: tuple[int,int], dim: int = 2) -> None:
+    def k_extension(self, k: int, vertices: list[any], edges: tuple[int, int], dim: int = 2) -> None:
         """
         Parameters
         ----------

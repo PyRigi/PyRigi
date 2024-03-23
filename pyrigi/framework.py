@@ -48,7 +48,7 @@ class Framework(object):
     def dimension(self) -> int:
         return self.dim()
 
-    def add_vertex(self, point: list[float], vertex : any = None) -> None:
+    def add_vertex(self, point: list[float], vertex: any = None) -> None:
         if vertex is None:
             candidate = len(self._graph.vertices())
             while candidate in self._graph.vertices():
@@ -67,12 +67,12 @@ class Framework(object):
             for p, v in zip(points, vertices):
                 self.add_vertex(p, v)
 
-    def add_edge(self, edge: tuple[int,int]) -> None:
+    def add_edge(self, edge: tuple[int, int]) -> None:
         assert (len(edge)) == 2
         assert (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes)
         self._graph.add_edge(*(edge))
 
-    def add_edges(self, edges: list[tuple[int,int]]) -> None:
+    def add_edges(self, edges: list[tuple[int, int]]) -> None:
         for edge in edges:
             self.add_edge(edge)
 
@@ -107,10 +107,10 @@ class Framework(object):
     def delete_vertices(self, vertices: list[any]) -> None:
         raise NotImplementedError()
 
-    def delete_edge(self, edge: tuple[int,int]) -> None:
+    def delete_edge(self, edge: tuple[int, int]) -> None:
         raise NotImplementedError()
 
-    def delete_edges(self, edges: list[tuple[int,int]]) -> None:
+    def delete_edges(self, edges: list[tuple[int, int]]) -> None:
         raise NotImplementedError()
 
     def set_vertex_position(self, vertex: any, point: list[float]) -> None:
