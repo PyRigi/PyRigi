@@ -11,29 +11,29 @@ class Graph(nx.Graph):
     '''
 
     @classmethod
-    def from_vertices_and_edges(cls, vertices, edges):
+    def from_vertices_and_edges(cls, vertices: list[Any], edges: list[tuple[int,int]]) -> Graph:
         raise NotImplementedError()
 
     @classmethod
-    def from_vertices(cls, vertices):
+    def from_vertices(cls, vertices: list[Any]) -> Graph:
         return Graph.from_vertices_and_edges(vertices, [])
 
-    def vertices(self):
+    def vertices(self) -> list[Any]:
         return self.nodes
 
-    def delete_vertex(self, vertex):
+    def delete_vertex(self, vertex: Any) -> None:
         raise NotImplementedError()
 
-    def delete_vertices(self, vertices):
+    def delete_vertices(self, vertices: list[Any]) -> None:
         raise NotImplementedError()
 
-    def delete_edge(self, edge):
+    def delete_edge(self, edge: tuple[int,int]) -> None:
         raise NotImplementedError()
 
-    def delete_edges(self, edges):
+    def delete_edges(self, edges: list[tuple[int,int]]) -> None:
         raise NotImplementedError()
 
-    def is_sparse(self, K, L):
+    def is_sparse(self, K: int, L: int) -> bool:
         """
         Notes
         -----
@@ -41,7 +41,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def is_tight(self, K, L):
+    def is_tight(self, K: int, L: int) -> bool:
         """
         Notes
         -----
@@ -49,7 +49,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def zero_extension(self, vertices, dim=2):
+    def zero_extension(self, vertices: list[Any], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -57,7 +57,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def one_extension(self, vertices, edge, dim=2):
+    def one_extension(self, vertices: list[Any], edge: tuple[int,int], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -65,7 +65,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def k_extension(self, k, vertices, edges, dim=2):
+    def k_extension(self, k: int, vertices: list[Any], edges: tuple[int,int], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -73,7 +73,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def all_k_extensions(self, k, dim=2):
+    def all_k_extensions(self, k: int, dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -81,23 +81,23 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def is_vertex_redundantly_rigid(self, dim=2):
+    def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
         """ Remove every vertex and call `is_rigid()`"""
         return self.is_k_vertex_redundantly_rigid(1, dim)
 
-    def is_k_vertex_redundantly_rigid(self, k, dim=2):
+    def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """ Remove every k-subset of vertices and call `is_rigid()`"""
         raise NotImplementedError()
 
-    def is_redundantly_rigid(self, dim=2):
+    def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """ Remove every edge and call `is_rigid()`"""
         return self.is_k_redundantly_rigid(1, dim)
 
-    def is_k_redundantly_rigid(self, k, dim=2):
+    def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """ Remove every k-subset of edges and call `is_rigid()`"""
         raise NotImplementedError()
 
-    def is_rigid(self, dim=2):
+    def is_rigid(self, dim: int = 2) -> bool:
         """
         Notes
         -----
@@ -107,7 +107,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def is_minimally_rigid(self, dim=2):
+    def is_minimally_rigid(self, dim: int = 2) -> bool:
         """
         Notes
         -----
@@ -117,7 +117,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def extension_sequence(self, dim=2):
+    def extension_sequence(self, dim: int = 2) -> RETURNTYPE:
         raise NotImplementedError()
 
     # def pebble_game(self, dim=2):    raise NotImplementedError()
@@ -126,7 +126,7 @@ class Graph(nx.Graph):
 
     # def three_trees(self):           raise NotImplementedError()
 
-    def is_globally_rigid(self, dim=2):
+    def is_globally_rigid(self, dim: int = 2) -> bool:
         """
         Notes
         -----
@@ -136,7 +136,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def is_Rd_dependent(self, dim=2):
+    def is_Rd_dependent(self, dim: int = 2) -> bool:
         """
         Notes
         -----
@@ -146,7 +146,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def is_Rd_independent(self, dim=2):
+    def is_Rd_independent(self, dim: int = 2) -> bool:
         """
         Notes
         -----
@@ -156,7 +156,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def is_Rd_circuit(self, dim=2):
+    def is_Rd_circuit(self, dim: int = 2) -> bool:
         """
         Notes
         -----
@@ -166,7 +166,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def is_Rd_closed(self, dim=2):
+    def is_Rd_closed(self, dim: int = 2) -> bool:
         """
         Notes
         -----
@@ -176,20 +176,20 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def maximal_rigid_subgraphs(self, dim=2):
+    def maximal_rigid_subgraphs(self, dim: int = 2) -> RETURNTYPE:
         """List subgraph-maximal rigid subgraphs."""
         raise NotImplementedError()
 
-    def minimal_rigid_subgraphs(self, dim=2):
+    def minimal_rigid_subgraphs(self, dim: int = 2) -> RETURNTYPE:
         """List subgraph-minimal non-trivial (?) rigid subgraphs."""
         raise NotImplementedError()
 
-    def is_isomorphic(self, graph):
+    def is_isomorphic(self, graph: Graph) -> bool:
         return nx.is_isomorphic(self, graph)
 
-    def graph_to_int(self):
+    def graph_to_int(self) -> int:
         raise NotImplementedError()
 
     @classmethod
-    def from_int(cls):
+    def from_int(cls) -> Graph:
         raise NotImplementedError()

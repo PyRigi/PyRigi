@@ -14,6 +14,7 @@ Classes:
 
 from copy import deepcopy
 from pyrigi.graph import Graph
+from pyrigi.matrix import Matrix
 
 
 class Framework(object):
@@ -29,7 +30,7 @@ class Framework(object):
     """
     # TODO override decorator for empty constructor?
 
-    def __init__(self, graph, realization):
+    def __init__(self, graph: Graph, realization: dict[Any, list[float]]) -> None:
         # TODO: check that graph and realization is not empty
         assert isinstance(graph, Graph)
         dim = len(list(realization.values())[0])
@@ -41,17 +42,13 @@ class Framework(object):
         self._graph._part_of_framework = True
         self.dim = dim
 
-    def dim(self):
+    def dim(self) -> int:
         return self.dim
 
-    def dimension(self):
+    def dimension(self) -> int:
         return self.dim()
 
-    def graph(self):
-        """Return an immutable copy of the graph object"""
-        return deepcopy(self._graph)
-
-    def add_vertex(self, point, vertex=None):
+    def add_vertex(self, point: list[float], vertex=None: Any) -> None:
         if vertex is None:
             candidate = len(self._graph.vertices())
             while candidate in self._graph.vertices():
@@ -61,7 +58,7 @@ class Framework(object):
         self.realization[vertex] = point
         self._graph.add_node(vertex)
 
-    def add_vertices(self, points, vertices=[]):
+    def add_vertices(self, points: list[list[float]], vertices=[]: list[Any]) -> None:
         assert (len(points) == len(vertices) or not vertices)
         if not vertices:
             for point in points:
@@ -70,104 +67,111 @@ class Framework(object):
             for p, v in zip(points, vertices):
                 self.add_vertex(p, v)
 
-    def add_edge(self, edge):
+    def add_edge(self, edge: tuple[int,int]) -> None:
         assert (len(edge)) == 2
         assert (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes)
         self._graph.add_edge(*(edge))
 
-    def add_edges(self, edges):
+    def add_edges(self, edges: list[tuple[int,int]]) -> None:
         for edge in edges:
             self.add_edge(edge)
 
-    def underlying_graph(self):
+    def underlying_graph(self) -> Graph:
+        """Return a copy of the graph object so that the graph object is not mutated"""
         return deepcopy(self._graph)
 
-    def print(self):
+    def graph(self) -> Graph:
+        """Return a copy of the graph object so that the graph object is not mutated"""
+        return underlying_graph(self)
+
+    def print(self) -> None:
+        """Method to display the data inside the Framework."""
         print('Graph:\t\t', self._graph)
         print('Realization:\t', self.realization)
 
     @classmethod
-    def from_points(cls, points):
+    def from_points(cls, points: list[list[float]]) -> None:
         raise NotImplementedError()
 
     @classmethod
-    def from_graph(cls, graph):
+    def from_graph(cls, graph: Graph) -> None:
         raise NotImplementedError()
 
     @classmethod
-    def empty(cls, dim):
+    def empty(cls, dim: int) -> None:
         raise NotImplementedError()
 
-    def delete_vertex(self, vertex):
+    def delete_vertex(self, vertex: Any) -> None:
         raise NotImplementedError()
 
-    def delete_vertices(self, vertices):
+    def delete_vertices(self, vertices: list[Any]) -> None:
         raise NotImplementedError()
 
-    def delete_edge(self, edge):
+    def delete_edge(self, edge: tuple[int,int]) -> None:
         raise NotImplementedError()
 
-    def delete_edges(self, edges):
+    def delete_edges(self, edges: list[tuple[int,int]]) -> None::
         raise NotImplementedError()
 
-    def set_vertex_position(self, vertex, point):
+    def set_vertex_position(self, vertex: Any, point: list[float]) -> None:
         raise NotImplementedError()
 
-    def set_realization(self, realization):
+    def set_realization(self, realization: dict[Any, list[float]]) -> None:
+        """Add consistency check here"""
         raise NotImplementedError()
 
-    def rigidity_matrix(self):
+    def rigidity_matrix(self) -> Matrix:
         r""" Construct the rigidity matrix of the framework
         """
         raise NotImplementedError()
 
-    def stress_matrix(self, data):
+    def stress_matrix(self, data: INPUTTYPE) -> Matrix:
         r""" Construct the stress matrix from a stress of from its support
         """
         raise NotImplementedError()
 
-    def infinitesimal_flexes(self, trivial=False):
+    def infinitesimal_flexes(self, trivial=False: bool) -> RETURNTYPE:
         r""" Returns a basis of the space of infinitesimal flexes
         """
         raise NotImplementedError()
 
-    def stresses(self):
+    def stresses(self) -> RETURNTYPE:
         r""" Returns a basis of the space of stresses
         """
         raise NotImplementedError()
 
-    def rigidity_matrix_rank(self):
+    def rigidity_matrix_rank(self) -> int:
         raise NotImplementedError()
 
-    def is_infinitesimally_rigid(self):
+    def is_infinitesimally_rigid(self) -> bool:
         raise NotImplementedError()
 
-    def is_infinitesimally_spanning(self):
+    def is_infinitesimally_spanning(self) -> bool:
         raise NotImplementedError()
 
-    def is_minimally_infinitesimally_rigid(self):
+    def is_minimally_infinitesimally_rigid(self) -> bool:
         raise NotImplementedError()
 
-    def is_infinitesimally_flexible(self):
+    def is_infinitesimally_flexible(self) -> bool:
         raise NotImplementedError()
 
-    def is_independent(self):
+    def is_independent(self) -> bool:
         raise NotImplementedError()
 
-    def is_prestress_stable(self):
+    def is_prestress_stable(self) -> bool:
         raise NotImplementedError()
 
-    def is_congruent(self, framework_):
+    def is_redundantly_rigid(self) -> bool:
         raise NotImplementedError()
 
-    def is_equivalent(self, framework_):
+    def is_congruent(self, framework_) -> bool:
         raise NotImplementedError()
 
-    def pin(self, vertices):
+    def is_equivalent(self, framework_) -> bool:
         raise NotImplementedError()
 
-    def trivial_infinitesimal_flexes(self):
+    def pin(self, vertices: list[Any]) -> None:
         raise NotImplementedError()
 
-    def redundantly_rigid(self):
+    def trivial_infinitesimal_flexes(self) -> RETURNTYPE:
         raise NotImplementedError()
