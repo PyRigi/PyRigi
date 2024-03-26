@@ -3,7 +3,7 @@ Module for rigidity related graph properties.
 """
 
 import networkx as nx
-from typing import TypeVar
+from typing import TypeVar, List, Tuple, Any
 
 GraphType = TypeVar("Graph")
 
@@ -13,26 +13,26 @@ class Graph(nx.Graph):
     '''
 
     @classmethod
-    def from_vertices_and_edges(cls, vertices: list[any], edges: list[tuple[int, int]]) -> GraphType:
+    def from_vertices_and_edges(cls, vertices: List[Any], edges: List[Tuple[int, int]]) -> GraphType:
         raise NotImplementedError()
 
     @classmethod
-    def from_vertices(cls, vertices: list[any]) -> GraphType:
+    def from_vertices(cls, vertices: List[Any]) -> GraphType:
         return Graph.from_vertices_and_edges(vertices, [])
 
-    def vertices(self) -> list[any]:
+    def vertices(self) -> List[Any]:
         return self.nodes
 
-    def delete_vertex(self, vertex: any) -> None:
+    def delete_vertex(self, vertex: Any) -> None:
         raise NotImplementedError()
 
-    def delete_vertices(self, vertices: list[any]) -> None:
+    def delete_vertices(self, vertices: List[Any]) -> None:
         raise NotImplementedError()
 
-    def delete_edge(self, edge: tuple[int, int]) -> None:
+    def delete_edge(self, edge: Tuple[int, int]) -> None:
         raise NotImplementedError()
 
-    def delete_edges(self, edges: list[tuple[int, int]]) -> None:
+    def delete_edges(self, edges: List[Tuple[int, int]]) -> None:
         raise NotImplementedError()
 
     def is_sparse(self, K: int, L: int) -> bool:
@@ -51,7 +51,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def zero_extension(self, vertices: list[any], dim: int = 2) -> None:
+    def zero_extension(self, vertices: List[Any], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -59,7 +59,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def one_extension(self, vertices: list[any], edge: tuple[int, int], dim: int = 2) -> None:
+    def one_extension(self, vertices: List[Any], edge: Tuple[int, int], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -67,7 +67,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def k_extension(self, k: int, vertices: list[any], edges: tuple[int, int], dim: int = 2) -> None:
+    def k_extension(self, k: int, vertices: List[Any], edges: Tuple[int, int], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -119,7 +119,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def extension_sequence(self, dim: int = 2) -> any:
+    def extension_sequence(self, dim: int = 2) -> Any:
         raise NotImplementedError()
 
     # def pebble_game(self, dim=2):    raise NotImplementedError()
@@ -178,11 +178,11 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def maximal_rigid_subgraphs(self, dim: int = 2) -> list[GraphType]:
+    def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """List subgraph-maximal rigid subgraphs."""
         raise NotImplementedError()
 
-    def minimal_rigid_subgraphs(self, dim: int = 2) -> list[GraphType]:
+    def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """List subgraph-minimal non-trivial (?) rigid subgraphs."""
         raise NotImplementedError()
 

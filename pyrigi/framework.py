@@ -15,6 +15,7 @@ Classes:
 from copy import deepcopy
 from pyrigi.graph import Graph
 from pyrigi.matrix import Matrix
+from typing import List, Dict, Tuple, Any
 
 
 class Framework(object):
@@ -30,7 +31,7 @@ class Framework(object):
     """
     # TODO override decorator for empty constructor?
 
-    def __init__(self, graph: Graph, realization: dict[any, list[float]]) -> None:
+    def __init__(self, graph: Graph, realization: Dict[Any, List[float]]) -> None:
         # TODO: check that graph and realization is not empty
         assert isinstance(graph, Graph)
         dim = len(list(realization.values())[0])
@@ -48,7 +49,7 @@ class Framework(object):
     def dimension(self) -> int:
         return self.dim()
 
-    def add_vertex(self, point: list[float], vertex: any = None) -> None:
+    def add_vertex(self, point: list[float], vertex: Any = None) -> None:
         if vertex is None:
             candidate = len(self._graph.vertices())
             while candidate in self._graph.vertices():
@@ -58,7 +59,7 @@ class Framework(object):
         self.realization[vertex] = point
         self._graph.add_node(vertex)
 
-    def add_vertices(self, points: list[list[float]], vertices: list[any] = []) -> None:
+    def add_vertices(self, points: List[List[float]], vertices: List[Any] = []) -> None:
         assert (len(points) == len(vertices) or not vertices)
         if not vertices:
             for point in points:
@@ -67,12 +68,12 @@ class Framework(object):
             for p, v in zip(points, vertices):
                 self.add_vertex(p, v)
 
-    def add_edge(self, edge: tuple[int, int]) -> None:
+    def add_edge(self, edge: Tuple[int, int]) -> None:
         assert (len(edge)) == 2
         assert (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes)
         self._graph.add_edge(*(edge))
 
-    def add_edges(self, edges: list[tuple[int, int]]) -> None:
+    def add_edges(self, edges: List[Tuple[int, int]]) -> None:
         for edge in edges:
             self.add_edge(edge)
 
@@ -90,7 +91,7 @@ class Framework(object):
         print('Realization:\t', self.realization)
 
     @classmethod
-    def from_points(cls, points: list[list[float]]) -> None:
+    def from_points(cls, points: List[List[float]]) -> None:
         raise NotImplementedError()
 
     @classmethod
@@ -101,22 +102,22 @@ class Framework(object):
     def empty(cls, dim: int) -> None:
         raise NotImplementedError()
 
-    def delete_vertex(self, vertex: any) -> None:
+    def delete_vertex(self, vertex: Any) -> None:
         raise NotImplementedError()
 
-    def delete_vertices(self, vertices: list[any]) -> None:
+    def delete_vertices(self, vertices: List[Any]) -> None:
         raise NotImplementedError()
 
-    def delete_edge(self, edge: tuple[int, int]) -> None:
+    def delete_edge(self, edge: Tuple[int, int]) -> None:
         raise NotImplementedError()
 
-    def delete_edges(self, edges: list[tuple[int, int]]) -> None:
+    def delete_edges(self, edges: List[Tuple[int, int]]) -> None:
         raise NotImplementedError()
 
-    def set_vertex_position(self, vertex: any, point: list[float]) -> None:
+    def set_vertex_position(self, vertex: Any, point: List[float]) -> None:
         raise NotImplementedError()
 
-    def set_realization(self, realization: dict[any, list[float]]) -> None:
+    def set_realization(self, realization: Dict[Any, List[float]]) -> None:
         """Add consistency check here"""
         raise NotImplementedError()
 
@@ -125,17 +126,17 @@ class Framework(object):
         """
         raise NotImplementedError()
 
-    def stress_matrix(self, data: any) -> Matrix:
+    def stress_matrix(self, data: Any) -> Matrix:
         r""" Construct the stress matrix from a stress of from its support
         """
         raise NotImplementedError()
 
-    def infinitesimal_flexes(self, trivial: bool = False) -> any:
+    def infinitesimal_flexes(self, trivial: bool = False) -> Any:
         r""" Returns a basis of the space of infinitesimal flexes
         """
         raise NotImplementedError()
 
-    def stresses(self) -> any:
+    def stresses(self) -> Any:
         r""" Returns a basis of the space of stresses
         """
         raise NotImplementedError()
@@ -170,8 +171,8 @@ class Framework(object):
     def is_equivalent(self, framework_) -> bool:
         raise NotImplementedError()
 
-    def pin(self, vertices: list[any]) -> None:
+    def pin(self, vertices: List[Any]) -> None:
         raise NotImplementedError()
 
-    def trivial_infinitesimal_flexes(self) -> any:
+    def trivial_infinitesimal_flexes(self) -> Any:
         raise NotImplementedError()
