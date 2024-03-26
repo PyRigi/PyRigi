@@ -190,7 +190,26 @@ class Graph(nx.Graph):
         return nx.is_isomorphic(self, graph)
 
     def graph_to_int(self) -> int:
-        raise NotImplementedError()
+        r"""
+        Return the integer representation of the graph.
+
+        The graph integer representation is the integer
+        whose binary expansion is given by the sequence
+        obtained by concatenation of the rows
+        of the upper triangle of the adjacency matrix,
+        excluding the diagonal.
+        
+        TODO
+        ----
+        Implement taking canonical before computing the integer representation.
+        Tests.
+        Specify order of vertices.
+        """
+        M = nx.adjacency_matrix(weight=None).todense()
+        upper_diag = [str(b) 
+                      for i, row in enumerate(M.tolist())
+                      for b in row[i+1:]]
+        return int(''.join(upper_diag), 2)
 
     @classmethod
     def from_int(cls) -> GraphType:
