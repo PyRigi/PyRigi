@@ -15,7 +15,7 @@ Classes:
 from copy import deepcopy
 from pyrigi.graph import Graph
 from typing import List, Dict, Tuple, Any, Hashable
-from sympy import Matrix
+from sympy import Matrix, flatten
 
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex] | List[Vertex]
@@ -44,7 +44,7 @@ class Framework(object):
             assert v in realization
             assert len(realization[v]) == dimension
 
-        self.realization = {v: realization[v] for v in graph.vertices()}
+        self.realization = {v: Matrix(realization[v]) for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._graph._part_of_framework = True
         self.dim = dimension
@@ -62,7 +62,7 @@ class Framework(object):
                 candidate += 1
             vertex = candidate
         assert vertex not in self._graph.vertices()
-        self.realization[vertex] = point
+        self.realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
 
     def add_vertices(self, points: List[List[float]], vertices: List[Vertex] = []) -> None:
@@ -127,7 +127,7 @@ class Framework(object):
         """Add consistency check here"""
         raise NotImplementedError()
 
-    def rigidity_matrix(self, vertex_order: List[Vertex] | None = None) -> Matrix:
+    def rigidity_matrix(self, vertex_order: List[Vertex] | None = None, edges_ordered: bool = True) -> Matrix:
         r""" Construct the rigidity matrix of the framework
         """
         try:
@@ -137,7 +137,22 @@ class Framework(object):
                 assert set(self._graph.vertices()) == set(vertex_order)
         except TypeError as error:
             vertex_order = self._graph.vertices()
+
+        if edges_ordered:
+            edge_order = sorted(self._graph.edges())
+        else:
+            edge_order = self._graph.edges()
+
+        def delta(u,v,w):
+            if w==u:
+                return 1
+            if w==v:
+                return -1
+            return 0
         
+        return Matrix([flatten([delta(u,v,w) * (self.realization[u]-self.realization[v]) 
+                                for w in vertex_order])
+                        for u,v in edge_order])
 
     def stress_matrix(self, data: Any, edge_order: List[Edge] | None = None) -> Matrix:
         r""" Construct the stress matrix from a stress of from its support
@@ -155,7 +170,7 @@ class Framework(object):
         raise NotImplementedError()
 
     def rigidity_matrix_rank(self) -> int:
-        raise NotImplementedError()
+        return self.rigidity_matrix().rank()
 
     def is_infinitesimally_rigid(self) -> bool:
         raise NotImplementedError()

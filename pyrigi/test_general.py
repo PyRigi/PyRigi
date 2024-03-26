@@ -12,3 +12,4 @@ def test_vertex_addition():
     F_.add_vertices([[1, 2], [1, 1], [0, 0]])
     assert F.realization == F_.realization and F.graph().vertices() == F_.graph().vertices() and F.dim == F_.dim
     assert list(F.graph().vertices()) == [0, 1, 2] and len(F.graph().edges()) == 0
+    F.add_edge([0,1])
