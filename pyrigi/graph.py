@@ -3,9 +3,12 @@ Module for rigidity related graph properties.
 """
 
 import networkx as nx
-from typing import TypeVar, List, Tuple, Any
+from typing import TypeVar, List, Tuple, Any, Hashable
+from sympy import Matrix
 
 GraphType = TypeVar("Graph")
+Vertex = Hashable
+Edge = Tuple[Vertex, Vertex] | List[Vertex]
 
 class Graph(nx.Graph):
     '''
@@ -13,26 +16,26 @@ class Graph(nx.Graph):
     '''
 
     @classmethod
-    def from_vertices_and_edges(cls, vertices: List[Any], edges: List[Tuple[int, int]]) -> GraphType:
+    def from_vertices_and_edges(cls, vertices: List[Vertex], edges: List[Edge]) -> GraphType:
         raise NotImplementedError()
 
     @classmethod
-    def from_vertices(cls, vertices: List[Any]) -> GraphType:
+    def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
         return Graph.from_vertices_and_edges(vertices, [])
 
-    def vertices(self) -> List[Any]:
+    def vertices(self) -> List[Vertex]:
         return self.nodes
 
-    def delete_vertex(self, vertex: Any) -> None:
+    def delete_vertex(self, vertex: Vertex) -> None:
         raise NotImplementedError()
 
-    def delete_vertices(self, vertices: List[Any]) -> None:
+    def delete_vertices(self, vertices: List[Vertex]) -> None:
         raise NotImplementedError()
 
-    def delete_edge(self, edge: Tuple[int, int]) -> None:
+    def delete_edge(self, edge: Edge) -> None:
         raise NotImplementedError()
 
-    def delete_edges(self, edges: List[Tuple[int, int]]) -> None:
+    def delete_edges(self, edges: List[Edge]) -> None:
         raise NotImplementedError()
 
     def is_sparse(self, K: int, L: int) -> bool:
@@ -51,7 +54,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def zero_extension(self, vertices: List[Any], dim: int = 2) -> None:
+    def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -59,7 +62,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def one_extension(self, vertices: List[Any], edge: Tuple[int, int], dim: int = 2) -> None:
+    def one_extension(self, vertices: List[Vertex], edge: Edge, dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -67,7 +70,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def k_extension(self, k: int, vertices: List[Any], edges: Tuple[int, int], dim: int = 2) -> None:
+    def k_extension(self, k: int, vertices: List[Vertex], edges: Edge, dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -205,7 +208,7 @@ class Graph(nx.Graph):
         Tests.
         Specify order of vertices.
         """
-        M = nx.adjacency_matrix(weight=None).todense()
+        M = nx.adjacency_matrix(self, weight=None).todense()
         upper_diag = [str(b) 
                       for i, row in enumerate(M.tolist())
                       for b in row[i+1:]]
@@ -214,3 +217,16 @@ class Graph(nx.Graph):
     @classmethod
     def from_int(cls) -> GraphType:
         raise NotImplementedError()
+    
+    def adjacency_matrix(self, vertex_order: List[Vertex] | None = None) -> Matrix:
+        """
+
+        """
+        try:
+            if vertex_order == None:
+                vertex_order = sorted(self.vertices())
+            else:
+                assert set(self.vertices()) == set(vertex_order)
+        except TypeError as error:
+            vertex_order = self.vertices()
+        return nx.adjacency_matrix(self, nodelist=vertex_order, weight=None).todense()
