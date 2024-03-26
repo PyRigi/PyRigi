@@ -20,9 +20,11 @@ from sympy import Matrix, flatten
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex] | List[Vertex]
 
+
 class Framework(object):
     """
-    This class provides the functionality for frameworks. By definition, it is a tuple of a graph and a realization.
+    This class provides the functionality for frameworks.
+    By definition, it is a tuple of a graph and a realization.
 
     ATTRIBUTES
     ----------
@@ -33,7 +35,10 @@ class Framework(object):
     """
     # TODO override decorator for empty constructor?
 
-    def __init__(self, graph: Graph = Graph(), realization: Dict[Vertex, List[float]] = {}, dim: int = 2) -> None:
+    def __init__(self,
+                 graph: Graph = Graph(),
+                 realization: Dict[Vertex, List[float]] = {},
+                 dim: int = 2) -> None:
         assert isinstance(graph, Graph)
         if len(realization.values()) == 0:
             dimension = dim
@@ -44,7 +49,8 @@ class Framework(object):
             assert v in realization
             assert len(realization[v]) == dimension
 
-        self.realization = {v: Matrix(realization[v]) for v in graph.vertices()}
+        self.realization = {v: Matrix(realization[v])
+                            for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._graph._part_of_framework = True
         self.dim = dimension
@@ -65,7 +71,9 @@ class Framework(object):
         self.realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
 
-    def add_vertices(self, points: List[List[float]], vertices: List[Vertex] = []) -> None:
+    def add_vertices(self,
+                     points: List[List[float]],
+                     vertices: List[Vertex] = []) -> None:
         assert (len(points) == len(vertices) or not vertices)
         if not vertices:
             for point in points:
@@ -84,11 +92,17 @@ class Framework(object):
             self.add_edge(edge)
 
     def underlying_graph(self) -> Graph:
-        """Return a copy of the graph object so that the graph object is not mutated"""
+        """
+        Return a copy of the graph object so that
+        the graph object is not mutated
+        """
         return deepcopy(self._graph)
 
     def graph(self) -> Graph:
-        """Return a copy of the graph object so that the graph object is not mutated"""
+        """
+        Return a copy of the graph object so that
+        the graph object is not mutated
+        """
         return self.underlying_graph()
 
     def print(self) -> None:
@@ -127,11 +141,14 @@ class Framework(object):
         """Add consistency check here"""
         raise NotImplementedError()
 
-    def rigidity_matrix(self, vertex_order: List[Vertex] | None = None, edges_ordered: bool = True) -> Matrix:
+    def rigidity_matrix(
+            self,
+            vertex_order: List[Vertex] | None = None,
+            edges_ordered: bool = True) -> Matrix:
         r""" Construct the rigidity matrix of the framework
         """
         try:
-            if vertex_order == None:
+            if vertex_order is None:
                 vertex_order = sorted(self._graph.vertices())
             else:
                 assert set(self._graph.vertices()) == set(vertex_order)
@@ -143,18 +160,22 @@ class Framework(object):
         else:
             edge_order = self._graph.edges()
 
-        def delta(u,v,w):
-            if w==u:
+        def delta(u, v, w):
+            if w == u:
                 return 1
-            if w==v:
+            if w == v:
                 return -1
             return 0
-        
-        return Matrix([flatten([delta(u,v,w) * (self.realization[u]-self.realization[v]) 
-                                for w in vertex_order])
-                        for u,v in edge_order])
 
-    def stress_matrix(self, data: Any, edge_order: List[Edge] | None = None) -> Matrix:
+        return Matrix([flatten([delta(u, v, w)
+                                * (self.realization[u] - self.realization[v])
+                                for w in vertex_order])
+                       for u, v in edge_order])
+
+    def stress_matrix(
+            self,
+            data: Any,
+            edge_order: List[Edge] | None = None) -> Matrix:
         r""" Construct the stress matrix from a stress of from its support
         """
         raise NotImplementedError()

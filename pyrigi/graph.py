@@ -10,13 +10,17 @@ GraphType = TypeVar("Graph")
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex] | List[Vertex]
 
+
 class Graph(nx.Graph):
     '''
     Class representing a graph.
     '''
 
     @classmethod
-    def from_vertices_and_edges(cls, vertices: List[Vertex], edges: List[Edge]) -> GraphType:
+    def from_vertices_and_edges(
+            cls,
+            vertices: List[Vertex],
+            edges: List[Edge]) -> GraphType:
         raise NotImplementedError()
 
     @classmethod
@@ -62,7 +66,11 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def one_extension(self, vertices: List[Vertex], edge: Edge, dim: int = 2) -> None:
+    def one_extension(
+            self,
+            vertices: List[Vertex],
+            edge: Edge,
+            dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -70,7 +78,12 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def k_extension(self, k: int, vertices: List[Vertex], edges: Edge, dim: int = 2) -> None:
+    def k_extension(
+            self,
+            k: int,
+            vertices: List[Vertex],
+            edges: Edge,
+            dim: int = 2) -> None:
         """
         Parameters
         ----------
@@ -201,7 +214,7 @@ class Graph(nx.Graph):
         obtained by concatenation of the rows
         of the upper triangle of the adjacency matrix,
         excluding the diagonal.
-        
+
         TODO
         ----
         Implement taking canonical before computing the integer representation.
@@ -209,24 +222,27 @@ class Graph(nx.Graph):
         Specify order of vertices.
         """
         M = nx.adjacency_matrix(self, weight=None).todense()
-        upper_diag = [str(b) 
+        upper_diag = [str(b)
                       for i, row in enumerate(M.tolist())
-                      for b in row[i+1:]]
+                      for b in row[i + 1:]]
         return int(''.join(upper_diag), 2)
 
     @classmethod
     def from_int(cls) -> GraphType:
         raise NotImplementedError()
-    
-    def adjacency_matrix(self, vertex_order: List[Vertex] | None = None) -> Matrix:
+
+    def adjacency_matrix(
+            self,
+            vertex_order: List[Vertex] | None = None) -> Matrix:
         """
 
         """
         try:
-            if vertex_order == None:
+            if vertex_order is None:
                 vertex_order = sorted(self.vertices())
             else:
                 assert set(self.vertices()) == set(vertex_order)
         except TypeError as error:
             vertex_order = self.vertices()
-        return nx.adjacency_matrix(self, nodelist=vertex_order, weight=None).todense()
+        return nx.adjacency_matrix(
+            self, nodelist=vertex_order, weight=None).todense()
