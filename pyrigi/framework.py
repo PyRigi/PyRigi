@@ -28,7 +28,6 @@ class Framework(object):
 
     ATTRIBUTES
     ----------
-    graph : Graph
     realization : dict
     dim : int
 
