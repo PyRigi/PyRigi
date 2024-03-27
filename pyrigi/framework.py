@@ -93,15 +93,16 @@ class Framework(object):
 
     def underlying_graph(self) -> Graph:
         """
-        Return a copy of the graph object so that
-        the graph object is not mutated
+        Return a copy of the underlying graph.
+        
+        A deep copy of the underlying graph of the framework is returned.
+        Hence, modifying it does not effect the original framework.
         """
         return deepcopy(self._graph)
 
     def graph(self) -> Graph:
         """
-        Return a copy of the graph object so that
-        the graph object is not mutated
+        Alias for :meth:`~Framework.underlying_graph`
         """
         return self.underlying_graph()
 
