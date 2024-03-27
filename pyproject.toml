@@ -19,3 +19,8 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/PyRigi/"
 Issues = "https://github.com/PyRigi/PyRigi/issues"
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
