@@ -212,7 +212,15 @@ class Framework(object):
         raise NotImplementedError()
 
     def is_redundantly_rigid(self) -> bool:
-        raise NotImplementedError()
+        """This method checks if the framework stays infinitesimally rigid
+        when removing any edge."""
+        for edge in self._graph.edges:
+            F = deepcopy(self)
+            F.delete_edge(edge)
+            if not F.is_infinitesimally_rigid(F):
+                return False
+        return True
+
 
     def is_congruent(self, framework_) -> bool:
         raise NotImplementedError()
