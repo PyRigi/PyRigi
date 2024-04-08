@@ -2,6 +2,8 @@
 Module for rigidity related graph properties.
 """
 
+from copy import deepcopy
+from itertools import combinations
 import networkx as nx
 from typing import TypeVar, List, Tuple, Any, Hashable
 from sympy import Matrix
@@ -9,8 +11,7 @@ from sympy import Matrix
 GraphType = TypeVar("Graph")
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex] | List[Vertex]
-
-
+    
 class Graph(nx.Graph):
     '''
     Class representing a graph.
@@ -105,15 +106,28 @@ class Graph(nx.Graph):
 
     def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """ Remove every k-subset of vertices and call `is_rigid()`"""
-        raise NotImplementedError()
+        vertex_subsets = list(combinations(self.vertices(), k))
+        for set in vertex_subsets:
+            G = deepcopy(self)
+            G.delete_vertices(set)
+            if not G.is_rigid(dim):
+                return False
+        return True
 
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """ Remove every edge and call `is_rigid()`"""
         return self.is_k_redundantly_rigid(1, dim)
-
+    
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """ Remove every k-subset of edges and call `is_rigid()`"""
-        raise NotImplementedError()
+        edge_subsets = list(combinations(self.edges, k))
+        for set in edge_subsets:
+            G = deepcopy(self)
+            G.delete_edges(set)
+            if not G.is_rigid(dim):
+                return False
+        return True
+
 
     def is_rigid(self, dim: int = 2) -> bool:
         """
