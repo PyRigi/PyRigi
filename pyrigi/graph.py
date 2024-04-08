@@ -137,7 +137,15 @@ class Graph(nx.Graph):
         dim=2: Pebble-game/(2,3)-count
         dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        raise NotImplementedError()
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError("The dimension needs to be a positive integer!")
+        elif dim==1:
+            return self.is_connected()
+        elif dim==2:
+            raise NotImplementedError()
+        else:
+            raise NotImplementedError()
+        
 
     def is_minimally_rigid(self, dim: int = 2) -> bool:
         """
@@ -147,7 +155,14 @@ class Graph(nx.Graph):
         dim=2: Pebble-game/(2,3)-tight
         dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        raise NotImplementedError()
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError("The dimension needs to be a positive integer!")
+        elif dim==1:
+            return self.is_tree()
+        elif dim==2:
+            raise NotImplementedError()
+        else:
+            raise NotImplementedError()
 
     def extension_sequence(self, dim: int = 2) -> Any:
         raise NotImplementedError()
@@ -166,7 +181,14 @@ class Graph(nx.Graph):
         dim=2: redundantly rigid+3-connected
         dim>=1: Randomized Rigidity Matrix => Stress (symbolic maybe?)
         """
-        raise NotImplementedError()
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError("The dimension needs to be a positive integer!")
+        elif dim==1:
+            return self.node_connectivity() >= 2
+        elif dim==2:
+            return self.is_k_vertex_redundantly_rigid and self.node_connectivity() >= 3
+        else:
+            raise NotImplementedError()
 
     def is_Rd_dependent(self, dim: int = 2) -> bool:
         """
@@ -209,12 +231,32 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
-        """List subgraph-maximal rigid subgraphs."""
-        raise NotImplementedError()
+        """List vertex-maximal rigid subgraphs. We consider a subgraph 
+        to be maximal, if it has the maximal possible amount of vertices."""
+        minimal_subgraphs = []
+        for k in range(len(self.vertices()), -1, 0):
+            vertex_subsets = list(combinations(self.vertices(), k))
+            for vertex_subset in vertex_subsets:
+                G = self.subgraph(vertex_subset)
+                if G.is_rigid():
+                    minimal_subgraphs.push(G)
+            if len(minimal_subgraphs) > 0:
+                break
+        return minimal_subgraphs
 
     def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
-        """List subgraph-minimal non-trivial (?) rigid subgraphs."""
-        raise NotImplementedError()
+        """List vertex-minimal non-trivial rigid subgraphs. We consider a subgraph 
+        to be minimal, if it has the maximal possible amount of vertices."""
+        minimal_subgraphs = []       
+        for k in range(3, len(self.vertices())+1):
+            vertex_subsets = list(combinations(self.vertices(), k))
+            for vertex_subset in vertex_subsets:
+                G = self.subgraph(vertex_subset)
+                if G.is_rigid():
+                    minimal_subgraphs.push(G)
+            if len(minimal_subgraphs) > 0:
+                break
+        return minimal_subgraphs
 
     def is_isomorphic(self, graph: GraphType) -> bool:
         return nx.is_isomorphic(self, graph)
