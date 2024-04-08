@@ -106,10 +106,9 @@ class Graph(nx.Graph):
 
     def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """ Remove every k-subset of vertices and call `is_rigid()`"""
-        vertex_subsets = list(combinations(self.vertices(), k))
-        for set in vertex_subsets:
+        for vertex_set in combinations(self.vertices(), k):
             G = deepcopy(self)
-            G.delete_vertices(set)
+            G.delete_vertices(vertex_set)
             if not G.is_rigid(dim):
                 return False
         return True
@@ -120,10 +119,9 @@ class Graph(nx.Graph):
     
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """ Remove every k-subset of edges and call `is_rigid()`"""
-        edge_subsets = list(combinations(self.edges, k))
-        for set in edge_subsets:
+        for edge_set in combinations(self.edges, k):
             G = deepcopy(self)
-            G.delete_edges(set)
+            G.delete_edges(edge_set)
             if not G.is_rigid(dim):
                 return False
         return True
@@ -235,8 +233,7 @@ class Graph(nx.Graph):
         to be maximal, if it has the maximal possible amount of vertices."""
         minimal_subgraphs = []
         for k in range(len(self.vertices()), -1, 0):
-            vertex_subsets = list(combinations(self.vertices(), k))
-            for vertex_subset in vertex_subsets:
+            for vertex_subset in combinations(self.vertices(), k):
                 G = self.subgraph(vertex_subset)
                 if G.is_rigid():
                     minimal_subgraphs.push(G)
@@ -249,8 +246,7 @@ class Graph(nx.Graph):
         to be minimal, if it has the maximal possible amount of vertices."""
         minimal_subgraphs = []       
         for k in range(3, len(self.vertices())+1):
-            vertex_subsets = list(combinations(self.vertices(), k))
-            for vertex_subset in vertex_subsets:
+            for vertex_subset in combinations(self.vertices(), k):
                 G = self.subgraph(vertex_subset)
                 if G.is_rigid():
                     minimal_subgraphs.push(G)
