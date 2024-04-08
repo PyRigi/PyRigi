@@ -5,8 +5,8 @@ Module for rigidity related graph properties.
 from copy import deepcopy
 from itertools import combinations
 import networkx as nx
-from typing import TypeVar, List, Tuple, Any, Hashable
 from sympy import Matrix
+from typing import TypeVar, List, Tuple, Any, Hashable
 
 GraphType = TypeVar("Graph")
 Vertex = Hashable
@@ -137,9 +137,9 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
-        elif dim==1:
+        elif dim == 1:
             return self.is_connected()
-        elif dim==2:
+        elif dim == 2:
             raise NotImplementedError()
         else:
             raise NotImplementedError()
@@ -230,29 +230,32 @@ class Graph(nx.Graph):
 
     def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """List vertex-maximal rigid subgraphs. We consider a subgraph 
-        to be maximal, if it has the maximal possible amount of vertices."""
-        minimal_subgraphs = []
-        for k in range(len(self.vertices()), -1, 0):
-            for vertex_subset in combinations(self.vertices(), k):
-                G = self.subgraph(vertex_subset)
-                if G.is_rigid():
-                    minimal_subgraphs.push(G)
-            if len(minimal_subgraphs) > 0:
-                break
-        return minimal_subgraphs
+        to be maximal, if it is maximal with respect to subgraph-inclusion."""
+        if self.is_rigid():
+            return [G]
+        maximal_subgraphs = []
+        for vertex_subset in combinations(self.vertices(), len(self.vertices())-1):
+            G = self.subgraph(vertex_subset)
+            maximal_subgraphs.append(G.maximal_rigid_subgraphs(dim))
+
+        return list(set(maximal_subgraphs))
+
 
     def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """List vertex-minimal non-trivial rigid subgraphs. We consider a subgraph 
-        to be minimal, if it has the maximal possible amount of vertices."""
-        minimal_subgraphs = []       
-        for k in range(3, len(self.vertices())+1):
-            for vertex_subset in combinations(self.vertices(), k):
-                G = self.subgraph(vertex_subset)
-                if G.is_rigid():
-                    minimal_subgraphs.push(G)
-            if len(minimal_subgraphs) > 0:
-                break
-        return minimal_subgraphs
+        to be minimal, if it minimal with respect to subgraph-inclusion."""
+        minimal_subgraphs = []
+        if len(self.vertices()) <= 2:
+            return []
+        for vertex_subset in combinations(self.vertices(), len(self.vertices())-1):
+            G = self.subgraph(vertex_subset)
+            subgraphs = G.minimal_rigid_subgraphs(dim)
+            if len(subgraphs) == 0 and G.is_rigid():
+                minimal_subgraphs.push(G)
+            else:
+                minimal_subgraphs.append(subgraphs)
+        return list(set(minimal_subgraphs))
+
 
     def is_isomorphic(self, graph: GraphType) -> bool:
         return nx.is_isomorphic(self, graph)
