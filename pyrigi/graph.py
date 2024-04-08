@@ -32,16 +32,16 @@ class Graph(nx.Graph):
         return self.nodes
 
     def delete_vertex(self, vertex: Vertex) -> None:
-        raise NotImplementedError()
+        self.remove_node(vertex)
 
     def delete_vertices(self, vertices: List[Vertex]) -> None:
-        raise NotImplementedError()
+        self.remove_nodes_from(vertices)
 
     def delete_edge(self, edge: Edge) -> None:
-        raise NotImplementedError()
+        self.remove_edge(*edge)
 
     def delete_edges(self, edges: List[Edge]) -> None:
-        raise NotImplementedError()
+        self.remove_edges_from(edges)
 
     def is_sparse(self, K: int, L: int) -> bool:
         """
