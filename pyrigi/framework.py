@@ -93,7 +93,7 @@ class Framework(object):
     def underlying_graph(self) -> Graph:
         """
         Return a copy of the underlying graph.
-        
+
         A deep copy of the underlying graph of the framework is returned.
         Hence, modifying it does not effect the original framework.
         """
@@ -220,7 +220,6 @@ class Framework(object):
             if not F.is_infinitesimally_rigid(F):
                 return False
         return True
-
 
     def is_congruent(self, framework_) -> bool:
         raise NotImplementedError()

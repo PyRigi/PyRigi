@@ -5,6 +5,7 @@ This is the module for matroid functionality.
 from sympy import Matrix
 from networkx import minimum_spanning_tree
 
+
 class Matroid(object):
 
     def __init__(self, family: str, aux):
@@ -49,7 +50,7 @@ class Matroid(object):
         """Check whether a given subset of the ground set is dependent."""
 
         if self.family == "linear" or self.family == "graphical":
-            return not(self.is_independent(F))
+            return not (self.is_independent(F))
         raise NotImplementedError()
 
     def is_circuit(self, F):
