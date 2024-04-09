@@ -5,6 +5,7 @@ Module for rigidity related graph properties.
 from copy import deepcopy
 from itertools import combinations
 import networkx as nx
+from random import randrange
 from sympy import Matrix
 from typing import TypeVar, List, Tuple, Any, Hashable
 
@@ -139,12 +140,14 @@ class Graph(nx.Graph):
             raise TypeError("The dimension needs to be a positive integer!")
         elif dim == 1:
             return self.is_connected()
-        elif dim == 2:
-            raise NotImplementedError()
+        #elif dim == 2:
+        #    raise NotImplementedError()
         else:
             from pyrigi.framework import Framework
-            #Random sampling from [1,N] for N depending quadratically on number of vertices.
-            raise NotImplementedError()
+            N = 10 * len(self.vertices())**2 * dim
+            realization = {vertex:[randrange(1,N) for _ in range(0,dim)] for vertex in self.vertices()}
+            F = Framework(self, realization, dim)
+            return F.is_infinitesimally_rigid()
 
     def is_minimally_rigid(self, dim: int = 2) -> bool:
         """
@@ -162,8 +165,10 @@ class Graph(nx.Graph):
             raise NotImplementedError()
         else:
             from pyrigi.framework import Framework
-            #Random sampling from [1,N] for N depending quadratically on number of vertices.
-            raise NotImplementedError()
+            N = 10 * len(self.vertices())**2 * dim
+            realization = {vertex:[randrange(1,N) for _ in range(0,dim)] for vertex in self.vertices()}
+            F = Framework(self, realization, dim)
+            return F.is_minimally_infinitesimally_rigid()
 
     def extension_sequence(self, dim: int = 2) -> Any:
         raise NotImplementedError()
