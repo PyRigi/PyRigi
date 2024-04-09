@@ -23,6 +23,7 @@ def test_vertex_addition():
         and len(F.graph().edges()) == 0
     )
     F.add_edge([0, 1])
+    F.draw_framework()
 
 def test_minimal_maximal_rigid_subgraphs():
     G = Graph()

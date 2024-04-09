@@ -13,13 +13,13 @@ Classes:
 """
 
 from copy import deepcopy
+import networkx as nx
 from pyrigi.graph import Graph
 from typing import List, Dict, Tuple, Any, Hashable
 from sympy import Matrix, flatten
 
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex] | List[Vertex]
-
 
 class Framework(object):
     """
@@ -110,6 +110,12 @@ class Framework(object):
         print('Graph:\t\t', self._graph)
         print('Realization:\t', self.realization)
 
+    def realization_matrix_to_list(self) -> List[Tuple[Any, Any]]:
+        return [[point for point in self.realization[vertex]] for vertex in self._graph.vertices()]
+    
+    def draw_framework(self) -> Any:
+        return nx.draw_networkx(self._graph, self.realization_matrix_to_list())
+    
     @classmethod
     def from_points(cls, points: List[List[float]]) -> None:
         raise NotImplementedError()
