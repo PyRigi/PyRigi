@@ -142,8 +142,9 @@ class Graph(nx.Graph):
         elif dim == 2:
             raise NotImplementedError()
         else:
+            from pyrigi.framework import Framework
+            #Random sampling from [1,N] for N depending quadratically on number of vertices.
             raise NotImplementedError()
-        
 
     def is_minimally_rigid(self, dim: int = 2) -> bool:
         """
@@ -160,6 +161,8 @@ class Graph(nx.Graph):
         elif dim==2:
             raise NotImplementedError()
         else:
+            from pyrigi.framework import Framework
+            #Random sampling from [1,N] for N depending quadratically on number of vertices.
             raise NotImplementedError()
 
     def extension_sequence(self, dim: int = 2) -> Any:
@@ -186,6 +189,8 @@ class Graph(nx.Graph):
         elif dim==2:
             return self.is_k_vertex_redundantly_rigid and self.node_connectivity() >= 3
         else:
+            from pyrigi.framework import Framework
+            #Random sampling from [1,N] for N depending quadratically on number of vertices.
             raise NotImplementedError()
 
     def is_Rd_dependent(self, dim: int = 2) -> bool:
