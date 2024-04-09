@@ -128,7 +128,7 @@ class Graph(nx.Graph):
         return True
 
 
-    def is_rigid(self, dim: int = 2) -> bool:
+    def is_rigid(self, dim: int = 2, symbolic: bool = False) -> bool:
         """
         Notes
         -----
@@ -136,20 +136,22 @@ class Graph(nx.Graph):
         dim=2: Pebble-game/(2,3)-count
         dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(dim, int) or not isinstance(symbolic, bool) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
         elif dim == 1:
             return self.is_connected()
-        #elif dim == 2:
-        #    raise NotImplementedError()
-        else:
+        elif dim == 2 and symbolic:
+            raise NotImplementedError()
+        elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
             realization = {vertex:[randrange(1,N) for _ in range(0,dim)] for vertex in self.vertices()}
             F = Framework(self, realization, dim)
             return F.is_infinitesimally_rigid()
+        else: 
+            raise AttributeError("The Dimension for symbolic computation must be either 1 or 2")
 
-    def is_minimally_rigid(self, dim: int = 2) -> bool:
+    def is_minimally_rigid(self, dim: int = 2, symbolic: bool = False) -> bool:
         """
         Notes
         -----
@@ -157,18 +159,20 @@ class Graph(nx.Graph):
         dim=2: Pebble-game/(2,3)-tight
         dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(dim, int) or not isinstance(symbolic, bool) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
-        elif dim==1:
+        elif dim == 1:
             return self.is_tree()
-        elif dim==2:
+        elif dim == 2 and symbolic:
             raise NotImplementedError()
-        else:
+        elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
             realization = {vertex:[randrange(1,N) for _ in range(0,dim)] for vertex in self.vertices()}
             F = Framework(self, realization, dim)
             return F.is_minimally_infinitesimally_rigid()
+        else:
+            raise AttributeError("The Dimension for symbolic computation must be either 1 or 2")
 
     def extension_sequence(self, dim: int = 2) -> Any:
         raise NotImplementedError()
@@ -185,7 +189,7 @@ class Graph(nx.Graph):
         -----
         dim=1: 2-connectivity
         dim=2: redundantly rigid+3-connected
-        dim>=1: Randomized Rigidity Matrix => Stress (symbolic maybe?)
+        dim>=3: Randomized Rigidity Matrix => Stress (symbolic maybe?)
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
