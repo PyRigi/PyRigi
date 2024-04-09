@@ -46,19 +46,20 @@ class Graph(nx.Graph):
 
     def is_sparse(self, K: int, L: int) -> bool:
         """
-        Notes
-        -----
-        Combinatorial Property
+        Checks that every possible subgraph satisfies |E|<=K*|V|-L.
         """
-        raise NotImplementedError()
+        for k in range(1, len(self.vertices())+1):
+            for vertex_set in combinations(self.vertices(), k):
+                G = self.subgraph(vertex_set)
+                if len(G.edges) > K * len(G.nodes) - L:
+                    return False
+        return True
 
     def is_tight(self, K: int, L: int) -> bool:
         """
-        Notes
-        -----
-        Combinatorial Property
+        Checks that a graph is k-l-sparse and has |E|=K*|V|-L.
         """
-        raise NotImplementedError()
+        return len(self.edges) <= K * len(self.nodes) - L and self.is_sparse(K, L)
 
     def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
         """
@@ -164,7 +165,7 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.is_tree()
         elif dim == 2 and symbolic:
-            raise NotImplementedError()
+            return self.is_tight(2,3)
         elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
