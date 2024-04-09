@@ -1,5 +1,8 @@
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
+from pyrigi.matroid import Matroid
+
+from sympy import Matrix
 
 
 def test_vertex_addition():
@@ -24,7 +27,7 @@ def test_vertex_addition():
 def test_minimal_maximal_rigid_subgraphs():
     G = Graph()
     G.add_nodes_from([0,1,2,3,4,5,6,'a','b'])
-    G.add_edges_from([(0,1), (1,2), (2,3), (3,4), (4,5), (5,6), (6,0), 
+    G.add_edges_from([(0,1), (1,2), (2,3), (3,4), (4,5), (5,6), (6,0),
                       (0,3), (1,4), (2,5),
                       (0,'a'), (0,'b'), ('a','b')])
     max_subgraphs = G.maximal_rigid_subgraphs()
@@ -32,3 +35,23 @@ def test_minimal_maximal_rigid_subgraphs():
     min_subgraphs = G.minimal_rigid_subgraphs()
     print(min_subgraphs)
     assert min_subgraphs == [G.subgraph([0,1,2,3,4,5,6]), G.subgraph([0,'a','b'])]
+
+def test_linear_matroid_ground_set():
+    A = Matrix([[1, 2], [3, 4], [5, 6]])
+    M = Matroid(family="linear", aux=A)
+    assert M.ground_set() == [0, 1, 2]
+
+def test_linear_matroid_rank():
+    A = Matrix([[1, 2], [3, 4], [5, 6]])
+    M = Matroid(family="linear", aux=A)
+    assert M.rank() == 2
+    assert M.rank([0, 1]) == 2
+    assert M.rank([0]) == 1
+
+def test_linear_matroid_independence():
+    A = Matrix([[1, 2, 3], [2, 4, 6], [3, 4, 5]])
+    M = Matroid(family="linear", aux=A)
+    assert M.is_independent([0, 2])
+    assert M.is_dependent([0, 1])
+    assert M.is_circuit([0, 1, 2])
+    assert M.is_basis([0, 2])

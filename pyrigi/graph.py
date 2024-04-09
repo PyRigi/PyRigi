@@ -12,7 +12,8 @@ from typing import TypeVar, List, Tuple, Any, Hashable
 GraphType = TypeVar("Graph")
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex] | List[Vertex]
-    
+
+
 class Graph(nx.Graph):
     '''
     Class representing a graph.
@@ -118,7 +119,7 @@ class Graph(nx.Graph):
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """ Remove every edge and call `is_rigid()`"""
         return self.is_k_redundantly_rigid(1, dim)
-    
+
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """ Remove every k-subset of edges and call `is_rigid()`"""
         for edge_set in combinations(self.edges, k):
@@ -127,7 +128,6 @@ class Graph(nx.Graph):
             if not G.is_rigid(dim):
                 return False
         return True
-
 
     def is_rigid(self, dim: int = 2, symbolic: bool = False) -> bool:
         """
@@ -146,10 +146,10 @@ class Graph(nx.Graph):
         elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
-            realization = {vertex:[randrange(1,N) for _ in range(0,dim)] for vertex in self.vertices()}
+            realization = {vertex: [randrange(1, N) for _ in range(0, dim)] for vertex in self.vertices()}
             F = Framework(self, realization, dim)
             return F.is_infinitesimally_rigid()
-        else: 
+        else:
             raise AttributeError("The Dimension for symbolic computation must be either 1 or 2")
 
     def is_minimally_rigid(self, dim: int = 2, symbolic: bool = False) -> bool:
@@ -169,7 +169,7 @@ class Graph(nx.Graph):
         elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
-            realization = {vertex:[randrange(1,N) for _ in range(0,dim)] for vertex in self.vertices()}
+            realization = {vertex: [randrange(1, N) for _ in range(0, dim)] for vertex in self.vertices()}
             F = Framework(self, realization, dim)
             return F.is_minimally_infinitesimally_rigid()
         else:
@@ -194,13 +194,13 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
-        elif dim==1:
+        elif dim == 1:
             return self.node_connectivity() >= 2
-        elif dim==2:
+        elif dim == 2:
             return self.is_k_vertex_redundantly_rigid and self.node_connectivity() >= 3
         else:
             from pyrigi.framework import Framework
-            #Random sampling from [1,N] for N depending quadratically on number of vertices.
+            # Random sampling from [1,N] for N depending quadratically on number of vertices.
             raise NotImplementedError()
 
     def is_Rd_dependent(self, dim: int = 2) -> bool:
@@ -244,25 +244,24 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
-        """List vertex-maximal rigid subgraphs. We consider a subgraph 
+        """List vertex-maximal rigid subgraphs. We consider a subgraph
         to be maximal, if it is maximal with respect to subgraph-inclusion."""
         if self.is_rigid():
             return [G]
         maximal_subgraphs = []
-        for vertex_subset in combinations(self.vertices(), len(self.vertices())-1):
+        for vertex_subset in combinations(self.vertices(), len(self.vertices()) - 1):
             G = self.subgraph(vertex_subset)
             maximal_subgraphs.append(G.maximal_rigid_subgraphs(dim))
 
         return list(set(maximal_subgraphs))
 
-
     def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
-        """List vertex-minimal non-trivial rigid subgraphs. We consider a subgraph 
+        """List vertex-minimal non-trivial rigid subgraphs. We consider a subgraph
         to be minimal, if it minimal with respect to subgraph-inclusion."""
         minimal_subgraphs = []
         if len(self.vertices()) <= 2:
             return []
-        for vertex_subset in combinations(self.vertices(), len(self.vertices())-1):
+        for vertex_subset in combinations(self.vertices(), len(self.vertices()) - 1):
             G = self.subgraph(vertex_subset)
             subgraphs = G.minimal_rigid_subgraphs(dim)
             if len(subgraphs) == 0 and G.is_rigid():
@@ -270,7 +269,6 @@ class Graph(nx.Graph):
             else:
                 minimal_subgraphs.append(subgraphs)
         return list(set(minimal_subgraphs))
-
 
     def is_isomorphic(self, graph: GraphType) -> bool:
         return nx.is_isomorphic(self, graph)
