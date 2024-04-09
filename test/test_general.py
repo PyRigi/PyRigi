@@ -33,7 +33,6 @@ def test_minimal_maximal_rigid_subgraphs():
     max_subgraphs = G.maximal_rigid_subgraphs()
     assert max_subgraphs == [G.subgraph([0,1,2,3,4,5,6]), G.subgraph([0,'a','b'])]
     min_subgraphs = G.minimal_rigid_subgraphs()
-    print(min_subgraphs)
     assert min_subgraphs == [G.subgraph([0,1,2,3,4,5,6]), G.subgraph([0,'a','b'])]
 
 def test_linear_matroid_ground_set():

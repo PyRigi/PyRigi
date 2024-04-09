@@ -134,7 +134,7 @@ class Graph(nx.Graph):
         Notes
         -----
         dim=1: Connectivity
-        dim=2: Pebble-game/(2,3)-count
+        dim=2: Pebble-game/(2,3)-rigidity
         dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
         if not isinstance(dim, int) or not isinstance(symbolic, bool) or dim < 1:
@@ -142,7 +142,15 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.is_connected()
         elif dim == 2 and symbolic:
-            raise NotImplementedError()
+            deficiency =  (2 * self.vertices() - 3) - self.edges
+            if deficiency < 0:
+                return False
+            else:
+                for edge_subset in combinations(self.edges, deficiency):
+                    H = self.edge_subgraph([edge for edge in self.edges not in edge_subset])
+                    if H.is_tight(2, 3, dim = 2):
+                        return True
+                return False
         elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
