@@ -11,7 +11,7 @@ from typing import TypeVar, List, Tuple, Any, Hashable
 GraphType = TypeVar("Graph")
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex] | List[Vertex]
-    
+
 class Graph(nx.Graph):
     '''
     Class representing a graph.
@@ -116,7 +116,7 @@ class Graph(nx.Graph):
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """ Remove every edge and call `is_rigid()`"""
         return self.is_k_redundantly_rigid(1, dim)
-    
+
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """ Remove every k-subset of edges and call `is_rigid()`"""
         for edge_set in combinations(self.edges, k):
@@ -143,7 +143,7 @@ class Graph(nx.Graph):
             raise NotImplementedError()
         else:
             raise NotImplementedError()
-        
+
 
     def is_minimally_rigid(self, dim: int = 2) -> bool:
         """
@@ -229,7 +229,7 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
-        """List vertex-maximal rigid subgraphs. We consider a subgraph 
+        """List vertex-maximal rigid subgraphs. We consider a subgraph
         to be maximal, if it is maximal with respect to subgraph-inclusion."""
         if self.is_rigid():
             return [G]
@@ -242,7 +242,7 @@ class Graph(nx.Graph):
 
 
     def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
-        """List vertex-minimal non-trivial rigid subgraphs. We consider a subgraph 
+        """List vertex-minimal non-trivial rigid subgraphs. We consider a subgraph
         to be minimal, if it minimal with respect to subgraph-inclusion."""
         minimal_subgraphs = []
         if len(self.vertices()) <= 2:
