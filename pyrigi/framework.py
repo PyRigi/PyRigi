@@ -110,11 +110,11 @@ class Framework(object):
         print('Graph:\t\t', self._graph)
         print('Realization:\t', self.realization)
 
-    def realization_matrix_to_list(self) -> List[Tuple[Any, Any]]:
-        return [[point for point in self.realization[vertex]] for vertex in self._graph.vertices()]
+    def realization_matrix_to_tuple(self) -> List[Tuple[Any, Any]]:
+        return {vertex:tuple([float(point) for point in self.realization[vertex]]) for vertex in self._graph.vertices()}
     
     def draw_framework(self) -> Any:
-        return nx.draw_networkx(self._graph, self.realization_matrix_to_list())
+        return nx.draw(self._graph, pos = self.realization_matrix_to_tuple())
     
     @classmethod
     def from_points(cls, points: List[List[float]]) -> None:

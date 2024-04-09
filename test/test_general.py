@@ -12,7 +12,7 @@ def test_vertex_addition():
     F_ = Framework()
     F.add_vertex([1, 1], 1)
     F.add_vertex([0, 0], 2)
-    F_.add_vertices([[1, 2], [1, 1], [0, 0]])
+    F_.add_vertices([[1., 2.0], [1.0, 1.0], [0.0, 0.0]])
     assert (
         F.realization == F_.realization
         and F.graph().vertices() == F_.graph().vertices()
@@ -22,8 +22,9 @@ def test_vertex_addition():
         list(F.graph().vertices()) == [0, 1, 2]
         and len(F.graph().edges()) == 0
     )
-    F.add_edge([0, 1])
-    F.draw_framework()
+    F_.add_edge([0, 1])
+    plt = F_.draw_framework()
+    print(plt)
 
 def test_minimal_maximal_rigid_subgraphs():
     G = Graph()
