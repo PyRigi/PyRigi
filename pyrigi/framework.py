@@ -22,6 +22,7 @@ Vertex = Hashable
 Edge = Tuple[Vertex, Vertex]
 Point = List[float]
 
+
 class Framework(object):
     """
     This class provides the functionality for frameworks.
@@ -60,13 +61,14 @@ class Framework(object):
 
     def dimension(self) -> int:
         return self.dim()
-    
+
     def get_realization(self) -> List[Point]:
         """
         Rather than returning the internal matrix representation, this method returns the
-        realization in the form of tuples. This format can also be read by networkx.  
+        realization in the form of tuples. This format can also be read by networkx.
         """
-        return {vertex:tuple([float(point) for point in self.realization[vertex]]) for vertex in self._graph.vertices()}
+        return {vertex: tuple([float(point) for point in self.realization[vertex]])
+                for vertex in self._graph.vertices()}
 
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         if vertex is None:
@@ -119,8 +121,8 @@ class Framework(object):
         print('Realization:\t', self.realization)
 
     def draw_framework(self) -> None:
-        nx.draw(self._graph, pos = self.get_realization())
-    
+        nx.draw(self._graph, pos=self.get_realization())
+
     @classmethod
     def from_points(cls, points: List[Point]) -> None:
         raise NotImplementedError()

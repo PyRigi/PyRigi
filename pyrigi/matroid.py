@@ -48,6 +48,7 @@ class Matroid(object):
     def is_closed(self):
         raise NotImplementedError()
 
+
 class LinearMatroid(Matroid):
 
     def __init__(self, matrix):
@@ -59,6 +60,7 @@ class LinearMatroid(Matroid):
         if F is None:
             F = self.ground_set()
         return self._matrix.row(F).rank()
+
 
 class GraphicalMatroid(Matroid):
 

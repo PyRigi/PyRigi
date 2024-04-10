@@ -49,7 +49,7 @@ class Graph(nx.Graph):
         """
         Checks that every possible subgraph satisfies |E|<=K*|V|-L.
         """
-        for k in range(1, len(self.vertices())+1):
+        for k in range(1, len(self.vertices()) + 1):
             for vertex_set in combinations(self.vertices(), k):
                 G = self.subgraph(vertex_set)
                 if len(G.edges) > K * len(G.nodes) - L:
@@ -142,13 +142,13 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.is_connected()
         elif dim == 2 and symbolic:
-            deficiency =  (2 * self.vertices() - 3) - self.edges
+            deficiency = (2 * self.vertices() - 3) - self.edges
             if deficiency < 0:
                 return False
             else:
                 for edge_subset in combinations(self.edges, deficiency):
                     H = self.edge_subgraph([edge for edge in self.edges not in edge_subset])
-                    if H.is_tight(2, 3, dim = 2):
+                    if H.is_tight(2, 3, dim=2):
                         return True
                 return False
         elif not symbolic:
@@ -173,7 +173,7 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.is_tree()
         elif dim == 2 and symbolic:
-            return self.is_tight(2,3)
+            return self.is_tight(2, 3)
         elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
