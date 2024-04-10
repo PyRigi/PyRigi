@@ -20,6 +20,7 @@ from sympy import Matrix, flatten
 
 Vertex = Hashable
 Edge = Tuple[Vertex, Vertex]
+Point = List[float]
 
 class Framework(object):
     """
@@ -36,7 +37,7 @@ class Framework(object):
 
     def __init__(self,
                  graph: Graph = Graph(),
-                 realization: Dict[Vertex, List[float]] = {},
+                 realization: Dict[Vertex, Point] = {},
                  dim: int = 2) -> None:
         assert isinstance(graph, Graph)
         if len(realization.values()) == 0:
@@ -59,8 +60,15 @@ class Framework(object):
 
     def dimension(self) -> int:
         return self.dim()
+    
+    def get_realization(self) -> List[Point]:
+        """
+        Rather than returning the internal matrix representation, this method returns the
+        realization in the form of tuples. This format can also be read by networkx.  
+        """
+        return {vertex:tuple([float(point) for point in self.realization[vertex]]) for vertex in self._graph.vertices()}
 
-    def add_vertex(self, point: List[float], vertex: Vertex = None) -> None:
+    def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         if vertex is None:
             candidate = len(self._graph.vertices())
             while candidate in self._graph.vertices():
@@ -71,7 +79,7 @@ class Framework(object):
         self._graph.add_node(vertex)
 
     def add_vertices(self,
-                     points: List[List[float]],
+                     points: List[Point],
                      vertices: List[Vertex] = []) -> None:
         assert (len(points) == len(vertices) or not vertices)
         if not vertices:
@@ -81,12 +89,12 @@ class Framework(object):
             for p, v in zip(points, vertices):
                 self.add_vertex(p, v)
 
-    def add_edge(self, edge: Tuple[int, int]) -> None:
+    def add_edge(self, edge: Edge) -> None:
         assert (len(edge)) == 2
         assert (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes)
         self._graph.add_edge(*(edge))
 
-    def add_edges(self, edges: List[Tuple[int, int]]) -> None:
+    def add_edges(self, edges: List[Edge]) -> None:
         for edge in edges:
             self.add_edge(edge)
 
@@ -109,13 +117,12 @@ class Framework(object):
         """Method to display the data inside the Framework."""
         print('Graph:\t\t', self._graph)
         print('Realization:\t', self.realization)
-    
+
     def draw_framework(self) -> None:
-        realization_tuple_representation = {vertex:tuple([float(point) for point in self.realization[vertex]]) for vertex in self._graph.vertices()}
-        nx.draw(self._graph, pos = realization_tuple_representation)
+        nx.draw(self._graph, pos = self.get_realization())
     
     @classmethod
-    def from_points(cls, points: List[List[float]]) -> None:
+    def from_points(cls, points: List[Point]) -> None:
         raise NotImplementedError()
 
     @classmethod
@@ -132,16 +139,16 @@ class Framework(object):
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         raise NotImplementedError()
 
-    def delete_edge(self, edge: Tuple[int, int]) -> None:
+    def delete_edge(self, edge: Edge) -> None:
         raise NotImplementedError()
 
-    def delete_edges(self, edges: List[Tuple[int, int]]) -> None:
+    def delete_edges(self, edges: List[Edge]) -> None:
         raise NotImplementedError()
 
-    def set_vertex_position(self, vertex: Vertex, point: List[float]) -> None:
+    def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
         raise NotImplementedError()
 
-    def set_realization(self, realization: Dict[Vertex, List[float]]) -> None:
+    def set_realization(self, realization: Dict[Vertex, Point]) -> None:
         """Add consistency check here"""
         raise NotImplementedError()
 
@@ -231,7 +238,7 @@ class Framework(object):
     def is_equivalent(self, framework_) -> bool:
         raise NotImplementedError()
 
-    def pin(self, vertices: List[Any]) -> None:
+    def pin(self, vertices: List[Vertex]) -> None:
         raise NotImplementedError()
 
     def trivial_infinitesimal_flexes(self) -> Any:
