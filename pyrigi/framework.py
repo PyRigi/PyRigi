@@ -109,12 +109,10 @@ class Framework(object):
         """Method to display the data inside the Framework."""
         print('Graph:\t\t', self._graph)
         print('Realization:\t', self.realization)
-
-    def realization_matrix_to_tuple(self) -> List[Tuple[Any, Any]]:
-        return {vertex:tuple([float(point) for point in self.realization[vertex]]) for vertex in self._graph.vertices()}
     
-    def draw_framework(self) -> Any:
-        return nx.draw(self._graph, pos = self.realization_matrix_to_tuple())
+    def draw_framework(self) -> None:
+        realization_tuple_representation = {vertex:tuple([float(point) for point in self.realization[vertex]]) for vertex in self._graph.vertices()}
+        nx.draw(self._graph, pos = realization_tuple_representation)
     
     @classmethod
     def from_points(cls, points: List[List[float]]) -> None:
