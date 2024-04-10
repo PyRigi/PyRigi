@@ -11,7 +11,7 @@ from typing import TypeVar, List, Tuple, Any, Hashable
 
 GraphType = TypeVar("Graph")
 Vertex = Hashable
-Edge = Tuple[Vertex, Vertex] | List[Vertex]
+Edge = Tuple[Vertex, Vertex]
 
 
 class Graph(nx.Graph):
@@ -309,7 +309,7 @@ class Graph(nx.Graph):
 
     def adjacency_matrix(
             self,
-            vertex_order: List[Vertex] | None = None) -> Matrix:
+            vertex_order: List[Vertex] = None) -> Matrix:
         """
 
         """

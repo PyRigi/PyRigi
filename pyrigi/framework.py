@@ -19,7 +19,7 @@ from typing import List, Dict, Tuple, Any, Hashable
 from sympy import Matrix, flatten
 
 Vertex = Hashable
-Edge = Tuple[Vertex, Vertex] | List[Vertex]
+Edge = Tuple[Vertex, Vertex]
 
 class Framework(object):
     """
@@ -60,7 +60,7 @@ class Framework(object):
     def dimension(self) -> int:
         return self.dim()
 
-    def add_vertex(self, point: list[float], vertex: Vertex = None) -> None:
+    def add_vertex(self, point: List[float], vertex: Vertex = None) -> None:
         if vertex is None:
             candidate = len(self._graph.vertices())
             while candidate in self._graph.vertices():
@@ -149,7 +149,7 @@ class Framework(object):
 
     def rigidity_matrix(
             self,
-            vertex_order: List[Vertex] | None = None,
+            vertex_order: List[Vertex] = None,
             edges_ordered: bool = True) -> Matrix:
         r""" Construct the rigidity matrix of the framework
         """
@@ -181,7 +181,7 @@ class Framework(object):
     def stress_matrix(
             self,
             data: Any,
-            edge_order: List[Edge] | None = None) -> Matrix:
+            edge_order: List[Edge] = None) -> Matrix:
         r""" Construct the stress matrix from a stress of from its support
         """
         raise NotImplementedError()
