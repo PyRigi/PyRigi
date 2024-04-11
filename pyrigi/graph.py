@@ -1,4 +1,4 @@
-""""
+"""
 Module for rigidity related graph properties.
 """
 
@@ -46,8 +46,8 @@ class Graph(nx.Graph):
         self.remove_edges_from(edges)
 
     def is_sparse(self, K: int, L: int) -> bool:
-        """
-        Checks that every possible subgraph satisfies |E|<=K*|V|-L.
+        r"""
+        Checks that every possible subgraph satisfies $|E|<=K\cdot|V|-L$.
         """
         for k in range(1, len(self.vertices()) + 1):
             for vertex_set in combinations(self.vertices(), k):
@@ -57,8 +57,8 @@ class Graph(nx.Graph):
         return True
 
     def is_tight(self, K: int, L: int) -> bool:
-        """
-        Checks that a graph is k-l-sparse and has |E|=K*|V|-L.
+        r"""
+        Checks that a graph is (K,L)-sparse and has $|E|=K\cdot|V|-L$.
         """
         return len(self.edges) <= K * len(self.nodes) - L and self.is_sparse(K, L)
 
