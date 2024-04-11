@@ -11,6 +11,7 @@ Classes:
     Framework
 
 """
+from __future__ import annotations
 
 from copy import deepcopy
 import networkx as nx
