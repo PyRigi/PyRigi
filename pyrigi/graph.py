@@ -206,7 +206,7 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.node_connectivity() >= 2
         elif dim == 2:
-            return self.is_k_vertex_redundantly_rigid and self.node_connectivity() >= 3
+            return self.is_redundantly_rigid() and self.node_connectivity() >= 3
         else:
             from pyrigi.framework import Framework
             # Random sampling from [1,N] for N depending quadratically on number of vertices.
