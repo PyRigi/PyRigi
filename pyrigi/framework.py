@@ -29,7 +29,8 @@ class Framework(object):
     Attributes
     ----------
     realization : dict
-
+    dim : int
+    graph : Graph
     """
     # TODO override decorator for empty constructor?
 
@@ -47,7 +48,7 @@ class Framework(object):
             assert v in realization
             assert len(realization[v]) == dimension
 
-        self.realization = {v: Matrix(realization[v])
+        self._realization = {v: Matrix(realization[v])
                             for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._graph._part_of_framework = True
@@ -56,20 +57,12 @@ class Framework(object):
     @property
     def dim(self) -> int:
         """The dimension property."""
-        return self._dim
+        return deepcopy(self._dim)
 
     def dimension(self) -> int:
         """Return dimension of the space in which the framework is realized."""
-        return self.dim
-
-    def get_realization(self) -> List[Point]:
-        """
-        Rather than returning the internal matrix representation, this method returns the
-        realization in the form of tuples. This format can also be read by networkx.
-        """
-        return {vertex: tuple([float(point) for point in self.realization[vertex]])
-                for vertex in self._graph.vertices()}
-
+        return deepcopy(self.dim())
+            
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         if vertex is None:
             candidate = len(self._graph.vertices())
@@ -150,9 +143,37 @@ class Framework(object):
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
         raise NotImplementedError()
 
+    def get_realization(self) -> List[Point]:
+        """
+        Rather than returning the internal matrix representation, this method returns the
+        realization in the form of tuples. This format can also be read by networkx.
+        """
+        return {vertex: tuple([float(point) for point in self._realization[vertex]])
+                for vertex in self._graph.vertices()}
+    
+    def realization(self) -> List[Point]:
+        return self.get_realization()
+    
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
-        """Add consistency check here"""
-        raise NotImplementedError()
+        for v in self._graph.vertices():
+            assert v in realization
+            assert len(realization[v]) == self._dim
+        self._realization = realization
+
+    def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
+        assert vertex in self._realization
+        assert len(point) == self._dim
+        self._realization[vertex] = point
+
+    def change_vertex_coordinates_list(self, vertices: List[Vertex], points: List[Point]):
+        if list(set(vertices)) == list(vertices):
+            raise AttributeError("Mulitple Vertices with the same name were found!")
+        assert len(vertices) == len(points)
+        for i in range(0, len(vertices)):
+            self.change_vertex_coordinates(vertices[i], points[i])
+
+    def change_realization(self, subset_of_realization: Dict[Vertex, Point]):
+        self.change_vertex_coordinates_list(subset_of_realization.keys(), subset_of_realization.values())
 
     def rigidity_matrix(
             self,

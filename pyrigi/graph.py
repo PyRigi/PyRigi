@@ -48,7 +48,7 @@ class Graph(nx.Graph):
         r"""
         Checks that every possible subgraph satisfies $|E|<=K\cdot|V|-L$.
         """
-        for k in range(1, len(self.vertices()) + 1):
+        for k in range(K, len(self.vertices()) + 1):
             for vertex_set in combinations(self.vertices(), k):
                 G = self.subgraph(vertex_set)
                 if len(G.edges) > K * len(G.nodes) - L:
