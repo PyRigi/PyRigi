@@ -29,10 +29,9 @@ class Framework(object):
     This class provides the functionality for frameworks.
     By definition, it is a tuple of a graph and a realization.
 
-    ATTRIBUTES
+    Attributes
     ----------
     realization : dict
-    dim : int
 
     """
     # TODO override decorator for empty constructor?

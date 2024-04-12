@@ -49,7 +49,6 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
-#     'sphinx_autodoc_typehints',
 ]
 
 napoleon_google_docstring = False
