@@ -44,9 +44,10 @@ class Framework(object):
         else:
             dimension = len(list(realization.values())[0])
 
-        for v in graph.vertices():
-            assert v in realization
+        assert set(realization.keys()) == set(graph.vertices())
+        for v in self.graph.vertices():
             assert len(realization[v]) == dimension
+        assert list(set(realization).keys()).sort() == list(realization.keys()).sort()
 
         self._realization = {v: Matrix(realization[v])
                             for v in graph.vertices()}
@@ -155,9 +156,10 @@ class Framework(object):
         return self.get_realization()
     
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
+        assert set(realization.keys()) == set(self._graph.vertices())
         for v in self._graph.vertices():
-            assert v in realization
             assert len(realization[v]) == self._dim
+        assert list(set(realization).keys()).sort() == list(realization.keys()).sort()
         self._realization = realization
 
     def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
