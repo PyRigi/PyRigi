@@ -4,7 +4,7 @@ This is the module for matroid functionality.
 
 from sympy import Matrix
 from networkx import minimum_spanning_tree
-
+from copy import deepcopy
 
 class Matroid(object):
 
@@ -38,7 +38,14 @@ class Matroid(object):
     def is_circuit(self, F):
         """Check whether a given subset of the ground set is a circuit."""
 
-        return self.rank(F) == len(F) - 1
+        if self.is_independent(F):
+            return False
+        for a in F:
+            FF = deepcopy(F)
+            FF.remove(a)
+            if self.is_dependent(FF):
+                return False
+        return True
 
     def is_basis(self, F):
         """Check whether a given subset of the ground set is a basis."""

@@ -18,5 +18,5 @@ def test_linear_matroid_independence():
     M = LinearMatroid(A)
     assert M.is_independent([0, 2])
     assert M.is_dependent([0, 1])
-    assert M.is_circuit([0, 1, 2])
+    assert M.is_circuit([0, 1])
     assert M.is_basis([0, 2])
