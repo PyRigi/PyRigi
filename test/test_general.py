@@ -55,3 +55,10 @@ def test_linear_matroid_independence():
     assert M.is_dependent([0, 1])
     assert M.is_circuit([0, 1, 2])
     assert M.is_basis([0, 2])
+    
+def test_dimension():
+    F = Framework(Graph([[0,1]]),{0:[1,2], 1:[0,5]})
+    assert F.dim == F.dimension()
+    assert F.dim == 2
+    F = Framework(dim=3)
+    assert F.dim == 3

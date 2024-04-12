@@ -55,13 +55,16 @@ class Framework(object):
                             for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._graph._part_of_framework = True
-        self.dim = dimension
+        self._dim = dimension
 
+    @property
     def dim(self) -> int:
-        return self.dim
+        """The dimension property."""
+        return self._dim
 
     def dimension(self) -> int:
-        return self.dim()
+        """Return dimension of the space in which the framework is realized."""
+        return self.dim
 
     def get_realization(self) -> List[Point]:
         """
