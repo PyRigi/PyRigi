@@ -16,12 +16,9 @@ from __future__ import annotations
 from copy import deepcopy
 import networkx as nx
 from pyrigi.graph import Graph
-from typing import List, Dict, Tuple, Any, Hashable
+from typing import List, Dict, Any
 from sympy import Matrix, flatten
-
-Vertex = Hashable
-Edge = Tuple[Vertex, Vertex]
-Point = List[float]
+from pyrigi.data_type import Vertex, Edge, Point
 
 
 class Framework(object):

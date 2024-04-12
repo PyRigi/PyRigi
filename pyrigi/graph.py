@@ -8,11 +8,9 @@ from itertools import combinations
 import networkx as nx
 from random import randrange
 from sympy import Matrix
-from typing import TypeVar, List, Tuple, Any, Hashable
+from typing import List, Any
+from pyrigi.data_type import Vertex, Edge, GraphType
 
-GraphType = TypeVar("Graph")
-Vertex = Hashable
-Edge = Tuple[Vertex, Vertex]
 
 
 class Graph(nx.Graph):
