@@ -44,7 +44,7 @@ class Framework(object):
         else:
             dimension = len(list(realization.values())[0])
 
-        for v in self.graph.vertices():
+        for v in graph.vertices():
             assert v in realization
             assert len(realization[v]) == dimension
 
@@ -53,7 +53,7 @@ class Framework(object):
         self._graph = deepcopy(graph)
         self._dim = dimension
 
-    @property
+    #@property
     def dim(self) -> int:
         """The dimension property."""
         return self._dim
@@ -69,7 +69,7 @@ class Framework(object):
                 candidate += 1
             vertex = candidate
         assert vertex not in self._graph.vertices()
-        self.realization[vertex] = Matrix(point)
+        self._realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
 
     def add_vertices(self,
@@ -110,10 +110,10 @@ class Framework(object):
     def print(self) -> None:
         """Method to display the data inside the Framework."""
         print('Graph:\t\t', self._graph)
-        print('Realization:\t', self.realization)
+        print('Realization:\t', self.realization())
 
     def draw_framework(self) -> None:
-        nx.draw(self._graph, pos=self.get_realization())
+        nx.draw(self._graph, pos=self.get_realization_list())
 
     @classmethod
     def from_points(cls, points: List[Point]) -> None:
@@ -142,7 +142,7 @@ class Framework(object):
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
         raise NotImplementedError()
 
-    def get_realization(self) -> List[Point]:
+    def get_realization_list(self) -> List[Point]:
         """
         Rather than returning the internal matrix representation, this method returns the
         realization in the form of tuples. This format can also be read by networkx.
@@ -150,11 +150,14 @@ class Framework(object):
         return {vertex: tuple([float(point) for point in self._realization[vertex]])
                 for vertex in self._graph.vertices()}
     
+    def get_realization(self) -> Dict[Vertex, Point]:
+        return deepcopy(self._realization)
+    
     def realization(self) -> List[Point]:
         return self.get_realization()
     
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
-        for v in self.graph.vertices():
+        for v in self._graph.vertices():
             assert v in realization
             assert len(realization[v]) == self.dimension()
         self._realization = realization
@@ -165,7 +168,7 @@ class Framework(object):
         self._realization[vertex] = point
 
     def change_vertex_coordinates_list(self, vertices: List[Vertex], points: List[Point]):
-        if list(set(vertices)).sort() == list(vertices).sort():
+        if list(set(vertices)).sort() != list(vertices).sort():
             raise AttributeError("Mulitple Vertices with the same name were found!")
         assert len(vertices) == len(points)
         for i in range(0, len(vertices)):
@@ -201,7 +204,7 @@ class Framework(object):
             return 0
 
         return Matrix([flatten([delta(u, v, w)
-                                * (self.realization[u] - self.realization[v])
+                                * (self._realization[u] - self._realization[v])
                                 for w in vertex_order])
                        for u, v in edge_order])
 

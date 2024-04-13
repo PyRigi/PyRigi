@@ -128,7 +128,7 @@ class Graph(nx.Graph):
                 return False
         return True
 
-    def is_rigid(self, dim: int = 2, symbolic: bool = False) -> bool:
+    def is_rigid(self, dim: int = 2, symbolic: bool = True) -> bool:
         """
         Notes
         -----
@@ -141,13 +141,13 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.is_connected()
         elif dim == 2 and symbolic:
-            deficiency = (2 * self.vertices() - 3) - self.edges
+            deficiency = -(2 * len(self.vertices()) - 3) + len(self.edges)
             if deficiency < 0:
                 return False
             else:
                 for edge_subset in combinations(self.edges, deficiency):
-                    H = self.edge_subgraph([edge for edge in self.edges not in edge_subset])
-                    if H.is_tight(2, 3, dim=2):
+                    H = self.edge_subgraph([edge for edge in self.edges if edge not in edge_subset])
+                    if H.is_tight(2, 3):
                         return True
                 return False
         elif not symbolic:
@@ -159,7 +159,7 @@ class Graph(nx.Graph):
         else:
             raise AttributeError("The Dimension for symbolic computation must be either 1 or 2")
 
-    def is_minimally_rigid(self, dim: int = 2, symbolic: bool = False) -> bool:
+    def is_minimally_rigid(self, dim: int = 2, symbolic: bool = True) -> bool:
         """
         Notes
         -----
@@ -202,9 +202,9 @@ class Graph(nx.Graph):
         if not isinstance(dim, int) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
         elif dim == 1:
-            return self.node_connectivity() >= 2
+            return nx.node_connectivity(self) >= 2
         elif dim == 2:
-            return self.is_redundantly_rigid() and self.node_connectivity() >= 3
+            return self.is_redundantly_rigid() and nx.node_connectivity(self) >= 3
         else:
             from pyrigi.framework import Framework
             # Random sampling from [1,N] for N depending quadratically on number of vertices.
@@ -253,14 +253,24 @@ class Graph(nx.Graph):
     def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """List vertex-maximal rigid subgraphs. We consider a subgraph
         to be maximal, if it is maximal with respect to subgraph-inclusion."""
+        if len(self.vertices()) <= 2:
+            return []
         if self.is_rigid():
-            return [G]
+            return [self]
         maximal_subgraphs = []
         for vertex_subset in combinations(self.vertices(), len(self.vertices()) - 1):
             G = self.subgraph(vertex_subset)
-            maximal_subgraphs.append(G.maximal_rigid_subgraphs(dim))
-
-        return list(set(maximal_subgraphs))
+            maximal_subgraphs = [j for i in [maximal_subgraphs, G.maximal_rigid_subgraphs(dim)] for j in i]
+        clean_list = []
+        for i in range(0,len(maximal_subgraphs)):
+            iso_bool = False
+            for j in range(i+1,len(maximal_subgraphs)):
+                if maximal_subgraphs[i].is_isomorphic(maximal_subgraphs[j]):
+                    iso_bool = True
+                    break
+            if not iso_bool:
+                clean_list.append(maximal_subgraphs[i])
+        return clean_list
 
     def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """List vertex-minimal non-trivial rigid subgraphs. We consider a subgraph
@@ -268,14 +278,27 @@ class Graph(nx.Graph):
         minimal_subgraphs = []
         if len(self.vertices()) <= 2:
             return []
+        elif len(self.vertices()) == 3 and self.is_rigid():
+            return [self]
+        elif len(self.vertices()) == 3:
+            return []
         for vertex_subset in combinations(self.vertices(), len(self.vertices()) - 1):
             G = self.subgraph(vertex_subset)
             subgraphs = G.minimal_rigid_subgraphs(dim)
             if len(subgraphs) == 0 and G.is_rigid():
-                minimal_subgraphs.push(G)
+                minimal_subgraphs.append(G)
             else:
-                minimal_subgraphs.append(subgraphs)
-        return list(set(minimal_subgraphs))
+                minimal_subgraphs = [j for i in [minimal_subgraphs, G.minimal_rigid_subgraphs(dim)] for j in i]
+        clean_list = []
+        for i in range(0,len(minimal_subgraphs)):
+            iso_bool = False
+            for j in range(i+1,len(minimal_subgraphs)):
+                if minimal_subgraphs[i].is_isomorphic(minimal_subgraphs[j]):
+                    iso_bool = True
+                    break
+            if not iso_bool:
+                clean_list.append(minimal_subgraphs[i])
+        return clean_list
 
     def is_isomorphic(self, graph: GraphType) -> bool:
         return nx.is_isomorphic(self, graph)
