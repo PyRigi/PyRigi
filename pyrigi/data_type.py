@@ -3,7 +3,7 @@
 Module for defining data type used for type hinting.
 
 """
-from typing import TypeVar, List, Tuple, Hashable
+from typing import TypeVar, List, Tuple, Hashable, Any, Dict
 
 
 Vertex = Hashable

@@ -8,9 +8,7 @@ from itertools import combinations
 import networkx as nx
 from random import randrange
 from sympy import Matrix
-from typing import List, Any
-from pyrigi.data_type import Vertex, Edge, GraphType
-
+from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
 
 
 class Graph(nx.Graph):
