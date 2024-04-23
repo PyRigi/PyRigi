@@ -260,9 +260,9 @@ class Graph(nx.Graph):
             G = self.subgraph(vertex_subset)
             maximal_subgraphs = [j for i in [maximal_subgraphs, G.maximal_rigid_subgraphs(dim)] for j in i]
         clean_list = []
-        for i in range(0,len(maximal_subgraphs)):
+        for i in range(0, len(maximal_subgraphs)):
             iso_bool = False
-            for j in range(i+1,len(maximal_subgraphs)):
+            for j in range(i + 1, len(maximal_subgraphs)):
                 if maximal_subgraphs[i].is_isomorphic(maximal_subgraphs[j]):
                     iso_bool = True
                     break
@@ -288,9 +288,9 @@ class Graph(nx.Graph):
             else:
                 minimal_subgraphs = [j for i in [minimal_subgraphs, G.minimal_rigid_subgraphs(dim)] for j in i]
         clean_list = []
-        for i in range(0,len(minimal_subgraphs)):
+        for i in range(0, len(minimal_subgraphs)):
             iso_bool = False
-            for j in range(i+1,len(minimal_subgraphs)):
+            for j in range(i + 1, len(minimal_subgraphs)):
                 if minimal_subgraphs[i].is_isomorphic(minimal_subgraphs[j]):
                     iso_bool = True
                     break

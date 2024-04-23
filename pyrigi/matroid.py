@@ -6,6 +6,7 @@ from sympy import Matrix
 from networkx import minimum_spanning_tree
 from copy import deepcopy
 
+
 class Matroid(object):
 
     def __init__(self):

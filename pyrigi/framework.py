@@ -48,11 +48,11 @@ class Framework(object):
             assert len(realization[v]) == dimension
 
         self._realization = {v: Matrix(realization[v])
-                            for v in graph.vertices()}
+                             for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._dim = dimension
 
-    #@property
+    # @property
     def dim(self) -> int:
         """The dimension property."""
         return self._dim
@@ -60,7 +60,7 @@ class Framework(object):
     def dimension(self) -> int:
         """Return dimension of the space in which the framework is realized."""
         return self.dim()
-            
+
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         if vertex is None:
             candidate = len(self._graph.vertices())
@@ -148,13 +148,13 @@ class Framework(object):
         """
         return {vertex: tuple([float(point) for point in self._realization[vertex]])
                 for vertex in self._graph.vertices()}
-    
+
     def get_realization(self) -> Dict[Vertex, Point]:
         return deepcopy(self._realization)
-    
+
     def realization(self) -> List[Point]:
         return self.get_realization()
-    
+
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
         for v in self._graph.vertices():
             assert v in realization
