@@ -81,9 +81,12 @@ mathjax3_config = {
     "inlineMath": [['\\(', '\\)']],
     "displayMath": [["\\[", "\\]"]],
     "macros": {                 
-            "RR": '{\\mathbb{R}}', 
-            "CC": '{\\mathbb{C}}', 
-            "QQ": '{\\mathbb{Q}}',  
+            "RR": '{\\mathbb{R}}',  # real numbers
+            "CC": '{\\mathbb{C}}',  # complex numbers
+            "QQ": '{\\mathbb{Q}}',  # rational numbers
+            "ZZ": '{\\mathbb{Z}}',  # integers
+            "NN": '{\\mathbb{N}}',  # natural numbers (including 0)
+            "PP": '{\\mathbb{P}}',  # projective space
             }    
   }
 }
@@ -125,8 +128,6 @@ html_theme = 'furo'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
-# html_theme_options = {}
 
 
 html_logo = "../assets/icon.jpg"
@@ -170,7 +171,14 @@ latex_elements = {
 
     # Additional stuff for the LaTeX preamble.
     #
-    # 'preamble': '',
+    'preamble': r"""
+    \newcommand{\RR}{\mathbb{R}}    % real numbers
+    \newcommand{\CC}{\mathbb{C}}    % complex numbers
+    \newcommand{\QQ}{\mathbb{Q}}    % rational numbers
+    \newcommand{\ZZ}{\mathbb{Z}}    % integers
+    \newcommand{\NN}{\mathbb{N}}    % natural numbers (including 0)
+    \newcommand{\PP}{\mathbb{P}}    % projective space
+    """,
 
     # Latex figure (float) alignment
     #
