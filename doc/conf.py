@@ -87,6 +87,7 @@ mathjax3_config = {
             "ZZ": '{\\mathbb{Z}}',  # integers
             "NN": '{\\mathbb{N}}',  # natural numbers (including 0)
             "PP": '{\\mathbb{P}}',  # projective space
+            "KK": '{\\mathbb{K}}',  # a field
             }    
   }
 }
@@ -178,6 +179,7 @@ latex_elements = {
     \newcommand{\ZZ}{\mathbb{Z}}    % integers
     \newcommand{\NN}{\mathbb{N}}    % natural numbers (including 0)
     \newcommand{\PP}{\mathbb{P}}    % projective space
+    \newcommand{\KK}{\mathbb{K}}    % a field
     """,
 
     # Latex figure (float) alignment
