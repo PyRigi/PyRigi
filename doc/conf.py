@@ -19,9 +19,9 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = u'pyrigi'
-copyright = u'2024, Matteo Gallet, Georg Grasegger, Matthias Himmelmann, Jan Legerský'
-author = u'Matteo Gallet, Georg Grasegger, Matthias Himmelmann, Jan Legerský'
+project = u'PyRigi'
+copyright = u'2024, The PyRigi Developers'
+author = u'The PyRigi Developers'
 
 # The short X.Y version
 version = u''
@@ -146,7 +146,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pyrigidoc'
+htmlhelp_basename = 'PyRigidoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -173,8 +173,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'pyrigi.tex', u'pyrigi Documentation',
-     u'Matteo Gallet, Georg Grasegger, Matthias Himmelmann, Jan Legerský', 'manual'),
+    (master_doc, 'pyrigi.tex', u'PyRigi Documentation',
+     u'The PyRigi Developers', 'manual'),
 ]
 
 
@@ -183,7 +183,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pyrigi', u'pyrigi Documentation',
+    (master_doc, 'PyRigi', u'PyRigi Documentation',
      [author], 1)
 ]
 
@@ -194,7 +194,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'pyrigi', u'pyrigi Documentation',
+    (master_doc, 'pyrigi', u'PyRigi Documentation',
      author, 'pyrigi', 'One line description of project.',
      'Miscellaneous'),
 ]

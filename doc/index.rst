@@ -1,4 +1,4 @@
-Welcome to pyrigi's documentation!
+PyRigi documentation
 ==================================
 
 .. toctree::
