@@ -40,18 +40,21 @@ release = u''
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    "sphinx.ext.intersphinx",
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-#     'sphinx_math_dollar',
     'sphinx.ext.doctest',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinx_proof',
     'myst_parser',
 ]
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    }
 
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
@@ -81,7 +84,7 @@ numpydoc_show_inherited_class_members = False
 myst_enable_extensions = [
     "amsmath",
 #     "attrs_inline",
-#     "colon_fence",
+    "colon_fence",
 #     "deflist",
     "dollarmath",
 #     "fieldlist",
