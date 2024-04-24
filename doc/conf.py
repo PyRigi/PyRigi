@@ -51,7 +51,11 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_proof',
     'myst_parser',
+    'sphinxcontrib.bibtex'
 ]
+
+bibtex_bibfiles = ['refs.bib']
+
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     }

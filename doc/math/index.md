@@ -22,4 +22,14 @@ The pair $(G, p)$ is a called a *framework*.
 :::
 
 
+:::{prf:theorem}
+:label: thm-2-gen-rigidity
 
+A graph $G = (V_G, E_G)$ is generically $2$-rigid if and only if ...
+{cite:p}`Geiringer1927`
+{cite:p}`Laman1970`
+:::
+
+```{bibliography}
+:filter: docname in docnames
+```
