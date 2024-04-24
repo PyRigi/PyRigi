@@ -16,6 +16,7 @@ Math
    :maxdepth: 1
    
    math/index
+   math/cheatsheet
    
 Development guide
 =================
