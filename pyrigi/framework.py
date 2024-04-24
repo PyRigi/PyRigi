@@ -24,12 +24,6 @@ class Framework(object):
     """
     This class provides the functionality for frameworks.
     By definition, it is a tuple of a graph and a realization.
-
-    Attributes
-    ----------
-    realization : dict
-    dim : int
-    graph : Graph
     """
     # TODO override decorator for empty constructor?
 
