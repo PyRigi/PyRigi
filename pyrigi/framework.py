@@ -25,7 +25,7 @@ class Framework(object):
     This class provides the functionality for frameworks.
     By definition, it is a tuple of a graph and a realization.
     
-    See the definition of :prf:ref:`framework def-framework`.
+    See the definition of :prf:ref:`framework <def-framework>`.
     """
     # TODO override decorator for empty constructor?
 
