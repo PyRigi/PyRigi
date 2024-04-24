@@ -45,11 +45,12 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-    'sphinx_math_dollar',
+#     'sphinx_math_dollar',
     'sphinx.ext.doctest',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
-    'sphinxcontrib.proof',
+    'sphinx_proof',
+    'myst_parser',
 ]
 
 napoleon_google_docstring = False
@@ -75,6 +76,36 @@ autodoc_typehints = 'description'
 
 autosummary_generate = True
 numpydoc_show_inherited_class_members = False
+
+
+myst_enable_extensions = [
+    "amsmath",
+#     "attrs_inline",
+#     "colon_fence",
+#     "deflist",
+    "dollarmath",
+#     "fieldlist",
+#     "html_admonition",
+#     "html_image",
+#     "linkify",
+#     "replacements",
+#     "smartquotes",
+#     "strikethrough",
+#     "substitution",
+#     "tasklist",
+]
+
+# autodoc2_docstring_parser_regexes = [
+#     # this will render all docstrings as Markdown
+#     (r".*", "myst"),
+#     # this will render select docstrings as Markdown
+# #     (r"mypackage\.mymodule\..*", "myst"),
+# ]
+# autodoc2_render_plugin = "myst"
+# 
+# autodoc2_packages = [
+#     "../pyrigi",
+# ]
 
 mathjax3_config = {
   "tex": {
