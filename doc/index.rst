@@ -16,7 +16,6 @@ Math
    :maxdepth: 1
    
    math/index
-   math/cheatsheet
    
 Development guide
 =================
@@ -25,6 +24,7 @@ Development guide
    :maxdepth: 1
    
    development/index
+   development/cheatsheet
 
 
 
