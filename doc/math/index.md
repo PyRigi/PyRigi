@@ -16,7 +16,8 @@ The realization $p$ is *quasi-injective* if $p(u)\neq p(v)$ for every edge $uv\i
 Let $G$ be a graph and let $p$ be a $d$-dimensional {prf:ref}`realization <def-realization>` of $G$.
 The pair $(G, p)$ is a called a *framework*.
 
-**`PyRigi`**: {class}`~pyrigi.framework.Framework`,
+{{pyrigi}}:
+{class}`~pyrigi.framework.Framework`,
 {meth}`~.Framework.underlying_graph`,
 {meth}`~.Framework.get_realization`
 :::
