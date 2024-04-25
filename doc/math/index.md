@@ -44,6 +44,23 @@ The graph $G$ is said to be _$(k, \ell)$-sparse_ if it is $(k, \ell)$-sparse and
 {{references}} {cite:p}`Lee2008`
 :::
 
+:::{prf:definition} Minimally and redundantly rigid
+:label: def-minimally-redundantly-rigid
+
+Let $G$ be a graph, let $d, k \in \NN$.
+The graph $G$ is called _minimally (generically) $d$-rigid_ if ...
+The graph $G$ is called _redundantly (generically) $d$-rigid_ if ...
+The graph $G$ is called _vertex redundantly (generically) $d$-rigid_ if ...
+The graph $G$ is called _$k$-redundantly (generically) $d$-rigid_ if ...
+The graph $G$ is called _$k$-vertex redundantly (generically) $d$-rigid_ if ...
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_minimally_rigid`
+{meth}`~.Graph.is_redundantly_rigid`
+{meth}`~.Graph.is_vertex_redundantly_rigid`
+{meth}`~.Graph.is_k_redundantly_rigid`
+{meth}`~.Graph.is_k_vertex_redundantly_rigid`
+:::
+
 :::{prf:theorem}
 :label: thm-2-gen-rigidity
 

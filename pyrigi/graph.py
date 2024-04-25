@@ -107,11 +107,15 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
-        """ Remove every vertex and call `is_rigid()`"""
+        """
+        Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid <def-minimally-redundantly-rigid>`.
+        """
         return self.is_k_vertex_redundantly_rigid(1, dim)
 
     def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
-        """ Remove every k-subset of vertices and call `is_rigid()`"""
+        """
+        Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid <def-minimally-redundantly-rigid>`.
+        """
         for vertex_set in combinations(self.vertices(), k):
             G = deepcopy(self)
             G.delete_vertices(vertex_set)
@@ -120,11 +124,15 @@ class Graph(nx.Graph):
         return True
 
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
-        """ Remove every edge and call `is_rigid()`"""
+        """
+        Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid <def-minimally-redundantly-rigid>`.
+        """
         return self.is_k_redundantly_rigid(1, dim)
 
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
-        """ Remove every k-subset of edges and call `is_rigid()`"""
+        """
+        Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid <def-minimally-redundantly-rigid>`.
+        """
         for edge_set in combinations(self.edges, k):
             G = deepcopy(self)
             G.delete_edges(edge_set)
@@ -167,6 +175,8 @@ class Graph(nx.Graph):
 
     def is_minimally_rigid(self, dim: int = 2, symbolic: bool = True) -> bool:
         """
+        Check whether the graph is :prf:ref:`minimally (generically) dim-rigid <def-minimally-redundantly-rigid>`.
+
         Notes
         -----
         dim=1: Tree
