@@ -47,7 +47,7 @@ class Graph(nx.Graph):
 
     def is_sparse(self, K: int, L: int) -> bool:
         r"""
-        Checks that every possible subgraph satisfies $|E|<=K\cdot|V|-L$.
+        Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
         """
         for k in range(K, len(self.vertices()) + 1):
             for vertex_set in combinations(self.vertices(), k):
@@ -58,7 +58,7 @@ class Graph(nx.Graph):
 
     def is_tight(self, K: int, L: int) -> bool:
         r"""
-        Checks that a graph is (K,L)-sparse and has $|E|=K\cdot|V|-L$.
+        Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
         """
         return len(self.edges) <= K * len(self.nodes) - L and self.is_sparse(K, L)
 
@@ -102,7 +102,7 @@ class Graph(nx.Graph):
         Modifies self?
         """
         raise NotImplementedError()
-    
+
     def extension_sequence(self, dim: int = 2) -> Any:
         raise NotImplementedError()
 
@@ -134,6 +134,8 @@ class Graph(nx.Graph):
 
     def is_rigid(self, dim: int = 2, symbolic: bool = True) -> bool:
         """
+        Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
+
         Notes
         -----
         dim=1: Connectivity

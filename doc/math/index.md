@@ -21,13 +21,25 @@ The pair $(G, p)$ is a called a _framework_.
 {meth}`~.Framework.get_realization`
 :::
 
+:::{prf:definition} (Generically) rigid graph
+:label: def-gen-rigid
+
+Let $G$ be a graph and $d \in \NN$.
+The graph $G$ is (generically) $d$-rigid if ...
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_rigid`
+:::
+
 :::{prf:definition} $(k, \ell)$-sparse and $(k, \ell)$-tight
-:label: def-kl-sparsity
+:label: def-kl-sparse-tight
 
 Let $G = (V_G, E_G)$ be a (multi)graph and let $k, \ell \in \NN$.
 Set $n = |V_G|$ and $m = |E_G|$.
 The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n' \leq n$ vertices spans at most $kn' - \ell$ edges.
 The graph $G$ is said to be _$(k, \ell)$-sparse_ if it is $(k, \ell)$-sparse and $kn - \ell = m$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_sparse`
+{meth}`~.Graph.is_tight`
 
 {{references}} {cite:p}`Lee2008`
 :::
