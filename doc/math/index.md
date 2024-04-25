@@ -5,20 +5,19 @@ Basic definitions
 :label: def-realization
 
 Let $G=(V_G,E_G)$ be a simple graph, $\KK$ be a field and $d\in\NN$.
-A $d$-dimensional *realization* of $G$ in $\KK^d$ is a map $p\colon V_G\rightarrow \KK^d$.
+A $d$-dimensional _realization_ of $G$ in $\KK^d$ is a map $p\colon V_G\rightarrow \KK^d$.
 
-The realization $p$ is *quasi-injective* if $p(u)\neq p(v)$ for every edge $uv\in E_G$.
+The realization $p$ is _quasi-injective_ if $p(u)\neq p(v)$ for every edge $uv\in E_G$.
 :::
 
 :::{prf:definition} Framework
 :label: def-framework
 
 Let $G$ be a graph and let $p$ be a $d$-dimensional {prf:ref}`realization <def-realization>` of $G$.
-The pair $(G, p)$ is a called a *framework*.
+The pair $(G, p)$ is a called a _framework_.
 
-{{pyrigi}}:
-{class}`~pyrigi.framework.Framework`,
-{meth}`~.Framework.underlying_graph`,
+{{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
+{meth}`~.Framework.underlying_graph`
 {meth}`~.Framework.get_realization`
 :::
 
@@ -27,10 +26,10 @@ The pair $(G, p)$ is a called a *framework*.
 
 Let $G = (V_G, E_G)$ be a (multi)graph and let $k, \ell \in \NN$.
 Set $n = |V_G|$ and $m = |E_G|$.
-The graph $G$ is said to be *$(k, \ell)$-sparse* if every set of $n' \leq n$ vertices spans at most $kn' - \ell$ edges.
-The graph $G$ is said to be *$(k, \ell)$-sparse* if it is $(k, \ell)$-sparse and $kn - \ell = m$.
+The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n' \leq n$ vertices spans at most $kn' - \ell$ edges.
+The graph $G$ is said to be _$(k, \ell)$-sparse_ if it is $(k, \ell)$-sparse and $kn - \ell = m$.
 
-_References:_ {cite:p}`Lee2008`
+{{references}} {cite:p}`Lee2008`
 :::
 
 :::{prf:theorem}
@@ -38,7 +37,7 @@ _References:_ {cite:p}`Lee2008`
 
 A graph $G = (V_G, E_G)$ is generically $2$-rigid if and only if ...
 
-_References:_ {cite:p}`Geiringer1927`
+{{references}} {cite:p}`Geiringer1927`
 {cite:p}`Laman1970`
 :::
 
