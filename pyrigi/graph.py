@@ -42,6 +42,9 @@ class Graph(nx.Graph):
     def delete_edges(self, edges: List[Edge]) -> None:
         self.remove_edges_from(edges)
 
+    def vertex_connectivity(self) -> int:
+        return nx.node_connectivity(self)
+
     def is_sparse(self, K: int, L: int) -> bool:
         r"""
         Checks that every possible subgraph satisfies $|E|<=K\cdot|V|-L$.
@@ -98,6 +101,9 @@ class Graph(nx.Graph):
         ----------
         Modifies self?
         """
+        raise NotImplementedError()
+    
+    def extension_sequence(self, dim: int = 2) -> Any:
         raise NotImplementedError()
 
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
@@ -180,9 +186,6 @@ class Graph(nx.Graph):
         else:
             raise AttributeError("The Dimension for symbolic computation must be either 1 or 2")
 
-    def extension_sequence(self, dim: int = 2) -> Any:
-        raise NotImplementedError()
-
     # def pebble_game(self, dim=2):    raise NotImplementedError()
 
     # def two_spanning_trees(self):    raise NotImplementedError()
@@ -200,9 +203,9 @@ class Graph(nx.Graph):
         if not isinstance(dim, int) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
         elif dim == 1:
-            return nx.node_connectivity(self) >= 2
+            return self.vertex_connectivity() >= 2
         elif dim == 2:
-            return self.is_redundantly_rigid() and nx.node_connectivity(self) >= 3
+            return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
             from pyrigi.framework import Framework
             # Random sampling from [1,N] for N depending quadratically on number of vertices.
