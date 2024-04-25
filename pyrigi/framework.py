@@ -26,7 +26,7 @@ class Framework(object):
     """
     This class provides the functionality for frameworks.
     By definition, it is a tuple of a graph and a realization.
-    
+
     See the definition of :prf:ref:`framework <def-framework>`.
     """
     # TODO override decorator for empty constructor?
@@ -131,12 +131,12 @@ class Framework(object):
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         for vertex in vertices:
             self.delete_vertex(vertex)
-    
+
     def delete_edge(self, edge: Edge) -> None:
         self._graph.delete_edge(edge)
-    
+
     def delete_edges(self, edges: List[Edge]) -> None:
-        self._graph.delete_edges(edges)        
+        self._graph.delete_edges(edges)
 
     def get_realization_list(self) -> List[Point]:
         """
@@ -162,7 +162,7 @@ class Framework(object):
         assert vertex in self._realization
         assert len(point) == self._dim
         self._realization[vertex] = point
-    
+
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
         self.change_vertex_coordinates(vertex, point)
 
@@ -217,7 +217,7 @@ class Framework(object):
         r""" Construct the stress matrix from a stress of from its support
         """
         raise NotImplementedError()
-    
+
     def trivial_infinitesimal_flexes(self) -> List[Matrix]:
         r"""The complete graph is infinitesimally rigid in all dimensions. Thus, for computing the trivial
         flexes it suffices to compute all infinitesimal flexes of the complete graph."""
@@ -229,7 +229,7 @@ class Framework(object):
         return self.infinitesimal_flexes(include_trivial = False)
 
     def infinitesimal_flexes(self, include_trivial: bool = False) -> List[Matrix]:
-        r""" Returns a basis of the space of infinitesimal flexes. This is done by orthogonalizing the 
+        r""" Returns a basis of the space of infinitesimal flexes. This is done by orthogonalizing the
         space of trivial and non-trivial flexes and subsequently forgetting the trivial flexes.
         """
         if include_trivial:
@@ -254,7 +254,7 @@ class Framework(object):
         raise NotImplementedError()
 
     def is_minimally_infinitesimally_rigid(self) -> bool:
-        """A framework is called minimally infinitesimally rigid, if it is infinitessimally rigid 
+        """A framework is called minimally infinitesimally rigid, if it is infinitessimally rigid
         and the removal of any edge results in an infinitesimally flexible graph."""
         if not self.is_infinitesimally_rigid():
             return False
@@ -275,8 +275,9 @@ class Framework(object):
         raise NotImplementedError()
 
     def is_redundantly_rigid(self) -> bool:
-        """This method checks if the framework stays infinitesimally rigid
-        when removing any edge."""
+        """
+        Check if the framework is :prf:ref:`redundantly rigid <def-minimally-redundantly-rigid-framework>`
+        """
         for edge in self._graph.edges:
             F = deepcopy(self)
             F.delete_edge(edge)
