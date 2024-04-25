@@ -60,7 +60,8 @@ class Graph(nx.Graph):
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
         """
-        return len(self.edges) <= K * len(self.nodes) - L and self.is_sparse(K, L)
+        return len(self.edges) <= K * len(self.nodes) - \
+            L and self.is_sparse(K, L)
 
     def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
         """
@@ -150,7 +151,11 @@ class Graph(nx.Graph):
         dim=2: Pebble-game/(2,3)-rigidity
         dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        if not isinstance(dim, int) or not isinstance(symbolic, bool) or dim < 1:
+        if not isinstance(
+                dim,
+                int) or not isinstance(
+                symbolic,
+                bool) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
         elif dim == 1:
             return self.is_connected()
@@ -160,18 +165,26 @@ class Graph(nx.Graph):
                 return False
             else:
                 for edge_subset in combinations(self.edges, deficiency):
-                    H = self.edge_subgraph([edge for edge in self.edges if edge not in edge_subset])
+                    H = self.edge_subgraph(
+                        [edge for edge in self.edges if edge not in edge_subset])
                     if H.is_tight(2, 3):
                         return True
                 return False
         elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
-            realization = {vertex: [randrange(1, N) for _ in range(0, dim)] for vertex in self.vertices()}
+            realization = {
+                vertex: [
+                    randrange(
+                        1,
+                        N) for _ in range(
+                        0,
+                        dim)] for vertex in self.vertices()}
             F = Framework(self, realization, dim)
             return F.is_infinitesimally_rigid()
         else:
-            raise AttributeError("The Dimension for symbolic computation must be either 1 or 2")
+            raise AttributeError(
+                "The Dimension for symbolic computation must be either 1 or 2")
 
     def is_minimally_rigid(self, dim: int = 2, symbolic: bool = True) -> bool:
         """
@@ -183,7 +196,11 @@ class Graph(nx.Graph):
         dim=2: Pebble-game/(2,3)-tight
         dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        if not isinstance(dim, int) or not isinstance(symbolic, bool) or dim < 1:
+        if not isinstance(
+                dim,
+                int) or not isinstance(
+                symbolic,
+                bool) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
         elif dim == 1:
             return self.is_tree()
@@ -192,11 +209,18 @@ class Graph(nx.Graph):
         elif not symbolic:
             from pyrigi.framework import Framework
             N = 10 * len(self.vertices())**2 * dim
-            realization = {vertex: [randrange(1, N) for _ in range(0, dim)] for vertex in self.vertices()}
+            realization = {
+                vertex: [
+                    randrange(
+                        1,
+                        N) for _ in range(
+                        0,
+                        dim)] for vertex in self.vertices()}
             F = Framework(self, realization, dim)
             return F.is_minimally_infinitesimally_rigid()
         else:
-            raise AttributeError("The Dimension for symbolic computation must be either 1 or 2")
+            raise AttributeError(
+                "The Dimension for symbolic computation must be either 1 or 2")
 
     # def pebble_game(self, dim=2):    raise NotImplementedError()
 
@@ -220,7 +244,8 @@ class Graph(nx.Graph):
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
             from pyrigi.framework import Framework
-            # Random sampling from [1,N] for N depending quadratically on number of vertices.
+            # Random sampling from [1,N] for N depending quadratically on number
+            # of vertices.
             raise NotImplementedError()
 
     def is_Rd_dependent(self, dim: int = 2) -> bool:
@@ -271,9 +296,14 @@ class Graph(nx.Graph):
         if self.is_rigid():
             return [self]
         maximal_subgraphs = []
-        for vertex_subset in combinations(self.vertices(), len(self.vertices()) - 1):
+        for vertex_subset in combinations(
+            self.vertices(), len(
+                self.vertices()) - 1):
             G = self.subgraph(vertex_subset)
-            maximal_subgraphs = [j for i in [maximal_subgraphs, G.maximal_rigid_subgraphs(dim)] for j in i]
+            maximal_subgraphs = [
+                j for i in [
+                    maximal_subgraphs,
+                    G.maximal_rigid_subgraphs(dim)] for j in i]
         clean_list = []
         for i in range(0, len(maximal_subgraphs)):
             iso_bool = False
@@ -295,13 +325,18 @@ class Graph(nx.Graph):
             return [self]
         elif len(self.vertices()) == 3:
             return []
-        for vertex_subset in combinations(self.vertices(), len(self.vertices()) - 1):
+        for vertex_subset in combinations(
+            self.vertices(), len(
+                self.vertices()) - 1):
             G = self.subgraph(vertex_subset)
             subgraphs = G.minimal_rigid_subgraphs(dim)
             if len(subgraphs) == 0 and G.is_rigid():
                 minimal_subgraphs.append(G)
             else:
-                minimal_subgraphs = [j for i in [minimal_subgraphs, G.minimal_rigid_subgraphs(dim)] for j in i]
+                minimal_subgraphs = [
+                    j for i in [
+                        minimal_subgraphs,
+                        G.minimal_rigid_subgraphs(dim)] for j in i]
         clean_list = []
         for i in range(0, len(minimal_subgraphs)):
             iso_bool = False

@@ -166,18 +166,27 @@ class Framework(object):
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
         self.change_vertex_coordinates(vertex, point)
 
-    def change_vertex_coordinates_list(self, vertices: List[Vertex], points: List[Point]) -> None:
+    def change_vertex_coordinates_list(
+            self,
+            vertices: List[Vertex],
+            points: List[Point]) -> None:
         if list(set(vertices)).sort() != list(vertices).sort():
-            raise AttributeError("Mulitple Vertices with the same name were found!")
+            raise AttributeError(
+                "Mulitple Vertices with the same name were found!")
         assert len(vertices) == len(points)
         for i in range(0, len(vertices)):
             self.change_vertex_coordinates(vertices[i], points[i])
 
-    def set_vertex_positions(self, vertices: List[Vertex], points: List[Point]) -> None:
+    def set_vertex_positions(
+            self,
+            vertices: List[Vertex],
+            points: List[Point]) -> None:
         self.change_vertex_coordinates_list(vertices, points)
 
     def change_realization(self, subset_of_realization: Dict[Vertex, Point]):
-        self.change_vertex_coordinates_list(subset_of_realization.keys(), subset_of_realization.values())
+        self.change_vertex_coordinates_list(
+            subset_of_realization.keys(),
+            subset_of_realization.values())
 
     def rigidity_matrix(
             self,
@@ -222,13 +231,19 @@ class Framework(object):
         r"""The complete graph is infinitesimally rigid in all dimensions. Thus, for computing the trivial
         flexes it suffices to compute all infinitesimal flexes of the complete graph."""
         K = nx.complete_graph(len(self._graph.vertices()))
-        F = Framework(graph = Graph(K.edges), realization = self.realization(), dim=self.dim())
-        return F.infinitesimal_flexes(include_trivial = True)
+        F = Framework(
+            graph=Graph(
+                K.edges),
+            realization=self.realization(),
+            dim=self.dim())
+        return F.infinitesimal_flexes(include_trivial=True)
 
     def nontrivial_infinitesimal_flexes(self) -> List[Matrix]:
-        return self.infinitesimal_flexes(include_trivial = False)
+        return self.infinitesimal_flexes(include_trivial=False)
 
-    def infinitesimal_flexes(self, include_trivial: bool = False) -> List[Matrix]:
+    def infinitesimal_flexes(
+            self,
+            include_trivial: bool = False) -> List[Matrix]:
         r""" Returns a basis of the space of infinitesimal flexes. This is done by orthogonalizing the
         space of trivial and non-trivial flexes and subsequently forgetting the trivial flexes.
         """
@@ -236,8 +251,9 @@ class Framework(object):
             return self.rigidity_matrix().nullspace()
         trivial_flexes = self.trivial_infinitesimal_flexes()
         all_flexes = self.rigidity_matrix().nullspace()
-        basis_flexspace = Matrix.orthogonalize(*(trivial_flexes + all_flexes), rankcheck = False)
-        return basis_flexspace[len(trivial_flexes):len(all_flexes)+1]
+        basis_flexspace = Matrix.orthogonalize(
+            *(trivial_flexes + all_flexes), rankcheck=False)
+        return basis_flexspace[len(trivial_flexes):len(all_flexes) + 1]
 
     def stresses(self) -> Any:
         r""" Returns a basis of the space of stresses
@@ -248,7 +264,8 @@ class Framework(object):
         return self.rigidity_matrix().rank()
 
     def is_infinitesimally_rigid(self) -> bool:
-        return len(self.graph().vertices()) <= 1 or self.rigidity_matrix_rank() == self.dim() * len(self.graph().vertices()) - (self.dim()) * (self.dim()+1) // 2
+        return len(self.graph().vertices()) <= 1 or self.rigidity_matrix_rank() == self.dim(
+        ) * len(self.graph().vertices()) - (self.dim()) * (self.dim() + 1) // 2
 
     def is_infinitesimally_spanning(self) -> bool:
         raise NotImplementedError()
