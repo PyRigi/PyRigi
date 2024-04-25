@@ -29,13 +29,15 @@ Set $n = |V_G|$ and $m = |E_G|$.
 The graph $G$ is said to be *$(k, \ell)$-sparse* if every set of $n' \leq n$ vertices spans at most $kn' - \ell$ edges.
 The graph $G$ is said to be *$(k, \ell)$-sparse* if it is $(k, \ell)$-sparse and $kn - \ell = m$.
 
+_References:_ {cite:p}`Lee2008`
 :::
 
 :::{prf:theorem}
 :label: thm-2-gen-rigidity
 
 A graph $G = (V_G, E_G)$ is generically $2$-rigid if and only if ...
-{cite:p}`Geiringer1927`
+
+_References:_ {cite:p}`Geiringer1927`
 {cite:p}`Laman1970`
 :::
 
