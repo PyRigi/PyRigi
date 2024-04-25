@@ -21,6 +21,15 @@ The pair $(G, p)$ is a called a *framework*.
 {meth}`~.Framework.get_realization`
 :::
 
+:::{prf:definition} $(k, \ell)$-sparse and $(k, \ell)$-tight
+:label: def-kl-sparsity
+
+Let $G = (V_G, E_G)$ be a (multi)graph and let $k, \ell \in \NN$.
+Set $n = |V_G|$ and $m = |E_G|$.
+The graph $G$ is said to be *$(k, \ell)$-sparse* if every set of $n' \leq n$ vertices spans at most $kn' - \ell$ edges.
+The graph $G$ is said to be *$(k, \ell)$-sparse* if it is $(k, \ell)$-sparse and $kn - \ell = m$.
+
+:::
 
 :::{prf:theorem}
 :label: thm-2-gen-rigidity
