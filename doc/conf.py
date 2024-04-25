@@ -98,21 +98,15 @@ myst_enable_extensions = [
 #     "replacements",
 #     "smartquotes",
 #     "strikethrough",
-#     "substitution",
+    "substitution",
 #     "tasklist",
 ]
 
-# autodoc2_docstring_parser_regexes = [
-#     # this will render all docstrings as Markdown
-#     (r".*", "myst"),
-#     # this will render select docstrings as Markdown
-# #     (r"mypackage\.mymodule\..*", "myst"),
-# ]
-# autodoc2_render_plugin = "myst"
-# 
-# autodoc2_packages = [
-#     "../pyrigi",
-# ]
+
+myst_substitutions = {
+  "pyrigi": "**`PyRigi`**"
+}
+
 
 mathjax3_config = {
   "tex": {
