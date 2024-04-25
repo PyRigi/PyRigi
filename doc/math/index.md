@@ -30,6 +30,6 @@ A graph $G = (V_G, E_G)$ is generically $2$-rigid if and only if ...
 {cite:p}`Laman1970`
 :::
 
-```{bibliography}
+:::{bibliography}
 :filter: docname in docnames
-```
+:::

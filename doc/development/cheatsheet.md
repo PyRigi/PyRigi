@@ -16,3 +16,4 @@ Cheatsheet
 
 {class}`~pyrigi.framework.Framework`
 
+{cite:p}`Geiringer1927`
