@@ -28,6 +28,11 @@ class Framework(object):
     By definition, it is a tuple of a graph and a realization.
     Internally, the realization is represented as a list of
     matrices ("vectors").
+    
+    Definitions
+    -----------
+    :prf:ref:`Framework <def-framework>`
+        
 
     graph:  Graph from the PyRigi.Graph class.
     realization: A dictionary mapping the vertices from the graph to 
@@ -39,7 +44,6 @@ class Framework(object):
     dim:    The dimension is usually initialized by the realization. If
             the realization is empty, the dimension is 0 by default.
 
-    See the definition of :prf:ref:`framework <def-framework>`.
     """
     # TODO override decorator for empty constructor?
 
