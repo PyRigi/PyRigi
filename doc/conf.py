@@ -166,9 +166,11 @@ html_theme = 'furo'
 # further.  For a list of options available for each theme, see the
 # documentation.
 
-html_logo = "../assets/logo_nofont.png"
+# html_logo = "../assets/logo_nofont.png"
 html_theme_options = {
     "sidebar_hide_name": False,
+    "light_logo": "logo_nofont.png",
+    "dark_logo": "logo_nofont_dark.png",
 }
 
 
