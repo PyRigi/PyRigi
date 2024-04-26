@@ -126,7 +126,8 @@ class Graph(nx.Graph):
 
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """
-        Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`.
+        Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid 
+        <def-minimally-redundantly-rigid-graph>`.
         """
         return self.is_k_redundantly_rigid(1, dim)
 
