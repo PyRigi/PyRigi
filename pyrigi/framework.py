@@ -15,11 +15,13 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-import networkx as nx
-from pyrigi.graph import Graph
 from random import randrange
+
+import networkx as nx
 from sympy import Matrix, flatten
+
 from pyrigi.data_type import Vertex, Edge, Point, List, Any, Dict
+from pyrigi.graph import Graph
 
 
 class Framework(object):
@@ -334,7 +336,7 @@ class Framework(object):
         return basis_flexspace[len(trivial_flexes):len(all_flexes) + 1]
 
     def stresses(self) -> Any:
-        r""" Returns a basis of the space of stresses
+        r""" Return a basis of the space of stresses.
         """
         raise NotImplementedError()
 
@@ -349,7 +351,7 @@ class Framework(object):
         raise NotImplementedError()
 
     def is_minimally_infinitesimally_rigid(self) -> bool:
-        """A framework is called minimally infinitesimally rigid, if it is infinitessimally rigid
+        """A framework is called minimally infinitesimally rigid, if it is infinitesimally rigid
         and the removal of any edge results in an infinitesimally flexible graph."""
         if not self.is_infinitesimally_rigid():
             return False
