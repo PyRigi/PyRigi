@@ -93,14 +93,18 @@ class Framework(object):
             while candidate in self._graph.vertices():
                 candidate += 1
             vertex = candidate
-        assert vertex not in self._graph.vertices()
+
+        if vertex in self._graph.vertices():
+            raise AttributeError(str("Vertex is already contained in the graph's vertices!"))
+            
         self._realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
 
     def add_vertices(self,
                      points: List[Point],
                      vertices: List[Vertex] = []) -> None:
-        assert (len(points) == len(vertices) or not vertices)
+        if not (len(points) == len(vertices) or not vertices):
+            raise ValueError("The vertex list does not have the correct length!")
         if not vertices:
             for point in points:
                 self.add_vertex(point)
@@ -109,8 +113,10 @@ class Framework(object):
                 self.add_vertex(p, v)
 
     def add_edge(self, edge: Edge) -> None:
-        assert (len(edge)) == 2
-        assert (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes)
+        if not (len(edge)) == 2:
+            raise TypeError("Edge does not have the correct length!")
+        if not (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes):
+            raise ValueError("The edge's end points are not contained in the graph's vertices!")
         self._graph.add_edge(*(edge))
 
     def add_edges(self, edges: List[Edge]) -> None:
@@ -195,13 +201,17 @@ class Framework(object):
 
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
         for v in self._graph.vertices():
-            assert v in realization
-            assert len(realization[v]) == self.dimension()
+            if not v in realization:
+                raise KeyError("Vertex is not contained in the given realization!")
+            if not len(realization[v]) == self.dimension():
+                raise AttributeError("The realization does not have the correct dimension at some vertex!")
         self._realization = realization
 
     def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
-        assert vertex in self._realization
-        assert len(point) == self._dim
+        if not vertex in self._realization:
+            raise KeyError("Vertex is not contained in the given realization!")
+        if not len(point) == self.dimension():
+            raise AttributeError("The realization does not have the correct dimension at some vertex!")
         self._realization[vertex] = point
 
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
@@ -217,7 +227,8 @@ class Framework(object):
         if list(set(vertices)).sort() != list(vertices).sort():
             raise AttributeError(
                 "Mulitple Vertices with the same name were found!")
-        assert len(vertices) == len(points)
+        if not len(vertices) == len(points):
+            raise AttributeError("The list of vertices does not have the same length as the list of points!")
         for i in range(0, len(vertices)):
             self.change_vertex_coordinates(vertices[i], points[i])
         
@@ -246,7 +257,8 @@ class Framework(object):
             if vertex_order is None:
                 vertex_order = sorted(self._graph.vertices())
             else:
-                assert set(self._graph.vertices()) == set(vertex_order)
+                if not set(self._graph.vertices()) == set(vertex_order):
+                    raise AttributeError("The vertex_order needs to contain the same vertices as the graph!")
         except TypeError as error:
             vertex_order = self._graph.vertices()
 
@@ -255,8 +267,10 @@ class Framework(object):
                 pinned_vertices[v] = []
         pinned_vertices = {v:pinned_vertices[v] for v in pinned_vertices.keys() if v in self._graph.vertices()}
         for v in pinned_vertices:
-            assert v in self._graph.vertices()
-            assert len(pinned_vertices[v]) <= self.dim()
+            if not v in self._graph.vertices():
+                raise KeyError("A vertex in pinned_vertices is not contained in the graph!")
+            if not len(pinned_vertices[v]) <= self.dim():
+                raise AttributeError("Too many coordinates provided for pinned_vertices!")
 
         if edges_ordered:
             edge_order = sorted(self._graph.edges())
@@ -285,6 +299,7 @@ class Framework(object):
     def stress_matrix(
             self,
             data: Any,
+            pinned_vertices: Dict[Vertex, List[int]] = {},
             edge_order: List[Edge] = None) -> Matrix:
         r""" Construct the stress matrix from a stress of from its support
         """

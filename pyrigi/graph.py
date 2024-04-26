@@ -387,7 +387,8 @@ class Graph(nx.Graph):
             if vertex_order is None:
                 vertex_order = sorted(self.vertices())
             else:
-                assert set(self.vertices()) == set(vertex_order)
+                if not set(self.vertices()) == set(vertex_order):
+                    raise AttributeError("The vertex_order needs to contain the same vertices as the graph!")
         except TypeError as error:
             vertex_order = self.vertices()
         return nx.adjacency_matrix(
