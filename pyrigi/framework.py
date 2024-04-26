@@ -37,11 +37,6 @@ class Framework(object):
     graph
     realization: 
         A dictionary mapping the vertices of the graph to points in $\RR^n$.
-    pinned_vertices: 
-        A dictionary mapping vertices to lists of coordinate
-        indices. We initialize this dictionary so that each index
-        from the graph appears. This will make our life easier 
-        later on.
     dim:
         The dimension is usually initialized by the realization. If
         the realization is empty, the dimension is 0 by default.
@@ -70,21 +65,11 @@ class Framework(object):
         for v in graph.vertices():
             assert v in realization
             assert len(realization[v]) == dimension
-            if not v in pinned_vertices:
-                pinned_vertices[v] = []
         
-#         TODO Resolve strange behavior that `pinned_vertices` is initialized as `{0:[], 1:[], ...}` when
-#             realization is initialized as an empty dict
-        pinned_vertices = {v:pinned_vertices[v] for v in pinned_vertices.keys() if v in graph.vertices()}
-        for v in pinned_vertices:
-            assert v in graph.vertices()
-            assert len(pinned_vertices[v]) <= dimension
-
         self._realization = {v: Matrix(realization[v])
                              for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._dim = dimension
-        self._pinned_vertices = pinned_vertices
 
     def dim(self) -> int:
         """Return the dimension of the framework."""
@@ -105,7 +90,6 @@ class Framework(object):
         assert vertex not in self._graph.vertices()
         self._realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
-        self._pinned_vertices[vertex] = []
 
     def add_vertices(self,
                      points: List[Point],
@@ -142,11 +126,10 @@ class Framework(object):
         """
         return self.underlying_graph()
 
-    def print(self) -> None:
+    def __str__(self) -> None:
         """Method to display the data inside the Framework."""
         print('Graph:\t\t', self._graph)
         print('Realization:\t', {key:self.get_realization_list()[key] for key in sorted(self.get_realization_list())})
-        print('Pinned coords:\t', {key:self.get_pinned_vertices()[key] for key in sorted(self.get_pinned_vertices())})
         print('dim:\t\t', self.dim())
 
     def draw_framework(self) -> None:
@@ -175,7 +158,7 @@ class Framework(object):
 
     def delete_vertex(self, vertex: Vertex) -> None:
         self._graph.delete_vertex(vertex)
-        del self._realization[vertex], self._pinned_vertices[vertex]
+        del self._realization[vertex]
 
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         for vertex in vertices:
@@ -246,27 +229,10 @@ class Framework(object):
             subset_of_realization.keys(),
             subset_of_realization.values())
         
-    def pin_vertex(self, vertex: Vertex, indices: List[int]) -> None:
-        assert vertex in self.graph().vertices()
-        self._pinned_vertices[vertex] = indices
-
-    def pin_vertices(self, vertices: List[Vertex], list_of_indices: List[List[int]]) -> None:
-        for i in range(len(vertex)):
-            self.pin_vertex(vertices[i], list_of_indices[i])
-
-    def set_pinned_vertices(self, pinned_vertices: Dict[Vertex, List[int]]) -> None:
-        for v in self._pinned_vertices.keys():
-            if not v in pinned_vertices:
-                pinned_vertices[v] = []
-        assert set(self._pinned_vertices.keys()) == set(pinned_vertices.keys())
-        self._pinned_vertices = pinned_vertices
-
-    def get_pinned_vertices(self) -> Dict[Vertex, List[int]]:
-        return deepcopy(self._pinned_vertices)
-
     def rigidity_matrix(
             self,
             vertex_order: List[Vertex] = None,
+            pinned_vertices: Dict[Vertex, List[int]] = {},
             edges_ordered: bool = True) -> Matrix:
         r""" Construct the rigidity matrix of the framework
         """
@@ -277,6 +243,14 @@ class Framework(object):
                 assert set(self._graph.vertices()) == set(vertex_order)
         except TypeError as error:
             vertex_order = self._graph.vertices()
+
+        for v in vertex_order:
+            if not v in pinned_vertices:
+                pinned_vertices[v] = []
+        pinned_vertices = {v:pinned_vertices[v] for v in pinned_vertices.keys() if v in self._graph.vertices()}
+        for v in pinned_vertices:
+            assert v in self._graph.vertices()
+            assert len(pinned_vertices[v]) <= self.dim()
 
         if edges_ordered:
             edge_order = sorted(self._graph.edges())
@@ -291,7 +265,7 @@ class Framework(object):
             return 0
 
         """Add the column information about the pinned vertices, according to the `vertex_order`."""
-        pinned_entries = flatten([[self.dim()*count+index for index in self._pinned_vertices[vertex_order[count]]] 
+        pinned_entries = flatten([[self.dim()*count+index for index in pinned_vertices[vertex_order[count]]] 
                                   for count in range(len(vertex_order))])
 
         """Return the rigidity matrix with standard unit basis vectors added for each pinned coordinate."""
@@ -310,30 +284,30 @@ class Framework(object):
         """
         raise NotImplementedError()
 
-    def trivial_infinitesimal_flexes(self) -> List[Matrix]:
+    def trivial_infinitesimal_flexes(self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> List[Matrix]:
         r"""The complete graph is infinitesimally rigid in all dimensions. Thus, for computing the trivial
         flexes it suffices to compute all infinitesimal flexes of the complete graph."""
         Kn = nx.complete_graph(len(self._graph.vertices()))
         F_Kn = Framework(
             graph=Graph(Kn.edges),
             realization=self.realization(),
-            pinned_vertices=self.get_pinned_vertices(),
             dim=self.dim())
-        return F_Kn.infinitesimal_flexes(include_trivial=True)
+        return F_Kn.infinitesimal_flexes(pinned_vertices = pinned_vertices, include_trivial = True)
 
-    def nontrivial_infinitesimal_flexes(self) -> List[Matrix]:
-        return self.infinitesimal_flexes(include_trivial=False)
+    def nontrivial_infinitesimal_flexes(self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> List[Matrix]:
+        return self.infinitesimal_flexes(pinned_vertices = pinned_vertices, include_trivial=False)
 
     def infinitesimal_flexes(
             self,
+            pinned_vertices: Dict[Vertex, List[int]] = {},
             include_trivial: bool = False) -> List[Matrix]:
         r""" Returns a basis of the space of infinitesimal flexes. This is done by orthogonalizing the
         space of trivial and non-trivial flexes and subsequently forgetting the trivial flexes.
         """
         if include_trivial:
-            return self.rigidity_matrix().nullspace()
-        trivial_flexes = self.trivial_infinitesimal_flexes()
-        all_flexes = self.rigidity_matrix().nullspace()
+            return self.rigidity_matrix(pinned_vertices = pinned_vertices).nullspace()
+        trivial_flexes = self.trivial_infinitesimal_flexes(pinned_vertices = pinned_vertices)
+        all_flexes = self.rigidity_matrix(pinned_vertices = pinned_vertices).nullspace()
         basis_flexspace = Matrix.orthogonalize(
             *(trivial_flexes + all_flexes), rankcheck=False)
         return basis_flexspace[len(trivial_flexes):len(all_flexes) + 1]
@@ -343,8 +317,8 @@ class Framework(object):
         """
         raise NotImplementedError()
 
-    def rigidity_matrix_rank(self) -> int:
-        return self.rigidity_matrix().rank()
+    def rigidity_matrix_rank(self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> int:
+        return self.rigidity_matrix(pinned_vertices = pinned_vertices).rank()
 
     def is_infinitesimally_rigid(self) -> bool:
         return len(self.graph().vertices()) <= 1 or self.rigidity_matrix_rank() == self.dim(
