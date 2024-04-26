@@ -1,5 +1,4 @@
-Motions
-=========================
+## Motions
 
 This page documents the class Motion.
 

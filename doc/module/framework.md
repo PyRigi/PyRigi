@@ -1,5 +1,5 @@
-Frameworks
-=========================
+## Frameworks
+
 
 ```{eval-rst}
 .. automodule:: pyrigi.framework
