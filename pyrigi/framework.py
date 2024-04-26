@@ -85,10 +85,8 @@ class Framework(object):
         self._dim = dimension
         self._pinned_vertices = pinned_vertices
 
-    # @property
     def dim(self) -> int:
-        """Return the dimension attribute. 
-        #TODO Don't return a pointer, but a copy."""
+        """Return the dimension of the framework."""
         return self._dim
 
     def dimension(self) -> int:
