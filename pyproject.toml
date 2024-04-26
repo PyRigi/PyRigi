@@ -2,14 +2,11 @@
 name = "PyRigi"
 version = "0.0.1"
 authors = [
-  { name="Matteo Gallet", email="author@example.com" },
-{ name="Georg Grasegger", email="author@example.com" },
-{ name="Matthias Himmelmann", email="matthias.himmelmann@outlook.de" },
-{ name="Jan Legersky", email="author@example.com" },
+  { name="The PyRigi Developers" },
 ]
 description = "Python package concerning the rigidity and flexibility of bar-and-joint frameworks."
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
