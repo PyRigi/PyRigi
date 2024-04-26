@@ -7,7 +7,6 @@
 :::{toctree}
 :maxdepth: 1
 module/framework
-module/motion
 module/graph
 :::
 
@@ -17,7 +16,7 @@ module/graph
 :::{toctree}
 math/index
 :::
-   
+
 ## Development guide
 
 
