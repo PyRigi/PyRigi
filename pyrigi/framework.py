@@ -34,15 +34,22 @@ class Framework(object):
     :prf:ref:`Framework <def-framework>`
         
 
-    graph:  Graph from the PyRigi.Graph class.
-    realization: A dictionary mapping the vertices from the graph to 
-            R^n. There are several consistency checks in place.
-    pinned_vertices: A dictionary mapping vertices to lists of coordinate
-            indices. We initialize this dictionary so that each index
-            from the graph appears. This will make our life easier 
-            later on.
-    dim:    The dimension is usually initialized by the realization. If
-            the realization is empty, the dimension is 0 by default.
+    Parameters
+    ----------
+    graph:  
+        Graph from the PyRigi.Graph class.
+    realization: 
+        A dictionary mapping the vertices from the graph to 
+        R^n. There are several consistency checks in place.
+    pinned_vertices: 
+        A dictionary mapping vertices to lists of coordinate
+        indices. We initialize this dictionary so that each index
+        from the graph appears. This will make our life easier 
+        later on.
+    dim:
+        The dimension is usually initialized by the realization. If
+        the realization is empty, the dimension is 0 by default.
+
 
     """
     # TODO override decorator for empty constructor?
