@@ -26,6 +26,18 @@ class Framework(object):
     """
     This class provides the functionality for frameworks.
     By definition, it is a tuple of a graph and a realization.
+    Internally, the realization is represented as a list of
+    matrices ("vectors").
+
+    graph:  Graph from the PyRigi.Graph class.
+    realization: A dictionary mapping the vertices from the graph to 
+            R^n. There are several consistency checks in place.
+    pinned_vertices: A dictionary mapping vertices to lists of coordinate
+            indices. We initialize this dictionary so that each index
+            from the graph appears. This will make our life easier 
+            later on.
+    dim:    The dimension is usually initialized by the realization. If
+            the realization is empty, the dimension is 0 by default.
 
     See the definition of :prf:ref:`framework <def-framework>`.
     """
@@ -34,6 +46,7 @@ class Framework(object):
     def __init__(self,
                  graph: Graph = Graph(),
                  realization: Dict[Vertex, Point] = {},
+                 pinned_vertices: Dict[Vertex, List[int]] = {},
                  dim: int = 2) -> None:
         assert isinstance(graph, Graph)
         if len(realization.values()) == 0:
@@ -41,22 +54,36 @@ class Framework(object):
         else:
             dimension = len(list(realization.values())[0])
 
+        assert len(realization.keys()) == len(graph.vertices())
         for v in graph.vertices():
             assert v in realization
             assert len(realization[v]) == dimension
+            if not v in pinned_vertices:
+                pinned_vertices[v] = []
+        
+        """#TODO Resolve strange behavior that `pinned_vertices` is initialized as `{0:[], 1:[], ...}` when
+            realization is initialized as an empty dict"""
+        pinned_vertices = {v:pinned_vertices[v] for v in pinned_vertices.keys() if v in graph.vertices()}
+        for v in pinned_vertices:
+            assert v in graph.vertices()
+            assert len(pinned_vertices[v]) <= dimension
 
         self._realization = {v: Matrix(realization[v])
                              for v in graph.vertices()}
         self._graph = deepcopy(graph)
         self._dim = dimension
+        self._pinned_vertices = pinned_vertices
 
     # @property
     def dim(self) -> int:
-        """The dimension property."""
+        """Return the dimension attribute. 
+        #TODO Don't return a pointer, but a copy."""
         return self._dim
 
     def dimension(self) -> int:
-        """Return dimension of the space in which the framework is realized."""
+        """
+        Alias for :meth:`~Framework.dim`
+        """
         return self.dim()
 
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
@@ -68,6 +95,7 @@ class Framework(object):
         assert vertex not in self._graph.vertices()
         self._realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
+        self._pinned_vertices[vertex] = []
 
     def add_vertices(self,
                      points: List[Point],
@@ -107,26 +135,37 @@ class Framework(object):
     def print(self) -> None:
         """Method to display the data inside the Framework."""
         print('Graph:\t\t', self._graph)
-        print('Realization:\t', self.realization())
+        print('Realization:\t', {key:self.get_realization_list()[key] for key in sorted(self.get_realization_list())})
+        print('Pinned coords:\t', {key:self.get_pinned_vertices()[key] for key in sorted(self.get_pinned_vertices())})
+        print('dim:\t\t', self.dim())
 
     def draw_framework(self) -> None:
         nx.draw(self._graph, pos=self.get_realization_list())
 
     @classmethod
     def from_points(cls, points: List[Point]) -> None:
+        """
+        #TODO Generate a framework from a list of points
+        """
         raise NotImplementedError()
 
     @classmethod
     def from_graph(cls, graph: Graph) -> None:
+        """
+        #TODO Framework with random coordinates?
+        """
         raise NotImplementedError()
 
     @classmethod
     def empty(cls, dim: int) -> None:
+        """
+        #TODO Generates an empty framework? Shouldn't it then be `Empty` instead?
+        """
         raise NotImplementedError()
 
     def delete_vertex(self, vertex: Vertex) -> None:
         self._graph.delete_vertex(vertex)
-        del self._realization[vertex]
+        del self._realization[vertex], self._pinned_vertices[vertex]
 
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         for vertex in vertices:
@@ -150,6 +189,9 @@ class Framework(object):
         return deepcopy(self._realization)
 
     def realization(self) -> List[Point]:
+        """
+        Alias for :meth:`~Framework.get_realization`
+        """
         return self.get_realization()
 
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
@@ -164,6 +206,9 @@ class Framework(object):
         self._realization[vertex] = point
 
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
+        """
+        Alias for :meth:`~Framework.change_vertex_coordinates`
+        """
         self.change_vertex_coordinates(vertex, point)
 
     def change_vertex_coordinates_list(
@@ -176,17 +221,38 @@ class Framework(object):
         assert len(vertices) == len(points)
         for i in range(0, len(vertices)):
             self.change_vertex_coordinates(vertices[i], points[i])
-
+        
     def set_vertex_positions(
             self,
             vertices: List[Vertex],
             points: List[Point]) -> None:
+        """
+        Alias for :meth:`~Framework.change_vertex_coordinates_list`
+        """
         self.change_vertex_coordinates_list(vertices, points)
 
     def change_realization(self, subset_of_realization: Dict[Vertex, Point]):
         self.change_vertex_coordinates_list(
             subset_of_realization.keys(),
             subset_of_realization.values())
+        
+    def pin_vertex(self, vertex: Vertex, indices: List[int]) -> None:
+        assert vertex in self.graph().vertices()
+        self._pinned_vertices[vertex] = indices
+
+    def pin_vertices(self, vertices: List[Vertex], list_of_indices: List[List[int]]) -> None:
+        for i in range(len(vertex)):
+            self.pin_vertex(vertices[i], list_of_indices[i])
+
+    def set_pinned_vertices(self, pinned_vertices: Dict[Vertex, List[int]]) -> None:
+        for v in self._pinned_vertices.keys():
+            if not v in pinned_vertices:
+                pinned_vertices[v] = []
+        assert set(self._pinned_vertices.keys()) == set(pinned_vertices.keys())
+        self._pinned_vertices = pinned_vertices
+
+    def get_pinned_vertices(self) -> Dict[Vertex, List[int]]:
+        return deepcopy(self._pinned_vertices)
 
     def rigidity_matrix(
             self,
@@ -214,10 +280,17 @@ class Framework(object):
                 return -1
             return 0
 
+        """Add the column information about the pinned vertices, according to the `vertex_order`."""
+        pinned_entries = flatten([[self.dim()*count+index for index in self._pinned_vertices[vertex_order[count]]] 
+                                  for count in range(len(vertex_order))])
+
+        """Return the rigidity matrix with standard unit basis vectors added for each pinned coordinate."""
         return Matrix([flatten([delta(u, v, w)
                                 * (self._realization[u] - self._realization[v])
                                 for w in vertex_order])
-                       for u, v in edge_order])
+                        for u, v in edge_order] +
+                    [[1 if i == index else 0 for i in range(self.dim()*len(vertex_order))] 
+                        for index in pinned_entries])
 
     def stress_matrix(
             self,
@@ -230,13 +303,13 @@ class Framework(object):
     def trivial_infinitesimal_flexes(self) -> List[Matrix]:
         r"""The complete graph is infinitesimally rigid in all dimensions. Thus, for computing the trivial
         flexes it suffices to compute all infinitesimal flexes of the complete graph."""
-        K = nx.complete_graph(len(self._graph.vertices()))
-        F = Framework(
-            graph=Graph(
-                K.edges),
+        Kn = nx.complete_graph(len(self._graph.vertices()))
+        F_Kn = Framework(
+            graph=Graph(Kn.edges),
             realization=self.realization(),
+            pinned_vertices=self.get_pinned_vertices(),
             dim=self.dim())
-        return F.infinitesimal_flexes(include_trivial=True)
+        return F_Kn.infinitesimal_flexes(include_trivial=True)
 
     def nontrivial_infinitesimal_flexes(self) -> List[Matrix]:
         return self.infinitesimal_flexes(include_trivial=False)
@@ -306,7 +379,4 @@ class Framework(object):
         raise NotImplementedError()
 
     def is_equivalent(self, framework_) -> bool:
-        raise NotImplementedError()
-
-    def pin(self, vertices: List[Vertex]) -> None:
         raise NotImplementedError()

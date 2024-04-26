@@ -5,8 +5,8 @@ def test_dimension():
     F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
     assert F.dim() == F.dimension()
     assert F.dim() == 2
-    F = Framework(dim=3)
-    assert F.dim() == 3
+    F_ = Framework(dim=3)
+    assert F_.dim() == 3
 
 def test_vertex_addition():
     F = Framework()
@@ -48,3 +48,15 @@ def test_inf_motions():
     assert F.infinitesimal_flexes(include_trivial = True) == F.trivial_infinitesimal_flexes()
     F_ = Framework(Graph([[0,1], [1,2], [2,3], [0,3]]), {0:[0,0], 1:[1,0], 2:[1,1], 3:[0,1]})
     assert (len(F_.infinitesimal_flexes())==1 and F_.infinitesimal_flexes()[0].rank()==1)
+
+def test_pinning():
+    F = Framework(Graph([[0,1], [0,2]]), {0:[0,0], 1:[1,0], 2:[1,1]}, pinned_vertices={0:[0,1],1:[1]})
+    assert(len(F.infinitesimal_flexes(include_trivial=False))==1 and
+            len(F.infinitesimal_flexes(include_trivial=True))==1 and
+            F.infinitesimal_flexes(include_trivial=True)[0][0:4]==[0 for _ in range(4)])
+    F.add_edge([1,2])
+    assert(len(F.infinitesimal_flexes(include_trivial=False))==0 and
+           len(F.infinitesimal_flexes(include_trivial=True))==0)
+    F.set_pinned_vertices({0:[0],2:[0]})
+    assert(len(F.infinitesimal_flexes(include_trivial=False))==0 and
+           len(F.infinitesimal_flexes(include_trivial=True))==1)
