@@ -165,10 +165,10 @@ html_theme = 'furo'
 # further.  For a list of options available for each theme, see the
 # documentation.
 
-
-html_logo = "../assets/icon.jpg"
+#TODO add png logo
+html_logo = "../assets/logo_nofont.png"
 html_theme_options = {
-    "sidebar_hide_name": True,
+    "sidebar_hide_name": False,
 }
 
 

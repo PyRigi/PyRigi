@@ -10,3 +10,4 @@
 *.dvi
 *.gz
 *.pyc
+.vscode/settings.json
