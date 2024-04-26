@@ -23,11 +23,9 @@ from pyrigi.data_type import Vertex, Edge, Point, List, Any, Dict
 
 
 class Framework(object):
-    """
+    r"""
     This class provides the functionality for frameworks.
-    By definition, it is a tuple of a graph and a realization.
-    Internally, the realization is represented as a list of
-    matrices ("vectors").
+    
     
     Definitions
     -----------
@@ -36,11 +34,9 @@ class Framework(object):
 
     Parameters
     ----------
-    graph:  
-        Graph from the PyRigi.Graph class.
+    graph
     realization: 
-        A dictionary mapping the vertices from the graph to 
-        R^n. There are several consistency checks in place.
+        A dictionary mapping the vertices of the graph to points in $\RR^n$.
     pinned_vertices: 
         A dictionary mapping vertices to lists of coordinate
         indices. We initialize this dictionary so that each index
@@ -50,6 +46,11 @@ class Framework(object):
         The dimension is usually initialized by the realization. If
         the realization is empty, the dimension is 0 by default.
 
+    Notes
+    -----
+    Internally, the realization is represented as a dictionary of
+    matrices ("vectors").
+    
 
     """
     # TODO override decorator for empty constructor?
@@ -72,8 +73,8 @@ class Framework(object):
             if not v in pinned_vertices:
                 pinned_vertices[v] = []
         
-        """#TODO Resolve strange behavior that `pinned_vertices` is initialized as `{0:[], 1:[], ...}` when
-            realization is initialized as an empty dict"""
+#         TODO Resolve strange behavior that `pinned_vertices` is initialized as `{0:[], 1:[], ...}` when
+#             realization is initialized as an empty dict
         pinned_vertices = {v:pinned_vertices[v] for v in pinned_vertices.keys() if v in graph.vertices()}
         for v in pinned_vertices:
             assert v in graph.vertices()
@@ -166,9 +167,9 @@ class Framework(object):
         raise NotImplementedError()
 
     @classmethod
-    def empty(cls, dim: int) -> None:
+    def Empty(cls, dim: int) -> None:
         """
-        #TODO Generates an empty framework? Shouldn't it then be `Empty` instead?
+        Generate an empty framework.
         """
         raise NotImplementedError()
 
