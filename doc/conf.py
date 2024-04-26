@@ -51,7 +51,8 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_proof',
     'myst_parser',
-    'sphinxcontrib.bibtex'
+    'sphinxcontrib.bibtex',
+    'sphinx_math_dollar',
 ]
 
 bibtex_bibfiles = ['refs.bib']
