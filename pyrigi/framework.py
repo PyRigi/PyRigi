@@ -15,11 +15,13 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-import networkx as nx
-from pyrigi.graph import Graph
 from random import randrange
+
+import networkx as nx
 from sympy import Matrix, flatten
+
 from pyrigi.data_type import Vertex, Edge, Point, List, Any, Dict
+from pyrigi.graph import Graph
 
 
 class Framework(object):

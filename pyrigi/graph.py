@@ -5,9 +5,11 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-import networkx as nx
 from random import randrange
+
+import networkx as nx
 from sympy import Matrix
+
 from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
 
 
