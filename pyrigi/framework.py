@@ -55,16 +55,22 @@ class Framework(object):
                  realization: Dict[Vertex, Point] = {},
                  pinned_vertices: Dict[Vertex, List[int]] = {},
                  dim: int = 2) -> None:
-        assert isinstance(graph, Graph)
+        if not isinstance(graph, Graph): 
+            raise TypeError("Graph is not of the correct Type!")
+        if not len(realization.keys()) == len(graph.vertices()): 
+            raise AttributeError("Realization and Graph need to have the same number of entries!")
+
+        
         if len(realization.values()) == 0:
             dimension = dim
         else:
             dimension = len(list(realization.values())[0])
 
-        assert len(realization.keys()) == len(graph.vertices())
         for v in graph.vertices():
-            assert v in realization
-            assert len(realization[v]) == dimension
+            if not v in realization:
+                raise KeyError("Realization needs to contain the same vertices as Graph!")
+            if not len(realization[v]) == dimension:
+                raise ValueError("An entry of the realization does not have the correct dimension!")
         
         self._realization = {v: Matrix(realization[v])
                              for v in graph.vertices()}
