@@ -49,8 +49,8 @@ class Graph(nx.Graph):
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
         """
-        for k in range(K, len(self.vertices()) + 1):
-            for vertex_set in combinations(self.vertices(), k):
+        for j in range(K, len(self.vertices()) + 1):
+            for vertex_set in combinations(self.vertices(), j):
                 G = self.subgraph(vertex_set)
                 if len(G.edges) > K * len(G.nodes) - L:
                     return False
@@ -65,9 +65,9 @@ class Graph(nx.Graph):
 
     def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
         """
-        Parameters
-        ----------
-        Modifies self?
+        Notes
+        -----
+        Modifies self only when explicitly required.
         """
         raise NotImplementedError()
 
@@ -77,9 +77,9 @@ class Graph(nx.Graph):
             edge: Edge,
             dim: int = 2) -> None:
         """
-        Parameters
-        ----------
-        Modifies self?
+        Notes
+        -----
+        Modifies self only when explicitly required.
         """
         raise NotImplementedError()
 
@@ -90,17 +90,15 @@ class Graph(nx.Graph):
             edges: Edge,
             dim: int = 2) -> None:
         """
-        Parameters
-        ----------
-        Modifies self?
+        Notes
+        -----
+        Modifies self only when explicitly required.
         """
         raise NotImplementedError()
 
     def all_k_extensions(self, k: int, dim: int = 2) -> None:
         """
-        Parameters
-        ----------
-        Modifies self?
+        Return list of all possible k-extensions.
         """
         raise NotImplementedError()
 
@@ -147,9 +145,9 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        dim=1: Connectivity
-        dim=2: Pebble-game/(2,3)-rigidity
-        dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
+         * dim=1: Connectivity
+         * dim=2: Pebble-game/(2,3)-rigidity
+         * dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
         if not isinstance(
                 dim,
@@ -192,9 +190,9 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        dim=1: Tree
-        dim=2: Pebble-game/(2,3)-tight
-        dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
+         * dim=1: Tree
+         * dim=2: Pebble-game/(2,3)-tight
+         * dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
         if not isinstance(
                 dim,
@@ -220,21 +218,15 @@ class Graph(nx.Graph):
             return F.is_minimally_infinitesimally_rigid()
         else:
             raise AttributeError(
-                "The Dimension for symbolic computation must be either 1 or 2")
-
-    # def pebble_game(self, dim=2):    raise NotImplementedError()
-
-    # def two_spanning_trees(self):    raise NotImplementedError()
-
-    # def three_trees(self):           raise NotImplementedError()
+                "The dimension for symbolic computation must be either 1 or 2")
 
     def is_globally_rigid(self, dim: int = 2) -> bool:
         """
         Notes
         -----
-        dim=1: 2-connectivity
-        dim=2: redundantly rigid+3-connected
-        dim>=3: Randomized Rigidity Matrix => Stress (symbolic maybe?)
+         * dim=1: 2-connectivity
+         * dim=2: redundantly rigid+3-connected
+         * dim>=3: Randomized Rigidity Matrix => Stress (symbolic maybe?)
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError("The dimension needs to be a positive integer!")
@@ -252,9 +244,9 @@ class Graph(nx.Graph):
         """
         Notes
         -----
-        dim=1: Graphic Matroid
-        dim=2: not (2,3)-sparse
-        dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+         * dim=1: Graphic Matroid
+         * dim=2: not (2,3)-sparse
+         * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
         """
         raise NotImplementedError()
 
@@ -262,9 +254,9 @@ class Graph(nx.Graph):
         """
         Notes
         -----
-        dim=1: Graphic Matroid
-        dim=2: (2,3)-sparse
-        dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+         * dim=1: Graphic Matroid
+         * dim=2: (2,3)-sparse
+         * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
         """
         raise NotImplementedError()
 
@@ -272,9 +264,9 @@ class Graph(nx.Graph):
         """
         Notes
         -----
-        dim=1: Graphic Matroid
-        dim=2: Remove any edge and it becomes sparse (sparsity for every subgraph except whole graph?)
-        dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
+         * dim=1: Graphic Matroid
+         * dim=2: Remove any edge and it becomes sparse (sparsity for every subgraph except whole graph?)
+         * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
         """
         raise NotImplementedError()
 
@@ -282,15 +274,19 @@ class Graph(nx.Graph):
         """
         Notes
         -----
-        dim=1: Graphic Matroid
-        dim=2: Ask Bill
-        dim>=1: Adding any edge does not increase the rigidity matrix rank
+         * dim=1: Graphic Matroid
+         * dim=2: ??
+         * dim>=1: Adding any edge does not increase the rigidity matrix rank
         """
         raise NotImplementedError()
 
     def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
-        """List vertex-maximal rigid subgraphs. We consider a subgraph
-        to be maximal, if it is maximal with respect to subgraph-inclusion."""
+        """
+        List vertex-maximal rigid subgraphs. 
+        
+        We consider a subgraph
+        to be maximal, if it is maximal with respect to subgraph-inclusion.
+        """
         if len(self.vertices()) <= 2:
             return []
         if self.is_rigid():
@@ -316,8 +312,12 @@ class Graph(nx.Graph):
         return clean_list
 
     def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
-        """List vertex-minimal non-trivial rigid subgraphs. We consider a subgraph
-        to be minimal, if it minimal with respect to subgraph-inclusion."""
+        """
+        List vertex-minimal non-trivial rigid subgraphs.
+        
+        We consider a subgraph
+        to be minimal, if it minimal with respect to subgraph-inclusion.
+        """
         minimal_subgraphs = []
         if len(self.vertices()) <= 2:
             return []
@@ -381,7 +381,7 @@ class Graph(nx.Graph):
             self,
             vertex_order: List[Vertex] = None) -> Matrix:
         """
-
+        Return the adjacency matrix.
         """
         try:
             if vertex_order is None:

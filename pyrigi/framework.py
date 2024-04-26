@@ -227,7 +227,7 @@ class Framework(object):
             points: List[Point]) -> None:
         if list(set(vertices)).sort() != list(vertices).sort():
             raise AttributeError(
-                "Mulitple Vertices with the same name were found!")
+                "Multiple Vertices with the same name were found!")
         assert len(vertices) == len(points)
         for i in range(0, len(vertices)):
             self.change_vertex_coordinates(vertices[i], points[i])
@@ -339,7 +339,7 @@ class Framework(object):
         return basis_flexspace[len(trivial_flexes):len(all_flexes) + 1]
 
     def stresses(self) -> Any:
-        r""" Returns a basis of the space of stresses
+        r""" Return a basis of the space of stresses.
         """
         raise NotImplementedError()
 
@@ -354,7 +354,7 @@ class Framework(object):
         raise NotImplementedError()
 
     def is_minimally_infinitesimally_rigid(self) -> bool:
-        """A framework is called minimally infinitesimally rigid, if it is infinitessimally rigid
+        """A framework is called minimally infinitesimally rigid, if it is infinitesimally rigid
         and the removal of any edge results in an infinitesimally flexible graph."""
         if not self.is_infinitesimally_rigid():
             return False
