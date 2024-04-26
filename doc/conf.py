@@ -16,6 +16,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
+from sphinx.application import Sphinx
 
 # -- Project information -----------------------------------------------------
 
@@ -53,6 +54,7 @@ extensions = [
     'myst_parser',
     'sphinxcontrib.bibtex',
     'sphinx_math_dollar',
+    "sphinx_copybutton",
 ]
 
 bibtex_bibfiles = ['refs.bib']
@@ -279,3 +281,12 @@ epub_exclude_files = ['search.html']
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# -- Local Sphinx extensions -------------------------------------------------
+
+
+def setup(app: Sphinx):
+    """Add functions to the Sphinx setup."""
+    from myst_parser._docs import MystLexer
+    app.add_lexer("myst", MystLexer)
+
