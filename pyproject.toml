@@ -1,0 +1,27 @@
+[project]
+name = "PyRigi"
+version = "0.0.1"
+authors = [
+  { name="The PyRigi Developers" },
+]
+description = "Python package concerning the rigidity and flexibility of bar-and-joint frameworks."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/PyRigi/"
+Issues = "https://github.com/PyRigi/PyRigi/issues"
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "serial",
+]

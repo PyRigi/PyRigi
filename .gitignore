@@ -1,0 +1,13 @@
+/doc/_build
+*.pdf
+*.log
+*.aux
+*.toc
+*.out
+*.bbl
+*.blg
+*.tex.bak
+*.dvi
+*.gz
+*.pyc
+.vscode/settings.json
