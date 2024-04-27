@@ -79,6 +79,12 @@ class Framework(object):
         self._graph = deepcopy(graph)
         self._dim = dimension
 
+    def __str__(self) -> str:
+        """Method to display the data inside the Framework."""
+        return 'Graph:\t\t' + str(self._graph) + '\n' \
+                + 'Realization:\t' + str({key:self.get_realization_list()[key] for key in sorted(self.get_realization_list())}) + '\n' \
+                + 'dim:\t\t' + str(self.dim())
+
     def dim(self) -> int:
         """Return the dimension of the framework."""
         return self._dim
@@ -140,12 +146,6 @@ class Framework(object):
         """
         return self.underlying_graph()
 
-    def __str__(self) -> None:
-        """Method to display the data inside the Framework."""
-        print('Graph:\t\t', self._graph)
-        print('Realization:\t', {key:self.get_realization_list()[key] for key in sorted(self.get_realization_list())})
-        print('dim:\t\t', self.dim())
-
     def draw_framework(self) -> None:
         nx.draw(self._graph, pos=self.get_realization_list())
 
@@ -154,21 +154,54 @@ class Framework(object):
         """
         #TODO Generate a framework from a list of points
         """
-        raise NotImplementedError()
+        vertices = range(len(points))
+        realization = {v:points[v] for v in vertices}
+        G = Graph()
+        G.add_nodes_from(vertices)
+        return Framework(graph=G, realization=realization)
 
     @classmethod
-    def from_graph(cls, graph: Graph) -> None:
+    def from_graph(cls, graph: Graph, dim: int) -> None:
         """
-        #TODO Framework with random coordinates?
+        To stay consistent, given a graph and a dimension, we create a random realization.
         """
-        raise NotImplementedError()
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError(f"The dimension needs to be a positive integer, but is {dim}!")
+        
+        N = 10 * len(graph.vertices())**2 * dim
+        realization = {
+            vertex: [
+                randrange(
+                    1,
+                    N) for _ in range(
+                    0,
+                    dim)] for vertex in graph.vertices()}
+
+        return Framework(graph=graph, realization=realization)
 
     @classmethod
     def Empty(cls, dim: int) -> None:
         """
         Generate an empty framework.
         """
-        raise NotImplementedError()
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError(f"The dimension needs to be a positive integer, but is {dim}!")
+        return Framework(graph=Graph(), realization={}, dim=dim)
+    
+    @classmethod
+    def Complete(cls, realization: List[Point] = [], dim: int = 2) -> None:
+        """
+        Generate a framework on the complete graph with .
+        """
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError(f"The dimension needs to be a positive integer, but is {dim}!")
+        if not realization:
+            raise ValueError("The realization cannot be empty.")
+        
+        Kn = Graph.complete_graph(len(realization))
+        realization = {(Kn.vertices())[i]:Matrix(realization[i]) for i in range(len(realization))}
+        return Framework(graph=Kn, realization=realization, dim=dim)
+
 
     def delete_vertex(self, vertex: Vertex) -> None:
         self._graph.delete_vertex(vertex)
@@ -310,9 +343,10 @@ class Framework(object):
     def trivial_infinitesimal_flexes(self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> List[Matrix]:
         r"""The complete graph is infinitesimally rigid in all dimensions. Thus, for computing the trivial
         flexes it suffices to compute all infinitesimal flexes of the complete graph."""
-        Kn = nx.complete_graph(len(self._graph.vertices()))
+        vertices = self._graph.vertices()
+        Kn = Graph.complete_graph_on_vertices(vertices)
         F_Kn = Framework(
-            graph=Graph(Kn.edges),
+            graph=Kn,
             realization=self.realization(),
             dim=self.dim())
         return F_Kn.infinitesimal_flexes(pinned_vertices=pinned_vertices, include_trivial=True)

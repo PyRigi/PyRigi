@@ -17,20 +17,44 @@ class Graph(nx.Graph):
     '''
     Class representing a graph.
     '''
+    def __str__(self) -> str:
+        return 'Vertices: '+str(self.vertices())+',\t'\
+                +'Edges: '+str(self.edges)
 
     @classmethod
     def from_vertices_and_edges(
             cls,
             vertices: List[Vertex],
             edges: List[Edge]) -> GraphType:
-        raise NotImplementedError()
+        G = Graph()
+        G.add_nodes_from(vertices)
+        for edge in edges:
+            if len(edge) != 2 or \
+                not edge[0] in G.nodes or \
+                not edge[1] in G.nodes:
+                raise TypeError("Edge {edge} does not have the correct format or has adjacent vertices the graph does not contain")
+            G.add_edge(*edge)
+        return G
 
     @classmethod
     def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
         return Graph.from_vertices_and_edges(vertices, [])
-
+    
+    @classmethod
+    def complete_graph(cls, n: int) -> GraphType:
+        if not isinstance(n, int) or n<1:
+            raise TypeError("n needs to be a positive integer")
+        vertices = range(n)
+        edges = combinations(vertices, 2)
+        return Graph.from_vertices_and_edges(vertices, edges)
+    
+    @classmethod
+    def complete_graph_on_vertices(cls, vertices: List[Vertices]) -> GraphType:
+        edges = combinations(vertices, 2)
+        return Graph.from_vertices_and_edges(vertices, edges)
+        
     def vertices(self) -> List[Vertex]:
-        return self.nodes
+        return list(self.nodes)
 
     def delete_vertex(self, vertex: Vertex) -> None:
         self.remove_node(vertex)

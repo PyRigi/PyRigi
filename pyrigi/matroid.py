@@ -12,10 +12,12 @@ from pyrigi.graph import Graph
 
 class Matroid(object):
 
-    def __init__(self):
+    def __init__(self, _ground_set) -> MatroidType:
         """Initialize the matroid object."""
-
         raise NotImplementedError()
+    
+    def __str__(self) -> str:
+        return 'Matroid:\t'+str(self._ground_set)
 
     def ground_set(self):
         """Return the ground set of the matroid."""
