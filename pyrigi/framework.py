@@ -31,7 +31,8 @@ class Framework(object):
     
     Definitions
     -----------
-    :prf:ref:`Framework <def-framework>`
+     * :prf:ref:`Framework <def-framework>`
+     * :prf:ref:`Realization <def-realization>`
         
 
     Parameters

@@ -2,24 +2,59 @@
 
 ### Cross-references
 
+
 ###### Cross-references to definitions, theorems or literature
 
-Code                 | Output             
--------------------- | -------------------
-`` {prf:ref}`def-framework` `` | {prf:ref}`def-framework`
-`` {prf:ref}`Framework <def-framework>` `` | {prf:ref}`Framework <def-framework>`
-`` {cite:p}`Geiringer1927` `` |  {cite:p}`Geiringer1927` 
+:::::{tab-set}
+
+::::{tab-item} MyST (`.md` files)
+:::{csv-table}
+`` {prf:ref}`def-framework` ``, {prf:ref}`def-framework`
+`` {prf:ref}`Framework <def-framework>` ``, {prf:ref}`Framework <def-framework>`
+`` {cite:p}`Geiringer1927` ``, {cite:p}`Geiringer1927` 
+:::
+::::
+
+::::{tab-item} reST  (docstrings)
+:::{csv-table}
+`` :prf:ref:`def-framework` `` , {prf:ref}`def-framework`
+`` :prf:ref:`Framework <def-framework>` `` , {prf:ref}`Framework <def-framework>`
+`` :cite:p:`Geiringer1927` `` , {cite:p}`Geiringer1927`
+:::
+::::
+
+:::::
+
+
 
 ###### Cross-references to classes or methods
 
-Code                 | Output             
--------------------- | -------------------
-`` {class}`~pyrigi.framework.Framework` `` | {class}`~pyrigi.framework.Framework`
-`` {class}`pyrigi.framework.Framework` `` | {class}`pyrigi.framework.Framework`
-`` {meth}`pyrigi.framework.Framework.delete_edge` `` | {meth}`pyrigi.framework.Framework.delete_edge`
-`` {meth}`~pyrigi.framework.Framework.delete_edge` `` | {meth}`~pyrigi.framework.Framework.delete_edge`
-`` {meth}`~.Framework.delete_edge` `` | {meth}`~.Framework.delete_edge`
-`` {meth}`.Framework.delete_edge` `` | {meth}`.Framework.delete_edge`
+
+:::::{tab-set}
+
+::::{tab-item} MyST (`.md` files)
+:::{csv-table}
+`` {class}`~pyrigi.framework.Framework` `` , {class}`~pyrigi.framework.Framework`
+`` {class}`pyrigi.framework.Framework` `` , {class}`pyrigi.framework.Framework`
+`` {meth}`pyrigi.framework.Framework.delete_edge` `` , {meth}`pyrigi.framework.Framework.delete_edge`
+`` {meth}`~pyrigi.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.Framework.delete_edge`
+`` {meth}`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
+`` {meth}`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
+:::
+::::
+
+::::{tab-item} reST  (docstrings)
+:::{csv-table}
+`` :class:`~pyrigi.framework.Framework` `` , {class}`~pyrigi.framework.Framework`
+`` :class:`pyrigi.framework.Framework` `` , {class}`pyrigi.framework.Framework`
+`` :meth:`pyrigi.framework.Framework.delete_edge` `` , {meth}`pyrigi.framework.Framework.delete_edge`
+`` :meth:`~pyrigi.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.Framework.delete_edge`
+`` :meth:`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
+`` :meth:`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
+:::
+::::
+
+:::::
 
 
 ###### Sample definition
