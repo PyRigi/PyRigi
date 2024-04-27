@@ -55,6 +55,7 @@ extensions = [
     'sphinxcontrib.bibtex',
     'sphinx_math_dollar',
     "sphinx_copybutton",
+    "sphinx_design",
 ]
 
 bibtex_bibfiles = ['refs.bib']
