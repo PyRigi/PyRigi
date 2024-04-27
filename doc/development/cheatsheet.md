@@ -64,7 +64,10 @@
 :label: def-sample
 
 Here one can introduce a new _concept_.
-The definition can be linked using its label: {prf:ref}`def-sample`.
+Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also display:
+\begin{equation*}
+ \omega\colon S_0 \rightarrow \RR^{d-1}\,.
+\end{equation*} 
 
 {{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
 {meth}`~.Framework.underlying_graph`
@@ -80,7 +83,10 @@ The definition can be linked using its label: {prf:ref}`def-sample`.
 :label: def-sample
 
 Here one can introduce a new _concept_.
-The definition can be linked using its label: {prf:ref}`def-sample`.
+Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also display:
+\begin{equation*}
+ \omega\colon S_0 \rightarrow \RR^{d-1}\,.
+\end{equation*} 
 
 {{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
 {meth}`~.Framework.underlying_graph`
@@ -90,3 +96,14 @@ The definition can be linked using its label: {prf:ref}`def-sample`.
 {{references}} {cite:p}`Lee2008`
 % list of related references, no separating commas
 :::
+
+###### Math
+
+See above in the definition example or [MyST documentation](https://myst-parser.readthedocs.io/en/latest/syntax/math.html) for more details.
+In the definition environment , `$$ ... $$` does not work so
+````latex
+\begin{equation*}
+ ...
+\end{equation*}
+````
+must used (or an alternative). 
