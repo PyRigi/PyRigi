@@ -8,6 +8,8 @@
 :::::{tab-set}
 
 ::::{tab-item} MyST (`.md` files)
+:sync: myst
+
 :::{csv-table}
 `` {prf:ref}`def-framework` ``, {prf:ref}`def-framework`
 `` {prf:ref}`Framework <def-framework>` ``, {prf:ref}`Framework <def-framework>`
@@ -16,6 +18,8 @@
 ::::
 
 ::::{tab-item} reST  (docstrings)
+:sync: rest
+
 :::{csv-table}
 `` :prf:ref:`def-framework` `` , {prf:ref}`def-framework`
 `` :prf:ref:`Framework <def-framework>` `` , {prf:ref}`Framework <def-framework>`
@@ -33,6 +37,8 @@
 :::::{tab-set}
 
 ::::{tab-item} MyST (`.md` files)
+:sync: myst
+
 :::{csv-table}
 `` {class}`~pyrigi.framework.Framework` `` , {class}`~pyrigi.framework.Framework`
 `` {class}`pyrigi.framework.Framework` `` , {class}`pyrigi.framework.Framework`
@@ -44,6 +50,8 @@
 ::::
 
 ::::{tab-item} reST  (docstrings)
+:sync: rest
+
 :::{csv-table}
 `` :class:`~pyrigi.framework.Framework` `` , {class}`~pyrigi.framework.Framework`
 `` :class:`pyrigi.framework.Framework` `` , {class}`pyrigi.framework.Framework`
