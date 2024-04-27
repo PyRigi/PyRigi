@@ -1,7 +1,8 @@
 ## Cheatsheet
 
-### Cross-references
+For detailed overview of MyST syntax, see the [MyST documentation](https://myst-parser.readthedocs.io/en/latest/syntax/typography.html).
 
+### Cross-references
 
 ###### Cross-references to definitions, theorems or literature
 
@@ -11,9 +12,11 @@
 :sync: myst
 
 :::{csv-table}
-`` {prf:ref}`def-framework` ``, {prf:ref}`def-framework`
-`` {prf:ref}`Framework <def-framework>` ``, {prf:ref}`Framework <def-framework>`
-`` {cite:p}`Geiringer1927` ``, {cite:p}`Geiringer1927` 
+:delim: ;
+`` {prf:ref}`def-framework` ``; {prf:ref}`def-framework`
+`` {prf:ref}`Framework <def-framework>` ``; {prf:ref}`Framework <def-framework>`
+`` {cite:p}`Geiringer1927` ``; {cite:p}`Geiringer1927` 
+`` {cite:p}`Geiringer1927,Laman1970` ``; {cite:p}`Geiringer1927,Laman1970` 
 :::
 ::::
 
@@ -21,9 +24,11 @@
 :sync: rest
 
 :::{csv-table}
-`` :prf:ref:`def-framework` `` , {prf:ref}`def-framework`
-`` :prf:ref:`Framework <def-framework>` `` , {prf:ref}`Framework <def-framework>`
-`` :cite:p:`Geiringer1927` `` , {cite:p}`Geiringer1927`
+:delim: ;
+`` :prf:ref:`def-framework` `` ; {prf:ref}`def-framework`
+`` :prf:ref:`Framework <def-framework>` `` ; {prf:ref}`Framework <def-framework>`
+`` :cite:p:`Geiringer1927` `` ; {cite:p}`Geiringer1927`
+`` :cite:p:`Geiringer1927,Laman1970` ``; {cite:p}`Geiringer1927,Laman1970` 
 :::
 ::::
 
