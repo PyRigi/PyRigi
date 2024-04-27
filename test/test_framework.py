@@ -45,9 +45,9 @@ def test_inf_rigidity():
 
 def test_inf_motions():
     F = Framework(Graph([[0,1]]), {0:[0,0], 1:[1,0]})
-    assert F.infinitesimal_flexes(include_trivial = True) == F.trivial_infinitesimal_flexes()
+    assert F.infinitesimal_flexes(include_trivial=True) == F.trivial_infinitesimal_flexes()
     F_ = Framework(Graph([[0,1], [1,2], [2,3], [0,3]]), {0:[0,0], 1:[1,0], 2:[1,1], 3:[0,1]})
-    assert (len(F_.infinitesimal_flexes(include_trivial = False))==1 and F_.infinitesimal_flexes(include_trivial = False)[0].rank()==1)
+    assert (len(F_.infinitesimal_flexes(include_trivial=False))==1 and F_.infinitesimal_flexes(include_trivial=False)[0].rank()==1)
 
 def test_pinning():
     F = Framework(Graph([[0,1], [0,2]]), {0:[0,0], 1:[1,0], 2:[1,1]})
