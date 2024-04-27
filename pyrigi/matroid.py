@@ -8,6 +8,7 @@ from sympy import Matrix
 from networkx import minimum_spanning_tree
 
 from pyrigi.graph import Graph
+from pyrigi.data_type import MatroidType
 
 
 class Matroid(object):
