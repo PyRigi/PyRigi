@@ -114,6 +114,7 @@ myst_substitutions = {
   "references" : "*References*:" ,
 }
 
+myst_heading_anchors = 3
 
 mathjax3_config = {
   "tex": {

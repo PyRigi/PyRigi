@@ -23,7 +23,7 @@ math/references
 :::{toctree}
 :maxdepth: 2
 :caption: Development guide
-development/index
+development/howto
 development/cheatsheet
 :::
 
