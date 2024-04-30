@@ -33,18 +33,18 @@ def test_graph_rigidity_and_sparsity():
     G.add_edges_from([(0,1),(1,2),(2,3),(3,0)])
     assert(
         G.is_sparse(2,3)
-        and not G.is_rigid(dim=2, symbolic=True)
+        and not G.is_rigid(dim=2, combinatorial=True)
     ) 
     G.add_edge(0,2)
     assert(
         G.is_tight(2,3)
-        and G.is_rigid(dim=2, symbolic=True)
-        and G.is_minimally_rigid(dim=2, symbolic=True)
+        and G.is_rigid(dim=2, combinatorial=True)
+        and G.is_minimally_rigid(dim=2, combinatorial=True)
         and not G.is_globally_rigid(dim=2)
     ) 
     G.add_edge(1,3)
     assert(
         not G.is_tight(2,3)
-        and G.is_rigid(dim=2, symbolic=True)
+        and G.is_rigid(dim=2, combinatorial=True)
         and G.is_globally_rigid(dim=2)
     )
