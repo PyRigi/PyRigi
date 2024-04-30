@@ -3,3 +3,4 @@ sphinxcontrib.bibtex
 furo
 sphinx_copybutton
 myst-parser
+sphinx_math_dollar
