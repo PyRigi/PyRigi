@@ -16,6 +16,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
+from sphinx.application import Sphinx
 
 # -- Project information -----------------------------------------------------
 
@@ -53,6 +54,8 @@ extensions = [
     'myst_parser',
     'sphinxcontrib.bibtex',
     'sphinx_math_dollar',
+    "sphinx_copybutton",
+    "sphinx_design",
 ]
 
 bibtex_bibfiles = ['refs.bib']
@@ -166,9 +169,11 @@ html_theme = 'furo'
 # further.  For a list of options available for each theme, see the
 # documentation.
 
-html_logo = "../assets/logo_nofont.png"
+# html_logo = "../assets/logo_nofont.png"
 html_theme_options = {
     "sidebar_hide_name": False,
+    "light_logo": "logo_nofont.png",
+    "dark_logo": "logo_nofont_dark.png",
 }
 
 
@@ -277,3 +282,12 @@ epub_exclude_files = ['search.html']
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# -- Local Sphinx extensions -------------------------------------------------
+
+
+def setup(app: Sphinx):
+    """Add functions to the Sphinx setup."""
+    from myst_parser._docs import MystLexer
+    app.add_lexer("myst", MystLexer)
+
