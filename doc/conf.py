@@ -176,6 +176,8 @@ html_theme_options = {
     "dark_logo": "logo_nofont_dark.png",
 }
 
+html_title = "PyRigi"
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
