@@ -1,4 +1,4 @@
-## Graphs
+# Graphs
 
 ```{eval-rst}
 .. automodule:: pyrigi.graph
