@@ -1,6 +1,10 @@
 # Basic definitions
 
 
+:::{warning}
+Currently, definitions and theorems are just listed here. They will be sorted later.
+:::
+
 :::{prf:definition} Realization
 :label: def-realization
 
