@@ -8,7 +8,9 @@ HERE SHOULD GO README
 :::{toctree}
 :maxdepth: 2
 :caption: User guide
-userguide/index
+userguide/getting_started
+userguide/tutorial
+userguide/api
 :::
 
 :::{toctree}
