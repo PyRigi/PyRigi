@@ -1,27 +1,26 @@
 # PyRigi
 
 
-## API documentation
+## Contents
 
 
 :::{toctree}
-:maxdepth: 1
+:maxdepth: 2
+:caption: API
 userguide/framework
 userguide/motion
 userguide/graph
 :::
 
-## Math
-
-
 :::{toctree}
+:maxdepth: 2
+:caption: Math
 math/index
 :::
-   
-## Development guide
-
 
 :::{toctree}
+:maxdepth: 2
+:caption: Development guide
 development/index
 development/cheatsheet
 :::
