@@ -1,15 +1,14 @@
 # PyRigi
 
+HERE SHOULD GO README
 
 ## Contents
 
 
 :::{toctree}
 :maxdepth: 2
-:caption: API
-userguide/framework
-userguide/motion
-userguide/graph
+:caption: User guide
+userguide/index
 :::
 
 :::{toctree}
