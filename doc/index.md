@@ -6,9 +6,9 @@
 
 :::{toctree}
 :maxdepth: 1
-module/framework
-module/motion
-module/graph
+userguide/framework
+userguide/motion
+userguide/graph
 :::
 
 ## Math
