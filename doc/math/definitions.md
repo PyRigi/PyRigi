@@ -1,4 +1,4 @@
-# Basic definitions
+# Definitions
 
 
 :::{warning}

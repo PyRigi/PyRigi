@@ -16,7 +16,7 @@ userguide/api
 :::{toctree}
 :maxdepth: 2
 :caption: Math
-math/index
+math/definitions
 math/references
 :::
 
