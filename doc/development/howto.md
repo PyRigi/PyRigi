@@ -50,7 +50,8 @@ The documentation is generated from docstrings using [Sphinx](https://www.sphinx
 We use the theme [Furo](https://github.com/pradyunsg/furo).
 The docstrings are formatted according to [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) and parsed using [napoleon](https://sphinxcontrib-napoleon.readthedocs.io/)
 to retrieve the information from type hinting.
-The other documentation source files are written in [MyST](https://myst-parser.readthedocs.io/).
+The other documentation source files are written in [MyST](https://myst-parser.readthedocs.io/) 
+(see also the [cheatsheet](#cheatsheet)).
 The following extensions are used:
  - [`myst-parser`](https://myst-parser.readthedocs.io) - parsing MyST syntax;
  - [`sphinx-math-dollar`](https://www.sympy.org/sphinx-math-dollar/) - dollar signs to typeset inline and displayed math expressions;
@@ -59,16 +60,15 @@ The following extensions are used:
  - [`sphinx-copybutton`](https://sphinx-copybutton.readthedocs.io) - button to copy code easily;
  - [`sphinx-design`](https://sphinx-design.readthedocs.io) - fancy features like tabs.
 
-These can be installed by
+These can be installed by running the following command in the folder `doc`:
 ```
-pip install sphinxcontrib-napoleon myst-parser sphinx-math-dollar sphinx-proof sphinxcontrib-bibtex sphinx-copybutton sphinx-design
+pip install -r requirements.txt
 ```
 
-To compile, runSphinx
+To compile, run Sphinx in the folder `doc` by:
 ```
 make html
 ```
-in the folder `doc`.
 
 New `latex` commands can be created by modifying `mathjax3_config` in `doc/conf.py`.
 
