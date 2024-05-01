@@ -56,6 +56,7 @@ extensions = [
     'sphinx_math_dollar',
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_tippy",
 ]
 
 bibtex_bibfiles = ['refs.bib']
@@ -114,6 +115,9 @@ myst_substitutions = {
 }
 
 myst_heading_anchors = 3
+
+tippy_enable_mathjax = True
+tippy_props = {"theme": "light",}
 
 mathjax3_config = {
   "tex": {
@@ -184,6 +188,8 @@ html_title = "PyRigi"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_css_files = ["tippy.css"]
+
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
