@@ -3,7 +3,7 @@
 
 ## Gitflow
 
-We use [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) for Pyrigi development.
+We use [Gitflow](https://nvie.com/posts/a-successful-git-branching-model/) (see also [this description](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)) for Pyrigi development.
 In a nutshell, this means that there are two prominent branches in Pyrigi's Git repository:
 
 - `main`, which ...
