@@ -32,6 +32,12 @@ autopep8 --in-place --aggressive --aggressive <filename>
 (as suggested in the documentation) to modify the files in place.
 Another, more stringent, tool is [`black`](https://black.readthedocs.io).
 
+### Testing
+
+Tests are extremely important to guarantee the realiability of code.
+Please create tests for the functionalities that you implement and place them in the `test` folder, within the appropriate file.
+Each test should be in the form of a method starting with `test_`.
+
 ## Documentation
 
 We aim to have the package well-documented.
