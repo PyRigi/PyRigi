@@ -197,9 +197,7 @@ class Framework(object):
         self._graph.add_edge(*(edge))
 
     def add_edges(self, edges: List[Edge]) -> None:
-        """
-        Call :meth:`add_edge` for each edge from a list of edges. 
-        """
+        """Call :meth:`add_edge` for each edge from a list of edges."""
         for edge in edges:
             self.add_edge(edge)
 
@@ -267,9 +265,7 @@ class Framework(object):
 
     @classmethod
     def Empty(cls, dim: int) -> None:
-        """
-        Generate an empty framework.
-        """
+        """Generate an empty framework."""
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
@@ -512,7 +508,7 @@ class Framework(object):
         else:
             edge_order = self._graph.edges()
 
-        """`delta` is responsible for distinguishing the edges (i,j) and (j,i)"""
+        #`delta` is responsible for distinguishing the edges (i,j) and (j,i)
         def delta(u, v, w):
             if w == u:
                 return 1
@@ -520,11 +516,11 @@ class Framework(object):
                 return -1
             return 0
 
-        """Add the column information about the pinned vertices, according to the `vertex_order`."""
+        #Add the column information about the pinned vertices, according to the `vertex_order`.
         pinned_entries = flatten([[self.dim() * count + index for index in pinned_vertices[vertex_order[count]]]
                                   for count in range(len(vertex_order))])
 
-        """Return the rigidity matrix with standard unit basis vectors added for each pinned coordinate."""
+        #Return the rigidity matrix with standard unit basis vectors added for each pinned coordinate.
         return Matrix([flatten([delta(u, v, w)
                                 * (self._realization[u] - self._realization[v])
                                 for w in vertex_order])

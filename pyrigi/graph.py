@@ -28,37 +28,37 @@ class Graph(nx.Graph):
     Methods (from networkx)
     -----
     graph.add_edge(edge):
-        Add `edge` to `graph`. See :prf:ref:`add_edge <https://networkx.org/documentation/stable/release/api_1.0.html#add-edge>`
+        Add `edge` to `graph`. See `add_edge <https://networkx.org/documentation/stable/release/api_1.0.html#add-edge>`
     degree(graph, vertices=None):
         Returns a degree view of `vertices`. If `vertices` is omitted, then this returns the degrees
-        of all vertices. See :prf:ref:`degree <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.degree.html#networkx.classes.function.degree>`
+        of all vertices. See `degree <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.degree.html#networkx.classes.function.degree>`
     neighbors(graph, vertex):
-        Returns all neighbors of `vertex`. See :prf:ref:`neighbors <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.neighbors.html#networkx.classes.function.neighbors>`
+        Returns all neighbors of `vertex`. See `neighbors <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.neighbors.html#networkx.classes.function.neighbors>`
     non_neighbors(graph, vertex):
-        Returns all nonneighbors of `vertex`. See :prf:ref:`non_neighbors <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.non_neighbors.html#networkx.classes.function.non_neighbors>`
+        Returns all nonneighbors of `vertex`. See `non_neighbors <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.non_neighbors.html#networkx.classes.function.non_neighbors>`
     subgraph(graph, vertices):
-        Returns the subgraph induced by `vertices`. See :prf:ref:`subgraph <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.subgraph.html#networkx.classes.function.subgraph>`
+        Returns the subgraph induced by `vertices`. See `subgraph <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.subgraph.html#networkx.classes.function.subgraph>`
     edge_subgraph(graph, edges):
-        Returns the subgraph induced by `edges`. See :prf:ref:`edge_subgraph <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.edge_subgraph.html#networkx.classes.function.edge_subgraph>`
+        Returns the subgraph induced by `edges`. See `edge_subgraph <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.edge_subgraph.html#networkx.classes.function.edge_subgraph>`
     edges(graph, vertices=None):
-        Returns the `edges` incident to the vertices. See :prf:ref:`edges <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.edges.html#networkx.classes.function.edges>`
+        Returns the `edges` incident to the vertices. See :`edges <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.edges.html#networkx.classes.function.edges>`
     is_k_edge_connected(graph, k):
-        Tests if a graph is k-edge-connected. See :prf:ref:`is_k_edge_connected <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected.html#networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected>`
+        Tests if a graph is k-edge-connected. See `is_k_edge_connected <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected.html#networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected>`
     is_connected(graph):
-        Returns `True` if the graph is connected. See :prf:ref:`is_connected <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.components.is_connected.html#is-connected>`
+        Returns `True` if the graph is connected. See `is_connected <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.components.is_connected.html#is-connected>`
     is_tree(graph):
-        Returns `True`, if the graph is a tree. See :prf:ref:`is_tree <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.tree.recognition.is_tree.html#is-tree>`
+        Returns `True`, if the graph is a tree. See `is_tree <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.tree.recognition.is_tree.html#is-tree>`
         
     Notes
     -----
-    This class inherits the :prf:ref:`networkx Graph class <https://networkx.org/documentation/stable/reference/classes/graph.html>`.
+    This class inherits the `networkx Graph class <https://networkx.org/documentation/stable/reference/classes/graph.html>`.
     For example, this gives us access to the following broader concepts:
-    * :prf:ref:`Graph display <https://networkx.org/documentation/stable/reference/drawing.html>`
-    * :prf:ref:`Directed Graphs <https://networkx.org/documentation/stable/reference/classes/digraph.html>`
-    * :prf:ref:`Linear Algebra on Graphs <https://networkx.org/documentation/stable/reference/linalg.html>`
-    * :prf:ref:`A Database of some Graphs <https://networkx.org/documentation/stable/reference/generators.html>`
-    * :prf:ref:`Reading and Writing Graphs <https://networkx.org/documentation/stable/reference/readwrite/index.html>`
-    * :prf:ref:`Converting to and from other Data Formats <https://networkx.org/documentation/stable/reference/convert.html>`
+    * `Graph display <https://networkx.org/documentation/stable/reference/drawing.html>`
+    * `Directed Graphs <https://networkx.org/documentation/stable/reference/classes/digraph.html>`
+    * `Linear Algebra on Graphs <https://networkx.org/documentation/stable/reference/linalg.html>`
+    * `A Database of some Graphs <https://networkx.org/documentation/stable/reference/generators.html>`
+    * `Reading and Writing Graphs <https://networkx.org/documentation/stable/reference/readwrite/index.html>`
+    * `Converting to and from other Data Formats <https://networkx.org/documentation/stable/reference/convert.html>`
 
     Examples
     -----
@@ -145,35 +145,35 @@ class Graph(nx.Graph):
         return list(self.nodes)
 
     def delete_vertex(self, vertex: Vertex) -> None:
-        """Alias for :prf:ref:`remove_node <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_node.html#graph-remove-node>`."""
+        """Alias for `remove_node <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_node.html#graph-remove-node>`."""
         self.remove_node(vertex)
 
     def delete_vertices(self, vertices: List[Vertex]) -> None:
-        """Alias for :prf:ref:`remove_nodes_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_nodes_from.html#graph-remove-nodes-from>`"""
+        """Alias for `remove_nodes_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_nodes_from.html#graph-remove-nodes-from>`"""
         self.remove_nodes_from(vertices)
 
     def delete_edge(self, edge: Edge) -> None:
-        """Alias for :prf:ref:`remove_edge <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_edge.html#graph-remove-edge>`"""
+        """Alias for `remove_edge <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_edge.html#graph-remove-edge>`"""
         self.remove_edge(*edge)
 
     def delete_edges(self, edges: List[Edge]) -> None:
-        """Alias for :prf:ref:`remove_edges_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_edges_from.html#graph-remove-edges-from>"""
+        """Alias for`remove_edges_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_edges_from.html#graph-remove-edges-from>"""
         self.remove_edges_from(edges)
 
     def add_vertex(self, vertex: Vertex) -> None:
-        """Alias for :prf:ref:`add_node <https://networkx.org/documentation/stable/release/api_1.0.html#add-node>`"""
+        """Alias for `add_node <https://networkx.org/documentation/stable/release/api_1.0.html#add-node>`"""
         self.add_node(vertex)
 
     def add_vertices(self, vertices: List[Vertex]) -> None:
-        """Alias for :prf:ref:`add_nodes_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.add_nodes_from.html#graph-add-nodes-from>`"""
+        """Alias for `add_nodes_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.add_nodes_from.html#graph-add-nodes-from>`"""
         self.add_nodes_from(vertices)
 
     def add_edges(self, edges: List[Edge]) -> None:
-        """Alias for :prf:ref:`add_edges_from <https://networkx.org/documentation/stable/release/api_1.0.html#add-edges-from>`"""
+        """Alias for `add_edges_from <https://networkx.org/documentation/stable/release/api_1.0.html#add-edges-from>`"""
         self.add_edges_from(edges)
 
     def vertex_connectivity(self) -> int:
-        """Alias for :prf:ref:`node_connectivity <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.connectivity.node_connectivity.html#node-connectivity>`"""
+        """Alias for `node_connectivity <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.connectivity.node_connectivity.html#node-connectivity>`"""
         return nx.node_connectivity(self)
 
     def is_sparse(self, K: int, L: int) -> bool:
@@ -531,7 +531,7 @@ class Graph(nx.Graph):
                     maximal_subgraphs,
                     G.maximal_rigid_subgraphs(dim)] for j in i]
             
-        """We now remove the graphs that were found at least twice."""
+        #We now remove the graphs that were found at least twice.
         clean_list = []
         for i in range(0, len(maximal_subgraphs)):
             iso_bool = False
@@ -587,7 +587,7 @@ class Graph(nx.Graph):
                         minimal_subgraphs,
                         G.minimal_rigid_subgraphs(dim)] for j in i]
                 
-        """We now remove the graphs that were found at least twice."""
+        #We now remove the graphs that were found at least twice.
         clean_list = []
         for i in range(0, len(minimal_subgraphs)):
             iso_bool = False
@@ -598,7 +598,7 @@ class Graph(nx.Graph):
                     break
             if not iso_bool:
                 clean_list.append(minimal_subgraphs[i])
-        """If no smaller graph is found and the graph is rigid, it is returned."""
+        #If no smaller graph is found and the graph is rigid, it is returned.
         if not clean_list and self.is_rigid():
             clean_list = [self]
         return clean_list
@@ -709,7 +709,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        :prf:ref:`nx.adjacency_matrix() <https://networkx.org/documentation/stable/reference/generated/networkx.linalg.graphmatrix.adjacency_matrix.html#adjacency-matrix>` 
+        `nx.adjacency_matrix() <https://networkx.org/documentation/stable/reference/generated/networkx.linalg.graphmatrix.adjacency_matrix.html#adjacency-matrix>` 
         requires `scipy`. To avoid unnecessary imports, the method is implemented here.
 
         Examples
