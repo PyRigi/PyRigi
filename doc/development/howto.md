@@ -58,7 +58,8 @@ The following extensions are used:
  - [`sphinx-proof`](https://sphinx-proof.readthedocs.io) - mathematical environments (definitions, theorems,...);
  - [`sphinxcontrib-bibtex`](https://sphinxcontrib-bibtex.readthedocs.io) - bibliography using `.bib` file;
  - [`sphinx-copybutton`](https://sphinx-copybutton.readthedocs.io) - button to copy code easily;
- - [`sphinx-design`](https://sphinx-design.readthedocs.io) - fancy features like tabs.
+ - [`sphinx-design`](https://sphinx-design.readthedocs.io) - fancy features like tabs;
+ - [`sphinx-tippy`](https://sphinx-tippy.readthedocs.io/en/latest/) - previews of definitions and methods.
 
 These can be installed by running the following command in the folder `doc`:
 ```
