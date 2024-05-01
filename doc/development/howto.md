@@ -69,18 +69,26 @@ To compile, run Sphinx in the folder `doc` by:
 ```
 make html
 ```
+or 
+```
+make latexpdf
+```
 
 
 ### Auto-build
 
-If you want that the documentation folder is kept watched and documentation is automatically rebuilt once a change is detected, you can use the Sphinx extension [`sphinx-autobuild`](https://github.com/sphinx-doc/sphinx-autobuild), which can be installed via
+If you want that the documentation folder is kept watched and documentation is automatically rebuilt once a change is detected (works only for `.md` files, not docstrings), you can use the Sphinx extension [`sphinx-autobuild`](https://github.com/sphinx-doc/sphinx-autobuild), which can be installed via
 ```
 pip install sphinx-autobuild
 ```
-At this point, run
+At this point, run in the `doc` folder:
 ```
 sphinx-autobuild . _build/html --open-browser
 ```
-in the `doc` folder.
+To recompile everything, stop the previous command and run
+```
+make clean
+make html
+```
 
 
