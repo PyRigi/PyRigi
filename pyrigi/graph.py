@@ -662,9 +662,12 @@ class Graph(nx.Graph):
         Notes
         -----
         See :meth:`graph_to_int
+
+        TODO
+        -----
+        binary_representation = int(bin(n)[2:])
+        Graph.from_adjacency_matrix(...)
         """
-        #binary_representation = int(bin(n)[2:])
-        #Graph.from_adjacency_matrix(...)
         raise NotImplementedError()
 
     @classmethod
