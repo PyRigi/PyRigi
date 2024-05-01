@@ -3,15 +3,15 @@
 
 ## Gitflow
 
-We use [Gitflow](https://nvie.com/posts/a-successful-git-branching-model/) (see also [this description](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)) for Pyrigi development.
-In a nutshell, this means that there are two prominent branches in Pyrigi's Git repository:
+We use [Gitflow](https://nvie.com/posts/a-successful-git-branching-model/) (see also [this description](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)) for PyRigi development.
+In a nutshell, this means that there are two prominent branches in PyRigi's Git repository:
 
 - `main`, which ...
 - `dev`, which ...
 
 Collaborators are not allowed to push their Git commits directly to these two branches.
 Rather, they should employ _pull requests_.
-Say Alice and Bob want to implement feature X in Pyrigi.
+Say Alice and Bob want to implement feature X in PyRigi.
 These are the tasks to be performed:
 
 1. they branch from `dev`, creating a branch called `feature-X`, and there they develop the intended functionality;

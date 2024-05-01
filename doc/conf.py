@@ -109,8 +109,7 @@ myst_enable_extensions = [
 
 
 myst_substitutions = {
-  "pyrigi" : "**`PyRigi`**",
-  "pyrigi_crossref" : "{{pyrigi}}:",
+  "pyrigi_crossref" : "**`PyRigi`**:",
   "references" : "*References*:" ,
 }
 
