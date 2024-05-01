@@ -100,9 +100,9 @@ myst_enable_extensions = [
 #     "html_admonition",
 #     "html_image",
 #     "linkify",
-#     "replacements",
-#     "smartquotes",
-#     "strikethrough",
+    "replacements",
+    "smartquotes",
+    "strikethrough",
     "substitution",
 #     "tasklist",
 ]
