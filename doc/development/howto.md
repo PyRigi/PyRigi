@@ -53,13 +53,14 @@ New `latex` commands can be created by modifying `mathjax3_config` in `doc/conf.
 
 ### Auto-build
 
-https://github.com/sphinx-doc/sphinx-autobuild
-
+If you want that the documentation folder is kept watched and documentation is automatically rebuilt once a change is detected, you can use the Sphinx extension [`sphinx-autobuild`](https://github.com/sphinx-doc/sphinx-autobuild), which can be installed via
+```
 pip install sphinx-autobuild
-
-in the doc folder:
-
+```
+At this point, run
+```
 sphinx-autobuild . _build/html --open-browser
-
+```
+in the `doc` folder.
 
 
