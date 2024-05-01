@@ -5,8 +5,16 @@
 
 ## Code
 
+### PEP8
 
-
+We follow [PEP8](https://peps.python.org/pep-0008/) indications regarding Python code format.
+To check whether the code is PEP8-compliant, one can use [`pycodestyle`](https://pycodestyle.pycqa.org).
+There are tools that format code according to PEP8 indications, as for example [`autopep8`](https://pypi.org/project/autopep8/), which we reccommend     to run as
+```
+autopep8 --in-place --aggressive --aggressive <filename>
+```
+(as suggested in the documentation) to modify the files in place.
+Another, more stringent, tool is [`black`](https://black.readthedocs.io).
 
 ## Documentation
 
@@ -34,7 +42,7 @@ These can be installed by
 pip install sphinxcontrib-napoleon myst-parser sphinx-math-dollar sphinx-proof sphinxcontrib-bibtex sphinx-copybutton sphinx-design
 ```
 
-To compile, run
+To compile, runSphinx
 ```
 make html
 ```
