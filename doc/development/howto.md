@@ -1,5 +1,9 @@
 # How to contribute
 
+```{todo}
+Mention license and agreeing to it by contributing
+```
+
 
 ## Gitflow
 
