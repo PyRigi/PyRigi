@@ -8,7 +8,7 @@ from itertools import combinations
 from random import randrange
 
 import networkx as nx
-from sympy import Matrix
+from sympy import Matrix, shape
 
 from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
 
@@ -92,8 +92,7 @@ class Graph(nx.Graph):
 
                 if not edge == list(self.edges)[len(self.edges)-1]:
                     edges_str += ", "
-                else:
-                    edges_str += "]"
+            edges_str += "]"
         except:
             vertices_str = str(self.vertices())
             edges_str = str(self.edges)
@@ -656,7 +655,7 @@ class Graph(nx.Graph):
         return int(''.join(upper_diag), 2)
 
     @classmethod
-    def from_int(cls) -> GraphType:
+    def from_int(cls, n: int) -> GraphType:
         """
         Return a graph given its integer representation.
 
@@ -664,7 +663,33 @@ class Graph(nx.Graph):
         -----
         See :meth:`graph_to_int
         """
+        #binary_representation = int(bin(n)[2:])
+        #Graph.from_adjacency_matrix(...)
         raise NotImplementedError()
+
+    @classmethod
+    def from_adjacency_matrix(cls, M: Matrix) -> GraphType:
+        """
+        Creates a graph from a given adjacency matrix.
+
+        Examples
+        -----
+        >>> M = Matrix([[0,1],[1,0]])
+        >>> G = Graph.from_adjacency_matrix(M)
+        >>> print(G)
+        Vertices: [0, 1],       Edges: []
+        """
+        if not shape(M)[0] == shape(M)[1]:
+            raise TypeError("Adjacency matrix does not have the right format!")
+        for i, j in zip(range(shape(M)[0]), range(shape(M)[1])):
+            if not (M[i,j] == 0 or M[i,j] == 1):
+                raise TypeError("The provided adjancency matrix contains entries other than 0 and 1")
+        vertices = range(shape(M)[0])
+        edges = []
+        for vertex, vertex_ in zip(range(len(vertices)), range(len(vertices))):
+            if M[vertex,vertex_] == 1:
+                edges += [(vertex,vertex_)]
+        return Graph.from_vertices_and_edges(vertices, edges)
 
     def adjacency_matrix(
             self,
@@ -709,8 +734,8 @@ class Graph(nx.Graph):
         row_list = []
         for vertex in vertex_order:
             row = []
+            edge_indicator = False
             for vertex_ in vertex_order:
-                edge_indicator = False
                 for edge in self.edges:
                     if (edge[0] == vertex and edge[1] == vertex_) or \
                         (edge[1] == vertex and edge[0] == vertex_):
