@@ -70,8 +70,6 @@ To compile, run Sphinx in the folder `doc` by:
 make html
 ```
 
-New `latex` commands can be created by modifying `mathjax3_config` in `doc/conf.py`.
-
 
 ### Auto-build
 

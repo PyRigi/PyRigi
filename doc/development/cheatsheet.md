@@ -119,4 +119,17 @@ In the definition environment , `$$ ... $$` does not work so
  ...
 \end{equation*}
 ````
-must used (or an alternative). 
+must used (or an alternative like `align`).
+
+The following `latex` macros can be used
+:::{csv-table}
+`\RR`, $\RR$ ,   real numbers
+`\CC`, $\CC$ ,   complex numbers
+`\QQ`, $\QQ$ ,   rational numbers
+`\ZZ`, $\ZZ$ ,   integers
+`\NN`, $\NN$ ,   natural numbers (including 0)
+`\PP`, $\PP$ ,   projective space
+`\KK`, $\KK$ ,   a field
+:::
+
+New `latex` commands can be created by modifying both `latex_elements` and `mathjax3_config` in `doc/conf.py`.
