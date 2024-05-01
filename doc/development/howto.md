@@ -3,6 +3,22 @@
 
 ## Gitflow
 
+We use [Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) for Pyrigi development.
+In a nutshell, this means that there are two prominent branches in Pyrigi's Git repository:
+
+- `main`, which ...
+- `dev`, which ...
+
+Collaborators are not allowed to push their Git commits directly to these two branches.
+Rather, they should employ _pull requests_.
+Say Alice and Bob want to implement feature X in Pyrigi.
+These are the tasks to be performed:
+
+1. they branch from `dev`, creating a branch called `feature-X`, and there they develop the intended functionality;
+2. once they are done, they push `feature-X` to GitHub and solicit a pull request of `feature-X` into `dev`;
+3. the code is checked by the maintainers, who may ask some other collaborator to serve as reviewer; in this process, comments and suggested of change may be sent to Alice and Bob until agreement is reached about the feature and the pull request receives approval;
+4. a maintainer merges `feature-X` into `dev`.
+
 ## Code
 
 ### PEP8
