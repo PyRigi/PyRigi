@@ -46,7 +46,7 @@ class Graph(nx.Graph):
      
     .. autosummary::
     
-        ~networkx.Graph.add_edge
+        networkx.Graph.add_edge
     
     Many of the :doc:`NetworkX <networkx:index>` algorithms are implemented as functions,
     namely, a :class:`Graph` instance has to be passed as the first parameter.
@@ -147,35 +147,35 @@ class Graph(nx.Graph):
         return list(self.nodes)
 
     def delete_vertex(self, vertex: Vertex) -> None:
-        """Alias for :meth:`~networkx.Graph.remove_node`."""
+        """Alias for :meth:`networkx.Graph.remove_node`."""
         self.remove_node(vertex)
 
     def delete_vertices(self, vertices: List[Vertex]) -> None:
-        """Alias for :meth:`~networkx.Graph.remove_nodes_from`."""
+        """Alias for :meth:`networkx.Graph.remove_nodes_from`."""
         self.remove_nodes_from(vertices)
 
     def delete_edge(self, edge: Edge) -> None:
-        """Alias for :meth:`~networkx.Graph.remove_edge`"""
+        """Alias for :meth:`networkx.Graph.remove_edge`"""
         self.remove_edge(*edge)
 
     def delete_edges(self, edges: List[Edge]) -> None:
-        """Alias for :meth:`~networkx.Graph.remove_edges_from`."""
+        """Alias for :meth:`networkx.Graph.remove_edges_from`."""
         self.remove_edges_from(edges)
 
     def add_vertex(self, vertex: Vertex) -> None:
-        """Alias for :meth:`~networkx.Graph.add_node`."""
+        """Alias for :meth:`networkx.Graph.add_node`."""
         self.add_node(vertex)
 
     def add_vertices(self, vertices: List[Vertex]) -> None:
-        """Alias for :meth:`~networkx.Graph.add_nodes_from`."""
+        """Alias for :meth:`networkx.Graph.add_nodes_from`."""
         self.add_nodes_from(vertices)
 
     def add_edges(self, edges: List[Edge]) -> None:
-        """Alias for :meth:`~networkx.Graph.add_edges_from`."""
+        """Alias for :meth:`networkx.Graph.add_edges_from`."""
         self.add_edges_from(edges)
 
     def vertex_connectivity(self) -> int:
-        """Alias for :func:`~networkx.algorithms.connectivity.connectivity.node_connectivity`."""
+        """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`."""
         return nx.node_connectivity(self)
 
     def is_sparse(self, K: int, L: int) -> bool:
@@ -663,7 +663,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        See :meth:`graph_to_int
+        See :meth:`graph_to_int`.
 
         TODO
         -----
@@ -711,7 +711,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        :func:`networkx.linalg.graphmatrix.adjacency_matrix.adjacency_matrix()>` 
+        :func:`networkx.linalg.graphmatrix.adjacency_matrix`
         requires `scipy`. To avoid unnecessary imports, the method is implemented here.
 
         Examples
