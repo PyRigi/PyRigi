@@ -122,6 +122,12 @@ class Framework(object):
         Add a vertex to the framework with the corresponding coordinates.
         If no vertex is provided (`None`), then the smallest, free integer is chosen instead.
 
+        Parameters
+        ----------
+        point:
+            a Point, the realization of the new vertex
+        vertex:
+            a Vertex, the label of the new vertex
         Examples
         --------
         >>> F = Framework.Empty(dim=2)
@@ -191,7 +197,7 @@ class Framework(object):
         Parameters
         ----------
         edge:
-            The edge is a tuple of vertices. It can either be passes as a tuple `(i,j)`
+            The edge is a tuple of vertices. It can either be passed as a tuple `(i,j)`
             or a list `[i,j]`.
 
         Notes
@@ -208,6 +214,11 @@ class Framework(object):
     def add_edges(self, edges: List[Edge]) -> None:
         """
         Add a list of edges to the framework.
+
+        Parameters
+        ----------
+        edges:
+            a list of Edge
 
         Notes
         -----
@@ -240,9 +251,14 @@ class Framework(object):
         """
         Generate a framework from a list of points.
 
+        Parameters
+        ----------
+        points:
+            a list of Point.
+
         Notes
         -----
-        The list of vertices is taken to be `[0,...,len(points)]`.
+        The list of vertices of the underlying graph is taken to be `[0,...,len(points)]`. The underlying graph has no edges.
 
         Examples
         --------
@@ -262,6 +278,11 @@ class Framework(object):
     def from_graph(cls, graph: Graph, dim: int) -> None:
         """
         Return the framework given by the given graph and a random realization of the latter in the given dimension.
+
+        Parameters
+        ----------
+        graph:
+            a Graph
 
         Examples
         --------
@@ -284,7 +305,14 @@ class Framework(object):
 
     @classmethod
     def Empty(cls, dim: int) -> None:
-        """Generate an empty framework."""
+        """
+        Generate an empty framework.
+
+        Parameters
+        ----------
+        dim:
+            a natural number
+        """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
@@ -295,9 +323,16 @@ class Framework(object):
         """
         Generate a framework on the complete graph from a given list of points.
 
+        Parameters
+        ----------
+        points:
+            a list of Point
+        dim:
+            a natural number
+
         Notes
         -----
-        Since no vertices are provided, we generate the list `[0,...,len(points)]` instead.
+        #The vertices of the underlying graph are taken to be the list `[0,...,len(points)]`.
 
         Examples
         --------
@@ -321,6 +356,11 @@ class Framework(object):
     def delete_vertex(self, vertex: Vertex) -> None:
         """
         Delete a vertex from the framework. (cf. :meth:`~Framework.add_vertex`)
+
+        Parameters
+        ----------
+        vertex:
+            a Vertex
         """
         self._graph.delete_vertex(vertex)
         del self._realization[vertex]
@@ -328,16 +368,35 @@ class Framework(object):
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         """
         Delete a list of vertices from the framework. (cf. :meth:`~Framework.add_vertices`)
+
+        Parameters
+        ----------
+        vertices:
+            a list of Vertex
         """
         for vertex in vertices:
             self.delete_vertex(vertex)
 
     def delete_edge(self, edge: Edge) -> None:
-        """Delete an edge from the framework. """
+        """
+        Delete an edge from the framework.
+
+        Parameters
+        ----------
+        edge:
+            an Edge
+        """
         self._graph.delete_edge(edge)
 
     def delete_edges(self, edges: List[Edge]) -> None:
-        """Delete a list of edges from the framework."""
+        """
+        Delete a list of edges from the framework.
+
+        Parameters
+        ----------
+        edges:
+            a list of Edge
+        """
         self._graph.delete_edges(edges)
 
     def get_realization_list(self) -> List[Point]:
@@ -371,6 +430,11 @@ class Framework(object):
         """
         Change the realization of the framework.
 
+        Parameters
+        ----------
+        realization:
+            a realization of the underlying graph of the framework
+
         Notes
         -----
         It is assumed that the realization contains all vertices from the
@@ -403,6 +467,13 @@ class Framework(object):
     def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
         """
         Change the coordinates of a single given vertex.
+
+        Parameters
+        ----------
+        vertex:
+            a Vertex
+        point:
+            a Point
 
         Examples
         --------
