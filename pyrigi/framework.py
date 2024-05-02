@@ -52,7 +52,7 @@ class Framework(object):
     (see :meth:`~Framework.get_realization_list`)
 
     Examples
-    -----
+    --------
     >>> F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
     >>> print(F)
     Graph:          Vertices: [0, 1],       Edges: [(0, 1)]
@@ -122,7 +122,7 @@ class Framework(object):
         If no vertex is provided (`None`), then the smallest, free integer is chosen instead.
 
         Examples
-        -----
+        --------
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertex((1.5,2), 'a')
         >>> F.add_vertex((3,1))
@@ -150,7 +150,7 @@ class Framework(object):
         In this method, a list of vertices is added. For each, `add_vertex` is called.
 
         Parameters
-        -----
+        ----------
         points:
             List of points consisting of coordinates in $\RR^d$. It is checked 
             that all points lie in the same ambient space. 
@@ -161,7 +161,7 @@ class Framework(object):
             list of points.
 
         Examples
-        -----
+        --------
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1.5,2), (3,1)], ['a',0])
         >>> print(F)
@@ -184,7 +184,7 @@ class Framework(object):
         Add an edge to the framework. This method only alters the graph attribute.
         
         Parameters
-        -----
+        ----------
         edge:
             The edge is a tuple of vertices. It can either be passes as a tuple `(i,j)`
             or a list `[i,j]`.
@@ -226,7 +226,7 @@ class Framework(object):
         Since no vertices are provided, we generate the list `[0,...,len(points)]` instead
 
         Examples
-        -----
+        --------
         >>> F = Framework.from_points([(1,2), (2,3)])
         >>> print(F)
         Graph:          Vertices: [0, 1],       Edges: []
@@ -245,7 +245,7 @@ class Framework(object):
         Given a graph and a dimension, we create a random realization to create a framework.
 
         Examples
-        -----
+        --------
         >>> F = Framework.from_graph(Graph([(0,1), (1,2), (0,2)]), dim=2)
         >>> print(F)
         Graph:          Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
@@ -281,7 +281,7 @@ class Framework(object):
         Since no vertices are provided, we generate the list `[0,...,len(points)]` instead.
 
         Examples
-        -----
+        --------
         >>> F = Framework.Complete([(1,),(2,),(3,),(4,)], dim=1)
         >>> print(F)
         Graph:          Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
@@ -327,7 +327,7 @@ class Framework(object):
         realization in the form of tuples. Conveniently, this format can be read by networkx.
 
         Examples
-        -----
+        --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
         >>> F.get_realization_list()
         {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (1.0, 1.0)}
@@ -357,7 +357,7 @@ class Framework(object):
         to be contained in $\RR^d$ for a fixed $d$.
 
         Examples
-        -----
+        --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
         >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertices()})
         >>> print(F)
@@ -384,7 +384,7 @@ class Framework(object):
         Changes the coordinates of a single given vertex.
 
         Examples
-        -----
+        --------
         >>> F = Framework.from_points([(0,0)])
         >>> F.change_vertex_coordinates(0, (6,2))
         >>> print(F)
@@ -450,11 +450,11 @@ class Framework(object):
         Construct the rigidity matrix of the framework. 
 
         Definitions
-        -----
+        -----------
         * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
         
         Parameters
-        -----
+        ----------
         vertex_order:
             By listing vertices in the preferred order, the rigidity matrix
             can be computed in a way the user expects.
@@ -468,7 +468,7 @@ class Framework(object):
             or whether they should be internally sorted (`False`).
         
         Examples
-        -----
+        --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
         >>> F.rigidity_matrix(vertex_order=[2,1,0],pinned_vertices={0:[0], 1:[1]})
         Matrix([
@@ -546,16 +546,16 @@ class Framework(object):
         to compute all infinitesimal flexes of the complete graph.
         
         Definitions
-        -----
+        -----------
         * :prf:ref:`Trivial Motions <def-trivial-motions>`
 
         Parameters
-        -----
+        ----------
         pinned_vertices:
             see :meth:`~Framework.rigidity_matrix`
 
         Examples
-        -----
+        --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
         >>> F.trivial_infinitesimal_flexes()
         [Matrix([
@@ -611,18 +611,18 @@ class Framework(object):
         provided that `include_trivial` is set to `False`. Else, return the entire kernel.
 
         Definitions
-        -----
+        -----------
         * :prf:ref:`Infinitesimal Motion <def-infinitesimal-motion>`
 
         Parameters
-        -----
+        ----------
         pinned_vertices:
             see :meth:`~Framework.rigidity_matrix`
         include_trivial:
             Boolean that decides, whether the trivial motions should be included `True` or not (`False`)
 
         Examples
-        -----
+        --------
         >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
         >>> F.delete_edges([(0,2), (1,3)])
         >>> F.infinitesimal_flexes(include_trivial=False)
@@ -657,7 +657,7 @@ class Framework(object):
         Compute the rank of the rigidity matrix. 
 
         Parameters
-        -----
+        ----------
         pinned_vertices:
             see :meth:`~Framework.rigidity_matrix`
         """
@@ -668,7 +668,7 @@ class Framework(object):
         Check whether the given framework is infinitesimally rigid.
 
         Definitions
-        -----
+        -----------
         :prf:ref:`Infinitesimal Rigidity <def-inf-rigid-framework>`
         """
         return len(self.graph().vertices()) <= 1 or \
@@ -695,7 +695,7 @@ class Framework(object):
         and the removal of any edge results in an infinitesimally flexible graph.
 
         Examples
-        -----
+        --------
         >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
         >>> F.is_minimally_infinitesimally_rigid()
         False
@@ -724,7 +724,7 @@ class Framework(object):
         Check if the framework is redundantly rigid.
         
         Definitions
-        -----
+        -----------
         :prf:ref:`Redundant Rigidity <def-minimally-redundantly-rigid-framework>`
 
         >>> F = Framework.Empty(dim=2)

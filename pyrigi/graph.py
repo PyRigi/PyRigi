@@ -18,7 +18,7 @@ class Graph(nx.Graph):
     Class representing a graph.
 
     Parameters
-    -----
+    ----------
     vertices:
         The graph's vertices can be labelled by any `Hashable`. 
     edges:
@@ -28,7 +28,7 @@ class Graph(nx.Graph):
 
 
     Examples
-    -----
+    --------
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> print(G)
     Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 3), (1, 2), (2, 3)]
@@ -309,7 +309,7 @@ class Graph(nx.Graph):
         By default, the graph is in dimension two and a combinatorial check is employed.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
         >>> G.is_rigid()
         False
@@ -368,7 +368,7 @@ class Graph(nx.Graph):
         By default, the graph is in dimension 2 and a combinatorial algorithm is applied.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0), (1,3)])
         >>> G.is_minimally_rigid()
         True
@@ -416,7 +416,7 @@ class Graph(nx.Graph):
         A complete graph is automatically globally rigid
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,0)])
         >>> G.is_globally_rigid()
         True
@@ -504,7 +504,7 @@ class Graph(nx.Graph):
         is rigid, it is clearly maximal and is returned.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
         >>> G.maximal_rigid_subgraphs()
         []
@@ -558,7 +558,7 @@ class Graph(nx.Graph):
         least `dim+1` vertices present.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,3), (4,1), (5,2)])
         >>> G.is_rigid()
         True
@@ -614,7 +614,7 @@ class Graph(nx.Graph):
         For further details, see :func:`networkx.algorithms.isomorphism.is_isomorphic`.
         
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2)])
         >>> G_ = Graph([('b','c'), ('c','a')])
         >>> G.is_isomorphic(G_)
@@ -634,7 +634,7 @@ class Graph(nx.Graph):
         excluding the diagonal.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2)])
         >>> G.adjacency_matrix()
         Matrix([
@@ -678,7 +678,7 @@ class Graph(nx.Graph):
         Creates a graph from a given adjacency matrix.
 
         Examples
-        -----
+        --------
         >>> M = Matrix([[0,1],[1,0]])
         >>> G = Graph.from_adjacency_matrix(M)
         >>> print(G)
@@ -703,7 +703,7 @@ class Graph(nx.Graph):
         Returns the adjacency matrix.
 
         Parameters
-        -----
+        ----------
         vertex_order:
             By listing vertices in the preferred order, the adjacency matrix
             can be computed in a way the user expects. If no vertex order is
@@ -715,7 +715,7 @@ class Graph(nx.Graph):
         requires `scipy`. To avoid unnecessary imports, the method is implemented here.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (1,3)])
         >>> G.adjacency_matrix()
         Matrix([
