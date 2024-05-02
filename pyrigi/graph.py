@@ -134,7 +134,7 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @classmethod
-    def complete_graph_on_vertices(cls, vertices: List[Vertices]) -> GraphType:
+    def complete_graph_on_vertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Generates a complete graph on `vertices`. Contrary to :meth:`~Graph.complete_graph`,
         it is possible to give the vertices labels here.
