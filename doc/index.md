@@ -2,7 +2,7 @@
 
 ```{include} ../README.md
 :relative-docs: docs/
-:start-line: 8
+:start-after: <!-- start-input -->
 ```
 
 ## Contents
