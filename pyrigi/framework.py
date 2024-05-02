@@ -465,7 +465,7 @@ class Framework(object):
             the rigidity matrix.
         edges_ordered:
             A Boolean indicating, whether the edges are assumed to be ordered (`True`), 
-            or whether they should be internally sorted (`False).
+            or whether they should be internally sorted (`False`).
         
         Examples
         -----
