@@ -8,6 +8,7 @@
 <!-- start-input -->
 
 **PyRigi** is a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks.
+We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://www.sympy.org/) for computations.  
 
 ## Installation and usage
 
@@ -19,14 +20,6 @@ from pyrigi import Graph, Framework
 ```
 In the future, we will enable installation via `pip`.
 
-## Questions and feature requests
-
-We have a [Zulip chat](https://pyrigi.zulipchat.com),
-where you can ask questions or propose new functionality.
-You can also use the [GitHub Discussions](https://github.com/PyRigi/PyRigi/discussions).
-
-To report bugs, please, create an [issue](https://github.com/PyRigi/PyRigi/issues/new/choose).
-
 ## Documentation
 
 The documentation of the `main` branch is available [online](https://pyrigi.github.io/PyRigi/).
@@ -36,6 +29,14 @@ see the [development guide](https://pyrigi.github.io/PyRigi/development/howto).
 An important part of the documentation is the mathematical background.
 We specify the outputs of the methods in the package
 by giving rigorous mathematical definitions.
+
+## Questions and feature requests
+
+We have a [Zulip chat](https://pyrigi.zulipchat.com),
+where you can ask questions or propose new functionality.
+You can also use the [GitHub Discussions](https://github.com/PyRigi/PyRigi/discussions).
+
+To report bugs, please, create an [issue](https://github.com/PyRigi/PyRigi/issues/new/choose).
 
 ## Contributing
 
@@ -55,7 +56,7 @@ read the [development guide](https://pyrigi.github.io/PyRigi/development/howto)
 and contact us, for instance via [Zulip](https://pyrigi.zulipchat.com).
 ## License
 
-The package is licensed under MIT license.
+The package is licensed under [MIT license](https://github.com/PyRigi/PyRigi/blob/main/LICENSE).
 
 ## The PyRigi Developers
 
