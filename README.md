@@ -13,7 +13,8 @@ We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://ww
 ## Installation and usage
 
 We have not reached a stable version yet.
-Hence, the current usage is to clone/download the package from this repository.
+Hence, the current usage is to clone/download the package
+from [this GitHub repository](https://github.com/pyRigi/PyRigi).
 In the root folder of the package, it can be used by
 ```python
 from pyrigi import Graph, Framework
