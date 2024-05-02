@@ -665,18 +665,11 @@ class Framework(object):
 
     def is_infinitesimally_rigid(self) -> bool:
         """
-        Check whether the given framework is rigid.
+        Check whether the given framework is infinitesimally rigid.
 
         Definitions
         -----
-        * :prf:ref:`Infinitesimal Rigidity <def-infinitesimal-rigidity>`
-
-        Notes
-        -----
-        A framework is called infinitesimally rigid, if all infinitesimal flexes are trivial. 
-        This is the case when either there is less than 1 vertex in the framework, making it 
-        trivially rigid, or the rigidity matrix has rank $d \cdot |V| - {d\choose 2}$, since 
-        there are ${d\choose 2}$ isometries of $\RR^d$.
+        :prf:ref:`Infinitesimal Rigidity <def-inf-rigid-framework>`
         """
         return len(self.graph().vertices()) <= 1 or \
             self.rigidity_matrix_rank() == self.dim() * len(self.graph().vertices()) \
