@@ -1,7 +1,8 @@
-## Graph
+# Frameworks
+
 
 ```{eval-rst}
-.. automodule:: pyrigi.graph
+.. automodule:: pyrigi.framework
    :members:
    :undoc-members:
    :show-inheritance:
