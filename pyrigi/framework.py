@@ -673,20 +673,12 @@ class Framework(object):
 
     def is_infinitesimally_rigid(self) -> bool:
         """
-<<<<<<< HEAD
         Check whether the given framework is rigid by computing the rigidity
         matrix' rank (cf. :meth:`~Framework.rigidity_matrix_rank`).
 
         Definitions
         -----
         * :prf:ref:`Infinitesimal Rigidity <def-infinitesimal-rigidity>`
-=======
-        Check whether the given framework is infinitesimally rigid.
-
-        Definitions
-        -----------
-        :prf:ref:`Infinitesimal Rigidity <def-inf-rigid-framework>`
->>>>>>> 7166ccc9165c31f884981f862a2b0fa540cbdcb0
         """
         return len(self.graph().vertices()) <= 1 or \
             self.rigidity_matrix_rank() == self.dim() * len(self.graph().vertices()) \

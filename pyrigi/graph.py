@@ -615,11 +615,7 @@ class Graph(nx.Graph):
         
         Notes
         -----
-<<<<<<< HEAD
-        For further details, see `is_isomorphic<https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.isomorphism.is_isomorphic.html#is-isomorphic>`
-=======
         For further details, see :func:`networkx.algorithms.isomorphism.is_isomorphic`.
->>>>>>> 7166ccc9165c31f884981f862a2b0fa540cbdcb0
         
         Examples
         --------
@@ -671,11 +667,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-<<<<<<< HEAD
-        See :meth:`graph_to_int`
-=======
         See :meth:`graph_to_int`.
->>>>>>> 7166ccc9165c31f884981f862a2b0fa540cbdcb0
 
         TODO
         -----
