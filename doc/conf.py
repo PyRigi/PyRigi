@@ -62,6 +62,7 @@ bibtex_bibfiles = ['refs.bib']
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
+    'networkx': ('https://networkx.org/documentation/stable', None),
     }
 
 napoleon_google_docstring = False

@@ -25,40 +25,7 @@ class Graph(nx.Graph):
         Edges are tuples of vertices. They can either be a tuple `(i,j)` or
         a list `[i,j]` with two entries.
 
-    Methods (from networkx)
-    -----
-    graph.add_edge(edge):
-        Add `edge` to `graph`. See `add_edge <https://networkx.org/documentation/stable/release/api_1.0.html#add-edge>`
-    degree(graph, vertices=None):
-        Returns a degree view of `vertices`. If `vertices` is omitted, then this returns the degrees
-        of all vertices. See `degree <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.degree.html#networkx.classes.function.degree>`
-    neighbors(graph, vertex):
-        Returns all neighbors of `vertex`. See `neighbors <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.neighbors.html#networkx.classes.function.neighbors>`
-    non_neighbors(graph, vertex):
-        Returns all nonneighbors of `vertex`. See `non_neighbors <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.non_neighbors.html#networkx.classes.function.non_neighbors>`
-    subgraph(graph, vertices):
-        Returns the subgraph induced by `vertices`. See `subgraph <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.subgraph.html#networkx.classes.function.subgraph>`
-    edge_subgraph(graph, edges):
-        Returns the subgraph induced by `edges`. See `edge_subgraph <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.edge_subgraph.html#networkx.classes.function.edge_subgraph>`
-    edges(graph, vertices=None):
-        Returns the `edges` incident to the vertices. See :`edges <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.edges.html#networkx.classes.function.edges>`
-    is_k_edge_connected(graph, k):
-        Tests if a graph is k-edge-connected. See `is_k_edge_connected <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected.html#networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected>`
-    is_connected(graph):
-        Returns `True` if the graph is connected. See `is_connected <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.components.is_connected.html#is-connected>`
-    is_tree(graph):
-        Returns `True`, if the graph is a tree. See `is_tree <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.tree.recognition.is_tree.html#is-tree>`
-        
-    Notes
-    -----
-    This class inherits the `networkx Graph class <https://networkx.org/documentation/stable/reference/classes/graph.html>`.
-    For example, this gives us access to the following broader concepts:
-    * `Graph display <https://networkx.org/documentation/stable/reference/drawing.html>`
-    * `Directed Graphs <https://networkx.org/documentation/stable/reference/classes/digraph.html>`
-    * `Linear Algebra on Graphs <https://networkx.org/documentation/stable/reference/linalg.html>`
-    * `A Database of some Graphs <https://networkx.org/documentation/stable/reference/generators.html>`
-    * `Reading and Writing Graphs <https://networkx.org/documentation/stable/reference/readwrite/index.html>`
-    * `Converting to and from other Data Formats <https://networkx.org/documentation/stable/reference/convert.html>`
+
 
     Examples
     -----
@@ -70,6 +37,41 @@ class Graph(nx.Graph):
     >>> G_.add_edges([(0,7), (2,5)])
     >>> print(G)
     Vertices: [0, 2, 5, 7, 'a'],    Edges: [(0, 7), (2, 5)]
+    
+          
+    Notes
+    -----
+    This class inherits the class :class:`networkx.Graph`.
+    Some of the inherited methods are for instance:
+     
+    .. autosummary::
+    
+        ~networkx.Graph.add_edge
+    
+    Many of the :doc:`networkx` algorithms are implemented as functions,
+    namely, a :class:`Graph` instance has to be passed as the first parameter.
+    See for instance:
+    
+    .. autosummary::
+    
+        ~networkx.classes.function.degree
+        ~networkx.classes.function.neighbors
+        ~networkx.classes.function.non_neighbors
+        ~networkx.classes.function.subgraph
+        ~networkx.classes.function.edge_subgraph
+        ~networkx.classes.function.edges
+        ~networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected
+        ~networkx.algorithms.components.is_connected
+        ~networkx.algorithms.tree.recognition.is_tree
+    
+    The following links give more information on :class:`networkx.Graph` functionality:
+    
+    - :doc:`Graph display <networkx:reference/drawing>`
+    - :doc:`Directed Graphs <networkx:reference/classes/digraph>`
+    - :doc:`Linear Algebra on Graphs <networkx:reference/linalg>`
+    - :doc:`A Database of some Graphs <networkx:reference/generators>`
+    - :doc:`Reading and Writing Graphs <networkx:reference/readwrite/index>`
+    - :doc:`Converting to and from other Data Formats <networkx:reference/convert>`
     '''
 
     def __str__(self) -> str:
