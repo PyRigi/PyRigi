@@ -35,6 +35,8 @@ by giving rigorous mathematical definitions.
 
 We have a [Zulip chat](https://pyrigi.zulipchat.com),
 where you can ask questions or propose new functionality.
+If you want to get access to it, please, send an email to
+[this address](mailto:external.dc4f45edef70cb7e0c621ad50377d9f1.show-sender.include-footer@streams.zulipchat.com).
 You can also use the [GitHub Discussions](https://github.com/PyRigi/PyRigi/discussions).
 
 To report bugs, please, create an [issue](https://github.com/PyRigi/PyRigi/issues/new/choose).
@@ -54,7 +56,7 @@ creating tutorials.
 
 If you want to contribute, please,
 read the [development guide](https://pyrigi.github.io/PyRigi/development/howto)
-and contact us, for instance via [Zulip](https://pyrigi.zulipchat.com).
+and [contact us](mailto:external.dc4f45edef70cb7e0c621ad50377d9f1.show-sender.include-footer@streams.zulipchat.com).
 ## License
 
 The package is licensed under [MIT license](https://github.com/PyRigi/PyRigi/blob/main/LICENSE).
