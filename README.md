@@ -17,13 +17,21 @@ In the root folder of the package, it can be used by
 ```python
 from pyrigi import Graph, Framework
 ```
-In future, we will enable installation via `pip`.
+In the future, we will enable installation via `pip`.
+
+## Questions and feature requests
+
+We have a [Zulip chat](https://pyrigi.zulipchat.com),
+where you can ask questions or propose new functionality.
+You can also use the [GitHub Discussions](https://github.com/PyRigi/PyRigi/discussions).
+
+To report bugs, please, create an [issue](https://github.com/PyRigi/PyRigi/issues/new/choose).
 
 ## Documentation
 
-The documentation is available [online](https://pyrigi.github.io/PyRigi/).
+The documentation of the `main` branch is available [online](https://pyrigi.github.io/PyRigi/).
 For compiling it locally,
-see the [development guide](https://pyrigi.github.io/PyRigi/development/howto.html).
+see the [development guide](https://pyrigi.github.io/PyRigi/development/howto).
 
 An important part of the documentation is the mathematical background.
 We specify the outputs of the methods in the package
