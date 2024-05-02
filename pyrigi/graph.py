@@ -48,7 +48,7 @@ class Graph(nx.Graph):
     
         ~networkx.Graph.add_edge
     
-    Many of the :doc:`networkx` algorithms are implemented as functions,
+    Many of the :doc:`NetworkX <networkx:index>` algorithms are implemented as functions,
     namely, a :class:`Graph` instance has to be passed as the first parameter.
     See for instance:
     
@@ -147,35 +147,35 @@ class Graph(nx.Graph):
         return list(self.nodes)
 
     def delete_vertex(self, vertex: Vertex) -> None:
-        """Alias for `remove_node <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_node.html#graph-remove-node>`."""
+        """Alias for :meth:`~networkx.Graph.remove_node`."""
         self.remove_node(vertex)
 
     def delete_vertices(self, vertices: List[Vertex]) -> None:
-        """Alias for `remove_nodes_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_nodes_from.html#graph-remove-nodes-from>`"""
+        """Alias for :meth:`~networkx.Graph.remove_nodes_from`."""
         self.remove_nodes_from(vertices)
 
     def delete_edge(self, edge: Edge) -> None:
-        """Alias for `remove_edge <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_edge.html#graph-remove-edge>`"""
+        """Alias for :meth:`~networkx.Graph.remove_edge`"""
         self.remove_edge(*edge)
 
     def delete_edges(self, edges: List[Edge]) -> None:
-        """Alias for`remove_edges_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_edges_from.html#graph-remove-edges-from>"""
+        """Alias for :meth:`~networkx.Graph.remove_edges_from`."""
         self.remove_edges_from(edges)
 
     def add_vertex(self, vertex: Vertex) -> None:
-        """Alias for `add_node <https://networkx.org/documentation/stable/release/api_1.0.html#add-node>`"""
+        """Alias for :meth:`~networkx.Graph.add_node`."""
         self.add_node(vertex)
 
     def add_vertices(self, vertices: List[Vertex]) -> None:
-        """Alias for `add_nodes_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.add_nodes_from.html#graph-add-nodes-from>`"""
+        """Alias for :meth:`~networkx.Graph.add_nodes_from`."""
         self.add_nodes_from(vertices)
 
     def add_edges(self, edges: List[Edge]) -> None:
-        """Alias for `add_edges_from <https://networkx.org/documentation/stable/release/api_1.0.html#add-edges-from>`"""
+        """Alias for :meth:`~networkx.Graph.add_edges_from`."""
         self.add_edges_from(edges)
 
     def vertex_connectivity(self) -> int:
-        """Alias for `node_connectivity <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.connectivity.node_connectivity.html#node-connectivity>`"""
+        """Alias for :func:`~networkx.algorithms.connectivity.connectivity.node_connectivity`."""
         return nx.node_connectivity(self)
 
     def is_sparse(self, K: int, L: int) -> bool:
@@ -611,7 +611,7 @@ class Graph(nx.Graph):
         
         Notes
         -----
-        For further details, see :prf:ref:`is_isomorphic<https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.isomorphism.is_isomorphic.html#is-isomorphic>`
+        For further details, see :func:`networkx.algorithms.isomorphism.is_isomorphic`.
         
         Examples
         -----
@@ -711,7 +711,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        `nx.adjacency_matrix() <https://networkx.org/documentation/stable/reference/generated/networkx.linalg.graphmatrix.adjacency_matrix.html#adjacency-matrix>` 
+        :func:`networkx.linalg.graphmatrix.adjacency_matrix.adjacency_matrix()>` 
         requires `scipy`. To avoid unnecessary imports, the method is implemented here.
 
         Examples
