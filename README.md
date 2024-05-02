@@ -12,7 +12,7 @@ We aim at providing a tool for investigating combinatorial and geometric questio
 such as infinitesimal, global, minimal, or generic rigidity. 
 
 
-We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://www.sympy.org/) for computations.
+We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://www.sympy.org/) for symbolic and numerical computations.
 We acknowledge these and all the other open-source projects upon which PyRigi is based.
 
 ## Installation and usage
@@ -34,28 +34,28 @@ see the [development guide](https://pyrigi.github.io/PyRigi/development/howto).
 
 An important part of the documentation is the mathematical background.
 We specify the outputs of the methods in the package
-by giving rigorous mathematical definitions.
+by providing rigorous mathematical definitions.
 
 ## Questions and feature requests
 
 We have a [Zulip chat](https://pyrigi.zulipchat.com),
 where you can ask questions or propose new functionality.
-If you want to get access to it, please, send an email to
+If you want to get access to it, please send an email to
 [this address](mailto:external.dc4f45edef70cb7e0c621ad50377d9f1.show-sender.include-footer@streams.zulipchat.com).
 You can also use the [GitHub Discussions](https://github.com/PyRigi/PyRigi/discussions).
 
-To report bugs, please, create an [issue](https://github.com/PyRigi/PyRigi/issues/new/choose).
+To report bugs or ask for new features, please create an [issue](https://github.com/PyRigi/PyRigi/issues/new/choose).
 
 ## Contributing
 
 We appreciate contributions!
-Do you have a new research result
+Do you have a research result
 about rigidity or flexibility of bar-joint frameworks
-that could be implemented in the package?
+that could be implemented?
 [Let us know](https://github.com/PyRigi/PyRigi/issues/new/choose)!
 Or even better, implement it and contribute to the package!
 
-Except for coding, you can also help for instance
+Besides coding, you can also help for instance
 by extending the mathematical documentation or
 creating tutorials.
 
@@ -64,7 +64,7 @@ read the [development guide](https://pyrigi.github.io/PyRigi/development/howto)
 and [contact us](mailto:external.dc4f45edef70cb7e0c621ad50377d9f1.show-sender.include-footer@streams.zulipchat.com).
 ## License
 
-The package is licensed under [MIT license](https://github.com/PyRigi/PyRigi/blob/main/LICENSE).
+The package is licensed under the [MIT license](https://github.com/PyRigi/PyRigi/blob/main/LICENSE).
 
 ## The PyRigi Developers
 
