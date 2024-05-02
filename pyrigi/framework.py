@@ -153,7 +153,7 @@ class Framework(object):
         Parameters
         ----------
         points:
-            List of points consisting of coordinates in $\\RR^d$. It is checked
+            List of points consisting of coordinates in $\RR^d$. It is checked
             that all points lie in the same ambient space.
         vertices:
             List of vertices. If the list of vertices is empty, we generate a
@@ -375,7 +375,7 @@ class Framework(object):
         -----
         It is assumed that the realization contains all vertices from the
         underlying graph. Furthermore, all points in the realization need
-        to be contained in $\\RR^d$ for a fixed $d$.
+        to be contained in $\RR^d$ for a fixed $d$.
 
         Examples
         --------
