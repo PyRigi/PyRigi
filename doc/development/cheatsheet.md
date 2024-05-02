@@ -51,6 +51,8 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 `` {meth}`~pyrigi.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.Framework.delete_edge`
 `` {meth}`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` {meth}`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
+`` {func}`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
+`` {doc}`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::
 
@@ -64,6 +66,8 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 `` :meth:`~pyrigi.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.Framework.delete_edge`
 `` :meth:`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` :meth:`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
+`` :func:`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
+`` :doc:`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::
 
