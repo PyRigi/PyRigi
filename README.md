@@ -29,6 +29,26 @@ An important part of the documentation is the mathematical background.
 We specify the outputs of the methods in the package
 by giving rigorous mathematical definitions.
 
+## Contributing
+
+We appreciate contributions!
+Do you have a new research result
+about rigidity or flexibility of bar-joint frameworks
+that could be implemented in the package?
+[Let us know](https://github.com/PyRigi/PyRigi/issues/new/choose)!
+Or even better, implement it and contribute to the package!
+
+Except for coding, you can also help for instance
+by extending the mathematical documentation or
+creating tutorials.
+
+If you want to contribute, please,
+read the [development guide](https://pyrigi.github.io/PyRigi/development/howto)
+and contact us, for instance via [Zulip](https://pyrigi.zulipchat.com).
+## License
+
+The package is licensed under MIT license.
+
 ## The PyRigi Developers
 
 The current maintainers of the project are:
@@ -38,6 +58,10 @@ Georg Grasegger \
 Matthias Himmelmann \
 Jan Legerský
 
+The decision to create **PyRigi** package was made by the participants of the workshop
+[Code of Rigidity](https://www.ricam.oeaw.ac.at/specsem/specsem2024/workshop2/)
+(March 11–15, 2024), which was part of the 
+Special Semester on Rigidity and Flexibility at [RICAM](https://www.oeaw.ac.at/ricam/), Linz, Austria.
 
 
 
