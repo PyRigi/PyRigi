@@ -17,6 +17,16 @@ from pyrigi import Graph, Framework
 ```
 In future, we will enable installation via `pip`.
 
+## Documentation
+
+The documentation is available [online](https://pyrigi.github.io/PyRigi/).
+For compiling it locally,
+see the [development guide](https://pyrigi.github.io/PyRigi/development/howto.html).
+
+An important part of the documentation is the mathematical background.
+We specify the outputs of the methods in the package
+by giving rigorous mathematical definitions.
+
 ## The PyRigi Developers
 
 The current maintainers of the project are:
