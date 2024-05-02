@@ -7,7 +7,15 @@
 
 **PyRigi** is a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks.
 
+## Installation and usage
 
+We have not reached a stable version yet.
+Hence, the current usage is to clone/download the package from this repository.
+In the root folder of the package, it can be used by
+```python
+from pyrigi import Graph, Framework
+```
+In future, we will enable installation via `pip`.
 
 ## The PyRigi Developers
 
