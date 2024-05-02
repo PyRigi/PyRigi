@@ -1,5 +1,10 @@
-# Basic definitions
+(definitions)=
+# Definitions
 
+
+:::{warning}
+Currently, definitions and theorems are just listed here. They will be sorted later.
+:::
 
 :::{prf:definition} Realization
 :label: def-realization
@@ -84,6 +89,3 @@ A graph $G = (V_G, E_G)$ is generically $2$-rigid if and only if ...
 {cite:p}`Laman1970`
 :::
 
-:::{bibliography}
-:filter: docname in docnames
-:::
