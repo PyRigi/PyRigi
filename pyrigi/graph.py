@@ -76,7 +76,7 @@ class Graph(nx.Graph):
 
     def __str__(self) -> str:
         """
-        Method to display the data inside the Framework. This overrides the `print` method.
+        Return the string representation of a graph.
 
         Notes
         -----
@@ -121,12 +121,12 @@ class Graph(nx.Graph):
 
     @classmethod
     def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
-        """Creates a graph from a list of vertices. The graph will contain no edges."""
+        """Create a graph with no edges from a list of vertices."""
         return Graph.from_vertices_and_edges(vertices, [])
 
     @classmethod
     def complete_graph(cls, n: int) -> GraphType:
-        """Generates a complete graph on $n$ vertices. The vertices are labeled via the list $0,...,n-1$."""
+        """Generate a complete graph on $n$ vertices. The vertices are labeled via the list $0,...,n-1$."""
         if not isinstance(n, int) or n < 1:
             raise TypeError("n needs to be a positive integer")
         vertices = range(n)
@@ -136,8 +136,7 @@ class Graph(nx.Graph):
     @classmethod
     def complete_graph_on_vertices(cls, vertices: List[Vertex]) -> GraphType:
         """
-        Generates a complete graph on `vertices`. Contrary to :meth:`~Graph.complete_graph`,
-        it is possible to give the vertices labels here.
+        Generate a complete graph on `vertices`..
         """
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
@@ -237,7 +236,7 @@ class Graph(nx.Graph):
 
     def all_k_extensions(self, k: int, dim: int = 2) -> None:
         """
-        Return list of all possible k-extensions.
+        Return list of all possible k-extensions of the graph.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -405,7 +404,7 @@ class Graph(nx.Graph):
 
     def is_globally_rigid(self, dim: int = 2) -> bool:
         """
-        Checks whether the graph is :prf:ref:`globally dim-rigid <def-globally-rigid-graph>`
+        Check whether the graph is :prf:ref:`globally dim-rigid <def-globally-rigid-graph>`
 
         Notes
         -----
@@ -493,7 +492,7 @@ class Graph(nx.Graph):
 
     def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
-        List vertex-maximal rigid subgraphs.
+        List vertex-maximal rigid subgraphs of the graph.
 
         Definitions
         -----
@@ -552,7 +551,7 @@ class Graph(nx.Graph):
 
     def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
-        List vertex-minimal non-trivial rigid subgraphs.
+        List vertex-minimal non-trivial rigid subgraphs of the graph.
 
         Definitions
         -----
@@ -615,7 +614,7 @@ class Graph(nx.Graph):
 
     def is_isomorphic(self, graph: GraphType) -> bool:
         """
-        This method checks, whether two graphs are isomorphic.
+        Check whether two graphs are isomorphic.
 
         Notes
         -----
@@ -683,7 +682,7 @@ class Graph(nx.Graph):
     @classmethod
     def from_adjacency_matrix(cls, M: Matrix) -> GraphType:
         """
-        Creates a graph from a given adjacency matrix.
+        Create a graph from a given adjacency matrix.
 
         Examples
         --------
@@ -709,7 +708,7 @@ class Graph(nx.Graph):
             self,
             vertex_order: List[Vertex] = None) -> Matrix:
         """
-        Returns the adjacency matrix.
+        Return the adjacency matrix of the graph.
 
         Parameters
         ----------

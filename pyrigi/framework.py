@@ -93,7 +93,7 @@ class Framework(object):
 
     def __str__(self) -> str:
         """
-        Method to display the data inside the Framework. This overrides the `print` method.
+        Return the string representation of a framework.
 
         Notes
         -----
@@ -119,7 +119,7 @@ class Framework(object):
 
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         """
-        This method adds a vertex to the Framework with the cooresponding coordinates.
+        Add a vertex to the framework with the corresponding coordinates.
         If no vertex is provided (`None`), then the smallest, free integer is chosen instead.
 
         Examples
@@ -148,7 +148,7 @@ class Framework(object):
                      points: List[Point],
                      vertices: List[Vertex] = []) -> None:
         """
-        In this method, a list of vertices is added. For each, `add_vertex` is called.
+        Add a list of vertices to the framework.
 
         Parameters
         ----------
@@ -160,6 +160,10 @@ class Framework(object):
             vertex that is not yet taken with the method :meth:`add_vertex`.
             Else, the list of vertices needs to have the same length as the
             list of points.
+
+        Notes
+        -----
+        For each vertex that has to be added, :meth:`add_vertex` is called.
 
         Examples
         --------
@@ -182,13 +186,17 @@ class Framework(object):
 
     def add_edge(self, edge: Edge) -> None:
         """
-        Add an edge to the framework. This method only alters the graph attribute.
+        Add an edge to the framework.
 
         Parameters
         ----------
         edge:
             The edge is a tuple of vertices. It can either be passes as a tuple `(i,j)`
             or a list `[i,j]`.
+
+        Notes
+        -----
+        This method only alters the graph attribute.
         """
         if not (len(edge)) == 2:
             raise TypeError(f"Edge {edge} does not have the correct length!")
@@ -198,14 +206,19 @@ class Framework(object):
         self._graph.add_edge(*(edge))
 
     def add_edges(self, edges: List[Edge]) -> None:
-        """Call :meth:`add_edge` for each edge from a list of edges."""
+        """
+        Add a list of edges to the framework.
+
+        Notes
+        -----
+        For each edge that has to be added, :meth:`add_edge` is called.
+        """
         for edge in edges:
             self.add_edge(edge)
 
     def underlying_graph(self) -> Graph:
         """
-        A copy of the framework's underlying graph is returned.
-        Hence, modifying it does not affect the original framework.
+        Return a copy copy of the framework's underlying graph.
         """
         return deepcopy(self._graph)
 
@@ -214,7 +227,12 @@ class Framework(object):
         return self.underlying_graph()
 
     def draw_framework(self) -> None:
-        """Use the networkx-internal routine to plot the framework."""
+        """
+        Plot the framework.
+
+        Notes
+        -----
+        Use a networkx internal routine to plot the framework."""
         nx.draw(self._graph, pos=self.get_realization_list())
 
     @classmethod
@@ -224,7 +242,7 @@ class Framework(object):
 
         Notes
         -----
-        Since no vertices are provided, we generate the list `[0,...,len(points)]` instead
+        The list of vertices is taken to be `[0,...,len(points)]`.
 
         Examples
         --------
@@ -243,7 +261,7 @@ class Framework(object):
     @classmethod
     def from_graph(cls, graph: Graph, dim: int) -> None:
         """
-        Given a graph and a dimension, a random realization is generated to create a framework.
+        Return the framework given by the given graph and a random realization of the latter in the given dimension.
 
         Examples
         --------
@@ -324,8 +342,11 @@ class Framework(object):
 
     def get_realization_list(self) -> List[Point]:
         """
-        Rather than returning the internal matrix representation, this method returns the
-        realization in the form of tuples. Conveniently, this format can be read by networkx.
+        Return the realization as a list of Point.
+
+        Notes
+        -----
+        The format returned by this method can be read by networkx.
 
         Examples
         --------
@@ -338,8 +359,7 @@ class Framework(object):
 
     def get_realization(self) -> Dict[Vertex, Point]:
         """
-        A copy of the framework's realization is returned. Hence,
-        modifying it does not affect the original framework.
+        Return a copy of the framework's realization.
         """
         return deepcopy(self._realization)
 
@@ -349,7 +369,7 @@ class Framework(object):
 
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
         """
-        Provides a new realization for the framework.
+        Change the realization of the framework.
 
         Notes
         -----
@@ -382,7 +402,7 @@ class Framework(object):
 
     def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
         """
-        Changes the coordinates of a single given vertex.
+        Change the coordinates of a single given vertex.
 
         Examples
         --------
@@ -550,17 +570,21 @@ class Framework(object):
                                      pinned_vertices: Dict[Vertex,
                                                            List[int]] = {}) -> List[Matrix]:
         r"""
-        The trivial infinitesimal flexes it are computed by calculating all
-        infinitesimal flexes of the complete graph.
+        Return the trivial infinitesimal flexes of the framework.
 
         Definitions
         -----------
-        * :prf:ref:`Trivial Motions <def-trivial-motions>`
+        * :prf:ref:`Trivial flexes <def-trivial-flexes>`
 
         Parameters
         ----------
         pinned_vertices:
             see :meth:`~Framework.rigidity_matrix`
+
+        Notes
+        -----
+        Trival infinitesimal flexes are computed by calculating all
+        infinitesimal flexes of the complete graph.
 
         Examples
         --------
@@ -614,7 +638,7 @@ class Framework(object):
             pinned_vertices: Dict[Vertex, List[int]] = {},
             include_trivial: bool = False) -> List[Matrix]:
         r"""
-        Returns a basis of the space of infinitesimal flexes.
+        Return a basis of the space of infinitesimal flexes.
 
         Definitions
         -----------
@@ -677,8 +701,7 @@ class Framework(object):
 
     def is_infinitesimally_rigid(self) -> bool:
         """
-        Check whether the given framework is rigid by computing the rigidity
-        matrix' rank (cf. :meth:`~Framework.rigidity_matrix_rank`).
+        Check whether the given framework is infinitesimally rigid (cf. :meth:`~Framework.rigidity_matrix_rank`).
 
         Definitions
         -----
@@ -690,7 +713,7 @@ class Framework(object):
 
     def is_infinitesimally_flexible(self) -> bool:
         """
-        Check whether the given framework is flexible.
+        Check whether the given framework is infinitesimally flexible.
         See :meth:`~Framework.is_infinitesimally_rigid`
         """
         return not self.is_infinitesimally_rigid()
@@ -733,7 +756,7 @@ class Framework(object):
 
     def is_redundantly_rigid(self) -> bool:
         """
-        Check if the framework is redundantly rigid.
+        Check if the framework is infinitesimally redundantly rigid.
 
         Definitions
         -----------
