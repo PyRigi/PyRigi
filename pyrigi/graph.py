@@ -496,7 +496,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----
-        :prf:ref:`Maximal rigid subgraph <def-maximal-rigid-subgraph>
+        :prf:ref:`Maximal rigid subgraph <def-maximal-rigid-subgraph>`
 
         Notes
         -----
@@ -555,7 +555,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----
-        :prf:ref:`Minimal rigid subgraph <def-minimal-rigid-subgraph>
+        :prf:ref:`Minimal rigid subgraph <def-minimal-rigid-subgraph>`
 
         Notes
         -----
