@@ -493,13 +493,15 @@ class Graph(nx.Graph):
         """
         List vertex-maximal rigid subgraphs.
 
+        Definitions
+        -----
+        :prf:ref:`Maximal rigid subgraph <def-maximal-rigid-subgraph>
+
         Notes
         -----
-        We consider a subgraph to be maximal, if it is maximal 
-        with respect to subgraph-inclusion. We only return
-        nontrivial subgraphs, meaning that there need to be at
-        least `dim+1` vertices present. If the graph itself
-        is rigid, it is clearly maximal and is returned.
+        We only return nontrivial subgraphs, meaning that there need to be at
+        least `dim+1` vertices present. If the graph itself is rigid, it is clearly 
+        maximal and is returned.
 
         Examples
         -----
@@ -548,11 +550,13 @@ class Graph(nx.Graph):
         """
         List vertex-minimal non-trivial rigid subgraphs.
 
+        Definitions
+        -----
+        :prf:ref:`Minimal rigid subgraph <def-minimal-rigid-subgraph>
+
         Notes
         -----
-        We consider a subgraph to be minimal, if it is minimal 
-        with respect to subgraph-inclusion. We only return
-        nontrivial subgraphs, meaning that there need to be at
+        We only return nontrivial subgraphs, meaning that there need to be at
         least `dim+1` vertices present.
 
         Examples
@@ -609,7 +613,7 @@ class Graph(nx.Graph):
         
         Notes
         -----
-        For further details, see :prf:ref:`is_isomorphic<https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.isomorphism.is_isomorphic.html#is-isomorphic>`
+        For further details, see `is_isomorphic<https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.isomorphism.is_isomorphic.html#is-isomorphic>`
         
         Examples
         -----
@@ -661,7 +665,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        See :meth:`graph_to_int
+        See :meth:`graph_to_int`
 
         TODO
         -----

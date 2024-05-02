@@ -203,7 +203,7 @@ class Framework(object):
 
     def underlying_graph(self) -> Graph:
         """        
-        A deep copy of the framework's underlying graph is returned.
+        A copy of the framework's underlying graph is returned.
         Hence, modifying it does not affect the original framework.
         """
         return deepcopy(self._graph)
@@ -242,7 +242,7 @@ class Framework(object):
     @classmethod
     def from_graph(cls, graph: Graph, dim: int) -> None:
         """
-        Given a graph and a dimension, we create a random realization to create a framework.
+        Given a graph and a dimension, a random realization is generated to create a framework.
 
         Examples
         -----
@@ -535,15 +535,19 @@ class Framework(object):
             edge_order: List[Edge] = None) -> Matrix:
         r""" 
         Construct the stress matrix from a stress of from its support.
+
+        Definitions
+        -----
+        * :prf:ref:`Stress Matrix <def-stress-matrix>`
+
         """
         raise NotImplementedError()
 
     def trivial_infinitesimal_flexes(
             self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> List[Matrix]:
         r"""
-        The complete graph is infinitesimally rigid in all dimensions. 
-        Thus, for computing the trivial infinitesimal flexes it suffices 
-        to compute all infinitesimal flexes of the complete graph.
+        The trivial infinitesimal flexes it are computed by calculating all 
+        infinitesimal flexes of the complete graph.
         
         Definitions
         -----
@@ -606,13 +610,17 @@ class Framework(object):
             pinned_vertices: Dict[Vertex, List[int]] = {},
             include_trivial: bool = False) -> List[Matrix]:
         r""" 
-        Returns a basis of the space of infinitesimal flexes. This is done by orthogonalizing the
-        space of trivial and non-trivial flexes and subsequently forgetting the trivial flexes,
-        provided that `include_trivial` is set to `False`. Else, return the entire kernel.
+        Returns a basis of the space of infinitesimal flexes. 
 
         Definitions
         -----
         * :prf:ref:`Infinitesimal Motion <def-infinitesimal-motion>`
+
+        Notes
+        -----
+        Algorithmically, the infinitesimal flexes are computed by orthogonalizing the space 
+        of trivial and non-trivial flexes and subsequently omitting the trivial flexes,
+        provided that `include_trivial` is set to `False`. Else, return the entire kernel.
 
         Parameters
         -----
@@ -665,18 +673,12 @@ class Framework(object):
 
     def is_infinitesimally_rigid(self) -> bool:
         """
-        Check whether the given framework is rigid.
+        Check whether the given framework is rigid by computing the rigidity
+        matrix' rank (cf. :meth:`~Framework.rigidity_matrix_rank`).
 
         Definitions
         -----
         * :prf:ref:`Infinitesimal Rigidity <def-infinitesimal-rigidity>`
-
-        Notes
-        -----
-        A framework is called infinitesimally rigid, if all infinitesimal flexes are trivial. 
-        This is the case when either there is less than 1 vertex in the framework, making it 
-        trivially rigid, or the rigidity matrix has rank $d \cdot |V| - {d\choose 2}$, since 
-        there are ${d\choose 2}$ isometries of $\RR^d$.
         """
         return len(self.graph().vertices()) <= 1 or \
             self.rigidity_matrix_rank() == self.dim() * len(self.graph().vertices()) \
@@ -696,10 +698,9 @@ class Framework(object):
         """
         Check whether a framework is minimally infinitesimally rigid.
 
-        Notes
+        Definitions
         -----
-        A framework is called minimally infinitesimally rigid, if it is infinitesimally rigid
-        and the removal of any edge results in an infinitesimally flexible graph.
+        :prf:ref:`Minimally Rigidity <def-minimally-rigid-framework>`
 
         Examples
         -----
