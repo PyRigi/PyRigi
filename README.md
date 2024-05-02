@@ -8,7 +8,12 @@
 <!-- start-input -->
 
 PyRigi is a Python package for research in rigidity and flexibility of bar-and-joint frameworks.
-We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://www.sympy.org/) for computations.  
+We aim at providing a tool for investigating combinatorial and geometric questions
+such as infinitesimal, global, minimal, or generic rigidity. 
+
+
+We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://www.sympy.org/) for computations.
+We acknowledge these and all the other open-source projects upon which PyRigi is based.
 
 ## Installation and usage
 
