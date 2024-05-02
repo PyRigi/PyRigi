@@ -1,5 +1,10 @@
-# Basic definitions
+(definitions)=
+# Definitions
 
+
+:::{warning}
+Currently, definitions and theorems are just listed here. They will be sorted later.
+:::
 
 :::{prf:definition} Realization
 :label: def-realization
@@ -44,6 +49,18 @@ The graph $G$ is said to be _$(k, \ell)$-sparse_ if it is $(k, \ell)$-sparse and
 {{references}} {cite:p}`Lee2008`
 :::
 
+
+
+:::{prf:definition} Infinitesimally rigid frameworks
+:label: def-inf-rigid-framework
+
+A framework is called _infinitesimally rigid_, if all its infinitesimal flexes are trivial. 
+This is the case when either there is less than 1 vertex in the framework, making it 
+trivially rigid, or the rigidity matrix has rank $d \cdot |V| - {d\choose 2}$, since 
+there are ${d\choose 2}$ isometries of $\RR^d$.
+{{pyrigi_crossref}} {meth}`~.Framework.is_inf_rigid`
+:::
+
 :::{prf:definition} Minimally and redundantly rigid frameworks
 :label: def-minimally-redundantly-rigid-framework
 
@@ -84,6 +101,3 @@ A graph $G = (V_G, E_G)$ is generically $2$-rigid if and only if ...
 {cite:p}`Laman1970`
 :::
 
-:::{bibliography}
-:filter: docname in docnames
-:::

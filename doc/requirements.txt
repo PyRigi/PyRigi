@@ -1,7 +1,9 @@
-sphinx_proof
-sphinxcontrib.bibtex
 furo
-sphinx_copybutton
 myst-parser
-sphinx_math_dollar
-sphinx_design
+sphinx-copybutton
+sphinx-design
+sphinx-math-dollar
+sphinx-proof
+sphinx-tippy
+sphinxcontrib-bibtex
+sphinxcontrib-napoleon

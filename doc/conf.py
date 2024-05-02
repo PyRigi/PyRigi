@@ -56,12 +56,14 @@ extensions = [
     'sphinx_math_dollar',
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_tippy",
 ]
 
 bibtex_bibfiles = ['refs.bib']
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
+    'networkx': ('https://networkx.org/documentation/stable', None),
     }
 
 napoleon_google_docstring = False
@@ -100,20 +102,23 @@ myst_enable_extensions = [
 #     "html_admonition",
 #     "html_image",
 #     "linkify",
-#     "replacements",
-#     "smartquotes",
-#     "strikethrough",
+    "replacements",
+    "smartquotes",
+    "strikethrough",
     "substitution",
 #     "tasklist",
 ]
 
 
 myst_substitutions = {
-  "pyrigi" : "**`PyRigi`**",
-  "pyrigi_crossref" : "{{pyrigi}}:",
+  "pyrigi_crossref" : "**`PyRigi`**:",
   "references" : "*References*:" ,
 }
 
+myst_heading_anchors = 3
+
+tippy_enable_mathjax = True
+tippy_props = {"theme": "light",}
 
 mathjax3_config = {
   "tex": {
@@ -174,13 +179,18 @@ html_theme_options = {
     "sidebar_hide_name": False,
     "light_logo": "logo_nofont.png",
     "dark_logo": "logo_nofont_dark.png",
+    "announcement": "<em>The package has not reached a stable version yet!</em>",
 }
+
+html_title = "PyRigi"
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_css_files = ["tippy.css"]
+
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.

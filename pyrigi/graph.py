@@ -18,50 +18,17 @@ class Graph(nx.Graph):
     Class representing a graph.
 
     Parameters
-    -----
+    ----------
     vertices:
         The graph's vertices can be labelled by any `Hashable`. 
     edges:
         Edges are tuples of vertices. They can either be a tuple `(i,j)` or
         a list `[i,j]` with two entries.
 
-    Methods (from networkx)
-    -----
-    graph.add_edge(edge):
-        Add `edge` to `graph`. See `add_edge <https://networkx.org/documentation/stable/release/api_1.0.html#add-edge>`
-    degree(graph, vertices=None):
-        Returns a degree view of `vertices`. If `vertices` is omitted, then this returns the degrees
-        of all vertices. See `degree <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.degree.html#networkx.classes.function.degree>`
-    neighbors(graph, vertex):
-        Returns all neighbors of `vertex`. See `neighbors <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.neighbors.html#networkx.classes.function.neighbors>`
-    non_neighbors(graph, vertex):
-        Returns all nonneighbors of `vertex`. See `non_neighbors <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.non_neighbors.html#networkx.classes.function.non_neighbors>`
-    subgraph(graph, vertices):
-        Returns the subgraph induced by `vertices`. See `subgraph <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.subgraph.html#networkx.classes.function.subgraph>`
-    edge_subgraph(graph, edges):
-        Returns the subgraph induced by `edges`. See `edge_subgraph <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.edge_subgraph.html#networkx.classes.function.edge_subgraph>`
-    edges(graph, vertices=None):
-        Returns the `edges` incident to the vertices. See :`edges <https://networkx.org/documentation/stable/reference/generated/networkx.classes.function.edges.html#networkx.classes.function.edges>`
-    is_k_edge_connected(graph, k):
-        Tests if a graph is k-edge-connected. See `is_k_edge_connected <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected.html#networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected>`
-    is_connected(graph):
-        Returns `True` if the graph is connected. See `is_connected <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.components.is_connected.html#is-connected>`
-    is_tree(graph):
-        Returns `True`, if the graph is a tree. See `is_tree <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.tree.recognition.is_tree.html#is-tree>`
-        
-    Notes
-    -----
-    This class inherits the `networkx Graph class <https://networkx.org/documentation/stable/reference/classes/graph.html>`.
-    For example, this gives us access to the following broader concepts:
-    * `Graph display <https://networkx.org/documentation/stable/reference/drawing.html>`
-    * `Directed Graphs <https://networkx.org/documentation/stable/reference/classes/digraph.html>`
-    * `Linear Algebra on Graphs <https://networkx.org/documentation/stable/reference/linalg.html>`
-    * `A Database of some Graphs <https://networkx.org/documentation/stable/reference/generators.html>`
-    * `Reading and Writing Graphs <https://networkx.org/documentation/stable/reference/readwrite/index.html>`
-    * `Converting to and from other Data Formats <https://networkx.org/documentation/stable/reference/convert.html>`
+
 
     Examples
-    -----
+    --------
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> print(G)
     Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 3), (1, 2), (2, 3)]
@@ -70,6 +37,41 @@ class Graph(nx.Graph):
     >>> G_.add_edges([(0,7), (2,5)])
     >>> print(G)
     Vertices: [0, 2, 5, 7, 'a'],    Edges: [(0, 7), (2, 5)]
+    
+          
+    Notes
+    -----
+    This class inherits the class :class:`networkx.Graph`.
+    Some of the inherited methods are for instance:
+     
+    .. autosummary::
+    
+        networkx.Graph.add_edge
+    
+    Many of the :doc:`NetworkX <networkx:index>` algorithms are implemented as functions,
+    namely, a :class:`Graph` instance has to be passed as the first parameter.
+    See for instance:
+    
+    .. autosummary::
+    
+        ~networkx.classes.function.degree
+        ~networkx.classes.function.neighbors
+        ~networkx.classes.function.non_neighbors
+        ~networkx.classes.function.subgraph
+        ~networkx.classes.function.edge_subgraph
+        ~networkx.classes.function.edges
+        ~networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected
+        ~networkx.algorithms.components.is_connected
+        ~networkx.algorithms.tree.recognition.is_tree
+    
+    The following links give more information on :class:`networkx.Graph` functionality:
+    
+    - :doc:`Graph display <networkx:reference/drawing>`
+    - :doc:`Directed Graphs <networkx:reference/classes/digraph>`
+    - :doc:`Linear Algebra on Graphs <networkx:reference/linalg>`
+    - :doc:`A Database of some Graphs <networkx:reference/generators>`
+    - :doc:`Reading and Writing Graphs <networkx:reference/readwrite/index>`
+    - :doc:`Converting to and from other Data Formats <networkx:reference/convert>`
     '''
 
     def __str__(self) -> str:
@@ -132,7 +134,7 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @classmethod
-    def complete_graph_on_vertices(cls, vertices: List[Vertices]) -> GraphType:
+    def complete_graph_on_vertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Generates a complete graph on `vertices`. Contrary to :meth:`~Graph.complete_graph`,
         it is possible to give the vertices labels here.
@@ -145,35 +147,35 @@ class Graph(nx.Graph):
         return list(self.nodes)
 
     def delete_vertex(self, vertex: Vertex) -> None:
-        """Alias for `remove_node <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_node.html#graph-remove-node>`."""
+        """Alias for :meth:`networkx.Graph.remove_node`."""
         self.remove_node(vertex)
 
     def delete_vertices(self, vertices: List[Vertex]) -> None:
-        """Alias for `remove_nodes_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_nodes_from.html#graph-remove-nodes-from>`"""
+        """Alias for :meth:`networkx.Graph.remove_nodes_from`."""
         self.remove_nodes_from(vertices)
 
     def delete_edge(self, edge: Edge) -> None:
-        """Alias for `remove_edge <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_edge.html#graph-remove-edge>`"""
+        """Alias for :meth:`networkx.Graph.remove_edge`"""
         self.remove_edge(*edge)
 
     def delete_edges(self, edges: List[Edge]) -> None:
-        """Alias for`remove_edges_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.remove_edges_from.html#graph-remove-edges-from>"""
+        """Alias for :meth:`networkx.Graph.remove_edges_from`."""
         self.remove_edges_from(edges)
 
     def add_vertex(self, vertex: Vertex) -> None:
-        """Alias for `add_node <https://networkx.org/documentation/stable/release/api_1.0.html#add-node>`"""
+        """Alias for :meth:`networkx.Graph.add_node`."""
         self.add_node(vertex)
 
     def add_vertices(self, vertices: List[Vertex]) -> None:
-        """Alias for `add_nodes_from <https://networkx.org/documentation/stable/reference/classes/generated/networkx.Graph.add_nodes_from.html#graph-add-nodes-from>`"""
+        """Alias for :meth:`networkx.Graph.add_nodes_from`."""
         self.add_nodes_from(vertices)
 
     def add_edges(self, edges: List[Edge]) -> None:
-        """Alias for `add_edges_from <https://networkx.org/documentation/stable/release/api_1.0.html#add-edges-from>`"""
+        """Alias for :meth:`networkx.Graph.add_edges_from`."""
         self.add_edges_from(edges)
 
     def vertex_connectivity(self) -> int:
-        """Alias for `node_connectivity <https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.connectivity.node_connectivity.html#node-connectivity>`"""
+        """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`."""
         return nx.node_connectivity(self)
 
     def is_sparse(self, K: int, L: int) -> bool:
@@ -307,7 +309,7 @@ class Graph(nx.Graph):
         By default, the graph is in dimension two and a combinatorial check is employed.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
         >>> G.is_rigid()
         False
@@ -366,7 +368,7 @@ class Graph(nx.Graph):
         By default, the graph is in dimension 2 and a combinatorial algorithm is applied.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0), (1,3)])
         >>> G.is_minimally_rigid()
         True
@@ -414,7 +416,7 @@ class Graph(nx.Graph):
         A complete graph is automatically globally rigid
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,0)])
         >>> G.is_globally_rigid()
         True
@@ -504,7 +506,7 @@ class Graph(nx.Graph):
         maximal and is returned.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
         >>> G.maximal_rigid_subgraphs()
         []
@@ -560,7 +562,7 @@ class Graph(nx.Graph):
         least `dim+1` vertices present.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,3), (4,1), (5,2)])
         >>> G.is_rigid()
         True
@@ -613,10 +615,14 @@ class Graph(nx.Graph):
         
         Notes
         -----
+<<<<<<< HEAD
         For further details, see `is_isomorphic<https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.isomorphism.is_isomorphic.html#is-isomorphic>`
+=======
+        For further details, see :func:`networkx.algorithms.isomorphism.is_isomorphic`.
+>>>>>>> 7166ccc9165c31f884981f862a2b0fa540cbdcb0
         
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2)])
         >>> G_ = Graph([('b','c'), ('c','a')])
         >>> G.is_isomorphic(G_)
@@ -636,7 +642,7 @@ class Graph(nx.Graph):
         excluding the diagonal.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2)])
         >>> G.adjacency_matrix()
         Matrix([
@@ -665,7 +671,11 @@ class Graph(nx.Graph):
 
         Notes
         -----
+<<<<<<< HEAD
         See :meth:`graph_to_int`
+=======
+        See :meth:`graph_to_int`.
+>>>>>>> 7166ccc9165c31f884981f862a2b0fa540cbdcb0
 
         TODO
         -----
@@ -680,7 +690,7 @@ class Graph(nx.Graph):
         Creates a graph from a given adjacency matrix.
 
         Examples
-        -----
+        --------
         >>> M = Matrix([[0,1],[1,0]])
         >>> G = Graph.from_adjacency_matrix(M)
         >>> print(G)
@@ -705,7 +715,7 @@ class Graph(nx.Graph):
         Returns the adjacency matrix.
 
         Parameters
-        -----
+        ----------
         vertex_order:
             By listing vertices in the preferred order, the adjacency matrix
             can be computed in a way the user expects. If no vertex order is
@@ -713,11 +723,11 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        `nx.adjacency_matrix() <https://networkx.org/documentation/stable/reference/generated/networkx.linalg.graphmatrix.adjacency_matrix.html#adjacency-matrix>` 
+        :func:`networkx.linalg.graphmatrix.adjacency_matrix`
         requires `scipy`. To avoid unnecessary imports, the method is implemented here.
 
         Examples
-        -----
+        --------
         >>> G = Graph([(0,1), (1,2), (1,3)])
         >>> G.adjacency_matrix()
         Matrix([
