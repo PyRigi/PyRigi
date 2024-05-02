@@ -65,10 +65,10 @@ The package is licensed under [MIT license](https://github.com/PyRigi/PyRigi/blo
 
 The current maintainers of the project are:
 
-Matteo Gallet \
+[Matteo Gallet](mailto:matteo.gallet@units.it) \
 Georg Grasegger \
-Matthias Himmelmann \
-Jan Legerský
+[Matthias Himmelmann](https://matthiashimmelmann.github.io/) \
+[Jan Legerský](https://jan.legersky.cz/)
 
 The decision to create PyRigi was made by the participants of the workshop
 [Code of Rigidity](https://www.ricam.oeaw.ac.at/specsem/specsem2024/workshop2/)
