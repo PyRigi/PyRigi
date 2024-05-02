@@ -1,6 +1,9 @@
 # PyRigi
 
-HERE SHOULD GO README
+```{include} ../README.md
+:relative-docs: docs/
+:start-after: <!-- start-input -->
+```
 
 ## Contents
 
