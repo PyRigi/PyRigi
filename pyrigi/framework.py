@@ -229,7 +229,7 @@ class Framework(object):
 
     def underlying_graph(self) -> Graph:
         """
-        Return a copy copy of the framework's underlying graph.
+        Return a copy of the framework's underlying graph.
         """
         return deepcopy(self._graph)
 
@@ -254,7 +254,7 @@ class Framework(object):
         Parameters
         ----------
         points:
-            a list of Point.
+            a list of Point
 
         Notes
         -----
@@ -332,7 +332,7 @@ class Framework(object):
 
         Notes
         -----
-        #The vertices of the underlying graph are taken to be the list `[0,...,len(points)]`.
+        The vertices of the underlying graph are taken to be the list `[0,...,len(points)]`.
 
         Examples
         --------
@@ -772,7 +772,9 @@ class Framework(object):
 
     def is_infinitesimally_rigid(self) -> bool:
         """
-        Check whether the given framework is infinitesimally rigid (cf. :meth:`~Framework.rigidity_matrix_rank`).
+        Check whether the given framework is infinitesimally rigid 
+        
+        The check is based on :meth:`~Framework.rigidity_matrix_rank`.
 
         Definitions
         -----
