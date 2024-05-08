@@ -11,8 +11,8 @@ def test_minimal_maximal_rigid_subgraphs():
     max_subgraphs = G.maximal_rigid_subgraphs()
     assert(
         len(max_subgraphs) == 2
-        and len(max_subgraphs[0].vertices()) in [3,6] 
-        and len(max_subgraphs[1].vertices()) in [3,6]
+        and len(max_subgraphs[0].vertex_list()) in [3,6] 
+        and len(max_subgraphs[1].vertex_list()) in [3,6]
         and len(max_subgraphs[0].edges) in [3,9]
         and len(max_subgraphs[1].edges) in [3,9]
     ) 
@@ -21,8 +21,8 @@ def test_minimal_maximal_rigid_subgraphs():
     print(min_subgraphs[1])
     assert(
         len(min_subgraphs) == 2
-        and len(min_subgraphs[0].vertices()) in [3,6] 
-        and len(min_subgraphs[1].vertices()) in [3,6]
+        and len(min_subgraphs[0].vertex_list()) in [3,6] 
+        and len(min_subgraphs[1].vertex_list()) in [3,6]
         and len(min_subgraphs[0].edges) in [3,9]
         and len(min_subgraphs[1].edges) in [3,9]
     ) 

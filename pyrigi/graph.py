@@ -84,7 +84,7 @@ class Graph(nx.Graph):
         the internal order is used instead.
         """
         try:
-            vertices_str = str(sorted(self.vertices()))
+            vertices_str = str(sorted(self.nodes))
             edges_str = "["
             for edge in self.edges:
                 if edge[0] < edge[1]:
@@ -96,7 +96,7 @@ class Graph(nx.Graph):
                     edges_str += ", "
             edges_str += "]"
         except BaseException:
-            vertices_str = str(self.vertices())
+            vertices_str = str(self.vertex_list())
             edges_str = str(self.edges)
 
         return 'Vertices: ' + vertices_str + ',\t'\
@@ -189,7 +189,7 @@ class Graph(nx.Graph):
             raise TypeError("K and L need to be integers!")
 
         for j in range(K, self.order() + 1):
-            for vertex_set in combinations(self.vertices(), j):
+            for vertex_set in combinations(self.nodes, j):
                 G = self.subgraph(vertex_set)
                 if len(G.edges) > K * len(G.nodes) - L:
                     return False
@@ -271,7 +271,7 @@ class Graph(nx.Graph):
                 f"The dimension needs to be a positive integer, but is {dim}!")
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        for vertex_set in combinations(self.vertices(), k):
+        for vertex_set in combinations(self.nodes, k):
             G = deepcopy(self)
             G.delete_vertices(vertex_set)
             if not G.is_rigid(dim):
@@ -349,7 +349,7 @@ class Graph(nx.Graph):
                         1,
                         N) for _ in range(
                         0,
-                        dim)] for vertex in self.vertices()}
+                        dim)] for vertex in self.nodes}
             F = Framework(self, realization, dim)
             return F.is_infinitesimally_rigid()
         else:
@@ -399,7 +399,7 @@ class Graph(nx.Graph):
                         1,
                         N) for _ in range(
                         0,
-                        dim)] for vertex in self.vertices()}
+                        dim)] for vertex in self.nodes}
             F = Framework(self, realization, dim)
             return F.is_minimally_infinitesimally_rigid()
         else:
@@ -530,7 +530,7 @@ class Graph(nx.Graph):
             return [self]
         maximal_subgraphs = []
         for vertex_subset in combinations(
-            self.vertices(), self.order() - 1):
+            self.nodes, self.order() - 1):
             G = self.subgraph(vertex_subset)
             maximal_subgraphs = [
                 j for i in [
@@ -585,7 +585,7 @@ class Graph(nx.Graph):
         elif self.order() == dim + 1:
             return []
         for vertex_subset in combinations(
-            self.vertices(), self.order() - 1):
+            self.nodes, self.order() - 1):
             G = self.subgraph(vertex_subset)
             subgraphs = G.minimal_rigid_subgraphs(dim)
             if len(subgraphs) == 0 and G.is_rigid():
@@ -736,15 +736,14 @@ class Graph(nx.Graph):
         """
         try:
             if vertex_order is None:
-                vertex_order = sorted(self.vertices())
+                vertex_order = sorted(self.nodes)
             else:
-                if not set(
-                        self.vertices()) == set(vertex_order) or not len(
-                        self.vertices()) == len(vertex_order):
+                if (not set(self.nodes) == set(vertex_order)
+                    or not self.order() == len(vertex_order)):
                     raise IndexError(
                         "The vertex_order needs to contain the same vertices as the graph!")
         except TypeError as error:
-            vertex_order = self.vertices()
+            vertex_order = self.vertex_list()
 
         row_list = []
         for vertex in vertex_order:
