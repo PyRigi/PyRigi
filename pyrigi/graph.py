@@ -188,7 +188,7 @@ class Graph(nx.Graph):
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
 
-        for j in range(K, self.order() + 1):
+        for j in range(K, self.number_of_nodes() + 1):
             for vertex_set in combinations(self.nodes, j):
                 G = self.subgraph(vertex_set)
                 if len(G.edges) > K * len(G.nodes) - L:
@@ -330,7 +330,7 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.is_connected()
         elif dim == 2 and combinatorial:
-            deficiency = -(2 * self.order() - 3) + len(self.edges)
+            deficiency = -(2 * self.number_of_nodes() - 3) + len(self.edges)
             if deficiency < 0:
                 return False
             else:
@@ -342,7 +342,7 @@ class Graph(nx.Graph):
                 return False
         elif not combinatorial:
             from pyrigi.framework import Framework
-            N = 10 * self.order()**2 * dim
+            N = 10 * self.number_of_nodes()**2 * dim
             realization = {
                 vertex: [
                     randrange(
@@ -392,7 +392,7 @@ class Graph(nx.Graph):
             return self.is_tight(2, 3)
         elif not combinatorial:
             from pyrigi.framework import Framework
-            N = 10 * self.order()**2 * dim
+            N = 10 * self.number_of_nodes()**2 * dim
             realization = {
                 vertex: [
                     randrange(
@@ -524,13 +524,13 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
 
-        if self.order() <= dim:
+        if self.number_of_nodes() <= dim:
             return []
         if self.is_rigid():
             return [self]
         maximal_subgraphs = []
         for vertex_subset in combinations(
-            self.nodes, self.order() - 1):
+            self.nodes, self.number_of_nodes() - 1):
             G = self.subgraph(vertex_subset)
             maximal_subgraphs = [
                 j for i in [
@@ -578,14 +578,14 @@ class Graph(nx.Graph):
                 f"The dimension needs to be a positive integer, but is {dim}!")
 
         minimal_subgraphs = []
-        if self.order() <= 2:
+        if self.number_of_nodes() <= 2:
             return []
-        elif self.order() == dim + 1 and self.is_rigid():
+        elif self.number_of_nodes() == dim + 1 and self.is_rigid():
             return [self]
-        elif self.order() == dim + 1:
+        elif self.number_of_nodes() == dim + 1:
             return []
         for vertex_subset in combinations(
-            self.nodes, self.order() - 1):
+            self.nodes, self.number_of_nodes() - 1):
             G = self.subgraph(vertex_subset)
             subgraphs = G.minimal_rigid_subgraphs(dim)
             if len(subgraphs) == 0 and G.is_rigid():
@@ -739,7 +739,7 @@ class Graph(nx.Graph):
                 vertex_order = sorted(self.nodes)
             else:
                 if (not set(self.nodes) == set(vertex_order)
-                    or not self.order() == len(vertex_order)):
+                    or not self.number_of_nodes() == len(vertex_order)):
                     raise IndexError(
                         "The vertex_order needs to contain the same vertices as the graph!")
         except TypeError as error:
