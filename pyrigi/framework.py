@@ -66,7 +66,7 @@ class Framework(object):
                  dim: int = 2) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph")
-        if not len(realization.keys()) == len(graph.vertices()):
+        if not len(realization.keys()) == graph.order():
             raise KeyError(
                 "The length of realization has to be equal to the number of vertices of graph")
         if not isinstance(dim, int) or dim < 1:
@@ -140,8 +140,8 @@ class Framework(object):
         dim:            2
         """
         if vertex is None:
-            candidate = len(self._graph.vertices())
-            while candidate in self._graph.vertices():
+            candidate = self._graph.order()
+            while candidate in self._graph.nodes:
                 candidate += 1
             vertex = candidate
 
@@ -282,7 +282,7 @@ class Framework(object):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
 
-        N = 10 * len(graph.vertices())**2 * dim
+        N = 10 * graph.order()**2 * dim
         realization = {
             vertex: [randrange(1, N) for _ in range(dim)]
             for vertex in graph.vertices()}
@@ -416,7 +416,7 @@ class Framework(object):
         Realization:    {0: (0.0, 1.0), 1: (1.0, 2.0), 2: (2.0, 3.0)}
         dim:            2
         """
-        if not len(realization) == len(self._graph.vertices()):
+        if not len(realization) == self._graph.order():
             raise IndexError(
                 "The realization does not contain the correct amount of vertices!")
         for v in self._graph.vertices():
@@ -739,8 +739,8 @@ class Framework(object):
         -----
         * :prf:ref:`Infinitesimal Rigidity <def-infinitesimal-rigidity>`
         """
-        return len(self.graph().vertices()) <= 1 or \
-            self.rigidity_matrix_rank() == self.dim() * len(self.graph().vertices()) \
+        return self.graph().order() <= 1 or \
+            self.rigidity_matrix_rank() == self.dim() * self.graph().order() \
             - (self.dim()) * (self.dim() + 1) // 2
 
     def is_infinitesimally_flexible(self) -> bool:
