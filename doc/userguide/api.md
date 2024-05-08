@@ -5,4 +5,5 @@
 api/graph
 api/framework
 api/motion
+api/datatype
 :::
