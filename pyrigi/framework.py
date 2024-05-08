@@ -334,7 +334,7 @@ class Framework(object):
         if not points:
             raise ValueError("The realization cannot be empty.")
 
-        Kn = Graph.complete_graph(len(points))
+        Kn = Graph.Complete(len(points))
         realization = {(Kn.vertices())[i]: Matrix(
             points[i]) for i in range(len(points))}
         return Framework(graph=Kn, realization=realization, dim=dim)
@@ -644,7 +644,7 @@ class Framework(object):
         ]
         """
         vertices = self._graph.vertices()
-        Kn = Graph.complete_graph_on_vertices(vertices)
+        Kn = Graph.Complete_on_vertices(vertices)
         F_Kn = Framework(
             graph=Kn,
             realization=self.realization(),
