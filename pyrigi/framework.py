@@ -125,9 +125,10 @@ class Framework(object):
         Parameters
         ----------
         point:
-            a Point, the realization of the new vertex
+            the realization of the new vertex
         vertex:
-            a Vertex, the label of the new vertex
+            the label of the new vertex
+
         Examples
         --------
         >>> F = Framework.Empty(dim=2)
@@ -215,11 +216,6 @@ class Framework(object):
         """
         Add a list of edges to the framework.
 
-        Parameters
-        ----------
-        edges:
-            a list of Edge
-
         Notes
         -----
         For each edge that has to be added, :meth:`add_edge` is called.
@@ -251,11 +247,6 @@ class Framework(object):
         """
         Generate a framework from a list of points.
 
-        Parameters
-        ----------
-        points:
-            a list of Point
-
         Notes
         -----
         The list of vertices of the underlying graph is taken to be `[0,...,len(points)]`. The underlying graph has no edges.
@@ -278,11 +269,6 @@ class Framework(object):
     def from_graph(cls, graph: Graph, dim: int) -> None:
         """
         Return the framework given by the given graph and a random realization of the latter in the given dimension.
-
-        Parameters
-        ----------
-        graph:
-            a Graph
 
         Examples
         --------
@@ -311,7 +297,8 @@ class Framework(object):
         Parameters
         ----------
         dim:
-            a natural number
+            a natural number that determines the dimension
+            in which the framework is realized
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -325,10 +312,9 @@ class Framework(object):
 
         Parameters
         ----------
-        points:
-            a list of Point
         dim:
-            a natural number
+            a natural number that determines the dimension
+            in which the framework is realized
 
         Notes
         -----
@@ -355,24 +341,14 @@ class Framework(object):
 
     def delete_vertex(self, vertex: Vertex) -> None:
         """
-        Delete a vertex from the framework. (cf. :meth:`~Framework.add_vertex`)
-
-        Parameters
-        ----------
-        vertex:
-            a Vertex
+        Delete a vertex from the framework.
         """
         self._graph.delete_vertex(vertex)
         del self._realization[vertex]
 
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         """
-        Delete a list of vertices from the framework. (cf. :meth:`~Framework.add_vertices`)
-
-        Parameters
-        ----------
-        vertices:
-            a list of Vertex
+        Delete a list of vertices from the framework.
         """
         for vertex in vertices:
             self.delete_vertex(vertex)
@@ -380,22 +356,12 @@ class Framework(object):
     def delete_edge(self, edge: Edge) -> None:
         """
         Delete an edge from the framework.
-
-        Parameters
-        ----------
-        edge:
-            an Edge
         """
         self._graph.delete_edge(edge)
 
     def delete_edges(self, edges: List[Edge]) -> None:
         """
         Delete a list of edges from the framework.
-
-        Parameters
-        ----------
-        edges:
-            a list of Edge
         """
         self._graph.delete_edges(edges)
 
@@ -467,13 +433,6 @@ class Framework(object):
     def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
         """
         Change the coordinates of a single given vertex.
-
-        Parameters
-        ----------
-        vertex:
-            a Vertex
-        point:
-            a Point
 
         Examples
         --------
