@@ -83,6 +83,7 @@ napoleon_custom_sections = ['Definitions']
 autodoc_type_aliases = {
     "Vertex": "Vertex",
     "Edge": "Edge",
+    "Point": "Point", 
     }
 napoleon_attr_annotations = True
 
