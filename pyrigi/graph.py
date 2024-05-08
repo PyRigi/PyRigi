@@ -16,16 +16,11 @@ from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
 class Graph(nx.Graph):
     '''
     Class representing a graph.
-
-    Parameters
-    ----------
-    vertices:
-        The graph's vertices can be labelled by any `Hashable`.
-    edges:
-        Edges are tuples of vertices. They can either be a tuple `(i,j)` or
-        a list `[i,j]` with two entries.
-
-
+        
+    One option for *incoming_graph_data* is a list of edges.
+    See :class:`networkx.Graph` for the other input formats
+    or use class methods :meth:`~Graph.from_vertices_and_edges`
+    or :meth:`~Graph.from_vertices` when specifying the vertex set is needed.
 
     Examples
     --------
@@ -107,7 +102,16 @@ class Graph(nx.Graph):
             cls,
             vertices: List[Vertex],
             edges: List[Edge]) -> GraphType:
-        """This method creates a graph from a list of vertices and edges."""
+        """
+        Create a graph from a list of vertices and edges.
+        
+        Parameters
+        ----------
+        vertices
+        edges:
+            Edges are tuples of vertices. They can either be a tuple `(i,j)` or
+            a list `[i,j]` with two entries.
+        """
         G = Graph()
         G.add_nodes_from(vertices)
         for edge in edges:
@@ -696,7 +700,7 @@ class Graph(nx.Graph):
         for i, j in zip(range(shape(M)[0]), range(shape(M)[1])):
             if not (M[i, j] == 0 or M[i, j] == 1):
                 raise TypeError(
-                    "The provided adjancency matrix contains entries other than 0 and 1")
+                    "The provided adjacency matrix contains entries other than 0 and 1")
         vertices = range(shape(M)[0])
         edges = []
         for vertex, vertex_ in zip(range(len(vertices)), range(len(vertices))):
