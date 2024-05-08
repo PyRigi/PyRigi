@@ -639,7 +639,7 @@ class Framework(object):
         ]
         """
         vertices = self._graph.vertices()
-        Kn = Graph.Complete_on_vertices(vertices)
+        Kn = Graph.CompleteOnVertices(vertices)
         F_Kn = Framework(
             graph=Kn,
             realization=self.realization())

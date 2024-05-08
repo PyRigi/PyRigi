@@ -142,7 +142,7 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @classmethod
-    def Complete_on_vertices(cls, vertices: List[Vertex]) -> GraphType:
+    def CompleteOnVertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Generate a complete graph on `vertices`.
         """
