@@ -141,9 +141,13 @@ class Graph(nx.Graph):
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
 
-    def vertices(self) -> List[Vertex]:
-        """Alias for the `nodes` attribute."""
+    def vertex_list(self) -> List[Vertex]:
+        """Return the list of vertices."""
         return list(self.nodes)
+    
+    def edge_list(self) -> List[Edge]:
+        """Return the list of edges"""
+        return list(self.edges)
 
     def delete_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.remove_node`."""
