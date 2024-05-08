@@ -347,12 +347,12 @@ class Graph(nx.Graph):
                         0,
                         dim)] for vertex in self.vertices()}
             F = Framework(self, realization, dim)
-            return F.is_infinitesimally_rigid()
+            return F.is_inf_rigid()
         else:
             raise ValueError(
                 f"The Dimension for combinatorial computation must be either 1 or 2, but is {dim}")
 
-    def is_minimally_rigid(
+    def is_min_rigid(
             self,
             dim: int = 2,
             combinatorial: bool = True) -> bool:
@@ -369,10 +369,10 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0), (1,3)])
-        >>> G.is_minimally_rigid()
+        >>> G.is_min_rigid()
         True
         >>> G.add_edge(0,2)
-        >>> G.is_minimally_rigid()
+        >>> G.is_min_rigid()
         False
         """
         if not isinstance(dim, int) or dim < 1:
@@ -397,7 +397,7 @@ class Graph(nx.Graph):
                         0,
                         dim)] for vertex in self.vertices()}
             F = Framework(self, realization, dim)
-            return F.is_minimally_infinitesimally_rigid()
+            return F.is_min_inf_rigid()
         else:
             raise ValueError(
                 f"The dimension for combinatorial computation must be either 1 or 2, but is {dim}")
@@ -490,7 +490,7 @@ class Graph(nx.Graph):
                 f"The dimension needs to be a positive integer, but is {dim}!")
         raise NotImplementedError()
 
-    def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
+    def max_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
         List vertex-maximal rigid subgraphs of the graph.
 
@@ -507,12 +507,12 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.maximal_rigid_subgraphs()
+        >>> G.max_rigid_subgraphs()
         []
         >>> G_ = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
         >>> G_.is_rigid()
         False
-        >>> [print(entry) for entry in G.maximal_rigid_subgraphs()]
+        >>> [print(entry) for entry in G.max_rigid_subgraphs()]
         Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
         Vertices: [3, 4, 5],    Edges: [(3, 4), (3, 5), (4, 5)]
         """
@@ -524,32 +524,32 @@ class Graph(nx.Graph):
             return []
         if self.is_rigid():
             return [self]
-        maximal_subgraphs = []
+        max_subgraphs = []
         for vertex_subset in combinations(
             self.vertices(), len(
                 self.vertices()) - 1):
             G = self.subgraph(vertex_subset)
-            maximal_subgraphs = [
+            max_subgraphs = [
                 j for i in [
-                    maximal_subgraphs,
-                    G.maximal_rigid_subgraphs(dim)] for j in i]
+                    max_subgraphs,
+                    G.max_rigid_subgraphs(dim)] for j in i]
 
         # We now remove the graphs that were found at least twice.
         clean_list = []
-        for i in range(0, len(maximal_subgraphs)):
+        for i in range(0, len(max_subgraphs)):
             iso_bool = False
-            for j in range(i + 1, len(maximal_subgraphs)):
+            for j in range(i + 1, len(max_subgraphs)):
                 if set(
-                        maximal_subgraphs[i].nodes) == set(
-                        maximal_subgraphs[j].nodes) and maximal_subgraphs[i].is_isomorphic(
-                        maximal_subgraphs[j]):
+                        max_subgraphs[i].nodes) == set(
+                        max_subgraphs[j].nodes) and max_subgraphs[i].is_isomorphic(
+                        max_subgraphs[j]):
                     iso_bool = True
                     break
             if not iso_bool:
-                clean_list.append(maximal_subgraphs[i])
+                clean_list.append(max_subgraphs[i])
         return clean_list
 
-    def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
+    def min_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
         List vertex-minimal non-trivial rigid subgraphs of the graph.
 
@@ -567,14 +567,14 @@ class Graph(nx.Graph):
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,3), (4,1), (5,2)])
         >>> G.is_rigid()
         True
-        >>> [print(entry) for entry in G.minimal_rigid_subgraphs()]
+        >>> [print(entry) for entry in G.min_rigid_subgraphs()]
         Vertices: [0, 1, 2, 3, 4, 5],   Edges: [(0, 1), (0, 5), (0, 3), (1, 2), (1, 4), (2, 3), (2, 5), (3, 4), (4, 5)]
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
 
-        minimal_subgraphs = []
+        min_subgraphs = []
         if len(self.vertices()) <= 2:
             return []
         elif len(self.vertices()) == dim + 1 and self.is_rigid():
@@ -585,28 +585,28 @@ class Graph(nx.Graph):
             self.vertices(), len(
                 self.vertices()) - 1):
             G = self.subgraph(vertex_subset)
-            subgraphs = G.minimal_rigid_subgraphs(dim)
+            subgraphs = G.min_rigid_subgraphs(dim)
             if len(subgraphs) == 0 and G.is_rigid():
-                minimal_subgraphs.append(G)
+                min_subgraphs.append(G)
             else:
-                minimal_subgraphs = [
+                min_subgraphs = [
                     j for i in [
-                        minimal_subgraphs,
-                        G.minimal_rigid_subgraphs(dim)] for j in i]
+                        min_subgraphs,
+                        G.min_rigid_subgraphs(dim)] for j in i]
 
         # We now remove the graphs that were found at least twice.
         clean_list = []
-        for i in range(0, len(minimal_subgraphs)):
+        for i in range(0, len(min_subgraphs)):
             iso_bool = False
-            for j in range(i + 1, len(minimal_subgraphs)):
+            for j in range(i + 1, len(min_subgraphs)):
                 if set(
-                        minimal_subgraphs[i].nodes) == set(
-                        minimal_subgraphs[j].nodes) and minimal_subgraphs[i].is_isomorphic(
-                        minimal_subgraphs[j]):
+                        min_subgraphs[i].nodes) == set(
+                        min_subgraphs[j].nodes) and min_subgraphs[i].is_isomorphic(
+                        min_subgraphs[j]):
                     iso_bool = True
                     break
             if not iso_bool:
-                clean_list.append(minimal_subgraphs[i])
+                clean_list.append(min_subgraphs[i])
         # If no smaller graph is found and the graph is rigid, it is returned.
         if not clean_list and self.is_rigid():
             clean_list = [self]

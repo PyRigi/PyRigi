@@ -2,13 +2,13 @@ from pyrigi.graph import Graph
 import pytest
 
 @pytest.mark.slow
-def test_minimal_maximal_rigid_subgraphs():
+def test_min_max_rigid_subgraphs():
     G = Graph()
     G.add_nodes_from([0,1,2,3,4,5,'a','b'])
     G.add_edges_from([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0),
                       (0,3), (1,4), (2,5),
                       (0,'a'), (0,'b'), ('a','b')])
-    max_subgraphs = G.maximal_rigid_subgraphs()
+    max_subgraphs = G.max_rigid_subgraphs()
     assert(
         len(max_subgraphs) == 2
         and len(max_subgraphs[0].vertices()) in [3,6] 
@@ -16,7 +16,7 @@ def test_minimal_maximal_rigid_subgraphs():
         and len(max_subgraphs[0].edges) in [3,9]
         and len(max_subgraphs[1].edges) in [3,9]
     ) 
-    min_subgraphs = G.minimal_rigid_subgraphs()
+    min_subgraphs = G.min_rigid_subgraphs()
     print(min_subgraphs[0])
     print(min_subgraphs[1])
     assert(
@@ -39,7 +39,7 @@ def test_graph_rigidity_and_sparsity():
     assert(
         G.is_tight(2,3)
         and G.is_rigid(dim=2, combinatorial=True)
-        and G.is_minimally_rigid(dim=2, combinatorial=True)
+        and G.is_min_rigid(dim=2, combinatorial=True)
         and not G.is_globally_rigid(dim=2)
     ) 
     G.add_edge(1,3)
