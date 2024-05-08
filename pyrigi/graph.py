@@ -20,7 +20,7 @@ class Graph(nx.Graph):
     Parameters
     ----------
     vertices:
-        The graph's vertices can be labelled by any `Hashable`. 
+        The graph's vertices can be labelled by any `Hashable`.
     edges:
         Edges are tuples of vertices. They can either be a tuple `(i,j)` or
         a list `[i,j]` with two entries.
@@ -37,23 +37,23 @@ class Graph(nx.Graph):
     >>> G_.add_edges([(0,7), (2,5)])
     >>> print(G)
     Vertices: [0, 2, 5, 7, 'a'],    Edges: [(0, 7), (2, 5)]
-    
-          
+
+
     Notes
     -----
     This class inherits the class :class:`networkx.Graph`.
     Some of the inherited methods are for instance:
-     
+
     .. autosummary::
-    
+
         networkx.Graph.add_edge
-    
+
     Many of the :doc:`NetworkX <networkx:index>` algorithms are implemented as functions,
     namely, a :class:`Graph` instance has to be passed as the first parameter.
     See for instance:
-    
+
     .. autosummary::
-    
+
         ~networkx.classes.function.degree
         ~networkx.classes.function.neighbors
         ~networkx.classes.function.non_neighbors
@@ -63,9 +63,9 @@ class Graph(nx.Graph):
         ~networkx.algorithms.connectivity.edge_augmentation.is_k_edge_connected
         ~networkx.algorithms.components.is_connected
         ~networkx.algorithms.tree.recognition.is_tree
-    
+
     The following links give more information on :class:`networkx.Graph` functionality:
-    
+
     - :doc:`Graph display <networkx:reference/drawing>`
     - :doc:`Directed Graphs <networkx:reference/classes/digraph>`
     - :doc:`Linear Algebra on Graphs <networkx:reference/linalg>`
@@ -76,26 +76,26 @@ class Graph(nx.Graph):
 
     def __str__(self) -> str:
         """
-        Method to display the data inside the Framework. This overrides the `print` method. 
+        Return the string representation of a graph.
 
         Notes
         -----
-        We try to sort the vertices and edges in the graph. If this fails, 
+        We try to sort the vertices and edges in the graph. If this fails,
         the internal order is used instead.
         """
         try:
             vertices_str = str(sorted(self.vertices()))
             edges_str = "["
             for edge in self.edges:
-                if edge[0]<edge[1]:
+                if edge[0] < edge[1]:
                     edges_str += str(edge)
                 else:
-                    edges_str += str((edge[1],edge[0]))
+                    edges_str += str((edge[1], edge[0]))
 
-                if not edge == list(self.edges)[len(self.edges)-1]:
+                if not edge == list(self.edges)[len(self.edges) - 1]:
                     edges_str += ", "
             edges_str += "]"
-        except:
+        except BaseException:
             vertices_str = str(self.vertices())
             edges_str = str(self.edges)
 
@@ -121,12 +121,12 @@ class Graph(nx.Graph):
 
     @classmethod
     def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
-        """Creates a graph from a list of vertices. The graph will contain no edges."""
+        """Create a graph with no edges from a list of vertices."""
         return Graph.from_vertices_and_edges(vertices, [])
 
     @classmethod
     def complete_graph(cls, n: int) -> GraphType:
-        """Generates a complete graph on $n$ vertices. The vertices are labeled via the list $0,...,n-1$."""
+        """Generate a complete graph on $n$ vertices. The vertices are labeled via the list $0,...,n-1$."""
         if not isinstance(n, int) or n < 1:
             raise TypeError("n needs to be a positive integer")
         vertices = range(n)
@@ -136,8 +136,7 @@ class Graph(nx.Graph):
     @classmethod
     def complete_graph_on_vertices(cls, vertices: List[Vertex]) -> GraphType:
         """
-        Generates a complete graph on `vertices`. Contrary to :meth:`~Graph.complete_graph`,
-        it is possible to give the vertices labels here.
+        Generate a complete graph on `vertices`.
         """
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
@@ -237,7 +236,7 @@ class Graph(nx.Graph):
 
     def all_k_extensions(self, k: int, dim: int = 2) -> None:
         """
-        Return list of all possible k-extensions.
+        Return list of all possible k-extensions of the graph.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -405,7 +404,7 @@ class Graph(nx.Graph):
 
     def is_globally_rigid(self, dim: int = 2) -> bool:
         """
-        Checks whether the graph is :prf:ref:`globally dim-rigid <def-globally-rigid-graph>`
+        Check whether the graph is :prf:ref:`globally dim-rigid <def-globally-rigid-graph>`
 
         Notes
         -----
@@ -426,14 +425,14 @@ class Graph(nx.Graph):
                 f"The dimension needs to be a positive integer, but is {dim}!")
 
         elif dim == 1:
-            if (len(self.nodes)==2 and len(self.edges)==1) or \
-                (len(self.nodes)==1 or len(self.nodes)==0):
-                return True    
+            if (len(self.nodes) == 2 and len(self.edges) == 1) or \
+                    (len(self.nodes) == 1 or len(self.nodes) == 0):
+                return True
             return self.vertex_connectivity() >= 2
         elif dim == 2:
-            if (len(self.nodes)==3 and len(self.edges)==3) or \
-                (len(self.nodes)==2 and len(self.edges)==1) or \
-                (len(self.nodes)==1 or len(self.nodes)==0):
+            if (len(self.nodes) == 3 and len(self.edges) == 3) or \
+                (len(self.nodes) == 2 and len(self.edges) == 1) or \
+                    (len(self.nodes) == 1 or len(self.nodes) == 0):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
@@ -493,16 +492,16 @@ class Graph(nx.Graph):
 
     def maximal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
-        List vertex-maximal rigid subgraphs.
+        List vertex-maximal rigid subgraphs of the graph.
 
         Definitions
         -----
-        :prf:ref:`Maximal rigid subgraph <def-maximal-rigid-subgraph>
+        :prf:ref:`Maximal rigid subgraph <def-maximal-rigid-subgraph>`
 
         Notes
         -----
         We only return nontrivial subgraphs, meaning that there need to be at
-        least `dim+1` vertices present. If the graph itself is rigid, it is clearly 
+        least `dim+1` vertices present. If the graph itself is rigid, it is clearly
         maximal and is returned.
 
         Examples
@@ -534,14 +533,16 @@ class Graph(nx.Graph):
                 j for i in [
                     maximal_subgraphs,
                     G.maximal_rigid_subgraphs(dim)] for j in i]
-            
-        #We now remove the graphs that were found at least twice.
+
+        # We now remove the graphs that were found at least twice.
         clean_list = []
         for i in range(0, len(maximal_subgraphs)):
             iso_bool = False
             for j in range(i + 1, len(maximal_subgraphs)):
-                if set(maximal_subgraphs[i].nodes) == set(maximal_subgraphs[j].nodes) and \
-                    maximal_subgraphs[i].is_isomorphic(maximal_subgraphs[j]):
+                if set(
+                        maximal_subgraphs[i].nodes) == set(
+                        maximal_subgraphs[j].nodes) and maximal_subgraphs[i].is_isomorphic(
+                        maximal_subgraphs[j]):
                     iso_bool = True
                     break
             if not iso_bool:
@@ -550,11 +551,11 @@ class Graph(nx.Graph):
 
     def minimal_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
-        List vertex-minimal non-trivial rigid subgraphs.
+        List vertex-minimal non-trivial rigid subgraphs of the graph.
 
         Definitions
         -----
-        :prf:ref:`Minimal rigid subgraph <def-minimal-rigid-subgraph>
+        :prf:ref:`Minimal rigid subgraph <def-minimal-rigid-subgraph>`
 
         Notes
         -----
@@ -576,9 +577,9 @@ class Graph(nx.Graph):
         minimal_subgraphs = []
         if len(self.vertices()) <= 2:
             return []
-        elif len(self.vertices()) == dim+1 and self.is_rigid():
+        elif len(self.vertices()) == dim + 1 and self.is_rigid():
             return [self]
-        elif len(self.vertices()) == dim+1:
+        elif len(self.vertices()) == dim + 1:
             return []
         for vertex_subset in combinations(
             self.vertices(), len(
@@ -592,31 +593,33 @@ class Graph(nx.Graph):
                     j for i in [
                         minimal_subgraphs,
                         G.minimal_rigid_subgraphs(dim)] for j in i]
-                
-        #We now remove the graphs that were found at least twice.
+
+        # We now remove the graphs that were found at least twice.
         clean_list = []
         for i in range(0, len(minimal_subgraphs)):
             iso_bool = False
             for j in range(i + 1, len(minimal_subgraphs)):
-                if set(minimal_subgraphs[i].nodes) == set(minimal_subgraphs[j].nodes) and \
-                    minimal_subgraphs[i].is_isomorphic(minimal_subgraphs[j]):
+                if set(
+                        minimal_subgraphs[i].nodes) == set(
+                        minimal_subgraphs[j].nodes) and minimal_subgraphs[i].is_isomorphic(
+                        minimal_subgraphs[j]):
                     iso_bool = True
                     break
             if not iso_bool:
                 clean_list.append(minimal_subgraphs[i])
-        #If no smaller graph is found and the graph is rigid, it is returned.
+        # If no smaller graph is found and the graph is rigid, it is returned.
         if not clean_list and self.is_rigid():
             clean_list = [self]
         return clean_list
 
     def is_isomorphic(self, graph: GraphType) -> bool:
         """
-        This method checks, whether two graphs are isomorphic. 
-        
+        Check whether two graphs are isomorphic.
+
         Notes
         -----
         For further details, see :func:`networkx.algorithms.isomorphism.is_isomorphic`.
-        
+
         Examples
         --------
         >>> G = Graph([(0,1), (1,2)])
@@ -632,8 +635,8 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        The graph integer representation is the integer whose binary 
-        expansion is given by the sequence obtained by concatenation 
+        The graph integer representation is the integer whose binary
+        expansion is given by the sequence obtained by concatenation
         of the rows of the upper triangle of the adjacency matrix,
         excluding the diagonal.
 
@@ -679,7 +682,7 @@ class Graph(nx.Graph):
     @classmethod
     def from_adjacency_matrix(cls, M: Matrix) -> GraphType:
         """
-        Creates a graph from a given adjacency matrix.
+        Create a graph from a given adjacency matrix.
 
         Examples
         --------
@@ -691,20 +694,21 @@ class Graph(nx.Graph):
         if not shape(M)[0] == shape(M)[1]:
             raise TypeError("Adjacency matrix does not have the right format!")
         for i, j in zip(range(shape(M)[0]), range(shape(M)[1])):
-            if not (M[i,j] == 0 or M[i,j] == 1):
-                raise TypeError("The provided adjancency matrix contains entries other than 0 and 1")
+            if not (M[i, j] == 0 or M[i, j] == 1):
+                raise TypeError(
+                    "The provided adjancency matrix contains entries other than 0 and 1")
         vertices = range(shape(M)[0])
         edges = []
         for vertex, vertex_ in zip(range(len(vertices)), range(len(vertices))):
-            if M[vertex,vertex_] == 1:
-                edges += [(vertex,vertex_)]
+            if M[vertex, vertex_] == 1:
+                edges += [(vertex, vertex_)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
     def adjacency_matrix(
             self,
             vertex_order: List[Vertex] = None) -> Matrix:
         """
-        Returns the adjacency matrix.
+        Return the adjacency matrix of the graph.
 
         Parameters
         ----------
@@ -739,7 +743,7 @@ class Graph(nx.Graph):
                         "The vertex_order needs to contain the same vertices as the graph!")
         except TypeError as error:
             vertex_order = self.vertices()
-        
+
         row_list = []
         for vertex in vertex_order:
             row = []
@@ -747,7 +751,7 @@ class Graph(nx.Graph):
             for vertex_ in vertex_order:
                 for edge in self.edges:
                     if (edge[0] == vertex and edge[1] == vertex_) or \
-                        (edge[1] == vertex and edge[0] == vertex_):
+                            (edge[1] == vertex and edge[0] == vertex_):
                         row += [1]
                         edge_indicator = True
                         break
