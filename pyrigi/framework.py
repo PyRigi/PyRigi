@@ -154,7 +154,7 @@ class Framework(object):
     def add_vertices(self,
                      points: List[Point],
                      vertices: List[Vertex] = []) -> None:
-        """
+        r"""
         Add a list of vertices to the framework.
 
         Parameters
@@ -393,7 +393,7 @@ class Framework(object):
         return self.get_realization()
 
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
-        """
+        r"""
         Change the realization of the framework.
 
         Parameters
