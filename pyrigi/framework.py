@@ -304,7 +304,7 @@ class Framework(object):
         return F
 
     @classmethod
-    def Complete(cls, points: List[Point] = []) -> None:
+    def Complete(cls, points: List[Point]) -> None:
         """
         Generate a framework on the complete graph from a given list of points.
 
@@ -327,7 +327,7 @@ class Framework(object):
         dim:            1
         """
         if not points:
-            raise ValueError("The realization cannot be empty.")
+            raise ValueError("The list of points cannot be empty.")
 
         Kn = Graph.Complete(len(points))
         realization = {(Kn.vertices())[i]: Matrix(
