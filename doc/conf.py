@@ -120,6 +120,7 @@ myst_heading_anchors = 3
 
 tippy_enable_mathjax = True
 tippy_props = {"theme": "light",}
+tippy_enable_doitips = False
 
 mathjax3_config = {
   "tex": {
