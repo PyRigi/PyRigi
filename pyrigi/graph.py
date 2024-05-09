@@ -111,7 +111,16 @@ class Graph(nx.Graph):
 
     @classmethod
     def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
-        """Create a graph with no edges from a list of vertices."""
+        """
+        Create a graph with no edges from a list of vertices.
+
+        Examples
+        --------
+        >>> from pyrigi import Graph
+        >>> G = Graph.from_vertices([3, 1, 7, 2, 12, 3, 0])
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 7, 12] and edges []
+        """
         return Graph.from_vertices_and_edges(vertices, [])
 
     @classmethod
