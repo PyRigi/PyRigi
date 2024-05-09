@@ -67,7 +67,7 @@ The following extensions are used:
 
 These can be installed by running the following command in the folder `doc`:
 ```
-pip install -r requirements.txt
+pip install --upgrade -r requirements.txt
 ```
 
 To compile, run Sphinx in the folder `doc` by:

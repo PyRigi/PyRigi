@@ -40,9 +40,10 @@ class Framework(object):
     graph
     realization:
         A dictionary mapping the vertices of the graph to points in $\RR^d$.
-    dim:
-        The dimension is usually initialized by the realization. If
-        the realization is empty, the dimension is 0 by default.
+        The dimension `d` is retrieved from the points in realization.
+        If `graph` is empty, and hence also the `realization`,
+        the dimension is set to 0 (:meth:`Framework.Empty` 
+        can be used to construct an empty framework with different dimension).
 
     Notes
     -----
@@ -61,35 +62,30 @@ class Framework(object):
     """
 
     def __init__(self,
-                 graph: Graph = Graph(),
-                 realization: Dict[Vertex, Point] = {},
-                 dim: int = 2) -> None:
+                 graph: Graph,
+                 realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph")
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
                 "The length of realization has to be equal to the number of vertices of graph")
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
 
-        if len(realization.values()) == 0:
-            dimension = dim
+        if realization:
+            self._dim = len(list(realization.values())[0])
         else:
-            dimension = len(list(realization.values())[0])
+            self._dim = 0
 
         for v in graph.nodes:
             if v not in realization:
                 raise KeyError(
                     f"Vertex {v} is not contained in the realization")
-            if not len(realization[v]) == dimension:
+            if not len(realization[v]) == self._dim:
                 raise ValueError(
                     f"The point {realization[v]} in the realization that vertex {v} corresponds to does not have the right dimension")
 
         self._realization = {v: Matrix(realization[v])
                              for v in graph.nodes}
         self._graph = deepcopy(graph)
-        self._dim = dimension
 
     def __str__(self) -> str:
         """
@@ -154,7 +150,7 @@ class Framework(object):
     def add_vertices(self,
                      points: List[Point],
                      vertices: List[Vertex] = []) -> None:
-        """
+        r"""
         Add a list of vertices to the framework.
 
         Parameters
@@ -272,7 +268,7 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.from_graph(Graph([(0,1), (1,2), (0,2)]), dim=2)
+        >>> F = Framework.from_graph(Graph([(0,1), (1,2), (0,2)]))
         >>> print(F)
         Graph:          Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
         Realization:    {0: (65.0, 13.0), 1: (110.0, 64.0), 2: (54.0, 80.0)}
@@ -290,7 +286,7 @@ class Framework(object):
         return Framework(graph=graph, realization=realization)
 
     @classmethod
-    def Empty(cls, dim: int) -> None:
+    def Empty(cls, dim: int = 2) -> None:
         """
         Generate an empty framework.
 
@@ -303,10 +299,12 @@ class Framework(object):
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
-        return Framework(graph=Graph(), realization={}, dim=dim)
+        F = Framework(graph=Graph(), realization={})
+        F._dim = dim
+        return F
 
     @classmethod
-    def Complete(cls, points: List[Point] = [], dim: int = 2) -> None:
+    def Complete(cls, points: List[Point]) -> None:
         """
         Generate a framework on the complete graph from a given list of points.
 
@@ -322,22 +320,21 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.Complete([(1,),(2,),(3,),(4,)], dim=1)
+        >>> F = Framework.Complete([(1,),(2,),(3,),(4,)])
         >>> print(F)
         Graph:          Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
         Realization:    {0: (1.0,), 1: (2.0,), 2: (3.0,), 3: (4.0,)}
         dim:            1
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
         if not points:
-            raise ValueError("The realization cannot be empty.")
+            raise ValueError("The list of points cannot be empty.")
 
         Kn = Graph.complete_graph(len(points))
         realization = {(Kn.vertex_list())[i]: Matrix(
+        Kn = Graph.Complete(len(points))
+        realization = {(Kn.vertex_list())[i]: Matrix(
             points[i]) for i in range(len(points))}
-        return Framework(graph=Kn, realization=realization, dim=dim)
+        return Framework(graph=Kn, realization=realization)
 
     def delete_vertex(self, vertex: Vertex) -> None:
         """
@@ -393,7 +390,7 @@ class Framework(object):
         return self.get_realization()
 
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
-        """
+        r"""
         Change the realization of the framework.
 
         Parameters
@@ -596,7 +593,7 @@ class Framework(object):
         """
         raise NotImplementedError()
 
-    def trivial_infinitesimal_flexes(self,
+    def trivial_inf_flexes(self,
                                      pinned_vertices: Dict[Vertex,
                                                            List[int]] = {}) -> List[Matrix]:
         r"""
@@ -619,7 +616,7 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
-        >>> F.trivial_infinitesimal_flexes()
+        >>> F.trivial_inf_flexes()
         [Matrix([
             [ 3],
             [-1],
@@ -645,25 +642,26 @@ class Framework(object):
         """
         vertices = self._graph.vertex_list()
         Kn = Graph.complete_graph_on_vertices(vertices)
+        vertices = self._graph.vertex_list()
+        Kn = Graph.CompleteOnVertices(vertices)
         F_Kn = Framework(
             graph=Kn,
-            realization=self.realization(),
-            dim=self.dim())
-        return F_Kn.infinitesimal_flexes(
+            realization=self.realization())
+        return F_Kn.inf_flexes(
             pinned_vertices=pinned_vertices,
             include_trivial=True)
 
-    def nontrivial_infinitesimal_flexes(
+    def nontrivial_inf_flexes(
             self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> List[Matrix]:
         """
         Return the entries of the rigidity matrix' kernel that are not trivial infinitesimal flexes.
-        See :meth:`~Framework.trivial_infinitesimal_flexes`
+        See :meth:`~Framework.trivial_inf_flexes`
         """
-        return self.infinitesimal_flexes(
+        return self.inf_flexes(
             pinned_vertices=pinned_vertices,
             include_trivial=False)
 
-    def infinitesimal_flexes(
+    def inf_flexes(
             self,
             pinned_vertices: Dict[Vertex, List[int]] = {},
             include_trivial: bool = False) -> List[Matrix]:
@@ -691,7 +689,7 @@ class Framework(object):
         --------
         >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
         >>> F.delete_edges([(0,2), (1,3)])
-        >>> F.infinitesimal_flexes(include_trivial=False)
+        >>> F.inf_flexes(include_trivial=False)
         [Matrix([
         [ 1/4],
         [ 1/4],
@@ -705,7 +703,7 @@ class Framework(object):
         if include_trivial:
             return self.rigidity_matrix(
                 pinned_vertices=pinned_vertices).nullspace()
-        trivial_flexes = self.trivial_infinitesimal_flexes(
+        trivial_flexes = self.trivial_inf_flexes(
             pinned_vertices=pinned_vertices)
         all_flexes = self.rigidity_matrix(
             pinned_vertices=pinned_vertices).nullspace()
@@ -729,7 +727,7 @@ class Framework(object):
         """
         return self.rigidity_matrix(pinned_vertices=pinned_vertices).rank()
 
-    def is_infinitesimally_rigid(self) -> bool:
+    def is_inf_rigid(self) -> bool:
         """
         Check whether the given framework is infinitesimally rigid 
         
@@ -743,17 +741,17 @@ class Framework(object):
             self.rigidity_matrix_rank() == self.dim() * self.graph().number_of_nodes() \
             - (self.dim()) * (self.dim() + 1) // 2
 
-    def is_infinitesimally_flexible(self) -> bool:
+    def is_inf_flexible(self) -> bool:
         """
         Check whether the given framework is infinitesimally flexible.
-        See :meth:`~Framework.is_infinitesimally_rigid`
+        See :meth:`~Framework.is_inf_rigid`
         """
-        return not self.is_infinitesimally_rigid()
+        return not self.is_inf_rigid()
 
-    def is_infinitesimally_spanning(self) -> bool:
+    def is_inf_spanning(self) -> bool:
         raise NotImplementedError()
 
-    def is_minimally_infinitesimally_rigid(self) -> bool:
+    def is_min_inf_rigid(self) -> bool:
         """
         Check whether a framework is minimally infinitesimally rigid.
 
@@ -764,19 +762,19 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-        >>> F.is_minimally_infinitesimally_rigid()
+        >>> F.is_min_inf_rigid()
         False
         >>> F.delete_edge((0,2))
-        >>> F.is_minimally_infinitesimally_rigid()
+        >>> F.is_min_inf_rigid()
         True
         """
-        if not self.is_infinitesimally_rigid():
+        if not self.is_inf_rigid():
             return False
         for edge in self.graph().edges:
             F = deepcopy(self)
             F.delete_edge(edge)
             print(F)
-            if F.is_infinitesimally_rigid():
+            if F.is_inf_rigid():
                 return False
         return True
 
@@ -806,7 +804,7 @@ class Framework(object):
         for edge in self._graph.edges:
             F = deepcopy(self)
             F.delete_edge(edge)
-            if not F.is_infinitesimally_rigid():
+            if not F.is_inf_rigid():
                 return False
         return True
 
