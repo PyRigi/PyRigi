@@ -67,7 +67,8 @@ class Framework(object):
             raise TypeError("The graph has to be an instance of class Graph")
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
-                "The length of realization has to be equal to the number of vertices of graph"
+                "The length of realization has to be equal to "
+                "the number of vertices of graph"
             )
 
         if realization:
@@ -80,7 +81,8 @@ class Framework(object):
                 raise KeyError(f"Vertex {v} is not contained in the realization")
             if not len(realization[v]) == self._dim:
                 raise ValueError(
-                    f"The point {realization[v]} in the realization that vertex {v} corresponds to does not have the right dimension"
+                    f"The point {realization[v]} in the realization corrisponding to "
+                    f"vertex {v} does not have the right dimension"
                 )
 
         self._realization = {v: Matrix(realization[v]) for v in graph.nodes}
@@ -128,7 +130,8 @@ class Framework(object):
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         """
         Add a vertex to the framework with the corresponding coordinates.
-        If no vertex is provided (`None`), then the smallest, free integer is chosen instead.
+        If no vertex is provided (`None`), then the smallest,
+        free integer is chosen instead.
 
         Parameters
         ----------
@@ -255,7 +258,8 @@ class Framework(object):
 
         Notes
         -----
-        The list of vertices of the underlying graph is taken to be `[0,...,len(points)]`. The underlying graph has no edges.
+        The list of vertices of the underlying graph is taken to be `[0,...,len(points)]`. # noqa: E501
+        The underlying graph has no edges.
 
         Examples
         --------
@@ -274,7 +278,8 @@ class Framework(object):
     @classmethod
     def from_graph(cls, graph: Graph, dim: int) -> None:
         """
-        Return the framework given by the given graph and a random realization of the latter in the given dimension.
+        Return the framework given by the given graph and
+        a random realization of the latter in the given dimension.
 
         Examples
         --------
@@ -328,13 +333,13 @@ class Framework(object):
 
         Notes
         -----
-        The vertices of the underlying graph are taken to be the list `[0,...,len(points)]`.
+        The vertices of the underlying graph are taken to be the list `[0,...,len(points)]`. # noqa: E501
 
         Examples
         --------
         >>> F = Framework.Complete([(1,),(2,),(3,),(4,)])
         >>> print(F)
-        Graph:          Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
+        Graph:          Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)] # noqa: E501
         Realization:    {0: (1.0,), 1: (2.0,), 2: (3.0,), 3: (4.0,)}
         dim:            1
         """
@@ -420,7 +425,7 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
-        >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertex_list()})
+        >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertex_list()}) # noqa: E501
         >>> print(F)
         Graph:          Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
         Realization:    {0: (0.0, 1.0), 1: (1.0, 2.0), 2: (2.0, 3.0)}
@@ -435,7 +440,8 @@ class Framework(object):
                 raise KeyError("Vertex {vertex} is not a key of the given realization!")
             if not len(realization[v]) == self.dimension():
                 raise IndexError(
-                    f"The element {realization[v]} does not have the dimension {self.dimension()}!"
+                    f"The element {realization[v]} does not have "
+                    f"the dimension {self.dimension()}!"
                 )
         self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
@@ -468,12 +474,15 @@ class Framework(object):
         self, vertices: List[Vertex], points: List[Point]
     ) -> None:
         """
-        Apply the method :meth:`~Framework.change_vertex_coordinates` to a list of vertices and points.
+        Apply the method :meth:`~Framework.change_vertex_coordinates`
+        to a list of vertices and points.
 
         Notes
         -----
-        It is necessary that both lists have the same length. Also, no vertex from `vertices` can be
-        contained multiple times. For an explanation of `vertices` and `points`, see :meth:`~Framework.add_vertices`.
+        It is necessary that both lists have the same length.
+        No vertex from `vertices` can be contained multiple times.
+        For an explanation of `vertices` and `points`,
+        see :meth:`~Framework.add_vertices`.
         """
         if list(set(vertices)).sort() != list(vertices).sort():
             raise ValueError("Mulitple Vertices with the same name were found!")
@@ -490,8 +499,8 @@ class Framework(object):
 
     def change_realization(self, subset_of_realization: Dict[Vertex, Point]):
         """
-        Apply the method :meth:`~Framework.change_vertex_coordinates_list` with a dictionary as input,
-        rather than a list of vertices and points.
+        Apply the method :meth:`~Framework.change_vertex_coordinates_list`
+        with a dictionary as input, rather than a list of vertices and points.
         """
         self.change_vertex_coordinates_list(
             subset_of_realization.keys(), subset_of_realization.values()
@@ -543,7 +552,8 @@ class Framework(object):
                     self._graph.nodes
                 ) == len(vertex_order):
                     raise KeyError(
-                        "The vertex_order needs to contain exactly the same vertices as the graph!"
+                        f"The vertex_order needs to contain "
+                        f"exactly the same vertices as the graph!"
                     )
         except TypeError as error:
             vertex_order = self._graph.vertex_list()
@@ -681,7 +691,8 @@ class Framework(object):
         self, pinned_vertices: Dict[Vertex, List[int]] = {}
     ) -> List[Matrix]:
         """
-        Return the entries of the rigidity matrix' kernel that are not trivial infinitesimal flexes.
+        Return the entries of the rigidity matrix' kernel
+        that are not trivial infinitesimal flexes.
         See :meth:`~Framework.trivial_inf_flexes`
         """
         return self.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=False)
@@ -700,16 +711,17 @@ class Framework(object):
 
         Notes
         -----
-        Algorithmically, the infinitesimal flexes are computed by orthogonalizing the space
-        of trivial and non-trivial flexes and subsequently omitting the trivial flexes,
-        provided that `include_trivial` is set to `False`. Else, return the entire kernel.
+        The infinitesimal flexes are computed by orthogonalizing the space of trivial
+        and non-trivial flexes and subsequently omitting the trivial flexes,
+        provided that `include_trivial` is set to `False`.
+        Else, return the entire kernel.
 
         Parameters
         ----------
         pinned_vertices:
             see :meth:`~Framework.rigidity_matrix`
         include_trivial:
-            Boolean that decides, whether the trivial motions should be included `True` or not (`False`)
+            Boolean that decides, whether the trivial motions should be included `True` or not (`False`) # noqa: E501
 
         Examples
         --------
@@ -822,7 +834,7 @@ class Framework(object):
 
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
-        >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
+        >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')]) # noqa: E501
         >>> F.is_redundantly_rigid()
         True
         >>> F.delete_edge(('a','c'))

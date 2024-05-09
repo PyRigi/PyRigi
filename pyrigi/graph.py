@@ -116,7 +116,8 @@ class Graph(nx.Graph):
         for edge in edges:
             if len(edge) != 2 or not edge[0] in G.nodes or not edge[1] in G.nodes:
                 raise TypeError(
-                    "Edge {edge} does not have the correct format or has adjacent vertices the graph does not contain"
+                    "Edge {edge} does not have the correct format "
+                    "or has adjacent vertices the graph does not contain"
                 )
             G.add_edge(*edge)
         return G
@@ -184,7 +185,7 @@ class Graph(nx.Graph):
         self.add_edges_from(edges)
 
     def vertex_connectivity(self) -> int:
-        """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`."""
+        """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`.""" # noqa: E501
         return nx.node_connectivity(self)
 
     def is_sparse(self, K: int, L: int) -> bool:
@@ -256,7 +257,7 @@ class Graph(nx.Graph):
 
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
         """
-        Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`.
+        Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`. # noqa: E501
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -266,7 +267,7 @@ class Graph(nx.Graph):
 
     def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """
-        Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`.
+        Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`. # noqa: E501
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -283,13 +284,13 @@ class Graph(nx.Graph):
 
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """
-        Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`.
+        Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`. # noqa: E501
         """
         return self.is_k_redundantly_rigid(1, dim)
 
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """
-        Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`.
+        Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`. # noqa: E501
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -330,7 +331,8 @@ class Graph(nx.Graph):
             )
         if not isinstance(combinatorial, bool):
             raise TypeError(
-                f"combinatorial determines the method of rigidity-computation. It needs to be a Boolean."
+                f"combinatorial determines the method of rigidity-computation. "
+                f"It needs to be a Boolean."
             )
 
         elif dim == 1:
@@ -359,12 +361,13 @@ class Graph(nx.Graph):
             return F.is_inf_rigid()
         else:
             raise ValueError(
-                f"The Dimension for combinatorial computation must be either 1 or 2, but is {dim}"
+                f"The Dimension for combinatorial computation must be either 1 or 2, "
+                f"but is {dim}"
             )
 
     def is_min_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
-        Check whether the graph is :prf:ref:`minimally (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`.
+        Check whether the graph is :prf:ref:`minimally (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`. # noqa: E501
 
         Notes
         -----
@@ -388,7 +391,8 @@ class Graph(nx.Graph):
             )
         if not isinstance(combinatorial, bool):
             raise TypeError(
-                f"combinatorial determines the method of rigidity-computation. It needs to be a Boolean."
+                f"combinatorial determines the method of rigidity-computation. "
+                f"It needs to be a Boolean."
             )
 
         elif dim == 1:
@@ -407,12 +411,13 @@ class Graph(nx.Graph):
             return F.is_min_inf_rigid()
         else:
             raise ValueError(
-                f"The dimension for combinatorial computation must be either 1 or 2, but is {dim}"
+                f"The dimension for combinatorial computation must be either 1 or 2, "
+                f"but is {dim}"
             )
 
     def is_globally_rigid(self, dim: int = 2) -> bool:
         """
-        Check whether the graph is :prf:ref:`globally dim-rigid <def-globally-rigid-graph>`
+        Check whether the graph is :prf:ref:`globally dim-rigid <def-globally-rigid-graph>` # noqa: E501
 
         Notes
         -----
@@ -483,7 +488,7 @@ class Graph(nx.Graph):
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim=2: Remove any edge and it becomes sparse (sparsity for every subgraph except whole graph?)
+         * dim=2: Remove any edge and it becomes sparse (sparsity for every subgraph except whole graph?) # noqa: E501
          * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
         """
         if not isinstance(dim, int) or dim < 1:
@@ -581,7 +586,7 @@ class Graph(nx.Graph):
         >>> G.is_rigid()
         True
         >>> [print(entry) for entry in G.min_rigid_subgraphs()]
-        Vertices: [0, 1, 2, 3, 4, 5],   Edges: [(0, 1), (0, 5), (0, 3), (1, 2), (1, 4), (2, 3), (2, 5), (3, 4), (4, 5)]
+        Vertices: [0, 1, 2, 3, 4, 5],   Edges: [(0, 1), (0, 5), (0, 3), (1, 2), (1, 4), (2, 3), (2, 5), (3, 4), (4, 5)] # noqa: E501
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -747,7 +752,7 @@ class Graph(nx.Graph):
                     vertex_order
                 ) or not self.number_of_nodes() == len(vertex_order):
                     raise IndexError(
-                        "The vertex_order needs to contain the same vertices as the graph!"
+                        "The vertex_order must contain the same vertices as the graph!"
                     )
         except TypeError as error:
             vertex_order = self.vertex_list()
