@@ -73,29 +73,11 @@ class Graph(nx.Graph):
     def __str__(self) -> str:
         """
         Return the string representation of a graph.
-
-        Notes
-        -----
-        We try to sort the vertices and edges in the graph. If this fails,
-        the internal order is used instead.
         """
-        try:
-            vertices_str = str(sorted(self.nodes))
-            edges_str = "["
-            for edge in self.edges:
-                if edge[0] < edge[1]:
-                    edges_str += str(edge)
-                else:
-                    edges_str += str((edge[1], edge[0]))
-
-                if not edge == list(self.edges)[len(self.edges) - 1]:
-                    edges_str += ", "
-            edges_str += "]"
-        except BaseException:
-            vertices_str = str(self.vertex_list())
-            edges_str = str(self.edges)
-
-        return "Vertices: " + vertices_str + ",\t" + "Edges: " + edges_str
+        return (
+            self.__class__.__name__
+            + f" with vertices {self.vertex_list()} and edges {self.edge_list()}"
+        )
 
     @classmethod
     def from_vertices_and_edges(
@@ -150,7 +132,7 @@ class Graph(nx.Graph):
     def vertex_list(self) -> List[Vertex]:
         """
         Return the list of vertices.
-        
+
         The output is sorted if possible,
         otherwise, the internal order is used instead.
         """
@@ -162,7 +144,7 @@ class Graph(nx.Graph):
     def edge_list(self) -> List[Edge]:
         """
         Return the list of edges.
-        
+
         The output is sorted if possible,
         otherwise, the internal order is used instead.
         """
