@@ -194,6 +194,10 @@ html_theme_options = {
             "class": "",
         },
     ],
+    "top_of_page_buttons": ["view"],
+    "source_repository": "https://github.com/pyrigi/pyrigi",
+    "source_branch": "main",
+    "source_directory": "doc/",
 }
 
 html_title = "PyRigi"
