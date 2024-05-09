@@ -3,6 +3,7 @@
 Module for defining data type used for type hinting.
 
 """
+
 from typing import TypeVar, List, Tuple, Hashable, Any, Dict
 
 

@@ -1,6 +1,7 @@
 """
 Module for rigidity related graph properties.
 """
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -14,9 +15,9 @@ from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
 
 
 class Graph(nx.Graph):
-    '''
+    """
     Class representing a graph.
-        
+
     One option for *incoming_graph_data* is a list of edges.
     See :class:`networkx.Graph` for the other input formats
     or use class methods :meth:`~Graph.from_vertices_and_edges`
@@ -67,7 +68,7 @@ class Graph(nx.Graph):
     - :doc:`A Database of some Graphs <networkx:reference/generators>`
     - :doc:`Reading and Writing Graphs <networkx:reference/readwrite/index>`
     - :doc:`Converting to and from other Data Formats <networkx:reference/convert>`
-    '''
+    """
 
     def __str__(self) -> str:
         """
@@ -94,17 +95,15 @@ class Graph(nx.Graph):
             vertices_str = str(self.vertex_list())
             edges_str = str(self.edges)
 
-        return 'Vertices: ' + vertices_str + ',\t'\
-            + 'Edges: ' + edges_str
+        return "Vertices: " + vertices_str + ",\t" + "Edges: " + edges_str
 
     @classmethod
     def from_vertices_and_edges(
-            cls,
-            vertices: List[Vertex],
-            edges: List[Edge]) -> GraphType:
+        cls, vertices: List[Vertex], edges: List[Edge]
+    ) -> GraphType:
         """
         Create a graph from a list of vertices and edges.
-        
+
         Parameters
         ----------
         vertices
@@ -115,11 +114,10 @@ class Graph(nx.Graph):
         G = Graph()
         G.add_nodes_from(vertices)
         for edge in edges:
-            if len(edge) != 2 or \
-                    not edge[0] in G.nodes or \
-                    not edge[1] in G.nodes:
+            if len(edge) != 2 or not edge[0] in G.nodes or not edge[1] in G.nodes:
                 raise TypeError(
-                    "Edge {edge} does not have the correct format or has adjacent vertices the graph does not contain")
+                    "Edge {edge} does not have the correct format or has adjacent vertices the graph does not contain"
+                )
             G.add_edge(*edge)
         return G
 
@@ -131,8 +129,8 @@ class Graph(nx.Graph):
     @classmethod
     def Complete(cls, n: int) -> GraphType:
         """
-        Generate a complete graph on $n$ vertices. 
-        
+        Generate a complete graph on $n$ vertices.
+
         The vertices are labeled by numbers from 0 to n-1.
         """
         if not isinstance(n, int) or n < 1:
@@ -152,7 +150,7 @@ class Graph(nx.Graph):
     def vertex_list(self) -> List[Vertex]:
         """Return the list of vertices."""
         return list(self.nodes)
-    
+
     def edge_list(self) -> List[Edge]:
         """Return the list of edges"""
         return list(self.edges)
@@ -207,8 +205,7 @@ class Graph(nx.Graph):
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
         """
-        return self.is_sparse(K, L) and \
-            len(self.edges) <= K * len(self.nodes) - L
+        return self.is_sparse(K, L) and len(self.edges) <= K * len(self.nodes) - L
 
     def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
         """
@@ -218,11 +215,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
-    def one_extension(
-            self,
-            vertices: List[Vertex],
-            edge: Edge,
-            dim: int = 2) -> None:
+    def one_extension(self, vertices: List[Vertex], edge: Edge, dim: int = 2) -> None:
         """
         Notes
         -----
@@ -231,11 +224,8 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     def k_extension(
-            self,
-            k: int,
-            vertices: List[Vertex],
-            edges: Edge,
-            dim: int = 2) -> None:
+        self, k: int, vertices: List[Vertex], edges: Edge, dim: int = 2
+    ) -> None:
         """
         Notes
         -----
@@ -243,7 +233,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         raise NotImplementedError()
 
     def all_k_extensions(self, k: int, dim: int = 2) -> None:
@@ -252,13 +243,15 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         raise NotImplementedError()
 
     def extension_sequence(self, dim: int = 2) -> Any:
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         raise NotImplementedError()
 
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
@@ -267,7 +260,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         return self.is_k_vertex_redundantly_rigid(1, dim)
 
     def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
@@ -276,7 +270,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
         for vertex_set in combinations(self.nodes, k):
@@ -298,7 +293,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
         for edge_set in combinations(self.edges, k):
@@ -330,10 +326,12 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         if not isinstance(combinatorial, bool):
             raise TypeError(
-                f"combinatorial determines the method of rigidity-computation. It needs to be a Boolean.")
+                f"combinatorial determines the method of rigidity-computation. It needs to be a Boolean."
+            )
 
         elif dim == 1:
             return self.is_connected()
@@ -344,30 +342,27 @@ class Graph(nx.Graph):
             else:
                 for edge_subset in combinations(self.edges, deficiency):
                     H = self.edge_subgraph(
-                        [edge for edge in self.edges if edge not in edge_subset])
+                        [edge for edge in self.edges if edge not in edge_subset]
+                    )
                     if H.is_tight(2, 3):
                         return True
                 return False
         elif not combinatorial:
             from pyrigi.framework import Framework
-            N = 10 * self.number_of_nodes()**2 * dim
+
+            N = 10 * self.number_of_nodes() ** 2 * dim
             realization = {
-                vertex: [
-                    randrange(
-                        1,
-                        N) for _ in range(
-                        0,
-                        dim)] for vertex in self.nodes}
+                vertex: [randrange(1, N) for _ in range(0, dim)]
+                for vertex in self.nodes
+            }
             F = Framework(self, realization, dim)
             return F.is_inf_rigid()
         else:
             raise ValueError(
-                f"The Dimension for combinatorial computation must be either 1 or 2, but is {dim}")
+                f"The Dimension for combinatorial computation must be either 1 or 2, but is {dim}"
+            )
 
-    def is_min_rigid(
-            self,
-            dim: int = 2,
-            combinatorial: bool = True) -> bool:
+    def is_min_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid <def-minimally-redundantly-rigid-graph>`.
 
@@ -389,10 +384,12 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         if not isinstance(combinatorial, bool):
             raise TypeError(
-                f"combinatorial determines the method of rigidity-computation. It needs to be a Boolean.")
+                f"combinatorial determines the method of rigidity-computation. It needs to be a Boolean."
+            )
 
         elif dim == 1:
             return self.is_tree()
@@ -400,19 +397,18 @@ class Graph(nx.Graph):
             return self.is_tight(2, 3)
         elif not combinatorial:
             from pyrigi.framework import Framework
-            N = 10 * self.number_of_nodes()**2 * dim
+
+            N = 10 * self.number_of_nodes() ** 2 * dim
             realization = {
-                vertex: [
-                    randrange(
-                        1,
-                        N) for _ in range(
-                        0,
-                        dim)] for vertex in self.nodes}
+                vertex: [randrange(1, N) for _ in range(0, dim)]
+                for vertex in self.nodes
+            }
             F = Framework(self, realization, dim)
             return F.is_min_inf_rigid()
         else:
             raise ValueError(
-                f"The dimension for combinatorial computation must be either 1 or 2, but is {dim}")
+                f"The dimension for combinatorial computation must be either 1 or 2, but is {dim}"
+            )
 
     def is_globally_rigid(self, dim: int = 2) -> bool:
         """
@@ -434,21 +430,26 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
 
         elif dim == 1:
-            if (len(self.nodes) == 2 and len(self.edges) == 1) or \
-                    (len(self.nodes) == 1 or len(self.nodes) == 0):
+            if (len(self.nodes) == 2 and len(self.edges) == 1) or (
+                len(self.nodes) == 1 or len(self.nodes) == 0
+            ):
                 return True
             return self.vertex_connectivity() >= 2
         elif dim == 2:
-            if (len(self.nodes) == 3 and len(self.edges) == 3) or \
-                (len(self.nodes) == 2 and len(self.edges) == 1) or \
-                    (len(self.nodes) == 1 or len(self.nodes) == 0):
+            if (
+                (len(self.nodes) == 3 and len(self.edges) == 3)
+                or (len(self.nodes) == 2 and len(self.edges) == 1)
+                or (len(self.nodes) == 1 or len(self.nodes) == 0)
+            ):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
             from pyrigi.framework import Framework
+
             # Random sampling from [1,N] for N depending quadratically on number
             # of vertices.
             raise NotImplementedError()
@@ -473,7 +474,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         raise NotImplementedError()
 
     def is_Rd_circuit(self, dim: int = 2) -> bool:
@@ -486,7 +488,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         raise NotImplementedError()
 
     def is_Rd_closed(self, dim: int = 2) -> bool:
@@ -499,7 +502,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         raise NotImplementedError()
 
     def max_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
@@ -530,30 +534,28 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
 
         if self.number_of_nodes() <= dim:
             return []
         if self.is_rigid():
             return [self]
         max_subgraphs = []
-        for vertex_subset in combinations(
-            self.nodes, self.number_of_nodes() - 1):
+        for vertex_subset in combinations(self.nodes, self.number_of_nodes() - 1):
             G = self.subgraph(vertex_subset)
             max_subgraphs = [
-                j for i in [
-                    max_subgraphs,
-                    G.max_rigid_subgraphs(dim)] for j in i]
+                j for i in [max_subgraphs, G.max_rigid_subgraphs(dim)] for j in i
+            ]
 
         # We now remove the graphs that were found at least twice.
         clean_list = []
         for i in range(0, len(max_subgraphs)):
             iso_bool = False
             for j in range(i + 1, len(max_subgraphs)):
-                if set(
-                        max_subgraphs[i].nodes) == set(
-                        max_subgraphs[j].nodes) and max_subgraphs[i].is_isomorphic(
-                        max_subgraphs[j]):
+                if set(max_subgraphs[i].nodes) == set(
+                    max_subgraphs[j].nodes
+                ) and max_subgraphs[i].is_isomorphic(max_subgraphs[j]):
                     iso_bool = True
                     break
             if not iso_bool:
@@ -583,7 +585,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
 
         min_subgraphs = []
         if self.number_of_nodes() <= 2:
@@ -592,27 +595,24 @@ class Graph(nx.Graph):
             return [self]
         elif self.number_of_nodes() == dim + 1:
             return []
-        for vertex_subset in combinations(
-            self.nodes, self.number_of_nodes() - 1):
+        for vertex_subset in combinations(self.nodes, self.number_of_nodes() - 1):
             G = self.subgraph(vertex_subset)
             subgraphs = G.min_rigid_subgraphs(dim)
             if len(subgraphs) == 0 and G.is_rigid():
                 min_subgraphs.append(G)
             else:
                 min_subgraphs = [
-                    j for i in [
-                        min_subgraphs,
-                        G.min_rigid_subgraphs(dim)] for j in i]
+                    j for i in [min_subgraphs, G.min_rigid_subgraphs(dim)] for j in i
+                ]
 
         # We now remove the graphs that were found at least twice.
         clean_list = []
         for i in range(0, len(min_subgraphs)):
             iso_bool = False
             for j in range(i + 1, len(min_subgraphs)):
-                if set(
-                        min_subgraphs[i].nodes) == set(
-                        min_subgraphs[j].nodes) and min_subgraphs[i].is_isomorphic(
-                        min_subgraphs[j]):
+                if set(min_subgraphs[i].nodes) == set(
+                    min_subgraphs[j].nodes
+                ) and min_subgraphs[i].is_isomorphic(min_subgraphs[j]):
                     iso_bool = True
                     break
             if not iso_bool:
@@ -668,10 +668,8 @@ class Graph(nx.Graph):
         Specify order of vertices.
         """
         M = self.adjacency_matrix()
-        upper_diag = [str(b)
-                      for i, row in enumerate(M.tolist())
-                      for b in row[i + 1:]]
-        return int(''.join(upper_diag), 2)
+        upper_diag = [str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]]
+        return int("".join(upper_diag), 2)
 
     @classmethod
     def from_int(cls, n: int) -> GraphType:
@@ -706,7 +704,8 @@ class Graph(nx.Graph):
         for i, j in zip(range(shape(M)[0]), range(shape(M)[1])):
             if not (M[i, j] == 0 or M[i, j] == 1):
                 raise TypeError(
-                    "The provided adjacency matrix contains entries other than 0 and 1")
+                    "The provided adjacency matrix contains entries other than 0 and 1"
+                )
         vertices = range(shape(M)[0])
         edges = []
         for vertex, vertex_ in zip(range(len(vertices)), range(len(vertices))):
@@ -714,9 +713,7 @@ class Graph(nx.Graph):
                 edges += [(vertex, vertex_)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
-    def adjacency_matrix(
-            self,
-            vertex_order: List[Vertex] = None) -> Matrix:
+    def adjacency_matrix(self, vertex_order: List[Vertex] = None) -> Matrix:
         """
         Return the adjacency matrix of the graph.
 
@@ -746,10 +743,12 @@ class Graph(nx.Graph):
             if vertex_order is None:
                 vertex_order = sorted(self.nodes)
             else:
-                if (not set(self.nodes) == set(vertex_order)
-                    or not self.number_of_nodes() == len(vertex_order)):
+                if not set(self.nodes) == set(
+                    vertex_order
+                ) or not self.number_of_nodes() == len(vertex_order):
                     raise IndexError(
-                        "The vertex_order needs to contain the same vertices as the graph!")
+                        "The vertex_order needs to contain the same vertices as the graph!"
+                    )
         except TypeError as error:
             vertex_order = self.vertex_list()
 
@@ -759,8 +758,9 @@ class Graph(nx.Graph):
             edge_indicator = False
             for vertex_ in vertex_order:
                 for edge in self.edges:
-                    if (edge[0] == vertex and edge[1] == vertex_) or \
-                            (edge[1] == vertex and edge[0] == vertex_):
+                    if (edge[0] == vertex and edge[1] == vertex_) or (
+                        edge[1] == vertex and edge[0] == vertex_
+                    ):
                         row += [1]
                         edge_indicator = True
                         break

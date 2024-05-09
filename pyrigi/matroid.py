@@ -18,7 +18,7 @@ class Matroid(object):
         raise NotImplementedError()
 
     def __str__(self) -> str:
-        return 'Matroid:\t' + str(self._ground_set)
+        return "Matroid:\t" + str(self._ground_set)
 
     def ground_set(self):
         """Return the ground set of the matroid."""

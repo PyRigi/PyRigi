@@ -11,6 +11,7 @@ Classes:
     Framework
 
 """
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -42,7 +43,7 @@ class Framework(object):
         A dictionary mapping the vertices of the graph to points in $\RR^d$.
         The dimension `d` is retrieved from the points in realization.
         If `graph` is empty, and hence also the `realization`,
-        the dimension is set to 0 (:meth:`Framework.Empty` 
+        the dimension is set to 0 (:meth:`Framework.Empty`
         can be used to construct an empty framework with different dimension).
 
     Notes
@@ -61,14 +62,13 @@ class Framework(object):
     dim:            2
     """
 
-    def __init__(self,
-                 graph: Graph,
-                 realization: Dict[Vertex, Point]) -> None:
+    def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph")
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
-                "The length of realization has to be equal to the number of vertices of graph")
+                "The length of realization has to be equal to the number of vertices of graph"
+            )
 
         if realization:
             self._dim = len(list(realization.values())[0])
@@ -77,14 +77,13 @@ class Framework(object):
 
         for v in graph.nodes:
             if v not in realization:
-                raise KeyError(
-                    f"Vertex {v} is not contained in the realization")
+                raise KeyError(f"Vertex {v} is not contained in the realization")
             if not len(realization[v]) == self._dim:
                 raise ValueError(
-                    f"The point {realization[v]} in the realization that vertex {v} corresponds to does not have the right dimension")
+                    f"The point {realization[v]} in the realization that vertex {v} corresponds to does not have the right dimension"
+                )
 
-        self._realization = {v: Matrix(realization[v])
-                             for v in graph.nodes}
+        self._realization = {v: Matrix(realization[v]) for v in graph.nodes}
         self._graph = deepcopy(graph)
 
     def __str__(self) -> str:
@@ -97,13 +96,26 @@ class Framework(object):
         whatever reason, the internal order is used instead.
         """
         try:
-            realization_str = str({key: self.get_realization_list()[
-                key] for key in sorted(self.get_realization_list())})
+            realization_str = str(
+                {
+                    key: self.get_realization_list()[key]
+                    for key in sorted(self.get_realization_list())
+                }
+            )
         except BaseException:
-            realization_str = str({key: self.get_realization_list()[
-                key] for key in self._graph.nodes})
-        return 'Graph:\t\t' + str(self._graph) + '\n' + 'Realization:\t' + \
-            realization_str + '\n' + 'dim:\t\t' + str(self.dim())
+            realization_str = str(
+                {key: self.get_realization_list()[key] for key in self._graph.nodes}
+            )
+        return (
+            "Graph:\t\t"
+            + str(self._graph)
+            + "\n"
+            + "Realization:\t"
+            + realization_str
+            + "\n"
+            + "dim:\t\t"
+            + str(self.dim())
+        )
 
     def dim(self) -> int:
         """Return the dimension of the framework."""
@@ -147,9 +159,7 @@ class Framework(object):
         self._realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
 
-    def add_vertices(self,
-                     points: List[Point],
-                     vertices: List[Vertex] = []) -> None:
+    def add_vertices(self, points: List[Point], vertices: List[Vertex] = []) -> None:
         r"""
         Add a list of vertices to the framework.
 
@@ -178,8 +188,7 @@ class Framework(object):
         dim:            2
         """
         if not (len(points) == len(vertices) or not vertices):
-            raise IndexError(
-                "The vertex list does not have the correct length!")
+            raise IndexError("The vertex list does not have the correct length!")
         if not vertices:
             for point in points:
                 self.add_vertex(point)
@@ -205,7 +214,8 @@ class Framework(object):
             raise TypeError(f"Edge {edge} does not have the correct length!")
         if not (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes):
             raise ValueError(
-                f"The adjacent vertices of {edge} are not contained in the graph!")
+                f"The adjacent vertices of {edge} are not contained in the graph!"
+            )
         self._graph.add_edge(*(edge))
 
     def add_edges(self, edges: List[Edge]) -> None:
@@ -276,12 +286,13 @@ class Framework(object):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
 
-        N = 10 * graph.number_of_nodes()**2 * dim
+        N = 10 * graph.number_of_nodes() ** 2 * dim
         realization = {
-            vertex: [randrange(1, N) for _ in range(dim)]
-            for vertex in graph.nodes}
+            vertex: [randrange(1, N) for _ in range(dim)] for vertex in graph.nodes
+        }
 
         return Framework(graph=graph, realization=realization)
 
@@ -298,7 +309,8 @@ class Framework(object):
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
         F = Framework(graph=Graph(), realization={})
         F._dim = dim
         return F
@@ -329,11 +341,10 @@ class Framework(object):
         if not points:
             raise ValueError("The list of points cannot be empty.")
 
-        Kn = Graph.complete_graph(len(points))
-        realization = {(Kn.vertex_list())[i]: Matrix(
         Kn = Graph.Complete(len(points))
-        realization = {(Kn.vertex_list())[i]: Matrix(
-            points[i]) for i in range(len(points))}
+        realization = {
+            (Kn.vertex_list())[i]: Matrix(points[i]) for i in range(len(points))
+        }
         return Framework(graph=Kn, realization=realization)
 
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -376,8 +387,10 @@ class Framework(object):
         >>> F.get_realization_list()
         {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (1.0, 1.0)}
         """
-        return {vertex: tuple([float(point) for point in self._realization[vertex]])
-                for vertex in self._graph.nodes}
+        return {
+            vertex: tuple([float(point) for point in self._realization[vertex]])
+            for vertex in self._graph.nodes
+        }
 
     def get_realization(self) -> Dict[Vertex, Point]:
         """
@@ -415,17 +428,16 @@ class Framework(object):
         """
         if not len(realization) == self._graph.number_of_nodes():
             raise IndexError(
-                "The realization does not contain the correct amount of vertices!")
+                "The realization does not contain the correct amount of vertices!"
+            )
         for v in self._graph.nodes:
             if v not in realization:
-                raise KeyError(
-                    "Vertex {vertex} is not a key of the given realization!")
+                raise KeyError("Vertex {vertex} is not a key of the given realization!")
             if not len(realization[v]) == self.dimension():
                 raise IndexError(
-                    f"The element {realization[v]} does not have the dimension {self.dimension()}!")
-        self._realization = {
-            v: Matrix(
-                realization[v]) for v in realization.keys()}
+                    f"The element {realization[v]} does not have the dimension {self.dimension()}!"
+                )
+        self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
     def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
         """
@@ -441,11 +453,11 @@ class Framework(object):
         dim:            2
         """
         if vertex not in self._realization:
-            raise KeyError(
-                "Vertex {vertex} is not a key of the given realization!")
+            raise KeyError("Vertex {vertex} is not a key of the given realization!")
         if not len(point) == self.dimension():
             raise IndexError(
-                f"The point {point} does not have the dimension {self.dimension()}!")
+                f"The point {point} does not have the dimension {self.dimension()}!"
+            )
         self._realization[vertex] = Matrix(point)
 
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
@@ -453,9 +465,8 @@ class Framework(object):
         self.change_vertex_coordinates(vertex, point)
 
     def change_vertex_coordinates_list(
-            self,
-            vertices: List[Vertex],
-            points: List[Point]) -> None:
+        self, vertices: List[Vertex], points: List[Point]
+    ) -> None:
         """
         Apply the method :meth:`~Framework.change_vertex_coordinates` to a list of vertices and points.
 
@@ -465,18 +476,15 @@ class Framework(object):
         contained multiple times. For an explanation of `vertices` and `points`, see :meth:`~Framework.add_vertices`.
         """
         if list(set(vertices)).sort() != list(vertices).sort():
-            raise ValueError(
-                "Mulitple Vertices with the same name were found!")
+            raise ValueError("Mulitple Vertices with the same name were found!")
         if not len(vertices) == len(points):
             raise IndexError(
-                "The list of vertices does not have the same length as the list of points")
+                "The list of vertices does not have the same length as the list of points"
+            )
         for i in range(len(vertices)):
             self.change_vertex_coordinates(vertices[i], points[i])
 
-    def set_vertex_positions(
-            self,
-            vertices: List[Vertex],
-            points: List[Point]) -> None:
+    def set_vertex_positions(self, vertices: List[Vertex], points: List[Point]) -> None:
         """Alias for :meth:`~Framework.change_vertex_coordinates_list`"""
         self.change_vertex_coordinates_list(vertices, points)
 
@@ -486,14 +494,15 @@ class Framework(object):
         rather than a list of vertices and points.
         """
         self.change_vertex_coordinates_list(
-            subset_of_realization.keys(),
-            subset_of_realization.values())
+            subset_of_realization.keys(), subset_of_realization.values()
+        )
 
     def rigidity_matrix(
-            self,
-            vertex_order: List[Vertex] = None,
-            pinned_vertices: Dict[Vertex, List[int]] = {},
-            edges_ordered: bool = True) -> Matrix:
+        self,
+        vertex_order: List[Vertex] = None,
+        pinned_vertices: Dict[Vertex, List[int]] = {},
+        edges_ordered: bool = True,
+    ) -> Matrix:
         r"""
         Construct the rigidity matrix of the framework.
 
@@ -530,26 +539,32 @@ class Framework(object):
             if vertex_order is None:
                 vertex_order = sorted(self._graph.nodes)
             else:
-                if not set(
-                        self._graph.nodes) == set(vertex_order) or not len(
-                        self._graph.nodes) == len(vertex_order):
+                if not set(self._graph.nodes) == set(vertex_order) or not len(
+                    self._graph.nodes
+                ) == len(vertex_order):
                     raise KeyError(
-                        "The vertex_order needs to contain exactly the same vertices as the graph!")
+                        "The vertex_order needs to contain exactly the same vertices as the graph!"
+                    )
         except TypeError as error:
             vertex_order = self._graph.vertex_list()
 
         for v in vertex_order:
             if v not in pinned_vertices:
                 pinned_vertices[v] = []
-        pinned_vertices = {v: pinned_vertices[v] for v in pinned_vertices.keys(
-        ) if v in self._graph.nodes}
+        pinned_vertices = {
+            v: pinned_vertices[v]
+            for v in pinned_vertices.keys()
+            if v in self._graph.nodes
+        }
         for v in pinned_vertices:
             if v not in self._graph.nodes:
                 raise KeyError(
-                    f"Vertex {v} in pinned_vertices is not a vertex of the graph!")
+                    f"Vertex {v} in pinned_vertices is not a vertex of the graph!"
+                )
             if not len(pinned_vertices[v]) <= self.dim():
                 raise IndexError(
-                    f"The length of {pinned_vertices[v]} is larger than the dimension!")
+                    f"The length of {pinned_vertices[v]} is larger than the dimension!"
+                )
 
         if not edges_ordered:
             edge_order = sorted(self._graph.edges())
@@ -566,23 +581,40 @@ class Framework(object):
 
         # Add the column information about the pinned vertices, according to the
         # `vertex_order`.
-        pinned_entries = flatten([[self.dim() * count + index for index in pinned_vertices[vertex_order[count]]]
-                                  for count in range(len(vertex_order))])
+        pinned_entries = flatten(
+            [
+                [
+                    self.dim() * count + index
+                    for index in pinned_vertices[vertex_order[count]]
+                ]
+                for count in range(len(vertex_order))
+            ]
+        )
 
         # Return the rigidity matrix with standard unit basis vectors added for
         # each pinned coordinate.
-        return Matrix([flatten([delta(u, v, w)
-                                * (self._realization[u] - self._realization[v])
-                                for w in vertex_order])
-                       for u, v in edge_order] +
-                      [[1 if i == index else 0 for i in range(self.dim() * len(vertex_order))]
-                       for index in pinned_entries])
+        return Matrix(
+            [
+                flatten(
+                    [
+                        delta(u, v, w) * (self._realization[u] - self._realization[v])
+                        for w in vertex_order
+                    ]
+                )
+                for u, v in edge_order
+            ]
+            + [
+                [1 if i == index else 0 for i in range(self.dim() * len(vertex_order))]
+                for index in pinned_entries
+            ]
+        )
 
     def stress_matrix(
-            self,
-            data: Any,
-            pinned_vertices: Dict[Vertex, List[int]] = {},
-            edge_order: List[Edge] = None) -> Matrix:
+        self,
+        data: Any,
+        pinned_vertices: Dict[Vertex, List[int]] = {},
+        edge_order: List[Edge] = None,
+    ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
 
@@ -593,9 +625,9 @@ class Framework(object):
         """
         raise NotImplementedError()
 
-    def trivial_inf_flexes(self,
-                                     pinned_vertices: Dict[Vertex,
-                                                           List[int]] = {}) -> List[Matrix]:
+    def trivial_inf_flexes(
+        self, pinned_vertices: Dict[Vertex, List[int]] = {}
+    ) -> List[Matrix]:
         r"""
         Return the trivial infinitesimal flexes of the framework.
 
@@ -644,27 +676,23 @@ class Framework(object):
         Kn = Graph.complete_graph_on_vertices(vertices)
         vertices = self._graph.vertex_list()
         Kn = Graph.CompleteOnVertices(vertices)
-        F_Kn = Framework(
-            graph=Kn,
-            realization=self.realization())
-        return F_Kn.inf_flexes(
-            pinned_vertices=pinned_vertices,
-            include_trivial=True)
+        F_Kn = Framework(graph=Kn, realization=self.realization())
+        return F_Kn.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=True)
 
     def nontrivial_inf_flexes(
-            self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> List[Matrix]:
+        self, pinned_vertices: Dict[Vertex, List[int]] = {}
+    ) -> List[Matrix]:
         """
         Return the entries of the rigidity matrix' kernel that are not trivial infinitesimal flexes.
         See :meth:`~Framework.trivial_inf_flexes`
         """
-        return self.inf_flexes(
-            pinned_vertices=pinned_vertices,
-            include_trivial=False)
+        return self.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=False)
 
     def inf_flexes(
-            self,
-            pinned_vertices: Dict[Vertex, List[int]] = {},
-            include_trivial: bool = False) -> List[Matrix]:
+        self,
+        pinned_vertices: Dict[Vertex, List[int]] = {},
+        include_trivial: bool = False,
+    ) -> List[Matrix]:
         r"""
         Return a basis of the space of infinitesimal flexes.
 
@@ -701,22 +729,21 @@ class Framework(object):
         [ 1/4]])]
         """
         if include_trivial:
-            return self.rigidity_matrix(
-                pinned_vertices=pinned_vertices).nullspace()
-        trivial_flexes = self.trivial_inf_flexes(
-            pinned_vertices=pinned_vertices)
-        all_flexes = self.rigidity_matrix(
-            pinned_vertices=pinned_vertices).nullspace()
+            return self.rigidity_matrix(pinned_vertices=pinned_vertices).nullspace()
+        trivial_flexes = self.trivial_inf_flexes(pinned_vertices=pinned_vertices)
+        all_flexes = self.rigidity_matrix(pinned_vertices=pinned_vertices).nullspace()
         basis_flexspace = Matrix.orthogonalize(
-            *(trivial_flexes + all_flexes), rankcheck=False)
-        return basis_flexspace[len(trivial_flexes):len(all_flexes) + 1]
+            *(trivial_flexes + all_flexes), rankcheck=False
+        )
+        return basis_flexspace[len(trivial_flexes) : len(all_flexes) + 1]
 
     def stresses(self) -> Any:
         r"""Return a basis of the space of stresses."""
         raise NotImplementedError()
 
     def rigidity_matrix_rank(
-            self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> int:
+        self, pinned_vertices: Dict[Vertex, List[int]] = {}
+    ) -> int:
         """
         Compute the rank of the rigidity matrix.
 
@@ -729,17 +756,20 @@ class Framework(object):
 
     def is_inf_rigid(self) -> bool:
         """
-        Check whether the given framework is infinitesimally rigid 
-        
+        Check whether the given framework is infinitesimally rigid
+
         The check is based on :meth:`~Framework.rigidity_matrix_rank`.
 
         Definitions
         -----
         * :prf:ref:`Infinitesimal Rigidity <def-infinitesimal-rigidity>`
         """
-        return self.graph().number_of_nodes() <= 1 or \
-            self.rigidity_matrix_rank() == self.dim() * self.graph().number_of_nodes() \
+        return (
+            self.graph().number_of_nodes() <= 1
+            or self.rigidity_matrix_rank()
+            == self.dim() * self.graph().number_of_nodes()
             - (self.dim()) * (self.dim() + 1) // 2
+        )
 
     def is_inf_flexible(self) -> bool:
         """
