@@ -137,3 +137,5 @@ The following `latex` macros can be used
 :::
 
 New `latex` commands can be created by modifying both `latex_elements` and `mathjax3_config` in `doc/conf.py`.
+
+Docstrings that use `latex` must be raw strings, namely `r""" ... """`.
