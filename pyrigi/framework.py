@@ -591,7 +591,7 @@ class Framework(object):
         """
         raise NotImplementedError()
 
-    def trivial_infinitesimal_flexes(self,
+    def trivial_inf_flexes(self,
                                      pinned_vertices: Dict[Vertex,
                                                            List[int]] = {}) -> List[Matrix]:
         r"""
@@ -614,7 +614,7 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
-        >>> F.trivial_infinitesimal_flexes()
+        >>> F.trivial_inf_flexes()
         [Matrix([
             [ 3],
             [-1],
@@ -643,21 +643,21 @@ class Framework(object):
         F_Kn = Framework(
             graph=Kn,
             realization=self.realization())
-        return F_Kn.infinitesimal_flexes(
+        return F_Kn.inf_flexes(
             pinned_vertices=pinned_vertices,
             include_trivial=True)
 
-    def nontrivial_infinitesimal_flexes(
+    def nontrivial_inf_flexes(
             self, pinned_vertices: Dict[Vertex, List[int]] = {}) -> List[Matrix]:
         """
         Return the entries of the rigidity matrix' kernel that are not trivial infinitesimal flexes.
-        See :meth:`~Framework.trivial_infinitesimal_flexes`
+        See :meth:`~Framework.trivial_inf_flexes`
         """
-        return self.infinitesimal_flexes(
+        return self.inf_flexes(
             pinned_vertices=pinned_vertices,
             include_trivial=False)
 
-    def infinitesimal_flexes(
+    def inf_flexes(
             self,
             pinned_vertices: Dict[Vertex, List[int]] = {},
             include_trivial: bool = False) -> List[Matrix]:
@@ -685,7 +685,7 @@ class Framework(object):
         --------
         >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
         >>> F.delete_edges([(0,2), (1,3)])
-        >>> F.infinitesimal_flexes(include_trivial=False)
+        >>> F.inf_flexes(include_trivial=False)
         [Matrix([
         [ 1/4],
         [ 1/4],
@@ -699,7 +699,7 @@ class Framework(object):
         if include_trivial:
             return self.rigidity_matrix(
                 pinned_vertices=pinned_vertices).nullspace()
-        trivial_flexes = self.trivial_infinitesimal_flexes(
+        trivial_flexes = self.trivial_inf_flexes(
             pinned_vertices=pinned_vertices)
         all_flexes = self.rigidity_matrix(
             pinned_vertices=pinned_vertices).nullspace()
@@ -723,7 +723,7 @@ class Framework(object):
         """
         return self.rigidity_matrix(pinned_vertices=pinned_vertices).rank()
 
-    def is_infinitesimally_rigid(self) -> bool:
+    def is_inf_rigid(self) -> bool:
         """
         Check whether the given framework is infinitesimally rigid 
         
@@ -737,17 +737,17 @@ class Framework(object):
             self.rigidity_matrix_rank() == self.dim() * len(self.graph().vertices()) \
             - (self.dim()) * (self.dim() + 1) // 2
 
-    def is_infinitesimally_flexible(self) -> bool:
+    def is_inf_flexible(self) -> bool:
         """
         Check whether the given framework is infinitesimally flexible.
-        See :meth:`~Framework.is_infinitesimally_rigid`
+        See :meth:`~Framework.is_inf_rigid`
         """
-        return not self.is_infinitesimally_rigid()
+        return not self.is_inf_rigid()
 
-    def is_infinitesimally_spanning(self) -> bool:
+    def is_inf_spanning(self) -> bool:
         raise NotImplementedError()
 
-    def is_minimally_infinitesimally_rigid(self) -> bool:
+    def is_min_inf_rigid(self) -> bool:
         """
         Check whether a framework is minimally infinitesimally rigid.
 
@@ -758,19 +758,19 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-        >>> F.is_minimally_infinitesimally_rigid()
+        >>> F.is_min_inf_rigid()
         False
         >>> F.delete_edge((0,2))
-        >>> F.is_minimally_infinitesimally_rigid()
+        >>> F.is_min_inf_rigid()
         True
         """
-        if not self.is_infinitesimally_rigid():
+        if not self.is_inf_rigid():
             return False
         for edge in self.graph().edges:
             F = deepcopy(self)
             F.delete_edge(edge)
             print(F)
-            if F.is_infinitesimally_rigid():
+            if F.is_inf_rigid():
                 return False
         return True
 
@@ -800,7 +800,7 @@ class Framework(object):
         for edge in self._graph.edges:
             F = deepcopy(self)
             F.delete_edge(edge)
-            if not F.is_infinitesimally_rigid():
+            if not F.is_inf_rigid():
                 return False
         return True
 
