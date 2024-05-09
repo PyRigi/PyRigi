@@ -148,12 +148,28 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     def vertex_list(self) -> List[Vertex]:
-        """Return the list of vertices."""
-        return list(self.nodes)
+        """
+        Return the list of vertices.
+        
+        The output is sorted if possible,
+        otherwise, the internal order is used instead.
+        """
+        try:
+            return sorted(self.nodes)
+        except BaseException:
+            return list(self.nodes)
 
     def edge_list(self) -> List[Edge]:
-        """Return the list of edges"""
-        return list(self.edges)
+        """
+        Return the list of edges.
+        
+        The output is sorted if possible,
+        otherwise, the internal order is used instead.
+        """
+        try:
+            return sorted([sorted(e) for e in self.edges])
+        except BaseException:
+            return list(self.edges)
 
     def delete_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.remove_node`."""
