@@ -556,7 +556,7 @@ class Graph(nx.Graph):
         False
         >>> G.max_rigid_subgraphs()
         [Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]], Graph with vertices [3, 4, 5] and edges [[3, 4], [3, 5], [4, 5]]]
-        """
+        """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
