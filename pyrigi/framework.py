@@ -66,7 +66,7 @@ class Framework(object):
                  realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph")
-        if not len(realization.keys()) == len(graph.vertices()):
+        if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
                 "The length of realization has to be equal to the number of vertices of graph")
 
@@ -75,7 +75,7 @@ class Framework(object):
         else:
             self._dim = 0
 
-        for v in graph.vertices():
+        for v in graph.nodes:
             if v not in realization:
                 raise KeyError(
                     f"Vertex {v} is not contained in the realization")
@@ -84,7 +84,7 @@ class Framework(object):
                     f"The point {realization[v]} in the realization that vertex {v} corresponds to does not have the right dimension")
 
         self._realization = {v: Matrix(realization[v])
-                             for v in graph.vertices()}
+                             for v in graph.nodes}
         self._graph = deepcopy(graph)
 
     def __str__(self) -> str:
@@ -101,7 +101,7 @@ class Framework(object):
                 key] for key in sorted(self.get_realization_list())})
         except BaseException:
             realization_str = str({key: self.get_realization_list()[
-                key] for key in self._graph.vertices()})
+                key] for key in self._graph.nodes})
         return 'Graph:\t\t' + str(self._graph) + '\n' + 'Realization:\t' + \
             realization_str + '\n' + 'dim:\t\t' + str(self.dim())
 
@@ -136,12 +136,12 @@ class Framework(object):
         dim:            2
         """
         if vertex is None:
-            candidate = len(self._graph.vertices())
-            while candidate in self._graph.vertices():
+            candidate = self._graph.number_of_nodes()
+            while candidate in self._graph.nodes:
                 candidate += 1
             vertex = candidate
 
-        if vertex in self._graph.vertices():
+        if vertex in self._graph.nodes:
             raise KeyError(f"Vertex {vertex} is already a vertex of the graph!")
 
         self._realization[vertex] = Matrix(point)
@@ -278,10 +278,10 @@ class Framework(object):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
 
-        N = 10 * len(graph.vertices())**2 * dim
+        N = 10 * graph.number_of_nodes()**2 * dim
         realization = {
             vertex: [randrange(1, N) for _ in range(dim)]
-            for vertex in graph.vertices()}
+            for vertex in graph.nodes}
 
         return Framework(graph=graph, realization=realization)
 
@@ -329,8 +329,10 @@ class Framework(object):
         if not points:
             raise ValueError("The list of points cannot be empty.")
 
+        Kn = Graph.complete_graph(len(points))
+        realization = {(Kn.vertex_list())[i]: Matrix(
         Kn = Graph.Complete(len(points))
-        realization = {(Kn.vertices())[i]: Matrix(
+        realization = {(Kn.vertex_list())[i]: Matrix(
             points[i]) for i in range(len(points))}
         return Framework(graph=Kn, realization=realization)
 
@@ -375,7 +377,7 @@ class Framework(object):
         {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (1.0, 1.0)}
         """
         return {vertex: tuple([float(point) for point in self._realization[vertex]])
-                for vertex in self._graph.vertices()}
+                for vertex in self._graph.nodes}
 
     def get_realization(self) -> Dict[Vertex, Point]:
         """
@@ -405,16 +407,16 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
-        >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertices()})
+        >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertex_list()})
         >>> print(F)
         Graph:          Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
         Realization:    {0: (0.0, 1.0), 1: (1.0, 2.0), 2: (2.0, 3.0)}
         dim:            2
         """
-        if not len(realization) == len(self._graph.vertices()):
+        if not len(realization) == self._graph.number_of_nodes():
             raise IndexError(
                 "The realization does not contain the correct amount of vertices!")
-        for v in self._graph.vertices():
+        for v in self._graph.nodes:
             if v not in realization:
                 raise KeyError(
                     "Vertex {vertex} is not a key of the given realization!")
@@ -526,23 +528,23 @@ class Framework(object):
         """
         try:
             if vertex_order is None:
-                vertex_order = sorted(self._graph.vertices())
+                vertex_order = sorted(self._graph.nodes)
             else:
                 if not set(
-                        self._graph.vertices()) == set(vertex_order) or not len(
-                        self._graph.vertices()) == len(vertex_order):
+                        self._graph.nodes) == set(vertex_order) or not len(
+                        self._graph.nodes) == len(vertex_order):
                     raise KeyError(
                         "The vertex_order needs to contain exactly the same vertices as the graph!")
         except TypeError as error:
-            vertex_order = self._graph.vertices()
+            vertex_order = self._graph.vertex_list()
 
         for v in vertex_order:
             if v not in pinned_vertices:
                 pinned_vertices[v] = []
         pinned_vertices = {v: pinned_vertices[v] for v in pinned_vertices.keys(
-        ) if v in self._graph.vertices()}
+        ) if v in self._graph.nodes}
         for v in pinned_vertices:
-            if v not in self._graph.vertices():
+            if v not in self._graph.nodes:
                 raise KeyError(
                     f"Vertex {v} in pinned_vertices is not a vertex of the graph!")
             if not len(pinned_vertices[v]) <= self.dim():
@@ -638,7 +640,9 @@ class Framework(object):
             [ 1]])
         ]
         """
-        vertices = self._graph.vertices()
+        vertices = self._graph.vertex_list()
+        Kn = Graph.complete_graph_on_vertices(vertices)
+        vertices = self._graph.vertex_list()
         Kn = Graph.CompleteOnVertices(vertices)
         F_Kn = Framework(
             graph=Kn,
@@ -733,8 +737,8 @@ class Framework(object):
         -----
         * :prf:ref:`Infinitesimal Rigidity <def-infinitesimal-rigidity>`
         """
-        return len(self.graph().vertices()) <= 1 or \
-            self.rigidity_matrix_rank() == self.dim() * len(self.graph().vertices()) \
+        return self.graph().number_of_nodes() <= 1 or \
+            self.rigidity_matrix_rank() == self.dim() * self.graph().number_of_nodes() \
             - (self.dim()) * (self.dim() + 1) // 2
 
     def is_inf_flexible(self) -> bool:

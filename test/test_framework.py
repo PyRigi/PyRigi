@@ -16,11 +16,11 @@ def test_vertex_addition():
     F_.set_realization(F.get_realization())
     assert (
         F.get_realization_list() == F_.get_realization_list()
-        and F.graph().vertices() == F_.graph().vertices()
+        and F.graph().vertex_list() == F_.graph().vertex_list()
         and F.dim() == F_.dim()
     )
     assert (
-        list(F.graph().vertices()) == [0, 1, 2]
+        F.graph().vertex_list() == [0, 1, 2]
         and len(F.graph().edges()) == 0
     )
     F.change_vertex_coordinates_list([0, 2], [[3.,0.], [0.,3.]])

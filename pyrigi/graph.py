@@ -79,7 +79,7 @@ class Graph(nx.Graph):
         the internal order is used instead.
         """
         try:
-            vertices_str = str(sorted(self.vertices()))
+            vertices_str = str(sorted(self.nodes))
             edges_str = "["
             for edge in self.edges:
                 if edge[0] < edge[1]:
@@ -91,7 +91,7 @@ class Graph(nx.Graph):
                     edges_str += ", "
             edges_str += "]"
         except BaseException:
-            vertices_str = str(self.vertices())
+            vertices_str = str(self.vertex_list())
             edges_str = str(self.edges)
 
         return 'Vertices: ' + vertices_str + ',\t'\
@@ -149,9 +149,13 @@ class Graph(nx.Graph):
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
 
-    def vertices(self) -> List[Vertex]:
-        """Alias for the `nodes` attribute."""
+    def vertex_list(self) -> List[Vertex]:
+        """Return the list of vertices."""
         return list(self.nodes)
+    
+    def edge_list(self) -> List[Edge]:
+        """Return the list of edges"""
+        return list(self.edges)
 
     def delete_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.remove_node`."""
@@ -192,8 +196,8 @@ class Graph(nx.Graph):
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
 
-        for j in range(K, len(self.vertices()) + 1):
-            for vertex_set in combinations(self.vertices(), j):
+        for j in range(K, self.number_of_nodes() + 1):
+            for vertex_set in combinations(self.nodes, j):
                 G = self.subgraph(vertex_set)
                 if len(G.edges) > K * len(G.nodes) - L:
                     return False
@@ -275,7 +279,7 @@ class Graph(nx.Graph):
                 f"The dimension needs to be a positive integer, but is {dim}!")
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        for vertex_set in combinations(self.vertices(), k):
+        for vertex_set in combinations(self.nodes, k):
             G = deepcopy(self)
             G.delete_vertices(vertex_set)
             if not G.is_rigid(dim):
@@ -334,7 +338,7 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.is_connected()
         elif dim == 2 and combinatorial:
-            deficiency = -(2 * len(self.vertices()) - 3) + len(self.edges)
+            deficiency = -(2 * self.number_of_nodes() - 3) + len(self.edges)
             if deficiency < 0:
                 return False
             else:
@@ -346,14 +350,14 @@ class Graph(nx.Graph):
                 return False
         elif not combinatorial:
             from pyrigi.framework import Framework
-            N = 10 * len(self.vertices())**2 * dim
+            N = 10 * self.number_of_nodes()**2 * dim
             realization = {
                 vertex: [
                     randrange(
                         1,
                         N) for _ in range(
                         0,
-                        dim)] for vertex in self.vertices()}
+                        dim)] for vertex in self.nodes}
             F = Framework(self, realization, dim)
             return F.is_inf_rigid()
         else:
@@ -396,14 +400,14 @@ class Graph(nx.Graph):
             return self.is_tight(2, 3)
         elif not combinatorial:
             from pyrigi.framework import Framework
-            N = 10 * len(self.vertices())**2 * dim
+            N = 10 * self.number_of_nodes()**2 * dim
             realization = {
                 vertex: [
                     randrange(
                         1,
                         N) for _ in range(
                         0,
-                        dim)] for vertex in self.vertices()}
+                        dim)] for vertex in self.nodes}
             F = Framework(self, realization, dim)
             return F.is_min_inf_rigid()
         else:
@@ -528,14 +532,13 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
 
-        if len(self.vertices()) <= dim:
+        if self.number_of_nodes() <= dim:
             return []
         if self.is_rigid():
             return [self]
         max_subgraphs = []
         for vertex_subset in combinations(
-            self.vertices(), len(
-                self.vertices()) - 1):
+            self.nodes, self.number_of_nodes() - 1):
             G = self.subgraph(vertex_subset)
             max_subgraphs = [
                 j for i in [
@@ -583,15 +586,14 @@ class Graph(nx.Graph):
                 f"The dimension needs to be a positive integer, but is {dim}!")
 
         min_subgraphs = []
-        if len(self.vertices()) <= 2:
+        if self.number_of_nodes() <= 2:
             return []
-        elif len(self.vertices()) == dim + 1 and self.is_rigid():
+        elif self.number_of_nodes() == dim + 1 and self.is_rigid():
             return [self]
-        elif len(self.vertices()) == dim + 1:
+        elif self.number_of_nodes() == dim + 1:
             return []
         for vertex_subset in combinations(
-            self.vertices(), len(
-                self.vertices()) - 1):
+            self.nodes, self.number_of_nodes() - 1):
             G = self.subgraph(vertex_subset)
             subgraphs = G.min_rigid_subgraphs(dim)
             if len(subgraphs) == 0 and G.is_rigid():
@@ -742,15 +744,14 @@ class Graph(nx.Graph):
         """
         try:
             if vertex_order is None:
-                vertex_order = sorted(self.vertices())
+                vertex_order = sorted(self.nodes)
             else:
-                if not set(
-                        self.vertices()) == set(vertex_order) or not len(
-                        self.vertices()) == len(vertex_order):
+                if (not set(self.nodes) == set(vertex_order)
+                    or not self.number_of_nodes() == len(vertex_order)):
                     raise IndexError(
                         "The vertex_order needs to contain the same vertices as the graph!")
         except TypeError as error:
-            vertex_order = self.vertices()
+            vertex_order = self.vertex_list()
 
         row_list = []
         for vertex in vertex_order:
