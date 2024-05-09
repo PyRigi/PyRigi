@@ -68,7 +68,10 @@ def test_str():
     G = Graph([(chr(i + 67), i + 1) for i in range(3)] + [(i, i + 1) for i in range(3)])
     assert (
         str(G)
-        == "Graph with vertices ['C', 1, 'D', 2, 'E', 3, 0] and edges [('C', 1), (1, 0), (1, 2), ('D', 2), (2, 3), ('E', 3)]"
+        == (
+            "Graph with vertices ['C', 1, 'D', 2, 'E', 3, 0] "
+            "and edges [('C', 1), (1, 0), (1, 2), ('D', 2), (2, 3), ('E', 3)]"
+        )
     )
     G = Graph.from_vertices(["C", 1, "D", 2, "E", 3, 0])
     assert str(G) == "Graph with vertices ['C', 1, 'D', 2, 'E', 3, 0] and edges []"
