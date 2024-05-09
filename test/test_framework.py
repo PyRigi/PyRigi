@@ -5,13 +5,13 @@ def test_dimension():
     F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
     assert F.dim() == F.dimension()
     assert F.dim() == 2
-    F_ = Framework(dim=3)
+    F_ = Framework.Empty(dim=3)
     assert F_.dim() == 3
 
 def test_vertex_addition():
-    F = Framework()
+    F = Framework.Empty()
     F.add_vertices([[1., 2.0], [1.0, 1.0], [0.0, 0.0]])
-    F_ = Framework()
+    F_ = Framework.Empty()
     F_.add_vertices([[1., 2.0], [1.0, 1.0], [0.0, 0.0]])
     F_.set_realization(F.get_realization())
     assert (

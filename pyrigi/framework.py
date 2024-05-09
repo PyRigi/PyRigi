@@ -40,9 +40,10 @@ class Framework(object):
     graph
     realization:
         A dictionary mapping the vertices of the graph to points in $\RR^d$.
-    dim:
-        The dimension is usually initialized by the realization. If
-        the realization is empty, the dimension is 0 by default.
+        The dimension `d` is retrieved from the points in realization.
+        If `graph` is empty, and hence also the `realization`,
+        the dimension is set to 0 (:meth:`Framework.Empty` 
+        can be used to construct an empty framework with different dimension).
 
     Notes
     -----
@@ -61,35 +62,30 @@ class Framework(object):
     """
 
     def __init__(self,
-                 graph: Graph = Graph(),
-                 realization: Dict[Vertex, Point] = {},
-                 dim: int = 2) -> None:
+                 graph: Graph,
+                 realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph")
         if not len(realization.keys()) == len(graph.vertices()):
             raise KeyError(
                 "The length of realization has to be equal to the number of vertices of graph")
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
 
-        if len(realization.values()) == 0:
-            dimension = dim
+        if realization:
+            self._dim = len(list(realization.values())[0])
         else:
-            dimension = len(list(realization.values())[0])
+            self._dim = 0
 
         for v in graph.vertices():
             if v not in realization:
                 raise KeyError(
                     f"Vertex {v} is not contained in the realization")
-            if not len(realization[v]) == dimension:
+            if not len(realization[v]) == self._dim:
                 raise ValueError(
                     f"The point {realization[v]} in the realization that vertex {v} corresponds to does not have the right dimension")
 
         self._realization = {v: Matrix(realization[v])
                              for v in graph.vertices()}
         self._graph = deepcopy(graph)
-        self._dim = dimension
 
     def __str__(self) -> str:
         """
@@ -154,7 +150,7 @@ class Framework(object):
     def add_vertices(self,
                      points: List[Point],
                      vertices: List[Vertex] = []) -> None:
-        """
+        r"""
         Add a list of vertices to the framework.
 
         Parameters
@@ -272,7 +268,7 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.from_graph(Graph([(0,1), (1,2), (0,2)]), dim=2)
+        >>> F = Framework.from_graph(Graph([(0,1), (1,2), (0,2)]))
         >>> print(F)
         Graph:          Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
         Realization:    {0: (65.0, 13.0), 1: (110.0, 64.0), 2: (54.0, 80.0)}
@@ -290,7 +286,7 @@ class Framework(object):
         return Framework(graph=graph, realization=realization)
 
     @classmethod
-    def Empty(cls, dim: int) -> None:
+    def Empty(cls, dim: int = 2) -> None:
         """
         Generate an empty framework.
 
@@ -303,10 +299,12 @@ class Framework(object):
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!")
-        return Framework(graph=Graph(), realization={}, dim=dim)
+        F = Framework(graph=Graph(), realization={})
+        F._dim = dim
+        return F
 
     @classmethod
-    def Complete(cls, points: List[Point] = [], dim: int = 2) -> None:
+    def Complete(cls, points: List[Point]) -> None:
         """
         Generate a framework on the complete graph from a given list of points.
 
@@ -322,22 +320,19 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.Complete([(1,),(2,),(3,),(4,)], dim=1)
+        >>> F = Framework.Complete([(1,),(2,),(3,),(4,)])
         >>> print(F)
         Graph:          Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
         Realization:    {0: (1.0,), 1: (2.0,), 2: (3.0,), 3: (4.0,)}
         dim:            1
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!")
         if not points:
-            raise ValueError("The realization cannot be empty.")
+            raise ValueError("The list of points cannot be empty.")
 
-        Kn = Graph.complete_graph(len(points))
+        Kn = Graph.Complete(len(points))
         realization = {(Kn.vertices())[i]: Matrix(
             points[i]) for i in range(len(points))}
-        return Framework(graph=Kn, realization=realization, dim=dim)
+        return Framework(graph=Kn, realization=realization)
 
     def delete_vertex(self, vertex: Vertex) -> None:
         """
@@ -393,7 +388,7 @@ class Framework(object):
         return self.get_realization()
 
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
-        """
+        r"""
         Change the realization of the framework.
 
         Parameters
@@ -644,11 +639,10 @@ class Framework(object):
         ]
         """
         vertices = self._graph.vertices()
-        Kn = Graph.complete_graph_on_vertices(vertices)
+        Kn = Graph.CompleteOnVertices(vertices)
         F_Kn = Framework(
             graph=Kn,
-            realization=self.realization(),
-            dim=self.dim())
+            realization=self.realization())
         return F_Kn.inf_flexes(
             pinned_vertices=pinned_vertices,
             include_trivial=True)
