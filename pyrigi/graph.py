@@ -27,13 +27,13 @@ class Graph(nx.Graph):
     --------
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> print(G)
-    Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 3), (1, 2), (2, 3)]
-    >>> G_ = Graph()
-    >>> G_.add_vertices([0,2,5,7,'a'])
-    >>> G_.add_edges([(0,7), (2,5)])
-    >>> print(G)
-    Vertices: [0, 2, 5, 7, 'a'],    Edges: [(0, 7), (2, 5)]
+    Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]]
 
+    >>> G = Graph()
+    >>> G.add_vertices([0,2,5,7,'a'])
+    >>> G.add_edges([(0,7), (2,5)])
+    >>> print(G)
+    Graph with vertices [0, 2, 5, 7, 'a'] and edges [[0, 7], [2, 5]]
 
     Notes
     -----
@@ -538,12 +538,12 @@ class Graph(nx.Graph):
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
         >>> G.max_rigid_subgraphs()
         []
-        >>> G_ = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
-        >>> G_.is_rigid()
+
+        >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
+        >>> G.is_rigid()
         False
-        >>> [print(entry) for entry in G.max_rigid_subgraphs()]
-        Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
-        Vertices: [3, 4, 5],    Edges: [(3, 4), (3, 5), (4, 5)]
+        >>> G.max_rigid_subgraphs()
+        [Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]], Graph with vertices [3, 4, 5] and edges [[3, 4], [3, 5], [4, 5]]]
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -593,8 +593,8 @@ class Graph(nx.Graph):
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,3), (4,1), (5,2)])
         >>> G.is_rigid()
         True
-        >>> [print(entry) for entry in G.min_rigid_subgraphs()]
-        Vertices: [0, 1, 2, 3, 4, 5],   Edges: [(0, 1), (0, 5), (0, 3), (1, 2), (1, 4), (2, 3), (2, 5), (3, 4), (4, 5)]
+        >>> G.min_rigid_subgraphs()
+        [Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 3], [0, 5], [1, 2], [1, 4], [2, 3], [2, 5], [3, 4], [4, 5]]]
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -710,7 +710,7 @@ class Graph(nx.Graph):
         >>> M = Matrix([[0,1],[1,0]])
         >>> G = Graph.from_adjacency_matrix(M)
         >>> print(G)
-        Vertices: [0, 1],       Edges: []
+        Graph with vertices [0, 1] and edges [[0,1]]
         """
         if not shape(M)[0] == shape(M)[1]:
             raise TypeError("Adjacency matrix does not have the right format!")

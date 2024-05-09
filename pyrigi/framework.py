@@ -56,10 +56,11 @@ class Framework(object):
     Examples
     --------
     >>> F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
-    >>> print(F)
-    Graph:          Vertices: [0, 1],       Edges: [(0, 1)]
-    Realization:    {0: (1.0, 2.0), 1: (0.0, 5.0)}
-    dim:            2
+    >>> F
+    Framework in 2-dimensional space consisting of:
+    Graph with vertices [0, 1] and edges [[0, 1]]
+    Realization {0:(1, 2), 1:(0, 5)}
+
     """
 
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
@@ -130,10 +131,10 @@ class Framework(object):
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertex((1.5,2), 'a')
         >>> F.add_vertex((3,1))
-        >>> print(F)
-        Graph:          Vertices: ['a', 1],     Edges: []
-        Realization:    {'a': (1.5, 2.0), 1: (3.0, 1.0)}
-        dim:            2
+        >>> F
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices ['a', 1] and edges []
+        Realization {a:(1.50000000000000, 2), 1:(3, 1)}
         """
         if vertex is None:
             candidate = self._graph.number_of_nodes()
@@ -171,9 +172,9 @@ class Framework(object):
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1.5,2), (3,1)], ['a',0])
         >>> print(F)
-        Graph:          Vertices: ['a', 1],     Edges: []
-        Realization:    {'a': (1.5, 2.0), 1: (3.0, 1.0)}
-        dim:            2
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices ['a', 0] and edges []
+        Realization {a:(1.50000000000000, 2), 0:(3, 1)}
         """
         if not (len(points) == len(vertices) or not vertices):
             raise IndexError("The vertex list does not have the correct length!")
@@ -249,9 +250,9 @@ class Framework(object):
         --------
         >>> F = Framework.from_points([(1,2), (2,3)])
         >>> print(F)
-        Graph:          Vertices: [0, 1],       Edges: []
-        Realization:    {0: (1.0, 2.0), 1: (2.0, 3.0)}
-        dim:            2
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1] and edges []
+        Realization {0:(1, 2), 1:(2, 3)}
         """
         vertices = range(len(points))
         realization = {v: points[v] for v in vertices}
@@ -260,17 +261,17 @@ class Framework(object):
         return Framework(graph=G, realization=realization)
 
     @classmethod
-    def from_graph(cls, graph: Graph, dim: int) -> None:
+    def from_graph(cls, graph: Graph, dim: int = 2) -> None:
         """
-        Return the framework given by the given graph and a random realization of the latter in the given dimension.
+        Return a framework with random realization.
 
         Examples
         --------
         >>> F = Framework.from_graph(Graph([(0,1), (1,2), (0,2)]))
-        >>> print(F)
-        Graph:          Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
-        Realization:    {0: (65.0, 13.0), 1: (110.0, 64.0), 2: (54.0, 80.0)}
-        dim:            2
+        >>> print(F) # doctest: +SKIP
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        Realization {0:(122, 57), 1:(27, 144), 2:(50, 98)}
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -321,10 +322,11 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(1,),(2,),(3,),(4,)])
-        >>> print(F)
-        Graph:          Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
-        Realization:    {0: (1.0,), 1: (2.0,), 2: (3.0,), 3: (4.0,)}
-        dim:            1
+        >>> F
+        Framework in 1-dimensional space consisting of:
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
+        Realization {0:(1,), 1:(2,), 2:(3,), 3:(4,)}
+
         """
         if not points:
             raise ValueError("The list of points cannot be empty.")
@@ -410,9 +412,9 @@ class Framework(object):
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
         >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertex_list()})
         >>> print(F)
-        Graph:          Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
-        Realization:    {0: (0.0, 1.0), 1: (1.0, 2.0), 2: (2.0, 3.0)}
-        dim:            2
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        Realization {0:(0, 1), 1:(1, 2), 2:(2, 3)}
         """
         if not len(realization) == self._graph.number_of_nodes():
             raise IndexError(
@@ -436,9 +438,9 @@ class Framework(object):
         >>> F = Framework.from_points([(0,0)])
         >>> F.change_vertex_coordinates(0, (6,2))
         >>> print(F)
-        Graph:          Vertices: [0],  Edges: []
-        Realization:    {0: (6.0, 2.0)}
-        dim:            2
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0] and edges []
+        Realization {0:(6, 2)}
         """
         if vertex not in self._realization:
             raise KeyError("Vertex {vertex} is not a key of the given realization!")
@@ -789,7 +791,6 @@ class Framework(object):
         for edge in self.graph().edges:
             F = deepcopy(self)
             F.delete_edge(edge)
-            print(F)
             if F.is_inf_rigid():
                 return False
         return True
