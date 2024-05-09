@@ -414,12 +414,12 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
-        >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertex_list()}) # noqa: E501
+        >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertex_list()})
         >>> print(F)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 1), 1:(1, 2), 2:(2, 3)}
-        """
+        """  # noqa: E501
         if not len(realization) == self._graph.number_of_nodes():
             raise IndexError(
                 "The realization does not contain the correct amount of vertices!"
@@ -830,13 +830,13 @@ class Framework(object):
 
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
-        >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')]) # noqa: E501
+        >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
         >>> F.is_redundantly_rigid()
         True
         >>> F.delete_edge(('a','c'))
         >>> F.is_redundantly_rigid()
         False
-        """
+        """  # noqa: E501
         for edge in self._graph.edges:
             F = deepcopy(self)
             F.delete_edge(edge)
