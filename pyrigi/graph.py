@@ -27,13 +27,13 @@ class Graph(nx.Graph):
     --------
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> print(G)
-    Vertices: [0, 1, 2, 3], Edges: [(0, 1), (0, 3), (1, 2), (2, 3)]
-    >>> G_ = Graph()
-    >>> G_.add_vertices([0,2,5,7,'a'])
-    >>> G_.add_edges([(0,7), (2,5)])
-    >>> print(G)
-    Vertices: [0, 2, 5, 7, 'a'],    Edges: [(0, 7), (2, 5)]
+    Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]]
 
+    >>> G = Graph()
+    >>> G.add_vertices([0,2,5,7,'a'])
+    >>> G.add_edges([(0,7), (2,5)])
+    >>> print(G)
+    Graph with vertices [0, 2, 5, 7, 'a'] and edges [[0, 7], [2, 5]]
 
     Notes
     -----
@@ -72,30 +72,18 @@ class Graph(nx.Graph):
 
     def __str__(self) -> str:
         """
-        Return the string representation of a graph.
-
-        Notes
-        -----
-        We try to sort the vertices and edges in the graph. If this fails,
-        the internal order is used instead.
+        Return the string representation.
         """
-        try:
-            vertices_str = str(sorted(self.nodes))
-            edges_str = "["
-            for edge in self.edges:
-                if edge[0] < edge[1]:
-                    edges_str += str(edge)
-                else:
-                    edges_str += str((edge[1], edge[0]))
+        return (
+            self.__class__.__name__
+            + f" with vertices {self.vertex_list()} and edges {self.edge_list()}"
+        )
 
-                if not edge == list(self.edges)[len(self.edges) - 1]:
-                    edges_str += ", "
-            edges_str += "]"
-        except BaseException:
-            vertices_str = str(self.vertex_list())
-            edges_str = str(self.edges)
-
-        return "Vertices: " + vertices_str + ",\t" + "Edges: " + edges_str
+    def __repr__(self) -> str:
+        """
+        Return a representation.
+        """
+        return self.__str__()
 
     @classmethod
     def from_vertices_and_edges(
@@ -123,7 +111,16 @@ class Graph(nx.Graph):
 
     @classmethod
     def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
-        """Create a graph with no edges from a list of vertices."""
+        """
+        Create a graph with no edges from a list of vertices.
+
+        Examples
+        --------
+        >>> from pyrigi import Graph
+        >>> G = Graph.from_vertices([3, 1, 7, 2, 12, 3, 0])
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 7, 12] and edges []
+        """
         return Graph.from_vertices_and_edges(vertices, [])
 
     @classmethod
@@ -148,12 +145,28 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     def vertex_list(self) -> List[Vertex]:
-        """Return the list of vertices."""
-        return list(self.nodes)
+        """
+        Return the list of vertices.
+
+        The output is sorted if possible,
+        otherwise, the internal order is used instead.
+        """
+        try:
+            return sorted(self.nodes)
+        except BaseException:
+            return list(self.nodes)
 
     def edge_list(self) -> List[Edge]:
-        """Return the list of edges"""
-        return list(self.edges)
+        """
+        Return the list of edges.
+
+        The output is sorted if possible,
+        otherwise, the internal order is used instead.
+        """
+        try:
+            return sorted([sorted(e) for e in self.edges])
+        except BaseException:
+            return list(self.edges)
 
     def delete_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.remove_node`."""
@@ -525,12 +538,12 @@ class Graph(nx.Graph):
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
         >>> G.max_rigid_subgraphs()
         []
-        >>> G_ = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
-        >>> G_.is_rigid()
+
+        >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
+        >>> G.is_rigid()
         False
-        >>> [print(entry) for entry in G.max_rigid_subgraphs()]
-        Vertices: [0, 1, 2],    Edges: [(0, 1), (0, 2), (1, 2)]
-        Vertices: [3, 4, 5],    Edges: [(3, 4), (3, 5), (4, 5)]
+        >>> G.max_rigid_subgraphs()
+        [Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]], Graph with vertices [3, 4, 5] and edges [[3, 4], [3, 5], [4, 5]]]
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -580,8 +593,8 @@ class Graph(nx.Graph):
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,3), (4,1), (5,2)])
         >>> G.is_rigid()
         True
-        >>> [print(entry) for entry in G.min_rigid_subgraphs()]
-        Vertices: [0, 1, 2, 3, 4, 5],   Edges: [(0, 1), (0, 5), (0, 3), (1, 2), (1, 4), (2, 3), (2, 5), (3, 4), (4, 5)]
+        >>> G.min_rigid_subgraphs()
+        [Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 3], [0, 5], [1, 2], [1, 4], [2, 3], [2, 5], [3, 4], [4, 5]]]
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -697,7 +710,7 @@ class Graph(nx.Graph):
         >>> M = Matrix([[0,1],[1,0]])
         >>> G = Graph.from_adjacency_matrix(M)
         >>> print(G)
-        Vertices: [0, 1],       Edges: []
+        Graph with vertices [0, 1] and edges [[0,1]]
         """
         if not shape(M)[0] == shape(M)[1]:
             raise TypeError("Adjacency matrix does not have the right format!")
