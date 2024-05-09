@@ -28,13 +28,26 @@ These are the tasks to be performed:
 ### PEP8
 
 We follow [PEP8](https://peps.python.org/pep-0008/) indications regarding Python code format.
-To check whether the code is PEP8-compliant, one can use [`pycodestyle`](https://pycodestyle.pycqa.org).
-There are tools that format code according to PEP8 indications, as for example [`autopep8`](https://pypi.org/project/autopep8/), which we reccommend     to run as
+To check whether the code is PEP8-compliant, one can use [`pycodestyle`](https://pycodestyle.pycqa.org)
+or [flake8](https://pycodestyle.pycqa.org).
+There are tools that format code according to PEP8 indications,
+we use [`black`](https://black.readthedocs.io)
+that can be run as
 ```
-autopep8 --in-place --aggressive --aggressive <filename>
+black .
 ```
-(as suggested in the documentation) to modify the files in place.
-Another, more stringent, tool is [`black`](https://black.readthedocs.io).
+in the root folder to modify the files in place.
+
+The lines in the source code can be at most 90 characters long.
+The only exceptions are lines in docstrings that might be longer
+due to long output in an example or a reference.
+To avoid checking them by the automatic tests for pull requests,
+use `noqa` like this:
+```python
+"""
+veeeeery long docstring that has to violate the 90 characters limit due to a reference or an example
+"""  # noqa: E501
+```
 
 ### Testing
 
