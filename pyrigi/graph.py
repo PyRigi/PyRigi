@@ -488,7 +488,8 @@ class Graph(nx.Graph):
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim=2: Remove any edge and it becomes sparse (sparsity for every subgraph except whole graph?) # noqa: E501
+         * dim=2: Remove any edge and it becomes sparse
+           (sparsity for every subgraph except whole graph?)
          * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
         """
         if not isinstance(dim, int) or dim < 1:

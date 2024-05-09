@@ -81,8 +81,8 @@ class Framework(object):
                 raise KeyError(f"Vertex {v} is not contained in the realization")
             if not len(realization[v]) == self._dim:
                 raise ValueError(
-                    f"The point {realization[v]} in the realization corrisponding to "
-                    f"vertex {v} does not have the right dimension"
+                    f"The point {realization[v]} in the realization corresponding to "
+                    f"vertex {v} does not have the right dimension."
                 )
 
         self._realization = {v: Matrix(realization[v]) for v in graph.nodes}
@@ -258,7 +258,8 @@ class Framework(object):
 
         Notes
         -----
-        The list of vertices of the underlying graph is taken to be `[0,...,len(points)]`. # noqa: E501
+        The list of vertices of the underlying graph
+        is taken to be `[0,...,len(points)]`.
         The underlying graph has no edges.
 
         Examples
@@ -333,7 +334,8 @@ class Framework(object):
 
         Notes
         -----
-        The vertices of the underlying graph are taken to be the list `[0,...,len(points)]`. # noqa: E501
+        The vertices of the underlying graph are taken
+        to be the list `[0,...,len(points)]`.
 
         Examples
         --------
@@ -474,8 +476,7 @@ class Framework(object):
         self, vertices: List[Vertex], points: List[Point]
     ) -> None:
         """
-        Apply the method :meth:`~Framework.change_vertex_coordinates`
-        to a list of vertices and points.
+        Change the coordinates of a given list of vertices.
 
         Notes
         -----
@@ -483,6 +484,8 @@ class Framework(object):
         No vertex from `vertices` can be contained multiple times.
         For an explanation of `vertices` and `points`,
         see :meth:`~Framework.add_vertices`.
+        We apply the method :meth:`~Framework.change_vertex_coordinates`
+        to `vertices` and `points`.
         """
         if list(set(vertices)).sort() != list(vertices).sort():
             raise ValueError("Mulitple Vertices with the same name were found!")
@@ -499,8 +502,7 @@ class Framework(object):
 
     def change_realization(self, subset_of_realization: Dict[Vertex, Point]):
         """
-        Apply the method :meth:`~Framework.change_vertex_coordinates_list`
-        with a dictionary as input, rather than a list of vertices and points.
+        Change the coordinates of vertices given by a dictionary.
         """
         self.change_vertex_coordinates_list(
             subset_of_realization.keys(), subset_of_realization.values()
@@ -691,9 +693,16 @@ class Framework(object):
         self, pinned_vertices: Dict[Vertex, List[int]] = {}
     ) -> List[Matrix]:
         """
-        Return the entries of the rigidity matrix' kernel
-        that are not trivial infinitesimal flexes.
-        See :meth:`~Framework.trivial_inf_flexes`
+        Return non-trivial infinitesimal flexes.
+
+        Definitions
+        -----------
+        :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
+
+
+        Notes
+        -----
+        See :meth:`~Framework.trivial_inf_flexes`.
         """
         return self.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=False)
 
@@ -721,7 +730,8 @@ class Framework(object):
         pinned_vertices:
             see :meth:`~Framework.rigidity_matrix`
         include_trivial:
-            Boolean that decides, whether the trivial motions should be included `True` or not (`False`) # noqa: E501
+            Boolean that decides, whether the trivial motions should
+            be included (`True`) or not (`False`)
 
         Examples
         --------
