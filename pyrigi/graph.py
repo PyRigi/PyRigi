@@ -72,12 +72,18 @@ class Graph(nx.Graph):
 
     def __str__(self) -> str:
         """
-        Return the string representation of a graph.
+        Return the string representation.
         """
         return (
             self.__class__.__name__
             + f" with vertices {self.vertex_list()} and edges {self.edge_list()}"
         )
+
+    def __repr__(self) -> str:
+        """
+        Return a representation.
+        """
+        return self.__str__()
 
     @classmethod
     def from_vertices_and_edges(
