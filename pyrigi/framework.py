@@ -87,35 +87,20 @@ class Framework(object):
         self._graph = deepcopy(graph)
 
     def __str__(self) -> str:
-        """
-        Return the string representation of a framework.
-
-        Notes
-        -----
-        We try to order the vertices in the realization for the display. If this fails for
-        whatever reason, the internal order is used instead.
-        """
-        try:
-            realization_str = str(
-                {
-                    key: self.get_realization_list()[key]
-                    for key in sorted(self.get_realization_list())
-                }
-            )
-        except BaseException:
-            realization_str = str(
-                {key: self.get_realization_list()[key] for key in self._graph.nodes}
-            )
+        """Return the string representation."""
         return (
-            "Graph:\t\t"
-            + str(self._graph)
-            + "\n"
-            + "Realization:\t"
-            + realization_str
-            + "\n"
-            + "dim:\t\t"
-            + str(self.dim())
+            self.__class__.__name__
+            + f" in {self.dim()}-dimensional space consisting of:\n{self._graph}\n"
+            + "Realization {"
+            + ", ".join(
+                [f"{v}:{list(self._realization[v])}" for v in self._graph.vertex_list()]
+            )
+            + "}"
         )
+
+    def __repr__(self) -> str:
+        """Return the representation"""
+        return self.__str__()
 
     def dim(self) -> int:
         """Return the dimension of the framework."""
