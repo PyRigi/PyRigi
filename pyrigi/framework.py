@@ -673,8 +673,6 @@ class Framework(object):
         ]
         """
         vertices = self._graph.vertex_list()
-        Kn = Graph.complete_graph_on_vertices(vertices)
-        vertices = self._graph.vertex_list()
         Kn = Graph.CompleteOnVertices(vertices)
         F_Kn = Framework(graph=Kn, realization=self.realization())
         return F_Kn.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=True)
