@@ -12,6 +12,7 @@ import networkx as nx
 from sympy import Matrix, shape
 
 from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
+from pyrigi.misc import doc_category, generate_category_tables
 
 
 class Graph(nx.Graph):
@@ -34,6 +35,8 @@ class Graph(nx.Graph):
     >>> G.add_edges([(0,7), (2,5)])
     >>> print(G)
     Graph with vertices [0, 2, 5, 7, 'a'] and edges [[0, 7], [2, 5]]
+
+    METHODS
 
     Notes
     -----
@@ -86,6 +89,7 @@ class Graph(nx.Graph):
         return self.__str__()
 
     @classmethod
+    @doc_category("Class methods")
     def from_vertices_and_edges(
         cls, vertices: List[Vertex], edges: List[Edge]
     ) -> GraphType:
@@ -111,6 +115,7 @@ class Graph(nx.Graph):
         return G
 
     @classmethod
+    @doc_category("Class methods")
     def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Create a graph with no edges from a list of vertices.
@@ -125,6 +130,7 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, [])
 
     @classmethod
+    @doc_category("Class methods")
     def Complete(cls, n: int) -> GraphType:
         """
         Generate a complete graph on $n$ vertices.
@@ -138,6 +144,7 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @classmethod
+    @doc_category("Class methods")
     def CompleteOnVertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Generate a complete graph on `vertices`.
@@ -169,30 +176,37 @@ class Graph(nx.Graph):
         except BaseException:
             return list(self.edges)
 
+    @doc_category("Graph modifications")
     def delete_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.remove_node`."""
         self.remove_node(vertex)
 
+    @doc_category("Graph modifications")
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         """Alias for :meth:`networkx.Graph.remove_nodes_from`."""
         self.remove_nodes_from(vertices)
 
+    @doc_category("Graph modifications")
     def delete_edge(self, edge: Edge) -> None:
         """Alias for :meth:`networkx.Graph.remove_edge`"""
         self.remove_edge(*edge)
 
+    @doc_category("Graph modifications")
     def delete_edges(self, edges: List[Edge]) -> None:
         """Alias for :meth:`networkx.Graph.remove_edges_from`."""
         self.remove_edges_from(edges)
 
+    @doc_category("Graph modifications")
     def add_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.add_node`."""
         self.add_node(vertex)
 
+    @doc_category("Graph modifications")
     def add_vertices(self, vertices: List[Vertex]) -> None:
         """Alias for :meth:`networkx.Graph.add_nodes_from`."""
         self.add_nodes_from(vertices)
 
+    @doc_category("Graph modifications")
     def add_edges(self, edges: List[Edge]) -> None:
         """Alias for :meth:`networkx.Graph.add_edges_from`."""
         self.add_edges_from(edges)
@@ -221,6 +235,7 @@ class Graph(nx.Graph):
         """
         return self.is_sparse(K, L) and len(self.edges) <= K * len(self.nodes) - L
 
+    @doc_category("Waiting for implementation")
     def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
         """
         Notes
@@ -229,6 +244,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def one_extension(self, vertices: List[Vertex], edge: Edge, dim: int = 2) -> None:
         """
         Notes
@@ -237,6 +253,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def k_extension(
         self, k: int, vertices: List[Vertex], edges: Edge, dim: int = 2
     ) -> None:
@@ -251,6 +268,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def all_k_extensions(self, k: int, dim: int = 2) -> None:
         """
         Return list of all possible k-extensions of the graph.
@@ -261,6 +279,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def extension_sequence(self, dim: int = 2) -> Any:
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -433,6 +452,7 @@ class Graph(nx.Graph):
                 f"but is {dim}"
             )
 
+    @doc_category("Waiting for implementation")
     def is_globally_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`globally dim-rigid
@@ -478,6 +498,7 @@ class Graph(nx.Graph):
             # of vertices.
             raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_Rd_dependent(self, dim: int = 2) -> bool:
         """
         Notes
@@ -488,6 +509,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_Rd_independent(self, dim: int = 2) -> bool:
         """
         Notes
@@ -502,6 +524,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_Rd_circuit(self, dim: int = 2) -> bool:
         """
         Notes
@@ -517,6 +540,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_Rd_closed(self, dim: int = 2) -> bool:
         """
         Notes
@@ -697,6 +721,7 @@ class Graph(nx.Graph):
         return int("".join(upper_diag), 2)
 
     @classmethod
+    @doc_category("Waiting for implementation")
     def from_int(cls, n: int) -> GraphType:
         """
         Return a graph given its integer representation.
@@ -713,6 +738,7 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     @classmethod
+    @doc_category("Class methods")
     def from_adjacency_matrix(cls, M: Matrix) -> GraphType:
         """
         Create a graph from a given adjacency matrix.
@@ -793,3 +819,6 @@ class Graph(nx.Graph):
                     row += [0]
             row_list += [row]
         return Matrix(row_list)
+
+
+Graph.__doc__ = Graph.__doc__.replace("METHODS", generate_category_tables(Graph, 1))
