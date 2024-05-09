@@ -121,6 +121,14 @@ myst_heading_anchors = 3
 tippy_enable_mathjax = True
 tippy_props = {"theme": "light",}
 tippy_enable_doitips = False
+tippy_skip_anchor_classes = ("headerlink", "next-page")
+tippy_anchor_parent_selector = "div.content"
+tippy_props = {
+    "placement": "top",
+    "maxWidth": 500,
+    "interactive": False,
+    "duration": [200, 100],
+    "delay": [800, 500],}
 
 mathjax3_config = {
   "tex": {
