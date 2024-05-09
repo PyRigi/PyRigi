@@ -15,9 +15,9 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(".."))
-
 from sphinx.application import Sphinx
+
+sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
