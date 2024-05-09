@@ -93,7 +93,10 @@ class Framework(object):
             + f" in {self.dim()}-dimensional space consisting of:\n{self._graph}\n"
             + "Realization {"
             + ", ".join(
-                [f"{v}:{list(self._realization[v])}" for v in self._graph.vertex_list()]
+                [
+                    f"{v}:{tuple(self._realization[v])}"
+                    for v in self._graph.vertex_list()
+                ]
             )
             + "}"
         )
