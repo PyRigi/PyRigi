@@ -72,3 +72,17 @@ def test_str():
     )
     G = Graph.from_vertices(["C", 1, "D", 2, "E", 3, 0])
     assert str(G) == "Graph with vertices ['C', 1, 'D', 2, 'E', 3, 0] and edges []"
+
+
+def test_vertex_edge_lists():
+    G = Graph([[2, 1], [2, 3]])
+    assert G.vertex_list() == [1, 2, 3]
+    assert G.edge_list() == [[1, 2], [2, 3]]
+    G = Graph([(chr(i + 67), i + 1) for i in range(3)] + [(i, i + 1) for i in range(3)])
+    assert set(G.vertex_list()) == set(["C", 1, "D", 2, "E", 3, 0])
+    assert set(G.edge_list()) == set(
+        [("C", 1), (1, 0), (1, 2), ("D", 2), (2, 3), ("E", 3)]
+    )
+    G = Graph.from_vertices(["C", 1, "D", 2, "E", 3, 0])
+    assert set(G.vertex_list()) == set(["C", 2, "E", 1, "D", 3, 0])
+    assert G.edge_list() == []
