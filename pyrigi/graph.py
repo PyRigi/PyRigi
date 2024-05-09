@@ -185,7 +185,7 @@ class Graph(nx.Graph):
         self.add_edges_from(edges)
 
     def vertex_connectivity(self) -> int:
-        """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`.""" # noqa: E501
+        """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`."""  # noqa: E501
         return nx.node_connectivity(self)
 
     def is_sparse(self, K: int, L: int) -> bool:
