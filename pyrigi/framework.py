@@ -331,7 +331,7 @@ class Framework(object):
         Framework in 1-dimensional space consisting of:
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
         Realization {0:(1,), 1:(2,), 2:(3,), 3:(4,)}
-        """ # noqa: E501
+        """  # noqa: E501
         if not points:
             raise ValueError("The list of points cannot be empty.")
 
