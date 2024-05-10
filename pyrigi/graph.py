@@ -10,7 +10,7 @@ from random import randrange
 from typing import List, Any
 
 import networkx as nx
-from sympy import Matrix, shape
+from sympy import Matrix
 
 from pyrigi.data_type import Vertex, Edge, GraphType
 from pyrigi.misc import doc_category, generate_category_tables
@@ -763,20 +763,22 @@ class Graph(nx.Graph):
         >>> M = Matrix([[0,1],[1,0]])
         >>> G = Graph.from_adjacency_matrix(M)
         >>> print(G)
-        Graph with vertices [0, 1] and edges [[0,1]]
+        Graph with vertices [0, 1] and edges [[0, 1]]
         """
-        if not shape(M)[0] == shape(M)[1]:
-            raise TypeError("Adjacency matrix does not have the right format!")
-        for i, j in zip(range(shape(M)[0]), range(shape(M)[1])):
+        if not M.is_square:
+            raise TypeError("The matrix is not square!")
+        if not M.is_symmetric():
+            raise TypeError("The matrix is not symmetric.")
+
+        vertices = range(M.cols)
+        edges = []
+        for i, j in combinations(vertices, 2):
             if not (M[i, j] == 0 or M[i, j] == 1):
                 raise TypeError(
                     "The provided adjacency matrix contains entries other than 0 and 1"
                 )
-        vertices = range(shape(M)[0])
-        edges = []
-        for vertex, vertex_ in zip(range(len(vertices)), range(len(vertices))):
-            if M[vertex, vertex_] == 1:
-                edges += [(vertex, vertex_)]
+            if M[i, j] == 1:
+                edges += [(i, j)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @doc_category("General graph theoretical properties")
