@@ -816,7 +816,7 @@ class Graph(nx.Graph):
                     raise IndexError(
                         "The vertex_order must contain the same vertices as the graph!"
                     )
-        except TypeError as error:
+        except TypeError:
             vertex_order = self.vertex_list()
 
         row_list = []

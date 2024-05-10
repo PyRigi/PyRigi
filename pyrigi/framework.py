@@ -573,7 +573,7 @@ class Framework(object):
                         f"The vertex_order needs to contain "
                         f"exactly the same vertices as the graph!"
                     )
-        except TypeError as error:
+        except TypeError:
             vertex_order = self._graph.vertex_list()
 
         for v in vertex_order:

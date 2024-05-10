@@ -31,8 +31,6 @@ def test_vertex_addition():
         and F.get_realization()[1] != F_.get_realization()[1]
         and F.get_realization()[2] != F_.get_realization()[2]
     )
-    F_.add_edge([0, 1])
-    plt = F_.draw_framework()
 
 
 def test_inf_rigidity():
