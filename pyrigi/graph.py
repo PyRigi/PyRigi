@@ -152,6 +152,7 @@ class Graph(nx.Graph):
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
 
+    @doc_category("Attribute getters")
     def vertex_list(self) -> List[Vertex]:
         """
         Return the list of vertices.
@@ -164,6 +165,7 @@ class Graph(nx.Graph):
         except BaseException:
             return list(self.nodes)
 
+    @doc_category("Attribute getters")
     def edge_list(self) -> List[Edge]:
         """
         Return the list of edges.
@@ -211,10 +213,12 @@ class Graph(nx.Graph):
         """Alias for :meth:`networkx.Graph.add_edges_from`."""
         self.add_edges_from(edges)
 
+    @doc_category("General graph theoretical properties")
     def vertex_connectivity(self) -> int:
         """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`."""  # noqa: E501
         return nx.node_connectivity(self)
 
+    @doc_category("Sparseness")
     def is_sparse(self, K: int, L: int) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
@@ -229,6 +233,7 @@ class Graph(nx.Graph):
                     return False
         return True
 
+    @doc_category("Sparseness")
     def is_tight(self, K: int, L: int) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
@@ -287,6 +292,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
@@ -298,6 +304,7 @@ class Graph(nx.Graph):
             )
         return self.is_k_vertex_redundantly_rigid(1, dim)
 
+    @doc_category("Generic rigidity")
     def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
@@ -316,6 +323,7 @@ class Graph(nx.Graph):
                 return False
         return True
 
+    @doc_category("Generic rigidity")
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
@@ -323,6 +331,7 @@ class Graph(nx.Graph):
         """
         return self.is_k_redundantly_rigid(1, dim)
 
+    @doc_category("Generic rigidity")
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
@@ -341,6 +350,7 @@ class Graph(nx.Graph):
                 return False
         return True
 
+    @doc_category("Generic rigidity")
     def is_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
@@ -401,6 +411,7 @@ class Graph(nx.Graph):
                 f"but is {dim}"
             )
 
+    @doc_category("Generic rigidity")
     def is_min_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
@@ -555,6 +566,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Generic rigidity")
     def max_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
         List vertex-maximal rigid subgraphs of the graph.
@@ -611,6 +623,7 @@ class Graph(nx.Graph):
                 clean_list.append(max_subgraphs[i])
         return clean_list
 
+    @doc_category("Generic rigidity")
     def min_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
         List vertex-minimal non-trivial rigid subgraphs of the graph.
@@ -671,6 +684,7 @@ class Graph(nx.Graph):
             clean_list = [self]
         return clean_list
 
+    @doc_category("General graph theoretical properties")
     def is_isomorphic(self, graph: GraphType) -> bool:
         """
         Check whether two graphs are isomorphic.
@@ -688,6 +702,7 @@ class Graph(nx.Graph):
         """
         return nx.is_isomorphic(self, graph)
 
+    @doc_category("Other")
     def graph_to_int(self) -> int:
         r"""
         Return the integer representation of the graph.
@@ -764,6 +779,7 @@ class Graph(nx.Graph):
                 edges += [(vertex, vertex_)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
+    @doc_category("General graph theoretical properties")
     def adjacency_matrix(self, vertex_order: List[Vertex] = None) -> Matrix:
         """
         Return the adjacency matrix of the graph.
@@ -821,4 +837,6 @@ class Graph(nx.Graph):
         return Matrix(row_list)
 
 
-Graph.__doc__ = Graph.__doc__.replace("METHODS", generate_category_tables(Graph, 1))
+Graph.__doc__ = Graph.__doc__.replace(
+    "METHODS", generate_category_tables(Graph, 1, include_all=False)
+)

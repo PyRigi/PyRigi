@@ -241,6 +241,7 @@ class Framework(object):
         """Alias for :meth:`~Framework.underlying_graph`"""
         return self.underlying_graph()
 
+    @doc_category("Plotting")
     def draw_framework(self) -> None:
         """
         Plot the framework.
@@ -895,5 +896,5 @@ class Framework(object):
 
 
 Framework.__doc__ = Framework.__doc__.replace(
-    "METHODS", generate_category_tables(Framework, 1, include_all=True)
+    "METHODS", generate_category_tables(Framework, 1, include_all=False)
 )
