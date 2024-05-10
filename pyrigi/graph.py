@@ -821,21 +821,10 @@ class Graph(nx.Graph):
         except TypeError:
             vertex_order = self.vertex_list()
 
-        row_list = []
-        for vertex in vertex_order:
-            row = []
-            edge_indicator = False
-            for vertex_ in vertex_order:
-                for edge in self.edges:
-                    if (edge[0] == vertex and edge[1] == vertex_) or (
-                        edge[1] == vertex and edge[0] == vertex_
-                    ):
-                        row += [1]
-                        edge_indicator = True
-                        break
-                if not edge_indicator:
-                    row += [0]
-            row_list += [row]
+        row_list = [
+            [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order
+        ]
+
         return Matrix(row_list)
 
 
