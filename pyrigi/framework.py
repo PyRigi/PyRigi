@@ -13,15 +13,15 @@ Classes:
 """
 
 from __future__ import annotations
+from typing import List, Any, Dict
 
 from copy import deepcopy
-from itertools import combinations
 from random import randrange
 
 import networkx as nx
 from sympy import Matrix, flatten
 
-from pyrigi.data_type import Vertex, Edge, Point, List, Any, Dict
+from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.graph import Graph
 from pyrigi.misc import doc_category, generate_category_tables
 

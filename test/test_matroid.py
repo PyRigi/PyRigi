@@ -1,4 +1,4 @@
-from pyrigi.matroid import Matroid, LinearMatroid
+from pyrigi.matroid import LinearMatroid
 from sympy import Matrix
 
 

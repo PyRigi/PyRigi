@@ -4,7 +4,6 @@ This is the module for matroid functionality.
 
 from copy import deepcopy
 
-from sympy import Matrix
 from networkx import minimum_spanning_tree
 
 from pyrigi.graph import Graph

@@ -7,11 +7,12 @@ from __future__ import annotations
 from copy import deepcopy
 from itertools import combinations
 from random import randrange
+from typing import List, Any
 
 import networkx as nx
 from sympy import Matrix, shape
 
-from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
+from pyrigi.data_type import Vertex, Edge, GraphType
 from pyrigi.misc import doc_category, generate_category_tables
 
 
@@ -503,7 +504,6 @@ class Graph(nx.Graph):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
-            from pyrigi.framework import Framework
 
             # Random sampling from [1,N] for N depending quadratically on number
             # of vertices.
