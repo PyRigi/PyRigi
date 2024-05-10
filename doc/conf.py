@@ -79,7 +79,7 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_preprocess_types = True
-napoleon_custom_sections = ["Definitions"]
+napoleon_custom_sections = ["Definitions", "Methods"]
 
 autodoc_type_aliases = {
     "Vertex": "Vertex",

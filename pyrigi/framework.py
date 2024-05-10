@@ -23,6 +23,7 @@ from sympy import Matrix, flatten
 
 from pyrigi.data_type import Vertex, Edge, Point, List, Any, Dict
 from pyrigi.graph import Graph
+from pyrigi.misc import doc_category, generate_category_tables
 
 
 class Framework(object):
@@ -46,13 +47,6 @@ class Framework(object):
         the dimension is set to 0 (:meth:`Framework.Empty`
         can be used to construct an empty framework with different dimension).
 
-    Notes
-    -----
-    Internally, the realization is represented as a dictionary of
-    matrices ("vectors"). However, there is a method available for
-    transforming the realization to a more human-friendly format
-    (see :meth:`~Framework.get_realization_list`)
-
     Examples
     --------
     >>> F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
@@ -61,6 +55,14 @@ class Framework(object):
     Graph with vertices [0, 1] and edges [[0, 1]]
     Realization {0:(1, 2), 1:(0, 5)}
 
+    METHODS
+
+    Notes
+    -----
+    Internally, the realization is represented as a dictionary of
+    matrices ("vectors"). However, there is a method available for
+    transforming the realization to a more human-friendly format
+    (see :meth:`~Framework.get_realization_list`)
     """
 
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
@@ -108,14 +110,17 @@ class Framework(object):
         """Return the representation"""
         return self.__str__()
 
+    @doc_category("Attribute getters")
     def dim(self) -> int:
         """Return the dimension of the framework."""
         return self._dim
 
+    @doc_category("Attribute getters")
     def dimension(self) -> int:
         """Alias for :meth:`~Framework.dim`"""
         return self.dim()
 
+    @doc_category("Framework manipulation")
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         """
         Add a vertex to the framework with the corresponding coordinates.
@@ -151,6 +156,7 @@ class Framework(object):
         self._realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
 
+    @doc_category("Framework manipulation")
     def add_vertices(self, points: List[Point], vertices: List[Vertex] = []) -> None:
         r"""
         Add a list of vertices to the framework.
@@ -188,6 +194,7 @@ class Framework(object):
             for p, v in zip(points, vertices):
                 self.add_vertex(p, v)
 
+    @doc_category("Framework manipulation")
     def add_edge(self, edge: Edge) -> None:
         """
         Add an edge to the framework.
@@ -210,6 +217,7 @@ class Framework(object):
             )
         self._graph.add_edge(*(edge))
 
+    @doc_category("Framework manipulation")
     def add_edges(self, edges: List[Edge]) -> None:
         """
         Add a list of edges to the framework.
@@ -221,16 +229,19 @@ class Framework(object):
         for edge in edges:
             self.add_edge(edge)
 
+    @doc_category("Attribute getters")
     def underlying_graph(self) -> Graph:
         """
         Return a copy of the framework's underlying graph.
         """
         return deepcopy(self._graph)
 
+    @doc_category("Attribute getters")
     def graph(self) -> Graph:
         """Alias for :meth:`~Framework.underlying_graph`"""
         return self.underlying_graph()
 
+    @doc_category("Plotting")
     def draw_framework(self) -> None:
         """
         Plot the framework.
@@ -241,6 +252,7 @@ class Framework(object):
         nx.draw(self._graph, pos=self.get_realization_list())
 
     @classmethod
+    @doc_category("Class methods")
     def from_points(cls, points: List[Point]) -> None:
         """
         Generate a framework from a list of points.
@@ -266,6 +278,7 @@ class Framework(object):
         return Framework(graph=G, realization=realization)
 
     @classmethod
+    @doc_category("Class methods")
     def from_graph(cls, graph: Graph, dim: int = 2) -> None:
         """
         Return a framework with random realization.
@@ -291,6 +304,7 @@ class Framework(object):
         return Framework(graph=graph, realization=realization)
 
     @classmethod
+    @doc_category("Class methods")
     def Empty(cls, dim: int = 2) -> None:
         """
         Generate an empty framework.
@@ -310,6 +324,7 @@ class Framework(object):
         return F
 
     @classmethod
+    @doc_category("Class methods")
     def Complete(cls, points: List[Point]) -> None:
         """
         Generate a framework on the complete graph from a given list of points.
@@ -341,6 +356,7 @@ class Framework(object):
         }
         return Framework(graph=Kn, realization=realization)
 
+    @doc_category("Framework manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
         """
         Delete a vertex from the framework.
@@ -348,6 +364,7 @@ class Framework(object):
         self._graph.delete_vertex(vertex)
         del self._realization[vertex]
 
+    @doc_category("Framework manipulation")
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         """
         Delete a list of vertices from the framework.
@@ -355,18 +372,21 @@ class Framework(object):
         for vertex in vertices:
             self.delete_vertex(vertex)
 
+    @doc_category("Framework manipulation")
     def delete_edge(self, edge: Edge) -> None:
         """
         Delete an edge from the framework.
         """
         self._graph.delete_edge(edge)
 
+    @doc_category("Framework manipulation")
     def delete_edges(self, edges: List[Edge]) -> None:
         """
         Delete a list of edges from the framework.
         """
         self._graph.delete_edges(edges)
 
+    @doc_category("Attribute getters")
     def get_realization_list(self) -> List[Point]:
         """
         Return the realization as a list of Point.
@@ -386,16 +406,19 @@ class Framework(object):
             for vertex in self._graph.nodes
         }
 
+    @doc_category("Attribute getters")
     def get_realization(self) -> Dict[Vertex, Point]:
         """
         Return a copy of the framework's realization.
         """
         return deepcopy(self._realization)
 
+    @doc_category("Attribute getters")
     def realization(self) -> List[Point]:
         """Alias for :meth:`~Framework.get_realization`"""
         return self.get_realization()
 
+    @doc_category("Framework manipulation")
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
         r"""
         Change the realization of the framework.
@@ -434,6 +457,7 @@ class Framework(object):
                 )
         self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
+    @doc_category("Framework manipulation")
     def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
         """
         Change the coordinates of a single given vertex.
@@ -455,10 +479,12 @@ class Framework(object):
             )
         self._realization[vertex] = Matrix(point)
 
+    @doc_category("Framework manipulation")
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
         """Alias for :meth:`~Framework.change_vertex_coordinates`"""
         self.change_vertex_coordinates(vertex, point)
 
+    @doc_category("Framework manipulation")
     def change_vertex_coordinates_list(
         self, vertices: List[Vertex], points: List[Point]
     ) -> None:
@@ -483,10 +509,12 @@ class Framework(object):
         for i in range(len(vertices)):
             self.change_vertex_coordinates(vertices[i], points[i])
 
+    @doc_category("Framework manipulation")
     def set_vertex_positions(self, vertices: List[Vertex], points: List[Point]) -> None:
         """Alias for :meth:`~Framework.change_vertex_coordinates_list`"""
         self.change_vertex_coordinates_list(vertices, points)
 
+    @doc_category("Framework manipulation")
     def change_realization(self, subset_of_realization: Dict[Vertex, Point]):
         """
         Change the coordinates of vertices given by a dictionary.
@@ -495,6 +523,7 @@ class Framework(object):
             subset_of_realization.keys(), subset_of_realization.values()
         )
 
+    @doc_category("Infinitesimal rigidity")
     def rigidity_matrix(
         self,
         vertex_order: List[Vertex] = None,
@@ -608,6 +637,7 @@ class Framework(object):
             ]
         )
 
+    @doc_category("Waiting for implementation")
     def stress_matrix(
         self,
         data: Any,
@@ -624,6 +654,7 @@ class Framework(object):
         """
         raise NotImplementedError()
 
+    @doc_category("Infinitesimal rigidity")
     def trivial_inf_flexes(
         self, pinned_vertices: Dict[Vertex, List[int]] = {}
     ) -> List[Matrix]:
@@ -676,6 +707,7 @@ class Framework(object):
         F_Kn = Framework(graph=Kn, realization=self.realization())
         return F_Kn.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=True)
 
+    @doc_category("Infinitesimal rigidity")
     def nontrivial_inf_flexes(
         self, pinned_vertices: Dict[Vertex, List[int]] = {}
     ) -> List[Matrix]:
@@ -693,6 +725,7 @@ class Framework(object):
         """
         return self.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=False)
 
+    @doc_category("Infinitesimal rigidity")
     def inf_flexes(
         self,
         pinned_vertices: Dict[Vertex, List[int]] = {},
@@ -744,10 +777,12 @@ class Framework(object):
         )
         return basis_flexspace[len(trivial_flexes) : len(all_flexes) + 1]
 
+    @doc_category("Waiting for implementation")
     def stresses(self) -> Any:
         r"""Return a basis of the space of stresses."""
         raise NotImplementedError()
 
+    @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(
         self, pinned_vertices: Dict[Vertex, List[int]] = {}
     ) -> int:
@@ -761,6 +796,7 @@ class Framework(object):
         """
         return self.rigidity_matrix(pinned_vertices=pinned_vertices).rank()
 
+    @doc_category("Infinitesimal rigidity")
     def is_inf_rigid(self) -> bool:
         """
         Check whether the given framework is infinitesimally rigid
@@ -778,6 +814,7 @@ class Framework(object):
             - (self.dim()) * (self.dim() + 1) // 2
         )
 
+    @doc_category("Infinitesimal rigidity")
     def is_inf_flexible(self) -> bool:
         """
         Check whether the given framework is infinitesimally flexible.
@@ -785,9 +822,11 @@ class Framework(object):
         """
         return not self.is_inf_rigid()
 
+    @doc_category("Waiting for implementation")
     def is_inf_spanning(self) -> bool:
         raise NotImplementedError()
 
+    @doc_category("Infinitesimal rigidity")
     def is_min_inf_rigid(self) -> bool:
         """
         Check whether a framework is minimally infinitesimally rigid.
@@ -814,12 +853,15 @@ class Framework(object):
                 return False
         return True
 
+    @doc_category("Waiting for implementation")
     def is_independent(self) -> bool:
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_prestress_stable(self) -> bool:
         raise NotImplementedError()
 
+    @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
         """
         Check if the framework is infinitesimally redundantly rigid.
@@ -844,8 +886,28 @@ class Framework(object):
                 return False
         return True
 
+    @doc_category("Waiting for implementation")
     def is_congruent(self, framework_) -> bool:
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_equivalent(self, framework_) -> bool:
         raise NotImplementedError()
+
+
+Framework.__doc__ = Framework.__doc__.replace(
+    "METHODS",
+    generate_category_tables(
+        Framework,
+        1,
+        [
+            "Attribute getters",
+            "Class methods",
+            "Framework manipulation",
+            "Infinitesimal rigidity",
+            "Plotting",
+            "Waiting for implementation",
+        ],
+        include_all=False,
+    ),
+)

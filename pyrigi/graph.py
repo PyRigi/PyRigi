@@ -12,6 +12,7 @@ import networkx as nx
 from sympy import Matrix, shape
 
 from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
+from pyrigi.misc import doc_category, generate_category_tables
 
 
 class Graph(nx.Graph):
@@ -34,6 +35,8 @@ class Graph(nx.Graph):
     >>> G.add_edges([(0,7), (2,5)])
     >>> print(G)
     Graph with vertices [0, 2, 5, 7, 'a'] and edges [[0, 7], [2, 5]]
+
+    METHODS
 
     Notes
     -----
@@ -86,6 +89,7 @@ class Graph(nx.Graph):
         return self.__str__()
 
     @classmethod
+    @doc_category("Class methods")
     def from_vertices_and_edges(
         cls, vertices: List[Vertex], edges: List[Edge]
     ) -> GraphType:
@@ -111,6 +115,7 @@ class Graph(nx.Graph):
         return G
 
     @classmethod
+    @doc_category("Class methods")
     def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Create a graph with no edges from a list of vertices.
@@ -125,6 +130,7 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, [])
 
     @classmethod
+    @doc_category("Class methods")
     def Complete(cls, n: int) -> GraphType:
         """
         Generate a complete graph on $n$ vertices.
@@ -138,6 +144,7 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @classmethod
+    @doc_category("Class methods")
     def CompleteOnVertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Generate a complete graph on `vertices`.
@@ -145,6 +152,7 @@ class Graph(nx.Graph):
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
 
+    @doc_category("Attribute getters")
     def vertex_list(self) -> List[Vertex]:
         """
         Return the list of vertices.
@@ -157,6 +165,7 @@ class Graph(nx.Graph):
         except BaseException:
             return list(self.nodes)
 
+    @doc_category("Attribute getters")
     def edge_list(self) -> List[Edge]:
         """
         Return the list of edges.
@@ -169,38 +178,47 @@ class Graph(nx.Graph):
         except BaseException:
             return list(self.edges)
 
+    @doc_category("Graph manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.remove_node`."""
         self.remove_node(vertex)
 
+    @doc_category("Graph manipulation")
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         """Alias for :meth:`networkx.Graph.remove_nodes_from`."""
         self.remove_nodes_from(vertices)
 
+    @doc_category("Graph manipulation")
     def delete_edge(self, edge: Edge) -> None:
         """Alias for :meth:`networkx.Graph.remove_edge`"""
         self.remove_edge(*edge)
 
+    @doc_category("Graph manipulation")
     def delete_edges(self, edges: List[Edge]) -> None:
         """Alias for :meth:`networkx.Graph.remove_edges_from`."""
         self.remove_edges_from(edges)
 
+    @doc_category("Graph manipulation")
     def add_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.add_node`."""
         self.add_node(vertex)
 
+    @doc_category("Graph manipulation")
     def add_vertices(self, vertices: List[Vertex]) -> None:
         """Alias for :meth:`networkx.Graph.add_nodes_from`."""
         self.add_nodes_from(vertices)
 
+    @doc_category("Graph manipulation")
     def add_edges(self, edges: List[Edge]) -> None:
         """Alias for :meth:`networkx.Graph.add_edges_from`."""
         self.add_edges_from(edges)
 
+    @doc_category("General graph theoretical properties")
     def vertex_connectivity(self) -> int:
         """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`."""  # noqa: E501
         return nx.node_connectivity(self)
 
+    @doc_category("Sparseness")
     def is_sparse(self, K: int, L: int) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
@@ -215,12 +233,14 @@ class Graph(nx.Graph):
                     return False
         return True
 
+    @doc_category("Sparseness")
     def is_tight(self, K: int, L: int) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
         """
         return self.is_sparse(K, L) and len(self.edges) <= K * len(self.nodes) - L
 
+    @doc_category("Waiting for implementation")
     def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
         """
         Notes
@@ -229,6 +249,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def one_extension(self, vertices: List[Vertex], edge: Edge, dim: int = 2) -> None:
         """
         Notes
@@ -237,6 +258,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def k_extension(
         self, k: int, vertices: List[Vertex], edges: Edge, dim: int = 2
     ) -> None:
@@ -251,6 +273,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def all_k_extensions(self, k: int, dim: int = 2) -> None:
         """
         Return list of all possible k-extensions of the graph.
@@ -261,6 +284,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def extension_sequence(self, dim: int = 2) -> Any:
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -268,6 +292,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
@@ -279,6 +304,7 @@ class Graph(nx.Graph):
             )
         return self.is_k_vertex_redundantly_rigid(1, dim)
 
+    @doc_category("Generic rigidity")
     def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
@@ -297,6 +323,7 @@ class Graph(nx.Graph):
                 return False
         return True
 
+    @doc_category("Generic rigidity")
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
@@ -304,6 +331,7 @@ class Graph(nx.Graph):
         """
         return self.is_k_redundantly_rigid(1, dim)
 
+    @doc_category("Generic rigidity")
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
@@ -322,6 +350,7 @@ class Graph(nx.Graph):
                 return False
         return True
 
+    @doc_category("Generic rigidity")
     def is_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
@@ -382,6 +411,7 @@ class Graph(nx.Graph):
                 f"but is {dim}"
             )
 
+    @doc_category("Generic rigidity")
     def is_min_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
@@ -433,6 +463,7 @@ class Graph(nx.Graph):
                 f"but is {dim}"
             )
 
+    @doc_category("Waiting for implementation")
     def is_globally_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`globally dim-rigid
@@ -478,6 +509,7 @@ class Graph(nx.Graph):
             # of vertices.
             raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_Rd_dependent(self, dim: int = 2) -> bool:
         """
         Notes
@@ -488,6 +520,7 @@ class Graph(nx.Graph):
         """
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_Rd_independent(self, dim: int = 2) -> bool:
         """
         Notes
@@ -502,6 +535,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_Rd_circuit(self, dim: int = 2) -> bool:
         """
         Notes
@@ -517,6 +551,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Waiting for implementation")
     def is_Rd_closed(self, dim: int = 2) -> bool:
         """
         Notes
@@ -531,6 +566,7 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
+    @doc_category("Generic rigidity")
     def max_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
         List vertex-maximal rigid subgraphs of the graph.
@@ -587,6 +623,7 @@ class Graph(nx.Graph):
                 clean_list.append(max_subgraphs[i])
         return clean_list
 
+    @doc_category("Generic rigidity")
     def min_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
         """
         List vertex-minimal non-trivial rigid subgraphs of the graph.
@@ -647,6 +684,7 @@ class Graph(nx.Graph):
             clean_list = [self]
         return clean_list
 
+    @doc_category("General graph theoretical properties")
     def is_isomorphic(self, graph: GraphType) -> bool:
         """
         Check whether two graphs are isomorphic.
@@ -664,6 +702,7 @@ class Graph(nx.Graph):
         """
         return nx.is_isomorphic(self, graph)
 
+    @doc_category("Other")
     def graph_to_int(self) -> int:
         r"""
         Return the integer representation of the graph.
@@ -697,6 +736,7 @@ class Graph(nx.Graph):
         return int("".join(upper_diag), 2)
 
     @classmethod
+    @doc_category("Waiting for implementation")
     def from_int(cls, n: int) -> GraphType:
         """
         Return a graph given its integer representation.
@@ -713,6 +753,7 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     @classmethod
+    @doc_category("Class methods")
     def from_adjacency_matrix(cls, M: Matrix) -> GraphType:
         """
         Create a graph from a given adjacency matrix.
@@ -738,6 +779,7 @@ class Graph(nx.Graph):
                 edges += [(vertex, vertex_)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
+    @doc_category("General graph theoretical properties")
     def adjacency_matrix(self, vertex_order: List[Vertex] = None) -> Matrix:
         """
         Return the adjacency matrix of the graph.
@@ -793,3 +835,23 @@ class Graph(nx.Graph):
                     row += [0]
             row_list += [row]
         return Matrix(row_list)
+
+
+Graph.__doc__ = Graph.__doc__.replace(
+    "METHODS",
+    generate_category_tables(
+        Graph,
+        1,
+        [
+            "Attribute getters",
+            "Class methods",
+            "Graph manipulation",
+            "General graph theoretical properties",
+            "Generic rigidity",
+            "Sparseness",
+            "Other",
+            "Waiting for implementation",
+        ],
+        include_all=False,
+    ),
+)
