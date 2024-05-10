@@ -28,15 +28,35 @@ These are the tasks to be performed:
 ### PEP8
 
 We follow [PEP8](https://peps.python.org/pep-0008/) indications regarding Python code format.
-To check whether the code is PEP8-compliant, one can use [`pycodestyle`](https://pycodestyle.pycqa.org)
-or [flake8](https://pycodestyle.pycqa.org).
-There are tools that format code according to PEP8 indications,
-we use [`black`](https://black.readthedocs.io)
-that can be run as
+
+To check whether the code is PEP8-compliant, we strongly suggest to use
+[flake8](https://flake8.pycqa.org).
+To install it, run
+```
+pip install flake8
+```
+To check your code, simply run
+```
+flake8 .
+```
+in PyRigi's home folder.
+The `.flake8` file in PyRigi's home folder, which specifies `flake8` configuration,
+is the same that is used in the automatic tests once a pull request is filed in GitHub.
+Therefore, please check your code with `flake8` before performing a pull request.
+
+There are tools that format code according to PEP8 indications.
+We **strongly** suggest to use [`black`](https://black.readthedocs.io).
+To install it, run
+```
+pip install black
+```
+To format your code, run
 ```
 black .
 ```
 in the root folder to modify the files in place.
+We suggest to integrate the use of `black` at every commit
+as explained at [this page](https://black.readthedocs.io/en/stable/integrations/source_version_control.html) of `black`'s guide.
 
 The lines in the source code can be at most 90 characters long.
 The only exceptions are lines in docstrings that might be longer
@@ -67,7 +87,7 @@ The documentation is generated from docstrings using [Sphinx](https://www.sphinx
 We use the theme [Furo](https://github.com/pradyunsg/furo).
 The docstrings are formatted according to [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) and parsed using [napoleon](https://sphinxcontrib-napoleon.readthedocs.io/)
 to retrieve the information from type hinting.
-The other documentation source files are written in [MyST](https://myst-parser.readthedocs.io/) 
+The other documentation source files are written in [MyST](https://myst-parser.readthedocs.io/)
 (see also the [cheatsheet](#cheatsheet)).
 The following extensions are used:
  - [`myst-parser`](https://myst-parser.readthedocs.io) - parsing MyST syntax;
@@ -87,7 +107,7 @@ To compile, run Sphinx in the folder `doc` by:
 ```
 make html
 ```
-or 
+or
 ```
 make latexpdf
 ```
