@@ -378,8 +378,8 @@ class Graph(nx.Graph):
             )
         if not isinstance(combinatorial, bool):
             raise TypeError(
-                f"combinatorial determines the method of rigidity-computation. "
-                f"It needs to be a Boolean."
+                "combinatorial determines the method of rigidity-computation. "
+                "It needs to be a Boolean."
             )
 
         elif dim == 1:
@@ -440,8 +440,8 @@ class Graph(nx.Graph):
             )
         if not isinstance(combinatorial, bool):
             raise TypeError(
-                f"combinatorial determines the method of rigidity-computation. "
-                f"It needs to be a Boolean."
+                "combinatorial determines the method of rigidity-computation. "
+                "It needs to be a Boolean."
             )
 
         elif dim == 1:
