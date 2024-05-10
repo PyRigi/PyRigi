@@ -342,7 +342,7 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.Complete([(1,),(2,),(3,),(4,)])
+        >>> F = Framework.Complete([(1,),(2,),(3,),(4,)]); F
         Framework in 1-dimensional space consisting of:
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
         Realization {0:(1,), 1:(2,), 2:(3,), 3:(4,)}
@@ -680,27 +680,24 @@ class Framework(object):
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
         >>> F.trivial_inf_flexes()
         [Matrix([
-            [ 3],
-            [-1],
-            [ 3],
-            [ 1],
-            [ 0],
-            [ 0]]),
-        Matrix([
-            [1],
-            [0],
-            [1],
-            [0],
-            [1],
-            [0]]),
-        Matrix([
-            [-3],
-            [ 2],
-            [-3],
-            [ 0],
-            [ 0],
-            [ 1]])
-        ]
+        [ 3],
+        [-1],
+        [ 3],
+        [ 1],
+        [ 0],
+        [ 0]]), Matrix([
+        [1],
+        [0],
+        [1],
+        [0],
+        [1],
+        [0]]), Matrix([
+        [-3],
+        [ 2],
+        [-3],
+        [ 0],
+        [ 0],
+        [ 1]])]
         """
         vertices = self._graph.vertex_list()
         Kn = Graph.CompleteOnVertices(vertices)
