@@ -178,37 +178,37 @@ class Graph(nx.Graph):
         except BaseException:
             return list(self.edges)
 
-    @doc_category("Graph modifications")
+    @doc_category("Graph manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.remove_node`."""
         self.remove_node(vertex)
 
-    @doc_category("Graph modifications")
+    @doc_category("Graph manipulation")
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         """Alias for :meth:`networkx.Graph.remove_nodes_from`."""
         self.remove_nodes_from(vertices)
 
-    @doc_category("Graph modifications")
+    @doc_category("Graph manipulation")
     def delete_edge(self, edge: Edge) -> None:
         """Alias for :meth:`networkx.Graph.remove_edge`"""
         self.remove_edge(*edge)
 
-    @doc_category("Graph modifications")
+    @doc_category("Graph manipulation")
     def delete_edges(self, edges: List[Edge]) -> None:
         """Alias for :meth:`networkx.Graph.remove_edges_from`."""
         self.remove_edges_from(edges)
 
-    @doc_category("Graph modifications")
+    @doc_category("Graph manipulation")
     def add_vertex(self, vertex: Vertex) -> None:
         """Alias for :meth:`networkx.Graph.add_node`."""
         self.add_node(vertex)
 
-    @doc_category("Graph modifications")
+    @doc_category("Graph manipulation")
     def add_vertices(self, vertices: List[Vertex]) -> None:
         """Alias for :meth:`networkx.Graph.add_nodes_from`."""
         self.add_nodes_from(vertices)
 
-    @doc_category("Graph modifications")
+    @doc_category("Graph manipulation")
     def add_edges(self, edges: List[Edge]) -> None:
         """Alias for :meth:`networkx.Graph.add_edges_from`."""
         self.add_edges_from(edges)

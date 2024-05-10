@@ -120,7 +120,7 @@ class Framework(object):
         """Alias for :meth:`~Framework.dim`"""
         return self.dim()
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         """
         Add a vertex to the framework with the corresponding coordinates.
@@ -156,7 +156,7 @@ class Framework(object):
         self._realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def add_vertices(self, points: List[Point], vertices: List[Vertex] = []) -> None:
         r"""
         Add a list of vertices to the framework.
@@ -194,7 +194,7 @@ class Framework(object):
             for p, v in zip(points, vertices):
                 self.add_vertex(p, v)
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def add_edge(self, edge: Edge) -> None:
         """
         Add an edge to the framework.
@@ -217,7 +217,7 @@ class Framework(object):
             )
         self._graph.add_edge(*(edge))
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def add_edges(self, edges: List[Edge]) -> None:
         """
         Add a list of edges to the framework.
@@ -356,7 +356,7 @@ class Framework(object):
         }
         return Framework(graph=Kn, realization=realization)
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
         """
         Delete a vertex from the framework.
@@ -364,7 +364,7 @@ class Framework(object):
         self._graph.delete_vertex(vertex)
         del self._realization[vertex]
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def delete_vertices(self, vertices: List[Vertex]) -> None:
         """
         Delete a list of vertices from the framework.
@@ -372,14 +372,14 @@ class Framework(object):
         for vertex in vertices:
             self.delete_vertex(vertex)
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def delete_edge(self, edge: Edge) -> None:
         """
         Delete an edge from the framework.
         """
         self._graph.delete_edge(edge)
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def delete_edges(self, edges: List[Edge]) -> None:
         """
         Delete a list of edges from the framework.
@@ -418,7 +418,7 @@ class Framework(object):
         """Alias for :meth:`~Framework.get_realization`"""
         return self.get_realization()
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
         r"""
         Change the realization of the framework.
@@ -457,7 +457,7 @@ class Framework(object):
                 )
         self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
         """
         Change the coordinates of a single given vertex.
@@ -479,12 +479,12 @@ class Framework(object):
             )
         self._realization[vertex] = Matrix(point)
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
         """Alias for :meth:`~Framework.change_vertex_coordinates`"""
         self.change_vertex_coordinates(vertex, point)
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def change_vertex_coordinates_list(
         self, vertices: List[Vertex], points: List[Point]
     ) -> None:
@@ -509,12 +509,12 @@ class Framework(object):
         for i in range(len(vertices)):
             self.change_vertex_coordinates(vertices[i], points[i])
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def set_vertex_positions(self, vertices: List[Vertex], points: List[Point]) -> None:
         """Alias for :meth:`~Framework.change_vertex_coordinates_list`"""
         self.change_vertex_coordinates_list(vertices, points)
 
-    @doc_category("Framework modifications")
+    @doc_category("Framework manipulation")
     def change_realization(self, subset_of_realization: Dict[Vertex, Point]):
         """
         Change the coordinates of vertices given by a dictionary.
