@@ -29,7 +29,7 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False):
                     categories["Not categorized"] = [func]
 
     for category in categories:
-        if not category in cat_order:
+        if category not in cat_order:
             cat_order.append(category)
 
     res = "Methods\n-------\n"
