@@ -838,5 +838,20 @@ class Graph(nx.Graph):
 
 
 Graph.__doc__ = Graph.__doc__.replace(
-    "METHODS", generate_category_tables(Graph, 1, include_all=False)
+    "METHODS",
+    generate_category_tables(
+        Graph,
+        1,
+        [
+            "Attribute getters",
+            "Class methods",
+            "Graph manipulation",
+            "General graph theoretical properties",
+            "Generic rigidity",
+            "Sparseness",
+            "Other",
+            "Waiting for implementation",
+        ],
+        include_all=False,
+    ),
 )

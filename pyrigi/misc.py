@@ -11,7 +11,7 @@ def doc_category(category):
     return decorator_doc_category
 
 
-def generate_category_tables(cls, tabs, include_all=False):
+def generate_category_tables(cls, tabs, cat_order=[], include_all=False):
     categories = {}
     for func in dir(cls):
         if callable(getattr(cls, func)) and func[:2] != "__":
@@ -28,8 +28,14 @@ def generate_category_tables(cls, tabs, include_all=False):
                 else:
                     categories["Not categorized"] = [func]
 
+    for category in categories:
+        if not category in cat_order:
+            cat_order.append(category)
+
     res = "Methods\n-------\n"
-    for category, functions in sorted(categories.items()):
+    for category, functions in sorted(
+        categories.items(), key=lambda t: cat_order.index(t[0])
+    ):
         res += f"**{category}**"
         res += "\n\n.. autosummary::\n\n    "
         res += "\n    ".join(functions)

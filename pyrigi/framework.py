@@ -896,5 +896,18 @@ class Framework(object):
 
 
 Framework.__doc__ = Framework.__doc__.replace(
-    "METHODS", generate_category_tables(Framework, 1, include_all=False)
+    "METHODS",
+    generate_category_tables(
+        Framework,
+        1,
+        [
+            "Attribute getters",
+            "Class methods",
+            "Framework manipulation",
+            "Infinitesimal rigidity",
+            "Plotting",
+            "Waiting for implementation",
+        ],
+        include_all=False,
+    ),
 )
