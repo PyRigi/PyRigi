@@ -7,11 +7,12 @@ from __future__ import annotations
 from copy import deepcopy
 from itertools import combinations
 from random import randrange
+from typing import List, Any
 
 import networkx as nx
 from sympy import Matrix, shape
 
-from pyrigi.data_type import Vertex, Edge, GraphType, List, Any
+from pyrigi.data_type import Vertex, Edge, GraphType
 from pyrigi.misc import doc_category, generate_category_tables
 
 
@@ -377,8 +378,8 @@ class Graph(nx.Graph):
             )
         if not isinstance(combinatorial, bool):
             raise TypeError(
-                f"combinatorial determines the method of rigidity-computation. "
-                f"It needs to be a Boolean."
+                "combinatorial determines the method of rigidity-computation. "
+                "It needs to be a Boolean."
             )
 
         elif dim == 1:
@@ -439,8 +440,8 @@ class Graph(nx.Graph):
             )
         if not isinstance(combinatorial, bool):
             raise TypeError(
-                f"combinatorial determines the method of rigidity-computation. "
-                f"It needs to be a Boolean."
+                "combinatorial determines the method of rigidity-computation. "
+                "It needs to be a Boolean."
             )
 
         elif dim == 1:
@@ -503,7 +504,6 @@ class Graph(nx.Graph):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
-            from pyrigi.framework import Framework
 
             # Random sampling from [1,N] for N depending quadratically on number
             # of vertices.
@@ -816,7 +816,7 @@ class Graph(nx.Graph):
                     raise IndexError(
                         "The vertex_order must contain the same vertices as the graph!"
                     )
-        except TypeError as error:
+        except TypeError:
             vertex_order = self.vertex_list()
 
         row_list = []

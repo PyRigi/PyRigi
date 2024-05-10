@@ -13,15 +13,15 @@ Classes:
 """
 
 from __future__ import annotations
+from typing import List, Any, Dict
 
 from copy import deepcopy
-from itertools import combinations
 from random import randrange
 
 import networkx as nx
 from sympy import Matrix, flatten
 
-from pyrigi.data_type import Vertex, Edge, Point, List, Any, Dict
+from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.graph import Graph
 from pyrigi.misc import doc_category, generate_category_tables
 
@@ -570,10 +570,10 @@ class Framework(object):
                     self._graph.nodes
                 ) == len(vertex_order):
                     raise KeyError(
-                        f"The vertex_order needs to contain "
-                        f"exactly the same vertices as the graph!"
+                        "The vertex_order needs to contain "
+                        "exactly the same vertices as the graph!"
                     )
-        except TypeError as error:
+        except TypeError:
             vertex_order = self._graph.vertex_list()
 
         for v in vertex_order:
