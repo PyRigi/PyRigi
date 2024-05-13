@@ -664,9 +664,7 @@ class Framework(object):
         return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
-    def nontrivial_inf_flexes(
-        self, pinned_vertices: Dict[Vertex, List[int]] = {}
-    ) -> List[Matrix]:
+    def nontrivial_inf_flexes(self) -> List[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
 
@@ -679,7 +677,7 @@ class Framework(object):
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=False)
+        return self.inf_flexes(include_trivial=False)
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
