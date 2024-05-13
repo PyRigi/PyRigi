@@ -1,6 +1,8 @@
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 
+from sympy import Matrix
+
 
 def test_dimension():
     F = Framework(Graph([[0, 1]]), {0: [1, 2], 1: [0, 5]})
@@ -45,14 +47,13 @@ def test_inf_rigidity():
     assert F_.is_inf_rigid() and F_.is_min_inf_rigid()
 
 
-def test_inf_motions():
+def test_inf_flexes():
     F = Framework(Graph([[0, 1]]), {0: [0, 0], 1: [1, 0]})
-    assert F.inf_flexes(include_trivial=True) == F.trivial_inf_flexes()
-    F_ = Framework(
+    Q1 = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
+    Q2 = Matrix.hstack(*(F.trivial_inf_flexes()))
+    assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
+    F = Framework(
         Graph([[0, 1], [1, 2], [2, 3], [0, 3]]),
         {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]},
     )
-    assert (
-        len(F_.inf_flexes(include_trivial=False)) == 1
-        and F_.inf_flexes(include_trivial=False)[0].rank() == 1
-    )
+    assert len(F.inf_flexes(include_trivial=False)) == 1
