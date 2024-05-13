@@ -75,6 +75,17 @@ Tests are extremely important to guarantee the realiability of code.
 Please create tests for the functionalities that you implement and place them in the `test` folder, within the appropriate file.
 Each test should be in the form of a method starting with `test_`.
 
+Moreover, please add a section `EXAMPLES` in the docstring of the classes and methods that you introduce and provide there examples of the functionalities you implemented.
+
+Please keep in mind that whenever a pull request is opened, all the tests in the `test`folder and in the docstrings are run.
+Therefore, before opening a pull request we **strongly advise** to run
+```
+pytest --doctest-modules
+```
+in the root folder of PyRigi.
+The reason why the examples in the docstrings are tested is to make sure their outputs are valid,
+they do **not** replace the tests in the `test` folder.
+
 ## Documentation
 
 We aim to have the package well-documented.
