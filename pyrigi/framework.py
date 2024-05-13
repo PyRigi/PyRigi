@@ -684,7 +684,6 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
         self,
-        pinned_vertices: Dict[Vertex, List[int]] = {},
         include_trivial: bool = False,
     ) -> List[Matrix]:
         r"""
@@ -703,8 +702,6 @@ class Framework(object):
 
         Parameters
         ----------
-        pinned_vertices:
-            see :meth:`~Framework.rigidity_matrix`
         include_trivial:
             Boolean that decides, whether the trivial motions should
             be included (`True`) or not (`False`)
@@ -724,14 +721,14 @@ class Framework(object):
         [-1/4],
         [ 1/4]])]
         """
+        kernel = self.rigidity_matrix().nullspace()
         if include_trivial:
-            return self.rigidity_matrix(pinned_vertices=pinned_vertices).nullspace()
-        trivial_flexes = self.trivial_inf_flexes(pinned_vertices=pinned_vertices)
-        all_flexes = self.rigidity_matrix(pinned_vertices=pinned_vertices).nullspace()
+            return kernel
+        trivial_flexes = self.trivial_inf_flexes()
         basis_flexspace = Matrix.orthogonalize(
-            *(trivial_flexes + all_flexes), rankcheck=False
+            *(trivial_flexes + kernel), rankcheck=False
         )
-        return basis_flexspace[len(trivial_flexes) : len(all_flexes) + 1]
+        return basis_flexspace[len(trivial_flexes) : len(kernel) + 1]
 
     @doc_category("Waiting for implementation")
     def stresses(self) -> Any:
