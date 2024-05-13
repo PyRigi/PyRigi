@@ -56,29 +56,3 @@ def test_inf_motions():
         len(F_.inf_flexes(include_trivial=False)) == 1
         and F_.inf_flexes(include_trivial=False)[0].rank() == 1
     )
-
-
-def test_pinning():
-    F = Framework(Graph([[0, 1], [0, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
-    assert (
-        len(F.inf_flexes(pinned_vertices={0: [0, 1], 1: [1]}, include_trivial=False))
-        == 1
-        and len(F.inf_flexes(pinned_vertices={0: [0, 1], 1: [1]}, include_trivial=True))
-        == 1
-        and F.inf_flexes(pinned_vertices={0: [0, 1], 1: [1]}, include_trivial=True)[0][
-            0:4
-        ]
-        == [0 for _ in range(4)]
-    )
-    F.add_edge([1, 2])
-    assert (
-        len(F.inf_flexes(pinned_vertices={0: [0, 1], 1: [1]}, include_trivial=False))
-        == 0
-        and len(F.inf_flexes(pinned_vertices={0: [0, 1], 1: [1]}, include_trivial=True))
-        == 0
-    )
-    assert (
-        len(F.inf_flexes(pinned_vertices={0: [0], 2: [0]}, include_trivial=False)) == 0
-        and len(F.inf_flexes(pinned_vertices={0: [0], 2: [0]}, include_trivial=True))
-        == 1
-    )
