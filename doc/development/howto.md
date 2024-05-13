@@ -83,7 +83,7 @@ Therefore, before opening a pull request we **strongly advise** to run
 pytest --doctest-modules
 ```
 in the root folder of PyRigi.
-The reason why the examples in the docstrings are tested is the make sure their outputs are valid,
+The reason why the examples in the docstrings are tested is to make sure their outputs are valid,
 they do **not** replace the tests in the `test` folder.
 
 ## Documentation
