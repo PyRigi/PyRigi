@@ -527,7 +527,6 @@ class Framework(object):
     def rigidity_matrix(
         self,
         vertex_order: List[Vertex] = None,
-        pinned_vertices: Dict[Vertex, List[int]] = {},
         edges_ordered: bool = True,
     ) -> Matrix:
         r"""
@@ -542,11 +541,6 @@ class Framework(object):
         vertex_order:
             By listing vertices in the preferred order, the rigidity matrix
             can be computed in a way the user expects.
-        pinned_vertices:
-            Dictionary of vertices and coordinates that do not contribute to the
-            computation of infinitesimal flexes. Each of the pinned vertex coordinates
-            adds a row given by the corresponding standard unit basis vector to
-            the rigidity matrix.
         edges_ordered:
             A Boolean indicating, whether the edges are assumed to be ordered (`True`),
             or whether they should be internally sorted (`False`).
@@ -554,13 +548,11 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
-        >>> F.rigidity_matrix(vertex_order=[2,1,0],pinned_vertices={0:[0], 1:[1]})
+        >>> F.rigidity_matrix()
         Matrix([
-        [ 0, 0, 2,  0, -2,  0],
-        [ 1, 3, 0,  0, -1, -3],
-        [-1, 3, 1, -3,  0,  0],
-        [ 0, 0, 0,  1,  0,  0],
-        [ 0, 0, 0,  0,  1,  0]])
+        [-2,  0, 2,  0,  0, 0],
+        [-1, -3, 0,  0,  1, 3],
+        [ 0,  0, 1, -3, -1, 3]])
         """
         try:
             if vertex_order is None:
@@ -576,24 +568,6 @@ class Framework(object):
         except TypeError:
             vertex_order = self._graph.vertex_list()
 
-        for v in vertex_order:
-            if v not in pinned_vertices:
-                pinned_vertices[v] = []
-        pinned_vertices = {
-            v: pinned_vertices[v]
-            for v in pinned_vertices.keys()
-            if v in self._graph.nodes
-        }
-        for v in pinned_vertices:
-            if v not in self._graph.nodes:
-                raise KeyError(
-                    f"Vertex {v} in pinned_vertices is not a vertex of the graph!"
-                )
-            if not len(pinned_vertices[v]) <= self.dim():
-                raise IndexError(
-                    f"The length of {pinned_vertices[v]} is larger than the dimension!"
-                )
-
         if not edges_ordered:
             edge_order = sorted(self._graph.edges())
         else:
@@ -607,18 +581,6 @@ class Framework(object):
                 return -1
             return 0
 
-        # Add the column information about the pinned vertices, according to the
-        # `vertex_order`.
-        pinned_entries = flatten(
-            [
-                [
-                    self.dim() * count + index
-                    for index in pinned_vertices[vertex_order[count]]
-                ]
-                for count in range(len(vertex_order))
-            ]
-        )
-
         # Return the rigidity matrix with standard unit basis vectors added for
         # each pinned coordinate.
         return Matrix(
@@ -630,10 +592,6 @@ class Framework(object):
                     ]
                 )
                 for u, v in edge_order
-            ]
-            + [
-                [1 if i == index else 0 for i in range(self.dim() * len(vertex_order))]
-                for index in pinned_entries
             ]
         )
 
