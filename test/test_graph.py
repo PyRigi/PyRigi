@@ -1,5 +1,6 @@
 from pyrigi.graph import Graph
 import pytest
+from sympy import Matrix
 
 
 @pytest.mark.slow
@@ -86,3 +87,23 @@ def test_vertex_edge_lists():
     G = Graph.from_vertices(["C", 1, "D", 2, "E", 3, 0])
     assert set(G.vertex_list()) == set(["C", 2, "E", 1, "D", 3, 0])
     assert G.edge_list() == []
+
+
+def test_adjacency_matrix():
+    G = Graph()
+    assert G.adjacency_matrix() == Matrix([])
+    G = Graph([[2, 1], [2, 3]])
+    assert G.adjacency_matrix() == Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+    assert G.adjacency_matrix(vertex_order=[2, 3, 1]) == Matrix(
+        [[0, 1, 1], [1, 0, 0], [1, 0, 0]]
+    )
+    K4 = Graph.Complete(4)
+    assert K4.adjacency_matrix() == Matrix.ones(4) - Matrix.diag([1, 1, 1, 1])
+    G = Graph.from_vertices(["C", 1, "D"])
+    assert G.adjacency_matrix() == Matrix.zeros(3)
+    G = Graph.from_vertices_and_edges(["C", 1, "D"], [[1, "D"], ["C", "D"]])
+    assert G.adjacency_matrix(vertex_order=["C", 1, "D"]) == Matrix(
+        [[0, 0, 1], [0, 0, 1], [1, 1, 0]]
+    )
+    M = Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+    assert G.from_adjacency_matrix(M).adjacency_matrix() == M
