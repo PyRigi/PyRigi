@@ -655,54 +655,56 @@ class Framework(object):
         raise NotImplementedError()
 
     @doc_category("Infinitesimal rigidity")
-    def trivial_inf_flexes(
-        self, pinned_vertices: Dict[Vertex, List[int]] = {}
-    ) -> List[Matrix]:
+    def trivial_inf_flexes(self) -> List[Matrix]:
         r"""
         Return the trivial infinitesimal flexes of the framework.
 
         Definitions
         -----------
-        * :prf:ref:`Trivial flexes <def-trivial-flexes>`
-
-        Parameters
-        ----------
-        pinned_vertices:
-            see :meth:`~Framework.rigidity_matrix`
-
-        Notes
-        -----
-        Trival infinitesimal flexes are computed by calculating all
-        infinitesimal flexes of the complete graph.
+        * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flexes>`
 
         Examples
         --------
-        >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
+        >>> F = Framework.Complete([(0,0), (2,0), (0,2)])
         >>> F.trivial_inf_flexes()
         [Matrix([
-        [ 3],
-        [-1],
-        [ 3],
-        [ 1],
-        [ 0],
-        [ 0]]), Matrix([
         [1],
         [0],
         [1],
         [0],
         [1],
         [0]]), Matrix([
-        [-3],
+        [0],
+        [1],
+        [0],
+        [1],
+        [0],
+        [1]]), Matrix([
+        [ 0],
+        [ 0],
+        [ 0],
         [ 2],
-        [-3],
-        [ 0],
-        [ 0],
-        [ 1]])]
+        [-2],
+        [ 0]])]
         """
-        vertices = self._graph.vertex_list()
-        Kn = Graph.CompleteOnVertices(vertices)
-        F_Kn = Framework(graph=Kn, realization=self.realization())
-        return F_Kn.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=True)
+        dim = self._dim
+        translations = [
+            Matrix.vstack(*[A for _ in self._graph.nodes])
+            for A in Matrix.eye(dim).columnspace()
+        ]
+        basis_skew_symmetric = []
+        for i in range(1, dim):
+            for j in range(i):
+                A = Matrix.zeros(dim)
+                A[i, j] = 1
+                A[j, i] = -1
+                basis_skew_symmetric += [A]
+        inf_rot = [
+            Matrix.vstack(*[A * self._realization[v] for v in self._graph.nodes])
+            for A in basis_skew_symmetric
+        ]
+        matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
+        return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
     def nontrivial_inf_flexes(
