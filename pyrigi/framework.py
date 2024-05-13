@@ -581,8 +581,6 @@ class Framework(object):
                 return -1
             return 0
 
-        # Return the rigidity matrix with standard unit basis vectors added for
-        # each pinned coordinate.
         return Matrix(
             [
                 flatten(
@@ -737,11 +735,6 @@ class Framework(object):
     def rigidity_matrix_rank(self) -> int:
         """
         Compute the rank of the rigidity matrix.
-
-        Parameters
-        ----------
-        pinned_vertices:
-            see :meth:`~Framework.rigidity_matrix`
         """
         return self.rigidity_matrix().rank()
 
