@@ -10,7 +10,7 @@ from random import randrange
 from typing import List, Any
 
 import networkx as nx
-from sympy import Matrix, shape
+from sympy import Matrix
 
 from pyrigi.data_type import Vertex, Edge, GraphType
 from pyrigi.misc import doc_category, generate_category_tables
@@ -763,20 +763,22 @@ class Graph(nx.Graph):
         >>> M = Matrix([[0,1],[1,0]])
         >>> G = Graph.from_adjacency_matrix(M)
         >>> print(G)
-        Graph with vertices [0, 1] and edges [[0,1]]
+        Graph with vertices [0, 1] and edges [[0, 1]]
         """
-        if not shape(M)[0] == shape(M)[1]:
-            raise TypeError("Adjacency matrix does not have the right format!")
-        for i, j in zip(range(shape(M)[0]), range(shape(M)[1])):
+        if not M.is_square:
+            raise TypeError("The matrix is not square!")
+        if not M.is_symmetric():
+            raise TypeError("The matrix is not symmetric.")
+
+        vertices = range(M.cols)
+        edges = []
+        for i, j in combinations(vertices, 2):
             if not (M[i, j] == 0 or M[i, j] == 1):
                 raise TypeError(
                     "The provided adjacency matrix contains entries other than 0 and 1"
                 )
-        vertices = range(shape(M)[0])
-        edges = []
-        for vertex, vertex_ in zip(range(len(vertices)), range(len(vertices))):
-            if M[vertex, vertex_] == 1:
-                edges += [(vertex, vertex_)]
+            if M[i, j] == 1:
+                edges += [(i, j)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @doc_category("General graph theoretical properties")
@@ -819,21 +821,10 @@ class Graph(nx.Graph):
         except TypeError:
             vertex_order = self.vertex_list()
 
-        row_list = []
-        for vertex in vertex_order:
-            row = []
-            edge_indicator = False
-            for vertex_ in vertex_order:
-                for edge in self.edges:
-                    if (edge[0] == vertex and edge[1] == vertex_) or (
-                        edge[1] == vertex and edge[0] == vertex_
-                    ):
-                        row += [1]
-                        edge_indicator = True
-                        break
-                if not edge_indicator:
-                    row += [0]
-            row_list += [row]
+        row_list = [
+            [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order
+        ]
+
         return Matrix(row_list)
 
 
