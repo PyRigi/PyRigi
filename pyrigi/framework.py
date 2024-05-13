@@ -641,7 +641,6 @@ class Framework(object):
     def stress_matrix(
         self,
         data: Any,
-        pinned_vertices: Dict[Vertex, List[int]] = {},
         edge_order: List[Edge] = None,
     ) -> Matrix:
         r"""
