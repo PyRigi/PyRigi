@@ -734,9 +734,7 @@ class Framework(object):
         raise NotImplementedError()
 
     @doc_category("Infinitesimal rigidity")
-    def rigidity_matrix_rank(
-        self, pinned_vertices: Dict[Vertex, List[int]] = {}
-    ) -> int:
+    def rigidity_matrix_rank(self) -> int:
         """
         Compute the rank of the rigidity matrix.
 
@@ -745,7 +743,7 @@ class Framework(object):
         pinned_vertices:
             see :meth:`~Framework.rigidity_matrix`
         """
-        return self.rigidity_matrix(pinned_vertices=pinned_vertices).rank()
+        return self.rigidity_matrix().rank()
 
     @doc_category("Infinitesimal rigidity")
     def is_inf_rigid(self) -> bool:
