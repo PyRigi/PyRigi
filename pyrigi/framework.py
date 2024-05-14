@@ -565,8 +565,10 @@ class Framework(object):
         if edge_order is None:
             edge_order = self._graph.edge_list()
         else:
-            if not set([set(e) for e in self._graph.edges]) == set(
-                [set(e) for e in edge_order]
+            if not (
+                set([set(e) for e in self._graph.edges])
+                == set([set(e) for e in edge_order])
+                and len(edge_order) == self._graph.number_of_edges()
             ):
                 raise ValueError(
                     "edge_order must contain exactly the same edges as the graph!"
