@@ -569,7 +569,7 @@ class Framework(object):
                 [set(e) for e in edge_order]
             ):
                 raise ValueError(
-                    "edge_order must contain " "exactly the same edges as the graph!"
+                    "edge_order must contain exactly the same edges as the graph!"
                 )
 
         # `delta` is responsible for distinguishing the edges (i,j) and (j,i)
