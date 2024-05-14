@@ -633,9 +633,11 @@ class Framework(object):
         if pinned_vertices is None:
             freedom = self._dim * (self._dim + 1) // 2
             pinned_vertices = {}
+            upper = self._dim + 1
             for v in vertex_order:
+                upper -= 1
                 frozen_coord = []
-                for i in range(self._dim):
+                for i in range(0, upper):
                     if freedom > 0:
                         frozen_coord.append(i)
                         freedom -= 1
