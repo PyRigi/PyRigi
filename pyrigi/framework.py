@@ -527,7 +527,7 @@ class Framework(object):
     def rigidity_matrix(
         self,
         vertex_order: List[Vertex] = None,
-        edges_ordered: bool = True,
+        edge_order: List[Edge] = None,
     ) -> Matrix:
         r"""
         Construct the rigidity matrix of the framework.
@@ -554,30 +554,29 @@ class Framework(object):
         [-1, -3, 0,  0,  1, 3],
         [ 0,  0, 1, -3, -1, 3]])
         """
-        try:
-            if vertex_order is None:
-                vertex_order = sorted(self._graph.nodes)
-            else:
-                if not set(self._graph.nodes) == set(vertex_order) or not len(
-                    self._graph.nodes
-                ) == len(vertex_order):
-                    raise KeyError(
-                        "The vertex_order needs to contain "
-                        "exactly the same vertices as the graph!"
-                    )
-        except TypeError:
+        if vertex_order is None:
             vertex_order = self._graph.vertex_list()
-
-        if not edges_ordered:
-            edge_order = sorted(self._graph.edges())
         else:
-            edge_order = self._graph.edges()
+            if not set(self._graph.nodes) == set(vertex_order):
+                raise ValueError(
+                    "vertex_order must contain "
+                    "exactly the same vertices as the graph!"
+                )
+        if edge_order is None:
+            edge_order = self._graph.edge_list()
+        else:
+            if not set([set(e) for e in self._graph.edges]) == set(
+                [set(e) for e in edge_order]
+            ):
+                raise ValueError(
+                    "edge_order must contain " "exactly the same edges as the graph!"
+                )
 
         # `delta` is responsible for distinguishing the edges (i,j) and (j,i)
-        def delta(u, v, w):
-            if w == u:
+        def delta(e, w):
+            if w == e[0]:
                 return 1
-            if w == v:
+            if w == e[1]:
                 return -1
             return 0
 
@@ -585,13 +584,82 @@ class Framework(object):
             [
                 flatten(
                     [
-                        delta(u, v, w) * (self._realization[u] - self._realization[v])
+                        delta(e, w)
+                        * (self._realization[e[0]] - self._realization[e[1]])
                         for w in vertex_order
                     ]
                 )
-                for u, v in edge_order
+                for e in edge_order
             ]
         )
+
+    def pinned_rigidity_matrix(
+        self,
+        pinned_vertices: Dict[Vertex, List[int]] = None,
+        vertex_order: List[Vertex] = None,
+        edge_order: List[Edge] = None,
+    ) -> Matrix:
+        r"""
+        Construct the rigidity matrix of the framework.
+
+        Definitions
+        -----------
+        * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
+
+        Examples
+        --------
+        >>> F = Framework(Graph([[0, 1], [0, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
+        >>> F.pinned_rigidity_matrix()
+        Matrix([
+        [-1,  0, 1, 0, 0, 0],
+        [-1, -1, 0, 0, 1, 1],
+        [ 1,  0, 0, 0, 0, 0],
+        [ 0,  1, 0, 0, 0, 0],
+        [ 0,  0, 1, 0, 0, 0]])
+        """
+        rigidity_matrix = self.rigidity_matrix(
+            vertex_order=vertex_order, edge_order=edge_order
+        )
+
+        if vertex_order is None:
+            vertex_order = self._graph.vertex_list()
+        if edge_order is None:
+            edge_order = self._graph.vertex_list()
+
+        if pinned_vertices is None:
+            freedom = self._dim * (self._dim + 1) // 2
+            pinned_vertices = {}
+            for v in vertex_order:
+                frozen_coord = []
+                for i in range(self._dim):
+                    if freedom > 0:
+                        frozen_coord.append(i)
+                        freedom -= 1
+                    else:
+                        pinned_vertices[v] = frozen_coord
+                        break
+                pinned_vertices[v] = frozen_coord
+        else:
+            number_pinned = sum([len(coord) for coord in pinned_vertices.values()])
+            if number_pinned > self._dim * (self._dim + 1) // 2:
+                raise ValueError(
+                    "The maximal number of coordinates that"
+                    f"can be pinned is {self._dim * (self._dim + 1) // 2}, "
+                    f"but you provided {number_pinned}."
+                )
+            for v in pinned_vertices:
+                if min(pinned_vertices[v]) < 0 or max(pinned_vertices[v]) >= self._dim:
+                    raise ValueError("Coordinate indices out of range.")
+
+        pinning_rows = []
+        for v in pinned_vertices:
+            for coord in pinned_vertices[v]:
+                idx = vertex_order.index(v)
+                new_row = Matrix.zeros(1, self._dim * self._graph.number_of_nodes())
+                new_row[idx * self._dim + coord] = 1
+                pinning_rows.append(new_row)
+        pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
+        return pinned_rigidity_matrix
 
     @doc_category("Waiting for implementation")
     def stress_matrix(
