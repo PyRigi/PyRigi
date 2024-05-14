@@ -576,6 +576,8 @@ class Framework(object):
 
         # `delta` is responsible for distinguishing the edges (i,j) and (j,i)
         def delta(e, w):
+            # the parameter e represents an edge
+            # the parameter w represents a vertex
             if w == e[0]:
                 return 1
             if w == e[1]:
