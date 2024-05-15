@@ -8,8 +8,10 @@ First of all: **thank you** for considering to contribute to PyRigi!
 
 
 PyRigi is licensed under [MIT](https://github.com/PyRigi/PyRigi/blob/main/LICENSE).
-By contributing to PyRigi, you agree to license the code to which you contributed
-under PyRigi's license terms.
+By contributing to PyRigi:
+* you agree to license the code to which you contributed
+under PyRigi's license terms;
+* you guarantee that your contribution does not infringe any license or copyright.
 
 
 
