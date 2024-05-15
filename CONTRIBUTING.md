@@ -1,4 +1,4 @@
-# How to contribute
+# Contributing
 
 <!-- start-input -->
 
