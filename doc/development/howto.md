@@ -1,17 +1,21 @@
 # How to contribute
 
-```{todo}
-Mention license and agreeing to it by contributing
+```{include} ../../CONTRIBUTING.md
+:relative-docs: docs/
+:start-after: <!-- start-input -->
+:end-before: <!-- end-input -->
 ```
 
+This page provides basic information to start contributing.
 
-## Gitflow
+## Git(flow)
 
+We use [Git](https://git-scm.com/) for version control and the project is hosted at [Github](https://github.com/PyRigi/Pyrigi).
 We use [Gitflow](https://nvie.com/posts/a-successful-git-branching-model/) (see also [this description](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)) for PyRigi development.
 In a nutshell, this means that there are two prominent branches in PyRigi's Git repository:
 
-- `main`, which ...
-- `dev`, which ...
+- `main`, which contains the stable version of the package
+- `dev`, which is used for the development.
 
 Collaborators are not allowed to push their Git commits directly to these two branches.
 Rather, they should employ _pull requests_.
@@ -22,6 +26,14 @@ These are the tasks to be performed:
 2. once they are done, they push `feature-X` to GitHub and solicit a pull request of `feature-X` into `dev`;
 3. the code is checked by the maintainers, who may ask some other collaborator to serve as reviewer; in this process, comments and suggested of change may be sent to Alice and Bob until agreement is reached about the feature and the pull request receives approval;
 4. a maintainer merges `feature-X` into `dev`.
+
+We propose a few categories for contributing branches:
+* _features_: branches to implement new features/improvements to the current status; their name should start by `feature-`
+* _documentation_: branches to modify the documentation; their name should start by `doc-`
+* _bugs_: branches to solve known bugs; their name should start by `bug-`
+* _hotfix_: branches to solve an urgent error; their name should start by `hotfix-`
+
+Once in a while, the maintainers merge the branch `dev` into `main` and create a new release.
 
 ## Code
 
