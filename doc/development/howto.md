@@ -6,8 +6,11 @@
 :end-before: <!-- end-input -->
 ```
 
-## Gitflow
+This page provides basic information to start contributing.
 
+## Git(flow)
+
+We use [Git](https://git-scm.com/) for version control and the project is hosted at [Github](https://github.com/PyRigi/Pyrigi).
 We use [Gitflow](https://nvie.com/posts/a-successful-git-branching-model/) (see also [this description](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)) for PyRigi development.
 In a nutshell, this means that there are two prominent branches in PyRigi's Git repository:
 
