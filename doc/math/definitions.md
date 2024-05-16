@@ -36,15 +36,15 @@ The pair $(G, p)$ is a called a _$d$-dimensional framework_.
 Two $d$-dimensional frameworks $(G, p)$ and $(G, p')$ with $G = (V, E)$ are called _equivalent_ if
 
 \begin{equation*}
- \left\| p_i - p_j \right\| = \left\| p'_i - p'_j \right\|
- \quad \text{ for all } \{i, j\} \in E \,.
+ \left\| p_u - p_v \right\| = \left\| p'_u - p'_v \right\|
+ \quad \text{ for all } uv \in E \,.
 \end{equation*}
 
 Two $d$-dimensional frameworks $(G, p)$ and $(G, p')$ with $G = (V, E)$ are called _congruent_ if
 
 \begin{equation*}
- \left\| p_i - p_j \right\| = \left\| p'_i - p'_j \right\|
- \quad \text{ for all } i, j \in V \,.
+ \left\| p_u - p_v \right\| = \left\| p'_u - p'_v \right\|
+ \quad \text{ for all } u, v \in V \,.
 \end{equation*}
 :::
 
@@ -53,12 +53,12 @@ Two $d$-dimensional frameworks $(G, p)$ and $(G, p')$ with $G = (V, E)$ are call
 :label: def-rigidity-matrix
 
 Let $G = (V, E)$ be a graph and $p$ be a $d$-dimensional realization of $G$.
-The _rigidity matrix_ $R(G, p)$ of the framework $(G, p)$ is the $|E| \times d|V|$ matrix whose row labelled by $e \in E$ with $e = \{i,j\}$ is
+The _rigidity matrix_ $R(G, p)$ of the framework $(G, p)$ is the $|E| \times d|V|$ matrix whose row labelled by $e \in E$ with $e = uv$ is
 
 \begin{equation*}
   \begin{array}{rcccccccl}
-    &   &        & i           &        & j \\
-  ( & 0 & \cdots & p_i - p_j & \cdots & p_j - p_i & \cdots & 0 &) \,.
+    &   &        & u           &        & v \\
+  ( & 0 & \cdots & p_u - p_v & \cdots & p_v - p_u & \cdots & 0 &) \,.
   \end{array}
 \end{equation*}
 
@@ -73,9 +73,9 @@ Let $G = (V, E)$ be a graph and $p \colon V \rightarrow \KK^d$ be a $d$-dimensio
 An _infinitesimal flex_ of the framework $(G, p)$ is a collection $(q_v)_{v \in V}$ of elements in $\KK^n$ such that
 
 \begin{equation*}
- (p_i - p_j) \cdot (q_i - q_j) = 0
+ (p_u - p_v) \cdot (q_u - q_v) = 0
  \quad \text{for all } e \in E
- \text{ with } e = \{i,j\} \,.
+ \text{ with } e = uv \,.
 \end{equation*}
 
 In other words, if we form a $d|V| \times 1$ vector $q$ out of an infinitesimal flex, then $q$ lies in the kernel of the rigidity matrix $R(G, p)$.
