@@ -10,11 +10,11 @@ Currently, definitions and theorems are just listed here. They will be sorted la
 :::{prf:definition} Realization
 :label: def-realization
 
-Let $G=(V_G,E_G)$ be a simple graph, $\KK$ be a field and $d\in\NN$.
-A $d$-dimensional _realization_ of $G$ in $\KK^d$ is a map $p\colon V_G\rightarrow \KK^d$.
-For convenience, for $v \in V$ we may denote $p(i)$ by $p_i$.
+Let $G=(V,E)$ be a simple graph, $\KK$ be a field and $d\in\NN$.
+A $d$-dimensional _realization_ of $G$ in $\KK^d$ is a map $p\colon V\rightarrow \KK^d$.
+For convenience, for $v \in V$ we may denote $p(v)$ by $p_v$.
 
-The realization $p$ is _quasi-injective_ if $p(u)\neq p(v)$ for every edge $uv\in E_G$.
+The realization $p$ is _quasi-injective_ if $p(u)\neq p(v)$ for every edge $uv\in E$.
 :::
 
 
@@ -174,8 +174,8 @@ A realization $p$ whose coordinates are algebraically independent is called _gen
 :::{prf:definition} $(k, \ell)$-sparse and $(k, \ell)$-tight
 :label: def-kl-sparse-tight
 
-Let $G = (V_G, E_G)$ be a (multi)graph and let $k, \ell \in \NN$.
-Set $n = |V_G|$ and $m = |E_G|$.
+Let $G = (V, E)$ be a (multi)graph and let $k, \ell \in \NN$.
+Set $n = |V|$ and $m = |E|$.
 The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n' \leq n$ vertices spans at most $kn' - \ell$ edges.
 The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $kn - \ell = m$.
 
@@ -223,7 +223,7 @@ The graph $G$ is called
 :::{prf:theorem}
 :label: thm-2-gen-rigidity
 
-A graph $G = (V_G, E_G)$ is generically $2$-rigid if and only if ...
+A graph $G = (V, E)$ is generically $2$-rigid if and only if ...
 
 {{references}} {cite:p}`Geiringer1927`
 {cite:p}`Laman1970`
