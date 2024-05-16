@@ -52,7 +52,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx_proof",
-    "myst_parser",
+    "myst_nb",
     "sphinxcontrib.bibtex",
     "sphinx_math_dollar",
     "sphinx_copybutton",
