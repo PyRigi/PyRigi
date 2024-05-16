@@ -29,7 +29,26 @@ The pair $(G, p)$ is a called a _$d$-dimensional framework_.
 {meth}`~.Framework.get_realization`
 :::
 
-:::{prf:definition} (Generically) rigid graph
+
+:::{prf:definition} Equivalent and congruent frameworks
+:label: def-equivalent-framework
+
+Two $d$-dimensional frameworks $(G, p)$ and $(G, p')$ with $G = (V, E)$ are called _equivalent_ if
+
+\begin{equation*}
+ \left\| p_i - p_j \right\| = \left\| p'_i - p'_j \right\|
+ \quad \text{ for all } \{i, j\} \in E \,.
+\end{equation*}
+
+Two $d$-dimensional frameworks $(G, p)$ and $(G, p')$ with $G = (V, E)$ are called _congruent_ if
+
+\begin{equation*}
+ \left\| p_i - p_j \right\| = \left\| p'_i - p'_j \right\|
+ \quad \text{ for all } i, j \in V \,.
+\end{equation*}
+:::
+
+
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
