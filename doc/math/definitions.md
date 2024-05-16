@@ -98,6 +98,20 @@ An infinitesimal flex that is not trivial is called a _nontrivial infinitesimal 
 {meth}`~.Framework.nontrivial_inf_flexes`
 :::
 
+
+:::{prf:definition} Infinitesimally rigid frameworks
+:label: def-inf-rigid-framework
+
+A framework is called _infinitesimally rigid_, if all its infinitesimal flexes are trivial.
+A framework is called _infinitesimally flexible_, if it is not infinitesimally rigid.
+
+Let $G = (V, E)$ be a graph and $p$ be a $d$-dimensional realization of $G$.
+If $|V| \geq d+1$, the framework $(G, p)$ is infinitesimally rigid if and only if the rigidity matrix $R(G, p)$ has rank $d|V| - \binom{d+1}{2}$.
+If $|V| \leq d+1$, the framework $(G, p)$ is infinitesimally rigid if and only if $G$ is complete, $p$ is injective and the set $\{ p_v \, : \, v \in V\}$ is affinely independent.
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_inf_rigid`
+:::
+
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
