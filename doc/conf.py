@@ -119,6 +119,8 @@ myst_substitutions = {
 
 myst_heading_anchors = 3
 
+nb_execution_mode = "cache"
+
 tippy_enable_mathjax = True
 tippy_props = {
     "theme": "light",
@@ -156,7 +158,7 @@ templates_path = ["_templates"]
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ".rst"
+source_suffix = [".md"]
 
 # The master toctree document.
 master_doc = "index"
