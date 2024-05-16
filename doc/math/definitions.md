@@ -132,6 +132,32 @@ A framework $(G, p)$ is called _continuously rigid_ (from now on, simply _rigid_
 A framework $(G, p)$ is called _flexible_ if it is not rigid.
 :::
 
+
+:::{prf:definition} Regular frameworks
+:label: def-regular-frameworks
+
+A $d$-dimensional framework $(G, p)$ is called _regular_ if
+
+\begin{equation*}
+ \mathrm{rk} \, R(G, p) \geq \mathrm{rk} \, R(G, p')
+\end{equation*}
+
+for any other $d$-dimensional framework $(G, p')$.
+:::
+
+
+:::{prf:definition} Independent frameworks
+:label: def-independent-frameworks
+
+A $d$-dimensional framework $(G, p)$ with $G = (V, E)$ is called _independent_ if $\mathrm{rk} \, R(G, p) = |E|$.
+:::
+
+:::{prf:definition} Isostatic frameworks
+:label: def-isostatic-frameworks
+
+A framework $(G, p)$ is called _isostatic_ if it is infinitesimally rigid and independent.
+:::
+
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
