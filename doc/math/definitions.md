@@ -53,12 +53,12 @@ Two $d$-dimensional frameworks $(G, p)$ and $(G, p')$ with $G = (V, E)$ are call
 :label: def-rigidity-matrix
 
 Let $G = (V, E)$ be a graph and $p$ be a $d$-dimensional realization of $G$.
-The _rigidity matrix_ $R(G, p)$ of the framework $(G, p)$ is the $|E| \times d|V|$ matrix whose row labelled by $e \in E$ with $e = uv$ is
+The _rigidity matrix_ $R(G, p)$ of the framework $(G, p)$ is the $|E| \times d|V|$ matrix whose row labelled by $uv \in E$ is
 
 \begin{equation*}
-  \begin{array}{rcccccccl}
-    &   &        & u           &        & v \\
-  ( & 0 & \cdots & p_u - p_v & \cdots & p_v - p_u & \cdots & 0 &) \,.
+  \begin{array}{rccccccccccccl}
+    &   &        &   & u     & &       &        & v \\
+  ( & 0 & \cdots & 0 & p_u - p_v & 0 & \cdots & 0 & p_v - p_u & 0 & \cdots & 0 &) \,.
   \end{array}
 \end{equation*}
 
@@ -74,8 +74,7 @@ An _infinitesimal flex_ of the framework $(G, p)$ is a collection $(q_v)_{v \in 
 
 \begin{equation*}
  (p_u - p_v) \cdot (q_u - q_v) = 0
- \quad \text{for all } e \in E
- \text{ with } e = uv \,.
+ \quad \text{for all } uv \in E\,.
 \end{equation*}
 
 In other words, if we form a $d|V| \times 1$ vector $q$ out of an infinitesimal flex, then $q$ lies in the kernel of the rigidity matrix $R(G, p)$.
