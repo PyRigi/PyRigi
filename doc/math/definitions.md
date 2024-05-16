@@ -112,6 +112,18 @@ If $|V| \leq d+1$, the framework $(G, p)$ is infinitesimally rigid if and only i
 {{pyrigi_crossref}} {meth}`~.Framework.is_inf_rigid`
 :::
 
+:::{prf:definition} Continuous flexes
+:label: def-flex
+
+Let $(G, p)$ be a $d$-dimensional framework.
+A _continuous flex_ is a continuous map $\alpha \colon [0, 1] \rightarrow (\RR^{d})^V$ such that
+
+* $\alpha(0) = p$;
+* $(G, p)$ and $(G, \alpha(t))$ are equivalent for every $t \in [0,1]$.
+
+A continuous flex is called _trivial_ if $(G, p)$ and $(G, \alpha(t))$ are congruent for every $t \in [0,1]$.
+:::
+
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
