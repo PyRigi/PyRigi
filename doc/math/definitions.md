@@ -158,6 +158,8 @@ A $d$-dimensional framework $(G, p)$ with $G = (V, E)$ is called _independent_ i
 A framework $(G, p)$ is called _isostatic_ if it is infinitesimally rigid and independent.
 :::
 
+
+:::{prf:definition} Generically rigid graph
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
