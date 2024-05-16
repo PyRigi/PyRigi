@@ -1,0 +1,2 @@
+# Pair ipynb notebooks to md:myst text notebooks
+formats = "ipynb,md:myst"
