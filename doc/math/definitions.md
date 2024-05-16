@@ -49,6 +49,22 @@ Two $d$-dimensional frameworks $(G, p)$ and $(G, p')$ with $G = (V, E)$ are call
 :::
 
 
+:::{prf:definition} Rigidity matrix
+:label: def-rigidity-matrix
+
+Let $G = (V, E)$ be a graph and $p$ be a $d$-dimensional realization of $G$.
+The _rigidity matrix_ $R(G, p)$ of the framework $(G, p)$ is the $|E| \times d|V|$ matrix whose row labelled by $e \in E$ with $e = \{i,j\}$ is
+
+\begin{equation*}
+  \begin{array}{rcccccccl}
+    &   &        & i           &        & j \\
+  ( & 0 & \cdots & p_i - p_j & \cdots & p_j - p_i & \cdots & 0 &) \,.
+  \end{array}
+\end{equation*}
+
+{{pyrigi_crossref}} {meth}`~.Framework.rigidity_matrix`
+:::
+
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
