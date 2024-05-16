@@ -124,6 +124,14 @@ A _continuous flex_ is a continuous map $\alpha \colon [0, 1] \rightarrow (\RR^{
 A continuous flex is called _trivial_ if $(G, p)$ and $(G, \alpha(t))$ are congruent for every $t \in [0,1]$.
 :::
 
+
+:::{prf:definition} Continuously rigid frameworks
+:label: def-cont-rigid-framework
+
+A framework $(G, p)$ is called _continuously rigid_ (from now on, simply _rigid_) if each of its continuous flexes is trivial.
+A framework $(G, p)$ is called _flexible_ if it is not rigid.
+:::
+
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
