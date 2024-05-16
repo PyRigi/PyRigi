@@ -686,7 +686,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def trivial_inf_flexes(self) -> List[Matrix]:
         r"""
-        Return the trivial infinitesimal flexes of the framework.
+        Return a basis of the vector subspace of trivial infinitesimal flexes of the framework.
 
         Definitions
         -----------
@@ -715,7 +715,7 @@ class Framework(object):
         [ 2],
         [-2],
         [ 0]])]
-        """
+        """  # noqa: E501
         dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in self._graph.nodes])
@@ -769,9 +769,10 @@ class Framework(object):
 
         Notes
         -----
-        The infinitesimal flexes are computed by orthogonalizing the space of trivial
-        and non-trivial flexes and subsequently omitting the trivial flexes,
-        provided that `include_trivial` is set to `False`.
+        Return a lift of a basis of the quotient of the vector space of infinitesimal flexes
+        modulo trivial infinitesimal flexes, if `include_trivial=False`.
+        Return a basis of the vector space of infinitesimal flexes if `include_trivial=True`.
+
         Else, return the entire kernel.
 
         Parameters
@@ -786,27 +787,30 @@ class Framework(object):
         >>> F.delete_edges([(0,2), (1,3)])
         >>> F.inf_flexes(include_trivial=False)
         [Matrix([
-        [ 1/4],
-        [ 1/4],
-        [ 1/4],
-        [-1/4],
-        [-1/4],
-        [-1/4],
-        [-1/4],
-        [ 1/4]])]
-        """
-        if pinned_vertices is None:
-            rigidity_matrix = self.rigidity_matrix()
-        else:
-            rigidity_matrix = self.pinned_rigidity_matrix(pinned_vertices)
-        kernel = rigidity_matrix.nullspace()
+        [1],
+        [0],
+        [1],
+        [0],
+        [0],
+        [0],
+        [0],
+        [0]])]
+        """  # noqa: E501
         if include_trivial:
-            return kernel
-        trivial_flexes = self.trivial_inf_flexes()
-        basis_flexspace = Matrix.orthogonalize(
-            *(trivial_flexes + kernel), rankcheck=False
-        )
-        return basis_flexspace[len(trivial_flexes) : len(kernel) + 1]
+            return self.rigidity_matrix().nullspace()
+        rigidity_matrix = self.rigidity_matrix()
+        all_inf_flexes = rigidity_matrix.nullspace()
+        trivial_inf_flexes = self.trivial_inf_flexes()
+        s = len(trivial_inf_flexes)
+        extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
+        tmp_matrix = Matrix.hstack(*trivial_inf_flexes)
+        for v in all_inf_flexes:
+            r = extend_basis_matrix.rank()
+            tmp_matrix = Matrix.hstack(extend_basis_matrix, v)
+            if not tmp_matrix.rank() == r:
+                extend_basis_matrix = Matrix.hstack(extend_basis_matrix, v)
+        basis = extend_basis_matrix.columnspace()
+        return basis[s:]
 
     @doc_category("Waiting for implementation")
     def stresses(self) -> Any:
