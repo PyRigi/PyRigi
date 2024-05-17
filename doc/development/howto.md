@@ -113,7 +113,7 @@ to retrieve the information from type hinting.
 The other documentation source files are written in [MyST](https://myst-parser.readthedocs.io/)
 (see also the [cheatsheet](#cheatsheet)).
 The following extensions are used:
- - [`myst-nb`](https://myst-parser.readthedocs.io) - parsing MyST syntax and Jupyter notebooks;
+ - [`myst-nb`](https://myst-nb.readthedocs.io/) - parsing MyST syntax and Jupyter notebooks;
  - [`sphinx-math-dollar`](https://www.sympy.org/sphinx-math-dollar/) - dollar signs to typeset inline and displayed math expressions;
  - [`sphinx-proof`](https://sphinx-proof.readthedocs.io) - mathematical environments (definitions, theorems,...);
  - [`sphinxcontrib-bibtex`](https://sphinxcontrib-bibtex.readthedocs.io) - bibliography using `.bib` file;
@@ -151,5 +151,20 @@ To recompile everything, stop the previous command and run
 make clean
 make html
 ```
+Cleaning is necessary especially to get the documentation updated
+after a change in docstrings. 
 
+### Creating tutorials
 
+We appreciate a lot if you can contribute with a notebook that
+illustrates how to use PyRigi, describes a rigidity theory problem, accompanies a paper etc.
+
+The [tutorials](#tutorials) section is generated from Jupyter notebooks;
+more precisely, from MyST Markdown mirrors of `.ipynb` notebooks.
+This allows versioning the `.md` notebooks in Git without having troubles with the metadata, outputs etc. of `.ipynb` notebooks.
+The pairing of `.ipynb` notebooks with MyST `.md` notebooks
+is achieved using [Jupytext](https://jupytext.readthedocs.io/en/latest/index.html).
+
+Please, **do not** commit the `.ipynb` to the repository.
+You can contact a maintainer if you have a `.ipynb` tutorial
+you want to contribute but struggle to get its `.md` version.

@@ -11,3 +11,4 @@
 *.gz
 *.pyc
 .vscode/settings.json
+*.ipynb
