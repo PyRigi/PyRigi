@@ -21,7 +21,7 @@ from random import randrange
 import networkx as nx
 from sympy import Matrix, flatten
 
-from pyrigi.data_type import Vertex, Edge, Point
+from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
 from pyrigi.graph import Graph
 from pyrigi.misc import doc_category, generate_category_tables
 
@@ -279,7 +279,7 @@ class Framework(object):
     @doc_category("Class methods")
     def Random(
         cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
-    ) -> None:
+    ) -> FrameworkType:
         """
         Return a framework with random realization.
 
@@ -320,7 +320,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Empty(cls, dim: int = 2) -> None:
+    def Empty(cls, dim: int = 2) -> FrameworkType:
         """
         Generate an empty framework.
 
@@ -340,7 +340,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Complete(cls, points: List[Point]) -> None:
+    def Complete(cls, points: List[Point]) -> FrameworkType:
         """
         Generate a framework on the complete graph from a given list of points.
 
