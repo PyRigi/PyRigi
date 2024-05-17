@@ -27,6 +27,7 @@ class Graph(nx.Graph):
 
     Examples
     --------
+    >>> from pyrigi import Graph
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> print(G)
     Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]]
@@ -109,7 +110,7 @@ class Graph(nx.Graph):
         for edge in edges:
             if len(edge) != 2 or not edge[0] in G.nodes or not edge[1] in G.nodes:
                 raise TypeError(
-                    "Edge {edge} does not have the correct format "
+                    f"Edge {edge} does not have the correct format "
                     "or has adjacent vertices the graph does not contain"
                 )
             G.add_edge(*edge)
@@ -134,7 +135,7 @@ class Graph(nx.Graph):
     @doc_category("Class methods")
     def Complete(cls, n: int) -> GraphType:
         """
-        Generate a complete graph on $n$ vertices.
+        Generate a complete graph on n vertices.
 
         The vertices are labeled by numbers from 0 to n-1.
         """

@@ -527,8 +527,7 @@ class Framework(object):
     def rigidity_matrix(
         self,
         vertex_order: List[Vertex] = None,
-        pinned_vertices: Dict[Vertex, List[int]] = {},
-        edges_ordered: bool = True,
+        edge_order: List[Edge] = None,
     ) -> Matrix:
         r"""
         Construct the rigidity matrix of the framework.
@@ -542,11 +541,6 @@ class Framework(object):
         vertex_order:
             By listing vertices in the preferred order, the rigidity matrix
             can be computed in a way the user expects.
-        pinned_vertices:
-            Dictionary of vertices and coordinates that do not contribute to the
-            computation of infinitesimal flexes. Each of the pinned vertex coordinates
-            adds a row given by the corresponding standard unit basis vector to
-            the rigidity matrix.
         edges_ordered:
             A Boolean indicating, whether the edges are assumed to be ordered (`True`),
             or whether they should be internally sorted (`False`).
@@ -554,94 +548,129 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
-        >>> F.rigidity_matrix(vertex_order=[2,1,0],pinned_vertices={0:[0], 1:[1]})
+        >>> F.rigidity_matrix()
         Matrix([
-        [ 0, 0, 2,  0, -2,  0],
-        [ 1, 3, 0,  0, -1, -3],
-        [-1, 3, 1, -3,  0,  0],
-        [ 0, 0, 0,  1,  0,  0],
-        [ 0, 0, 0,  0,  1,  0]])
+        [-2,  0, 2,  0,  0, 0],
+        [-1, -3, 0,  0,  1, 3],
+        [ 0,  0, 1, -3, -1, 3]])
         """
-        try:
-            if vertex_order is None:
-                vertex_order = sorted(self._graph.nodes)
-            else:
-                if not set(self._graph.nodes) == set(vertex_order) or not len(
-                    self._graph.nodes
-                ) == len(vertex_order):
-                    raise KeyError(
-                        "The vertex_order needs to contain "
-                        "exactly the same vertices as the graph!"
-                    )
-        except TypeError:
+        if vertex_order is None:
             vertex_order = self._graph.vertex_list()
-
-        for v in vertex_order:
-            if v not in pinned_vertices:
-                pinned_vertices[v] = []
-        pinned_vertices = {
-            v: pinned_vertices[v]
-            for v in pinned_vertices.keys()
-            if v in self._graph.nodes
-        }
-        for v in pinned_vertices:
-            if v not in self._graph.nodes:
-                raise KeyError(
-                    f"Vertex {v} in pinned_vertices is not a vertex of the graph!"
-                )
-            if not len(pinned_vertices[v]) <= self.dim():
-                raise IndexError(
-                    f"The length of {pinned_vertices[v]} is larger than the dimension!"
-                )
-
-        if not edges_ordered:
-            edge_order = sorted(self._graph.edges())
         else:
-            edge_order = self._graph.edges()
+            if not set(self._graph.nodes) == set(vertex_order):
+                raise ValueError(
+                    "vertex_order must contain "
+                    "exactly the same vertices as the graph!"
+                )
+        if edge_order is None:
+            edge_order = self._graph.edge_list()
+        else:
+            if not (
+                set([set(e) for e in self._graph.edges])
+                == set([set(e) for e in edge_order])
+                and len(edge_order) == self._graph.number_of_edges()
+            ):
+                raise ValueError(
+                    "edge_order must contain exactly the same edges as the graph!"
+                )
 
         # `delta` is responsible for distinguishing the edges (i,j) and (j,i)
-        def delta(u, v, w):
-            if w == u:
+        def delta(e, w):
+            # the parameter e represents an edge
+            # the parameter w represents a vertex
+            if w == e[0]:
                 return 1
-            if w == v:
+            if w == e[1]:
                 return -1
             return 0
 
-        # Add the column information about the pinned vertices, according to the
-        # `vertex_order`.
-        pinned_entries = flatten(
-            [
-                [
-                    self.dim() * count + index
-                    for index in pinned_vertices[vertex_order[count]]
-                ]
-                for count in range(len(vertex_order))
-            ]
-        )
-
-        # Return the rigidity matrix with standard unit basis vectors added for
-        # each pinned coordinate.
         return Matrix(
             [
                 flatten(
                     [
-                        delta(u, v, w) * (self._realization[u] - self._realization[v])
+                        delta(e, w)
+                        * (self._realization[e[0]] - self._realization[e[1]])
                         for w in vertex_order
                     ]
                 )
-                for u, v in edge_order
-            ]
-            + [
-                [1 if i == index else 0 for i in range(self.dim() * len(vertex_order))]
-                for index in pinned_entries
+                for e in edge_order
             ]
         )
+
+    def pinned_rigidity_matrix(
+        self,
+        pinned_vertices: Dict[Vertex, List[int]] = None,
+        vertex_order: List[Vertex] = None,
+        edge_order: List[Edge] = None,
+    ) -> Matrix:
+        r"""
+        Construct the rigidity matrix of the framework.
+
+        Definitions
+        -----------
+        * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
+
+        Examples
+        --------
+        >>> F = Framework(Graph([[0, 1], [0, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
+        >>> F.pinned_rigidity_matrix()
+        Matrix([
+        [-1,  0, 1, 0, 0, 0],
+        [-1, -1, 0, 0, 1, 1],
+        [ 1,  0, 0, 0, 0, 0],
+        [ 0,  1, 0, 0, 0, 0],
+        [ 0,  0, 1, 0, 0, 0]])
+        """
+        rigidity_matrix = self.rigidity_matrix(
+            vertex_order=vertex_order, edge_order=edge_order
+        )
+
+        if vertex_order is None:
+            vertex_order = self._graph.vertex_list()
+        if edge_order is None:
+            edge_order = self._graph.vertex_list()
+
+        if pinned_vertices is None:
+            freedom = self._dim * (self._dim + 1) // 2
+            pinned_vertices = {}
+            upper = self._dim + 1
+            for v in vertex_order:
+                upper -= 1
+                frozen_coord = []
+                for i in range(0, upper):
+                    if freedom > 0:
+                        frozen_coord.append(i)
+                        freedom -= 1
+                    else:
+                        pinned_vertices[v] = frozen_coord
+                        break
+                pinned_vertices[v] = frozen_coord
+        else:
+            number_pinned = sum([len(coord) for coord in pinned_vertices.values()])
+            if number_pinned > self._dim * (self._dim + 1) // 2:
+                raise ValueError(
+                    "The maximal number of coordinates that"
+                    f"can be pinned is {self._dim * (self._dim + 1) // 2}, "
+                    f"but you provided {number_pinned}."
+                )
+            for v in pinned_vertices:
+                if min(pinned_vertices[v]) < 0 or max(pinned_vertices[v]) >= self._dim:
+                    raise ValueError("Coordinate indices out of range.")
+
+        pinning_rows = []
+        for v in pinned_vertices:
+            for coord in pinned_vertices[v]:
+                idx = vertex_order.index(v)
+                new_row = Matrix.zeros(1, self._dim * self._graph.number_of_nodes())
+                new_row[idx * self._dim + coord] = 1
+                pinning_rows.append(new_row)
+        pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
+        return pinned_rigidity_matrix
 
     @doc_category("Waiting for implementation")
     def stress_matrix(
         self,
         data: Any,
-        pinned_vertices: Dict[Vertex, List[int]] = {},
         edge_order: List[Edge] = None,
     ) -> Matrix:
         r"""
@@ -655,58 +684,60 @@ class Framework(object):
         raise NotImplementedError()
 
     @doc_category("Infinitesimal rigidity")
-    def trivial_inf_flexes(
-        self, pinned_vertices: Dict[Vertex, List[int]] = {}
-    ) -> List[Matrix]:
+    def trivial_inf_flexes(self) -> List[Matrix]:
         r"""
-        Return the trivial infinitesimal flexes of the framework.
+        Return a basis of the vector subspace of trivial infinitesimal flexes of the framework.
 
         Definitions
         -----------
-        * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
-
-        Parameters
-        ----------
-        pinned_vertices:
-            see :meth:`~Framework.rigidity_matrix`
-
-        Notes
-        -----
-        Trival infinitesimal flexes are computed by calculating all
-        infinitesimal flexes of the complete graph.
+        * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flexes>`
 
         Examples
         --------
-        >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
+        >>> F = Framework.Complete([(0,0), (2,0), (0,2)])
         >>> F.trivial_inf_flexes()
         [Matrix([
-        [ 3],
-        [-1],
-        [ 3],
-        [ 1],
-        [ 0],
-        [ 0]]), Matrix([
         [1],
         [0],
         [1],
         [0],
         [1],
         [0]]), Matrix([
-        [-3],
+        [0],
+        [1],
+        [0],
+        [1],
+        [0],
+        [1]]), Matrix([
+        [ 0],
+        [ 0],
+        [ 0],
         [ 2],
-        [-3],
-        [ 0],
-        [ 0],
-        [ 1]])]
-        """
-        vertices = self._graph.vertex_list()
-        Kn = Graph.CompleteOnVertices(vertices)
-        F_Kn = Framework(graph=Kn, realization=self.realization())
-        return F_Kn.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=True)
+        [-2],
+        [ 0]])]
+        """  # noqa: E501
+        dim = self._dim
+        translations = [
+            Matrix.vstack(*[A for _ in self._graph.nodes])
+            for A in Matrix.eye(dim).columnspace()
+        ]
+        basis_skew_symmetric = []
+        for i in range(1, dim):
+            for j in range(i):
+                A = Matrix.zeros(dim)
+                A[i, j] = 1
+                A[j, i] = -1
+                basis_skew_symmetric += [A]
+        inf_rot = [
+            Matrix.vstack(*[A * self._realization[v] for v in self._graph.nodes])
+            for A in basis_skew_symmetric
+        ]
+        matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
+        return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
     def nontrivial_inf_flexes(
-        self, pinned_vertices: Dict[Vertex, List[int]] = {}
+        self,
     ) -> List[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
@@ -720,12 +751,11 @@ class Framework(object):
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(pinned_vertices=pinned_vertices, include_trivial=False)
+        return self.inf_flexes(include_trivial=False)
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
         self,
-        pinned_vertices: Dict[Vertex, List[int]] = {},
         include_trivial: bool = False,
     ) -> List[Matrix]:
         r"""
@@ -737,15 +767,14 @@ class Framework(object):
 
         Notes
         -----
-        The infinitesimal flexes are computed by orthogonalizing the space of trivial
-        and non-trivial flexes and subsequently omitting the trivial flexes,
-        provided that `include_trivial` is set to `False`.
+        Return a lift of a basis of the quotient of the vector space of infinitesimal flexes
+        modulo trivial infinitesimal flexes, if `include_trivial=False`.
+        Return a basis of the vector space of infinitesimal flexes if `include_trivial=True`.
+
         Else, return the entire kernel.
 
         Parameters
         ----------
-        pinned_vertices:
-            see :meth:`~Framework.rigidity_matrix`
         include_trivial:
             Boolean that decides, whether the trivial motions should
             be included (`True`) or not (`False`)
@@ -756,23 +785,30 @@ class Framework(object):
         >>> F.delete_edges([(0,2), (1,3)])
         >>> F.inf_flexes(include_trivial=False)
         [Matrix([
-        [ 1/4],
-        [ 1/4],
-        [ 1/4],
-        [-1/4],
-        [-1/4],
-        [-1/4],
-        [-1/4],
-        [ 1/4]])]
-        """
+        [1],
+        [0],
+        [1],
+        [0],
+        [0],
+        [0],
+        [0],
+        [0]])]
+        """  # noqa: E501
         if include_trivial:
-            return self.rigidity_matrix(pinned_vertices=pinned_vertices).nullspace()
-        trivial_flexes = self.trivial_inf_flexes(pinned_vertices=pinned_vertices)
-        all_flexes = self.rigidity_matrix(pinned_vertices=pinned_vertices).nullspace()
-        basis_flexspace = Matrix.orthogonalize(
-            *(trivial_flexes + all_flexes), rankcheck=False
-        )
-        return basis_flexspace[len(trivial_flexes) : len(all_flexes) + 1]
+            return self.rigidity_matrix().nullspace()
+        rigidity_matrix = self.rigidity_matrix()
+        all_inf_flexes = rigidity_matrix.nullspace()
+        trivial_inf_flexes = self.trivial_inf_flexes()
+        s = len(trivial_inf_flexes)
+        extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
+        tmp_matrix = Matrix.hstack(*trivial_inf_flexes)
+        for v in all_inf_flexes:
+            r = extend_basis_matrix.rank()
+            tmp_matrix = Matrix.hstack(extend_basis_matrix, v)
+            if not tmp_matrix.rank() == r:
+                extend_basis_matrix = Matrix.hstack(extend_basis_matrix, v)
+        basis = extend_basis_matrix.columnspace()
+        return basis[s:]
 
     @doc_category("Waiting for implementation")
     def stresses(self) -> Any:
@@ -780,18 +816,11 @@ class Framework(object):
         raise NotImplementedError()
 
     @doc_category("Infinitesimal rigidity")
-    def rigidity_matrix_rank(
-        self, pinned_vertices: Dict[Vertex, List[int]] = {}
-    ) -> int:
+    def rigidity_matrix_rank(self) -> int:
         """
         Compute the rank of the rigidity matrix.
-
-        Parameters
-        ----------
-        pinned_vertices:
-            see :meth:`~Framework.rigidity_matrix`
         """
-        return self.rigidity_matrix(pinned_vertices=pinned_vertices).rank()
+        return self.rigidity_matrix().rank()
 
     @doc_category("Infinitesimal rigidity")
     def is_inf_rigid(self) -> bool:

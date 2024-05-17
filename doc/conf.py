@@ -52,7 +52,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx_proof",
-    "myst_parser",
+    "myst_nb",
     "sphinxcontrib.bibtex",
     "sphinx_math_dollar",
     "sphinx_copybutton",
@@ -119,6 +119,8 @@ myst_substitutions = {
 
 myst_heading_anchors = 3
 
+nb_execution_mode = "cache"
+
 tippy_enable_mathjax = True
 tippy_props = {
     "theme": "light",
@@ -156,7 +158,7 @@ templates_path = ["_templates"]
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ".rst"
+source_suffix = [".md"]
 
 # The master toctree document.
 master_doc = "index"
@@ -171,7 +173,7 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "userguide/tutorials/*.ipynb"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
