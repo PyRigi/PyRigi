@@ -632,7 +632,7 @@ class Framework(object):
             for v in vertex_order:
                 upper -= 1
                 frozen_coord = []
-                for i in range(0, upper):
+                for i in range(upper):
                     if freedom > 0:
                         frozen_coord.append(i)
                         freedom -= 1

@@ -240,7 +240,10 @@ class Graph(nx.Graph):
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
         """
-        return self.is_sparse(K, L) and self.number_of_edges() == K * self.number_of_nodes() - L
+        return (
+            self.is_sparse(K, L)
+            and self.number_of_edges() == K * self.number_of_nodes() - L
+        )
 
     @doc_category("Waiting for implementation")
     def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
@@ -407,7 +410,7 @@ class Graph(nx.Graph):
 
             N = 10 * self.number_of_nodes() ** 2 * dim
             realization = {
-                vertex: [randrange(1, N) for _ in range(0, dim)]
+                vertex: [randrange(1, N) for _ in range(dim)]
                 for vertex in self.nodes
             }
             F = Framework(self, realization, dim)
@@ -459,7 +462,7 @@ class Graph(nx.Graph):
 
             N = 10 * self.number_of_nodes() ** 2 * dim
             realization = {
-                vertex: [randrange(1, N) for _ in range(0, dim)]
+                vertex: [randrange(1, N) for _ in range(dim)]
                 for vertex in self.nodes
             }
             F = Framework(self, realization, dim)
@@ -617,7 +620,7 @@ class Graph(nx.Graph):
 
         # We now remove the graphs that were found at least twice.
         clean_list = []
-        for i in range(0, len(max_subgraphs)):
+        for i in range(len(max_subgraphs)):
             iso_bool = False
             for j in range(i + 1, len(max_subgraphs)):
                 if set(max_subgraphs[i].nodes) == set(
