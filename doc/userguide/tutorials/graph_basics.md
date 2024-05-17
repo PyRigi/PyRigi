@@ -30,7 +30,7 @@ G
 Edges and vertices can be added:
 
 ```{code-cell} ipython3
-G.add_vertices([0,2,5,7,'a','b'])
+G.add_vertices([0, 2, 5, 7, 'a', 'b'])
 G.add_edges([(0,7), (2,5)])
 G
 ```
@@ -43,7 +43,7 @@ G
 ```
 
 ```{code-cell} ipython3
-G.delete_vertices([2,7])
+G.delete_vertices([2, 7])
 G
 ```
 
@@ -59,12 +59,12 @@ Graph.Complete(4)
 ```
 
 ```{code-cell} ipython3
-Graph.CompleteOnVertices(['a',1,(1.2)])
+Graph.CompleteOnVertices(['a', 1, (1.2)])
 ```
 
 ```{code-cell} ipython3
 from sympy import Matrix
-Graph.from_adjacency_matrix(Matrix([[0,1,1],[1,0,0],[1,0,0]]))
+Graph.from_adjacency_matrix(Matrix([[0,1,1], [1,0,0], [1,0,0]]))
 ```
 
 ```{code-cell} ipython3
@@ -72,7 +72,7 @@ Graph.from_vertices(range(4))
 ```
 
 ```{code-cell} ipython3
-Graph.from_vertices_and_edges(range(6),[[i,(i+2) % 6] for i in range(6)])
+Graph.from_vertices_and_edges(range(6), [[i, (i+2) % 6] for i in range(6)])
 ```
 
 A vertex of a graph can be of any hashable type, but it is recommended to have all of them of the same type, not as above. If all vertices have the same type, the vertex/edge set can be sorted when a list is required; otherwise, the order might differ:
