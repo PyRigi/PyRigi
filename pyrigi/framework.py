@@ -351,10 +351,7 @@ class Framework(object):
             raise ValueError("The list of points cannot be empty.")
 
         Kn = Graph.Complete(len(points))
-        realization = {
-            (Kn.vertex_list())[i]: Matrix(points[i]) for i in range(len(points))
-        }
-        return Framework(graph=Kn, realization=realization)
+        return Framework(Kn, {v: Matrix(p) for v, p in zip(Kn.nodes, points)})
 
     @doc_category("Framework manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
