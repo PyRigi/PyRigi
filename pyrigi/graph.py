@@ -311,6 +311,10 @@ class Graph(nx.Graph):
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
+
+        TODO
+        ----
+        Avoid creating deepcopies by remembering the edges.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -345,11 +349,12 @@ class Graph(nx.Graph):
             )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        for edge_set in combinations(self.edges, k):
-            G = deepcopy(self)
-            G.delete_edges(edge_set)
-            if not G.is_rigid(dim):
+        for edge_set in combinations(self.edge_list(), k):
+            self.delete_edges(edge_set)
+            if not self.is_rigid(dim):
+                self.add_edges(edge_set)
                 return False
+            self.add_edges(edge_set)
         return True
 
     @doc_category("Generic rigidity")
