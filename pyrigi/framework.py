@@ -738,7 +738,6 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def nontrivial_inf_flexes(
         self,
-        pinned_vertices: Dict[Vertex, List[int]] = None,
     ) -> List[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
@@ -752,13 +751,12 @@ class Framework(object):
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(include_trivial=False, pinned_vertices=pinned_vertices)
+        return self.inf_flexes(include_trivial=False)
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
         self,
         include_trivial: bool = False,
-        pinned_vertices: Dict[Vertex, List[int]] = None,
     ) -> List[Matrix]:
         r"""
         Return a basis of the space of infinitesimal flexes.
