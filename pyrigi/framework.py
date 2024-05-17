@@ -834,9 +834,9 @@ class Framework(object):
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
         return (
-            self.graph().number_of_nodes() <= 1
+            self._graph.number_of_nodes() <= 1
             or self.rigidity_matrix_rank()
-            == self.dim() * self.graph().number_of_nodes()
+            == self.dim() * self._graph.number_of_nodes()
             - (self.dim()) * (self.dim() + 1) // 2
         )
 
