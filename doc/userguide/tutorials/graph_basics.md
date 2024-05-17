@@ -14,6 +14,10 @@ kernelspec:
 
 # Graph - basic manipulation
 
++++
+
+This notebook illustrates the basic functionality of {class}`pyrigi.graph.Graph`.
+
 ```{code-cell} ipython3
 import os, sys
 sys.path.insert(0, os.path.abspath("../../.."))
