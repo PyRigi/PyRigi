@@ -187,13 +187,22 @@ The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and 
 {{references}} {cite:p}`Lee2008`
 :::
 
-:::{prf:definition} Minimally and redundantly rigid frameworks
-:label: def-minimally-redundantly-rigid-framework
+:::{prf:definition} Minimally rigid frameworks
+:label: def-min-rigid-framework
 
-Let $G$ be a graph, let $d, k \in \NN$, and let $p$ be a $d$-dimensional {prf:ref}`realization <def-realization>` of $G$.
+Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>`.
+The framework $(G, p)$ is called _minimally (infinitesimally) $d$-rigid_
+if removing any edge from $G$ yields an (infinitesimally) flexible framework.
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_min_inf_rigid`
+:::
+
+:::{prf:definition} Redundantly rigid frameworks
+:label: def-redundantly-rigid-framework
+
+Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` and let $k \in \NN$.
 The framework $(G, p)$ is called
 
-* _minimally (infinitesimally) $d$-rigid_ if removing any edge from $G$ yields an (infinitesimally) flexible framework;
 * _redundantly (infinitesimally) $d$-rigid_ if removing any edge from $G$ yields an (infinitesimally) rigid framework;
 * _vertex redundantly (infinitesimally) $d$-rigid_ if removing any vertex from $G$ yields an (infinitesimally) rigid framework;
 * _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ edges from $G$ yields an (infinitesimally) rigid framework;
@@ -203,24 +212,33 @@ The framework $(G, p)$ is called
 :::
 
 
-:::{prf:definition} Minimally and redundantly generically rigid graphs
-:label: def-minimally-redundantly-rigid-graph
+:::{prf:definition} Minimally generically rigid graphs
+:label: def-min-rigid-graph
+
+Let $G$ be a graph, let $d, k \in \NN$.
+The graph $G$ is called _minimally generically (infinitesimally) $d$-rigid_ if a (equivalently, any) generic framework $(G, p)$ is minimally (infinitesimally) $d$-rigid.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_min_rigid`
+:::
+
+
+:::{prf:definition} Redundantly generically rigid graphs
+:label: def-redundantly-rigid-graph
 
 Let $G$ be a graph, let $d, k \in \NN$.
 The graph $G$ is called
 
-* _minimally generically (infinitesimally) $d$-rigid_ if a (equivalently, any) generic framework $(G, p)$ is minimally (infinitesimally) $d$-rigid;
 * _redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) generic framework $(G, p)$ is redundantly (infinitesimally) $d$-rigid;
 * _vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) generic framework $(G, p)$ is vertex redundantly (infinitesimally) $d$-rigid;
 * _$k$-redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) generic framework $(G, p)$ is $k$-redundantly (infinitesimally) $d$-rigid;
 * _$k$-vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) generic framework $(G, p)$ is $k$-vertex redundantly  (infinitesimally) $d$-rigid.
 
-{{pyrigi_crossref}} {meth}`~.Graph.is_minimally_rigid`
-{meth}`~.Graph.is_redundantly_rigid`
+{{pyrigi_crossref}} {meth}`~.Graph.is_redundantly_rigid`
 {meth}`~.Graph.is_vertex_redundantly_rigid`
 {meth}`~.Graph.is_k_redundantly_rigid`
 {meth}`~.Graph.is_k_vertex_redundantly_rigid`
 :::
+
 
 :::{prf:theorem}
 :label: thm-2-gen-rigidity
