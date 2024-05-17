@@ -151,11 +151,13 @@ To recompile everything, stop the previous command and run
 make clean
 make html
 ```
+Cleaning is necessary especially to get the documentation updated
+after a change in docstrings. 
 
 ### Creating tutorials
 
 We appreciate a lot if you can contribute with a notebook that
-illustrates some mathematical concepts using PyRigi, describes a rigidity theory problem, accompanies a paper etc.
+illustrates how to use PyRigi, describes a rigidity theory problem, accompanies a paper etc.
 
 The [tutorials](#tutorials) section is generated from Jupyter notebooks;
 more precisely, from MyST Markdown mirrors of `.ipynb` notebooks.
