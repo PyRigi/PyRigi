@@ -534,7 +534,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
+        * :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
 
         Parameters
         ----------
@@ -763,7 +763,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Infinitesimal Motion <def-infinitesimal-motion>`
+        * :prf:ref:`Infinitesimal flex <def-inf-flex>`
 
         Notes
         -----
@@ -825,13 +825,13 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_inf_rigid(self) -> bool:
         """
-        Check whether the given framework is infinitesimally rigid
+        Check whether the given framework is infinitesimally rigid.
 
         The check is based on :meth:`~Framework.rigidity_matrix_rank`.
 
         Definitions
         -----
-        * :prf:ref:`Infinitesimal Rigidity <def-infinitesimal-rigidity>`
+        * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
         return (
             self.graph().number_of_nodes() <= 1
@@ -859,7 +859,7 @@ class Framework(object):
 
         Definitions
         -----
-        :prf:ref:`Minimally Rigidity <def-minimally-rigid-framework>`
+        :prf:ref:`Minimal infinitesimal rigidity <def-min-rigid-framework>`
 
         Examples
         --------
@@ -894,7 +894,7 @@ class Framework(object):
 
         Definitions
         -----------
-        :prf:ref:`Redundant Rigidity <def-minimally-redundantly-rigid-framework>`
+        :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
 
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])

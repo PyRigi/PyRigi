@@ -298,7 +298,7 @@ class Graph(nx.Graph):
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
-        <def-minimally-redundantly-rigid-graph>`.
+        <def-redundantly-rigid-graph>`.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -310,7 +310,7 @@ class Graph(nx.Graph):
     def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
-        <def-minimally-redundantly-rigid-graph>`.
+        <def-redundantly-rigid-graph>`.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -329,7 +329,7 @@ class Graph(nx.Graph):
     def is_redundantly_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
-        <def-minimally-redundantly-rigid-graph>`.
+        <def-redundantly-rigid-graph>`.
         """
         return self.is_k_redundantly_rigid(1, dim)
 
@@ -337,7 +337,7 @@ class Graph(nx.Graph):
     def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
-        <def-minimally-redundantly-rigid-graph>`.
+        <def-redundantly-rigid-graph>`.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -417,7 +417,7 @@ class Graph(nx.Graph):
     def is_min_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
-        <def-minimally-redundantly-rigid-graph>`.
+        <def-min-rigid-graph>`.
 
         Notes
         -----
