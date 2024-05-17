@@ -832,7 +832,7 @@ class Graph(nx.Graph):
         """
         Return framework with random realization.
 
-        This method calls :meth:`Framework.Random`.
+        This method calls :meth:`.Framework.Random`.
         """
         from pyrigi.framework import Framework
 
