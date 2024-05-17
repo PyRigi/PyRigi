@@ -273,9 +273,7 @@ class Framework(object):
         """
         vertices = range(len(points))
         realization = {v: points[v] for v in vertices}
-        G = Graph()
-        G.add_nodes_from(vertices)
-        return Framework(graph=G, realization=realization)
+        return Framework(Graph.from_vertices(vertices), realization)
 
     @classmethod
     @doc_category("Class methods")
