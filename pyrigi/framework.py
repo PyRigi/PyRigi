@@ -906,11 +906,12 @@ class Framework(object):
         >>> F.is_redundantly_rigid()
         False
         """  # noqa: E501
-        for edge in self._graph.edges:
-            F = deepcopy(self)
-            F.delete_edge(edge)
-            if not F.is_inf_rigid():
+        for edge in self._graph.edge_list():
+            self.delete_edge(edge)
+            if not self.is_inf_rigid():
+                self.add_edge(edge)
                 return False
+            self.add_edge(edge)
         return True
 
     @doc_category("Waiting for implementation")
