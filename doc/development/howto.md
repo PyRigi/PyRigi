@@ -154,16 +154,15 @@ make html
 
 ### Creating tutorials
 
-We appreciate a lot if you contribute with notebook that
-illustrates using PyRigi, describes a rigidity theory problem,
-accompanies a paper etc.
+We appreciate a lot if you can contribute with a notebook that
+illustrates some mathematical concepts using PyRigi, describes a rigidity theory problem, accompanies a paper etc.
 
-The [tutorials](#tutorials) section is generated from jupyter notebooks.
-More precisely, from MyST Markdown mirrors of `.ipynb` notebooks.
-This allows versioning the `.md` notebooks in git without having troubles with the metadata, outputs etc. of `.ipynb` notebooks.
+The [tutorials](#tutorials) section is generated from Jupyter notebooks;
+more precisely, from MyST Markdown mirrors of `.ipynb` notebooks.
+This allows versioning the `.md` notebooks in Git without having troubles with the metadata, outputs etc. of `.ipynb` notebooks.
 The pairing of `.ipynb` notebooks with MyST `.md` notebooks
-is achieved using [Jupytext](https://jupytext.readthedocs.io/en/latest/index.html). 
+is achieved using [Jupytext](https://jupytext.readthedocs.io/en/latest/index.html).
 
-Please, do not commit the `.ipynb` to the repository.
-You can contact a maintainer if you have an `.ipynb` tutorial
+Please, **do not** commit the `.ipynb` to the repository.
+You can contact a maintainer if you have a `.ipynb` tutorial
 you want to contribute but struggle to get its `.md` version.
