@@ -6,13 +6,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from random import randrange
-from typing import List, Any
+from typing import List, Any, Union
 
 import networkx as nx
 from sympy import Matrix
 
-from pyrigi.data_type import Vertex, Edge, GraphType
+from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType
 from pyrigi.misc import doc_category, generate_category_tables
 
 
@@ -231,7 +230,7 @@ class Graph(nx.Graph):
         for j in range(K, self.number_of_nodes() + 1):
             for vertex_set in combinations(self.nodes, j):
                 G = self.subgraph(vertex_set)
-                if len(G.edges) > K * len(G.nodes) - L:
+                if G.number_of_edges() > K * G.number_of_nodes() - L:
                     return False
         return True
 
@@ -240,7 +239,10 @@ class Graph(nx.Graph):
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
         """
-        return self.is_sparse(K, L) and len(self.edges) <= K * len(self.nodes) - L
+        return (
+            self.is_sparse(K, L)
+            and self.number_of_edges() == K * self.number_of_nodes() - L
+        )
 
     @doc_category("Waiting for implementation")
     def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
@@ -311,6 +313,10 @@ class Graph(nx.Graph):
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
+
+        TODO
+        ----
+        Avoid creating deepcopies by remembering the edges.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -345,11 +351,12 @@ class Graph(nx.Graph):
             )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        for edge_set in combinations(self.edges, k):
-            G = deepcopy(self)
-            G.delete_edges(edge_set)
-            if not G.is_rigid(dim):
+        for edge_set in combinations(self.edge_list(), k):
+            self.delete_edges(edge_set)
+            if not self.is_rigid(dim):
+                self.add_edges(edge_set)
                 return False
+            self.add_edges(edge_set)
         return True
 
     @doc_category("Generic rigidity")
@@ -386,7 +393,7 @@ class Graph(nx.Graph):
         elif dim == 1:
             return self.is_connected()
         elif dim == 2 and combinatorial:
-            deficiency = -(2 * self.number_of_nodes() - 3) + len(self.edges)
+            deficiency = -(2 * self.number_of_nodes() - 3) + self.number_of_edges()
             if deficiency < 0:
                 return False
             else:
@@ -400,12 +407,7 @@ class Graph(nx.Graph):
         elif not combinatorial:
             from pyrigi.framework import Framework
 
-            N = 10 * self.number_of_nodes() ** 2 * dim
-            realization = {
-                vertex: [randrange(1, N) for _ in range(0, dim)]
-                for vertex in self.nodes
-            }
-            F = Framework(self, realization, dim)
+            F = Framework.Random(self, dim)
             return F.is_inf_rigid()
         else:
             raise ValueError(
@@ -452,12 +454,7 @@ class Graph(nx.Graph):
         elif not combinatorial:
             from pyrigi.framework import Framework
 
-            N = 10 * self.number_of_nodes() ** 2 * dim
-            realization = {
-                vertex: [randrange(1, N) for _ in range(0, dim)]
-                for vertex in self.nodes
-            }
-            F = Framework(self, realization, dim)
+            F = Framework.Random(self, dim)
             return F.is_min_inf_rigid()
         else:
             raise ValueError(
@@ -491,16 +488,16 @@ class Graph(nx.Graph):
             )
 
         elif dim == 1:
-            if (len(self.nodes) == 2 and len(self.edges) == 1) or (
-                len(self.nodes) == 1 or len(self.nodes) == 0
+            if (self.number_of_nodes() == 2 and self.number_of_edges() == 1) or (
+                self.number_of_nodes() == 1 or self.number_of_nodes() == 0
             ):
                 return True
             return self.vertex_connectivity() >= 2
         elif dim == 2:
             if (
-                (len(self.nodes) == 3 and len(self.edges) == 3)
-                or (len(self.nodes) == 2 and len(self.edges) == 1)
-                or (len(self.nodes) == 1 or len(self.nodes) == 0)
+                (self.number_of_nodes() == 3 and self.number_of_edges() == 3)
+                or (self.number_of_nodes() == 2 and self.number_of_edges() == 1)
+                or (self.number_of_nodes() == 1 or self.number_of_nodes() == 0)
             ):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
@@ -612,7 +609,7 @@ class Graph(nx.Graph):
 
         # We now remove the graphs that were found at least twice.
         clean_list = []
-        for i in range(0, len(max_subgraphs)):
+        for i in range(len(max_subgraphs)):
             iso_bool = False
             for j in range(i + 1, len(max_subgraphs)):
                 if set(max_subgraphs[i].nodes) == set(
@@ -670,7 +667,7 @@ class Graph(nx.Graph):
 
         # We now remove the graphs that were found at least twice.
         clean_list = []
-        for i in range(0, len(min_subgraphs)):
+        for i in range(len(min_subgraphs)):
             iso_bool = False
             for j in range(i + 1, len(min_subgraphs)):
                 if set(min_subgraphs[i].nodes) == set(
@@ -827,6 +824,19 @@ class Graph(nx.Graph):
         ]
 
         return Matrix(row_list)
+
+    @doc_category("Other")
+    def random_framework(
+        self, dim: int = 2, rand_range: Union(int, List[int]) = None
+    ) -> FrameworkType:
+        """
+        Return framework with random realization.
+
+        This method calls :meth:`Framework.Random`.
+        """
+        from pyrigi.framework import Framework
+
+        return Framework.Random(self, dim, rand_range)
 
 
 Graph.__doc__ = Graph.__doc__.replace(

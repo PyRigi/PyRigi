@@ -23,4 +23,5 @@ A Point is a list of coordinates whose length is the dimension of its affine spa
 """
 
 GraphType = TypeVar("Graph")
+FrameworkType = TypeVar("Framework")
 MatroidType = TypeVar("Matroid")

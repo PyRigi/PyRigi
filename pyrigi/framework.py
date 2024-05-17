@@ -13,7 +13,7 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Union
 
 from copy import deepcopy
 from random import randrange
@@ -21,7 +21,7 @@ from random import randrange
 import networkx as nx
 from sympy import Matrix, flatten
 
-from pyrigi.data_type import Vertex, Edge, Point
+from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
 from pyrigi.graph import Graph
 from pyrigi.misc import doc_category, generate_category_tables
 
@@ -273,39 +273,54 @@ class Framework(object):
         """
         vertices = range(len(points))
         realization = {v: points[v] for v in vertices}
-        G = Graph()
-        G.add_nodes_from(vertices)
-        return Framework(graph=G, realization=realization)
+        return Framework(Graph.from_vertices(vertices), realization)
 
     @classmethod
     @doc_category("Class methods")
-    def from_graph(cls, graph: Graph, dim: int = 2) -> None:
+    def Random(
+        cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
+    ) -> FrameworkType:
         """
         Return a framework with random realization.
 
         Examples
         --------
-        >>> F = Framework.from_graph(Graph([(0,1), (1,2), (0,2)]))
+        >>> F = Framework.Random(Graph([(0,1), (1,2), (0,2)]))
         >>> print(F) # doctest: +SKIP
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(122, 57), 1:(27, 144), 2:(50, 98)}
+
+        TODO
+        ----
+        Set the correct default range value.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
+        if rand_range is None:
+            b = 10 * graph.number_of_nodes() ** 2 * dim
+            a = -b
+        if isinstance(rand_range, list):
+            if not len(rand_range) == 2:
+                raise ValueError("If `rand_range` is a list, it must be of length 2.")
+            a, b = rand_range
+        if isinstance(rand_range, int):
+            if rand_range <= 0:
+                raise ValueError("If `rand_range` is an int, it must be positive")
+            b = rand_range
+            a = -b
 
-        N = 10 * graph.number_of_nodes() ** 2 * dim
         realization = {
-            vertex: [randrange(1, N) for _ in range(dim)] for vertex in graph.nodes
+            vertex: [randrange(a, b) for _ in range(dim)] for vertex in graph.nodes
         }
 
-        return Framework(graph=graph, realization=realization)
+        return Framework(graph, realization)
 
     @classmethod
     @doc_category("Class methods")
-    def Empty(cls, dim: int = 2) -> None:
+    def Empty(cls, dim: int = 2) -> FrameworkType:
         """
         Generate an empty framework.
 
@@ -325,7 +340,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Complete(cls, points: List[Point]) -> None:
+    def Complete(cls, points: List[Point]) -> FrameworkType:
         """
         Generate a framework on the complete graph from a given list of points.
 
@@ -351,10 +366,7 @@ class Framework(object):
             raise ValueError("The list of points cannot be empty.")
 
         Kn = Graph.Complete(len(points))
-        realization = {
-            (Kn.vertex_list())[i]: Matrix(points[i]) for i in range(len(points))
-        }
-        return Framework(graph=Kn, realization=realization)
+        return Framework(Kn, {v: Matrix(p) for v, p in zip(Kn.nodes, points)})
 
     @doc_category("Framework manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -637,7 +649,7 @@ class Framework(object):
             for v in vertex_order:
                 upper -= 1
                 frozen_coord = []
-                for i in range(0, upper):
+                for i in range(upper):
                     if freedom > 0:
                         frozen_coord.append(i)
                         freedom -= 1
@@ -834,9 +846,9 @@ class Framework(object):
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
         return (
-            self.graph().number_of_nodes() <= 1
+            self._graph.number_of_nodes() <= 1
             or self.rigidity_matrix_rank()
-            == self.dim() * self.graph().number_of_nodes()
+            == self.dim() * self._graph.number_of_nodes()
             - (self.dim()) * (self.dim() + 1) // 2
         )
 
@@ -872,11 +884,12 @@ class Framework(object):
         """
         if not self.is_inf_rigid():
             return False
-        for edge in self.graph().edges:
-            F = deepcopy(self)
-            F.delete_edge(edge)
-            if F.is_inf_rigid():
+        for edge in self._graph.edge_list():
+            self.delete_edge(edge)
+            if self.is_inf_rigid():
+                self.add_edge(edge)
                 return False
+            self.add_edge(edge)
         return True
 
     @doc_category("Waiting for implementation")
@@ -905,11 +918,12 @@ class Framework(object):
         >>> F.is_redundantly_rigid()
         False
         """  # noqa: E501
-        for edge in self._graph.edges:
-            F = deepcopy(self)
-            F.delete_edge(edge)
-            if not F.is_inf_rigid():
+        for edge in self._graph.edge_list():
+            self.delete_edge(edge)
+            if not self.is_inf_rigid():
+                self.add_edge(edge)
                 return False
+            self.add_edge(edge)
         return True
 
     @doc_category("Waiting for implementation")
