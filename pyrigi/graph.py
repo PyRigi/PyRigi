@@ -6,12 +6,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from typing import List, Any
+from typing import List, Any, Union
 
 import networkx as nx
 from sympy import Matrix
 
-from pyrigi.data_type import Vertex, Edge, GraphType
+from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType
 from pyrigi.misc import doc_category, generate_category_tables
 
 
@@ -824,6 +824,19 @@ class Graph(nx.Graph):
         ]
 
         return Matrix(row_list)
+
+    @doc_category("Other")
+    def random_framework(
+        self, dim: int = 2, rand_range: Union(int, List[int]) = None
+    ) -> FrameworkType:
+        """
+        Return framework with random realization.
+
+        This method calls :meth:`Framework.Random`.
+        """
+        from pyrigi.framework import Framework
+
+        return Framework.Random(self, dim, rand_range)
 
 
 Graph.__doc__ = Graph.__doc__.replace(
