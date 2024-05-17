@@ -55,6 +55,13 @@ class Framework(object):
     Graph with vertices [0, 1] and edges [[0, 1]]
     Realization {0:(1, 2), 1:(0, 5)}
 
+    Notice that the realization of a vertex can be accessed using `[ ]`:
+
+    >>> F[0]
+    Matrix([
+    [1],
+    [2]])
+
     METHODS
 
     Notes
@@ -109,6 +116,10 @@ class Framework(object):
     def __repr__(self) -> str:
         """Return the representation"""
         return self.__str__()
+
+    def __getitem__(self, vertex) -> Point:
+        """Return the realization of the given vertex."""
+        return self._realization[vertex]
 
     @doc_category("Attribute getters")
     def dim(self) -> int:
