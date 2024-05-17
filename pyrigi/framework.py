@@ -13,7 +13,7 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Union
 
 from copy import deepcopy
 from random import randrange
@@ -277,29 +277,46 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def from_graph(cls, graph: Graph, dim: int = 2) -> None:
+    def Random(
+        cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
+    ) -> None:
         """
         Return a framework with random realization.
 
         Examples
         --------
-        >>> F = Framework.from_graph(Graph([(0,1), (1,2), (0,2)]))
+        >>> F = Framework.Random(Graph([(0,1), (1,2), (0,2)]))
         >>> print(F) # doctest: +SKIP
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(122, 57), 1:(27, 144), 2:(50, 98)}
+
+        TODO
+        ----
+        Set the correct default range value.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
+        if rand_range is None:
+            b = 10 * graph.number_of_nodes() ** 2 * dim
+            a = -b
+        if isinstance(rand_range, list):
+            if not len(rand_range) == 2:
+                raise ValueError("If `rand_range` is a list, it must be of length 2.")
+            a, b = rand_range
+        if isinstance(rand_range, int):
+            if rand_range <= 0:
+                raise ValueError("If `rand_range` is an int, it must be positive")
+            b = rand_range
+            a = -b
 
-        N = 10 * graph.number_of_nodes() ** 2 * dim
         realization = {
-            vertex: [randrange(1, N) for _ in range(dim)] for vertex in graph.nodes
+            vertex: [randrange(a, b) for _ in range(dim)] for vertex in graph.nodes
         }
 
-        return Framework(graph=graph, realization=realization)
+        return Framework(graph, realization)
 
     @classmethod
     @doc_category("Class methods")

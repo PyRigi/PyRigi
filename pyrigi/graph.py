@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from random import randrange
 from typing import List, Any
 
 import networkx as nx
@@ -408,12 +407,7 @@ class Graph(nx.Graph):
         elif not combinatorial:
             from pyrigi.framework import Framework
 
-            N = 10 * self.number_of_nodes() ** 2 * dim
-            realization = {
-                vertex: [randrange(1, N) for _ in range(dim)]
-                for vertex in self.nodes
-            }
-            F = Framework(self, realization, dim)
+            F = Framework.Random(self, dim)
             return F.is_inf_rigid()
         else:
             raise ValueError(
@@ -460,12 +454,7 @@ class Graph(nx.Graph):
         elif not combinatorial:
             from pyrigi.framework import Framework
 
-            N = 10 * self.number_of_nodes() ** 2 * dim
-            realization = {
-                vertex: [randrange(1, N) for _ in range(dim)]
-                for vertex in self.nodes
-            }
-            F = Framework(self, realization, dim)
+            F = Framework.Random(self, dim)
             return F.is_min_inf_rigid()
         else:
             raise ValueError(
