@@ -430,16 +430,11 @@ class Framework(object):
         }
 
     @doc_category("Attribute getters")
-    def get_realization(self) -> Dict[Vertex, Point]:
+    def realization(self) -> Dict[Vertex, Point]:
         """
-        Return a copy of the framework's realization.
+        Return a copy of the realization.
         """
         return deepcopy(self._realization)
-
-    @doc_category("Attribute getters")
-    def realization(self) -> List[Point]:
-        """Alias for :meth:`~Framework.get_realization`"""
-        return self.get_realization()
 
     @doc_category("Framework manipulation")
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:

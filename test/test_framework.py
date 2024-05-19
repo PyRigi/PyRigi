@@ -17,7 +17,7 @@ def test_vertex_addition():
     F.add_vertices([[1.0, 2.0], [1.0, 1.0], [0.0, 0.0]])
     F_ = Framework.Empty()
     F_.add_vertices([[1.0, 2.0], [1.0, 1.0], [0.0, 0.0]])
-    F_.set_realization(F.get_realization())
+    F_.set_realization(F.realization())
     assert (
         F.get_realization_list() == F_.get_realization_list()
         and F.graph().vertex_list() == F_.graph().vertex_list()
@@ -28,11 +28,7 @@ def test_vertex_addition():
     F_.change_vertex_coordinates(1, [2.0, 2.0])
     array = F_.get_realization_list()
     array[0] = (3, 0)
-    assert (
-        F.get_realization()[0] != F_.get_realization()[0]
-        and F.get_realization()[1] != F_.get_realization()[1]
-        and F.get_realization()[2] != F_.get_realization()[2]
-    )
+    assert F[0] != F_[0] and F[1] != F_[1] and F[2] != F_[2]
 
 
 def test_inf_rigidity():
