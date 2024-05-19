@@ -483,14 +483,14 @@ class Framework(object):
         self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
     @doc_category("Framework manipulation")
-    def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
+    def set_vertex_pos(self, vertex: Vertex, point: Point) -> None:
         """
         Change the coordinates of a single given vertex.
 
         Examples
         --------
         >>> F = Framework.from_points([(0,0)])
-        >>> F.change_vertex_coordinates(0, (6,2))
+        >>> F.set_vertex_pos(0, (6,2))
         >>> print(F)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0] and edges []
@@ -505,11 +505,6 @@ class Framework(object):
         self._realization[vertex] = Matrix(point)
 
     @doc_category("Framework manipulation")
-    def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
-        """Alias for :meth:`~Framework.change_vertex_coordinates`"""
-        self.change_vertex_coordinates(vertex, point)
-
-    @doc_category("Framework manipulation")
     def change_vertex_coordinates_list(
         self, vertices: List[Vertex], points: List[Point]
     ) -> None:
@@ -522,17 +517,17 @@ class Framework(object):
         No vertex from `vertices` can be contained multiple times.
         For an explanation of `vertices` and `points`,
         see :meth:`~Framework.add_vertices`.
-        We apply the method :meth:`~Framework.change_vertex_coordinates`
+        We apply the method :meth:`~Framework.set_vertex_pos`
         to `vertices` and `points`.
         """
         if list(set(vertices)).sort() != list(vertices).sort():
-            raise ValueError("Mulitple Vertices with the same name were found!")
+            raise ValueError("Multiple Vertices with the same name were found!")
         if not len(vertices) == len(points):
             raise IndexError(
                 "The list of vertices does not have the same length as the list of points"
             )
         for i in range(len(vertices)):
-            self.change_vertex_coordinates(vertices[i], points[i])
+            self.set_vertex_pos(vertices[i], points[i])
 
     @doc_category("Framework manipulation")
     def set_vertex_positions(self, vertices: List[Vertex], points: List[Point]) -> None:

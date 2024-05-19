@@ -25,7 +25,7 @@ def test_vertex_addition():
     )
     assert F.graph().vertex_list() == [0, 1, 2] and len(F.graph().edges()) == 0
     F.change_vertex_coordinates_list([0, 2], [[3.0, 0.0], [0.0, 3.0]])
-    F_.change_vertex_coordinates(1, [2.0, 2.0])
+    F_.set_vertex_pos(1, [2.0, 2.0])
     array = F_.realization()
     array[0] = (3, 0)
     assert F[0] != F_[0] and F[1] != F_[1] and F[2] != F_[2]
