@@ -116,7 +116,17 @@ class Framework(object):
         return self.__str__()
 
     def __getitem__(self, vertex) -> Point:
-        """Return the realization of the given vertex."""
+        """
+        Return the realization of the given vertex.
+        
+        Examples
+        --------
+        >>> F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
+        >>> F[0]
+        Matrix([
+        [1],
+        [2]])
+        """
         return self._realization[vertex]
 
     @doc_category("Attribute getters")
