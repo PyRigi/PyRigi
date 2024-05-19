@@ -66,10 +66,8 @@ class Framework(object):
 
     Notes
     -----
-    Internally, the realization is represented as a dictionary of
-    matrices ("vectors"). However, there is a method available for
-    transforming the realization to a more human-friendly format
-    (see :meth:`~Framework.get_realization_list`)
+    Internally, the realization is represented as `Dict[Vertex,Matrix]`.
+    However, :meth:`~Framework.realization` can return also `Dict[Vertex,Point]`.
     """
 
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
@@ -260,7 +258,7 @@ class Framework(object):
         Notes
         -----
         Use a networkx internal routine to plot the framework."""
-        nx.draw(self._graph, pos=self.get_realization_list())
+        nx.draw(self._graph, pos=self.realization(as_points=True))
 
     @classmethod
     @doc_category("Class methods")
@@ -410,31 +408,40 @@ class Framework(object):
         self._graph.delete_edges(edges)
 
     @doc_category("Attribute getters")
-    def get_realization_list(self) -> List[Point]:
+    def realization(self, as_points=False) -> Dict[Vertex, Point]:
         """
-        Return the realization as a list of Point.
+        Return a copy of the realization.
 
-        Notes
-        -----
-        The format returned by this method can be read by networkx.
+        Parameters
+        ----------
+        as_points:
+            If `True`, then the vertex positions type is Point,
+            otherwise Matrix (default).
 
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
-        >>> F.get_realization_list()
-        {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (1.0, 1.0)}
-        """
-        return {
-            vertex: tuple([float(point) for point in self._realization[vertex]])
-            for vertex in self._graph.nodes
-        }
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [1, 0], 2: [1, 1]}
+        >>> F.realization()
+        {0: Matrix([
+        [0],
+        [0]]), 1: Matrix([
+        [1],
+        [0]]), 2: Matrix([
+        [1],
+        [1]])}
 
-    @doc_category("Attribute getters")
-    def realization(self) -> Dict[Vertex, Point]:
+        Notes
+        -----
+        The format returned by this method with `as_points=True`
+        can be read by networkx.
         """
-        Return a copy of the realization.
-        """
-        return deepcopy(self._realization)
+        if not as_points:
+            return deepcopy(self._realization)
+        return {
+            vertex: list(position) for vertex, position in self._realization.items()
+        }
 
     @doc_category("Framework manipulation")
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
