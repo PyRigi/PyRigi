@@ -24,7 +24,7 @@ def test_vertex_addition():
         and F.dim() == F_.dim()
     )
     assert F.graph().vertex_list() == [0, 1, 2] and len(F.graph().edges()) == 0
-    F.change_vertex_coordinates_list([0, 2], [[3.0, 0.0], [0.0, 3.0]])
+    F.set_vertex_positions_from_lists([0, 2], [[3.0, 0.0], [0.0, 3.0]])
     F_.set_vertex_pos(1, [2.0, 2.0])
     array = F_.realization()
     array[0] = (3, 0)
