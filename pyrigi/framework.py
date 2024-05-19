@@ -118,7 +118,7 @@ class Framework(object):
     def __getitem__(self, vertex) -> Point:
         """
         Return the realization of the given vertex.
-        
+
         Examples
         --------
         >>> F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
@@ -249,16 +249,11 @@ class Framework(object):
             self.add_edge(edge)
 
     @doc_category("Attribute getters")
-    def underlying_graph(self) -> Graph:
+    def graph(self) -> Graph:
         """
-        Return a copy of the framework's underlying graph.
+        Return a copy of the underlying graph.
         """
         return deepcopy(self._graph)
-
-    @doc_category("Attribute getters")
-    def graph(self) -> Graph:
-        """Alias for :meth:`~Framework.underlying_graph`"""
-        return self.underlying_graph()
 
     @doc_category("Plotting")
     def draw_framework(self) -> None:
