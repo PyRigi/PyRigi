@@ -67,7 +67,7 @@ class Framework(object):
     Notes
     -----
     Internally, the realization is represented as `Dict[Vertex,Matrix]`.
-    However, :meth:`~Framework.realization` can return also `Dict[Vertex,Point]`.
+    However, :meth:`~Framework.realization` can also return `Dict[Vertex,Point]`.
     """
 
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
@@ -117,7 +117,7 @@ class Framework(object):
 
     def __getitem__(self, vertex) -> Point:
         """
-        Return the realization of the given vertex.
+        Return the coordinates corresponding to the image of a given vertex under the realization map.
 
         Examples
         --------
