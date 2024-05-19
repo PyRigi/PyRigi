@@ -87,8 +87,8 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 \end{equation*} 
 
 {{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
-{meth}`~.Framework.underlying_graph`
-{meth}`~.Framework.get_realization`
+{meth}`~.Framework.graph`
+{meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
 {{references}} {cite:p}`Lee2008`
@@ -106,8 +106,8 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 \end{equation*} 
 
 {{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
-{meth}`~.Framework.underlying_graph`
-{meth}`~.Framework.get_realization`
+{meth}`~.Framework.graph`
+{meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
 {{references}} {cite:p}`Lee2008`

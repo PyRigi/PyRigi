@@ -66,10 +66,8 @@ class Framework(object):
 
     Notes
     -----
-    Internally, the realization is represented as a dictionary of
-    matrices ("vectors"). However, there is a method available for
-    transforming the realization to a more human-friendly format
-    (see :meth:`~Framework.get_realization_list`)
+    Internally, the realization is represented as `Dict[Vertex,Matrix]`.
+    However, :meth:`~Framework.realization` can also return `Dict[Vertex,Point]`.
     """
 
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
@@ -118,7 +116,18 @@ class Framework(object):
         return self.__str__()
 
     def __getitem__(self, vertex) -> Point:
-        """Return the realization of the given vertex."""
+        """
+        Return the coordinates corresponding to the image
+        of a given vertex under the realization map.
+
+        Examples
+        --------
+        >>> F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
+        >>> F[0]
+        Matrix([
+        [1],
+        [2]])
+        """
         return self._realization[vertex]
 
     @doc_category("Attribute getters")
@@ -241,16 +250,11 @@ class Framework(object):
             self.add_edge(edge)
 
     @doc_category("Attribute getters")
-    def underlying_graph(self) -> Graph:
+    def graph(self) -> Graph:
         """
-        Return a copy of the framework's underlying graph.
+        Return a copy of the underlying graph.
         """
         return deepcopy(self._graph)
-
-    @doc_category("Attribute getters")
-    def graph(self) -> Graph:
-        """Alias for :meth:`~Framework.underlying_graph`"""
-        return self.underlying_graph()
 
     @doc_category("Plotting")
     def draw_framework(self) -> None:
@@ -260,7 +264,7 @@ class Framework(object):
         Notes
         -----
         Use a networkx internal routine to plot the framework."""
-        nx.draw(self._graph, pos=self.get_realization_list())
+        nx.draw(self._graph, pos=self.realization(as_points=True))
 
     @classmethod
     @doc_category("Class methods")
@@ -410,36 +414,40 @@ class Framework(object):
         self._graph.delete_edges(edges)
 
     @doc_category("Attribute getters")
-    def get_realization_list(self) -> List[Point]:
+    def realization(self, as_points=False) -> Dict[Vertex, Point]:
         """
-        Return the realization as a list of Point.
+        Return a copy of the realization.
 
-        Notes
-        -----
-        The format returned by this method can be read by networkx.
+        Parameters
+        ----------
+        as_points:
+            If `True`, then the vertex positions type is Point,
+            otherwise Matrix (default).
 
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
-        >>> F.get_realization_list()
-        {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (1.0, 1.0)}
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [1, 0], 2: [1, 1]}
+        >>> F.realization()
+        {0: Matrix([
+        [0],
+        [0]]), 1: Matrix([
+        [1],
+        [0]]), 2: Matrix([
+        [1],
+        [1]])}
+
+        Notes
+        -----
+        The format returned by this method with `as_points=True`
+        can be read by networkx.
         """
+        if not as_points:
+            return deepcopy(self._realization)
         return {
-            vertex: tuple([float(point) for point in self._realization[vertex]])
-            for vertex in self._graph.nodes
+            vertex: list(position) for vertex, position in self._realization.items()
         }
-
-    @doc_category("Attribute getters")
-    def get_realization(self) -> Dict[Vertex, Point]:
-        """
-        Return a copy of the framework's realization.
-        """
-        return deepcopy(self._realization)
-
-    @doc_category("Attribute getters")
-    def realization(self) -> List[Point]:
-        """Alias for :meth:`~Framework.get_realization`"""
-        return self.get_realization()
 
     @doc_category("Framework manipulation")
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
@@ -481,14 +489,14 @@ class Framework(object):
         self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
     @doc_category("Framework manipulation")
-    def change_vertex_coordinates(self, vertex: Vertex, point: Point) -> None:
+    def set_vertex_pos(self, vertex: Vertex, point: Point) -> None:
         """
         Change the coordinates of a single given vertex.
 
         Examples
         --------
         >>> F = Framework.from_points([(0,0)])
-        >>> F.change_vertex_coordinates(0, (6,2))
+        >>> F.set_vertex_pos(0, (6,2))
         >>> print(F)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0] and edges []
@@ -503,12 +511,7 @@ class Framework(object):
         self._realization[vertex] = Matrix(point)
 
     @doc_category("Framework manipulation")
-    def set_vertex_position(self, vertex: Vertex, point: Point) -> None:
-        """Alias for :meth:`~Framework.change_vertex_coordinates`"""
-        self.change_vertex_coordinates(vertex, point)
-
-    @doc_category("Framework manipulation")
-    def change_vertex_coordinates_list(
+    def set_vertex_positions_from_lists(
         self, vertices: List[Vertex], points: List[Point]
     ) -> None:
         """
@@ -518,33 +521,24 @@ class Framework(object):
         -----
         It is necessary that both lists have the same length.
         No vertex from `vertices` can be contained multiple times.
-        For an explanation of `vertices` and `points`,
-        see :meth:`~Framework.add_vertices`.
-        We apply the method :meth:`~Framework.change_vertex_coordinates`
+        We apply the method :meth:`~Framework.set_vertex_pos`
         to `vertices` and `points`.
         """
-        if list(set(vertices)).sort() != list(vertices).sort():
-            raise ValueError("Mulitple Vertices with the same name were found!")
+        if len(list(set(vertices))) != len(list(vertices)):
+            raise ValueError("Multiple Vertices with the same name were found!")
         if not len(vertices) == len(points):
             raise IndexError(
                 "The list of vertices does not have the same length as the list of points"
             )
-        for i in range(len(vertices)):
-            self.change_vertex_coordinates(vertices[i], points[i])
+        self.set_vertex_positions({v: pos for v, pos in zip(vertices, points)})
 
     @doc_category("Framework manipulation")
-    def set_vertex_positions(self, vertices: List[Vertex], points: List[Point]) -> None:
-        """Alias for :meth:`~Framework.change_vertex_coordinates_list`"""
-        self.change_vertex_coordinates_list(vertices, points)
-
-    @doc_category("Framework manipulation")
-    def change_realization(self, subset_of_realization: Dict[Vertex, Point]):
+    def set_vertex_positions(self, subset_of_realization: Dict[Vertex, Point]):
         """
         Change the coordinates of vertices given by a dictionary.
         """
-        self.change_vertex_coordinates_list(
-            subset_of_realization.keys(), subset_of_realization.values()
-        )
+        for v, pos in subset_of_realization.items():
+            self.set_vertex_pos(v, pos)
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix(
