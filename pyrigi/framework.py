@@ -117,7 +117,8 @@ class Framework(object):
 
     def __getitem__(self, vertex) -> Point:
         """
-        Return the coordinates corresponding to the image of a given vertex under the realization map.
+        Return the coordinates corresponding to the image 
+        of a given vertex under the realization map.
 
         Examples
         --------
