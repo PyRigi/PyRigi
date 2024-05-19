@@ -702,7 +702,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flexes>`
+        * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
 
         Examples
         --------
