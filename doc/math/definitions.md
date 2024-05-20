@@ -220,7 +220,7 @@ The framework $(G, p)$ is called
 :label: def-min-rigid-graph
 
 Let $G$ be a graph, let $d, k \in \NN$.
-The graph $G$ is called _minimally generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is minimally (infinitesimally) $d$-rigid.
+The graph $G$ is called _minimally generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`minimally (infinitesimally) $d$-rigid <def-min-rigid-framework>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_min_rigid`
 :::
