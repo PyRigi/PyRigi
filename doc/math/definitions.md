@@ -77,7 +77,7 @@ An _infinitesimal flex_ of $(G, p)$ is a collection $(q_v)_{v \in V}$ of element
  \quad \text{for all } uv \in E\,.
 \end{equation*}
 
-In other words, if we form a $d|V| \times 1$ vector $q$ out of an infinitesimal flex, then $q$ lies in the kernel of the rigidity matrix $R(G, p)$.
+In other words, if we form a $d|V| \times 1$ vector $q$ out of an infinitesimal flex, then $q$ lies in the kernel of the {prf:ref}`rigidity matrix <def-rigidity-matrix>` $R(G, p)$.
 
 {{pyrigi_crossref}} {meth}`~.Framework.inf_flexes`
 :::
