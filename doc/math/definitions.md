@@ -196,7 +196,7 @@ The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and 
 
 Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>`.
 The framework $(G, p)$ is called _minimally (infinitesimally) $d$-rigid_
-if removing any edge from $G$ yields an (infinitesimally) flexible framework.
+if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) flexible framework.
 
 {{pyrigi_crossref}} {meth}`~.Framework.is_min_inf_rigid`
 :::
@@ -207,10 +207,10 @@ if removing any edge from $G$ yields an (infinitesimally) flexible framework.
 Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` and let $k \in \NN$.
 The framework $(G, p)$ is called
 
-* _redundantly (infinitesimally) $d$-rigid_ if removing any edge from $G$ yields an (infinitesimally) rigid framework;
-* _vertex redundantly (infinitesimally) $d$-rigid_ if removing any vertex from $G$ yields an (infinitesimally) rigid framework;
-* _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ edges from $G$ yields an (infinitesimally) rigid framework;
-* _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ vertices from $G$ yields an (infinitesimally) rigid framework.
+* _redundantly (infinitesimally) $d$-rigid_ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) rigid framework;
+* _vertex redundantly (infinitesimally) $d$-rigid_ if removing any vertex from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) rigid framework;
+* _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ edges from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) rigid framework;
+* _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ vertices from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) rigid framework.
 
 {{pyrigi_crossref}} {meth}`~.Framework.is_redundantly_rigid`
 :::
