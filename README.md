@@ -31,7 +31,7 @@ In the future, we will enable installation via `pip`.
 
 The documentation of the `main` branch is available [online](https://pyrigi.github.io/PyRigi/).
 For compiling it locally,
-see the [development guide](https://pyrigi.github.io/PyRigi/development/).
+see the [development guide](https://pyrigi.github.io/PyRigi/development/howto).
 
 An important part of the documentation is the mathematical background.
 We specify the outputs of the methods in the package
