@@ -232,10 +232,10 @@ The graph $G$ is called _minimally generically (infinitesimally) $d$-rigid_ if a
 Let $G$ be a graph, let $d, k \in \NN$.
 The graph $G$ is called
 
-* _redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is redundantly (infinitesimally) $d$-rigid;
-* _vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is vertex redundantly (infinitesimally) $d$-rigid;
-* _$k$-redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is $k$-redundantly (infinitesimally) $d$-rigid;
-* _$k$-vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is $k$-vertex redundantly  (infinitesimally) $d$-rigid.
+* _redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`redundantly (infinitesimally) $d$-rigid <def-redundantly-rigid-framework>`;
+* _vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`vertex redundantly (infinitesimally) $d$-rigid <def-redundantly-rigid-framework>`;
+* _$k$-redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`$k$-redundantly (infinitesimally) $d$-rigid <def-redundantly-rigid-framework>`;
+* _$k$-vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`$k$-vertex redundantly (infinitesimally) $d$-rigid <def-redundantly-rigid-framework>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_redundantly_rigid`
 {meth}`~.Graph.is_vertex_redundantly_rigid`
