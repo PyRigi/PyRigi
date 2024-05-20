@@ -2,7 +2,7 @@ name: Deploy Sphinx documentation to Pages
 
 on:
   push:
-    branches: [main] # branch to trigger deployment
+    branches: [poetry] # branch to trigger deployment
 
 jobs:
   pages:
@@ -14,8 +14,12 @@ jobs:
       pages: write
       id-token: write
     steps:
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install --without dev
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
         documentation_path: ./doc
-        requirements_path: ./doc/requirements.txt
