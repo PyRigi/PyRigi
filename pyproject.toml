@@ -14,7 +14,7 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-Issues" = "https://github.com/PyRigi/PyRigi/issues"
+Issues = "https://github.com/PyRigi/PyRigi/issues"
 
 [tool.poetry.dependencies]
 python = "^3.10"		#networkx requires >= 3.10
