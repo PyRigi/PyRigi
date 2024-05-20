@@ -163,7 +163,7 @@ A {prf:ref}`framework <def-framework>` $(G, p)$ is called _isostatic_ if it is {
 :::{prf:definition} Generic realization and framework
 :label: def-gen-realization
 
-Let $G$ be a graph. A $d$-dimensional realization $p$ of $G$ whose coordinates are algebraically independent is called _generic_.
+Let $G$ be a graph. A $d$-dimensional {prf:ref}`realization <def-realization>` $p$ of $G$ whose coordinates are algebraically independent is called _generic_.
 A {prf:ref}`framework <def-framework>` $(G, p)$, where $p$ is generic, is called a _generic framework_.
 :::
 
@@ -171,7 +171,7 @@ A {prf:ref}`framework <def-framework>` $(G, p)$, where $p$ is generic, is called
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
-The graph $G$ is called _generically $d$-rigid_ if any generic $d$-dimensional {prf:ref}`framework <def-framework>` $(G, p)$ is continuously rigid; this is equivalent to $(G, p)$ being {prf:ref}`infinitesimally rigid <def-inf-rigid-framework>`.
+The graph $G$ is called _generically $d$-rigid_ if any {prf:ref}`generic $d$-dimensional framework <def-gen-realization>` $(G, p)$ is {prf:ref}`rigid <def-cont-rigid-framework>`; this is equivalent to $(G, p)$ being {prf:ref}`infinitesimally rigid <def-inf-rigid-framework>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_rigid`
 :::
@@ -196,7 +196,7 @@ The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and 
 
 Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>`.
 The framework $(G, p)$ is called _minimally (infinitesimally) $d$-rigid_
-if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) flexible framework.
+if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`flexible framework <def-cont-rigid-framework>`.
 
 {{pyrigi_crossref}} {meth}`~.Framework.is_min_inf_rigid`
 :::
