@@ -2,7 +2,7 @@ name: Deploy Sphinx documentation to Pages
 
 on:
   push:
-    branches: [poetry] # branch to trigger deployment
+    branches: [main] # branch to trigger deployment
 
 jobs:
   pages:
@@ -14,6 +14,7 @@ jobs:
       pages: write
       id-token: write
     steps:
+    - uses: actions/checkout@v4
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
