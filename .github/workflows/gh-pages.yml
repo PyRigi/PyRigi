@@ -23,8 +23,8 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install poetry
-        pip install poetry-plugin-export
-        poetry export -f requirements.txt --output /home/runner/work/PyRigi/PyRigi/requirements.txt --with doc
+        poetry config virtualenvs.create false 
+        poetry install --without dev
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
