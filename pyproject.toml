@@ -26,6 +26,7 @@ black = "^24.4.2"
 flake8 = "^7.0.0"
 pre-commit = "^3.7.1"
 pytest = "^8.2.1"
+sphinx = "^7.3.7"
 
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.5.6"
