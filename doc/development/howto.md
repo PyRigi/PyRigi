@@ -37,6 +37,7 @@ Once in a while, the maintainers merge the branch `dev` into `main` and create a
 
 ## Code
 
+(dev-dependencies)=
 ### Dependencies
 
 We maintain the dependencies of the package using [Poetry](https://python-poetry.org/).
