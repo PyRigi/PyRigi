@@ -32,6 +32,8 @@ We propose a few categories for contributing branches:
 * _documentation_: branches to modify the documentation; their name should start by `doc-`
 * _bugs_: branches to solve known bugs; their name should start by `bug-`
 * _hotfix_: branches to solve an urgent error; their name should start by `hotfix-`
+* _testing_: branches to add tests; their name should start by `test-`
+* _refactoring_: branches to refactor the code; their name should start by `refactor-`
 
 Once in a while, the maintainers merge the branch `dev` into `main` and create a new release.
 
