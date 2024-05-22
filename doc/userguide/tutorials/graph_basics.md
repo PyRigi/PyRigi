@@ -59,7 +59,8 @@ G
 There are also other ways how to construct a graph:
 
 ```{code-cell} ipython3
-Graph.Complete(4)
+import pyrigi.graphDB as graphs
+graphs.Complete(4)
 ```
 
 ```{code-cell} ipython3

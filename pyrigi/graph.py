@@ -132,20 +132,6 @@ class Graph(nx.Graph):
 
     @classmethod
     @doc_category("Class methods")
-    def Complete(cls, n: int) -> GraphType:
-        """
-        Generate a complete graph on n vertices.
-
-        The vertices are labeled by numbers from 0 to n-1.
-        """
-        if not isinstance(n, int) or n < 1:
-            raise TypeError("n needs to be a positive integer")
-        vertices = range(n)
-        edges = combinations(vertices, 2)
-        return Graph.from_vertices_and_edges(vertices, edges)
-
-    @classmethod
-    @doc_category("Class methods")
     def CompleteOnVertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Generate a complete graph on `vertices`.

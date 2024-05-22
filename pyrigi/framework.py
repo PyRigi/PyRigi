@@ -25,6 +25,7 @@ from sympy import Matrix, flatten
 
 from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
 from pyrigi.graph import Graph
+from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
     generate_category_tables,
@@ -442,7 +443,7 @@ class Framework(object):
         if not points:
             raise ValueError("The list of points cannot be empty.")
 
-        Kn = Graph.Complete(len(points))
+        Kn = CompleteGraph(len(points))
         return Framework(Kn, {v: Matrix(p) for v, p in zip(Kn.nodes, points)})
 
     @doc_category("Framework manipulation")
