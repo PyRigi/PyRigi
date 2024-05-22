@@ -19,11 +19,17 @@ from copy import deepcopy
 from random import randrange
 
 import networkx as nx
+import sympy as sp
 from sympy import Matrix, flatten
+
 
 from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
 from pyrigi.graph import Graph
-from pyrigi.misc import doc_category, generate_category_tables
+from pyrigi.misc import (
+    doc_category,
+    generate_category_tables,
+    check_integrality_and_range,
+)
 
 
 class Framework(object):
@@ -332,6 +338,62 @@ class Framework(object):
         }
 
         return Framework(graph, realization)
+
+    @classmethod
+    @doc_category("Class methods")
+    def Circular(cls, graph: Graph):
+        """
+        Return the framework with a regular unit circle realization in the plane.
+        """
+        n = graph.number_of_nodes()
+        return Framework(
+            graph,
+            {
+                v: [sp.cos(2 * i * sp.pi / n), sp.sin(2 * i * sp.pi / n)]
+                for i, v in enumerate(graph.vertex_list())
+            },
+        )
+
+    @classmethod
+    @doc_category("Class methods")
+    def Collinear(cls, graph: Graph, d: int = 1):
+        """
+        Return the framework with a realization on the x-axis in the d-dimensional space.
+        """
+        check_integrality_and_range(d, "dimension d", 1)
+        return Framework(
+            graph,
+            {
+                v: [i] + [0 for _ in range(d - 1)]
+                for i, v in enumerate(graph.vertex_list())
+            },
+        )
+
+    @classmethod
+    @doc_category("Class methods")
+    def Simplicial(cls, graph: Graph, d: int = None):
+        """
+        Return the framework with a realization on the d-simplex.
+
+        Parameters
+        ----------
+        d:
+            The dimension `d` has to be at least the number of vertices
+            of the `graph` minus one.
+            If `d` is not specified, then the least possible one is used.
+        """
+        if d is None:
+            d = graph.number_of_nodes() - 1
+        check_integrality_and_range(
+            d, "dimension d", max([1, graph.number_of_nodes() - 1])
+        )
+        return Framework(
+            graph,
+            {
+                v: [1 if j == i - 1 else 0 for j in range(d)]
+                for i, v in enumerate(graph.vertex_list())
+            },
+        )
 
     @classmethod
     @doc_category("Class methods")

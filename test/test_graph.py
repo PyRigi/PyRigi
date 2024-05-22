@@ -1,4 +1,6 @@
 from pyrigi.graph import Graph
+import pyrigi.graphDB as graphs
+
 import pytest
 from sympy import Matrix
 
@@ -6,21 +8,19 @@ from sympy import Matrix
 @pytest.mark.parametrize(
     "graph, expected_result",
     [
-        ("Empty", False),
-        ("C4", False),
-        ("Diamond", True),
-        ("K2", True),
-        ("K3", True),
-        ("K4", True),
-        ("P2", False),
-        ("P3", False),
+        (graphs.Cycle(4), False),
+        (graphs.Diamond(), True),
+        (graphs.Complete(2), True),
+        (graphs.Complete(3), True),
+        (graphs.Complete(4), True),
+        (graphs.Path(2), True),
+        (graphs.Path(3), False),
+        (graphs.Path(4), False),
     ],
 )
-def test_is_rigid_d2(graph, expected_result, request):
-    assert (
-        request.getfixturevalue(graph).is_rigid(dim=2, combinatorial=True)
-        == expected_result
-    )
+def test_is_rigid_d2(graph, expected_result):
+    assert graph.is_rigid(dim=2, combinatorial=True) == expected_result
+    assert graph.is_rigid(dim=2, combinatorial=False) == expected_result
 
 
 @pytest.mark.slow
@@ -63,14 +63,16 @@ def test_min_max_rigid_subgraphs():
     )
 
 
-def test_graph_sparsity(C4, Diamond, K4):
-    assert C4.is_sparse(2, 3)
+def test_graph_sparsity():
+    assert graphs.Cycle(4).is_sparse(2, 3)
     assert (
-        Diamond.is_tight(2, 3)
-        and Diamond.is_min_rigid(dim=2, combinatorial=True)
-        and not Diamond.is_globally_rigid(dim=2)
+        graphs.Diamond().is_tight(2, 3)
+        and graphs.Diamond().is_min_rigid(dim=2, combinatorial=True)
+        and not graphs.Diamond().is_globally_rigid(dim=2)
     )
-    assert not K4.is_tight(2, 3) and K4.is_globally_rigid(dim=2)
+    assert not graphs.Complete(4).is_tight(2, 3) and graphs.Complete(
+        4
+    ).is_globally_rigid(dim=2)
 
 
 def test_str():
@@ -99,7 +101,7 @@ def test_vertex_edge_lists():
     assert G.edge_list() == []
 
 
-def test_adjacency_matrix(K4):
+def test_adjacency_matrix():
     G = Graph()
     assert G.adjacency_matrix() == Matrix([])
     G = Graph([[2, 1], [2, 3]])
@@ -107,7 +109,9 @@ def test_adjacency_matrix(K4):
     assert G.adjacency_matrix(vertex_order=[2, 3, 1]) == Matrix(
         [[0, 1, 1], [1, 0, 0], [1, 0, 0]]
     )
-    assert K4.adjacency_matrix() == Matrix.ones(4) - Matrix.diag([1, 1, 1, 1])
+    assert graphs.Complete(4).adjacency_matrix() == Matrix.ones(4) - Matrix.diag(
+        [1, 1, 1, 1]
+    )
     G = Graph.from_vertices(["C", 1, "D"])
     assert G.adjacency_matrix() == Matrix.zeros(3)
     G = Graph.from_vertices_and_edges(["C", 1, "D"], [[1, "D"], ["C", "D"]])

@@ -1,11 +1,12 @@
 from pyrigi.framework import Framework
+import pyrigi.frameworkDB as fws
 
 from sympy import Matrix
 
 
-def test_dimension(K2_d2):
-    assert K2_d2.dim() == K2_d2.dimension()
-    assert K2_d2.dim() == 2
+def test_dimension():
+    assert fws.Complete(2, 2).dim() == fws.Complete(2, 2).dimension()
+    assert fws.Complete(2, 2).dim() == 2
     assert Framework.Empty(dim=3).dim() == 3
 
 
@@ -28,14 +29,16 @@ def test_vertex_addition():
     assert F[0] != F_[0] and F[1] != F_[1] and F[2] != F_[2]
 
 
-def test_inf_rigidity(K3_d2_rightangle, K4_d2, Diamond_d2_square):
-    assert K3_d2_rightangle.is_inf_rigid() and K3_d2_rightangle.is_min_inf_rigid()
-    assert K4_d2.is_inf_rigid() and not K4_d2.is_min_inf_rigid()
-    assert Diamond_d2_square.is_inf_rigid() and Diamond_d2_square.is_min_inf_rigid()
+def test_inf_rigidity():
+    assert fws.Complete(3, 2).is_inf_rigid() and fws.Complete(3, 2).is_min_inf_rigid()
+    assert (
+        fws.Complete(4, 2).is_inf_rigid() and not fws.Complete(4, 2).is_min_inf_rigid()
+    )
+    assert fws.Diamond().is_inf_rigid() and fws.Diamond().is_min_inf_rigid()
 
 
-def test_inf_flexes(C4_d2_square, K2_d2):
-    Q1 = Matrix.hstack(*(K2_d2.inf_flexes(include_trivial=True)))
-    Q2 = Matrix.hstack(*(K2_d2.trivial_inf_flexes()))
+def test_inf_flexes():
+    Q1 = Matrix.hstack(*(fws.Complete(2, 2).inf_flexes(include_trivial=True)))
+    Q2 = Matrix.hstack(*(fws.Complete(2, 2).trivial_inf_flexes()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
-    assert len(C4_d2_square.inf_flexes(include_trivial=False)) == 1
+    assert len(fws.Square().inf_flexes(include_trivial=False)) == 1
