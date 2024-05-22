@@ -8,12 +8,16 @@ from sympy import Matrix
 @pytest.mark.parametrize(
     "graph",
     [
-        graphs.Diamond(),
         graphs.Complete(2),
         graphs.Complete(3),
         graphs.Complete(4),
-        graphs.Path(2),
+        graphs.CompleteBipartite(3, 3),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(4, 4),
+        graphs.Diamond(),
+        graphs.K33plusEdge(),
         graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
     ],
 )
 def test_rigid_in_d2(graph):
@@ -24,7 +28,10 @@ def test_rigid_in_d2(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
         graphs.Cycle(4),
+        graphs.Cycle(5),
         graphs.Path(3),
         graphs.Path(4),
     ],
@@ -32,6 +39,144 @@ def test_rigid_in_d2(graph):
 def test_not_rigid_in_d2(graph):
     assert not graph.is_rigid(dim=2, combinatorial=True)
     assert not graph.is_rigid(dim=2, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.Cycle(4),
+        graphs.Cycle(5),
+        graphs.Diamond(),
+        graphs.Path(3),
+        graphs.Path(4),
+        graphs.ThreePrism(),
+    ],
+)
+def test_2_3_sparse(graph):
+    assert graph.is_sparse(2, 3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(4, 4),
+        graphs.K33plusEdge(),
+        graphs.ThreePrismPlusEdge(),
+    ],
+)
+def test_not_2_3_sparse(graph):
+    assert not graph.is_sparse(2, 3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Diamond(),
+        graphs.ThreePrism(),
+    ],
+)
+def test_2_3_tight(graph):
+    assert graph.is_tight(2, 3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(4, 4),
+        graphs.Cycle(4),
+        graphs.Cycle(5),
+        graphs.K33plusEdge(),
+        graphs.Path(3),
+        graphs.Path(4),
+        graphs.ThreePrismPlusEdge(),
+    ],
+)
+def test_not_2_3_tight(graph):
+    assert not graph.is_tight(2, 3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Diamond(),
+        graphs.ThreePrism(),
+    ],
+)
+def test_min_rigid_in_d2(graph):
+    assert graph.is_min_rigid(dim=2, combinatorial=True)
+    assert graph.is_min_rigid(dim=2, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(4, 4),
+        graphs.Cycle(4),
+        graphs.Cycle(5),
+        graphs.K33plusEdge(),
+        graphs.Path(3),
+        graphs.Path(4),
+        graphs.ThreePrismPlusEdge(),
+    ],
+)
+def test_not_min_rigid_in_d2(graph):
+    assert not graph.is_min_rigid(dim=2, combinatorial=True)
+    assert not graph.is_min_rigid(dim=2, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.Complete(4),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(4, 4),
+        graphs.K33plusEdge(),
+        graphs.ThreePrismPlusEdge(),
+    ],
+)
+def test_globally_rigid_in_d2(graph):
+    assert graph.is_globally_rigid(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Cycle(4),
+        graphs.Cycle(5),
+        graphs.Diamond(),
+        graphs.Path(3),
+        graphs.Path(4),
+        graphs.ThreePrism(),
+    ],
+)
+def test_not_globally_in_d2(graph):
+    assert not graph.is_globally_rigid(dim=2)
 
 
 @pytest.mark.slow
@@ -72,18 +217,6 @@ def test_min_max_rigid_subgraphs():
         and len(min_subgraphs[0].edges) in [3, 9]
         and len(min_subgraphs[1].edges) in [3, 9]
     )
-
-
-def test_graph_sparsity():
-    assert graphs.Cycle(4).is_sparse(2, 3)
-    assert (
-        graphs.Diamond().is_tight(2, 3)
-        and graphs.Diamond().is_min_rigid(dim=2, combinatorial=True)
-        and not graphs.Diamond().is_globally_rigid(dim=2)
-    )
-    assert not graphs.Complete(4).is_tight(2, 3) and graphs.Complete(
-        4
-    ).is_globally_rigid(dim=2)
 
 
 def test_str():
