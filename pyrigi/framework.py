@@ -264,14 +264,18 @@ class Framework(object):
         return deepcopy(self._graph)
 
     @doc_category("Plotting")
-    def draw_framework(self) -> None:
+    def plot(self) -> None:
         """
         Plot the framework.
 
         Notes
         -----
         Use a networkx internal routine to plot the framework."""
-        nx.draw(self._graph, pos=self.realization(as_points=True))
+        if self._dim != 2:
+            raise NotImplementedError(
+                "Plotting is currently supported only for 2-dimensional frameworks."
+            )
+        nx.draw(self._graph, pos=self.realization(as_points=True, numerical=True))
 
     @classmethod
     @doc_category("Class methods")
@@ -477,7 +481,9 @@ class Framework(object):
         self._graph.delete_edges(edges)
 
     @doc_category("Attribute getters")
-    def realization(self, as_points=False) -> Dict[Vertex, Point]:
+    def realization(
+        self, as_points: bool = False, numerical: bool = False
+    ) -> Dict[Vertex, Point]:
         """
         Return a copy of the realization.
 
@@ -486,6 +492,8 @@ class Framework(object):
         as_points:
             If `True`, then the vertex positions type is Point,
             otherwise Matrix (default).
+        numerical:
+            If `True`, the vertex positions are converted to floats.
 
         Examples
         --------
@@ -506,11 +514,22 @@ class Framework(object):
         The format returned by this method with `as_points=True`
         can be read by networkx.
         """
-        if not as_points:
-            return deepcopy(self._realization)
-        return {
-            vertex: list(position) for vertex, position in self._realization.items()
-        }
+        if not numerical:
+            if not as_points:
+                return deepcopy(self._realization)
+            return {
+                vertex: list(position) for vertex, position in self._realization.items()
+            }
+        else:
+            if not as_points:
+                {
+                    vertex: Matrix([float(p) for p in position])
+                    for vertex, position in self._realization.items()
+                }
+            return {
+                vertex: [float(p) for p in position]
+                for vertex, position in self._realization.items()
+            }
 
     @doc_category("Framework manipulation")
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
