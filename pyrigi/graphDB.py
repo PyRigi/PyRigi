@@ -24,3 +24,10 @@ def Path(n):
 def Diamond():
     """Return the complete graph on 4 vertices minus an edge."""
     return Graph([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)])
+
+
+def ThreePrism():
+    """Return the 3-prism graph."""
+    return Graph(
+        [(0, 1), (1, 2), (0, 2), (3, 4), (4, 5), (3, 5), (0, 3), (1, 4), (2, 5)]
+    )
