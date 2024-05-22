@@ -3,6 +3,26 @@ import pytest
 from sympy import Matrix
 
 
+@pytest.mark.parametrize(
+    "graph, expected_result",
+    [
+        ("Empty", False),
+        ("C4", False),
+        ("Diamond", True),
+        ("K2", True),
+        ("K3", True),
+        ("K4", True),
+        ("P2", False),
+        ("P3", False),
+    ],
+)
+def test_is_rigid_d2(graph, expected_result, request):
+    assert (
+        request.getfixturevalue(graph).is_rigid(dim=2, combinatorial=True)
+        == expected_result
+    )
+
+
 @pytest.mark.slow
 def test_min_max_rigid_subgraphs():
     G = Graph()
@@ -43,19 +63,14 @@ def test_min_max_rigid_subgraphs():
     )
 
 
-def test_graph_rigidity_and_sparsity(C4, Diamond, K4):
-    assert C4.is_sparse(2, 3) and not C4.is_rigid(dim=2, combinatorial=True)
+def test_graph_sparsity(C4, Diamond, K4):
+    assert C4.is_sparse(2, 3)
     assert (
         Diamond.is_tight(2, 3)
-        and Diamond.is_rigid(dim=2, combinatorial=True)
         and Diamond.is_min_rigid(dim=2, combinatorial=True)
         and not Diamond.is_globally_rigid(dim=2)
     )
-    assert (
-        not K4.is_tight(2, 3)
-        and K4.is_rigid(dim=2, combinatorial=True)
-        and K4.is_globally_rigid(dim=2)
-    )
+    assert not K4.is_tight(2, 3) and K4.is_globally_rigid(dim=2)
 
 
 def test_str():
