@@ -12,7 +12,7 @@ import sympy as sp
 def Cycle(n: int, d: int = 2):
     """Return d-dimensional framework of the n-cycle."""
     misc.check_integrality_and_range(n, "number of vertices n", 3)
-    misc.check_integrality_and_range(d, "dimension", 1)
+    misc.check_integrality_and_range(d, "dimension d", 1)
     if n - 1 <= d:
         return Framework.Simplicial(graphs.Cycle(n), d)
     elif d == 1:
@@ -38,7 +38,7 @@ def Diamond():
 def Complete(n: int, d: int = 2):
     """Return d-dimensional framework of the complete graph on n vertices."""
     misc.check_integrality_and_range(n, "number of vertices n", 1)
-    misc.check_integrality_and_range(d, "dimension", 1)
+    misc.check_integrality_and_range(d, "dimension d", 1)
     if n - 1 <= d:
         return Framework.Simplicial(graphs.Complete(n), d)
     elif d == 1:
@@ -54,7 +54,7 @@ def Complete(n: int, d: int = 2):
 def Path(n: int, d: int = 2):
     """Return d-dimensional framework of the path graph on n vertices."""
     misc.check_integrality_and_range(n, "number of vertices n", 2)
-    misc.check_integrality_and_range(d, "dimension", 1)
+    misc.check_integrality_and_range(d, "dimension d", 1)
     if n - 1 <= d:
         return Framework.Simplicial(graphs.Path(n), d)
     elif d == 1:

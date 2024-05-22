@@ -6,17 +6,17 @@ import networkx as nx
 from pyrigi.graph import Graph
 
 
-def Cycle(n):
+def Cycle(n: int):
     """Return the cycle graph on n vertices."""
     return Graph(nx.cycle_graph(n))
 
 
-def Complete(n):
+def Complete(n: int):
     """Return the complete graph on n vertices."""
     return Graph(nx.complete_graph(n))
 
 
-def Path(n):
+def Path(n: int):
     """Return the path graph with n vertices."""
     return Graph(nx.path_graph(n))
 
