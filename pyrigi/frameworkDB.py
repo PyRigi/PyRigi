@@ -63,3 +63,31 @@ def Path(n: int, d: int = 2):
         "The number of vertices n has to be at most d+1, or d must be 1 or 2 "
         f"(now (d, n) = ({d}, {n})."
     )
+
+
+def ThreePrism(realization: str = None):
+    """
+    Return 3-prism framework.
+
+    Parameters
+    ----------
+    realization:
+        If `parallel`, a realization with the three edges that are not
+        in any 3-cycle being parallel is returned.
+        If `flexible`, a continuously flexible realization is returned.
+        Otherwise (default), a general realization is returned.
+    """
+    if realization == "parallel":
+        return Framework(
+            graphs.ThreePrism(),
+            {0: (0, 0), 1: (2, 0), 2: (1, 2), 3: (0, 6), 4: (2, 6), 5: (1, 4)},
+        )
+    if realization == "flexible":
+        return Framework(
+            graphs.ThreePrism(),
+            {0: (0, 0), 1: (2, 0), 2: (1, 2), 3: (0, 4), 4: (2, 4), 5: (1, 6)},
+        )
+    return Framework(
+        graphs.ThreePrism(),
+        {0: (0, 0), 1: (3, 0), 2: (2, 1), 3: (0, 4), 4: (2, 4), 5: (1, 3)},
+    )

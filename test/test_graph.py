@@ -13,6 +13,7 @@ from sympy import Matrix
         graphs.Complete(3),
         graphs.Complete(4),
         graphs.Path(2),
+        graphs.ThreePrism(),
     ],
 )
 def test_rigid_in_d2(graph):
