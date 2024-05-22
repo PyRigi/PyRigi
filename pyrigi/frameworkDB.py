@@ -112,6 +112,10 @@ def CompleteBipartite(m: int, n: int, realization: str = None):
         If `dixonI`, a realization with one part on the x-axis and
         the other on the y-axis is returned.
         Otherwise (default), a "general" realization is returned.
+
+    Todo
+    ----
+    Implement realization in higher dimensions.
     """
     misc.check_integrality_and_range(m, "size m", 1)
     misc.check_integrality_and_range(n, "size n", 1)
@@ -133,7 +137,7 @@ def CompleteBipartite(m: int, n: int, realization: str = None):
         | {
             i: [
                 sp.cos((i - m) * sp.pi / max([1, n - 1])),
-                4 + sp.sin(-(i - m) * sp.pi / max([1, n - 1])),
+                2 + sp.sin((i - m) * sp.pi / max([1, n - 1])),
             ]
             for i in range(m, m + n)
         },
