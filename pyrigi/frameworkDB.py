@@ -95,6 +95,13 @@ def ThreePrism(realization: str = None):
     )
 
 
+def ThreePrismPlusEdge():
+    """Return a framework of the 3-prism graph with one extra edge."""
+    G = ThreePrism()
+    G.add_edge([0, 5])
+    return G
+
+
 def CompleteBipartite(m: int, n: int, realization: str = None):
     """
     Return a complete bipartite framework on m+n vertices in the plane.
@@ -131,3 +138,10 @@ def CompleteBipartite(m: int, n: int, realization: str = None):
             for i in range(m, m + n)
         },
     )
+
+
+def K33plusEdge():
+    """Return a framework of the complete bipartite graph on 3+3 vertices plus an edge."""
+    G = CompleteBipartite(3, 3, "dixonI")
+    G.add_edge([0, 1])
+    return G
