@@ -110,7 +110,9 @@ Hence, an essential part of the documentation is the
 
 The documentation is generated from docstrings using [Sphinx](https://www.sphinx-doc.org).
 We use the theme [Furo](https://github.com/pradyunsg/furo).
-The docstrings are formatted according to [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) and parsed using [napoleon](https://sphinxcontrib-napoleon.readthedocs.io/)
+The docstrings are written in [reST](https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html),
+formatted according to [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html)
+and parsed using [napoleon](https://sphinxcontrib-napoleon.readthedocs.io/)
 to retrieve the information from type hinting.
 The other documentation source files are written in [MyST](https://myst-parser.readthedocs.io/)
 (see also the [cheatsheet](#cheatsheet)).

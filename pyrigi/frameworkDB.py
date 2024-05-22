@@ -74,9 +74,9 @@ def ThreePrism(realization: str = None):
     Parameters
     ----------
     realization:
-        If `parallel`, a realization with the three edges that are not
+        If ``"parallel"``, a realization with the three edges that are not
         in any 3-cycle being parallel is returned.
-        If `flexible`, a continuously flexible realization is returned.
+        If ``"flexible"``, a continuously flexible realization is returned.
         Otherwise (default), a general realization is returned.
     """
     if realization == "parallel":
@@ -109,7 +109,7 @@ def CompleteBipartite(m: int, n: int, realization: str = None):
     Parameters
     ----------
     realization:
-        If `dixonI`, a realization with one part on the x-axis and
+        If ``"dixonI"``, a realization with one part on the x-axis and
         the other on the y-axis is returned.
         Otherwise (default), a "general" realization is returned.
 

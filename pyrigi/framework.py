@@ -49,8 +49,8 @@ class Framework(object):
     graph
     realization:
         A dictionary mapping the vertices of the graph to points in $\RR^d$.
-        The dimension `d` is retrieved from the points in realization.
-        If `graph` is empty, and hence also the `realization`,
+        The dimension ``d`` is retrieved from the points in realization.
+        If ``graph`` is empty, and hence also the ``realization``,
         the dimension is set to 0 (:meth:`Framework.Empty`
         can be used to construct an empty framework with different dimension).
 
@@ -62,7 +62,7 @@ class Framework(object):
     Graph with vertices [0, 1] and edges [[0, 1]]
     Realization {0:(1, 2), 1:(0, 5)}
 
-    Notice that the realization of a vertex can be accessed using `[ ]`:
+    Notice that the realization of a vertex can be accessed using ``[ ]``:
 
     >>> F[0]
     Matrix([
@@ -73,8 +73,8 @@ class Framework(object):
 
     Notes
     -----
-    Internally, the realization is represented as `Dict[Vertex,Matrix]`.
-    However, :meth:`~Framework.realization` can also return `Dict[Vertex,Point]`.
+    Internally, the realization is represented as ``Dict[Vertex,Matrix]``.
+    However, :meth:`~Framework.realization` can also return ``Dict[Vertex,Point]``.
     """
 
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
@@ -151,7 +151,7 @@ class Framework(object):
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         """
         Add a vertex to the framework with the corresponding coordinates.
-        If no vertex is provided (`None`), then the smallest,
+        If no vertex is provided (``None``), then the smallest,
         free integer is chosen instead.
 
         Parameters
@@ -229,8 +229,8 @@ class Framework(object):
         Parameters
         ----------
         edge:
-            The edge is a tuple of vertices. It can either be passed as a tuple `(i,j)`
-            or a list `[i,j]`.
+            The edge is a tuple of vertices. It can either be passed as a tuple ``(i,j)``
+            or a list ``[i,j]``.
 
         Notes
         -----
@@ -286,7 +286,7 @@ class Framework(object):
         Notes
         -----
         The list of vertices of the underlying graph
-        is taken to be `[0,...,len(points)]`.
+        is taken to be ``[0,...,len(points)-1]``.
         The underlying graph has no edges.
 
         Examples
@@ -383,9 +383,9 @@ class Framework(object):
         Parameters
         ----------
         d:
-            The dimension `d` has to be at least the number of vertices
-            of the `graph` minus one.
-            If `d` is not specified, then the least possible one is used.
+            The dimension ``d`` has to be at least the number of vertices
+            of the ``graph`` minus one.
+            If ``d`` is not specified, then the least possible one is used.
         """
         if d is None:
             d = graph.number_of_nodes() - 1
@@ -435,7 +435,7 @@ class Framework(object):
         Notes
         -----
         The vertices of the underlying graph are taken
-        to be the list `[0,...,len(points)]`.
+        to be the list ``[0,...,len(points)-1]``.
 
         Examples
         --------
@@ -490,10 +490,10 @@ class Framework(object):
         Parameters
         ----------
         as_points:
-            If `True`, then the vertex positions type is Point,
+            If ``True``, then the vertex positions type is Point,
             otherwise Matrix (default).
         numerical:
-            If `True`, the vertex positions are converted to floats.
+            If ``True``, the vertex positions are converted to floats.
 
         Examples
         --------
@@ -511,7 +511,7 @@ class Framework(object):
 
         Notes
         -----
-        The format returned by this method with `as_points=True`
+        The format returned by this method with ``as_points=True``
         can be read by networkx.
         """
         if not numerical:
@@ -602,9 +602,9 @@ class Framework(object):
         Notes
         -----
         It is necessary that both lists have the same length.
-        No vertex from `vertices` can be contained multiple times.
+        No vertex from ``vertices`` can be contained multiple times.
         We apply the method :meth:`~Framework.set_vertex_pos`
-        to `vertices` and `points`.
+        to ``vertices`` and ``points``.
         """
         if len(list(set(vertices))) != len(list(vertices)):
             raise ValueError("Multiple Vertices with the same name were found!")
@@ -641,8 +641,8 @@ class Framework(object):
             By listing vertices in the preferred order, the rigidity matrix
             can be computed in a way the user expects.
         edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (`True`),
-            or whether they should be internally sorted (`False`).
+            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
+            or whether they should be internally sorted (``False``).
 
         Examples
         --------
@@ -673,7 +673,7 @@ class Framework(object):
                     "edge_order must contain exactly the same edges as the graph!"
                 )
 
-        # `delta` is responsible for distinguishing the edges (i,j) and (j,i)
+        # ``delta`` is responsible for distinguishing the edges (i,j) and (j,i)
         def delta(e, w):
             # the parameter e represents an edge
             # the parameter w represents a vertex
@@ -867,8 +867,8 @@ class Framework(object):
         Notes
         -----
         Return a lift of a basis of the quotient of the vector space of infinitesimal flexes
-        modulo trivial infinitesimal flexes, if `include_trivial=False`.
-        Return a basis of the vector space of infinitesimal flexes if `include_trivial=True`.
+        modulo trivial infinitesimal flexes, if ``include_trivial=False``.
+        Return a basis of the vector space of infinitesimal flexes if ``include_trivial=True``.
 
         Else, return the entire kernel.
 
@@ -876,7 +876,7 @@ class Framework(object):
         ----------
         include_trivial:
             Boolean that decides, whether the trivial motions should
-            be included (`True`) or not (`False`)
+            be included (``True``) or not (``False``)
 
         Examples
         --------

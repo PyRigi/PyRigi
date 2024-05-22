@@ -101,8 +101,8 @@ class Graph(nx.Graph):
         ----------
         vertices
         edges:
-            Edges are tuples of vertices. They can either be a tuple `(i,j)` or
-            a list `[i,j]` with two entries.
+            Edges are tuples of vertices. They can either be a tuple ``(i,j)`` or
+            a list ``[i,j]`` with two entries.
         """
         G = Graph()
         G.add_nodes_from(vertices)
@@ -134,7 +134,7 @@ class Graph(nx.Graph):
     @doc_category("Class methods")
     def CompleteOnVertices(cls, vertices: List[Vertex]) -> GraphType:
         """
-        Generate a complete graph on `vertices`.
+        Generate a complete graph on ``vertices``.
         """
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
@@ -354,7 +354,7 @@ class Graph(nx.Graph):
         -----
          * dim=1: Connectivity
          * dim=2: Pebble-game/(2,3)-rigidity
-         * dim>=1: Rigidity Matrix if `combinatorial==False`
+         * dim>=1: Rigidity Matrix if ``combinatorial==False``
         By default, the graph is in dimension two and a combinatorial check is employed.
 
         Examples
@@ -562,7 +562,7 @@ class Graph(nx.Graph):
         Notes
         -----
         We only return nontrivial subgraphs, meaning that there need to be at
-        least `dim+1` vertices present. If the graph itself is rigid, it is clearly
+        least ``dim+1`` vertices present. If the graph itself is rigid, it is clearly
         maximal and is returned.
 
         Examples
@@ -619,7 +619,7 @@ class Graph(nx.Graph):
         Notes
         -----
         We only return nontrivial subgraphs, meaning that there need to be at
-        least `dim+1` vertices present.
+        least ``dim+1`` vertices present.
 
         Examples
         --------

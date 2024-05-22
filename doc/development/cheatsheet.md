@@ -1,5 +1,8 @@
 # Cheatsheet
 
+While `monospace` is done using `` `monospace` `` in MyST,
+two ``` `` ``` are needed in reST (docstrings), namely ``` ``variable`` ```.
+
 For detailed overview of MyST syntax, see the [MyST documentation](https://myst-parser.readthedocs.io/en/latest/syntax/typography.html).
 
 ## Cross-references
