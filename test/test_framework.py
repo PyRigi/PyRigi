@@ -1,15 +1,12 @@
-from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 
 from sympy import Matrix
 
 
-def test_dimension():
-    F = Framework(Graph([[0, 1]]), {0: [1, 2], 1: [0, 5]})
-    assert F.dim() == F.dimension()
-    assert F.dim() == 2
-    F_ = Framework.Empty(dim=3)
-    assert F_.dim() == 3
+def test_dimension(K2_d2):
+    assert K2_d2.dim() == K2_d2.dimension()
+    assert K2_d2.dim() == 2
+    assert Framework.Empty(dim=3).dim() == 3
 
 
 def test_vertex_addition():
@@ -31,25 +28,14 @@ def test_vertex_addition():
     assert F[0] != F_[0] and F[1] != F_[1] and F[2] != F_[2]
 
 
-def test_inf_rigidity():
-    F = Framework(Graph([[0, 1], [1, 2], [0, 2]]), {0: [1, 2], 1: [0, 5], 2: [3, 3]})
-    assert F.is_inf_rigid() and F.is_min_inf_rigid()
-    F_ = Framework(
-        Graph([[0, 1], [1, 2], [2, 3], [3, 0], [0, 2], [1, 3]]),
-        {0: [0, 0], 1: [2, 0], 2: [2, 2], 3: [-1, 1]},
-    )
-    assert F_.is_inf_rigid() and not F_.is_min_inf_rigid()
-    F_.delete_edge([0, 2])
-    assert F_.is_inf_rigid() and F_.is_min_inf_rigid()
+def test_inf_rigidity(K3_d2_rightangle, K4_d2, Diamond_d2_square):
+    assert K3_d2_rightangle.is_inf_rigid() and K3_d2_rightangle.is_min_inf_rigid()
+    assert K4_d2.is_inf_rigid() and not K4_d2.is_min_inf_rigid()
+    assert Diamond_d2_square.is_inf_rigid() and Diamond_d2_square.is_min_inf_rigid()
 
 
-def test_inf_flexes():
-    F = Framework(Graph([[0, 1]]), {0: [0, 0], 1: [1, 0]})
-    Q1 = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
-    Q2 = Matrix.hstack(*(F.trivial_inf_flexes()))
+def test_inf_flexes(C4_d2_square, K2_d2):
+    Q1 = Matrix.hstack(*(K2_d2.inf_flexes(include_trivial=True)))
+    Q2 = Matrix.hstack(*(K2_d2.trivial_inf_flexes()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
-    F = Framework(
-        Graph([[0, 1], [1, 2], [2, 3], [0, 3]]),
-        {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]},
-    )
-    assert len(F.inf_flexes(include_trivial=False)) == 1
+    assert len(C4_d2_square.inf_flexes(include_trivial=False)) == 1
