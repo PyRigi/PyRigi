@@ -43,23 +43,18 @@ def test_min_max_rigid_subgraphs():
     )
 
 
-def test_graph_rigidity_and_sparsity():
-    G = Graph()
-    G.add_nodes_from([0, 1, 2, 3])
-    G.add_edges_from([(0, 1), (1, 2), (2, 3), (3, 0)])
-    assert G.is_sparse(2, 3) and not G.is_rigid(dim=2, combinatorial=True)
-    G.add_edge(0, 2)
+def test_graph_rigidity_and_sparsity(C4, Diamond, K4):
+    assert C4.is_sparse(2, 3) and not C4.is_rigid(dim=2, combinatorial=True)
     assert (
-        G.is_tight(2, 3)
-        and G.is_rigid(dim=2, combinatorial=True)
-        and G.is_min_rigid(dim=2, combinatorial=True)
-        and not G.is_globally_rigid(dim=2)
+        Diamond.is_tight(2, 3)
+        and Diamond.is_rigid(dim=2, combinatorial=True)
+        and Diamond.is_min_rigid(dim=2, combinatorial=True)
+        and not Diamond.is_globally_rigid(dim=2)
     )
-    G.add_edge(1, 3)
     assert (
-        not G.is_tight(2, 3)
-        and G.is_rigid(dim=2, combinatorial=True)
-        and G.is_globally_rigid(dim=2)
+        not K4.is_tight(2, 3)
+        and K4.is_rigid(dim=2, combinatorial=True)
+        and K4.is_globally_rigid(dim=2)
     )
 
 
@@ -89,7 +84,7 @@ def test_vertex_edge_lists():
     assert G.edge_list() == []
 
 
-def test_adjacency_matrix():
+def test_adjacency_matrix(K4):
     G = Graph()
     assert G.adjacency_matrix() == Matrix([])
     G = Graph([[2, 1], [2, 3]])
@@ -97,7 +92,6 @@ def test_adjacency_matrix():
     assert G.adjacency_matrix(vertex_order=[2, 3, 1]) == Matrix(
         [[0, 1, 1], [1, 0, 0], [1, 0, 0]]
     )
-    K4 = Graph.Complete(4)
     assert K4.adjacency_matrix() == Matrix.ones(4) - Matrix.diag([1, 1, 1, 1])
     G = Graph.from_vertices(["C", 1, "D"])
     assert G.adjacency_matrix() == Matrix.zeros(3)
