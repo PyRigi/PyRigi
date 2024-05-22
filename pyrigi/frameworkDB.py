@@ -6,6 +6,8 @@ from pyrigi.framework import Framework
 import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
 
+import sympy as sp
+
 
 def Cycle(n: int, d: int = 2):
     """Return d-dimensional framework of the n-cycle."""
@@ -90,4 +92,42 @@ def ThreePrism(realization: str = None):
     return Framework(
         graphs.ThreePrism(),
         {0: (0, 0), 1: (3, 0), 2: (2, 1), 3: (0, 4), 4: (2, 4), 5: (1, 3)},
+    )
+
+
+def CompleteBipartite(m: int, n: int, realization: str = None):
+    """
+    Return a complete bipartite framework on m+n vertices in the plane.
+
+    Parameters
+    ----------
+    realization:
+        If `dixonI`, a realization with one part on the x-axis and
+        the other on the y-axis is returned.
+        Otherwise (default), a "general" realization is returned.
+    """
+    misc.check_integrality_and_range(m, "size m", 1)
+    misc.check_integrality_and_range(n, "size n", 1)
+    if realization == "dixonI":
+        return Framework(
+            graphs.CompleteBipartite(m, n),
+            {i: [0, (i + 1) * (-1) ** i] for i in range(m)}
+            | {i: [(i - m + 1) * (-1) ** i, 0] for i in range(m, m + n)},
+        )
+    return Framework(
+        graphs.CompleteBipartite(m, n),
+        {
+            i: [
+                sp.cos(i * sp.pi / max([1, m - 1])),
+                sp.sin(i * sp.pi / max([1, m - 1])),
+            ]
+            for i in range(m)
+        }
+        | {
+            i: [
+                sp.cos((i - m) * sp.pi / max([1, n - 1])),
+                4 + sp.sin(-(i - m) * sp.pi / max([1, n - 1])),
+            ]
+            for i in range(m, m + n)
+        },
     )

@@ -21,6 +21,11 @@ def Path(n):
     return Graph(nx.path_graph(n))
 
 
+def CompleteBipartite(m: int, n: int):
+    """Return the complete bipartite graph on m+n vertices."""
+    return Graph(nx.complete_multipartite_graph(m, n))
+
+
 def Diamond():
     """Return the complete graph on 4 vertices minus an edge."""
     return Graph([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)])
