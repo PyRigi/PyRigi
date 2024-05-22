@@ -6,21 +6,31 @@ from sympy import Matrix
 
 
 @pytest.mark.parametrize(
-    "graph, expected_result",
+    "graph",
     [
-        (graphs.Cycle(4), False),
-        (graphs.Diamond(), True),
-        (graphs.Complete(2), True),
-        (graphs.Complete(3), True),
-        (graphs.Complete(4), True),
-        (graphs.Path(2), True),
-        (graphs.Path(3), False),
-        (graphs.Path(4), False),
+        graphs.Diamond(),
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.Complete(4),
+        graphs.Path(2),
     ],
 )
-def test_is_rigid_d2(graph, expected_result):
-    assert graph.is_rigid(dim=2, combinatorial=True) == expected_result
-    assert graph.is_rigid(dim=2, combinatorial=False) == expected_result
+def test_rigid_in_d2(graph):
+    assert graph.is_rigid(dim=2, combinatorial=True)
+    assert graph.is_rigid(dim=2, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Cycle(4),
+        graphs.Path(3),
+        graphs.Path(4),
+    ],
+)
+def test_not_rigid_in_d2(graph):
+    assert not graph.is_rigid(dim=2, combinatorial=True)
+    assert not graph.is_rigid(dim=2, combinatorial=False)
 
 
 @pytest.mark.slow
