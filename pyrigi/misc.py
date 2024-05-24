@@ -2,6 +2,8 @@
 Module for miscellaneous functions.
 """
 
+import math
+
 
 def doc_category(category):
     def decorator_doc_category(func):
@@ -42,3 +44,14 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False):
         res += "\n\n"
     indent = "".join(["    " for _ in range(tabs)])
     return ("\n" + indent).join(res.splitlines())
+
+
+def check_integrality_and_range(
+    n: int, name: str = "number n", min_n: int = 0, max_n: int = math.inf
+):
+    if not isinstance(n, int):
+        raise TypeError("The " + name + f" has to be an integer, not {type(n)}.")
+    if n < min_n or n > max_n:
+        raise ValueError(
+            "The " + name + f" has to be an integer in [{min_n},{max_n}], not {n}."
+        )
