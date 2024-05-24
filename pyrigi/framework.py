@@ -264,7 +264,7 @@ class Framework(object):
         return deepcopy(self._graph)
 
     @doc_category("Plotting")
-    def plot(self) -> None:
+    def plot(self, vertex_labels: bool = True) -> None:
         """
         Plot the framework.
 
@@ -275,7 +275,11 @@ class Framework(object):
             raise NotImplementedError(
                 "Plotting is currently supported only for 2-dimensional frameworks."
             )
-        nx.draw(self._graph, pos=self.realization(as_points=True, numerical=True))
+        nx.draw(
+            self._graph,
+            pos=self.realization(as_points=True, numerical=True),
+            with_labels=vertex_labels,
+        )
 
     @classmethod
     @doc_category("Class methods")
