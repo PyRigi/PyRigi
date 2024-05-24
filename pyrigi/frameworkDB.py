@@ -136,8 +136,8 @@ def CompleteBipartite(m: int, n: int, realization: str = None):
         }
         | {
             i: [
-                sp.cos((i - m) * sp.pi / max([1, n - 1])),
-                2 + sp.sin((i - m) * sp.pi / max([1, n - 1])),
+                1 + 2 * sp.cos((i - m) * sp.pi / max([1, n - 1])),
+                3 + 2 * sp.sin((i - m) * sp.pi / max([1, n - 1])),
             ]
             for i in range(m, m + n)
         },
