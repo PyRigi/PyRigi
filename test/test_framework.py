@@ -29,9 +29,9 @@ from sympy import Matrix
         fws.Complete(3, d=3),
         fws.Complete(4, d=3),
     ]
-    # + [fws.Complete(2, d=n) for n in range(1, 10)]
-    # + [fws.Complete(3, d=n) for n in range(1, 10)]
-    # + [fws.Complete(n - 1, d=n) for n in range(2, 10)]
+    + [fws.Complete(2, d=n) for n in range(1, 10)]
+    + [fws.Complete(3, d=n) for n in range(1, 10)]
+    + [fws.Complete(n - 1, d=n) for n in range(2, 10)]
     + [fws.Complete(n, d=n) for n in range(1, 10)]
     + [fws.Complete(n + 1, d=n) for n in range(1, 10)],
 )
@@ -79,9 +79,9 @@ def test_not_inf_rigid(framework):
         fws.Complete(3, d=3),
         fws.Complete(4, d=3),
     ]
-    # + [fws.Complete(2, d=n) for n in range(1, 7)]
-    # + [fws.Complete(3, d=n) for n in range(1, 7)]
-    # + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
+    + [fws.Complete(2, d=n) for n in range(1, 7)]
+    + [fws.Complete(3, d=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
     + [fws.Complete(n, d=n) for n in range(1, 7)]
     + [fws.Complete(n + 1, d=n) for n in range(1, 7)],
 )
