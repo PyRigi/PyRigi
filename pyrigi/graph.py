@@ -775,7 +775,7 @@ class Graph(nx.Graph):
         vertex_order:
             By listing vertices in the preferred order, the adjacency matrix
             can be computed in a way the user expects. If no vertex order is
-            provided, the internal order is assumed.
+            provided, :ref:`~.Graph.vertex_list()` is used.
 
         Notes
         -----
@@ -792,18 +792,15 @@ class Graph(nx.Graph):
         [0, 1, 0, 0],
         [0, 1, 0, 0]])
         """
-        try:
-            if vertex_order is None:
-                vertex_order = sorted(self.nodes)
-            else:
-                if not set(self.nodes) == set(
-                    vertex_order
-                ) or not self.number_of_nodes() == len(vertex_order):
-                    raise IndexError(
-                        "The vertex_order must contain the same vertices as the graph!"
-                    )
-        except TypeError:
+        if vertex_order is None:
             vertex_order = self.vertex_list()
+        else:
+            if not set(self.nodes) == set(
+                vertex_order
+            ) or not self.number_of_nodes() == len(vertex_order):
+                raise IndexError(
+                    "The vertex_order must contain the same vertices as the graph!"
+                ) 
 
         row_list = [
             [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order
