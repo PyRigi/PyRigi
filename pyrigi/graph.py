@@ -10,6 +10,7 @@ from typing import List, Any, Union
 
 import networkx as nx
 from sympy import Matrix
+import math
 
 from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType
 from pyrigi.misc import doc_category, generate_category_tables
@@ -687,9 +688,16 @@ class Graph(nx.Graph):
         return nx.is_isomorphic(self, graph)
 
     @doc_category("Other")
-    def graph_to_int(self) -> int:
+    def graph_to_int(self, vertex_order: List[Vertex] = None) -> int:
         r"""
         Return the integer representation of the graph.
+
+        Parameters
+        ----------
+        vertex_order:
+            By listing vertices in the preferred order, the adjacency matrix
+            can be computed in a way the user expects. If no vertex order is
+            provided, :ref:`~.Graph.vertex_list()` is used.
 
         Notes
         -----
@@ -713,15 +721,14 @@ class Graph(nx.Graph):
         ----
         Implement taking canonical before computing the integer representation.
         Tests.
-        Specify order of vertices.
         """
-        M = self.adjacency_matrix()
+        M = self.adjacency_matrix(vertex_order)
         upper_diag = [str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]]
         return int("".join(upper_diag), 2)
 
     @classmethod
-    @doc_category("Waiting for implementation")
-    def from_int(cls, n: int) -> GraphType:
+    @doc_category("Class methods")
+    def from_int(cls, N: int) -> GraphType:
         """
         Return a graph given its integer representation.
 
@@ -734,7 +741,22 @@ class Graph(nx.Graph):
         binary_representation = int(bin(n)[2:])
         Graph.from_adjacency_matrix(...)
         """
-        raise NotImplementedError()
+        if not isinstance(N, int):
+            raise TypeError(f"The parameter n has to be an integer, not {type(N)}.")
+        if N <= 0:
+            raise ValueError(f"The parameter n has to positive, not {N}.")
+        L = bin(N)[2:]
+        n = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)
+        rows = []
+        s = 0
+        L = "".join(["0" for _ in range(int(n * (n - 1) / 2) - len(L))]) + L
+        for i in range(n):
+            rows.append(
+                [0 for _ in range(i + 1)] + [int(k) for k in L[s : s + (n - i - 1)]]
+            )
+            s += n - i - 1
+        adjMatrix = Matrix(rows)
+        return Graph.from_adjacency_matrix(adjMatrix + adjMatrix.transpose())
 
     @classmethod
     @doc_category("Class methods")
@@ -800,7 +822,7 @@ class Graph(nx.Graph):
             ) or not self.number_of_nodes() == len(vertex_order):
                 raise IndexError(
                     "The vertex_order must contain the same vertices as the graph!"
-                ) 
+                )
 
         row_list = [
             [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order
