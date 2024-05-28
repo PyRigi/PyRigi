@@ -6,6 +6,7 @@ from pyrigi.exception import LoopError
 import pytest
 from sympy import Matrix
 
+
 @pytest.mark.parametrize(
     "graph",
     [
@@ -266,40 +267,40 @@ def test_adjacency_matrix():
     M = Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
     assert G.from_adjacency_matrix(M).adjacency_matrix() == M
 
+
 @pytest.mark.parametrize(
     "method, params",
     [
-        ["is_rigid",[]],
-        ["is_min_rigid",[]],
-        ["is_redundantly_rigid",[]],
-        ["is_vertex_redundantly_rigid",[]],
-        ["is_k_vertex_redundantly_rigid",[2]],
-        ["is_k_redundantly_rigid",[2]],
-        ["is_globally_rigid",[]],
-        ["is_Rd_dependent",[]],
-        ["is_Rd_independent",[]],
-        ["is_Rd_circuit",[]],
-        ["is_Rd_closed",[]],
-        ["max_rigid_subgraphs",[]],
-        ["min_rigid_subgraphs",[]],
+        ["is_rigid", []],
+        ["is_min_rigid", []],
+        ["is_redundantly_rigid", []],
+        ["is_vertex_redundantly_rigid", []],
+        ["is_k_vertex_redundantly_rigid", [2]],
+        ["is_k_redundantly_rigid", [2]],
+        ["is_globally_rigid", []],
+        ["is_Rd_dependent", []],
+        ["is_Rd_independent", []],
+        ["is_Rd_circuit", []],
+        ["is_Rd_closed", []],
+        ["max_rigid_subgraphs", []],
+        ["min_rigid_subgraphs", []],
     ],
 )
 def test_loops(method, params):
     with pytest.raises(LoopError):
-        G = Graph([[1,2],[1,1],[2,3],[1,3]])
-        func = getattr(G,method)
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        func = getattr(G, method)
         func(*params)
+
 
 def test_framework_loops():
     with pytest.raises(LoopError):
-        G = Graph([[1,2],[1,1],[2,3],[1,3]])
-        F=Framework(G,{1:(0,0),2:(1,1),3:(2,0)})
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        F = Framework(G, {1: (0, 0), 2: (1, 1), 3: (2, 0)})
     with pytest.raises(LoopError):
-        G = Graph([[1,2],[2,3],[1,3]])
-        F=Framework(G,{1:(0,0),2:(1,1),3:(2,0)})
-        F.add_edge([1,1])
+        G = Graph([[1, 2], [2, 3], [1, 3]])
+        F = Framework(G, {1: (0, 0), 2: (1, 1), 3: (2, 0)})
+        F.add_edge([1, 1])
     with pytest.raises(LoopError):
-        G = Graph([[1,2],[2,3],[1,3],[2,2]])
+        G = Graph([[1, 2], [2, 3], [1, 3], [2, 2]])
         Framework.Random(G)
-
-

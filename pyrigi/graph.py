@@ -15,6 +15,7 @@ from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 
+
 class Graph(nx.Graph):
     """
     Class representing a graph.
@@ -346,7 +347,7 @@ class Graph(nx.Graph):
             )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         for vertex_set in combinations(self.nodes, k):
             G = deepcopy(self)
@@ -379,7 +380,7 @@ class Graph(nx.Graph):
             )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         for edge_set in combinations(self.edge_list(), k):
             self.delete_edges(edge_set)
@@ -423,7 +424,7 @@ class Graph(nx.Graph):
                 "combinatorial determines the method of rigidity-computation. "
                 "It needs to be a Boolean."
             )
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
         elif dim == 1:
@@ -483,7 +484,7 @@ class Graph(nx.Graph):
                 "combinatorial determines the method of rigidity-computation. "
                 "It needs to be a Boolean."
             )
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
         elif dim == 1:
@@ -529,7 +530,7 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
         elif dim == 1:
@@ -561,7 +562,7 @@ class Graph(nx.Graph):
          * dim=2: not (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
         """
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         raise NotImplementedError()
 
@@ -578,7 +579,7 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         raise NotImplementedError()
 
@@ -596,7 +597,7 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         raise NotImplementedError()
 
@@ -613,7 +614,7 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         raise NotImplementedError()
 
@@ -652,7 +653,7 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
         if self.number_of_nodes() <= dim:
@@ -710,7 +711,7 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        if nx.number_of_selfloops(self)>0:
+        if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
         min_subgraphs = []
@@ -794,9 +795,11 @@ class Graph(nx.Graph):
         Tests.
         Specify order of vertices.
         """
-        if nx.number_of_selfloops(self)==0:
+        if nx.number_of_selfloops(self) == 0:
             M = self.adjacency_matrix()
-            upper_diag = [str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]]
+            upper_diag = [
+                str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]
+            ]
             return int("".join(upper_diag), 2)
         else:
             raise NotImplementedError()

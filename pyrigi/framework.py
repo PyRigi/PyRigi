@@ -84,7 +84,7 @@ class Framework(object):
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
-        if nx.number_of_selfloops(graph)>0:
+        if nx.number_of_selfloops(graph) > 0:
             raise LoopError()
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
@@ -239,7 +239,7 @@ class Framework(object):
         """
         if not (len(edge)) == 2:
             raise ValueError(f"Edge {edge} does not have the correct length.")
-        if edge[0]==edge[1]:
+        if edge[0] == edge[1]:
             raise LoopError("Edges cannot be loops.")
         if not (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes):
             raise ValueError(
