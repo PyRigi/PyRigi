@@ -181,9 +181,8 @@ The graph $G$ is called _generically $d$-rigid_ if any {prf:ref}`generic d-dimen
 :label: def-kl-sparse-tight
 
 Let $G = (V, E)$ be a (multi)graph and let $k, \ell \in \NN$.
-Set $n = |V|$ and $m = |E|$.
-The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n' \leq n$ vertices spans at most $kn' - \ell$ edges.
-The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $kn - \ell = m$.
+The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices with $k\leq n' \leq |V|$ spans at most $kn' - \ell$ edges.
+The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $k|V| - \ell = |E|$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_sparse`
 {meth}`~.Graph.is_tight`
