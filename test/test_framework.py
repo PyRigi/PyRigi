@@ -1,6 +1,8 @@
+from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
+from pyrigi.exception import LoopError
 
 import pytest
 from sympy import Matrix
@@ -29,9 +31,9 @@ from sympy import Matrix
         fws.Complete(3, d=3),
         fws.Complete(4, d=3),
     ]
-    # + [fws.Complete(2, d=n) for n in range(1, 10)]
-    # + [fws.Complete(3, d=n) for n in range(1, 10)]
-    # + [fws.Complete(n - 1, d=n) for n in range(2, 10)]
+    + [fws.Complete(2, d=n) for n in range(1, 10)]
+    + [fws.Complete(3, d=n) for n in range(1, 10)]
+    + [fws.Complete(n - 1, d=n) for n in range(2, 10)]
     + [fws.Complete(n, d=n) for n in range(1, 10)]
     + [fws.Complete(n + 1, d=n) for n in range(1, 10)],
 )
@@ -79,9 +81,9 @@ def test_not_inf_rigid(framework):
         fws.Complete(3, d=3),
         fws.Complete(4, d=3),
     ]
-    # + [fws.Complete(2, d=n) for n in range(1, 7)]
-    # + [fws.Complete(3, d=n) for n in range(1, 7)]
-    # + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
+    + [fws.Complete(2, d=n) for n in range(1, 7)]
+    + [fws.Complete(3, d=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
     + [fws.Complete(n, d=n) for n in range(1, 7)]
     + [fws.Complete(n + 1, d=n) for n in range(1, 7)],
 )
@@ -154,3 +156,16 @@ def test_inf_flexes():
     Q2 = Matrix.hstack(*(fws.Complete(2, 2).trivial_inf_flexes()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
     assert len(fws.Square().inf_flexes(include_trivial=False)) == 1
+
+
+def test_framework_loops():
+    with pytest.raises(LoopError):
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        F = Framework(G, {1: (0, 0), 2: (1, 1), 3: (2, 0)})
+    with pytest.raises(LoopError):
+        G = Graph([[1, 2], [2, 3], [1, 3]])
+        F = Framework(G, {1: (0, 0), 2: (1, 1), 3: (2, 0)})
+        F.add_edge([1, 1])
+    with pytest.raises(LoopError):
+        G = Graph([[1, 2], [2, 3], [1, 3], [2, 2]])
+        Framework.Random(G)

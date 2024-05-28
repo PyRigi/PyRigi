@@ -14,8 +14,18 @@ jobs:
       pages: write
       id-token: write
     steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry config virtualenvs.create false 
+        poetry install --without dev
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
         documentation_path: ./doc
-        requirements_path: ./doc/requirements.txt

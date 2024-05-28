@@ -1,5 +1,6 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
+from pyrigi.exception import LoopError
 
 import pytest
 from sympy import Matrix
@@ -265,6 +266,7 @@ def test_adjacency_matrix():
     M = Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
     assert G.from_adjacency_matrix(M).adjacency_matrix() == M
 
+
 @pytest.mark.parametrize(
     "graph, gint",
     [
@@ -279,3 +281,28 @@ def test_adjacency_matrix():
 def test_integer_representation(graph,gint):
     assert graph.to_int()==gint
     assert Graph.from_int(gint).is_isomorphic(graph)
+
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["is_rigid", []],
+        ["is_min_rigid", []],
+        ["is_redundantly_rigid", []],
+        ["is_vertex_redundantly_rigid", []],
+        ["is_k_vertex_redundantly_rigid", [2]],
+        ["is_k_redundantly_rigid", [2]],
+        ["is_globally_rigid", []],
+        ["is_Rd_dependent", []],
+        ["is_Rd_independent", []],
+        ["is_Rd_circuit", []],
+        ["is_Rd_closed", []],
+        ["max_rigid_subgraphs", []],
+        ["min_rigid_subgraphs", []],
+    ],
+)
+def test_loops(method, params):
+    with pytest.raises(LoopError):
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        func = getattr(G, method)
+        func(*params)
