@@ -19,6 +19,12 @@ kernelspec:
 There are several predefined frameworks in {mod}`pyrigi.frameworkDB`.
 
 ```{code-cell} ipython3
+# The import will work if:
+#     - the tutorial is in the root folder of the package, or
+#     - the package was installed using poetry,
+#       see https://pyrigi.github.io/PyRigi/development/howto.html#dependencies, or
+#     - the package is added to the sys.path using the following with the correct
+#       path to the pyrigi root folder
 import os, sys
 sys.path.insert(0, os.path.abspath("../../.."))
 import pyrigi.frameworkDB as frameworks
@@ -48,7 +54,7 @@ print(K4)
 K4.plot()
 ```
 
-Currently, for $d\geq 3$, the number of vertices must be at most $d+1$ so the graph can be realized as a simplex. 
+Currently, for $d\geq 3$, the number of vertices must be at most $d+1$ so the graph can be realized as a simplex.
 
 ```{code-cell} ipython3
 try:
