@@ -37,12 +37,10 @@ class Framework(object):
     r"""
     This class provides the functionality for frameworks.
 
-
     Definitions
     -----------
      * :prf:ref:`Framework <def-framework>`
      * :prf:ref:`Realization <def-realization>`
-
 
     Parameters
     ----------
@@ -151,6 +149,7 @@ class Framework(object):
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         """
         Add a vertex to the framework with the corresponding coordinates.
+        
         If no vertex is provided (``None``), then the smallest,
         free integer is chosen instead.
 
@@ -199,10 +198,6 @@ class Framework(object):
             Else, the list of vertices needs to have the same length as the
             list of points.
 
-        Notes
-        -----
-        For each vertex that has to be added, :meth:`add_vertex` is called.
-
         Examples
         --------
         >>> F = Framework.Empty(dim=2)
@@ -211,6 +206,10 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices ['a', 0] and edges []
         Realization {a:(1.50000000000000, 2), 0:(3, 1)}
+        
+        Notes
+        -----
+        For each vertex that has to be added, :meth:`add_vertex` is called.
         """
         if not (len(points) == len(vertices) or not vertices):
             raise IndexError("The vertex list does not have the correct length!")
@@ -225,12 +224,6 @@ class Framework(object):
     def add_edge(self, edge: Edge) -> None:
         """
         Add an edge to the framework.
-
-        Parameters
-        ----------
-        edge:
-            The edge is a tuple of vertices. It can either be passed as a tuple ``(i,j)``
-            or a list ``[i,j]``.
 
         Notes
         -----
@@ -283,8 +276,6 @@ class Framework(object):
         """
         Generate a framework from a list of points.
 
-        Notes
-        -----
         The list of vertices of the underlying graph
         is taken to be ``[0,...,len(points)-1]``.
         The underlying graph has no edges.
@@ -426,16 +417,14 @@ class Framework(object):
         """
         Generate a framework on the complete graph from a given list of points.
 
+        The vertices of the underlying graph are taken
+        to be the list ``[0,...,len(points)-1]``.
+        
         Parameters
         ----------
         dim:
             a natural number that determines the dimension
             in which the framework is realized
-
-        Notes
-        -----
-        The vertices of the underlying graph are taken
-        to be the list ``[0,...,len(points)-1]``.
 
         Examples
         --------
@@ -785,7 +774,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def trivial_inf_flexes(self) -> List[Matrix]:
         r"""
-        Return a basis of the vector subspace of trivial infinitesimal flexes of the framework.
+        Return a basis of the vector subspace of trivial infinitesimal flexes.
 
         Definitions
         -----------
@@ -814,7 +803,7 @@ class Framework(object):
         [ 2],
         [-2],
         [ 0]])]
-        """  # noqa: E501
+        """
         dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in self._graph.nodes])
@@ -860,17 +849,20 @@ class Framework(object):
         r"""
         Return a basis of the space of infinitesimal flexes.
 
+        Return a lift of a basis of the quotient of
+        the vector space of infinitesimal flexes
+        modulo trivial infinitesimal flexes, if ``include_trivial=False``.
+        Return a basis of the vector space of infinitesimal flexes
+        if ``include_trivial=True``.
+        Else, return the entire kernel.
+
+        TODO
+        ----
+        more tests
+
         Definitions
         -----------
         * :prf:ref:`Infinitesimal flex <def-inf-flex>`
-
-        Notes
-        -----
-        Return a lift of a basis of the quotient of the vector space of infinitesimal flexes
-        modulo trivial infinitesimal flexes, if ``include_trivial=False``.
-        Return a basis of the vector space of infinitesimal flexes if ``include_trivial=True``.
-
-        Else, return the entire kernel.
 
         Parameters
         ----------
@@ -892,7 +884,7 @@ class Framework(object):
         [0],
         [0],
         [0]])]
-        """  # noqa: E501
+        """
         if include_trivial:
             return self.rigidity_matrix().nullspace()
         rigidity_matrix = self.rigidity_matrix()
@@ -943,6 +935,7 @@ class Framework(object):
     def is_inf_flexible(self) -> bool:
         """
         Check whether the given framework is infinitesimally flexible.
+        
         See :meth:`~Framework.is_inf_rigid`
         """
         return not self.is_inf_rigid()
@@ -996,6 +989,8 @@ class Framework(object):
         -----------
         :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
 
+        Examples
+        --------
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
         >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
