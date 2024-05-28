@@ -25,6 +25,7 @@ from sympy import Matrix, flatten, binomial
 
 from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
 from pyrigi.graph import Graph
+from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
@@ -44,7 +45,8 @@ class Framework(object):
 
     Parameters
     ----------
-    graph
+    graph:
+        A graph without loops.
     realization:
         A dictionary mapping the vertices of the graph to points in $\RR^d$.
         The dimension ``d`` is retrieved from the points in realization.
@@ -81,11 +83,13 @@ class Framework(object):
 
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
-            raise TypeError("The graph has to be an instance of class Graph")
+            raise TypeError("The graph has to be an instance of class Graph.")
+        if nx.number_of_selfloops(graph) > 0:
+            raise LoopError()
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
                 "The length of realization has to be equal to "
-                "the number of vertices of graph"
+                "the number of vertices of graph."
             )
 
         if realization:
@@ -95,7 +99,7 @@ class Framework(object):
 
         for v in graph.nodes:
             if v not in realization:
-                raise KeyError(f"Vertex {v} is not contained in the realization")
+                raise KeyError(f"Vertex {v} is not contained in the realization.")
             if not len(realization[v]) == self._dim:
                 raise ValueError(
                     f"The point {realization[v]} in the realization corresponding to "
@@ -234,10 +238,12 @@ class Framework(object):
         This method only alters the graph attribute.
         """
         if not (len(edge)) == 2:
-            raise TypeError(f"Edge {edge} does not have the correct length!")
+            raise ValueError(f"Edge {edge} does not have the correct length.")
+        if edge[0] == edge[1]:
+            raise LoopError("Edges cannot be loops.")
         if not (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes):
             raise ValueError(
-                f"The adjacent vertices of {edge} are not contained in the graph!"
+                f"The adjacent vertices of {edge} are not contained in the graph."
             )
         self._graph.add_edge(*(edge))
 

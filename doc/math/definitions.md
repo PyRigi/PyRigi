@@ -10,7 +10,7 @@ Currently, definitions and theorems are just listed here. They will be sorted la
 :::{prf:definition} Realization
 :label: def-realization
 
-Let $G=(V,E)$ be a simple graph and $d\in\NN$.
+Let $G=(V,E)$ be a simple graph (i.e. no multi edges and no loops) and $d\in\NN$.
 A $d$-dimensional _realization_ of $G$ is a map $p\colon V\rightarrow \RR^d$.
 For convenience, for $v \in V$ we may denote $p(v)$ by $p_v$.
 
