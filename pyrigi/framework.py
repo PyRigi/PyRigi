@@ -66,6 +66,10 @@ class Framework(object):
     Matrix([
     [1],
     [2]])
+    
+    TODO
+    ----
+    Use :meth:`~.Framework.set_realization` in the constructor.
 
     METHODS
 
@@ -253,6 +257,10 @@ class Framework(object):
     def graph(self) -> Graph:
         """
         Return a copy of the underlying graph.
+        
+        TODO
+        ----
+        example
         """
         return deepcopy(self._graph)
 
@@ -260,6 +268,11 @@ class Framework(object):
     def plot(self) -> None:
         """
         Plot the framework.
+        
+        TODO
+        ----
+        implement plotting also for other dimensions than 2,
+        more plotting options
 
         Notes
         -----
@@ -340,6 +353,10 @@ class Framework(object):
     def Circular(cls, graph: Graph):
         """
         Return the framework with a regular unit circle realization in the plane.
+        
+        TODO
+        ----
+        example
         """
         n = graph.number_of_nodes()
         return Framework(
@@ -355,6 +372,10 @@ class Framework(object):
     def Collinear(cls, graph: Graph, d: int = 1):
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
+        
+        TODO
+        ----
+        example
         """
         check_integrality_and_range(d, "dimension d", 1)
         return Framework(
@@ -377,6 +398,10 @@ class Framework(object):
             The dimension ``d`` has to be at least the number of vertices
             of the ``graph`` minus one.
             If ``d`` is not specified, then the least possible one is used.
+            
+        TODO
+        ----
+        examples
         """
         if d is None:
             d = graph.number_of_nodes() - 1
@@ -402,6 +427,10 @@ class Framework(object):
         dim:
             a natural number that determines the dimension
             in which the framework is realized
+            
+        TODO
+        ----
+        example
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -588,6 +617,10 @@ class Framework(object):
         """
         Change the coordinates of a given list of vertices.
 
+        TODO
+        ----
+        example
+
         Notes
         -----
         It is necessary that both lists have the same length.
@@ -607,6 +640,10 @@ class Framework(object):
     def set_vertex_positions(self, subset_of_realization: Dict[Vertex, Point]):
         """
         Change the coordinates of vertices given by a dictionary.
+
+        TODO
+        ----
+        example
         """
         for v, pos in subset_of_realization.items():
             self.set_vertex_pos(v, pos)
@@ -633,6 +670,10 @@ class Framework(object):
             A Boolean indicating, whether the edges are assumed to be ordered (``True``),
             or whether they should be internally sorted (``False``).
 
+        TODO
+        ----
+        tests
+        
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
@@ -694,9 +735,9 @@ class Framework(object):
         r"""
         Construct the rigidity matrix of the framework.
 
-        Definitions
-        -----------
-        * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
+        TODO
+        ----
+        definition of pinned rigidity matrix, tests
 
         Examples
         --------
@@ -779,6 +820,10 @@ class Framework(object):
         Definitions
         -----------
         * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
+        
+        TODO
+        ----
+        more tests
 
         Examples
         --------
@@ -834,6 +879,9 @@ class Framework(object):
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
 
+        TODO
+        ----
+        tests, example
 
         Notes
         -----
@@ -910,6 +958,10 @@ class Framework(object):
     def rigidity_matrix_rank(self) -> int:
         """
         Compute the rank of the rigidity matrix.
+        
+        TODO
+        ----
+        example, tests
         """
         return self.rigidity_matrix().rank()
 
@@ -923,6 +975,10 @@ class Framework(object):
         Definitions
         -----
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
+        
+        TODO
+        ----
+        example
         """
         return (
             self._graph.number_of_nodes() <= 1
@@ -988,6 +1044,10 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
+        
+        TODO
+        ----
+        tests
 
         Examples
         --------
