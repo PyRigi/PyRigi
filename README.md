@@ -2,9 +2,10 @@
 <img src="assets/icon.jpg" width="260">
 </p>
 
-[![General badge](https://img.shields.io/badge/PyRigi-Documentation-blue?style=plastic&link=pyrigi.github.io%2FPyRigi%2F%20)](https://pyrigi.github.io/PyRigi/)
-[![General badge](https://img.shields.io/badge/license-MIT-yellow?style=plastic)](LICENSE)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyRigi documentation](https://img.shields.io/badge/PyRigi-Documentation-blue?style=plastic&link=pyrigi.github.io%2FPyRigi%2F%20)](https://pyrigi.github.io/PyRigi/)
+[![MIT license](https://img.shields.io/badge/license-MIT-yellow?style=plastic)](LICENSE)
+[![Black code style](https://img.shields.io/badge/code%20style-black-black?style=plastic)](https://github.com/psf/black)
+
 
 <!-- start-input -->
 
