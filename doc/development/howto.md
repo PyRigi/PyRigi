@@ -88,6 +88,7 @@ veeeeery long docstring that has to violate the 90 characters limit due to a ref
 Tests are extremely important to guarantee the realiability of code.
 Please create tests for the functionalities that you implement and place them in the `test` folder, within the appropriate file.
 Each test should be in the form of a method starting with `test_`.
+Tests can be parametrized, see for instance `test_inf_rigid` in `test_framework.py`.
 
 Moreover, please add a section `EXAMPLES` in the docstring of the classes and methods that you introduce and provide there examples of the functionalities you implemented.
 
