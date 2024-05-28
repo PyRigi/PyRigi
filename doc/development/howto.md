@@ -144,13 +144,14 @@ make latexpdf
 
 For an example how a docstring should look like,
 see for instance the docstring of {class}`.Framework`
-or {meth}`.Framework.realization`. In general it contains the following (in this order):
+or {meth}`.Framework.realization`.
+In general, a docstring should contain the following items (in this order):
  - short description (one line, compulsory)
  - longer description (optional)
  - list of definitions (optional)
  - parameters description (optional): types are added automatically from type hinting
  - examples (highly recommended)
- - notes (optional): implementation details 
+ - notes (optional): implementation details
 
 ### Auto-build
 
@@ -168,7 +169,7 @@ make clean
 make html
 ```
 Cleaning is necessary especially to get the documentation updated
-after a change in docstrings. 
+after a change in docstrings.
 
 ### Creating tutorials
 
