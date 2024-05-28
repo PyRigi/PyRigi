@@ -692,19 +692,17 @@ class Graph(nx.Graph):
         r"""
         Return the integer representation of the graph.
 
+        The graph integer representation is the integer whose binary
+        expansion is given by the sequence obtained by concatenation
+        of the rows of the upper triangle of the adjacency matrix,
+        excluding the diagonal.
+        
         Parameters
         ----------
         vertex_order:
             By listing vertices in the preferred order, the adjacency matrix
             can be computed in a way the user expects. If no vertex order is
             provided, :ref:`~.Graph.vertex_list()` is used.
-
-        Notes
-        -----
-        The graph integer representation is the integer whose binary
-        expansion is given by the sequence obtained by concatenation
-        of the rows of the upper triangle of the adjacency matrix,
-        excluding the diagonal.
 
         Examples
         --------
@@ -732,14 +730,8 @@ class Graph(nx.Graph):
         """
         Return a graph given its integer representation.
 
-        Notes
-        -----
-        See :meth:`graph_to_int`.
-
-        TODO
-        -----
-        binary_representation = int(bin(n)[2:])
-        Graph.from_adjacency_matrix(...)
+        See :meth:`graph_to_int` for the description
+        of the integer representation.
         """
         if not isinstance(N, int):
             raise TypeError(f"The parameter n has to be an integer, not {type(N)}.")
