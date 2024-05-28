@@ -103,6 +103,10 @@ class Graph(nx.Graph):
         edges:
             Edges are tuples of vertices. They can either be a tuple ``(i,j)`` or
             a list ``[i,j]`` with two entries.
+            
+        TODO
+        ----
+        examples, tests
         """
         G = Graph()
         G.add_nodes_from(vertices)
@@ -135,6 +139,10 @@ class Graph(nx.Graph):
     def CompleteOnVertices(cls, vertices: List[Vertex]) -> GraphType:
         """
         Generate a complete graph on ``vertices``.
+        
+        TODO
+        ----
+        examples, tests
         """
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
@@ -146,6 +154,10 @@ class Graph(nx.Graph):
 
         The output is sorted if possible,
         otherwise, the internal order is used instead.
+        
+        TODO
+        ----
+        examples
         """
         try:
             return sorted(self.nodes)
@@ -159,6 +171,10 @@ class Graph(nx.Graph):
 
         The output is sorted if possible,
         otherwise, the internal order is used instead.
+        
+        TODO
+        ----
+        examples
         """
         try:
             return sorted([sorted(e) for e in self.edges])
@@ -209,6 +225,10 @@ class Graph(nx.Graph):
     def is_sparse(self, K: int, L: int) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
+        
+        TODO
+        ----
+        pebble game algorithm, examples, tests for other cases than (2,3)
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
@@ -224,6 +244,10 @@ class Graph(nx.Graph):
     def is_tight(self, K: int, L: int) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
+        
+        TODO
+        ----
+        examples, tests for other cases than (2,3)
         """
         return (
             self.is_sparse(K, L)
@@ -303,6 +327,7 @@ class Graph(nx.Graph):
         TODO
         ----
         Avoid creating deepcopies by remembering the edges.
+        Tests, examples.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -330,6 +355,10 @@ class Graph(nx.Graph):
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
+        
+        TODO
+        ----
+        Tests, examples.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -350,13 +379,6 @@ class Graph(nx.Graph):
         """
         Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
 
-        Notes
-        -----
-         * dim=1: Connectivity
-         * dim=2: Pebble-game/(2,3)-rigidity
-         * dim>=1: Rigidity Matrix if ``combinatorial==False``
-        By default, the graph is in dimension two and a combinatorial check is employed.
-
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
@@ -365,6 +387,17 @@ class Graph(nx.Graph):
         >>> G.add_edge(0,2)
         >>> G.is_rigid()
         True
+        
+        TODO
+        ----
+        Pebble game algorithm for d=2.
+
+        Notes
+        -----
+         * dim=1: Connectivity
+         * dim=2: Pebble-game/(2,3)-rigidity
+         * dim>=1: Rigidity Matrix if ``combinatorial==False``
+        By default, the graph is in dimension two and a combinatorial check is employed.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -407,11 +440,6 @@ class Graph(nx.Graph):
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
         <def-min-rigid-graph>`.
 
-        Notes
-        -----
-         * dim=1: Tree
-         * dim=2: Pebble-game/(2,3)-tight
-         * dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         By default, the graph is in dimension 2 and a combinatorial algorithm is applied.
 
         Examples
@@ -422,6 +450,12 @@ class Graph(nx.Graph):
         >>> G.add_edge(0,2)
         >>> G.is_min_rigid()
         False
+        
+        Notes
+        -----
+         * dim=1: Tree
+         * dim=2: Pebble-game/(2,3)-tight
+         * dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -454,6 +488,12 @@ class Graph(nx.Graph):
         Check whether the graph is :prf:ref:`globally dim-rigid
         <def-globally-rigid-graph>`.
 
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,0)])
+        >>> G.is_globally_rigid()
+        True
+        
         Notes
         -----
          * dim=1: 2-connectivity
@@ -461,12 +501,6 @@ class Graph(nx.Graph):
          * dim>=3: Randomized Rigidity Matrix => Stress (symbolic maybe?)
         By default, the graph is in dimension 2.
         A complete graph is automatically globally rigid
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (2,0)])
-        >>> G.is_globally_rigid()
-        True
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -777,11 +811,6 @@ class Graph(nx.Graph):
             can be computed in a way the user expects. If no vertex order is
             provided, the internal order is assumed.
 
-        Notes
-        -----
-        :func:`networkx.linalg.graphmatrix.adjacency_matrix`
-        requires `scipy`. To avoid unnecessary imports, the method is implemented here.
-
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (1,3)])
@@ -791,6 +820,11 @@ class Graph(nx.Graph):
         [1, 0, 1, 1],
         [0, 1, 0, 0],
         [0, 1, 0, 0]])
+        
+        Notes
+        -----
+        :func:`networkx.linalg.graphmatrix.adjacency_matrix`
+        requires `scipy`. To avoid unnecessary imports, the method is implemented here.
         """
         try:
             if vertex_order is None:
