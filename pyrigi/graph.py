@@ -237,7 +237,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def degree_sequence(self, vertex_order: List[Vertex] = None) -> list[int]:
         """
-        Returns a list of degrees of the vertices of the graph.
+        Return a list of degrees of the vertices of the graph.
 
         Parameters
         ----------
@@ -266,7 +266,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def min_degree(self) -> int:
         """
-        Returns the minimum of the vertex degrees.
+        Return the minimum of the vertex degrees.
 
         Examples
         --------
@@ -279,7 +279,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def max_degree(self) -> int:
         """
-        Returns the maximum of the vertex degrees.
+        Return the maximum of the vertex degrees.
 
         Examples
         --------
