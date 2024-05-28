@@ -10,6 +10,7 @@ from typing import List, Any, Union
 
 import networkx as nx
 from sympy import Matrix
+import math
 
 from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType
 from pyrigi.misc import doc_category, generate_category_tables
@@ -232,6 +233,61 @@ class Graph(nx.Graph):
     def vertex_connectivity(self) -> int:
         """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`."""  # noqa: E501
         return nx.node_connectivity(self)
+
+    @doc_category("General graph theoretical properties")
+    def degree_sequence(self, vertex_order: List[Vertex] = None) -> list[int]:
+        """
+        Return a list of degrees of the vertices of the graph.
+
+        Parameters
+        ----------
+        vertex_order:
+            By listing vertices in the preferred order, the degree_sequence
+            can be computed in a way the user expects. If no vertex order is
+            provided, :ref:`~.Graph.vertex_list()` is used.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2)])
+        >>> G.degree_sequence()
+        [1, 2, 1]
+        """
+        if vertex_order is None:
+            vertex_order = self.vertex_list()
+        else:
+            if not set(self.nodes) == set(
+                vertex_order
+            ) or not self.number_of_nodes() == len(vertex_order):
+                raise IndexError(
+                    "The vertex_order must contain the same vertices as the graph!"
+                )
+        return [self.degree(v) for v in vertex_order]
+
+    @doc_category("General graph theoretical properties")
+    def min_degree(self) -> int:
+        """
+        Return the minimum of the vertex degrees.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2)])
+        >>> G.min_degree()
+        1
+        """
+        return min([self.degree(v) for v in self.nodes])
+
+    @doc_category("General graph theoretical properties")
+    def max_degree(self) -> int:
+        """
+        Return the maximum of the vertex degrees.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2)])
+        >>> G.max_degree()
+        2
+        """
+        return max([self.degree(v) for v in self.nodes])
 
     @doc_category("Sparseness")
     def is_sparse(self, K: int, L: int) -> bool:
@@ -767,16 +823,21 @@ class Graph(nx.Graph):
         return nx.is_isomorphic(self, graph)
 
     @doc_category("Other")
-    def graph_to_int(self) -> int:
+    def to_int(self, vertex_order: List[Vertex] = None) -> int:
         r"""
         Return the integer representation of the graph.
 
-        Notes
-        -----
         The graph integer representation is the integer whose binary
         expansion is given by the sequence obtained by concatenation
         of the rows of the upper triangle of the adjacency matrix,
         excluding the diagonal.
+
+        Parameters
+        ----------
+        vertex_order:
+            By listing vertices in the preferred order, the adjacency matrix
+            is computed with the given order. If no vertex order is
+            provided, :ref:`~.Graph.vertex_list()` is used.
 
         Examples
         --------
@@ -786,40 +847,58 @@ class Graph(nx.Graph):
         [0, 1, 0],
         [1, 0, 1],
         [0, 1, 0]])
-        >>> G.graph_to_int()
+        >>> G.to_int()
         5
 
         TODO
         ----
         Implement taking canonical before computing the integer representation.
         Tests.
-        Specify order of vertices.
         """
+        if self.number_of_edges() == 0:
+            raise ValueError(
+                "The integer representation is only defined "
+                "for graphs with at least one edge."
+            )
+        if self.min_degree() == 0:
+            raise ValueError(
+                "The integer representation only works "
+                "for graphs without isolated vertices."
+            )
         if nx.number_of_selfloops(self) == 0:
-            M = self.adjacency_matrix()
+            M = self.adjacency_matrix(vertex_order)
             upper_diag = [
                 str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]
             ]
             return int("".join(upper_diag), 2)
         else:
-            raise NotImplementedError()
+            raise LoopError()
 
     @classmethod
-    @doc_category("Waiting for implementation")
-    def from_int(cls, n: int) -> GraphType:
+    @doc_category("Class methods")
+    def from_int(cls, N: int) -> GraphType:
         """
         Return a graph given its integer representation.
 
-        Notes
-        -----
-        See :meth:`graph_to_int`.
-
-        TODO
-        -----
-        binary_representation = int(bin(n)[2:])
-        Graph.from_adjacency_matrix(...)
+        See :meth:`to_int` for the description
+        of the integer representation.
         """
-        raise NotImplementedError()
+        if not isinstance(N, int):
+            raise TypeError(f"The parameter n has to be an integer, not {type(N)}.")
+        if N <= 0:
+            raise ValueError(f"The parameter n has to be positive, not {N}.")
+        L = bin(N)[2:]
+        n = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)
+        rows = []
+        s = 0
+        L = "".join(["0" for _ in range(int(n * (n - 1) / 2) - len(L))]) + L
+        for i in range(n):
+            rows.append(
+                [0 for _ in range(i + 1)] + [int(k) for k in L[s : s + (n - i - 1)]]
+            )
+            s += n - i - 1
+        adjMatrix = Matrix(rows)
+        return Graph.from_adjacency_matrix(adjMatrix + adjMatrix.transpose())
 
     @classmethod
     @doc_category("Class methods")
@@ -860,7 +939,7 @@ class Graph(nx.Graph):
         vertex_order:
             By listing vertices in the preferred order, the adjacency matrix
             can be computed in a way the user expects. If no vertex order is
-            provided, the internal order is assumed.
+            provided, :ref:`~.Graph.vertex_list()` is used.
 
         Examples
         --------
@@ -877,18 +956,15 @@ class Graph(nx.Graph):
         :func:`networkx.linalg.graphmatrix.adjacency_matrix`
         requires `scipy`. To avoid unnecessary imports, the method is implemented here.
         """
-        try:
-            if vertex_order is None:
-                vertex_order = sorted(self.nodes)
-            else:
-                if not set(self.nodes) == set(
-                    vertex_order
-                ) or not self.number_of_nodes() == len(vertex_order):
-                    raise IndexError(
-                        "The vertex_order must contain the same vertices as the graph!"
-                    )
-        except TypeError:
+        if vertex_order is None:
             vertex_order = self.vertex_list()
+        else:
+            if not set(self.nodes) == set(
+                vertex_order
+            ) or not self.number_of_nodes() == len(vertex_order):
+                raise IndexError(
+                    "The vertex_order must contain the same vertices as the graph!"
+                )
 
         row_list = [
             [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order
