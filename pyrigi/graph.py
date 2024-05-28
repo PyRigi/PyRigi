@@ -488,11 +488,15 @@ class Graph(nx.Graph):
                 f"but is {dim}"
             )
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Generic rigidity")
     def is_globally_rigid(self, dim: int = 2) -> bool:
         """
         Check whether the graph is :prf:ref:`globally dim-rigid
         <def-globally-rigid-graph>`.
+
+        TODO
+        ----
+        missing definition, implementation for dim>=3
 
         Examples
         --------
@@ -599,6 +603,10 @@ class Graph(nx.Graph):
         -----
         :prf:ref:`Maximal rigid subgraph <def-maximal-rigid-subgraph>`
 
+        TODO
+        ----
+        missing definition
+
         Notes
         -----
         We only return nontrivial subgraphs, meaning that there need to be at
@@ -655,6 +663,10 @@ class Graph(nx.Graph):
         Definitions
         -----
         :prf:ref:`Minimal rigid subgraph <def-minimal-rigid-subgraph>`
+
+        TODO
+        ----
+        missing definition
 
         Notes
         -----
