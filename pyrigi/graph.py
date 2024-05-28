@@ -244,7 +244,7 @@ class Graph(nx.Graph):
         vertex_order:
             By listing vertices in the preferred order, the degree_sequence
             can be computed in a way the user expects. If no vertex order is
-            provided, :ref:`~.Graph.vertex_list()` is used.
+            provided, :meth:`~.Graph.vertex_list()` is used.
 
         Examples
         --------
@@ -837,7 +837,7 @@ class Graph(nx.Graph):
         vertex_order:
             By listing vertices in the preferred order, the adjacency matrix
             is computed with the given order. If no vertex order is
-            provided, :ref:`~.Graph.vertex_list()` is used.
+            provided, :meth:`~.Graph.vertex_list()` is used.
 
         Examples
         --------
@@ -939,7 +939,7 @@ class Graph(nx.Graph):
         vertex_order:
             By listing vertices in the preferred order, the adjacency matrix
             can be computed in a way the user expects. If no vertex order is
-            provided, :ref:`~.Graph.vertex_list()` is used.
+            provided, :meth:`~.Graph.vertex_list()` is used.
 
         Examples
         --------
