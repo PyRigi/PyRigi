@@ -696,7 +696,7 @@ class Graph(nx.Graph):
         expansion is given by the sequence obtained by concatenation
         of the rows of the upper triangle of the adjacency matrix,
         excluding the diagonal.
-        
+
         Parameters
         ----------
         vertex_order:
