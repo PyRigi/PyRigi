@@ -234,6 +234,61 @@ class Graph(nx.Graph):
         """Alias for :func:`networkx.algorithms.connectivity.connectivity.node_connectivity`."""  # noqa: E501
         return nx.node_connectivity(self)
 
+    @doc_category("General graph theoretical properties")
+    def degree_sequence(self, vertex_order: List[Vertex] = None) -> list[int]:
+        """
+        Returns a list of degrees of the vertices of the graph.
+
+        Parameters
+        ----------
+        vertex_order:
+            By listing vertices in the preferred order, the degree_sequence
+            can be computed in a way the user expects. If no vertex order is
+            provided, :ref:`~.Graph.vertex_list()` is used.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2)])
+        >>> G.degree_sequence()
+        [1, 2, 1]
+        """
+        if vertex_order is None:
+            vertex_order = self.vertex_list()
+        else:
+            if not set(self.nodes) == set(
+                vertex_order
+            ) or not self.number_of_nodes() == len(vertex_order):
+                raise IndexError(
+                    "The vertex_order must contain the same vertices as the graph!"
+                )
+        return [self.degree(v) for v in vertex_order]
+
+    @doc_category("General graph theoretical properties")
+    def min_degree(self) -> int:
+        """
+        Returns the minimum of the vertex degrees.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2)])
+        >>> G.min_degree()
+        1
+        """
+        return min([self.degree(v) for v in self.nodes])
+
+    @doc_category("General graph theoretical properties")
+    def max_degree(self) -> int:
+        """
+        Returns the maximum of the vertex degrees.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2)])
+        >>> G.max_degree()
+        2
+        """
+        return max([self.degree(v) for v in self.nodes])
+
     @doc_category("Sparseness")
     def is_sparse(self, K: int, L: int) -> bool:
         r"""
@@ -800,6 +855,16 @@ class Graph(nx.Graph):
         Implement taking canonical before computing the integer representation.
         Tests.
         """
+        if self.number_of_edges() == 0:
+            raise ValueError(
+                "The integer representation is only defined "
+                "for graphs with at least one edge."
+            )
+        if self.min_degree() == 0:
+            raise ValueError(
+                "The integer representation only works "
+                "for graphs without isolated vertices."
+            )
         if nx.number_of_selfloops(self) == 0:
             M = self.adjacency_matrix()
             upper_diag = [
@@ -807,7 +872,7 @@ class Graph(nx.Graph):
             ]
             return int("".join(upper_diag), 2)
         else:
-            raise NotImplementedError()
+            raise LoopError()
 
     @classmethod
     @doc_category("Class methods")
