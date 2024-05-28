@@ -688,7 +688,7 @@ class Graph(nx.Graph):
         return nx.is_isomorphic(self, graph)
 
     @doc_category("Other")
-    def graph_to_int(self, vertex_order: List[Vertex] = None) -> int:
+    def to_int(self, vertex_order: List[Vertex] = None) -> int:
         r"""
         Return the integer representation of the graph.
 
@@ -712,7 +712,7 @@ class Graph(nx.Graph):
         [0, 1, 0],
         [1, 0, 1],
         [0, 1, 0]])
-        >>> G.graph_to_int()
+        >>> G.to_int()
         5
 
         TODO
@@ -730,13 +730,13 @@ class Graph(nx.Graph):
         """
         Return a graph given its integer representation.
 
-        See :meth:`graph_to_int` for the description
+        See :meth:`to_int` for the description
         of the integer representation.
         """
         if not isinstance(N, int):
             raise TypeError(f"The parameter n has to be an integer, not {type(N)}.")
         if N <= 0:
-            raise ValueError(f"The parameter n has to positive, not {N}.")
+            raise ValueError(f"The parameter n has to be positive, not {N}.")
         L = bin(N)[2:]
         n = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)
         rows = []

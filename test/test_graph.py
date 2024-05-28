@@ -264,3 +264,18 @@ def test_adjacency_matrix():
     )
     M = Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
     assert G.from_adjacency_matrix(M).adjacency_matrix() == M
+
+@pytest.mark.parametrize(
+    "graph, gint",
+    [
+        [graphs.Complete(2),1],
+        [graphs.Complete(3),7],
+        [graphs.Complete(4),63],
+        [graphs.CompleteBipartite(3, 4),507840],
+        [graphs.CompleteBipartite(4, 4),31965120],
+        [graphs.ThreePrism(),29327],
+    ],
+)
+def test_integer_representation(graph,gint):
+    assert graph.to_int()==gint
+    assert Graph.from_int(gint).is_isomorphic(graph)
