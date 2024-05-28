@@ -11,7 +11,7 @@ This page provides basic information to start contributing.
 :::{important}
 Currently, we prefer the following contributions to the code:
  - resolving and existing TODO (especially adding examples and tests),
- - implementing a method marked as `Waiting for implementation` or
+ - implementing a method marked as `Waiting for implementation`
    or returning `NotImplementedError`,
  - adding missing definitions.
 :::
