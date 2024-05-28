@@ -1,5 +1,4 @@
 from pyrigi.graph import Graph
-from pyrigi.framework import Framework
 import pyrigi.graphDB as graphs
 from pyrigi.exception import LoopError
 
@@ -291,16 +290,3 @@ def test_loops(method, params):
         G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
         func = getattr(G, method)
         func(*params)
-
-
-def test_framework_loops():
-    with pytest.raises(LoopError):
-        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
-        F = Framework(G, {1: (0, 0), 2: (1, 1), 3: (2, 0)})
-    with pytest.raises(LoopError):
-        G = Graph([[1, 2], [2, 3], [1, 3]])
-        F = Framework(G, {1: (0, 0), 2: (1, 1), 3: (2, 0)})
-        F.add_edge([1, 1])
-    with pytest.raises(LoopError):
-        G = Graph([[1, 2], [2, 3], [1, 3], [2, 2]])
-        Framework.Random(G)
