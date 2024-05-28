@@ -144,8 +144,8 @@ make latexpdf
 
 For an example how a docstring should look like,
 see for instance the docstring of {class}`.Framework`
-or {meth}`.Framework.realization`. In general it contains the following:
- - short description (one line)
+or {meth}`.Framework.realization`. In general it contains the following (in this order):
+ - short description (one line, compulsory)
  - longer description (optional)
  - list of definitions (optional)
  - parameters description (optional): types are added automatically from type hinting
