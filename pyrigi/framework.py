@@ -20,7 +20,7 @@ from random import randrange
 
 import networkx as nx
 import sympy as sp
-from sympy import Matrix, flatten
+from sympy import Matrix, flatten, binomial
 
 
 from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
@@ -936,12 +936,16 @@ class Framework(object):
         -----
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
-        return (
-            self._graph.number_of_nodes() <= 1
-            or self.rigidity_matrix_rank()
-            == self.dim() * self._graph.number_of_nodes()
-            - (self.dim()) * (self.dim() + 1) // 2
-        )
+        if self._graph.number_of_nodes() <= self._dim + 1:
+            return self.rigidity_matrix_rank() == binomial(
+                self._graph.number_of_nodes(), 2
+            )
+        else:
+            return (
+                self.rigidity_matrix_rank()
+                == self.dim() * self._graph.number_of_nodes()
+                - binomial(self.dim() + 1, 2)
+            )
 
     @doc_category("Infinitesimal rigidity")
     def is_inf_flexible(self) -> bool:
