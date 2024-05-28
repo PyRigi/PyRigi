@@ -1,27 +1,32 @@
 # PyRigi
 
+```{include} ../README.md
+:relative-docs: docs/
+:start-after: <!-- start-input -->
+```
 
-## API documentation
+## Contents
 
 
 :::{toctree}
-:maxdepth: 1
-module/framework
-module/graph
+:maxdepth: 2
+:caption: User guide
+userguide/getting_started
+userguide/tutorial
+userguide/api
 :::
 
-## Math
-
-
 :::{toctree}
-math/index
+:maxdepth: 2
+:caption: Math
+math/definitions
+math/references
 :::
 
-## Development guide
-
-
 :::{toctree}
-development/index
+:maxdepth: 2
+:caption: Development guide
+development/howto
 development/cheatsheet
 :::
 

@@ -1,25 +1,51 @@
-[project]
-name = "PyRigi"
-version = "0.0.1"
-authors = [
-  { name="The PyRigi Developers" },
-]
+[tool.poetry]
+name = "pyrigi"
+version = "0.1.0"
 description = "Python package concerning the rigidity and flexibility of bar-and-joint frameworks."
+authors = ["The PyRigi Developers"]
+license = "MIT"
 readme = "README.md"
-requires-python = ">=3.9"
+homepage = "https://pyrigi.github.io/PyRigi/"
+repository = "https://github.com/PyRigi/PyRigi/"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = [
-  "networkx",
-  "sympy",
-]
 
-[project.urls]
-Homepage = "https://github.com/PyRigi/"
+[tool.poetry.urls]
 Issues = "https://github.com/PyRigi/PyRigi/issues"
+
+[tool.poetry.dependencies]
+python = "^3.10"		#networkx requires >= 3.10
+networkx = "^3.3"
+sympy = "^1.12"
+matplotlib = "^3.9.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+flake8 = "^7.0.0"
+pre-commit = "^3.7.1"
+pytest = "^8.2.1"
+sphinx = "^7.3.7"
+
+[tool.poetry.group.doc.dependencies]
+furo = "^2024.5.6"
+myst-nb = "^1.1.0"
+sphinx-copybutton = "^0.5.2"
+sphinx-design = "^0.5.0"
+sphinx-math-dollar = "^1.2.1"
+sphinx-proof = "^0.1.3"
+sphinx-tippy = "^0.4.3"
+sphinxcontrib-bibtex = "^2.6.2"
+sphinxcontrib-napoleon = "^0.7"
+sphinx-autobuild = "^2024.4.16"
+setuptools = "^69.5.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 
 [tool.pytest.ini_options]
 pythonpath = [
@@ -30,5 +56,6 @@ markers = [
     "serial",
 ]
 
-[tool.setuptools]
-packages = ["pyrigi"]
+[tool.jupytext]
+formats = "ipynb,md:myst"
+notebook_metadata_filter="jupytext"

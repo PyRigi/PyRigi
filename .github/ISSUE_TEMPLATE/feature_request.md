@@ -12,6 +12,19 @@ A clear and concise description of what the problem is or what functionality you
 
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.
+Notice that math can be typeset inline, e.g. $\mathbb{R}^d$ using `$\mathbb{R}^d$`,
+or on display, e.g.
+
+$$
+  \rho\colon V_G \rightarrow \mathbb{R}^d
+$$
+
+using
+```
+$$
+  \rho\colon V_G \rightarrow \mathbb{R}^d.
+$$
+```
 
 **Additional context**
 Add any other context or screenshots about the feature request here.

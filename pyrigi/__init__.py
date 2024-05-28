@@ -1,4 +1,6 @@
-u"""
+# flake8: noqa
+
+"""
 This is a package for the rigidity and flexibility of graphs
 and bar-and-joint frameworks.
 """

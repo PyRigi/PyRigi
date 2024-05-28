@@ -1,10 +1,13 @@
-## Cheatsheet
+# Cheatsheet
+
+While `monospace` is done using `` `monospace` `` in MyST,
+two ``` `` ``` are needed in reST (docstrings), namely ``` ``variable`` ```.
 
 For detailed overview of MyST syntax, see the [MyST documentation](https://myst-parser.readthedocs.io/en/latest/syntax/typography.html).
 
-### Cross-references
+## Cross-references
 
-###### Cross-references to definitions, theorems or literature
+### Cross-references to definitions, theorems or literature
 
 :::::{tab-set}
 
@@ -36,7 +39,7 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 
 
 
-###### Cross-references to classes or methods
+### Cross-references to classes or methods
 
 
 :::::{tab-set}
@@ -51,6 +54,8 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 `` {meth}`~pyrigi.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.Framework.delete_edge`
 `` {meth}`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` {meth}`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
+`` {func}`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
+`` {doc}`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::
 
@@ -64,13 +69,15 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 `` :meth:`~pyrigi.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.Framework.delete_edge`
 `` :meth:`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` :meth:`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
+`` :func:`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
+`` :doc:`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::
 
 :::::
 
 
-###### Sample definition
+### Sample definition
 
 ````myst
 :::{prf:definition} Sample definition
@@ -83,8 +90,8 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 \end{equation*} 
 
 {{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
-{meth}`~.Framework.underlying_graph`
-{meth}`~.Framework.get_realization`
+{meth}`~.Framework.graph`
+{meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
 {{references}} {cite:p}`Lee2008`
@@ -102,15 +109,15 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 \end{equation*} 
 
 {{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
-{meth}`~.Framework.underlying_graph`
-{meth}`~.Framework.get_realization`
+{meth}`~.Framework.graph`
+{meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
 {{references}} {cite:p}`Lee2008`
 % list of related references, no separating commas
 :::
 
-###### Math
+### Math
 
 See above in the definition example or [MyST documentation](https://myst-parser.readthedocs.io/en/latest/syntax/math.html) for more details.
 In the definition environment , `$$ ... $$` does not work so
@@ -119,4 +126,19 @@ In the definition environment , `$$ ... $$` does not work so
  ...
 \end{equation*}
 ````
-must used (or an alternative). 
+must used (or an alternative like `align`).
+
+The following `latex` macros can be used
+:::{csv-table}
+`\RR`, $\RR$ ,   real numbers
+`\CC`, $\CC$ ,   complex numbers
+`\QQ`, $\QQ$ ,   rational numbers
+`\ZZ`, $\ZZ$ ,   integers
+`\NN`, $\NN$ ,   natural numbers (including 0)
+`\PP`, $\PP$ ,   projective space
+`\KK`, $\KK$ ,   a field
+:::
+
+New `latex` commands can be created by modifying both `latex_elements` and `mathjax3_config` in `doc/conf.py`.
+
+Docstrings that use `latex` must be raw strings, namely `r""" ... """`.
