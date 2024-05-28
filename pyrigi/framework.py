@@ -66,7 +66,7 @@ class Framework(object):
     Matrix([
     [1],
     [2]])
-    
+
     TODO
     ----
     Use :meth:`~.Framework.set_realization` in the constructor.
@@ -153,7 +153,7 @@ class Framework(object):
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
         """
         Add a vertex to the framework with the corresponding coordinates.
-        
+
         If no vertex is provided (``None``), then the smallest,
         free integer is chosen instead.
 
@@ -210,7 +210,7 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices ['a', 0] and edges []
         Realization {a:(1.50000000000000, 2), 0:(3, 1)}
-        
+
         Notes
         -----
         For each vertex that has to be added, :meth:`add_vertex` is called.
@@ -257,7 +257,7 @@ class Framework(object):
     def graph(self) -> Graph:
         """
         Return a copy of the underlying graph.
-        
+
         TODO
         ----
         example
@@ -268,7 +268,7 @@ class Framework(object):
     def plot(self) -> None:
         """
         Plot the framework.
-        
+
         TODO
         ----
         implement plotting also for other dimensions than 2,
@@ -353,7 +353,7 @@ class Framework(object):
     def Circular(cls, graph: Graph):
         """
         Return the framework with a regular unit circle realization in the plane.
-        
+
         TODO
         ----
         example
@@ -372,7 +372,7 @@ class Framework(object):
     def Collinear(cls, graph: Graph, d: int = 1):
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
-        
+
         TODO
         ----
         example
@@ -398,7 +398,7 @@ class Framework(object):
             The dimension ``d`` has to be at least the number of vertices
             of the ``graph`` minus one.
             If ``d`` is not specified, then the least possible one is used.
-            
+
         TODO
         ----
         examples
@@ -427,7 +427,7 @@ class Framework(object):
         dim:
             a natural number that determines the dimension
             in which the framework is realized
-            
+
         TODO
         ----
         example
@@ -448,7 +448,7 @@ class Framework(object):
 
         The vertices of the underlying graph are taken
         to be the list ``[0,...,len(points)-1]``.
-        
+
         Parameters
         ----------
         dim:
@@ -673,7 +673,7 @@ class Framework(object):
         TODO
         ----
         tests
-        
+
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
@@ -820,7 +820,7 @@ class Framework(object):
         Definitions
         -----------
         * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
-        
+
         TODO
         ----
         more tests
@@ -958,7 +958,7 @@ class Framework(object):
     def rigidity_matrix_rank(self) -> int:
         """
         Compute the rank of the rigidity matrix.
-        
+
         TODO
         ----
         example, tests
@@ -975,7 +975,7 @@ class Framework(object):
         Definitions
         -----
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
-        
+
         TODO
         ----
         example
@@ -991,7 +991,7 @@ class Framework(object):
     def is_inf_flexible(self) -> bool:
         """
         Check whether the given framework is infinitesimally flexible.
-        
+
         See :meth:`~Framework.is_inf_rigid`
         """
         return not self.is_inf_rigid()
@@ -1044,7 +1044,7 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
-        
+
         TODO
         ----
         tests
