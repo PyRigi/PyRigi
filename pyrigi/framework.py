@@ -25,6 +25,7 @@ from sympy import Matrix, flatten, binomial
 
 from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
 from pyrigi.graph import Graph
+from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
@@ -84,7 +85,7 @@ class Framework(object):
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
         if nx.number_of_selfloops(graph)>0:
-            raise ValueError("The graph cannot contain loops.")
+            raise LoopError()
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
                 "The length of realization has to be equal to "
@@ -239,7 +240,7 @@ class Framework(object):
         if not (len(edge)) == 2:
             raise ValueError(f"Edge {edge} does not have the correct length.")
         if edge[0]==edge[1]:
-            raise ValueError("Edges cannot be loops.")
+            raise LoopError("Edges cannot be loops.")
         if not (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes):
             raise ValueError(
                 f"The adjacent vertices of {edge} are not contained in the graph."
