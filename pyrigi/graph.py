@@ -836,7 +836,7 @@ class Graph(nx.Graph):
         ----------
         vertex_order:
             By listing vertices in the preferred order, the adjacency matrix
-            can be computed in a way the user expects. If no vertex order is
+            is computed with the given order. If no vertex order is
             provided, :ref:`~.Graph.vertex_list()` is used.
 
         Examples
@@ -866,7 +866,7 @@ class Graph(nx.Graph):
                 "for graphs without isolated vertices."
             )
         if nx.number_of_selfloops(self) == 0:
-            M = self.adjacency_matrix()
+            M = self.adjacency_matrix(vertex_order)
             upper_diag = [
                 str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]
             ]
