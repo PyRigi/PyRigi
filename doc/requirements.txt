@@ -1,9 +1,0 @@
-furo
-myst-nb
-sphinx-copybutton
-sphinx-design
-sphinx-math-dollar
-sphinx-proof
-sphinx-tippy
-sphinxcontrib-bibtex
-sphinxcontrib-napoleon

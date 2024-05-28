@@ -47,36 +47,51 @@ Once in a while, the maintainers merge the branch `dev` into `main` and create a
 
 ## Code
 
+(dev-dependencies)=
+### Dependencies
+
+We maintain the dependencies of the package using [Poetry](https://python-poetry.org/).
+See the [installation instructions](https://python-poetry.org/docs/#installation).
+
+To install the package dependencies including those needed for the development, run
+```
+poetry install --no-root
+```
+in the root folder of PyRigi.
+Omitting `--no-root` installs also PyRigi itself, so it can be used system-wide.
+Poetry installs the dependencies and the package to a virtual environment.
+To activate this environment, run `poetry shell`.
+You can exit it with `exit` or `Ctrl+D`.
+
+If you want to install dependencies necessary only for the package itself, not for the development, run
+```
+poetry install --only main
+```
+
+
+
 ### PEP8
 
 We follow [PEP8](https://peps.python.org/pep-0008/) indications regarding Python code format.
 
 To check whether the code is PEP8-compliant, we strongly suggest to use
 [flake8](https://flake8.pycqa.org).
-To install it, run
-```
-pip install flake8
-```
 To check your code, simply run
 ```
-flake8 .
+flake8
 ```
-in PyRigi's home folder.
+in PyRigi's home folder (with poetry shell activated).
 The `.flake8` file in PyRigi's home folder, which specifies `flake8` configuration,
 is the same that is used in the automatic tests once a pull request is filed in GitHub.
 Therefore, please check your code with `flake8` before performing a pull request.
 
 There are tools that format code according to PEP8 indications.
 We **strongly** suggest to use [`black`](https://black.readthedocs.io).
-To install it, run
-```
-pip install black
-```
 To format your code, run
 ```
 black .
 ```
-in the root folder to modify the files in place.
+in the root folder (with poetry shell activated) to modify the files in place.
 We suggest to integrate the use of `black` at every commit
 as explained at [this page](https://black.readthedocs.io/en/stable/integrations/source_version_control.html) of `black`'s guide.
 
@@ -105,7 +120,7 @@ Therefore, before opening a pull request we **strongly advise** to run
 ```
 pytest --doctest-modules
 ```
-in the root folder of PyRigi.
+in the root folder of PyRigi (with poetry shell activated).
 The reason why the examples in the docstrings are tested is to make sure their outputs are valid,
 they do **not** replace the tests in the `test` folder.
 
@@ -134,12 +149,9 @@ The following extensions are used:
  - [`sphinx-design`](https://sphinx-design.readthedocs.io) - fancy features like tabs;
  - [`sphinx-tippy`](https://sphinx-tippy.readthedocs.io/en/latest/) - previews of definitions and methods.
 
-These can be installed by running the following command in the folder `doc`:
-```
-pip install --upgrade -r requirements.txt
-```
+These are already installed if you used `poetry install`.
 
-To compile, run Sphinx in the folder `doc` by:
+To compile, run Sphinx in the folder `doc` (with poetry shell activated) by:
 ```
 make html
 ```
@@ -163,11 +175,8 @@ In general, a docstring should contain the following items (in this order):
 
 ### Auto-build
 
-If you want that the documentation folder is kept watched and documentation is automatically rebuilt once a change is detected (works only for `.md` files, not docstrings), you can use the Sphinx extension [`sphinx-autobuild`](https://github.com/sphinx-doc/sphinx-autobuild), which can be installed via
-```
-pip install sphinx-autobuild
-```
-At this point, run in the `doc` folder:
+If you want that the documentation folder is kept watched and documentation is automatically rebuilt once a change is detected (works only for `.md` files, not docstrings), you can use the Sphinx extension [`sphinx-autobuild`](https://github.com/sphinx-doc/sphinx-autobuild).
+Run in the `doc` folder (with poetry shell activated):
 ```
 sphinx-autobuild . _build/html --open-browser
 ```
