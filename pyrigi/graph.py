@@ -36,6 +36,12 @@ class Graph(nx.Graph):
     >>> G.add_edges([(0,7), (2,5)])
     >>> print(G)
     Graph with vertices [0, 2, 5, 7, 'a'] and edges [[0, 7], [2, 5]]
+    
+    TODO
+    ----
+    Implement an alias for plotting.
+    Graphical output in Jupyter.
+    Graph names.
 
     METHODS
 
