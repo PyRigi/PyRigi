@@ -8,6 +8,14 @@
 
 This page provides basic information to start contributing.
 
+:::{important}
+Currently, we prefer the following contributions to the code:
+ - resolving and existing TODO (especially adding examples and tests),
+ - implementing a method marked as `Waiting for implementation`
+   or returning `NotImplementedError`,
+ - or adding missing definitions.
+:::
+
 ## Git(flow)
 
 We use [Git](https://git-scm.com/) for version control and the project is hosted at [Github](https://github.com/PyRigi/Pyrigi).
