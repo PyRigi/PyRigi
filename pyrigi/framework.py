@@ -19,6 +19,7 @@ from copy import deepcopy
 from random import randrange
 
 import networkx as nx
+import matplotlib.pyplot as plt
 import sympy as sp
 from sympy import Matrix, flatten, binomial
 
@@ -292,6 +293,7 @@ class Framework(object):
             pos=self.realization(as_points=True, numerical=True),
             with_labels=vertex_labels,
         )
+        plt.show()
 
     @classmethod
     @doc_category("Class methods")

@@ -9,6 +9,7 @@ from itertools import combinations
 from typing import List, Any, Union
 
 import networkx as nx
+import matplotlib.pyplot as plt
 from sympy import Matrix
 import math
 
@@ -984,20 +985,25 @@ class Graph(nx.Graph):
         from pyrigi.framework import Framework
 
         return Framework.Random(self, dim, rand_range)
-    
+
     @doc_category("Other")
     def plot(self, vertex_labels: bool = True) -> None:
         """
         Plot the graph.
+
+        Parameters
+        ----------
+        vertex_labels:
+            If True, vertex labels are displayed. By default True.
 
         Notes
         -----
         Use a networkx internal routine to plot the graph."""
         nx.draw(
             self,
-            #pos=self.realization(as_points=True, numerical=True),
             with_labels=vertex_labels,
         )
+        plt.show()
 
 
 Graph.__doc__ = Graph.__doc__.replace(
