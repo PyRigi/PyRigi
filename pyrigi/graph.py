@@ -322,20 +322,22 @@ class Graph(nx.Graph):
             and self.number_of_edges() == K * self.number_of_nodes() - L
         )
 
-
-
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-
-
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
 
     @doc_category("Waiting for implementation")
-    def zero_extension(self, vertices: List[Vertex], new_vertex: Vertex = None, dim: int = 2, inplace: bool = False) -> GraphType:
+    def zero_extension(
+        self,
+        vertices: List[Vertex],
+        new_vertex: Vertex = None,
+        dim: int = 2,
+        inplace: bool = False,
+    ) -> GraphType:
         """
         Notes
         -----
@@ -344,7 +346,14 @@ class Graph(nx.Graph):
         return Graph.k_extension(self, 0, vertices, [], new_vertex, dim, inplace)
 
     @doc_category("Waiting for implementation")
-    def one_extension(self, vertices: List[Vertex], edge: Edge, new_vertex: Vertex = None, dim: int = 2, inplace: bool = False) -> GraphType:
+    def one_extension(
+        self,
+        vertices: List[Vertex],
+        edge: Edge,
+        new_vertex: Vertex = None,
+        dim: int = 2,
+        inplace: bool = False,
+    ) -> GraphType:
         """
         Notes
         -----
@@ -354,7 +363,13 @@ class Graph(nx.Graph):
 
     @doc_category("Waiting for implementation")
     def k_extension(
-        self, k: int, vertices: List[Vertex], edges: List[Edge], new_vertex: Vertex = None, dim: int = 2, inplace: bool = False
+        self,
+        k: int,
+        vertices: List[Vertex],
+        edges: List[Edge],
+        new_vertex: Vertex = None,
+        dim: int = 2,
+        inplace: bool = False,
     ) -> GraphType:
         """
         Notes
@@ -386,14 +401,21 @@ class Graph(nx.Graph):
             raise TypeError("List of vertices must contain dim + k distinct vertices")
         i = 0
         while i < len(edges):
-            if len(edges[i]) != 2 or not edges[i][0] in vertices or not edges[i][1] in vertices or not edges[i] in self.edges:
+            if (
+                len(edges[i]) != 2
+                or not edges[i][0] in vertices
+                or not edges[i][1] in vertices
+                or not edges[i] in self.edges
+            ):
                 raise TypeError(
                     f"Edge {edges[i]} does not have the correct format, "
                     "is not contained in the graph "
                     "or has adjacent vertices that were not passed to the function"
                 )
             for j in range(i):
-                if (edges[i][0] == edges[j][0] and edges[i][1] == edges[j][1]) or (edges[i][0] == edges[j][1] and edges[i][1] == edges[j][0]):
+                if (edges[i][0] == edges[j][0] and edges[i][1] == edges[j][1]) or (
+                    edges[i][0] == edges[j][1] and edges[i][1] == edges[j][0]
+                ):
                     edges.pop(i)
                     i -= 1
                     break
@@ -403,9 +425,9 @@ class Graph(nx.Graph):
         G = self
         if not inplace:
             G = deepcopy(self)
-        #delete edges
+        # delete edges
         G.remove_edges_from(edges)
-        #connect new vertex to vertices - create new edges (vertex_i, new_vertex)
+        # connect new vertex to vertices - create new edges (vertex_i, new_vertex)
         for vertex in vertices:
             G.add_edge(vertex, new_vertex)
         return G
@@ -427,7 +449,7 @@ class Graph(nx.Graph):
             raise TypeError(
                 "The number of edges in the graph needs to be greater or equal than k!"
             )
-        #iterate through all subsets of edges of len = k
+        solutions = []
         for edges in combinations(self.edges, k):
             s = set(self.nodes)
             w = set()
@@ -439,11 +461,13 @@ class Graph(nx.Graph):
             if len(w) > (dim + k):
                 break
             w = list(w)
-            #iterate through all subsets of vertices not adjacent to edges in subset so that |S| + |W| = dim + k
             for vertices in combinations(s, dim + k - len(w)):
-                #for each pair of these subsets, create a new graph using k_extension
-                print(Graph.k_extension(self, k, list(vertices) + w, edges, dim = dim).__str__)
-                print()
+                solutions.append(
+                    Graph.k_extension(
+                        self, k, list(vertices) + w, edges, dim=dim
+                    )
+                )
+        return solutions
 
     @doc_category("Waiting for implementation")
     def extension_sequence(self, dim: int = 2) -> Any:
@@ -453,17 +477,13 @@ class Graph(nx.Graph):
             )
         raise NotImplementedError()
 
-
-
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-
-
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------------------------------------------------------
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
