@@ -7,6 +7,8 @@ from pyrigi.exception import LoopError
 import pytest
 from sympy import Matrix
 
+import sympy as sp
+
 
 @pytest.mark.parametrize(
     "framework",
@@ -169,3 +171,74 @@ def test_framework_loops():
     with pytest.raises(LoopError):
         G = Graph([[1, 2], [2, 3], [1, 3], [2, 2]])
         Framework.Random(G)
+
+
+def test_framework_translation():
+    G = graphs.Complete(3)
+    F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
+
+    newF = F.translate((0, 0), False)
+    for v, pos in newF._realization.items():
+        assert pos.equals(F._realization[v])
+
+    translation = Matrix([[1], [1]])
+    newF = F.translate(translation, False)
+    assert newF._realization[0].equals(F._realization[0] + translation)
+    assert newF._realization[1].equals(F._realization[1] + translation)
+    assert newF._realization[2].equals(F._realization[2] + translation)
+
+
+def test_framework_rotation():
+    G = graphs.Complete(3)
+    F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
+
+    newF = F.rotate2D(0, False)
+    for v, pos in newF._realization.items():
+        assert pos.equals(F._realization[v])
+
+    newF = F.rotate2D(sp.pi * 4, False)
+    for v, pos in newF._realization.items():
+        assert pos.equals(F._realization[v])
+
+    newF = F.rotate2D(sp.pi/2, False)
+    assert newF._realization[0].equals(Matrix([[0], [0]]))
+    assert newF._realization[1].equals(Matrix([[0], [2]]))
+    assert newF._realization[2].equals(Matrix([[-1], [1]]))
+
+    newF = F.rotate2D(sp.pi/4, False)
+    assert newF._realization[0].equals(Matrix([[0], [0]]))
+    assert newF._realization[1].equals(Matrix([[sp.sqrt(2)], [(sp.sqrt(2))]]))
+    assert newF._realization[2].equals(Matrix([[0], [sp.sqrt(2)]]))
+
+
+def test_framework_is_equivalent():
+    F1 = fws.Complete(4, 2)
+    assert F1.is_equivalent_realization(F1._realization)
+    assert F1.is_equivalent(F1)
+
+    F2 = fws.Complete(3, 2)
+    with pytest.raises(ValueError):
+        F1.is_equivalent_realization(F2._realization)
+
+    with pytest.raises(ValueError):
+        F1.is_equivalent(F2)
+
+    G1 = graphs.ThreePrism()
+    G1.delete_vertex(5)
+
+    F3 = Framework(
+        G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [
+            0, 4], 4: sp.sympify("[5/2, 9/7]")}
+    )
+
+    F4 = F3.translate((1, 1))
+
+    assert F3.is_equivalent(F4)
+
+    realization1 = F1._realization
+
+
+def test_framework_is_congruent():
+    F = Framework(Graph([[1, 2], [2, 4]]), {1: (1, 2), 2: (0, 0), 4: (1, 1)})
+    assert F.is_congruent_realization(F._realization)
+    assert F.is_congruent(F)
