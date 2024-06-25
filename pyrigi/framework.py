@@ -272,9 +272,38 @@ class Framework(object):
         return deepcopy(self._graph)
 
     @doc_category("Plotting")
-    def plot(self, vertex_labels: bool = True) -> None:
+    def plot(self,
+        vertex_size: int = 300,
+        vertex_color: str = "#4584B6",
+        vertex_shape: str = "o",
+        vertex_labels: bool = True,
+        edge_width: float = 1.0,
+        edge_style: str = 'solid',
+        **kwargs) -> None:
         """
         Plot the framework.
+
+        Parameters
+        ----------
+        vertex_size:
+            The size of the vertex. By default 300.
+        vertex_color:
+            The color of the vertex. Color can be string or rgb (or rgba) tuple of floats from 0-1.
+        vertex_shape:
+            The shape of the vertex. Specification is as matplotlib.scatter marker, one of 'so^>v<dph8'. By default 'o'.
+        vertex_labels:
+            If True, vertex labels are displayed. By default True.
+        edge_width:
+            The width of the edge. By default 1.0.
+        edge_color:
+            The color of the edge. Color can be string or rgb (or rgba) tuple of floats from 0-1. By default 'k'.
+        edge_style:
+            Edge line style e.g.: '-', '–', '-', ':' or words like 'solid' or 'dashed'. By default '-'.
+        font_size:
+            The size of the font used for the labels. By default 12.
+        font_color:
+            The color of the font used for the labels. By default 'k'.
+
 
         TODO
         ----
@@ -284,6 +313,7 @@ class Framework(object):
         Notes
         -----
         Use a networkx internal routine to plot the framework."""
+
         if self._dim != 2:
             raise NotImplementedError(
                 "Plotting is currently supported only for 2-dimensional frameworks."
@@ -291,7 +321,13 @@ class Framework(object):
         nx.draw(
             self._graph,
             pos=self.realization(as_points=True, numerical=True),
+            node_size=vertex_size,
+            node_color=vertex_color,
+            node_shape=vertex_shape,
             with_labels=vertex_labels,
+            width = edge_width,
+            style = edge_style,
+            **kwargs,
         )
         plt.show()
 
