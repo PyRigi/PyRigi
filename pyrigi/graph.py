@@ -335,22 +335,22 @@ class Graph(nx.Graph):
 
 
     @doc_category("Waiting for implementation")
-    def zero_extension(self, vertices: List[Vertex], dim: int = 2, inplace: bool = False) -> GraphType:
+    def zero_extension(self, vertices: List[Vertex], new_vertex: Vertex = None, dim: int = 2, inplace: bool = False) -> GraphType:
         """
         Notes
         -----
         Modifies self only when explicitly required.
         """
-        return k_extension(self, 0, vertices, [], dim, inplace)
+        return Graph.k_extension(self, 0, vertices, [], new_vertex, dim, inplace)
 
     @doc_category("Waiting for implementation")
-    def one_extension(self, vertices: List[Vertex], edge: Edge, dim: int = 2, inplace: bool = False) -> GraphType:
+    def one_extension(self, vertices: List[Vertex], edge: Edge, new_vertex: Vertex = None, dim: int = 2, inplace: bool = False) -> GraphType:
         """
         Notes
         -----
         Modifies self only when explicitly required.
         """
-        return k_extension(self, 1, vertices, [edge], dim, inplace)
+        return Graph.k_extension(self, 1, vertices, [edge], new_vertex, dim, inplace)
 
     @doc_category("Waiting for implementation")
     def k_extension(
