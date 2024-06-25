@@ -984,6 +984,20 @@ class Graph(nx.Graph):
         from pyrigi.framework import Framework
 
         return Framework.Random(self, dim, rand_range)
+    
+    @doc_category("Other")
+    def plot(self, vertex_labels: bool = True) -> None:
+        """
+        Plot the graph.
+
+        Notes
+        -----
+        Use a networkx internal routine to plot the graph."""
+        nx.draw(
+            self,
+            #pos=self.realization(as_points=True, numerical=True),
+            with_labels=vertex_labels,
+        )
 
 
 Graph.__doc__ = Graph.__doc__.replace(
