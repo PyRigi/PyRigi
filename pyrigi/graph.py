@@ -419,17 +419,31 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        if self.number_of_nodes < dim + k:
+        if self.number_of_nodes() < (dim + k):
             raise TypeError(
                 "The number of nodes in the graph needs to be greater or equal than the dimension + k!"
             )
-        if self.number_of_edges < k:
+        if self.number_of_edges() < k:
             raise TypeError(
                 "The number of edges in the graph needs to be greater or equal than k!"
             )
         #iterate through all subsets of edges of len = k
-        #iterate through all subsets of vertices not adjacent to edges in subset so that |S| + |W| = dim + k
-        #for each pair of these subsets, create a new graph using k_extensions
+        for edges in combinations(self.edges, k):
+            s = set(self.nodes)
+            w = set()
+            for edge in edges:
+                s.discard(edge[0])
+                s.discard(edge[1])
+                w.add(edge[0])
+                w.add(edge[1])
+            if len(w) > (dim + k):
+                break
+            w = list(w)
+            #iterate through all subsets of vertices not adjacent to edges in subset so that |S| + |W| = dim + k
+            for vertices in combinations(s, dim + k - len(w)):
+                #for each pair of these subsets, create a new graph using k_extension
+                print(Graph.k_extension(self, k, list(vertices) + w, edges, dim = dim).__str__)
+                print()
 
     @doc_category("Waiting for implementation")
     def extension_sequence(self, dim: int = 2) -> Any:
