@@ -339,7 +339,20 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> GraphType:
         """
-        Notes
+        Return a k-extension of the graph, where k = 0.
+
+        Parameters
+        -----
+        vertices:
+            A new vertex will be connected to these vertices by edges.
+            All the vertices must be contained in the graph and there must be dim of them.
+        new_vertex:
+            Newly added vertex will be named according to this parameter.
+            If None, the name will be set as the lowest possible integer value greater or equal than the number of nodes.
+        dim:
+            The dimension in which the k-extension is created.
+        inplace:
+            If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
         -----
         Modifies self only when explicitly required.
         """
@@ -355,7 +368,23 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> GraphType:
         """
-        Notes
+        Return a k-extension of the graph, where k = 1.
+
+        Parameters
+        -----
+        vertices:
+            A new vertex will be connected to these vertices by edges.
+            All the vertices must be contained in the graph and there must be dim + 1 of them.
+        edge:
+            An edge between two of the vertices passed by the parameter vertices that will be deleted.
+            The edge must be contained in the graph.
+        new_vertex:
+            Newly added vertex will be named according to this parameter.
+            If None, the name will be set as the lowest possible integer value greater or equal than the number of nodes.
+        dim:
+            The dimension in which the k-extension is created.
+        inplace:
+            If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
         -----
         Modifies self only when explicitly required.
         """
@@ -372,14 +401,24 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> GraphType:
         """
-        Notes
+        Return a k-extension of the graph.
 
         Parameters
         -----
+        k
         vertices:
-            list of vertices to which a new vertex will be connected
+            A new vertex will be connected to these vertices by edges.
+            All the vertices must be contained in the graph and there must be dim + k of them.
         edges:
-            list of edges between vertices passed by parameter vertices that are to be deleted
+            Edges between vertices passed by the parameter vertices that will be deleted.
+            All the edges must be contained in the graph and there must be k of them.
+        new_vertex:
+            Newly added vertex will be named according to this parameter.
+            If None, the name will be set as the lowest possible integer value greater or equal than the number of nodes.
+        dim:
+            The dimension in which the k-extension is created.
+        inplace:
+            If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
         -----
         Modifies self only when explicitly required.
         """
@@ -387,6 +426,25 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
+        for vertex in vertices:
+            if not vertex in self.nodes:
+                raise TypeError(f"Vertex {vertex} is not contained in the graph")
+        if len(set(vertices)) != dim + k:
+            raise TypeError("List of vertices must contain dim + k distinct vertices")
+        for edge in edges:
+            if (
+                len(edge) != 2
+                or not edge[0] in vertices
+                or not edge[1] in vertices
+                or not edge in self.edges
+            ):
+                raise TypeError(
+                    f"Edge {edge} does not have the correct format, "
+                    "is not contained in the graph "
+                    "or has adjacent vertices that were not passed to the function"
+                )
+        if len(edges) != k:
+            raise TypeError("List of edges must contain k distinct edges")
         if new_vertex is None:
             candidate = self.number_of_nodes()
             while candidate in self.nodes:
@@ -394,48 +452,24 @@ class Graph(nx.Graph):
             new_vertex = candidate
         if new_vertex in self.nodes:
             raise KeyError(f"Vertex {new_vertex} is already a vertex of the graph!")
-        for vertex in vertices:
-            if not vertex in self.nodes:
-                raise TypeError(f"Vertex {vertex} is not contained in the graph")
-        if len(set(vertices)) != dim + k:
-            raise TypeError("List of vertices must contain dim + k distinct vertices")
-        i = 0
-        while i < len(edges):
-            if (
-                len(edges[i]) != 2
-                or not edges[i][0] in vertices
-                or not edges[i][1] in vertices
-                or not edges[i] in self.edges
-            ):
-                raise TypeError(
-                    f"Edge {edges[i]} does not have the correct format, "
-                    "is not contained in the graph "
-                    "or has adjacent vertices that were not passed to the function"
-                )
-            for j in range(i):
-                if (edges[i][0] == edges[j][0] and edges[i][1] == edges[j][1]) or (
-                    edges[i][0] == edges[j][1] and edges[i][1] == edges[j][0]
-                ):
-                    edges.pop(i)
-                    i -= 1
-                    break
-            i += 1
-        if len(edges) != k:
-            raise TypeError("List of edges must contain k distinct edges")
         G = self
         if not inplace:
             G = deepcopy(self)
-        # delete edges
         G.remove_edges_from(edges)
-        # connect new vertex to vertices - create new edges (vertex_i, new_vertex)
         for vertex in vertices:
             G.add_edge(vertex, new_vertex)
         return G
 
     @doc_category("Waiting for implementation")
-    def all_k_extensions(self, k: int, dim: int = 2) -> None:
+    def all_k_extensions(self, k: int, dim: int = 2) -> list:
         """
         Return list of all possible k-extensions of the graph.
+
+        Parameters
+        -----
+        k
+        dim:
+            The dimension in which the k-extensions are created.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -463,19 +497,48 @@ class Graph(nx.Graph):
             w = list(w)
             for vertices in combinations(s, dim + k - len(w)):
                 solutions.append(
-                    Graph.k_extension(
-                        self, k, list(vertices) + w, edges, dim=dim
-                    )
+                    Graph.k_extension(self, k, list(vertices) + w, edges, dim=dim)
                 )
         return solutions
 
     @doc_category("Waiting for implementation")
     def extension_sequence(self, dim: int = 2) -> Any:
+        """
+        Return a sequence of extensions that create the graph.
+
+        Parameters
+        -----
+        dim:
+            The dimension in which the extensions are created.
+        """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        raise NotImplementedError()
+        if not dim == 2:
+            raise NotImplementedError()
+        if not self.number_of_nodes() == 0 and not self.number_of_edges() == 2*self.number_of_nodes() - 3:
+            return None
+        #vetveni a rekurze
+        solution = []
+        # while not self.number_of_nodes() == 0:
+            #najdi node s min degree
+            degrees = sorted(self.degree, key = lambda node: node[1])
+            #deg == 1 v deg == 0 -> return None
+            if degrees[0] < 2:
+                return None
+            #deg == 2 -> 0_ext -> odstran vrchol, pridej do solution, zkontroluj |E| = 2|V| - 3, pokracuj
+            if degrees[0] == 2:
+            #deg == 3 -> 1_ext -> odstran vrchol, pridej do solution, zkontroluj |E| = 2|V| - 3
+            else if degrees[0] == 3:
+                #pocet hran mezi adjacentnimi nodes:
+                #3 -> return None (i kdyby existoval jiny node se stupnem 3, graf neni (2,3)-sparse)
+                #2 -> pridej treti hranu, pridej do solution, zkontroluj |E| = 2|V| - 3, pokracuj
+                #1 (0) -> zkus vetve pridavajici prvni a druhou (a treti) hranu
+                          #pokud vrati reseni, return reseni + solution, jinak return None
+            else:
+                return None
+        return solution
 
     # ---------------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------------------------------------------------------------------------------------
