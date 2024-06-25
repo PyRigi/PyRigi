@@ -994,6 +994,8 @@ class Graph(nx.Graph):
         vertex_labels: bool = True,
         edge_width: float = 1.0,
         edge_style: str = 'solid',
+        canvas_width: int = 6.4,
+        canvas_height: int = 4.8,
         **kwargs) -> None:
         """
         Plot the graph.
@@ -1018,12 +1020,16 @@ class Graph(nx.Graph):
             The size of the font used for the labels. By default 12.
         font_color:
             The color of the font used for the labels. By default 'k'.
+        canvas_width:
+            The width of the canvas in inches. By default 6.4.
+        canvas_height:
+            The height of the canvas in inches. By default 4.8.
 
         Notes
         -----
         Use a networkx internal routine to plot the graph."""
     
-        plt.figure(figsize=(5,5))
+        plt.figure(figsize=(canvas_width,canvas_height))
         nx.draw(
             self,
             node_size=vertex_size,

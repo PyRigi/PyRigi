@@ -279,6 +279,8 @@ class Framework(object):
         vertex_labels: bool = True,
         edge_width: float = 1.0,
         edge_style: str = 'solid',
+        canvas_width: int = 6.4,
+        canvas_height: int = 4.8,
         **kwargs) -> None:
         """
         Plot the framework.
@@ -303,6 +305,10 @@ class Framework(object):
             The size of the font used for the labels. By default 12.
         font_color:
             The color of the font used for the labels. By default 'k'.
+        canvas_width:
+            The width of the canvas in inches. By default 6.4.
+        canvas_height:
+            The height of the canvas in inches. By default 4.8.
 
 
         TODO
@@ -318,6 +324,7 @@ class Framework(object):
             raise NotImplementedError(
                 "Plotting is currently supported only for 2-dimensional frameworks."
             )
+        plt.figure(figsize=(canvas_width,canvas_height))
         nx.draw(
             self._graph,
             pos=self.realization(as_points=True, numerical=True),
