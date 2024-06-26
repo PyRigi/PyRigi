@@ -21,7 +21,7 @@ An Edge is a pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
 
 Coordinate = int | float | str
 """
-An integer, float or a string interpretable by :func:`sympy.core.sympify.sympify`.
+An integer, float or a string interpretable by :func:`~sympy.core.sympify.sympify`.
 """
 
 Point = Sequence[Coordinate]
