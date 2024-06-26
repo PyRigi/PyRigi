@@ -1116,7 +1116,7 @@ class Framework(object):
         tolerance: float = 10e-9,
     ) -> bool:
         """
-        Return True if the given framework is congruent (has congruent realization), False otherwise
+        Return whether the other framework is congruent to self.
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
@@ -1131,7 +1131,7 @@ class Framework(object):
         self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
     ) -> bool:
         """
-        Return True if the given realization is equal, False otherwise.
+        Return if the given realization is equivalent to self.
         """
 
         if set(self._graph.nodes) != set(other_realization.keys()):
@@ -1164,7 +1164,7 @@ class Framework(object):
         tolerance: float = 10e-9,
     ) -> bool:
         """
-        Return True if the given framework is equal (graphs are same and realizations are equal), False otherwise.
+        Return if the other framework is equivalent to self.
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
