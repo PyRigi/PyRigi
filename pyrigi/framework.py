@@ -1099,6 +1099,11 @@ class Framework(object):
             Used tolerance when checking numerically.
         """
 
+        if set(self._graph.nodes) != set(other_realization.keys()):
+            raise ValueError(
+                "Not all vertices have a realization in the given dictionary."
+            )
+
         vertices = self._graph.nodes
         vertices = list(vertices)
         for i, u in enumerate(vertices):
@@ -1140,9 +1145,8 @@ class Framework(object):
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError(
-                "Not all vertices have a realization in the given dictionary"
-            )
+            raise ValueError("Given graphs are not same.")
+
         return self.is_congruent_realization(
             other_framework._realization, numerical, tolerance
         )
