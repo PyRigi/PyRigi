@@ -65,6 +65,7 @@ bibtex_bibfiles = ["refs.bib"]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
+    "sympy": ("https://docs.sympy.org/latest/", None),
 }
 
 napoleon_google_docstring = False
@@ -85,6 +86,7 @@ autodoc_type_aliases = {
     "Vertex": "Vertex",
     "Edge": "Edge",
     "Point": "Point",
+    "Coordinate": "Coordinate",
 }
 napoleon_attr_annotations = True
 

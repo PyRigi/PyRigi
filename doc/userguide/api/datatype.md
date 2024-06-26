@@ -7,8 +7,10 @@ The following datatypes are used for type hinting.
    
 .. autodata:: pyrigi.data_type.Edge
 
+.. autodata:: pyrigi.data_type.Coordinate
+
 .. autodata:: pyrigi.data_type.Point
 
-
+.. autofunction:: pyrigi.data_type.point_to_vector
 
 ```

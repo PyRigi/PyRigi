@@ -23,7 +23,7 @@ import sympy as sp
 from sympy import Matrix, flatten, binomial
 
 
-from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
+from pyrigi.data_type import Vertex, Edge, Point, FrameworkType, point_to_vector
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -1082,13 +1082,200 @@ class Framework(object):
             self.add_edge(edge)
         return True
 
-    @doc_category("Waiting for implementation")
-    def is_congruent(self, framework_) -> bool:
-        raise NotImplementedError()
+    @doc_category("Framework properties")
+    def is_congruent_realization(
+        self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
+    ) -> bool:
+        """
+        Return whether the given realization is congruent to self.
 
-    @doc_category("Waiting for implementation")
-    def is_equivalent(self, framework_) -> bool:
-        raise NotImplementedError()
+        Parameters
+        ----------
+        other_realization
+            The realization for checking the congruence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+        """
+
+        if set(self._graph.nodes) != set(other_realization.keys()):
+            raise ValueError(
+                "Not all vertices have a realization in the given dictionary."
+            )
+
+        vertices = self._graph.nodes
+        vertices = list(vertices)
+        for i, u in enumerate(vertices):
+            for j, v in enumerate(vertices[i + 1 :]):
+                edge_vec = (self._realization[u]) - self._realization[v]
+                dist_squared = (edge_vec.T * edge_vec)[0, 0]
+
+                other_edge_vec = point_to_vector(
+                    other_realization[u]
+                ) - point_to_vector(other_realization[v])
+                otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
+
+                difference = sp.simplify(dist_squared - otherdist_squared)
+                if not difference.is_zero:
+                    if not numerical:
+                        return False
+                    elif numerical and sp.Abs(difference) > tolerance:
+                        return False
+        return True
+
+    @doc_category("Framework properties")
+    def is_congruent(
+        self,
+        other_framework: Framework,
+        numerical: bool = False,
+        tolerance: float = 10e-9,
+    ) -> bool:
+        """
+        Return whether the given framework is congruent to self.
+
+        Parameters
+        ----------
+        other_framework
+            The framework for checking the congruence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+        """
+
+        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+            raise ValueError("Underlying graphs are not same.")
+
+        return self.is_congruent_realization(
+            other_framework._realization, numerical, tolerance
+        )
+
+    @doc_category("Framework properties")
+    def is_equivalent_realization(
+        self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
+    ) -> bool:
+        """
+        Return whether the given realization is equivalent to self.
+
+        Parameters
+        ----------
+        other_realization
+            The realization for checking the equivalence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+        """
+
+        if set(self._graph.nodes) != set(other_realization.keys()):
+            raise ValueError(
+                "Not all vertices have a realization in the given dictionary."
+            )
+
+        for u, v in self._graph.edges:
+
+            edge_vec = self._realization[u] - self._realization[v]
+            dist_squared = (edge_vec.T * edge_vec)[0, 0]
+
+            other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
+                other_realization[v]
+            )
+            otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
+
+            difference = sp.simplify(otherdist_squared - dist_squared)
+            if not difference.is_zero:
+                if not numerical:
+                    return False
+                elif numerical and sp.Abs(difference) > tolerance:
+                    return False
+        return True
+
+    @doc_category("Framework properties")
+    def is_equivalent(
+        self,
+        other_framework: Framework,
+        numerical: bool = False,
+        tolerance: float = 10e-9,
+    ) -> bool:
+        """
+        Return whether the given framework is equivalent to self.
+
+        Parameters
+        ----------
+        other_framework
+            The framework for checking the equivalence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+        """
+
+        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+            raise ValueError("Underlying graphs are not same.")
+        return self.is_equivalent_realization(
+            other_framework._realization, numerical, tolerance
+        )
+
+    @doc_category("Framework manipulation")
+    def translate(self, vector: Point, inplace: bool = True) -> None:
+        """
+        Translate the framework.
+
+        Parameters
+        ----------
+        vector
+            Translation vector
+        inplace
+            If True (default), then this framework is translated.
+            Otherwise, a new translated framework is returned.
+        """
+
+        vector = point_to_vector(vector)
+
+        if inplace:
+            if vector.shape[0] != self.dim():
+                raise ValueError(
+                    "The dimension of the vector has to be the same as of the framework."
+                )
+
+            for v in self._realization.keys():
+                self._realization[v] += vector
+            return
+
+        new_framework = deepcopy(self)
+        new_framework.translate(vector, True)
+        return new_framework
+
+    @doc_category("Framework manipulation")
+    def rotate2D(self, angle: float, inplace: bool = True):
+        """
+        Rotate the planar framework counter clockwise.
+
+        Parameters
+        ----------
+        angle
+            Rotation angle
+        inplace
+            If True (default), then this framework is rotated.
+            Otherwise, a new rotated framework is returned.
+        """
+
+        if self.dim() != 2:
+            raise ValueError("This realization is not in dimension 2!")
+
+        rotation_matrix = Matrix(
+            [[sp.cos(angle), -sp.sin(angle)], [sp.sin(angle), sp.cos(angle)]]
+        )
+
+        if inplace:
+            for v, pos in self._realization.items():
+                self._realization[v] = rotation_matrix * pos
+            return
+
+        new_framework = deepcopy(self)
+        new_framework.rotate2D(angle, True)
+        return new_framework
 
 
 Framework.__doc__ = Framework.__doc__.replace(
@@ -1098,6 +1285,7 @@ Framework.__doc__ = Framework.__doc__.replace(
         1,
         [
             "Attribute getters",
+            "Framework properties",
             "Class methods",
             "Framework manipulation",
             "Infinitesimal rigidity",
