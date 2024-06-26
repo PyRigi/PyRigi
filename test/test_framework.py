@@ -172,7 +172,7 @@ def test_framework_loops():
         Framework.Random(G)
 
 
-def test_framework_translation():
+def test_translation():
     G = graphs.Complete(3)
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
 
@@ -187,7 +187,7 @@ def test_framework_translation():
     assert newF[2].equals(F[2] + translation)
 
 
-def test_framework_rotation():
+def test_rotation():
     G = graphs.Complete(3)
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
 
@@ -210,7 +210,7 @@ def test_framework_rotation():
     assert newF[2].equals(Matrix([[0], [sqrt(2)]]))
 
 
-def test_framework_is_equivalent():
+def test_is_equivalent():
     F1 = fws.Complete(4, 2)
     assert F1.is_equivalent_realization(F1.realization(), numerical=False)
     assert F1.is_equivalent_realization(F1.realization(), numerical=True)
@@ -286,7 +286,7 @@ def test_framework_is_equivalent():
     assert F9.is_equivalent_realization(R1, numerical=True)
 
 
-def test_framework_is_congruent():
+def test_is_congruent():
     G1 = Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [3, 4]])
     F1 = Framework(G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: ["5/2", "17/7"]})
     F2 = Framework(
