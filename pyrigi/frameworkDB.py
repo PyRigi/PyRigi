@@ -36,7 +36,14 @@ def Diamond():
 
 
 def Complete(n: int, d: int = 2):
-    """Return d-dimensional framework of the complete graph on n vertices."""
+    """
+    Return d-dimensional framework of the complete graph on n vertices.
+
+    TODO
+    ----
+    Describe the generated realization.
+    """
+
     misc.check_integrality_and_range(n, "number of vertices n", 1)
     misc.check_integrality_and_range(d, "dimension d", 1)
     if n - 1 <= d:
