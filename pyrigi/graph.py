@@ -330,7 +330,7 @@ class Graph(nx.Graph):
     # ---------------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------------------------------------------------------------------------------------
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Graph manipulation")
     def zero_extension(
         self,
         vertices: List[Vertex],
@@ -358,7 +358,7 @@ class Graph(nx.Graph):
         """
         return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Graph manipulation")
     def one_extension(
         self,
         vertices: List[Vertex],
@@ -390,7 +390,7 @@ class Graph(nx.Graph):
         """
         return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Graph manipulation")
     def k_extension(
         self,
         k: int,
@@ -460,7 +460,7 @@ class Graph(nx.Graph):
             G.add_edge(vertex, new_vertex)
         return G
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Graph manipulation")
     def all_k_extensions(self, k: int, dim: int = 2, only_non_isomorphic: bool = False) -> list:
         """
         Return list of all possible k-extensions of the graph.
@@ -501,7 +501,7 @@ class Graph(nx.Graph):
                 )
         return solutions
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Graph manipulation")
     def extension_sequence(self, dim: int = 2) -> Any:
         """
         Return a sequence of extensions that create the graph.
