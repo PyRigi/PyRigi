@@ -282,6 +282,7 @@ class Framework(object):
         edge_style: str = "solid",
         canvas_width: int = 6.4,
         canvas_height: int = 4.8,
+        aspect_ratio: float = 1.0,
         **kwargs,
     ) -> None:
         """
@@ -315,6 +316,8 @@ class Framework(object):
             The width of the canvas in inches. By default 6.4.
         canvas_height:
             The height of the canvas in inches. By default 4.8.
+        aspect_ratio:
+            The ratio of y-unit to x-unit. By default 1.0.
 
 
         TODO
@@ -330,14 +333,12 @@ class Framework(object):
             raise NotImplementedError(
                 "Plotting is currently supported only for 2-dimensional frameworks."
             )
-        # plt.figure(figsize=(canvas_width, canvas_height))
-        # plt.gca().set_aspect("equal")
 
         fig, ax = plt.subplots()
         ax.set_adjustable("datalim")
         fig.set_figwidth(canvas_width)
         fig.set_figheight(canvas_height)
-        ax.set_aspect("equal")
+        ax.set_aspect(aspect_ratio)
         nx.draw(
             self._graph,
             pos=self.realization(as_points=True, numerical=True),

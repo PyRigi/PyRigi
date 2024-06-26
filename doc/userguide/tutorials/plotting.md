@@ -53,5 +53,11 @@ F2.plot()
 ```
 
 ```{code-cell} ipython3
+F = Framework(Graph([(0,1), (1,2), (2,3), (3,0)]), {0:(0,0), 1:(0,30), 2:(1,30), 3:(1,0)})
+F.plot()
+F.plot(aspect_ratio=0.25)
+```
+
+```{code-cell} ipython3
 
 ```
