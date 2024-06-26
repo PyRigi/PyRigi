@@ -558,6 +558,7 @@ class Framework(object):
                 for vertex, position in self._realization.items()
             }
 
+    @doc_category("Framework properties")
     def is_quasi_injective(self, numerical: bool = False, tolerance: float = 1e-9):
         """
         Return true if realization is quasi injective, False otherwise.
@@ -581,6 +582,7 @@ class Framework(object):
                 return False
         return True
 
+    @doc_category("Framework properties")
     def is_injective(self, numerical: bool = False, tolerance: float = 1e-9):
         """
         Return true if realization is injective, False otherwise.
