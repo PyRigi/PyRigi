@@ -517,22 +517,18 @@ class Graph(nx.Graph):
             )
         if not dim == 2:
             raise NotImplementedError()
-        #konec rekurze
         if self.number_of_nodes() == 2:
             if self.number_of_edges() == 1:
                 G = deepcopy(self)
                 G.remove_node(list(G.nodes)[0])
                 return [G, self]
             return None
-        #zadan nebo vytvoren neplatny graf
         if self.number_of_nodes() < 2 or not self.number_of_edges() == 2*self.number_of_nodes() - 3:
             return None
-        #najdi node s min degree
         degrees = sorted(self.degree, key = lambda node: node[1])
-        #deg < 2 -> return None
         if degrees[0][1] < 2 or degrees[0][1] > 3:
             return None
-        #deg == 2 -> 0_ext -> odstran vrchol
+        #deg == 2 -> 0_extension
         i = 0
         while i < self.number_of_nodes() and degrees[i][1] == 2:
             G = deepcopy(self)
@@ -543,48 +539,30 @@ class Graph(nx.Graph):
             i += 1
         if i > 0:
             return None
-        #deg == 3 -> 1_ext -> odstran vrchol, zkontroluj |E| = 2|V| - 3
+        #deg == 3 -> 1_extension
         while i < self.number_of_nodes() and degrees[i][1] == 3:
             neighbors = list(self.neighbors(degrees[i][0]))
             G = deepcopy(self)
             G.remove_node(degrees[i][0])
-            #pocet hran mezi sousednimi vrcholy
-            contained_edges = G.number_of_edges(neighbors[0], neighbors[1]) + G.number_of_edges(neighbors[0], neighbors[2]) + G.number_of_edges(neighbors[1], neighbors[2])
-            #3 -> return None (i kdyby existoval jiny node se stupnem 3, graf neni (2,3)-sparse)
-            if contained_edges == 3:
-                return None
-            #2 -> pridej treti hranu, pridej do solution, pokracuj
-            if contained_edges == 2:
-                if not G.is_edge(neighbors[0], neighbors[1]):
-                    G.add_edge(neighbors[0], neighbors[1])
-                elif not G.is_edge(neighbors[0], neighbors[2]):
-                    G.add_edge(neighbors[0], neighbors[2])
-                else:
-                    G.add_edge(neighbors[1], neighbors[2])
+            if not G.has_edge(neighbors[0], neighbors[1]):
+                G.add_edge(neighbors[0], neighbors[1])
                 branch = G.extension_sequence(dim)
                 if not branch == None:
                     return branch + [self]
-            #1 (0) -> zkus vetve pridavajici prvni a druhou (a treti) hranu
-            else:
-                if not G.has_edge(neighbors[0], neighbors[1]):
-                    G.add_edge(neighbors[0], neighbors[1])
-                    branch = G.extension_sequence(dim)
-                    if not branch == None:
-                        return branch + [self]
-                    G.remove_edge(neighbors[0], neighbors[1])
-                if not G.has_edge(neighbors[0], neighbors[2]):
-                    G.add_edge(neighbors[0], neighbors[2])
-                    branch = G.extension_sequence(dim)
-                    if not branch == None:
-                        return branch + [self]
-                    G.remove_edge(neighbors[0], neighbors[2])
-                if not G.has_edge(neighbors[1], neighbors[2]):
-                    G.add_edge(neighbors[1], neighbors[2])
-                    branch = extension_sequence(G, dim)
-                    branch = G.extension_sequence(dim)
-                    if not branch == None:
-                        return branch + [self]
-                    G.remove_edge(neighbors[1], neighbors[2])
+                G.remove_edge(neighbors[0], neighbors[1])
+            if not G.has_edge(neighbors[0], neighbors[2]):
+                G.add_edge(neighbors[0], neighbors[2])
+                branch = G.extension_sequence(dim)
+                if not branch == None:
+                    return branch + [self]
+                G.remove_edge(neighbors[0], neighbors[2])
+            if not G.has_edge(neighbors[1], neighbors[2]):
+                G.add_edge(neighbors[1], neighbors[2])
+                branch = extension_sequence(G, dim)
+                branch = G.extension_sequence(dim)
+                if not branch == None:
+                    return branch + [self]
+                G.remove_edge(neighbors[1], neighbors[2])
             i += 1
         return None
 
