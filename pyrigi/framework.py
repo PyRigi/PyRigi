@@ -559,9 +559,11 @@ class Framework(object):
             }
 
     @doc_category("Framework properties")
-    def is_quasi_injective(self, numerical: bool = False, tolerance: float = 1e-9):
+    def is_quasi_injective(
+        self, numerical: bool = False, tolerance: float = 1e-9
+    ) -> bool:
         """
-        Return true if realization is quasi injective, False otherwise.
+        Return whether the realization is quasi injective.
 
         Parameters
         ----
@@ -574,18 +576,24 @@ class Framework(object):
 
         for u, v in self._graph.edges:
             edge_vector = self[u] - self[v]
-            distance_squared = (edge_vector.T * edge_vector)[0, 0]
-            distance_squared = simplify(distance_squared)
-            if not numerical and distance_squared.is_zero:
-                return False
-            if numerical and Abs(distance_squared) < tolerance:
-                return False
+            if not numerical:
+                for coord in edge_vector:
+                    if not simplify(coord).is_zero:
+                        break
+                else:
+                    return False
+            if numerical:
+                for coord in edge_vector:
+                    if Abs(coord) > tolerance:
+                        break
+                else:
+                    return False
         return True
 
     @doc_category("Framework properties")
-    def is_injective(self, numerical: bool = False, tolerance: float = 1e-9):
+    def is_injective(self, numerical: bool = False, tolerance: float = 1e-9) -> bool:
         """
-        Return true if realization is injective, False otherwise.
+        Return whether the realization is injective.
 
         Parameters
         ----
@@ -600,12 +608,19 @@ class Framework(object):
         for i, u in enumerate(vertices):
             for j, v in enumerate(vertices[i + 1 :]):
                 edge_vector = self[u] - self[v]
-                distance_squared = (edge_vector.T * edge_vector)[0, 0]
-                distance_squared = simplify(distance_squared)
-                if not numerical and distance_squared.is_zero:
-                    return False
-                if numerical and Abs(distance_squared) < tolerance:
-                    return False
+
+                if not numerical:
+                    for coord in edge_vector:
+                        if not simplify(coord).is_zero:
+                            break
+                    else:
+                        return False
+                if numerical:
+                    for coord in edge_vector:
+                        if Abs(coord) > tolerance:
+                            break
+                    else:
+                        return False
         return True
 
     @doc_category("Framework manipulation")
