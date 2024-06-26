@@ -5,7 +5,8 @@ Module for defining data type used for type hinting.
 """
 
 from sympy import Matrix
-from typing import TypeVar, List, Tuple, Hashable
+from typing import TypeVar, Tuple, Hashable
+from collections.abc import Sequence
 
 
 Vertex = Hashable
@@ -18,13 +19,18 @@ Edge = Tuple[Vertex, Vertex]
 An Edge is a pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
 """
 
-Point = List[float]
+Coordinate = int | float | str
 """
-A Point is a list of coordinates whose length is the dimension of its affine space.
+An integer, float or a string interpretable by :func:`sympy.core.sympify.sympify`.
+"""
+
+Point = Sequence[Coordinate]
+"""
+A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
 """
 
 
-Vector = TypeVar(Matrix)
+Vector = TypeVar("Matrix")
 GraphType = TypeVar("Graph")
 FrameworkType = TypeVar("Framework")
 MatroidType = TypeVar("Matroid")
