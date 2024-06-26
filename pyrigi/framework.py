@@ -1082,11 +1082,21 @@ class Framework(object):
             self.add_edge(edge)
         return True
 
+    @doc_category("Framework properties")
     def is_congruent_realization(
         self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
     ) -> bool:
         """
-        Return True if the given realization is congruent, False otherwise
+        Return whether the given realization is congruent to self.
+
+        Parameters
+        ----------
+        other_realization
+            The realization for checking the congruence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
         """
 
         vertices = self._graph.nodes
@@ -1109,6 +1119,7 @@ class Framework(object):
                         return False
         return True
 
+    @doc_category("Framework properties")
     def is_congruent(
         self,
         other_framework: Framework,
@@ -1116,7 +1127,16 @@ class Framework(object):
         tolerance: float = 10e-9,
     ) -> bool:
         """
-        Return whether the other framework is congruent to self.
+        Return whether the given framework is congruent to self.
+
+        Parameters
+        ----------
+        other_framework
+            The framework for checking the congruence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
@@ -1127,11 +1147,21 @@ class Framework(object):
             other_framework._realization, numerical, tolerance
         )
 
+    @doc_category("Framework properties")
     def is_equivalent_realization(
         self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
     ) -> bool:
         """
-        Return if the given realization is equivalent to self.
+        Return whether the given realization is equivalent to self.
+
+        Parameters
+        ----------
+        other_realization
+            The realization for checking the equivalence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
         """
 
         if set(self._graph.nodes) != set(other_realization.keys()):
@@ -1157,6 +1187,7 @@ class Framework(object):
                     return False
         return True
 
+    @doc_category("Framework properties")
     def is_equivalent(
         self,
         other_framework: Framework,
@@ -1164,7 +1195,16 @@ class Framework(object):
         tolerance: float = 10e-9,
     ) -> bool:
         """
-        Return if the other framework is equivalent to self.
+        Return whether the given framework is equivalent to self.
+
+        Parameters
+        ----------
+        other_framework
+            The framework for checking the equivalence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
@@ -1173,9 +1213,18 @@ class Framework(object):
             other_framework._realization, numerical, tolerance
         )
 
+    @doc_category("Framework manipulation")
     def translate(self, vector: Point, inplace: bool = True) -> None:
         """
-        Translate the realization.
+        Translate the framework.
+
+        Parameters
+        ----------
+        vector
+            Translation vector
+        inplace
+            If True (default), then this framework is translated.
+            Otherwise new translated framework is returned.
         """
 
         vector = point_to_vector(vector)
@@ -1192,9 +1241,18 @@ class Framework(object):
         new_framework.translate(vector, True)
         return new_framework
 
+    @doc_category("Framework manipulation")
     def rotate2D(self, angle: float, inplace: bool = True):
         """
-        Rotate the realization counter clockwise.
+        Rotate the planar framework counter clockwise.
+
+        Parameters
+        ----------
+        angle
+            Rotation angle
+        inplace
+            If True (default), then this framework is rotated.
+            Otherwise new rotated framework is returned.
         """
 
         if self.dim() != 2:
@@ -1221,6 +1279,7 @@ Framework.__doc__ = Framework.__doc__.replace(
         1,
         [
             "Attribute getters",
+            "Framework properties",
             "Class methods",
             "Framework manipulation",
             "Infinitesimal rigidity",
