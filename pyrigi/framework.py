@@ -98,8 +98,7 @@ class Framework(object):
 
         for v in graph.nodes:
             if v not in realization:
-                raise KeyError(
-                    f"Vertex {v} is not contained in the realization.")
+                raise KeyError(f"Vertex {v} is not contained in the realization.")
             if not len(realization[v]) == self._dim:
                 raise ValueError(
                     f"The point {realization[v]} in the realization corresponding to "
@@ -185,8 +184,7 @@ class Framework(object):
             vertex = candidate
 
         if vertex in self._graph.nodes:
-            raise KeyError(
-                f"Vertex {vertex} is already a vertex of the graph!")
+            raise KeyError(f"Vertex {vertex} is already a vertex of the graph!")
 
         self._realization[vertex] = Matrix(point)
         self._graph.add_node(vertex)
@@ -221,8 +219,7 @@ class Framework(object):
         For each vertex that has to be added, :meth:`add_vertex` is called.
         """
         if not (len(points) == len(vertices) or not vertices):
-            raise IndexError(
-                "The vertex list does not have the correct length!")
+            raise IndexError("The vertex list does not have the correct length!")
         if not vertices:
             for point in points:
                 self.add_vertex(point)
@@ -346,13 +343,11 @@ class Framework(object):
             a = -b
         if isinstance(rand_range, list):
             if not len(rand_range) == 2:
-                raise ValueError(
-                    "If `rand_range` is a list, it must be of length 2.")
+                raise ValueError("If `rand_range` is a list, it must be of length 2.")
             a, b = rand_range
         if isinstance(rand_range, int):
             if rand_range <= 0:
-                raise ValueError(
-                    "If `rand_range` is an int, it must be positive")
+                raise ValueError("If `rand_range` is an int, it must be positive")
             b = rand_range
             a = -b
 
@@ -601,7 +596,7 @@ class Framework(object):
 
         vertices = list(self._graph.nodes)
         for i, u in enumerate(vertices):
-            for j, v in enumerate(vertices[i + 1:]):
+            for j, v in enumerate(vertices[i + 1 :]):
                 edge_vector = self[u] - self[v]
                 distance_squared = (edge_vector.T * edge_vector)[0, 0]
                 distance_squared = simplify(distance_squared)
@@ -642,15 +637,13 @@ class Framework(object):
             )
         for v in self._graph.nodes:
             if v not in realization:
-                raise KeyError(
-                    "Vertex {vertex} is not a key of the given realization!")
+                raise KeyError("Vertex {vertex} is not a key of the given realization!")
             if not len(realization[v]) == self.dimension():
                 raise IndexError(
                     f"The element {realization[v]} does not have "
                     f"the dimension {self.dimension()}!"
                 )
-        self._realization = {
-            v: Matrix(realization[v]) for v in realization.keys()}
+        self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
     @doc_category("Framework manipulation")
     def set_vertex_pos(self, vertex: Vertex, point: Point) -> None:
@@ -667,8 +660,7 @@ class Framework(object):
         Realization {0:(6, 2)}
         """
         if vertex not in self._realization:
-            raise KeyError(
-                "Vertex {vertex} is not a key of the given realization!")
+            raise KeyError("Vertex {vertex} is not a key of the given realization!")
         if not len(point) == self.dimension():
             raise IndexError(
                 f"The point {point} does not have the dimension {self.dimension()}!"
@@ -694,8 +686,7 @@ class Framework(object):
         to ``vertices`` and ``points``.
         """
         if len(list(set(vertices))) != len(list(vertices)):
-            raise ValueError(
-                "Multiple Vertices with the same name were found!")
+            raise ValueError("Multiple Vertices with the same name were found!")
         if not len(vertices) == len(points):
             raise IndexError(
                 "The list of vertices does not have the same length as the list of points"
@@ -841,8 +832,7 @@ class Framework(object):
                         break
                 pinned_vertices[v] = frozen_coord
         else:
-            number_pinned = sum([len(coord)
-                                for coord in pinned_vertices.values()])
+            number_pinned = sum([len(coord) for coord in pinned_vertices.values()])
             if number_pinned > self._dim * (self._dim + 1) // 2:
                 raise ValueError(
                     "The maximal number of coordinates that"
@@ -857,8 +847,7 @@ class Framework(object):
         for v in pinned_vertices:
             for coord in pinned_vertices[v]:
                 idx = vertex_order.index(v)
-                new_row = Matrix.zeros(
-                    1, self._dim * self._graph.number_of_nodes())
+                new_row = Matrix.zeros(1, self._dim * self._graph.number_of_nodes())
                 new_row[idx * self._dim + coord] = 1
                 pinning_rows.append(new_row)
         pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
@@ -930,8 +919,7 @@ class Framework(object):
                 A[j, i] = -1
                 basis_skew_symmetric += [A]
         inf_rot = [
-            Matrix.vstack(*[A * self._realization[v]
-                          for v in self._graph.nodes])
+            Matrix.vstack(*[A * self._realization[v] for v in self._graph.nodes])
             for A in basis_skew_symmetric
         ]
         matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
