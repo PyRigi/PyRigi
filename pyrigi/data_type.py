@@ -40,6 +40,12 @@ def point_to_vector(point: Point) -> Vector:
     """
     Return point as sympy Matrix.
     """
+
+    if isinstance(point, Matrix):
+        if point.shape[1] != 1:
+            raise ValueError("Point could not be interpreted as column vector.")
+        return point
+
     if not isinstance(point, Sequence) or isinstance(point, str):
         raise TypeError("The point must be a Sequence of Coordinates.")
 
