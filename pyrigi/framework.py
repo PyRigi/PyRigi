@@ -1228,14 +1228,16 @@ class Framework(object):
             Translation vector
         inplace
             If True (default), then this framework is translated.
-            Otherwise new translated framework is returned.
+            Otherwise, a new translated framework is returned.
         """
 
         vector = point_to_vector(vector)
 
         if inplace:
             if vector.shape[0] != self.dim():
-                raise ValueError("Different dimension!")
+                raise ValueError(
+                    "The dimension of the vector has to be the same as of the framework."
+                )
 
             for v in self._realization.keys():
                 self._realization[v] += vector
@@ -1256,7 +1258,7 @@ class Framework(object):
             Rotation angle
         inplace
             If True (default), then this framework is rotated.
-            Otherwise new rotated framework is returned.
+            Otherwise, a new rotated framework is returned.
         """
 
         if self.dim() != 2:
