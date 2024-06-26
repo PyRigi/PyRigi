@@ -4,6 +4,8 @@ import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
 
+from copy import deepcopy
+
 import pytest
 from sympy import Matrix
 
@@ -156,6 +158,30 @@ def test_inf_flexes():
     Q2 = Matrix.hstack(*(fws.Complete(2, 2).trivial_inf_flexes()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
     assert len(fws.Square().inf_flexes(include_trivial=False)) == 1
+
+
+def test_is_injective():
+    F1 = fws.Complete(4, 2)
+    assert F1.is_injective(numerical=False)
+    assert F1.is_injective(numerical=True)
+
+    F2 = deepcopy(F1)
+    vertices = list(F2._graph.nodes)
+    F2._realization[vertices[0]] = F2._realization[vertices[1]]
+    assert not F2.is_injective(numerical=False)
+    assert not F2.is_injective(numerical=True)
+
+
+def test_is_quasi_injective():
+    F1 = fws.Complete(4, 2)
+    assert F1.is_quasi_injective(numerical=False)
+    assert F1.is_quasi_injective(numerical=True)
+
+    F2 = deepcopy(F1)
+    vertices = list(F2._graph.nodes)
+    F2._realization[vertices[0]] = F2._realization[vertices[1]]
+    assert not F2.is_quasi_injective(numerical=False)
+    assert not F2.is_quasi_injective(numerical=True)
 
 
 def test_framework_loops():
