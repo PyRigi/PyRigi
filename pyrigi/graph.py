@@ -155,6 +155,25 @@ class Graph(nx.Graph):
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
 
+    def _check_edge(self, edge: Edge, vertices: List[Vertex] = None) -> None:
+        if vertices == None:
+            vertices = self.nodes
+        if (
+            len(edge) != 2
+            or not edge[0] in vertices
+            or not edge[1] in vertices
+            or not self.has_edge(edge[0], edge[1])
+        ):
+            raise TypeError(
+                f"Edge {edge} does not have the correct format, "
+                "is not contained in the graph "
+                "or has adjacent vertices that were not passed to the function"
+            )
+
+    def _check_edge_list(self, edges: List[Edge], vertices: List[Vertex] = None) -> None:
+        for edge in edges:
+            self._check_edge(edge, vertices)
+
     @doc_category("Attribute getters")
     def vertex_list(self) -> List[Vertex]:
         """
