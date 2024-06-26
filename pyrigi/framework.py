@@ -1145,7 +1145,7 @@ class Framework(object):
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError("Given graphs are not same.")
+            raise ValueError("Underlying graphs are not same.")
 
         return self.is_congruent_realization(
             other_framework._realization, numerical, tolerance
@@ -1212,7 +1212,7 @@ class Framework(object):
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError("Given graphs are not same.")
+            raise ValueError("Underlying graphs are not same.")
         return self.is_equivalent_realization(
             other_framework._realization, numerical, tolerance
         )
