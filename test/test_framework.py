@@ -4,7 +4,6 @@ import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
 
-from copy import deepcopy
 
 import pytest
 from sympy import Matrix, N, pi, sqrt
@@ -262,7 +261,8 @@ def test_framework_is_equivalent():
             2: [2, 1],
             3: ["2*sqrt(2)", "2*sqrt(2)"],
             4: [
-                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
+                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + \
+                    4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
                 "-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359",
             ],
         },
@@ -298,7 +298,8 @@ def test_framework_is_congruent():
             2: [2, 1],
             3: ["2*sqrt(2)", "2*sqrt(2)"],
             4: [
-                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
+                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 - \
+                    sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
                 "-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359",
             ],
         },
@@ -311,7 +312,8 @@ def test_framework_is_congruent():
             2: [2, 1],
             3: ["2*sqrt(2)", "2*sqrt(2)"],
             4: [
-                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
+                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + \
+                    sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
                 "-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359",
             ],
         },
