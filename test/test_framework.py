@@ -178,14 +178,14 @@ def test_framework_translation():
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
 
     newF = F.translate((0, 0), False)
-    for v, pos in newF._realization.items():
-        assert pos.equals(F._realization[v])
+    for v, pos in newF.realization().items():
+        assert pos.equals(F[v])
 
     translation = Matrix([[1], [1]])
     newF = F.translate(translation, False)
-    assert newF._realization[0].equals(F._realization[0] + translation)
-    assert newF._realization[1].equals(F._realization[1] + translation)
-    assert newF._realization[2].equals(F._realization[2] + translation)
+    assert newF[0].equals(F[0] + translation)
+    assert newF[1].equals(F[1] + translation)
+    assert newF[2].equals(F[2] + translation)
 
 
 def test_framework_rotation():
@@ -193,33 +193,33 @@ def test_framework_rotation():
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
 
     newF = F.rotate2D(0, False)
-    for v, pos in newF._realization.items():
-        assert pos.equals(F._realization[v])
+    for v, pos in newF.realization().items():
+        assert pos.equals(F[v])
 
     newF = F.rotate2D(pi * 4, False)
-    for v, pos in newF._realization.items():
-        assert pos.equals(F._realization[v])
+    for v, pos in newF.realization().items():
+        assert pos.equals(F[v])
 
     newF = F.rotate2D(pi / 2, False)
-    assert newF._realization[0].equals(Matrix([[0], [0]]))
-    assert newF._realization[1].equals(Matrix([[0], [2]]))
-    assert newF._realization[2].equals(Matrix([[-1], [1]]))
+    assert newF[0].equals(Matrix([[0], [0]]))
+    assert newF[1].equals(Matrix([[0], [2]]))
+    assert newF[2].equals(Matrix([[-1], [1]]))
 
     newF = F.rotate2D(pi / 4, False)
-    assert newF._realization[0].equals(Matrix([[0], [0]]))
-    assert newF._realization[1].equals(Matrix([[sqrt(2)], [(sqrt(2))]]))
-    assert newF._realization[2].equals(Matrix([[0], [sqrt(2)]]))
+    assert newF[0].equals(Matrix([[0], [0]]))
+    assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))]]))
+    assert newF[2].equals(Matrix([[0], [sqrt(2)]]))
 
 
 def test_framework_is_equivalent():
     F1 = fws.Complete(4, 2)
-    assert F1.is_equivalent_realization(F1._realization, numerical=False)
-    assert F1.is_equivalent_realization(F1._realization, numerical=True)
+    assert F1.is_equivalent_realization(F1.realization(), numerical=False)
+    assert F1.is_equivalent_realization(F1.realization(), numerical=True)
     assert F1.is_equivalent(F1)
 
     F2 = fws.Complete(3, 2)
     with pytest.raises(ValueError):
-        F1.is_equivalent_realization(F2._realization)
+        F1.is_equivalent_realization(F2.realization())
 
     with pytest.raises(ValueError):
         F1.is_equivalent(F2)
@@ -236,7 +236,7 @@ def test_framework_is_equivalent():
     F5 = F3.rotate2D(pi / 2, False)
     assert F5.is_equivalent(F3)
     assert F5.is_equivalent(F4)
-    assert F5.is_equivalent_realization(F4._realization)
+    assert F5.is_equivalent_realization(F4.realization())
 
     G2 = Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [3, 4]])
     F6 = Framework(G2, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: ["5/2", "17/7"]})
@@ -279,9 +279,8 @@ def test_framework_is_equivalent():
         assert F8.is_equivalent(F2)
 
     # testing numerical equivalence
-    R1 = deepcopy(F9._realization)
+    R1 = F9.realization()
     for key, val in R1.items():
-        print(type(N(val)))
         R1[key] = N(val)
 
     assert not F9.is_equivalent_realization(R1, numerical=False)
@@ -318,7 +317,7 @@ def test_framework_is_congruent():
         },
     )
 
-    assert F1.is_congruent_realization(F1._realization, numerical=False)
+    assert F1.is_congruent_realization(F1.realization(), numerical=False)
     assert F1.is_congruent(F1, numerical=False)
     assert F1.is_congruent(F1, numerical=True)
 
@@ -338,7 +337,7 @@ def test_framework_is_congruent():
         assert F6.is_congruent(F7)
 
     # testing numerical congruence
-    R1 = deepcopy(F4._realization)
+    R1 = F4.realization()
     for key, val in R1.items():
         R1[key] = N(val)
 
