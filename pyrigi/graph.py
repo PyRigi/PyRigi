@@ -356,7 +356,7 @@ class Graph(nx.Graph):
         -----
         Modifies self only when explicitly required.
         """
-        return Graph.k_extension(self, 0, vertices, [], new_vertex, dim, inplace)
+        return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
 
     @doc_category("Waiting for implementation")
     def one_extension(
@@ -388,7 +388,7 @@ class Graph(nx.Graph):
         -----
         Modifies self only when explicitly required.
         """
-        return Graph.k_extension(self, 1, vertices, [edge], new_vertex, dim, inplace)
+        return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
 
     @doc_category("Waiting for implementation")
     def k_extension(
@@ -461,7 +461,7 @@ class Graph(nx.Graph):
         return G
 
     @doc_category("Waiting for implementation")
-    def all_k_extensions(self, k: int, dim: int = 2) -> list:
+    def all_k_extensions(self, k: int, dim: int = 2, only_non_isomorphic: bool = False) -> list:
         """
         Return list of all possible k-extensions of the graph.
 
@@ -497,7 +497,7 @@ class Graph(nx.Graph):
             w = list(w)
             for vertices in combinations(s, dim + k - len(w)):
                 solutions.append(
-                    Graph.k_extension(self, k, list(vertices) + w, edges, dim=dim)
+                    self.k_extension(k, list(vertices) + w, edges, dim=dim)
                 )
         return solutions
 
@@ -529,41 +529,24 @@ class Graph(nx.Graph):
         if degrees[0][1] < 2 or degrees[0][1] > 3:
             return None
         #deg == 2 -> 0_extension
-        i = 0
-        while i < self.number_of_nodes() and degrees[i][1] == 2:
+        if degrees[0][1] == 2:
             G = deepcopy(self)
-            G.remove_node(degrees[i][0])
+            G.remove_node(degrees[0][0])
             branch = G.extension_sequence(dim)
             if not branch == None:
                 return branch + [self]
-            i += 1
-        if i > 0:
-            return None
         #deg == 3 -> 1_extension
-        while i < self.number_of_nodes() and degrees[i][1] == 3:
-            neighbors = list(self.neighbors(degrees[i][0]))
+        if degrees[0][1] == 3:
+            neighbors = list(self.neighbors(degrees[0][0]))
             G = deepcopy(self)
-            G.remove_node(degrees[i][0])
-            if not G.has_edge(neighbors[0], neighbors[1]):
-                G.add_edge(neighbors[0], neighbors[1])
-                branch = G.extension_sequence(dim)
-                if not branch == None:
-                    return branch + [self]
-                G.remove_edge(neighbors[0], neighbors[1])
-            if not G.has_edge(neighbors[0], neighbors[2]):
-                G.add_edge(neighbors[0], neighbors[2])
-                branch = G.extension_sequence(dim)
-                if not branch == None:
-                    return branch + [self]
-                G.remove_edge(neighbors[0], neighbors[2])
-            if not G.has_edge(neighbors[1], neighbors[2]):
-                G.add_edge(neighbors[1], neighbors[2])
-                branch = extension_sequence(G, dim)
-                branch = G.extension_sequence(dim)
-                if not branch == None:
-                    return branch + [self]
-                G.remove_edge(neighbors[1], neighbors[2])
-            i += 1
+            G.remove_node(degrees[0][0])
+            for i, j in [[0,1],[0,2],[1,2]]:
+                if not G.has_edge(neighbors[i], neighbors[j]):
+                    G.add_edge(neighbors[i], neighbors[j])
+                    branch = G.extension_sequence(dim)
+                    if not branch == None:
+                        return branch + [self]
+                    G.remove_edge(neighbors[i], neighbors[j])
         return None
 
     # ---------------------------------------------------------------------------------------------------------------------------
