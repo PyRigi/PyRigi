@@ -4,7 +4,7 @@ Module for defining data type used for type hinting.
 
 """
 
-from sympy import Matrix, SympifyError
+from sympy import Matrix, SympifyError, MatrixBase
 from typing import TypeVar, Tuple, Hashable
 from collections.abc import Sequence
 
@@ -41,7 +41,7 @@ def point_to_vector(point: Point) -> Vector:
     Return point as sympy Matrix.
     """
 
-    if isinstance(point, Matrix):
+    if isinstance(point, MatrixBase):
         if point.shape[1] != 1:
             raise ValueError("Point could not be interpreted as column vector.")
         return point
