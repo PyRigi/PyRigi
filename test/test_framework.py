@@ -7,7 +7,7 @@ from pyrigi.exception import LoopError
 from copy import deepcopy
 
 import pytest
-from sympy import Matrix, N, pi, sqrt, sympify
+from sympy import Matrix, N, pi, sqrt
 
 
 @pytest.mark.parametrize(
@@ -227,9 +227,7 @@ def test_framework_is_equivalent():
     G1 = graphs.ThreePrism()
     G1.delete_vertex(5)
 
-    F3 = Framework(
-        G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: sympify("[5/2, 9/7]")}
-    )
+    F3 = Framework(G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: ["5/2", "9/7"]})
 
     F4 = F3.translate((1, 1), False)
     assert F3.is_equivalent(F4, numerical=True)
@@ -241,9 +239,7 @@ def test_framework_is_equivalent():
     assert F5.is_equivalent_realization(F4._realization)
 
     G2 = Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [3, 4]])
-    F6 = Framework(
-        G2, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: sympify("[5/2, 17/7]")}
-    )
+    F6 = Framework(G2, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: ["5/2", "17/7"]})
     F7 = Framework(
         G2,
         {
@@ -264,10 +260,11 @@ def test_framework_is_equivalent():
             0: [0, 0],
             1: [3, 0],
             2: [2, 1],
-            3: sympify("[2*sqrt(2), 2*sqrt(2)]"),
-            4: sympify(
-                "[-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359), -432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359]"
-            ),
+            3: ["2*sqrt(2)", "2*sqrt(2)"],
+            4: [
+                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
+                "-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359",
+            ],
         },
     )
 
@@ -275,7 +272,7 @@ def test_framework_is_equivalent():
     assert F6.is_equivalent(F8)
     assert F7.is_equivalent(F8)
 
-    F9 = F5.translate((pi, sympify("2/3")), False)
+    F9 = F5.translate((pi, "2/3"), False)
     assert F5.is_equivalent(F9)
 
     with pytest.raises(ValueError):
@@ -293,9 +290,7 @@ def test_framework_is_equivalent():
 
 def test_framework_is_congruent():
     G1 = Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [3, 4]])
-    F1 = Framework(
-        G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: sympify("[5/2, 17/7]")}
-    )
+    F1 = Framework(G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: ["5/2", "17/7"]})
     F2 = Framework(
         G1,
         {
@@ -331,7 +326,7 @@ def test_framework_is_congruent():
     assert not F1.is_congruent(F3)  # equivalent, but not congruent
     assert not F2.is_congruent(F3)  # equivalent, but not congruent
 
-    F4 = F1.translate((pi, sympify("2/3")), False)
+    F4 = F1.translate((pi, "2/3"), False)
     F5 = F1.rotate2D(pi / 2, False)
     assert F1.is_congruent(F4)
     assert F1.is_congruent(F5)
