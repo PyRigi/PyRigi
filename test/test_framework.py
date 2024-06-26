@@ -6,7 +6,7 @@ from pyrigi.exception import LoopError
 
 
 import pytest
-from sympy import Matrix, N, pi, sqrt
+from sympy import Matrix, pi, sqrt
 
 
 @pytest.mark.parametrize(
@@ -279,9 +279,8 @@ def test_framework_is_equivalent():
         assert F8.is_equivalent(F2)
 
     # testing numerical equivalence
-    R1 = F9.realization()
-    for key, val in R1.items():
-        R1[key] = N(val)
+
+    R1 = {v: pos.evalf() for v, pos in F9.realization().items()}
 
     assert not F9.is_equivalent_realization(R1, numerical=False)
     assert F9.is_equivalent_realization(R1, numerical=True)
@@ -339,9 +338,7 @@ def test_framework_is_congruent():
         assert F6.is_congruent(F7)
 
     # testing numerical congruence
-    R1 = F4.realization()
-    for key, val in R1.items():
-        R1[key] = N(val)
+    R1 = {v: pos.evalf() for v, pos in F4.realization().items()}
 
     assert not F4.is_congruent_realization(R1)
     assert F4.is_congruent_realization(R1, numerical=True)
