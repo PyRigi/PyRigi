@@ -4,10 +4,10 @@ import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
 
-import pytest
-from sympy import Matrix
+from copy import deepcopy
 
-import sympy as sp
+import pytest
+from sympy import Matrix, N, pi, sqrt, sympify
 
 
 @pytest.mark.parametrize(
@@ -196,24 +196,25 @@ def test_framework_rotation():
     for v, pos in newF._realization.items():
         assert pos.equals(F._realization[v])
 
-    newF = F.rotate2D(sp.pi * 4, False)
+    newF = F.rotate2D(pi * 4, False)
     for v, pos in newF._realization.items():
         assert pos.equals(F._realization[v])
 
-    newF = F.rotate2D(sp.pi/2, False)
+    newF = F.rotate2D(pi/2, False)
     assert newF._realization[0].equals(Matrix([[0], [0]]))
     assert newF._realization[1].equals(Matrix([[0], [2]]))
     assert newF._realization[2].equals(Matrix([[-1], [1]]))
 
-    newF = F.rotate2D(sp.pi/4, False)
+    newF = F.rotate2D(pi/4, False)
     assert newF._realization[0].equals(Matrix([[0], [0]]))
-    assert newF._realization[1].equals(Matrix([[sp.sqrt(2)], [(sp.sqrt(2))]]))
-    assert newF._realization[2].equals(Matrix([[0], [sp.sqrt(2)]]))
+    assert newF._realization[1].equals(Matrix([[sqrt(2)], [(sqrt(2))]]))
+    assert newF._realization[2].equals(Matrix([[0], [sqrt(2)]]))
 
 
 def test_framework_is_equivalent():
     F1 = fws.Complete(4, 2)
-    assert F1.is_equivalent_realization(F1._realization)
+    assert F1.is_equivalent_realization(F1._realization, numerical=False)
+    assert F1.is_equivalent_realization(F1._realization, numerical=True)
     assert F1.is_equivalent(F1)
 
     F2 = fws.Complete(3, 2)
@@ -228,17 +229,77 @@ def test_framework_is_equivalent():
 
     F3 = Framework(
         G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [
-            0, 4], 4: sp.sympify("[5/2, 9/7]")}
+            0, 4], 4: sympify("[5/2, 9/7]")}
     )
 
-    F4 = F3.translate((1, 1))
-
+    F4 = F3.translate((1, 1), False)
+    assert F3.is_equivalent(F4, numerical=True)
     assert F3.is_equivalent(F4)
 
-    realization1 = F1._realization
+    F5 = F3.rotate2D(pi/2, False)
+    assert F5.is_equivalent(F3)
+    assert F5.is_equivalent(F4)
+    assert F5.is_equivalent_realization(F4._realization)
+
+    G2 = Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [3, 4]])
+    F6 = Framework(G2, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [
+                   0, 4], 4: sympify('[5/2, 17/7]')})
+    F7 = Framework(G2, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: sympify('[2*sqrt(2), 2*sqrt(2)]'), 4: sympify(
+        '[-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359), -432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359]')})
+    F8 = Framework(G2, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: sympify('[2*sqrt(2), 2*sqrt(2)]'), 4: sympify(
+        '[-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359), -432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359]')})
+
+    assert F6.is_equivalent(F7)
+    assert F6.is_equivalent(F8)
+    assert F7.is_equivalent(F8)
+
+    F9 = F5.translate((pi, sympify("2/3")), False)
+    assert F5.is_equivalent(F9)
+
+    with pytest.raises(ValueError):
+        assert F8.is_equivalent(F2)
+
+    # testing numerical equivalence
+    R1 = deepcopy(F9._realization)
+    for key, val in R1.items():
+        R1[key] = N(val)
+
+    assert not F9.is_equivalent_realization(R1, numerical=False)
+    assert F9.is_equivalent_realization(R1, numerical=True)
 
 
 def test_framework_is_congruent():
-    F = Framework(Graph([[1, 2], [2, 4]]), {1: (1, 2), 2: (0, 0), 4: (1, 1)})
-    assert F.is_congruent_realization(F._realization)
-    assert F.is_congruent(F)
+    G1 = Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [3, 4]])
+    F1 = Framework(G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [
+                   0, 4], 4: sympify('[5/2, 17/7]')})
+    F2 = Framework(G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: sympify('[2*sqrt(2), 2*sqrt(2)]'), 4: sympify(
+        '[-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359), -432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359]')})
+    F3 = Framework(G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: sympify('[2*sqrt(2), 2*sqrt(2)]'), 4: sympify(
+        '[-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359), -432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359]')})
+
+    assert F1.is_congruent_realization(F1._realization, numerical=False)
+    assert F1.is_congruent(F1, numerical=False)
+    assert F1.is_congruent(F1, numerical=True)
+
+    assert not F1.is_congruent(F2)  # equivalent, but not congruent
+    assert not F1.is_congruent(F3)  # equivalent, but not congruent
+    assert not F2.is_congruent(F3)  # equivalent, but not congruent
+
+    F4 = F1.translate((pi, sympify("2/3")), False)
+    F5 = F1.rotate2D(pi/2, False)
+    assert F1.is_congruent(F4)
+    assert F1.is_congruent(F5)
+    assert F5.is_congruent(F4)
+
+    F6 = fws.Complete(4, 2)
+    F7 = fws.Complete(3, 2)
+    with pytest.raises(ValueError):
+        assert F6.is_congruent(F7)
+
+    # testing numerical congruence
+    R1 = deepcopy(F4._realization)
+    for key, val in R1.items():
+        R1[key] = N(val)
+
+    assert not F4.is_congruent_realization(R1)
+    assert F4.is_congruent_realization(R1, numerical=True)

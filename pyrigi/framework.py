@@ -1095,7 +1095,7 @@ class Framework(object):
         return True
 
     def is_congruent_realization(
-        self, other_realization: dict, numeric: bool = False, tolerance: float = 10e-9
+        self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
     ) -> bool:
         """
         Return True if the given realization is congruent, False otherwise
@@ -1115,16 +1115,16 @@ class Framework(object):
 
                 difference = sp.simplify(dist_squared - otherdist_squared)
                 if not difference.is_zero:
-                    if not numeric:
+                    if not numerical:
                         return False
-                    elif numeric and sp.Abs(difference) > tolerance:
+                    elif numerical and sp.Abs(difference) > tolerance:
                         return False
         return True
 
     def is_congruent(
         self,
         other_framework: Framework,
-        numeric: bool = False,
+        numerical: bool = False,
         tolerance: float = 10e-9,
     ) -> bool:
         """
@@ -1136,11 +1136,11 @@ class Framework(object):
                 "Not all vertices have a realization in the given dictionary"
             )
         return self.is_congruent_realization(
-            other_framework._realization, numeric, tolerance
+            other_framework._realization, numerical, tolerance
         )
 
     def is_equivalent_realization(
-        self, other_realization: dict, numeric: bool = False, tolerance: float = 10e-9
+        self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
     ) -> bool:
         """
         Return True if the given realization is equal, False otherwise.
@@ -1163,16 +1163,16 @@ class Framework(object):
 
             difference = sp.simplify(otherdist_squared - dist_squared)
             if not difference.is_zero:
-                if not numeric:
+                if not numerical:
                     return False
-                elif numeric and not sp.Abs(difference) > tolerance:
+                elif numerical and sp.Abs(difference) > tolerance:
                     return False
         return True
 
     def is_equivalent(
         self,
         other_framework: Framework,
-        numeric: bool = False,
+        numerical: bool = False,
         tolerance: float = 10e-9,
     ) -> bool:
         """
@@ -1182,7 +1182,7 @@ class Framework(object):
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
             raise ValueError("Given graphs are not same.")
         return self.is_equivalent_realization(
-            other_framework._realization, numeric, tolerance
+            other_framework._realization, numerical, tolerance
         )
 
     def translate(self, vector: Point, inplace: bool = True) -> None:
