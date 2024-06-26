@@ -250,10 +250,12 @@ def test_framework_is_equivalent():
             0: [0, 0],
             1: [3, 0],
             2: [2, 1],
-            3: sympify("[2*sqrt(2), 2*sqrt(2)]"),
-            4: sympify(
-                "[-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359), -432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359]"
-            ),
+            3: ["2*sqrt(2)", "2*sqrt(2)"],
+            4: [
+                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 \
+                    - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
+                "-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359",
+            ],
         },
     )
     F8 = Framework(
@@ -282,6 +284,7 @@ def test_framework_is_equivalent():
     # testing numerical equivalence
     R1 = deepcopy(F9._realization)
     for key, val in R1.items():
+        print(type(N(val)))
         R1[key] = N(val)
 
     assert not F9.is_equivalent_realization(R1, numerical=False)
@@ -299,10 +302,11 @@ def test_framework_is_congruent():
             0: [0, 0],
             1: [3, 0],
             2: [2, 1],
-            3: sympify("[2*sqrt(2), 2*sqrt(2)]"),
-            4: sympify(
-                "[-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359), -432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359]"
-            ),
+            3: ["2*sqrt(2)", "2*sqrt(2)"],
+            4: [
+                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
+                "-432/2359 - sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359",
+            ],
         },
     )
     F3 = Framework(
@@ -311,10 +315,11 @@ def test_framework_is_congruent():
             0: [0, 0],
             1: [3, 0],
             2: [2, 1],
-            3: sympify("[2*sqrt(2), 2*sqrt(2)]"),
-            4: sympify(
-                "[-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359), -432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359]"
-            ),
+            3: ["2*sqrt(2)", "2*sqrt(2)"],
+            4: [
+                "-93/14 - 31*sqrt(2)/7 + (8 + 6*sqrt(2))*(-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359)",
+                "-432/2359 + sqrt(-6924487 + 4971663*sqrt(2))/2359 + 1909*sqrt(2)/2359",
+            ],
         },
     )
 
