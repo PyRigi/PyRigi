@@ -11,8 +11,6 @@ The following datatypes are used for type hinting.
 
 .. autodata:: pyrigi.data_type.Point
 
-.. autodata:: pyrigi.data_type.Vector
-
 .. autofunction:: pyrigi.data_type.point_to_vector
 
 ```

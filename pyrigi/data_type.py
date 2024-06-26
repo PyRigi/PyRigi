@@ -29,16 +29,14 @@ Point = Sequence[Coordinate]
 A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
 """
 
-
-Vector = TypeVar("Matrix")
 GraphType = TypeVar("Graph")
 FrameworkType = TypeVar("Framework")
 MatroidType = TypeVar("Matroid")
 
 
-def point_to_vector(point: Point) -> Vector:
+def point_to_vector(point: Point) -> Matrix:
     """
-    Return point as sympy Matrix.
+    Return point as single column sympy Matrix.
     """
 
     if isinstance(point, MatrixBase):

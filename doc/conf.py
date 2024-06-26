@@ -85,7 +85,6 @@ autodoc_type_aliases = {
     "Vertex": "Vertex",
     "Edge": "Edge",
     "Point": "Point",
-    "Vector": "Vector",
     "Coordinate": "Coordinate",
 }
 napoleon_attr_annotations = True
