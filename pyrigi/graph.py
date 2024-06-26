@@ -987,16 +987,18 @@ class Graph(nx.Graph):
         return Framework.Random(self, dim, rand_range)
 
     @doc_category("Other")
-    def plot(self,
+    def plot(
+        self,
         vertex_size: int = 300,
         vertex_color: str = "#4584B6",
         vertex_shape: str = "o",
         vertex_labels: bool = True,
         edge_width: float = 1.0,
-        edge_style: str = 'solid',
+        edge_style: str = "solid",
         canvas_width: int = 6.4,
         canvas_height: int = 4.8,
-        **kwargs) -> None:
+        **kwargs,
+    ) -> None:
         """
         Plot the graph.
 
@@ -1005,17 +1007,21 @@ class Graph(nx.Graph):
         vertex_size:
             The size of the vertex. By default 300.
         vertex_color:
-            The color of the vertex. Color can be string or rgb (or rgba) tuple of floats from 0-1.
+            The color of the vertex. Color can be string or rgb (or rgba)
+            tuple of floats from 0-1.
         vertex_shape:
-            The shape of the vertex. Specification is as matplotlib.scatter marker, one of 'so^>v<dph8'. By default 'o'.
+            The shape of the vertex. Specification is as matplotlib.scatter
+            marker, one of 'so^>v<dph8'. By default 'o'.
         vertex_labels:
             If True, vertex labels are displayed. By default True.
         edge_width:
             The width of the edge. By default 1.0.
         edge_color:
-            The color of the edge. Color can be string or rgb (or rgba) tuple of floats from 0-1. By default 'k'.
+            The color of the edge. Color can be string or rgb (or rgba) tuple
+            of floats from 0-1. By default 'k'.
         edge_style:
-            Edge line style e.g.: '-', '–', '-', ':' or words like 'solid' or 'dashed'. By default '-'.
+            Edge line style e.g.: '-', '–', '-', ':' or words like 'solid' or
+            'dashed'. By default '-'.
         font_size:
             The size of the font used for the labels. By default 12.
         font_color:
@@ -1028,16 +1034,16 @@ class Graph(nx.Graph):
         Notes
         -----
         Use a networkx internal routine to plot the graph."""
-    
-        plt.figure(figsize=(canvas_width,canvas_height))
+
+        plt.figure(figsize=(canvas_width, canvas_height))
         nx.draw(
             self,
             node_size=vertex_size,
             node_color=vertex_color,
             node_shape=vertex_shape,
             with_labels=vertex_labels,
-            width = edge_width,
-            style = edge_style,
+            width=edge_width,
+            style=edge_style,
             **kwargs,
         )
         plt.show()
