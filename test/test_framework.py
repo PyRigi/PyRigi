@@ -172,7 +172,7 @@ def test_framework_loops():
         Framework.Random(G)
 
 
-def test_translation():
+def test_translate():
     G = graphs.Complete(3)
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
 
@@ -187,7 +187,7 @@ def test_translation():
     assert newF[2].equals(F[2] + translation)
 
 
-def test_rotation():
+def test_rotate2D():
     G = graphs.Complete(3)
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
 
