@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import List, Any, Dict, Union
 
 from copy import deepcopy
+from itertools import combinations
 from random import randrange
 
 import networkx as nx
@@ -1107,24 +1108,21 @@ class Framework(object):
                 "Not all vertices have a realization in the given dictionary."
             )
 
-        vertices = self._graph.nodes
-        vertices = list(vertices)
-        for i, u in enumerate(vertices):
-            for j, v in enumerate(vertices[i + 1 :]):
-                edge_vec = (self._realization[u]) - self._realization[v]
-                dist_squared = (edge_vec.T * edge_vec)[0, 0]
+        for u, v in combinations(self._graph.nodes, 2):
+            edge_vec = (self._realization[u]) - self._realization[v]
+            dist_squared = (edge_vec.T * edge_vec)[0, 0]
 
-                other_edge_vec = point_to_vector(
-                    other_realization[u]
-                ) - point_to_vector(other_realization[v])
-                otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
+            other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
+                other_realization[v]
+            )
+            otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
 
-                difference = sp.simplify(dist_squared - otherdist_squared)
-                if not difference.is_zero:
-                    if not numerical:
-                        return False
-                    elif numerical and sp.Abs(difference) > tolerance:
-                        return False
+            difference = sp.simplify(dist_squared - otherdist_squared)
+            if not difference.is_zero:
+                if not numerical:
+                    return False
+                elif numerical and sp.Abs(difference) > tolerance:
+                    return False
         return True
 
     @doc_category("Framework properties")
