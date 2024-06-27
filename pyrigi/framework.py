@@ -23,7 +23,7 @@ import sympy as sp
 from sympy import Matrix, flatten, binomial
 
 
-from pyrigi.data_type import Vertex, Edge, Point, FrameworkType, point_to_vector
+from pyrigi.data_type import Vertex, Edge, Point, point_to_vector
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -319,7 +319,7 @@ class Framework(object):
     @doc_category("Class methods")
     def Random(
         cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
-    ) -> FrameworkType:
+    ) -> Framework:
         """
         Return a framework with random realization.
 
@@ -428,7 +428,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Empty(cls, dim: int = 2) -> FrameworkType:
+    def Empty(cls, dim: int = 2) -> Framework:
         """
         Generate an empty framework.
 
@@ -452,7 +452,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Complete(cls, points: List[Point]) -> FrameworkType:
+    def Complete(cls, points: List[Point]) -> Framework:
         """
         Generate a framework on the complete graph from a given list of points.
 

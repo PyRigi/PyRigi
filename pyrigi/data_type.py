@@ -5,7 +5,7 @@ Module for defining data type used for type hinting.
 """
 
 from sympy import Matrix, SympifyError, MatrixBase
-from typing import TypeVar, Tuple, Hashable
+from typing import Tuple, Hashable
 from collections.abc import Sequence
 
 
@@ -28,10 +28,6 @@ Point = Sequence[Coordinate]
 """
 A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
 """
-
-GraphType = TypeVar("Graph")
-FrameworkType = TypeVar("Framework")
-MatroidType = TypeVar("Matroid")
 
 
 def point_to_vector(point: Point) -> Matrix:
