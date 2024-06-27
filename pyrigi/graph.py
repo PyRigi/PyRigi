@@ -974,6 +974,7 @@ class Graph(nx.Graph):
 
     @doc_category("Other")
     def random_framework(self, dim: int = 2, rand_range: Union(int, List[int]) = None):
+        # the return type is intentionally omitted to avoid circular import
         """
         Return framework with random realization.
 

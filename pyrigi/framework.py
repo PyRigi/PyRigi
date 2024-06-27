@@ -128,7 +128,7 @@ class Framework(object):
         """Return the representation"""
         return self.__str__()
 
-    def __getitem__(self, vertex) -> Point:
+    def __getitem__(self, vertex: Vertex) -> Matrix:
         """
         Return the coordinates corresponding to the image
         of a given vertex under the realization map.
@@ -295,7 +295,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def from_points(cls, points: List[Point]) -> None:
+    def from_points(cls, points: List[Point]) -> Framework:
         """
         Generate a framework from a list of points.
 
@@ -360,7 +360,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Circular(cls, graph: Graph):
+    def Circular(cls, graph: Graph) -> Framework:
         """
         Return the framework with a regular unit circle realization in the plane.
 
@@ -379,7 +379,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Collinear(cls, graph: Graph, d: int = 1):
+    def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
@@ -398,7 +398,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Simplicial(cls, graph: Graph, d: int = None):
+    def Simplicial(cls, graph: Graph, d: int = None) -> Framework:
         """
         Return the framework with a realization on the d-simplex.
 
@@ -1084,7 +1084,10 @@ class Framework(object):
 
     @doc_category("Framework properties")
     def is_congruent_realization(
-        self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
+        self,
+        other_realization: Dict[Vertex, Point],
+        numerical: bool = False,
+        tolerance: float = 10e-9,
     ) -> bool:
         """
         Return whether the given realization is congruent to self.
@@ -1153,7 +1156,10 @@ class Framework(object):
 
     @doc_category("Framework properties")
     def is_equivalent_realization(
-        self, other_realization: dict, numerical: bool = False, tolerance: float = 10e-9
+        self,
+        other_realization: Dict[Vertex, Point],
+        numerical: bool = False,
+        tolerance: float = 10e-9,
     ) -> bool:
         """
         Return whether the given realization is equivalent to self.
@@ -1218,7 +1224,7 @@ class Framework(object):
         )
 
     @doc_category("Framework manipulation")
-    def translate(self, vector: Point, inplace: bool = True) -> None:
+    def translate(self, vector: Point, inplace: bool = True) -> Union[None, Framework]:
         """
         Translate the framework.
 
@@ -1248,7 +1254,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Framework manipulation")
-    def rotate2D(self, angle: float, inplace: bool = True):
+    def rotate2D(self, angle: float, inplace: bool = True) -> Union[None, Framework]:
         """
         Rotate the planar framework counter clockwise.
 
