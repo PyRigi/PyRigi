@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import List, Any, Dict, Union
 
 from copy import deepcopy
+from itertools import combinations
 from random import randrange
 
 import networkx as nx
@@ -605,22 +606,21 @@ class Framework(object):
         """
 
         vertices = list(self._graph.nodes)
-        for i, u in enumerate(vertices):
-            for j, v in enumerate(vertices[i + 1 :]):
-                edge_vector = self[u] - self[v]
+        for u, v in combinations(self._graph.nodes, 2):
+            edge_vector = self[u] - self[v]
 
-                if not numerical:
-                    for coord in edge_vector:
-                        if not simplify(coord).is_zero:
-                            break
-                    else:
-                        return False
-                if numerical:
-                    for coord in edge_vector:
-                        if Abs(coord) > tolerance:
-                            break
-                    else:
-                        return False
+            if not numerical:
+                for coord in edge_vector:
+                    if not simplify(coord).is_zero:
+                        break
+                else:
+                    return False
+            if numerical:
+                for coord in edge_vector:
+                    if Abs(coord) > tolerance:
+                        break
+                else:
+                    return False
         return True
 
     @doc_category("Framework manipulation")
