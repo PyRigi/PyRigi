@@ -573,6 +573,8 @@ class Framework(object):
             If False (default) the check is done symbolically, sympy is_zero is used.
         tolerance:
             The tolerance that is used in the numerical check.
+            The numerical check is done for distance in each coordinate,
+            not for the length of an edge vector.
         """
 
         for u, v in self._graph.edges:
@@ -603,9 +605,10 @@ class Framework(object):
             If False (default) the check is done symbolically, sympy is_zero is used.
         tolerance:
             The tolerance that is used in the numerical check.
+            The numerical check is done for distance in each coordinate,
+            not for the length of an edge vector.
         """
 
-        vertices = list(self._graph.nodes)
         for u, v in combinations(self._graph.nodes, 2):
             edge_vector = self[u] - self[v]
 
