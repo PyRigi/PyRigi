@@ -3,6 +3,7 @@ from pyrigi.framework import Framework
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
+from pyrigi.data_type import point_to_vector
 
 from copy import deepcopy
 
@@ -166,10 +167,40 @@ def test_is_injective():
     assert F1.is_injective(numerical=True)
 
     F2 = deepcopy(F1)
-    vertices = list(F2._graph.nodes)
-    F2._realization[vertices[0]] = F2._realization[vertices[1]]
+    R1 = F2.realization()
+    R1[0] = R1[1]
+    F2.set_realization(R1)
     assert not F2.is_injective(numerical=False)
     assert not F2.is_injective(numerical=True)
+
+    # test symbolical injectivity with irrational numbers
+    F3 = F1.translate(["sqrt(2)", "pi"], inplace=False)
+    F3 = F3.rotate2D(pi / 2, inplace=False)
+    assert F3.is_injective(numerical=False)
+    assert F3.is_injective(numerical=True)
+
+    # test numerical injectivity
+    F4 = deepcopy(F3)
+    R2 = F4.realization(as_points=False, numerical=True)
+    F4.set_realization(R2)
+    assert F4.is_injective(numerical=True)
+
+    # test numerically not injective, but symbollicaly injective framework
+    F5 = deepcopy(F3)
+    R3 = F5.realization()
+    R3[0] = R3[1] + point_to_vector([1e-10, 1e-10])
+    F5.set_realization(R3)
+    assert not F5.is_injective(numerical=True, tolerance=1e-8)
+    assert not F5.is_injective(numerical=True, tolerance=1e-9)
+    assert F5.is_injective(numerical=False)
+
+    # test tolerance in numerical injectivity check
+    F6 = deepcopy(F3)
+    R4 = F6.realization()
+    R4[0] = R4[1] + point_to_vector([1e-8, 1e-8])
+    F6.set_realization(R4)
+    assert F6.is_injective(numerical=True, tolerance=1e-9)
+    assert F6.is_injective(numerical=False)
 
 
 def test_is_quasi_injective():
@@ -177,11 +208,50 @@ def test_is_quasi_injective():
     assert F1.is_quasi_injective(numerical=False)
     assert F1.is_quasi_injective(numerical=True)
 
+    # test framework that is quasi-injective, but not injective
+    R = F1.realization()
+    R[1] = R[2]
+    F1.set_realization(R)
+    F1.delete_edge((1, 2))
+    assert F1.is_quasi_injective(numerical=False)
+    assert F1.is_quasi_injective(numerical=True)
+
+    # test not quasi-injective framework
     F2 = deepcopy(F1)
-    vertices = list(F2._graph.nodes)
-    F2._realization[vertices[0]] = F2._realization[vertices[1]]
+    R1 = F2.realization()
+    R1[0] = R1[1]
+    F2.set_realization(R1)
     assert not F2.is_quasi_injective(numerical=False)
     assert not F2.is_quasi_injective(numerical=True)
+
+    # test symbolical and numerical quasi-injectivity with irrational numbers
+    F3 = F1.translate(["sqrt(2)", "pi"], inplace=False)
+    F3 = F3.rotate2D(pi / 2, inplace=False)
+    assert F3.is_quasi_injective(numerical=False)
+    assert F3.is_quasi_injective(numerical=True)
+
+    # test numerical quasi-injectivity
+    F4 = deepcopy(F3)
+    R2 = F4.realization(as_points=False, numerical=True)
+    F4.set_realization(R2)
+    assert F4.is_quasi_injective(numerical=True)
+
+    # test numerically not quasi-injective, but symbollicaly quasi-injective framework
+    F5 = deepcopy(F3)
+    R3 = F5.realization()
+    R3[0] = R3[1] + point_to_vector([1e-10, 1e-10])
+    F5.set_realization(R3)
+    assert not F5.is_quasi_injective(numerical=True, tolerance=1e-8)
+    assert not F5.is_quasi_injective(numerical=True, tolerance=1e-9)
+    assert F5.is_quasi_injective(numerical=False)
+
+    # test tolerance in numerical quasi-injectivity check
+    F6 = deepcopy(F3)
+    R4 = F6.realization()
+    R4[0] = R4[1] + point_to_vector([1e-8, 1e-8])
+    F6.set_realization(R4)
+    assert F6.is_quasi_injective(numerical=True, tolerance=1e-9)
+    assert F6.is_quasi_injective(numerical=False)
 
 
 def test_framework_loops():
