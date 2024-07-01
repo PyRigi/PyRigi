@@ -156,23 +156,48 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     def _check_edge(self, edge: Edge, vertices: List[Vertex] = None) -> None:
+        """
+        Check if all edges in a list are in a valid format, are contained in the graph
+        and their adjacent vertices are contained in a list of vertices.
+
+        Parameters
+        ----------
+        edge:
+            an edge to be checked
+        vertices:
+            a list of vertices
+            check if the vertices adjacent to the edge are contained in this list
+            if None, the function considers all vertices of the graph
+        """
         if vertices is None:
             vertices = self.nodes
+        if not isinstance(edge, tuple) or not len(edge) == 2:
+            raise TypeError(f"Edge {edge} does not have the correct format")
         if (
-            len(edge) != 2
-            or not edge[0] in vertices
+            not edge[0] in vertices
             or not edge[1] in vertices
             or not self.has_edge(edge[0], edge[1])
         ):
-            raise TypeError(
-                f"Edge {edge} does not have the correct format, "
-                "is not contained in the graph "
+            raise ValueError(
+                f"Edge {edge} is not contained in the graph "
                 "or has adjacent vertices that were not passed to the function"
             )
 
     def _check_edge_list(
         self, edges: List[Edge], vertices: List[Vertex] = None
     ) -> None:
+        """
+        Apply _check_edge to all edges in a list.
+
+        Parameters
+        ----------
+        edges:
+            a list of edges to be checked
+        vertices:
+            a list of vertices
+            check if the vertices adjacent to the edges are contained in this list
+            if None, the function considers all vertices of the graph
+        """
         for edge in edges:
             self._check_edge(edge, vertices)
 

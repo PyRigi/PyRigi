@@ -334,11 +334,17 @@ def test_check_edge_list():
     G._check_edge_list([(1, 2), (2, 3)])
     G._check_edge_list([(1, 2)], [1, 2])
     G._check_edge_list([(2, 3)], [2, 3])
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         G._check_edge((1, 3))
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         G._check_edge((1, 4))
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         G._check_edge_list([(1, 2), (1, 3), (2, 3)])
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         G._check_edge_list([(1, 2), (2, 3)], [1, 2])
+    with pytest.raises(TypeError):
+        G._check_edge_list([(2,)])
+    with pytest.raises(TypeError):
+        G._check_edge_list([2, 3])
+    with pytest.raises(TypeError):
+        G._check_edge_list(["23"])
