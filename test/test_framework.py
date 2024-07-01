@@ -163,44 +163,37 @@ def test_inf_flexes():
 
 def test_is_injective():
     F1 = fws.Complete(4, 2)
-    assert F1.is_injective(numerical=False)
+    assert F1.is_injective()
     assert F1.is_injective(numerical=True)
 
     F2 = deepcopy(F1)
-    R1 = F2.realization()
-    R1[0] = R1[1]
-    F2.set_realization(R1)
-    assert not F2.is_injective(numerical=False)
+    F2.set_vertex_pos(0, F2[1])
+    assert not F2.is_injective()
     assert not F2.is_injective(numerical=True)
 
     # test symbolical injectivity with irrational numbers
     F3 = F1.translate(["sqrt(2)", "pi"], inplace=False)
-    F3 = F3.rotate2D(pi / 2, inplace=False)
-    assert F3.is_injective(numerical=False)
+    F3.rotate2D(pi / 3, inplace=True)
+    assert F3.is_injective()
     assert F3.is_injective(numerical=True)
 
     # test numerical injectivity
     F4 = deepcopy(F3)
-    R2 = F4.realization(as_points=False, numerical=True)
-    F4.set_realization(R2)
+    F4.set_realization(F4.realization(numerical=True))
     assert F4.is_injective(numerical=True)
 
-    # test numerically not injective, but symbollicaly injective framework
+    # test numerically not injective, but symbolically injective framework
     F5 = deepcopy(F3)
-    R3 = F5.realization()
-    R3[0] = R3[1] + point_to_vector([1e-10, 1e-10])
-    F5.set_realization(R3)
+    F5.set_vertex_pos(0, F5[1] + point_to_vector([1e-10, 1e-10]))
     assert not F5.is_injective(numerical=True, tolerance=1e-8)
     assert not F5.is_injective(numerical=True, tolerance=1e-9)
-    assert F5.is_injective(numerical=False)
+    assert F5.is_injective()
 
     # test tolerance in numerical injectivity check
     F6 = deepcopy(F3)
-    R4 = F6.realization()
-    R4[0] = R4[1] + point_to_vector([1e-8, 1e-8])
-    F6.set_realization(R4)
+    F6.set_vertex_pos(0, F6[1] + point_to_vector([1e-8, 1e-8]))
     assert F6.is_injective(numerical=True, tolerance=1e-9)
-    assert F6.is_injective(numerical=False)
+    assert F6.is_injective()
 
 
 def test_is_quasi_injective():
