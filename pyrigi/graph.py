@@ -163,7 +163,7 @@ class Graph(nx.Graph):
             )
         if not input_pair[0] in self.nodes or not input_pair[1] in self.nodes:
             raise ValueError(
-                f"The elements of the given pair {input_pair} are not vertices of the graph."
+                f"The elements of the pair {input_pair} are not vertices of the graph."
             )
         if input_pair[0] == input_pair[1]:
             raise LoopError("The input {input_pair} must be two distinct vertices.")
@@ -183,7 +183,7 @@ class Graph(nx.Graph):
         self._check_edge_format(edge)
         if vertices and (not edge[0] in vertices or not edge[1] in vertices):
             raise ValueError(
-                f"The elements of the given edge {edge} are not in among vertices {vertices}."
+                f"The elements of the edge {edge} are not among vertices {vertices}."
             )
         if not self.has_edge(edge[0], edge[1]):
             raise ValueError(f"Edge {edge} is not contained in the graph.")

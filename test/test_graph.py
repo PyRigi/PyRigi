@@ -349,6 +349,7 @@ def test_check_edge_list():
     with pytest.raises(TypeError):
         G._check_edge_list(["23"])
 
+
 def test_check_edge_format_list():
     G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
     G._check_edge_format((1, 3))
