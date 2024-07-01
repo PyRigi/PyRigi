@@ -155,10 +155,25 @@ class Graph(nx.Graph):
         edges = combinations(vertices, 2)
         return Graph.from_vertices_and_edges(vertices, edges)
 
+    def _check_edge_format(self, input_pair: Edge) -> None:
+        """
+        Check if an input_pair is a pair of vertices of the graph.
+        """
+        if (
+            not (isinstance(input_pair, tuple) or isinstance(input_pair, list))
+            or not len(input_pair) == 2
+        ):
+            raise TypeError(
+                f"The input {input_pair} must be a tuple or list of length 2."
+            )
+        if not input_pair[0] in self.nodes or not input_pair[1] in self.nodes:
+            raise ValueError(
+                f"The elements of the given pair {input_pair} are not vertices of the graph."
+            )
+
     def _check_edge(self, edge: Edge, vertices: List[Vertex] = None) -> None:
         """
-        Check if all edges in a list are in a valid format, are contained in the graph
-        and their adjacent vertices are contained in a list of vertices.
+        Check if the given input is an edge of the graph with endvertices in vertices.
 
         Parameters
         ----------
@@ -168,15 +183,11 @@ class Graph(nx.Graph):
             Check if the endvertices of the edge are contained in the list ``vertices``.
             If None, the function considers all vertices of the graph.
         """
-        if vertices is None:
-            vertices = self.nodes
-        if (
-            not (isinstance(edge, tuple) or isinstance(edge, list))
-            or not len(edge) == 2
-        ):
-            raise TypeError(f"Edge {edge} must be a tuple or list of length 2.")
-        if not edge[0] in vertices or not edge[1] in vertices:
-            raise ValueError(f"The elements of the given edge {edge} are not vertices.")
+        self._check_edge_format(edge)
+        if vertices and (not edge[0] in vertices or not edge[1] in vertices):
+            raise ValueError(
+                f"The elements of the given edge {edge} are not in among vertices {vertices}."
+            )
         if not self.has_edge(edge[0], edge[1]):
             raise ValueError(f"Edge {edge} is not contained in the graph.")
 
@@ -196,6 +207,18 @@ class Graph(nx.Graph):
         """
         for edge in edges:
             self._check_edge(edge, vertices)
+
+    def _check_edge_format_list(self, pairs: List[Edge]) -> None:
+        """
+        Apply _check_edge_format to all pairs in a list.
+
+        Parameters
+        ----------
+        pairs:
+            a list of pairs to be checked
+        """
+        for pair in pairs:
+            self._check_edge_format(pair)
 
     @doc_category("Attribute getters")
     def vertex_list(self) -> List[Vertex]:
