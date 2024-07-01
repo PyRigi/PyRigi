@@ -564,17 +564,15 @@ class Framework(object):
         self, numerical: bool = False, tolerance: float = 1e-9
     ) -> bool:
         """
-        Return whether the realization is quasi injective.
+        Return whether the realization is :prf:ref:`quasi-injective <def-realization>`.
 
         Parameters
         ----
         numerical:
-            If True the check is done only numericaly with tolerance
-            If False (default) the check is done symbolically, sympy is_zero is used.
+            If True, then the check is done only numerically with the given tolerance.
+            If False (default), the check is done symbolically, sympy is_zero is used.
         tolerance:
-            The tolerance that is used in the numerical check.
-            The numerical check is done for distance in each coordinate,
-            not for the length of an edge vector.
+            The tolerance that is used in the numerical check coordinate-wise.
         """
 
         for u, v in self._graph.edges:
@@ -601,12 +599,10 @@ class Framework(object):
         Parameters
         ----
         numerical:
-            If True the check is done only numericaly with tolerance
-            If False (default) the check is done symbolically, sympy is_zero is used.
+            If True, then the check is done only numerically with the given tolerance.
+            If False (default), the check is done symbolically, sympy is_zero is used.
         tolerance:
-            The tolerance that is used in the numerical check.
-            The numerical check is done for distance in each coordinate,
-            not for the length of an edge vector.
+            The tolerance that is used in the numerical check coordinate-wise.
         """
 
         for u, v in combinations(self._graph.nodes, 2):
