@@ -171,7 +171,10 @@ class Graph(nx.Graph):
         """
         if vertices is None:
             vertices = self.nodes
-        if not isinstance(edge, tuple) or not len(edge) == 2:
+        if (
+            not (isinstance(edge, tuple) or isinstance(edge, list))
+            or not len(edge) == 2
+        ):
             raise TypeError(f"Edge {edge} does not have the correct format")
         if (
             not edge[0] in vertices

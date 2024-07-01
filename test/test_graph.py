@@ -330,7 +330,7 @@ def test_loops(method, params):
 def test_check_edge_list():
     G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
     G._check_edge((1, 2))
-    G._check_edge((3, 2))
+    G._check_edge([3, 2])
     G._check_edge_list([(1, 2), (2, 3)])
     G._check_edge_list([(1, 2)], [1, 2])
     G._check_edge_list([(2, 3)], [2, 3])
