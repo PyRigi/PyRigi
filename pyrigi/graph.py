@@ -118,13 +118,8 @@ class Graph(nx.Graph):
         """
         G = Graph()
         G.add_nodes_from(vertices)
-        for edge in edges:
-            if len(edge) != 2 or not edge[0] in G.nodes or not edge[1] in G.nodes:
-                raise TypeError(
-                    f"Edge {edge} does not have the correct format "
-                    "or has adjacent vertices the graph does not contain"
-                )
-            G.add_edge(*edge)
+        G._check_edge_format_list(edges)
+        G.add_edges(edges)
         return G
 
     @classmethod
