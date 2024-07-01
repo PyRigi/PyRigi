@@ -325,3 +325,20 @@ def test_loops(method, params):
         G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
         func = getattr(G, method)
         func(*params)
+
+
+def test_check_edge_list():
+    G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
+    G._check_edge((1, 2))
+    G._check_edge((3, 2))
+    G._check_edge_list([(1, 2), (2, 3)])
+    G._check_edge_list([(1, 2)], [1, 2])
+    G._check_edge_list([(2, 3)], [2, 3])
+    with pytest.raises(TypeError):
+        G._check_edge((1, 3))
+    with pytest.raises(TypeError):
+        G._check_edge((1, 4))
+    with pytest.raises(TypeError):
+        G._check_edge_list([(1, 2), (1, 3), (2, 3)])
+    with pytest.raises(TypeError):
+        G._check_edge_list([(1, 2), (2, 3)], [1, 2])
