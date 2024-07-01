@@ -165,9 +165,8 @@ class Graph(nx.Graph):
         edge:
             an edge to be checked
         vertices:
-            a list of vertices
-            check if the vertices adjacent to the edge are contained in this list
-            if None, the function considers all vertices of the graph
+            Check if the endvertices of the edge are contained in the list ``vertices``.
+            If None, the function considers all vertices of the graph.
         """
         if vertices is None:
             vertices = self.nodes
@@ -175,16 +174,11 @@ class Graph(nx.Graph):
             not (isinstance(edge, tuple) or isinstance(edge, list))
             or not len(edge) == 2
         ):
-            raise TypeError(f"Edge {edge} does not have the correct format")
-        if (
-            not edge[0] in vertices
-            or not edge[1] in vertices
-            or not self.has_edge(edge[0], edge[1])
-        ):
-            raise ValueError(
-                f"Edge {edge} is not contained in the graph "
-                "or has adjacent vertices that were not passed to the function"
-            )
+            raise TypeError(f"Edge {edge} must be a tuple or list of length 2.")
+        if not edge[0] in vertices or not edge[1] in vertices:
+            raise ValueError(f"The elements of the given edge {edge} are not vertices.")
+        if not self.has_edge(edge[0], edge[1]):
+            raise ValueError(f"Edge {edge} is not contained in the graph.")
 
     def _check_edge_list(
         self, edges: List[Edge], vertices: List[Vertex] = None
@@ -197,9 +191,8 @@ class Graph(nx.Graph):
         edges:
             a list of edges to be checked
         vertices:
-            a list of vertices
-            check if the vertices adjacent to the edges are contained in this list
-            if None, the function considers all vertices of the graph
+            Check if the endvertices of the edges are contained in the list ``vertices``.
+            If None (default), the function considers all vertices of the graph.
         """
         for edge in edges:
             self._check_edge(edge, vertices)
