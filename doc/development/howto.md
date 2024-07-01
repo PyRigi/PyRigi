@@ -213,3 +213,12 @@ is achieved using [Jupytext](https://jupytext.readthedocs.io/en/latest/index.htm
 Please, **do not** commit the `.ipynb` to the repository.
 You can contact a maintainer if you have a `.ipynb` tutorial
 you want to contribute but struggle to get its `.md` version.
+
+
+In case `poetry shell` is used as described above, Jupyterlab and Jupytext
+can be install using
+```
+pip install jupyterlab jupytext
+```
+After setting the virtual enviroment in Jupyterlab to the one created
+by `poetry shell`, `.md` notebooks can be opened directly.
