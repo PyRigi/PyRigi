@@ -156,7 +156,7 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     def _check_edge(self, edge: Edge, vertices: List[Vertex] = None) -> None:
-        if vertices == None:
+        if vertices is None:
             vertices = self.nodes
         if (
             len(edge) != 2
@@ -170,7 +170,9 @@ class Graph(nx.Graph):
                 "or has adjacent vertices that were not passed to the function"
             )
 
-    def _check_edge_list(self, edges: List[Edge], vertices: List[Vertex] = None) -> None:
+    def _check_edge_list(
+        self, edges: List[Edge], vertices: List[Vertex] = None
+    ) -> None:
         for edge in edges:
             self._check_edge(edge, vertices)
 
