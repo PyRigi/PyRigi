@@ -238,14 +238,7 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        if not (len(edge)) == 2:
-            raise ValueError(f"Edge {edge} does not have the correct length.")
-        if edge[0] == edge[1]:
-            raise LoopError("Edges cannot be loops.")
-        if not (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes):
-            raise ValueError(
-                f"The adjacent vertices of {edge} are not contained in the graph."
-            )
+        self._graph._check_edge_format(edge)
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
