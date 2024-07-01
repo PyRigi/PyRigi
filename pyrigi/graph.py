@@ -152,7 +152,7 @@ class Graph(nx.Graph):
 
     def _check_edge_format(self, input_pair: Edge) -> None:
         """
-        Check if an input_pair is a pair of vertices of the graph.
+        Check if an input_pair is a pair of distinct vertices of the graph.
         """
         if (
             not (isinstance(input_pair, tuple) or isinstance(input_pair, list))
@@ -165,6 +165,8 @@ class Graph(nx.Graph):
             raise ValueError(
                 f"The elements of the given pair {input_pair} are not vertices of the graph."
             )
+        if input_pair[0] == input_pair[1]:
+            raise LoopError("The input {input_pair} must be two distinct vertices.")
 
     def _check_edge(self, edge: Edge, vertices: List[Vertex] = None) -> None:
         """
