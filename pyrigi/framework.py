@@ -21,7 +21,7 @@ from random import randrange
 
 import networkx as nx
 import sympy as sp
-from sympy import Matrix, flatten, binomial, simplify, Abs
+from sympy import Matrix, flatten, binomial
 
 from pyrigi.data_type import Vertex, Edge, Point, FrameworkType, point_to_vector
 from pyrigi.graph import Graph
@@ -31,6 +31,7 @@ from pyrigi.misc import (
     doc_category,
     generate_category_tables,
     check_integrality_and_range,
+    is_null_vector,
 )
 
 
@@ -571,24 +572,16 @@ class Framework(object):
         numerical:
             If True, then the check is done only numerically with the given tolerance.
             If False (default), the check is done symbolically, sympy is_zero is used.
+            Whether edge vectors are null is checked using :func:`misc.is_null_vector`.
         tolerance:
-            The tolerance that is used in the numerical check coordinate-wise.
+            The tolerance that is used in the numerical check.
+            See :func:`misc.is_null_vector` for more info.
         """
 
         for u, v in self._graph.edges:
             edge_vector = self[u] - self[v]
-            if not numerical:
-                for coord in edge_vector:
-                    if not simplify(coord).is_zero:
-                        break
-                else:
-                    return False
-            if numerical:
-                for coord in edge_vector:
-                    if Abs(coord) > tolerance:
-                        break
-                else:
-                    return False
+            if not is_null_vector(edge_vector, numerical, tolerance):
+                return False
         return True
 
     @doc_category("Framework properties")
@@ -601,25 +594,16 @@ class Framework(object):
         numerical:
             If True, then the check is done only numerically with the given tolerance.
             If False (default), the check is done symbolically, sympy is_zero is used.
+            Whether edge vectors are null is checked using :func:`misc.is_null_vector`.
         tolerance:
-            The tolerance that is used in the numerical check coordinate-wise.
+            The tolerance that is used in the numerical check.
+            See :func:`misc.is_null_vector` for more info.
         """
 
         for u, v in combinations(self._graph.nodes, 2):
             edge_vector = self[u] - self[v]
-
-            if not numerical:
-                for coord in edge_vector:
-                    if not simplify(coord).is_zero:
-                        break
-                else:
-                    return False
-            if numerical:
-                for coord in edge_vector:
-                    if Abs(coord) > tolerance:
-                        break
-                else:
-                    return False
+            if not is_null_vector(edge_vector, numerical, tolerance):
+                return False
         return True
 
     @doc_category("Framework manipulation")

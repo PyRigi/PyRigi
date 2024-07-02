@@ -3,6 +3,8 @@ Module for miscellaneous functions.
 """
 
 import math
+from pyrigi.data_type import Point, point_to_vector
+from sympy import Matrix, simplify, Abs
 
 
 def doc_category(category):
@@ -55,3 +57,38 @@ def check_integrality_and_range(
         raise ValueError(
             "The " + name + f" has to be an integer in [{min_n},{max_n}], not {n}."
         )
+
+
+def is_null_vector(
+    vector: Point, numerical: bool = False, tolerance: float = 1e-9
+) -> bool:
+    """
+    Check if the given vector is null.
+
+    Parameters
+    ----------
+    vector:
+        Vector that is checked.
+    numerical:
+        If True, then the check is done only numerically with the given tolerance.
+        If False (default), the check is done symbolically, sympy is_zero is used.
+    tolerance:
+        The tolerance that is used in the numerical check coordinate-wise.
+    """
+
+    if not isinstance(vector, Matrix):
+        vector = point_to_vector(vector)
+
+    if not numerical:
+        for coord in vector:
+            if not simplify(coord).is_zero:
+                break
+        else:
+            return False
+    else:
+        for coord in vector:
+            if Abs(coord) > tolerance:
+                break
+        else:
+            return False
+    return True
