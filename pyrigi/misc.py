@@ -59,7 +59,7 @@ def check_integrality_and_range(
         )
 
 
-def is_null_vector(
+def is_zero_vector(
     vector: Point, numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
     """

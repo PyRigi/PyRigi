@@ -31,7 +31,7 @@ from pyrigi.misc import (
     doc_category,
     generate_category_tables,
     check_integrality_and_range,
-    is_null_vector,
+    is_zero_vector,
 )
 
 
@@ -572,15 +572,15 @@ class Framework(object):
         numerical:
             If True, then the check is done only numerically with the given tolerance.
             If False (default), the check is done symbolically, sympy is_zero is used.
-            Whether edge vectors are null is checked using :func:`misc.is_null_vector`.
+            Whether edge vectors are zero is checked using :func:`misc.is_zero_vector`.
         tolerance:
             The tolerance that is used in the numerical check.
-            See :func:`misc.is_null_vector` for more info.
+            See :func:`misc.is_zero_vector` for more info.
         """
 
         for u, v in self._graph.edges:
             edge_vector = self[u] - self[v]
-            if is_null_vector(edge_vector, numerical, tolerance):
+            if is_zero_vector(edge_vector, numerical, tolerance):
                 return False
         return True
 
@@ -594,15 +594,15 @@ class Framework(object):
         numerical:
             If True, then the check is done only numerically with the given tolerance.
             If False (default), the check is done symbolically, sympy is_zero is used.
-            Whether edge vectors are null is checked using :func:`misc.is_null_vector`.
+            Whether edge vectors are zero is checked using :func:`misc.is_zero_vector`.
         tolerance:
             The tolerance that is used in the numerical check.
-            See :func:`misc.is_null_vector` for more info.
+            See :func:`misc.is_zero_vector` for more info.
         """
 
         for u, v in combinations(self._graph.nodes, 2):
             edge_vector = self[u] - self[v]
-            if is_null_vector(edge_vector, numerical, tolerance):
+            if is_zero_vector(edge_vector, numerical, tolerance):
                 return False
         return True
 
