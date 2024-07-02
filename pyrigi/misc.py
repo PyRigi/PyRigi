@@ -84,11 +84,11 @@ def is_null_vector(
             if not simplify(coord).is_zero:
                 break
         else:
-            return False
+            return True
     else:
         for coord in vector:
             if Abs(coord) > tolerance:
                 break
         else:
-            return False
-    return True
+            return True
+    return False

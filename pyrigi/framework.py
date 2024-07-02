@@ -580,7 +580,7 @@ class Framework(object):
 
         for u, v in self._graph.edges:
             edge_vector = self[u] - self[v]
-            if not is_null_vector(edge_vector, numerical, tolerance):
+            if is_null_vector(edge_vector, numerical, tolerance):
                 return False
         return True
 
@@ -602,7 +602,7 @@ class Framework(object):
 
         for u, v in combinations(self._graph.nodes, 2):
             edge_vector = self[u] - self[v]
-            if not is_null_vector(edge_vector, numerical, tolerance):
+            if is_null_vector(edge_vector, numerical, tolerance):
                 return False
         return True
 
