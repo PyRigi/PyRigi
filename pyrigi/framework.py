@@ -567,7 +567,7 @@ class Framework(object):
         """
         Return whether the realization is :prf:ref:`quasi-injective <def-realization>`.
 
-        For comparing wheter two vectors are the same,
+        For comparing whether two vectors are the same,
         :func:`.misc.is_zero_vector` is used.
         See its documentation for the description of the parameters.
         """
@@ -583,7 +583,7 @@ class Framework(object):
         """
         Return whether the realization is injective.
 
-        For comparing wheter two vectors are the same,
+        For comparing whether two vectors are the same,
         :func:`.misc.is_zero_vector` is used.
         See its documentation for the description of the parameters.
         """
