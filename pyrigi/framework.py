@@ -23,7 +23,6 @@ import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
 
-
 from pyrigi.data_type import Vertex, Edge, Point, point_to_vector
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
@@ -32,6 +31,7 @@ from pyrigi.misc import (
     doc_category,
     generate_category_tables,
     check_integrality_and_range,
+    is_zero_vector,
 )
 
 
@@ -559,6 +559,40 @@ class Framework(object):
                 vertex: [float(p) for p in position]
                 for vertex, position in self._realization.items()
             }
+
+    @doc_category("Framework properties")
+    def is_quasi_injective(
+        self, numerical: bool = False, tolerance: float = 1e-9
+    ) -> bool:
+        """
+        Return whether the realization is :prf:ref:`quasi-injective <def-realization>`.
+
+        For comparing whether two vectors are the same,
+        :func:`.misc.is_zero_vector` is used.
+        See its documentation for the description of the parameters.
+        """
+
+        for u, v in self._graph.edges:
+            edge_vector = self[u] - self[v]
+            if is_zero_vector(edge_vector, numerical, tolerance):
+                return False
+        return True
+
+    @doc_category("Framework properties")
+    def is_injective(self, numerical: bool = False, tolerance: float = 1e-9) -> bool:
+        """
+        Return whether the realization is injective.
+
+        For comparing whether two vectors are the same,
+        :func:`.misc.is_zero_vector` is used.
+        See its documentation for the description of the parameters.
+        """
+
+        for u, v in combinations(self._graph.nodes, 2):
+            edge_vector = self[u] - self[v]
+            if is_zero_vector(edge_vector, numerical, tolerance):
+                return False
+        return True
 
     @doc_category("Framework manipulation")
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
