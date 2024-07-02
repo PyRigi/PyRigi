@@ -567,14 +567,9 @@ class Framework(object):
         """
         Return whether the realization is :prf:ref:`quasi-injective <def-realization>`.
 
-        Parameters
-        ----
-        numerical:
-            If True, then the check is done only numerically with the given tolerance.
-            If False (default), the check is done symbolically, sympy is_zero is used.
-            Whether edge vectors are zero is checked using :func:`.misc.is_zero_vector`.
-        tolerance:
-            The tolerance that is used in the numerical check coordinate-wise.
+        For comparing wheter two vectors are the same,
+        :func:`.misc.is_zero_vector` is used.
+        See its documentation for the description of the parameters.
         """
 
         for u, v in self._graph.edges:
@@ -588,14 +583,9 @@ class Framework(object):
         """
         Return whether the realization is injective.
 
-        Parameters
-        ----
-        numerical:
-            If True, then the check is done only numerically with the given tolerance.
-            If False (default), the check is done symbolically, sympy is_zero is used.
-            Whether edge vectors are zero is checked using :func:`.misc.is_zero_vector`.
-        tolerance:
-            The tolerance that is used in the numerical check coordinate-wise.
+        For comparing wheter two vectors are the same,
+        :func:`.misc.is_zero_vector` is used.
+        See its documentation for the description of the parameters.
         """
 
         for u, v in combinations(self._graph.nodes, 2):
