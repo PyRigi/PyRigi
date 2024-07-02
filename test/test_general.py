@@ -16,7 +16,7 @@ def test_is_zero_vector():
     assert not is_zero_vector(V3, numerical=True)
 
     # test symbolic check
-    V4 = point_to_vector(["(2/3)^2 - 8/18", "sqrt(2)^2 - 2"])
+    V4 = ["(2/3)^2 - 8/18", "sqrt(2)^2 - 2"]
     assert is_zero_vector(V4)
     assert is_zero_vector(V4, numerical=True)
 
