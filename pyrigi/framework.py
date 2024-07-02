@@ -572,10 +572,9 @@ class Framework(object):
         numerical:
             If True, then the check is done only numerically with the given tolerance.
             If False (default), the check is done symbolically, sympy is_zero is used.
-            Whether edge vectors are zero is checked using :func:`misc.is_zero_vector`.
+            Whether edge vectors are zero is checked using :func:`.misc.is_zero_vector`.
         tolerance:
-            The tolerance that is used in the numerical check.
-            See :func:`misc.is_zero_vector` for more info.
+            The tolerance that is used in the numerical check coordinate-wise.
         """
 
         for u, v in self._graph.edges:
@@ -594,10 +593,9 @@ class Framework(object):
         numerical:
             If True, then the check is done only numerically with the given tolerance.
             If False (default), the check is done symbolically, sympy is_zero is used.
-            Whether edge vectors are zero is checked using :func:`misc.is_zero_vector`.
+            Whether edge vectors are zero is checked using :func:`.misc.is_zero_vector`.
         tolerance:
-            The tolerance that is used in the numerical check.
-            See :func:`misc.is_zero_vector` for more info.
+            The tolerance that is used in the numerical check coordinate-wise.
         """
 
         for u, v in combinations(self._graph.nodes, 2):

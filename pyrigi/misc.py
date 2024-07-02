@@ -63,7 +63,7 @@ def is_zero_vector(
     vector: Point, numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
     """
-    Check if the given vector is null.
+    Check if the given vector is zero.
 
     Parameters
     ----------
