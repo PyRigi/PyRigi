@@ -15,7 +15,7 @@ def doc_category(category):
     return decorator_doc_category
 
 
-def generate_category_tables(cls, tabs, cat_order=[], include_all=False):
+def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
     categories = {}
     for func in dir(cls):
         if callable(getattr(cls, func)) and func[:2] != "__":
@@ -50,7 +50,7 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False):
 
 def check_integrality_and_range(
     n: int, name: str = "number n", min_n: int = 0, max_n: int = math.inf
-):
+) -> None:
     if not isinstance(n, int):
         raise TypeError("The " + name + f" has to be an integer, not {type(n)}.")
     if n < min_n or n > max_n:

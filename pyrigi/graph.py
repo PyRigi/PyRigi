@@ -12,7 +12,7 @@ import networkx as nx
 from sympy import Matrix
 import math
 
-from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType
+from pyrigi.data_type import Vertex, Edge
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 
@@ -101,7 +101,7 @@ class Graph(nx.Graph):
     @doc_category("Class methods")
     def from_vertices_and_edges(
         cls, vertices: List[Vertex], edges: List[Edge]
-    ) -> GraphType:
+    ) -> Graph:
         """
         Create a graph from a list of vertices and edges.
 
@@ -129,7 +129,7 @@ class Graph(nx.Graph):
 
     @classmethod
     @doc_category("Class methods")
-    def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
+    def from_vertices(cls, vertices: List[Vertex]) -> Graph:
         """
         Create a graph with no edges from a list of vertices.
 
@@ -144,7 +144,7 @@ class Graph(nx.Graph):
 
     @classmethod
     @doc_category("Class methods")
-    def CompleteOnVertices(cls, vertices: List[Vertex]) -> GraphType:
+    def CompleteOnVertices(cls, vertices: List[Vertex]) -> Graph:
         """
         Generate a complete graph on ``vertices``.
 
@@ -675,7 +675,7 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     @doc_category("Generic rigidity")
-    def max_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
+    def max_rigid_subgraphs(self, dim: int = 2) -> List[Graph]:
         """
         List vertex-maximal rigid subgraphs of the graph.
 
@@ -738,7 +738,7 @@ class Graph(nx.Graph):
         return clean_list
 
     @doc_category("Generic rigidity")
-    def min_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
+    def min_rigid_subgraphs(self, dim: int = 2) -> List[Graph]:
         """
         List vertex-minimal non-trivial rigid subgraphs of the graph.
 
@@ -805,7 +805,7 @@ class Graph(nx.Graph):
         return clean_list
 
     @doc_category("General graph theoretical properties")
-    def is_isomorphic(self, graph: GraphType) -> bool:
+    def is_isomorphic(self, graph: Graph) -> bool:
         """
         Check whether two graphs are isomorphic.
 
@@ -876,7 +876,7 @@ class Graph(nx.Graph):
 
     @classmethod
     @doc_category("Class methods")
-    def from_int(cls, N: int) -> GraphType:
+    def from_int(cls, N: int) -> Graph:
         """
         Return a graph given its integer representation.
 
@@ -902,7 +902,7 @@ class Graph(nx.Graph):
 
     @classmethod
     @doc_category("Class methods")
-    def from_adjacency_matrix(cls, M: Matrix) -> GraphType:
+    def from_adjacency_matrix(cls, M: Matrix) -> Graph:
         """
         Create a graph from a given adjacency matrix.
 
@@ -973,9 +973,8 @@ class Graph(nx.Graph):
         return Matrix(row_list)
 
     @doc_category("Other")
-    def random_framework(
-        self, dim: int = 2, rand_range: Union(int, List[int]) = None
-    ) -> FrameworkType:
+    def random_framework(self, dim: int = 2, rand_range: Union(int, List[int]) = None):
+        # the return type is intentionally omitted to avoid circular import
         """
         Return framework with random realization.
 
