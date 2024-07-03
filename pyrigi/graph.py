@@ -344,7 +344,8 @@ class Graph(nx.Graph):
         Parameters
         -----
         vertices:
-            A new vertex will be connected to these vertices by edges.
+            A list of vertices
+            A new vertex will be connected to these vertices.
             All the vertices must be contained in the graph and there must be dim of them.
         new_vertex:
             Newly added vertex will be named according to this parameter.
@@ -354,7 +355,6 @@ class Graph(nx.Graph):
         inplace:
             If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
         -----
-        Modifies self only when explicitly required.
         """
         return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
 
@@ -373,10 +373,11 @@ class Graph(nx.Graph):
         Parameters
         -----
         vertices:
-            A new vertex will be connected to these vertices by edges.
+            A list of vertices
+            A new vertex will be connected to these vertices.
             All the vertices must be contained in the graph and there must be dim + 1 of them.
         edge:
-            An edge between two of the vertices passed by the parameter vertices that will be deleted.
+            An edge with endvertices from the list ``vertices`` that will be deleted.
             The edge must be contained in the graph.
         new_vertex:
             Newly added vertex will be named according to this parameter.
@@ -386,7 +387,6 @@ class Graph(nx.Graph):
         inplace:
             If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
         -----
-        Modifies self only when explicitly required.
         """
         return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
 
@@ -407,11 +407,13 @@ class Graph(nx.Graph):
         -----
         k
         vertices:
-            A new vertex will be connected to these vertices by edges.
+            A list of vertices
+            A new vertex will be connected to these vertices.
             All the vertices must be contained in the graph and there must be dim + k of them.
         edges:
-            Edges between vertices passed by the parameter vertices that will be deleted.
-            All the edges must be contained in the graph and there must be k of them.
+            A list of edges between vertices passed by the parameter vertices that will be deleted.
+            The endvertices of all the edges must be contained contained in the list ``vertices``.
+            The edges must be contained in the graph and there must be k of them.
         new_vertex:
             Newly added vertex will be named according to this parameter.
             If None, the name will be set as the lowest possible integer value greater or equal than the number of nodes.
@@ -420,7 +422,6 @@ class Graph(nx.Graph):
         inplace:
             If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
         -----
-        Modifies self only when explicitly required.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -496,20 +497,31 @@ class Graph(nx.Graph):
                 break
             w = list(w)
             for vertices in combinations(s, dim + k - len(w)):
-                solutions.append(
-                    self.k_extension(k, list(vertices) + w, edges, dim=dim)
-                )
+                current = self.k_extension(k, list(vertices) + w, edges, dim=dim)
+                if only_non_isomorphic:
+                    isomorphic = False
+                    for other in solutions:
+                        if current.is_isomorphic(other):
+                            isomorphic = True
+                            break
+                    if isomorphic:
+                        continue
+                solutions.append(current)
         return solutions
 
     @doc_category("Graph manipulation")
-    def extension_sequence(self, dim: int = 2) -> Any:
+    def extension_sequence(self, dim: int = 2, return_solution: bool = False) -> Any:
         """
-        Return a sequence of extensions that create the graph.
+        Check if a graph can be created by a sequence of extensions.
 
         Parameters
         -----
         dim:
             The dimension in which the extensions are created.
+        return_solution:
+            If False, returns a bool value indicating if the graph can be created by a sequence of extensions
+            If True, returns one extension sequence that creates the graph
+            or None if no such extension sequence exists
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -521,21 +533,29 @@ class Graph(nx.Graph):
             if self.number_of_edges() == 1:
                 G = deepcopy(self)
                 G.remove_node(list(G.nodes)[0])
-                return [G, self]
-            return None
+                if return_solution:
+                    return [G, self]
+                return True
+            if return_solution:
+                return None
+            return False
         if self.number_of_nodes() < 2 or not self.number_of_edges() == 2*self.number_of_nodes() - 3:
-            return None
+            if return_solution:
+                return None
+            return False
         degrees = sorted(self.degree, key = lambda node: node[1])
         if degrees[0][1] < 2 or degrees[0][1] > 3:
-            return None
-        #deg == 2 -> 0_extension
+            if return_solution:
+                return None
+            return False
         if degrees[0][1] == 2:
             G = deepcopy(self)
             G.remove_node(degrees[0][0])
-            branch = G.extension_sequence(dim)
+            branch = G.extension_sequence(dim, return_solution)
             if not branch == None:
-                return branch + [self]
-        #deg == 3 -> 1_extension
+                if return_solution:
+                    return branch + [self]
+                return True
         if degrees[0][1] == 3:
             neighbors = list(self.neighbors(degrees[0][0]))
             G = deepcopy(self)
@@ -543,11 +563,15 @@ class Graph(nx.Graph):
             for i, j in [[0,1],[0,2],[1,2]]:
                 if not G.has_edge(neighbors[i], neighbors[j]):
                     G.add_edge(neighbors[i], neighbors[j])
-                    branch = G.extension_sequence(dim)
+                    branch = G.extension_sequence(dim, return_solution)
                     if not branch == None:
-                        return branch + [self]
+                        if return_solution:
+                            return branch + [self]
+                        return True
                     G.remove_edge(neighbors[i], neighbors[j])
-        return None
+        if return_solution:
+            return None
+        return False
 
     # ---------------------------------------------------------------------------------------------------------------------------
     # ---------------------------------------------------------------------------------------------------------------------------
