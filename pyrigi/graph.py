@@ -329,7 +329,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> GraphType:
+    ) -> Any:
         """
         Return a k-extension of the graph, where k = 0.
 
@@ -360,7 +360,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> GraphType:
+    ) -> Any:
         """
         Return a k-extension of the graph, where k = 1.
 
@@ -396,7 +396,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> GraphType:
+    ) -> Any:
         """
         Return a k-extension of the graph.
 
