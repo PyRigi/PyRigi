@@ -322,14 +322,6 @@ class Graph(nx.Graph):
             and self.number_of_edges() == K * self.number_of_nodes() - L
         )
 
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-
     @doc_category("Graph manipulation")
     def zero_extension(
         self,
@@ -349,11 +341,13 @@ class Graph(nx.Graph):
             All the vertices must be contained in the graph and there must be dim of them.
         new_vertex:
             Newly added vertex will be named according to this parameter.
-            If None, the name will be set as the lowest possible integer value greater or equal than the number of nodes.
+            If None, the name will be set as the lowest possible integer value
+            greater or equal than the number of nodes.
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
+            If True, the graph will be modified, otherwise creates
+            a new modified graph while the original graph remains unchanged.
         -----
         """
         return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
@@ -375,17 +369,20 @@ class Graph(nx.Graph):
         vertices:
             A list of vertices
             A new vertex will be connected to these vertices.
-            All the vertices must be contained in the graph and there must be dim + 1 of them.
+            All the vertices must be contained in the graph and there must be
+            dim + 1 of them.
         edge:
             An edge with endvertices from the list ``vertices`` that will be deleted.
             The edge must be contained in the graph.
         new_vertex:
             Newly added vertex will be named according to this parameter.
-            If None, the name will be set as the lowest possible integer value greater or equal than the number of nodes.
+            If None, the name will be set as the lowest possible integer value
+            greater or equal than the number of nodes.
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
+            If True, the graph will be modified, otherwise creates
+            a new modified graph while the original graph remains unchanged.
         -----
         """
         return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
@@ -409,18 +406,23 @@ class Graph(nx.Graph):
         vertices:
             A list of vertices
             A new vertex will be connected to these vertices.
-            All the vertices must be contained in the graph and there must be dim + k of them.
+            All the vertices must be contained in the graph and there must be
+            dim + k of them.
         edges:
-            A list of edges between vertices passed by the parameter vertices that will be deleted.
-            The endvertices of all the edges must be contained contained in the list ``vertices``.
+            A list of edges between vertices passed by the parameter vertices
+            that will be deleted.
+            The endvertices of all the edges must be contained contained
+            in the list ``vertices``.
             The edges must be contained in the graph and there must be k of them.
         new_vertex:
             Newly added vertex will be named according to this parameter.
-            If None, the name will be set as the lowest possible integer value greater or equal than the number of nodes.
+            If None, the name will be set as the lowest possible integer value
+            greater or equal than the number of nodes.
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified, otherwise creates a new modified graph while the original graph remains unchanged.
+            If True, the graph will be modified, otherwise creates
+            a new modified graph while the original graph remains unchanged.
         -----
         """
         if not isinstance(dim, int) or dim < 1:
@@ -428,16 +430,16 @@ class Graph(nx.Graph):
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         for vertex in vertices:
-            if not vertex in self.nodes:
+            if vertex not in self.nodes:
                 raise TypeError(f"Vertex {vertex} is not contained in the graph")
         if len(set(vertices)) != dim + k:
             raise TypeError("List of vertices must contain dim + k distinct vertices")
         for edge in edges:
             if (
                 len(edge) != 2
-                or not edge[0] in vertices
-                or not edge[1] in vertices
-                or not edge in self.edges
+                or edge[0] not in vertices
+                or edge[1] not in vertices
+                or edge not in self.edges
             ):
                 raise TypeError(
                     f"Edge {edge} does not have the correct format, "
@@ -462,7 +464,9 @@ class Graph(nx.Graph):
         return G
 
     @doc_category("Graph manipulation")
-    def all_k_extensions(self, k: int, dim: int = 2, only_non_isomorphic: bool = False) -> list:
+    def all_k_extensions(
+        self, k: int, dim: int = 2, only_non_isomorphic: bool = False
+    ) -> list:
         """
         Return list of all possible k-extensions of the graph.
 
@@ -478,7 +482,8 @@ class Graph(nx.Graph):
             )
         if self.number_of_nodes() < (dim + k):
             raise TypeError(
-                "The number of nodes in the graph needs to be greater or equal than the dimension + k!"
+                "The number of nodes in the graph needs to be "
+                "greater or equal than the dimension + k!"
             )
         if self.number_of_edges() < k:
             raise TypeError(
@@ -519,7 +524,8 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the extensions are created.
         return_solution:
-            If False, returns a bool value indicating if the graph can be created by a sequence of extensions
+            If False, returns a bool value indicating if the graph can be
+            created by a sequence of extensions
             If True, returns one extension sequence that creates the graph
             or None if no such extension sequence exists
         """
@@ -539,11 +545,14 @@ class Graph(nx.Graph):
             if return_solution:
                 return None
             return False
-        if self.number_of_nodes() < 2 or not self.number_of_edges() == 2*self.number_of_nodes() - 3:
+        if (
+            self.number_of_nodes() < 2
+            or not self.number_of_edges() == 2 * self.number_of_nodes() - 3
+        ):
             if return_solution:
                 return None
             return False
-        degrees = sorted(self.degree, key = lambda node: node[1])
+        degrees = sorted(self.degree, key=lambda node: node[1])
         if degrees[0][1] < 2 or degrees[0][1] > 3:
             if return_solution:
                 return None
@@ -553,7 +562,7 @@ class Graph(nx.Graph):
             G.remove_node(degrees[0][0])
             branch = G.extension_sequence(dim, return_solution)
             if return_solution:
-                if not branch == None:
+                if branch is not None:
                     return branch + [self]
                 return None
             return branch
@@ -561,11 +570,11 @@ class Graph(nx.Graph):
             neighbors = list(self.neighbors(degrees[0][0]))
             G = deepcopy(self)
             G.remove_node(degrees[0][0])
-            for i, j in [[0,1],[0,2],[1,2]]:
+            for i, j in [[0, 1], [0, 2], [1, 2]]:
                 if not G.has_edge(neighbors[i], neighbors[j]):
                     G.add_edge(neighbors[i], neighbors[j])
                     branch = G.extension_sequence(dim, return_solution)
-                    if return_solution and not branch == None:
+                    if return_solution and branch is not None:
                         return branch + [self]
                     elif branch:
                         return True
@@ -573,14 +582,6 @@ class Graph(nx.Graph):
         if return_solution:
             return None
         return False
-
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
-    # ---------------------------------------------------------------------------------------------------------------------------
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:

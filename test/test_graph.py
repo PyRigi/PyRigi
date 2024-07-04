@@ -329,52 +329,141 @@ def test_loops(method, params):
 
 def test_k_extension():
     assert str(graphs.Complete(2).zero_extension([0, 1])) == str(graphs.Complete(3))
-    assert str(graphs.Complete(2).zero_extension([1], dim = 1)) == str(graphs.Path(3))
-    assert str(graphs.Complete(4).one_extension([0, 1, 2], (0, 1))) == str(Graph.from_vertices_and_edges([0, 1, 2, 3, 4], [(0,2), (0,3), (0,4), (1,2), (1,3), (1,4), (2,3), (2,4)]))
-    assert str(graphs.CompleteBipartite(3,2).one_extension([0, 1, 2, 3, 4], (0, 3), dim = 4)) == str(Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [(0,4), (0,5), (1,3), (1,4), (1,5), (2,3), (2,4), (2,5), (3,5), (4,5)]))
-    assert str(graphs.CompleteBipartite(3,2).k_extension(2, [0, 1, 3], [(0, 3), (1,3)], dim = 1)) == str(Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [(0,4), (0,5), (1,4), (1,5), (2,3), (2,4),(3,5)]))
-    assert str(graphs.CompleteBipartite(3,2).k_extension(2, [0, 1, 3, 4], [(0, 3), (1,3)])) == str(Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [(0,4), (0,5), (1,4), (1,5), (2,3), (2,4),(3,5),(4,5)]))
-    assert str(graphs.Cycle(6).k_extension(4, [0, 1, 2, 3, 4], [(0, 1), (1,2), (2,3), (3,4)], dim = 1)) == str(Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5,6], [(0,5), (0,6), (1,6), (2,6), (3,6), (4,5), (4,6)]))
+    assert str(graphs.Complete(2).zero_extension([1], dim=1)) == str(graphs.Path(3))
+    assert str(graphs.Complete(4).one_extension([0, 1, 2], (0, 1))) == str(
+        Graph.from_vertices_and_edges(
+            [0, 1, 2, 3, 4],
+            [(0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4)],
+        )
+    )
+    assert str(
+        graphs.CompleteBipartite(3, 2).one_extension([0, 1, 2, 3, 4], (0, 3), dim=4)
+    ) == str(
+        Graph.from_vertices_and_edges(
+            [0, 1, 2, 3, 4, 5],
+            [
+                (0, 4),
+                (0, 5),
+                (1, 3),
+                (1, 4),
+                (1, 5),
+                (2, 3),
+                (2, 4),
+                (2, 5),
+                (3, 5),
+                (4, 5),
+            ],
+        )
+    )
+    assert str(
+        graphs.CompleteBipartite(3, 2).k_extension(
+            2, [0, 1, 3], [(0, 3), (1, 3)], dim=1
+        )
+    ) == str(
+        Graph.from_vertices_and_edges(
+            [0, 1, 2, 3, 4, 5], [(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5)]
+        )
+    )
+    assert str(
+        graphs.CompleteBipartite(3, 2).k_extension(2, [0, 1, 3, 4], [(0, 3), (1, 3)])
+    ) == str(
+        Graph.from_vertices_and_edges(
+            [0, 1, 2, 3, 4, 5],
+            [(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5), (4, 5)],
+        )
+    )
+    assert str(
+        graphs.Cycle(6).k_extension(
+            4, [0, 1, 2, 3, 4], [(0, 1), (1, 2), (2, 3), (3, 4)], dim=1
+        )
+    ) == str(
+        Graph.from_vertices_and_edges(
+            [0, 1, 2, 3, 4, 5, 6],
+            [(0, 5), (0, 6), (1, 6), (2, 6), (3, 6), (4, 5), (4, 6)],
+        )
+    )
 
 
 def test_all_k_extensions():
     all_1_1 = graphs.Complete(4).all_k_extensions(1, 1)
     for extension in all_1_1:
         assert str(extension) in {
-            str(Graph.from_vertices_and_edges([0,1,2,3,4], [[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3]])),
-            str(Graph.from_vertices_and_edges([0,1,2,3,4], [[0, 1], [0, 3], [0, 4], [1, 2], [1, 3], [2, 3], [2, 4]])),
-            str(Graph.from_vertices_and_edges([0,1,2,3,4], [[0, 1], [0, 2], [0, 4], [1, 2], [1, 3], [2, 3], [3, 4]])),
-            str(Graph.from_vertices_and_edges([0,1,2,3,4], [[0, 1], [0, 2], [0, 3], [1, 3], [1, 4], [2, 3], [2, 4]])),
-            str(Graph.from_vertices_and_edges([0,1,2,3,4], [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 3], [3, 4]])),
-            str(Graph.from_vertices_and_edges([0,1,2,3,4], [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 4], [3, 4]])),
+            str(
+                Graph.from_vertices_and_edges(
+                    [0, 1, 2, 3, 4],
+                    [[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3]],
+                )
+            ),
+            str(
+                Graph.from_vertices_and_edges(
+                    [0, 1, 2, 3, 4],
+                    [[0, 1], [0, 3], [0, 4], [1, 2], [1, 3], [2, 3], [2, 4]],
+                )
+            ),
+            str(
+                Graph.from_vertices_and_edges(
+                    [0, 1, 2, 3, 4],
+                    [[0, 1], [0, 2], [0, 4], [1, 2], [1, 3], [2, 3], [3, 4]],
+                )
+            ),
+            str(
+                Graph.from_vertices_and_edges(
+                    [0, 1, 2, 3, 4],
+                    [[0, 1], [0, 2], [0, 3], [1, 3], [1, 4], [2, 3], [2, 4]],
+                )
+            ),
+            str(
+                Graph.from_vertices_and_edges(
+                    [0, 1, 2, 3, 4],
+                    [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 3], [3, 4]],
+                )
+            ),
+            str(
+                Graph.from_vertices_and_edges(
+                    [0, 1, 2, 3, 4],
+                    [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 4], [3, 4]],
+                )
+            ),
         }
     all_2_2 = graphs.Complete(4).all_k_extensions(2, 2, True)
     for extension in all_2_2:
         assert str(extension) in {
-            str(Graph.from_vertices_and_edges([0,1,2,3,4], [[0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])),
-            str(Graph.from_vertices_and_edges([0,1,2,3,4], [[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])),
+            str(
+                Graph.from_vertices_and_edges(
+                    [0, 1, 2, 3, 4],
+                    [[0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]],
+                )
+            ),
+            str(
+                Graph.from_vertices_and_edges(
+                    [0, 1, 2, 3, 4],
+                    [[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]],
+                )
+            ),
         }
 
 
 def test_k_extension_fail():
     with pytest.raises(TypeError):
-        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0,1], [0, 2]], dim = -1)
+        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1], [0, 2]], dim=-1)
     with pytest.raises(TypeError):
-        graphs.Complete(6).k_extension(2, [0, 1, 6], [[0,1], [0, 6]], dim = 1)
+        graphs.Complete(6).k_extension(2, [0, 1, 6], [[0, 1], [0, 6]], dim=1)
     with pytest.raises(TypeError):
-        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0,1]], dim = 1)
+        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1]], dim=1)
     with pytest.raises(TypeError):
-        graphs.CompleteBipartite(2, 3).k_extension(2, [0, 1, 2], [[0,1], [0, 2]], dim = 1)
+        graphs.CompleteBipartite(2, 3).k_extension(
+            2, [0, 1, 2], [[0, 1], [0, 2]], dim=1
+        )
     with pytest.raises(TypeError):
-        Graph.from_vertices([0,1,2]).all_k_extensions(1, 1)
-    
+        Graph.from_vertices([0, 1, 2]).all_k_extensions(1, 1)
+
 
 @pytest.mark.parametrize(
     "graph",
     [
         graphs.Complete(2),
         graphs.Complete(3),
-        graphs.CompleteBipartite(3,3),
+        graphs.CompleteBipartite(3, 3),
         graphs.Diamond(),
         graphs.ThreePrism(),
         Graph.from_int(6462968),
@@ -404,23 +493,65 @@ def test_extension_sequence_false(graph):
 
 
 def test_extension_sequence_solution():
-    result = graphs.Complete(2).extension_sequence(return_solution = True)
-    solution = [Graph.from_vertices_and_edges([1], []), Graph.from_vertices_and_edges([0, 1], [[0, 1]])]
+    result = graphs.Complete(2).extension_sequence(return_solution=True)
+    solution = [
+        Graph.from_vertices_and_edges([1], []),
+        Graph.from_vertices_and_edges([0, 1], [[0, 1]]),
+    ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
-    result = graphs.Complete(3).extension_sequence(return_solution = True)
-    solution = [Graph.from_vertices_and_edges([2], []), Graph.from_vertices_and_edges([1, 2], [[1, 2]]), Graph.from_vertices_and_edges([0, 1, 2], [[0, 1], [0, 2], [1, 2]])]
+    result = graphs.Complete(3).extension_sequence(return_solution=True)
+    solution = [
+        Graph.from_vertices_and_edges([2], []),
+        Graph.from_vertices_and_edges([1, 2], [[1, 2]]),
+        Graph.from_vertices_and_edges([0, 1, 2], [[0, 1], [0, 2], [1, 2]]),
+    ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
-    result = graphs.CompleteBipartite(3,3).extension_sequence(return_solution = True)
-    solution = [Graph.from_vertices_and_edges([4], []), Graph.from_vertices_and_edges([3, 4], [[3, 4]]), Graph.from_vertices_and_edges([2, 3, 4], [[2, 3], [2, 4], [3, 4]]), Graph.from_vertices_and_edges([1, 2, 3, 4], [[1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]), Graph.from_vertices_and_edges([1, 2, 3, 4, 5], [[1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4]]), Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5]])]
+    result = graphs.CompleteBipartite(3, 3).extension_sequence(return_solution=True)
+    solution = [
+        Graph.from_vertices_and_edges([4], []),
+        Graph.from_vertices_and_edges([3, 4], [[3, 4]]),
+        Graph.from_vertices_and_edges([2, 3, 4], [[2, 3], [2, 4], [3, 4]]),
+        Graph.from_vertices_and_edges(
+            [1, 2, 3, 4], [[1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+        ),
+        Graph.from_vertices_and_edges(
+            [1, 2, 3, 4, 5], [[1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4]]
+        ),
+        Graph.from_vertices_and_edges(
+            [0, 1, 2, 3, 4, 5],
+            [[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5]],
+        ),
+    ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
-    result = graphs.Diamond().extension_sequence(return_solution = True)
-    solution = [Graph.from_vertices_and_edges([3], []), Graph.from_vertices_and_edges([2, 3], [[2, 3]]), Graph.from_vertices_and_edges([0, 2, 3], [[0, 2], [0, 3], [2, 3]]), Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]])]
+    result = graphs.Diamond().extension_sequence(return_solution=True)
+    solution = [
+        Graph.from_vertices_and_edges([3], []),
+        Graph.from_vertices_and_edges([2, 3], [[2, 3]]),
+        Graph.from_vertices_and_edges([0, 2, 3], [[0, 2], [0, 3], [2, 3]]),
+        Graph.from_vertices_and_edges(
+            [0, 1, 2, 3], [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
+        ),
+    ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
-    result = graphs.ThreePrism().extension_sequence(return_solution = True)
-    solution = [Graph.from_vertices_and_edges([5], []), Graph.from_vertices_and_edges([4, 5], [[4, 5]]), Graph.from_vertices_and_edges([3, 4, 5], [[3, 4], [3, 5], [4, 5]]), Graph.from_vertices_and_edges([1, 3, 4, 5], [[1, 3], [1, 4], [3, 4], [3, 5], [4, 5]]), Graph.from_vertices_and_edges([1, 2, 3, 4, 5], [[1, 2], [1, 3], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]), Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]])]
+    result = graphs.ThreePrism().extension_sequence(return_solution=True)
+    solution = [
+        Graph.from_vertices_and_edges([5], []),
+        Graph.from_vertices_and_edges([4, 5], [[4, 5]]),
+        Graph.from_vertices_and_edges([3, 4, 5], [[3, 4], [3, 5], [4, 5]]),
+        Graph.from_vertices_and_edges(
+            [1, 3, 4, 5], [[1, 3], [1, 4], [3, 4], [3, 5], [4, 5]]
+        ),
+        Graph.from_vertices_and_edges(
+            [1, 2, 3, 4, 5], [[1, 2], [1, 3], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
+        ),
+        Graph.from_vertices_and_edges(
+            [0, 1, 2, 3, 4, 5],
+            [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]],
+        ),
+    ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
