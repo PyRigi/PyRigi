@@ -331,14 +331,14 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a k-extension of the graph, where k = 0.
+        Return a dim-dimensional 0-extension.
 
         Parameters
-        -----
+        ----------
         vertices:
-            A list of vertices
             A new vertex will be connected to these vertices.
-            All the vertices must be contained in the graph and there must be dim of them.
+            All the vertices must be contained in the graph
+            and there must be ``dim`` of them.
         new_vertex:
             Newly added vertex will be named according to this parameter.
             If None, the name will be set as the lowest possible integer value
@@ -346,9 +346,9 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified, otherwise creates
-            a new modified graph while the original graph remains unchanged.
-        -----
+            If True, the graph will be modified,
+            otherwise a new modified graph will be created,
+            while the original graph remains unchanged (default).
         """
         return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
 
@@ -362,17 +362,16 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a k-extension of the graph, where k = 1.
+        Return a dim-dimensional 1-extension.
 
         Parameters
-        -----
+        ----------
         vertices:
-            A list of vertices
             A new vertex will be connected to these vertices.
-            All the vertices must be contained in the graph and there must be
-            dim + 1 of them.
+            All the vertices must be contained in the graph
+            and there must be ``dim + 1`` of them.
         edge:
-            An edge with endvertices from the list ``vertices`` that will be deleted.
+            An edge with endvertices from the list ``vertices``that will be deleted.
             The edge must be contained in the graph.
         new_vertex:
             Newly added vertex will be named according to this parameter.
@@ -381,9 +380,9 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified, otherwise creates
-            a new modified graph while the original graph remains unchanged.
-        -----
+            If True, the graph will be modified,
+            otherwise a new modified graph will be created,
+            while the original graph remains unchanged (default).
         """
         return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
 
@@ -398,20 +397,18 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a k-extension of the graph.
+        Return a dim-dimensional k-extension of the graph.
 
         Parameters
-        -----
+        ----------
         k
         vertices:
-            A list of vertices
             A new vertex will be connected to these vertices.
-            All the vertices must be contained in the graph and there must be
-            dim + k of them.
+            All the vertices must be contained in the graph
+            and there must be ``dim + k`` of them.
         edges:
-            A list of edges between vertices passed by the parameter vertices
-            that will be deleted.
-            The endvertices of all the edges must be contained contained
+            A list of edges that will be deleted.
+            The endvertices of all the edges must be contained
             in the list ``vertices``.
             The edges must be contained in the graph and there must be k of them.
         new_vertex:
@@ -421,9 +418,9 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified, otherwise creates
-            a new modified graph while the original graph remains unchanged.
-        -----
+            If True, the graph will be modified,
+            otherwise a new modified graph will be created,
+            while the original graph remains unchanged (default).
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -468,13 +465,14 @@ class Graph(nx.Graph):
         self, k: int, dim: int = 2, only_non_isomorphic: bool = False
     ) -> List[Graph]:
         """
-        Return list of all possible k-extensions of the graph.
+        Return the list of all possible dim-dimensional k-extensions.
 
         Parameters
-        -----
+        ----------
         k
-        dim:
-            The dimension in which the k-extensions are created.
+        dim
+        only_non_isomorphic:
+            If True, only one graph per isomorphism class is included.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -522,14 +520,15 @@ class Graph(nx.Graph):
         Check if a graph can be created by a sequence of extensions.
 
         Parameters
-        -----
+        ----------
         dim:
             The dimension in which the extensions are created.
+            Currently implemented only for ``dim==2``.
         return_solution:
-            If False, returns a bool value indicating if the graph can be
-            created by a sequence of extensions
-            If True, returns one extension sequence that creates the graph
-            or None if no such extension sequence exists
+            If False, a boolean value indicating if the graph can be
+            created by a sequence of extensions is returned.
+            If True, an extension sequence of graphs that creates the graph
+            is returned, or None if no such extension sequence exists.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
