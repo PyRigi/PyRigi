@@ -552,10 +552,11 @@ class Graph(nx.Graph):
             G = deepcopy(self)
             G.remove_node(degrees[0][0])
             branch = G.extension_sequence(dim, return_solution)
-            if not branch == None:
-                if return_solution:
+            if return_solution:
+                if not branch == None:
                     return branch + [self]
-                return True
+                return None
+            return branch
         if degrees[0][1] == 3:
             neighbors = list(self.neighbors(degrees[0][0]))
             G = deepcopy(self)
@@ -564,9 +565,9 @@ class Graph(nx.Graph):
                 if not G.has_edge(neighbors[i], neighbors[j]):
                     G.add_edge(neighbors[i], neighbors[j])
                     branch = G.extension_sequence(dim, return_solution)
-                    if not branch == None:
-                        if return_solution:
-                            return branch + [self]
+                    if return_solution and not branch == None:
+                        return branch + [self]
+                    elif branch:
                         return True
                     G.remove_edge(neighbors[i], neighbors[j])
         if return_solution:
