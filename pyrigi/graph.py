@@ -97,6 +97,28 @@ class Graph(nx.Graph):
         """
         return self.__str__()
 
+    def __eq__(self, other: Graph):
+        """
+        Return whether the other graph has the same vertices and edges.
+
+        Note
+        ----
+        :func:`~networkx.utils.misc.graphs_equal(self, other)`
+        behaves strange, hence it is not used.
+        """
+        if (
+            self.number_of_edges() != other.number_of_edges()
+            or self.number_of_nodes() != other.number_of_nodes()
+        ):
+            return False
+        for v in self.nodes:
+            if v not in other.nodes:
+                return False
+        for e in self.edges:
+            if not other.has_edge(*e):
+                return False
+        return True
+
     @classmethod
     @doc_category("Class methods")
     def from_vertices_and_edges(
