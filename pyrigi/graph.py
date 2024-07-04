@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from typing import List, Any, Union
+from typing import List, Union
 
 import networkx as nx
 from sympy import Matrix
@@ -329,7 +329,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> Any:
+    ) -> Graph:
         """
         Return a k-extension of the graph, where k = 0.
 
@@ -360,7 +360,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> Any:
+    ) -> Graph:
         """
         Return a k-extension of the graph, where k = 1.
 
@@ -396,7 +396,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> Any:
+    ) -> Graph:
         """
         Return a k-extension of the graph.
 
@@ -466,7 +466,7 @@ class Graph(nx.Graph):
     @doc_category("Graph manipulation")
     def all_k_extensions(
         self, k: int, dim: int = 2, only_non_isomorphic: bool = False
-    ) -> list:
+    ) -> List[Graph]:
         """
         Return list of all possible k-extensions of the graph.
 
@@ -515,7 +515,9 @@ class Graph(nx.Graph):
         return solutions
 
     @doc_category("Graph manipulation")
-    def extension_sequence(self, dim: int = 2, return_solution: bool = False) -> Any:
+    def extension_sequence(
+        self, dim: int = 2, return_solution: bool = False
+    ) -> Union[List[Graph], bool]:
         """
         Check if a graph can be created by a sequence of extensions.
 
