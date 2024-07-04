@@ -539,24 +539,16 @@ class Graph(nx.Graph):
             if self.number_of_edges() == 1:
                 G = deepcopy(self)
                 G.remove_node(list(G.nodes)[0])
-                if return_solution:
-                    return [G, self]
-                return True
-            if return_solution:
-                return None
-            return False
+                return [G, self] if return_solution else True
+            return None if return_solution else False
         if (
             self.number_of_nodes() < 2
             or not self.number_of_edges() == 2 * self.number_of_nodes() - 3
         ):
-            if return_solution:
-                return None
-            return False
+            return None if return_solution else False
         degrees = sorted(self.degree, key=lambda node: node[1])
         if degrees[0][1] < 2 or degrees[0][1] > 3:
-            if return_solution:
-                return None
-            return False
+            return None if return_solution else False
         if degrees[0][1] == 2:
             G = deepcopy(self)
             G.remove_node(degrees[0][0])
@@ -579,9 +571,7 @@ class Graph(nx.Graph):
                     elif branch:
                         return True
                     G.remove_edge(neighbors[i], neighbors[j])
-        if return_solution:
-            return None
-        return False
+        return None if return_solution else False
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
