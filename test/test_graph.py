@@ -466,9 +466,12 @@ def test_k_extension_fail():
         graphs.CompleteBipartite(3, 3),
         graphs.Diamond(),
         graphs.ThreePrism(),
+        graphs.CubeWithDiagonal(),
         Graph.from_int(6462968),
         Graph.from_int(69380589),
         Graph.from_int(19617907),
+        Graph.from_int(170993054),
+        Graph.from_int(173090142),
     ],
 )
 def test_extension_sequence(graph):
