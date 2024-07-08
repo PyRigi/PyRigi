@@ -464,10 +464,15 @@ class Graph(nx.Graph):
 
     @doc_category("Graph manipulation")
     def all_k_extensions(
-        self, k: int, dim: int = 2, only_non_isomorphic: bool = False
+        self,
+        k: int,
+        dim: int = 2,
+        only_non_isomorphic: bool = False,
+        return_iterator: bool = False,
     ) -> List[Graph]:
         """
-        Return the list of all possible dim-dimensional k-extensions.
+        Return the list of all possible dim-dimensional
+        k-extensions or an iterator over them.
 
         Parameters
         ----------
@@ -475,6 +480,9 @@ class Graph(nx.Graph):
         dim
         only_non_isomorphic:
             If True, only one graph per isomorphism class is included.
+        return_iterator:
+            If True, returns an iterator over all possible dim-dimensional k-extensions,
+            else returns a list of all possible dim-dimensional k-extensions.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -512,7 +520,7 @@ class Graph(nx.Graph):
                     if isomorphic:
                         continue
                 solutions.append(current)
-        return solutions
+        return iter(solutions) if return_iterator else solutions
 
     @doc_category("Graph manipulation")
     def extension_sequence(
