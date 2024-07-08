@@ -430,7 +430,9 @@ class Graph(nx.Graph):
             if vertex not in self.nodes:
                 raise ValueError(f"Vertex {vertex} is not contained in the graph")
         if len(set(vertices)) != dim + k:
-            raise ValueError(f"List of vertices must contain {dim + k} distinct vertices")
+            raise ValueError(
+                f"List of vertices must contain {dim + k} distinct vertices"
+            )
         for edge in edges:
             if (
                 len(edge) != 2
@@ -480,8 +482,8 @@ class Graph(nx.Graph):
             )
         if self.number_of_nodes() < (dim + k):
             raise ValueError(
-                f"The number of nodes in the graph needs to be 
-                greater or equal than {dim + k}!"
+                f"The number of nodes in the graph needs to be "
+                f"greater or equal than {dim + k}!"
             )
         if self.number_of_edges() < k:
             raise ValueError(

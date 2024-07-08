@@ -441,20 +441,63 @@ def test_all_k_extensions():
                 )
             ),
         }
+    all_diamond_0_2 = graphs.Diamond().all_k_extensions(0, 2, True)
+    assert (
+        len(all_diamond_0_2) == 3
+        and str(all_diamond_0_2[0])
+        == str(
+            Graph.from_vertices_and_edges(
+                [0, 1, 2, 3, 4],
+                [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3]],
+            )
+        )
+        and str(all_diamond_0_2[1])
+        == str(
+            Graph.from_vertices_and_edges(
+                [0, 1, 2, 3, 4],
+                [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [2, 3], [2, 4]],
+            )
+        )
+        and str(all_diamond_0_2[2])
+        == str(
+            Graph.from_vertices_and_edges(
+                [0, 1, 2, 3, 4],
+                [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 3], [3, 4]],
+            )
+        )
+    )
+    all_diamond_1_2 = graphs.Diamond().all_k_extensions(1, 2, True)
+    assert (
+        len(all_diamond_1_2) == 2
+        and str(all_diamond_1_2[0])
+        == str(
+            Graph.from_vertices_and_edges(
+                [0, 1, 2, 3, 4],
+                [[0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3], [2, 4]],
+            )
+        )
+        and str(all_diamond_1_2[1])
+        == str(
+            Graph.from_vertices_and_edges(
+                [0, 1, 2, 3, 4],
+                [[0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3], [3, 4]],
+            )
+        )
+    )
 
 
 def test_k_extension_fail():
     with pytest.raises(TypeError):
         graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1], [0, 2]], dim=-1)
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         graphs.Complete(6).k_extension(2, [0, 1, 6], [[0, 1], [0, 6]], dim=1)
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1]], dim=1)
     with pytest.raises(TypeError):
         graphs.CompleteBipartite(2, 3).k_extension(
             2, [0, 1, 2], [[0, 1], [0, 2]], dim=1
         )
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         Graph.from_vertices([0, 1, 2]).all_k_extensions(1, 1)
 
 
@@ -472,6 +515,8 @@ def test_k_extension_fail():
         Graph.from_int(19617907),
         Graph.from_int(170993054),
         Graph.from_int(173090142),
+        Graph.from_vertices([0]),
+        Graph.from_vertices([]),
     ],
 )
 def test_extension_sequence(graph):
@@ -496,6 +541,18 @@ def test_extension_sequence_false(graph):
 
 
 def test_extension_sequence_solution():
+    result = Graph.from_vertices([0]).extension_sequence(return_solution=True)
+    solution = [
+        Graph.from_vertices([0]),
+    ]
+    for i in range(len(result)):
+        assert str(result[i]) == str(solution[i])
+    result = Graph.from_vertices([]).extension_sequence(return_solution=True)
+    solution = [
+        Graph.from_vertices([]),
+    ]
+    for i in range(len(result)):
+        assert str(result[i]) == str(solution[i])
     result = graphs.Complete(2).extension_sequence(return_solution=True)
     solution = [
         Graph.from_vertices_and_edges([1], []),
