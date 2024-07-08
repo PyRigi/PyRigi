@@ -546,17 +546,10 @@ class Graph(nx.Graph):
             )
         if not dim == 2:
             raise NotImplementedError()
+        if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
+            return None if return_solution else False
         if self.number_of_nodes() == 2:
-            if self.number_of_edges() == 1:
-                G = deepcopy(self)
-                G.remove_node(list(G.nodes)[0])
-                return [G, self] if return_solution else True
-            return None if return_solution else False
-        if (
-            self.number_of_nodes() < 2
-            or not self.number_of_edges() == 2 * self.number_of_nodes() - 3
-        ):
-            return None if return_solution else False
+            return [self] if return_solution else True
         degrees = sorted(self.degree, key=lambda node: node[1])
         if degrees[0][1] < 2 or degrees[0][1] > 3:
             return None if return_solution else False

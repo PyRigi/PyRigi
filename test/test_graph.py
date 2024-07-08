@@ -539,14 +539,12 @@ def test_extension_sequence_false(graph):
 def test_extension_sequence_solution():
     result = graphs.Complete(2).extension_sequence(return_solution=True)
     solution = [
-        Graph.from_vertices_and_edges([1], []),
         Graph.from_vertices_and_edges([0, 1], [[0, 1]]),
     ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
     result = graphs.Complete(3).extension_sequence(return_solution=True)
     solution = [
-        Graph.from_vertices_and_edges([2], []),
         Graph.from_vertices_and_edges([1, 2], [[1, 2]]),
         Graph.from_vertices_and_edges([0, 1, 2], [[0, 1], [0, 2], [1, 2]]),
     ]
@@ -554,7 +552,6 @@ def test_extension_sequence_solution():
         assert str(result[i]) == str(solution[i])
     result = graphs.CompleteBipartite(3, 3).extension_sequence(return_solution=True)
     solution = [
-        Graph.from_vertices_and_edges([4], []),
         Graph.from_vertices_and_edges([3, 4], [[3, 4]]),
         Graph.from_vertices_and_edges([2, 3, 4], [[2, 3], [2, 4], [3, 4]]),
         Graph.from_vertices_and_edges(
@@ -572,7 +569,6 @@ def test_extension_sequence_solution():
         assert str(result[i]) == str(solution[i])
     result = graphs.Diamond().extension_sequence(return_solution=True)
     solution = [
-        Graph.from_vertices_and_edges([3], []),
         Graph.from_vertices_and_edges([2, 3], [[2, 3]]),
         Graph.from_vertices_and_edges([0, 2, 3], [[0, 2], [0, 3], [2, 3]]),
         Graph.from_vertices_and_edges(
@@ -583,7 +579,6 @@ def test_extension_sequence_solution():
         assert str(result[i]) == str(solution[i])
     result = graphs.ThreePrism().extension_sequence(return_solution=True)
     solution = [
-        Graph.from_vertices_and_edges([5], []),
         Graph.from_vertices_and_edges([4, 5], [[4, 5]]),
         Graph.from_vertices_and_edges([3, 4, 5], [[3, 4], [3, 5], [4, 5]]),
         Graph.from_vertices_and_edges(
