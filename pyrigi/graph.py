@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from typing import List, Union
+from typing import List, Union, Iterable
 
 import networkx as nx
 from sympy import Matrix
@@ -468,11 +468,9 @@ class Graph(nx.Graph):
         k: int,
         dim: int = 2,
         only_non_isomorphic: bool = False,
-        return_iterator: bool = False,
-    ) -> List[Graph]:
+    ) -> Iterable[Graph]:
         """
-        Return the list of all possible dim-dimensional
-        k-extensions or an iterator over them.
+        Return an iterator over all possible dim-dimensional k-extensions.
 
         Parameters
         ----------
@@ -480,9 +478,6 @@ class Graph(nx.Graph):
         dim
         only_non_isomorphic:
             If True, only one graph per isomorphism class is included.
-        return_iterator:
-            If True, returns an iterator over all possible dim-dimensional k-extensions,
-            else returns a list of all possible dim-dimensional k-extensions.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -512,15 +507,14 @@ class Graph(nx.Graph):
             for vertices in combinations(s, dim + k - len(w)):
                 current = self.k_extension(k, list(vertices) + w, edges, dim=dim)
                 if only_non_isomorphic:
-                    isomorphic = False
                     for other in solutions:
                         if current.is_isomorphic(other):
-                            isomorphic = True
                             break
-                    if isomorphic:
-                        continue
-                solutions.append(current)
-        return iter(solutions) if return_iterator else solutions
+                    else:
+                        solutions.append(current)
+                        yield current
+                else:
+                    yield current
 
     @doc_category("Graph manipulation")
     def extension_sequence(

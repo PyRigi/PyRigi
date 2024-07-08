@@ -385,8 +385,7 @@ def test_k_extension():
 
 
 def test_all_k_extensions():
-    all_1_1 = graphs.Complete(4).all_k_extensions(1, 1)
-    for extension in all_1_1:
+    for extension in graphs.Complete(4).all_k_extensions(1, 1):
         assert str(extension) in {
             str(
                 Graph.from_vertices_and_edges(
@@ -425,8 +424,9 @@ def test_all_k_extensions():
                 )
             ),
         }
-    all_2_2 = graphs.Complete(4).all_k_extensions(2, 2, only_non_isomorphic=True)
-    for extension in all_2_2:
+    for extension in graphs.Complete(4).all_k_extensions(
+        2, 2, only_non_isomorphic=True
+    ):
         assert str(extension) in {
             str(
                 Graph.from_vertices_and_edges(
@@ -441,7 +441,9 @@ def test_all_k_extensions():
                 )
             ),
         }
-    all_diamond_0_2 = graphs.Diamond().all_k_extensions(0, 2, only_non_isomorphic=True)
+    all_diamond_0_2 = list(
+        graphs.Diamond().all_k_extensions(0, 2, only_non_isomorphic=True)
+    )
     assert (
         len(all_diamond_0_2) == 3
         and str(all_diamond_0_2[0])
@@ -466,9 +468,7 @@ def test_all_k_extensions():
             )
         )
     )
-    all_diamond_1_2 = graphs.Diamond().all_k_extensions(
-        1, 2, only_non_isomorphic=True, return_iterator=True
-    )
+    all_diamond_1_2 = graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)
     assert str(next(all_diamond_1_2)) == str(
         Graph.from_vertices_and_edges(
             [0, 1, 2, 3, 4],
@@ -494,7 +494,7 @@ def test_k_extension_fail():
             2, [0, 1, 2], [[0, 1], [0, 2]], dim=1
         )
     with pytest.raises(ValueError):
-        Graph.from_vertices([0, 1, 2]).all_k_extensions(1, 1)
+        list(Graph.from_vertices([0, 1, 2]).all_k_extensions(1, 1))
 
 
 @pytest.mark.parametrize(
