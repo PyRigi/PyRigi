@@ -428,9 +428,9 @@ class Graph(nx.Graph):
             )
         for vertex in vertices:
             if vertex not in self.nodes:
-                raise TypeError(f"Vertex {vertex} is not contained in the graph")
+                raise ValueError(f"Vertex {vertex} is not contained in the graph")
         if len(set(vertices)) != dim + k:
-            raise TypeError("List of vertices must contain dim + k distinct vertices")
+            raise ValueError(f"List of vertices must contain {dim + k} distinct vertices")
         for edge in edges:
             if (
                 len(edge) != 2
@@ -444,14 +444,14 @@ class Graph(nx.Graph):
                     "or has adjacent vertices that were not passed to the function"
                 )
         if len(edges) != k:
-            raise TypeError("List of edges must contain k distinct edges")
+            raise ValueError(f"List of edges must contain {k} distinct edges")
         if new_vertex is None:
             candidate = self.number_of_nodes()
             while candidate in self.nodes:
                 candidate += 1
             new_vertex = candidate
         if new_vertex in self.nodes:
-            raise KeyError(f"Vertex {new_vertex} is already a vertex of the graph!")
+            raise ValueError(f"Vertex {new_vertex} is already a vertex of the graph!")
         G = self
         if not inplace:
             G = deepcopy(self)
@@ -479,13 +479,13 @@ class Graph(nx.Graph):
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if self.number_of_nodes() < (dim + k):
-            raise TypeError(
-                "The number of nodes in the graph needs to be "
-                "greater or equal than the dimension + k!"
+            raise ValueError(
+                f"The number of nodes in the graph needs to be 
+                greater or equal than {dim + k}!"
             )
         if self.number_of_edges() < k:
-            raise TypeError(
-                "The number of edges in the graph needs to be greater or equal than k!"
+            raise ValueError(
+                f"The number of edges in the graph needs to be greater or equal than {k}!"
             )
         solutions = []
         for edges in combinations(self.edges, k):
@@ -536,6 +536,8 @@ class Graph(nx.Graph):
             )
         if not dim == 2:
             raise NotImplementedError()
+        if self.number_of_nodes() < 2:
+            return [self] if return_solution else True
         if self.number_of_nodes() == 2:
             if self.number_of_edges() == 1:
                 G = deepcopy(self)
