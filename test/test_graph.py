@@ -511,8 +511,6 @@ def test_k_extension_fail():
         Graph.from_int(19617907),
         Graph.from_int(170993054),
         Graph.from_int(173090142),
-        Graph.from_vertices([0]),
-        Graph.from_vertices([]),
     ],
 )
 def test_extension_sequence(graph):
@@ -530,6 +528,8 @@ def test_extension_sequence(graph):
         graphs.ThreePrismPlusEdge(),
         Graph.from_int(2269176),
         Graph.from_int(19650659),
+        Graph.from_vertices([0]),
+        Graph.from_vertices([]),
     ],
 )
 def test_extension_sequence_false(graph):
@@ -537,18 +537,6 @@ def test_extension_sequence_false(graph):
 
 
 def test_extension_sequence_solution():
-    result = Graph.from_vertices([0]).extension_sequence(return_solution=True)
-    solution = [
-        Graph.from_vertices([0]),
-    ]
-    for i in range(len(result)):
-        assert str(result[i]) == str(solution[i])
-    result = Graph.from_vertices([]).extension_sequence(return_solution=True)
-    solution = [
-        Graph.from_vertices([]),
-    ]
-    for i in range(len(result)):
-        assert str(result[i]) == str(solution[i])
     result = graphs.Complete(2).extension_sequence(return_solution=True)
     solution = [
         Graph.from_vertices_and_edges([1], []),

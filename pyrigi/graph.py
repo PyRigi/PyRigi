@@ -546,8 +546,6 @@ class Graph(nx.Graph):
             )
         if not dim == 2:
             raise NotImplementedError()
-        if self.number_of_nodes() < 2:
-            return [self] if return_solution else True
         if self.number_of_nodes() == 2:
             if self.number_of_edges() == 1:
                 G = deepcopy(self)
