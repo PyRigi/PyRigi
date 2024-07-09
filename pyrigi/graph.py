@@ -411,7 +411,24 @@ class Graph(nx.Graph):
             If True, the graph will be modified,
             otherwise a new modified graph will be created,
             while the original graph remains unchanged (default).
-        """
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G.zero_extension([0, 2])
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
+        >>> G.zero_extension([0, 2], 5)
+        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [2, 5]]
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G.zero_extension([0, 1, 2], 5, dim=3, inplace=True);
+        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
+        >>> G
+        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
+        """  # noqa: E501
         return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
 
     @doc_category("Graph manipulation")
@@ -483,6 +500,10 @@ class Graph(nx.Graph):
             If True, the graph will be modified,
             otherwise a new modified graph will be created,
             while the original graph remains unchanged (default).
+
+        Notes
+        -----
+        See also :meth:`~Graph.zero_extension` and :meth:`~Graph.one_extension`.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -530,6 +551,20 @@ class Graph(nx.Graph):
         dim
         only_non_isomorphic:
             If True, only one graph per isomorphism class is included.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> type(G.all_k_extensions(0))
+        <class 'generator'>
+        >>> len(list(G.all_k_extensions(0)))
+        3
+        >>> len(list(G.all_k_extensions(0, only_non_isomorphic=True)))
+        1
+
+        >>> len(list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)))
+        2
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
