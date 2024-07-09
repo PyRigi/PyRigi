@@ -8,4 +8,5 @@ api/graphDB
 api/frameworkDB
 api/motion
 api/datatype
+api/misc
 :::

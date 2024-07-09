@@ -533,3 +533,47 @@ def test_extension_sequence_solution():
         assert str(result[i]) == str(G)
         if i < len(solution_ext):
             G.k_extension(*solution_ext[i], dim=2, inplace=True)
+
+
+def test_check_edge_list():
+    G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
+    G._check_edge((1, 2))
+    G._check_edge([3, 2])
+    G._check_edge_list([(1, 2), (2, 3)])
+    G._check_edge_list([(1, 2)], [1, 2])
+    G._check_edge_list([(2, 3)], [2, 3])
+    with pytest.raises(ValueError):
+        G._check_edge((1, 3))
+    with pytest.raises(ValueError):
+        G._check_edge((1, 4))
+    with pytest.raises(ValueError):
+        G._check_edge_list([(1, 2), (1, 3), (2, 3)])
+    with pytest.raises(ValueError):
+        G._check_edge_list([(1, 2), (2, 3)], [1, 2])
+    with pytest.raises(TypeError):
+        G._check_edge_list([(2,)])
+    with pytest.raises(TypeError):
+        G._check_edge_list([2, 3])
+    with pytest.raises(TypeError):
+        G._check_edge_list(["23"])
+
+
+def test_check_edge_format_list():
+    G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
+    G._check_edge_format((1, 3))
+    G._check_edge_format([3, 1])
+    G._check_edge_format_list([(1, 2), (1, 3)])
+    G._check_edge_format_list([(1, 2), (1, 3), (2, 3)])
+    with pytest.raises(ValueError):
+        G._check_edge_format((1, 4))
+    with pytest.raises(TypeError):
+        G._check_edge_format_list([(2,)])
+    with pytest.raises(TypeError):
+        G._check_edge_format_list([2, 3])
+    with pytest.raises(TypeError):
+        G._check_edge_format_list(["23"])
+    with pytest.raises(LoopError):
+        G._check_edge_format([3, 3])
+    with pytest.raises(LoopError):
+        G._check_edge_format_list([(1, 1), (1, 3), (2, 3)])
+

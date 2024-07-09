@@ -15,6 +15,9 @@ A $d$-dimensional _realization_ of $G$ is a map $p\colon V\rightarrow \RR^d$.
 For convenience, for $v \in V$ we may denote $p(v)$ by $p_v$.
 
 The realization $p$ is _quasi-injective_ if $p(u)\neq p(v)$ for every edge $uv\in E$.
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_injective`
+{meth}`~.Framework.is_quasi_injective`
 :::
 
 

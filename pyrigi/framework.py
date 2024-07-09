@@ -16,14 +16,14 @@ from __future__ import annotations
 from typing import List, Any, Dict, Union
 
 from copy import deepcopy
+from itertools import combinations
 from random import randrange
 
 import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
 
-
-from pyrigi.data_type import Vertex, Edge, Point, FrameworkType
+from pyrigi.data_type import Vertex, Edge, Point, point_to_vector
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -31,6 +31,7 @@ from pyrigi.misc import (
     doc_category,
     generate_category_tables,
     check_integrality_and_range,
+    is_zero_vector,
 )
 
 
@@ -128,7 +129,7 @@ class Framework(object):
         """Return the representation"""
         return self.__str__()
 
-    def __getitem__(self, vertex) -> Point:
+    def __getitem__(self, vertex: Vertex) -> Matrix:
         """
         Return the coordinates corresponding to the image
         of a given vertex under the realization map.
@@ -237,14 +238,7 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        if not (len(edge)) == 2:
-            raise ValueError(f"Edge {edge} does not have the correct length.")
-        if edge[0] == edge[1]:
-            raise LoopError("Edges cannot be loops.")
-        if not (edge[0] in self._graph.nodes and edge[1] in self._graph.nodes):
-            raise ValueError(
-                f"The adjacent vertices of {edge} are not contained in the graph."
-            )
+        self._graph._check_edge_format(edge)
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
@@ -295,7 +289,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def from_points(cls, points: List[Point]) -> None:
+    def from_points(cls, points: List[Point]) -> Framework:
         """
         Generate a framework from a list of points.
 
@@ -319,7 +313,7 @@ class Framework(object):
     @doc_category("Class methods")
     def Random(
         cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
-    ) -> FrameworkType:
+    ) -> Framework:
         """
         Return a framework with random realization.
 
@@ -360,7 +354,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Circular(cls, graph: Graph):
+    def Circular(cls, graph: Graph) -> Framework:
         """
         Return the framework with a regular unit circle realization in the plane.
 
@@ -379,7 +373,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Collinear(cls, graph: Graph, d: int = 1):
+    def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
@@ -398,7 +392,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Simplicial(cls, graph: Graph, d: int = None):
+    def Simplicial(cls, graph: Graph, d: int = None) -> Framework:
         """
         Return the framework with a realization on the d-simplex.
 
@@ -428,7 +422,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Empty(cls, dim: int = 2) -> FrameworkType:
+    def Empty(cls, dim: int = 2) -> Framework:
         """
         Generate an empty framework.
 
@@ -452,7 +446,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Complete(cls, points: List[Point]) -> FrameworkType:
+    def Complete(cls, points: List[Point]) -> Framework:
         """
         Generate a framework on the complete graph from a given list of points.
 
@@ -558,6 +552,40 @@ class Framework(object):
                 vertex: [float(p) for p in position]
                 for vertex, position in self._realization.items()
             }
+
+    @doc_category("Framework properties")
+    def is_quasi_injective(
+        self, numerical: bool = False, tolerance: float = 1e-9
+    ) -> bool:
+        """
+        Return whether the realization is :prf:ref:`quasi-injective <def-realization>`.
+
+        For comparing whether two vectors are the same,
+        :func:`.misc.is_zero_vector` is used.
+        See its documentation for the description of the parameters.
+        """
+
+        for u, v in self._graph.edges:
+            edge_vector = self[u] - self[v]
+            if is_zero_vector(edge_vector, numerical, tolerance):
+                return False
+        return True
+
+    @doc_category("Framework properties")
+    def is_injective(self, numerical: bool = False, tolerance: float = 1e-9) -> bool:
+        """
+        Return whether the realization is injective.
+
+        For comparing whether two vectors are the same,
+        :func:`.misc.is_zero_vector` is used.
+        See its documentation for the description of the parameters.
+        """
+
+        for u, v in combinations(self._graph.nodes, 2):
+            edge_vector = self[u] - self[v]
+            if is_zero_vector(edge_vector, numerical, tolerance):
+                return False
+        return True
 
     @doc_category("Framework manipulation")
     def set_realization(self, realization: Dict[Vertex, Point]) -> None:
@@ -1082,13 +1110,203 @@ class Framework(object):
             self.add_edge(edge)
         return True
 
-    @doc_category("Waiting for implementation")
-    def is_congruent(self, framework_) -> bool:
-        raise NotImplementedError()
+    @doc_category("Framework properties")
+    def is_congruent_realization(
+        self,
+        other_realization: Dict[Vertex, Point],
+        numerical: bool = False,
+        tolerance: float = 10e-9,
+    ) -> bool:
+        """
+        Return whether the given realization is congruent to self.
 
-    @doc_category("Waiting for implementation")
-    def is_equivalent(self, framework_) -> bool:
-        raise NotImplementedError()
+        Parameters
+        ----------
+        other_realization
+            The realization for checking the congruence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+        """
+
+        if set(self._graph.nodes) != set(other_realization.keys()):
+            raise ValueError(
+                "Not all vertices have a realization in the given dictionary."
+            )
+
+        for u, v in combinations(self._graph.nodes, 2):
+            edge_vec = (self._realization[u]) - self._realization[v]
+            dist_squared = (edge_vec.T * edge_vec)[0, 0]
+
+            other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
+                other_realization[v]
+            )
+            otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
+
+            difference = sp.simplify(dist_squared - otherdist_squared)
+            if not difference.is_zero:
+                if not numerical:
+                    return False
+                elif numerical and sp.Abs(difference) > tolerance:
+                    return False
+        return True
+
+    @doc_category("Framework properties")
+    def is_congruent(
+        self,
+        other_framework: Framework,
+        numerical: bool = False,
+        tolerance: float = 10e-9,
+    ) -> bool:
+        """
+        Return whether the given framework is congruent to self.
+
+        Parameters
+        ----------
+        other_framework
+            The framework for checking the congruence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+        """
+
+        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+            raise ValueError("Underlying graphs are not same.")
+
+        return self.is_congruent_realization(
+            other_framework._realization, numerical, tolerance
+        )
+
+    @doc_category("Framework properties")
+    def is_equivalent_realization(
+        self,
+        other_realization: Dict[Vertex, Point],
+        numerical: bool = False,
+        tolerance: float = 10e-9,
+    ) -> bool:
+        """
+        Return whether the given realization is equivalent to self.
+
+        Parameters
+        ----------
+        other_realization
+            The realization for checking the equivalence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+        """
+
+        if set(self._graph.nodes) != set(other_realization.keys()):
+            raise ValueError(
+                "Not all vertices have a realization in the given dictionary."
+            )
+
+        for u, v in self._graph.edges:
+
+            edge_vec = self._realization[u] - self._realization[v]
+            dist_squared = (edge_vec.T * edge_vec)[0, 0]
+
+            other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
+                other_realization[v]
+            )
+            otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
+
+            difference = sp.simplify(otherdist_squared - dist_squared)
+            if not difference.is_zero:
+                if not numerical:
+                    return False
+                elif numerical and sp.Abs(difference) > tolerance:
+                    return False
+        return True
+
+    @doc_category("Framework properties")
+    def is_equivalent(
+        self,
+        other_framework: Framework,
+        numerical: bool = False,
+        tolerance: float = 10e-9,
+    ) -> bool:
+        """
+        Return whether the given framework is equivalent to self.
+
+        Parameters
+        ----------
+        other_framework
+            The framework for checking the equivalence.
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+        """
+
+        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+            raise ValueError("Underlying graphs are not same.")
+        return self.is_equivalent_realization(
+            other_framework._realization, numerical, tolerance
+        )
+
+    @doc_category("Framework manipulation")
+    def translate(self, vector: Point, inplace: bool = True) -> Union[None, Framework]:
+        """
+        Translate the framework.
+
+        Parameters
+        ----------
+        vector
+            Translation vector
+        inplace
+            If True (default), then this framework is translated.
+            Otherwise, a new translated framework is returned.
+        """
+
+        vector = point_to_vector(vector)
+
+        if inplace:
+            if vector.shape[0] != self.dim():
+                raise ValueError(
+                    "The dimension of the vector has to be the same as of the framework."
+                )
+
+            for v in self._realization.keys():
+                self._realization[v] += vector
+            return
+
+        new_framework = deepcopy(self)
+        new_framework.translate(vector, True)
+        return new_framework
+
+    @doc_category("Framework manipulation")
+    def rotate2D(self, angle: float, inplace: bool = True) -> Union[None, Framework]:
+        """
+        Rotate the planar framework counter clockwise.
+
+        Parameters
+        ----------
+        angle
+            Rotation angle
+        inplace
+            If True (default), then this framework is rotated.
+            Otherwise, a new rotated framework is returned.
+        """
+
+        if self.dim() != 2:
+            raise ValueError("This realization is not in dimension 2!")
+
+        rotation_matrix = Matrix(
+            [[sp.cos(angle), -sp.sin(angle)], [sp.sin(angle), sp.cos(angle)]]
+        )
+
+        if inplace:
+            for v, pos in self._realization.items():
+                self._realization[v] = rotation_matrix * pos
+            return
+
+        new_framework = deepcopy(self)
+        new_framework.rotate2D(angle, True)
+        return new_framework
 
 
 Framework.__doc__ = Framework.__doc__.replace(
@@ -1098,6 +1316,7 @@ Framework.__doc__ = Framework.__doc__.replace(
         1,
         [
             "Attribute getters",
+            "Framework properties",
             "Class methods",
             "Framework manipulation",
             "Infinitesimal rigidity",
