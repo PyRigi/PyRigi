@@ -414,7 +414,7 @@ def test_k_extension_fail():
         graphs.Complete(6).k_extension(2, [0, 1, 6], [[0, 1], [0, 6]], dim=1)
     with pytest.raises(ValueError):
         graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1]], dim=1)
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         graphs.CompleteBipartite(2, 3).k_extension(
             2, [0, 1, 2], [[0, 1], [0, 2]], dim=1
         )
@@ -576,4 +576,3 @@ def test_check_edge_format_list():
         G._check_edge_format([3, 3])
     with pytest.raises(LoopError):
         G._check_edge_format_list([(1, 1), (1, 3), (2, 3)])
-

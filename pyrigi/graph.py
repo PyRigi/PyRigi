@@ -495,18 +495,7 @@ class Graph(nx.Graph):
             raise ValueError(
                 f"List of vertices must contain {dim + k} distinct vertices"
             )
-        for edge in edges:
-            if (
-                len(edge) != 2
-                or edge[0] not in vertices
-                or edge[1] not in vertices
-                or edge not in self.edges
-            ):
-                raise TypeError(
-                    f"Edge {edge} does not have the correct format, "
-                    "is not contained in the graph "
-                    "or has adjacent vertices that were not passed to the function"
-                )
+        self._check_edge_list(edges, vertices)
         if len(edges) != k:
             raise ValueError(f"List of edges must contain {k} distinct edges")
         if new_vertex is None:
