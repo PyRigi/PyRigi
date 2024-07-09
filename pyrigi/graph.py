@@ -393,7 +393,7 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a dim-dimensional 0-extension.
+        Return a :prf:ref:`dim-dimensional 0-extension <def-k-extension>`.
 
         Parameters
         ----------
@@ -424,7 +424,7 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a dim-dimensional 1-extension.
+        Return a :prf:ref:`dim-dimensional 1-extension <def-k-extension>`.
 
         Parameters
         ----------
@@ -433,7 +433,7 @@ class Graph(nx.Graph):
             All the vertices must be contained in the graph
             and there must be ``dim + 1`` of them.
         edge:
-            An edge with endvertices from the list ``vertices``that will be deleted.
+            An edge with endvertices from the list ``vertices`` that will be deleted.
             The edge must be contained in the graph.
         new_vertex:
             Newly added vertex will be named according to this parameter.
@@ -459,7 +459,7 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a dim-dimensional k-extension of the graph.
+        Return a :prf:ref:`dim-dimensional k-extension <def-k-extension>`.
 
         Parameters
         ----------
@@ -521,7 +521,8 @@ class Graph(nx.Graph):
         only_non_isomorphic: bool = False,
     ) -> Iterable[Graph]:
         """
-        Return an iterator over all possible dim-dimensional k-extensions.
+        Return an iterator over all possible
+        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`.
 
         Parameters
         ----------
@@ -567,12 +568,16 @@ class Graph(nx.Graph):
                 else:
                     yield current
 
-    @doc_category("Graph manipulation")
+    @doc_category("Generic rigidity")
     def extension_sequence(
         self, dim: int = 2, return_solution: bool = False
     ) -> Union[List[Graph], bool]:
         """
-        Check if the graph can be created by a sequence of 0 and 1-extensions.
+        Check the existence of a sequence of
+        :prf:ref:`0 and 1-extensions <def-k-extension>`.
+
+        The method returns whether the graph can be constructed
+        by a sequence of 0 and 1-extensions starting from an edge.
 
         Parameters
         ----------

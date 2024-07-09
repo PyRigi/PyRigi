@@ -259,7 +259,15 @@ A graph $G = (V, E)$ is generically $2$-rigid if and only if ...
 :::{prf:definition} k-extension
 :label: def-k-extension
 
-Let $G=(V,E)$ be a graph considered in dimension $d$ and $F \subset E$ with $|F|=k$ and let $v \notin V$. Let $H=(W,F)$ be the induced graph of $F$. Let further $S$ be a set of vertices with $S \cap W= \emptyset$ and $|S|+|W|=d+k$. We define $E_v={{v,u}|u \in W \cup S}$.Then $G'=(V \cup {v},(E \ F) \cup E_v)$ is called a $d$-dimensional _k-extension_ of $G$.
+Let $d,k \in \NN$.
+Let $G=(V,E)$ be a graph, $F \subset E$ with $|F|=k$
+and let $v \notin V$.
+Let $H=(W,F)$ be the subgraph of $G$ induced by $F$.
+Let further $S \subset V$ be a set of vertices such that
+$S \cap W= \emptyset$ and $|S|+|W|=d+k$.
+We define $E_v=\{\{v,u\}:u \in W \cup S\}$.
+Then $G'=(V \cup \{v\},(E \setminus F) \cup E_v)$ is called
+a $d$-dimensional _k-extension_ of $G$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.k_extension`
 {meth}`~.Graph.one_extension`
