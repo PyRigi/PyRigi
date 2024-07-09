@@ -468,6 +468,7 @@ def test_extension_sequence_solution():
     ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
+
     result = graphs.Complete(3).extension_sequence(return_solution=True)
     solution = [
         Graph([[1, 2]]),
@@ -475,6 +476,7 @@ def test_extension_sequence_solution():
     ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
+
     result = graphs.CompleteBipartite(3, 3).extension_sequence(return_solution=True)
     solution = [
         Graph([[3, 4]]),
@@ -487,6 +489,18 @@ def test_extension_sequence_solution():
     ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
+    solution_ext = [
+        [0, [3, 4], [], 2],  # k, vertices, edges, new_vertex
+        [0, [3, 4], [], 1],
+        [0, [1, 2], [], 5],
+        [1, [3, 4, 5], [(3, 4)], 0],
+    ]
+    G = Graph([[3, 4]])
+    for i in range(len(result)):
+        assert str(result[i]) == str(G)
+        if i < len(solution_ext):
+            G.k_extension(*solution_ext[i], dim=2, inplace=True)
+
     result = graphs.Diamond().extension_sequence(return_solution=True)
     solution = [
         Graph([[2, 3]]),
@@ -495,6 +509,7 @@ def test_extension_sequence_solution():
     ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
+
     result = graphs.ThreePrism().extension_sequence(return_solution=True)
     solution = [
         Graph([[4, 5]]),
@@ -507,3 +522,14 @@ def test_extension_sequence_solution():
     ]
     for i in range(len(result)):
         assert str(result[i]) == str(solution[i])
+    solution_ext = [
+        [0, [4, 5], [], 3],  # k, vertices, edges, new_vertex
+        [0, [3, 4], [], 1],
+        [0, [1, 5], [], 2],
+        [1, [1, 2, 3], [(1, 3)], 0],
+    ]
+    G = Graph([[4, 5]])
+    for i in range(len(result)):
+        assert str(result[i]) == str(G)
+        if i < len(solution_ext):
+            G.k_extension(*solution_ext[i], dim=2, inplace=True)

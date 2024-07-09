@@ -521,7 +521,7 @@ class Graph(nx.Graph):
         self, dim: int = 2, return_solution: bool = False
     ) -> Union[List[Graph], bool]:
         """
-        Check if a graph can be created by a sequence of extensions.
+        Check if the graph can be created by a sequence of 0 and 1-extensions.
 
         Parameters
         ----------
