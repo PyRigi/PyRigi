@@ -108,9 +108,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         vertices
-        edges:
-            Edges are tuples of vertices. They can either be a tuple ``(i,j)`` or
-            a list ``[i,j]`` with two entries.
+        edges
 
         Examples
         --------
