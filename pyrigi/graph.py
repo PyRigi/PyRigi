@@ -481,7 +481,7 @@ class Graph(nx.Graph):
         >>> G = graphs.CompleteBipartite(3, 2)
         >>> G
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]
-        >>> G.one_extension([0, 1, 2, 3, 4], [0, 3], dim=4), inplace = True)
+        >>> G.one_extension([0, 1, 2, 3, 4], [0, 3], dim=4, inplace = True)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
