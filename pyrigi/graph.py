@@ -152,7 +152,7 @@ class Graph(nx.Graph):
         >>> G
         Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
         """  # noqa: E501
-        edges = combinations(vertices, 2)
+        edges = list(combinations(vertices, 2))
         return Graph.from_vertices_and_edges(vertices, edges)
 
     def _check_edge_format(self, input_pair: Edge) -> None:
