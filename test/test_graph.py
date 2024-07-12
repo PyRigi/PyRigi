@@ -327,6 +327,21 @@ def test_loops(method, params):
         func(*params)
 
 
+def test_CompleteOnVertices():
+    assert str(Graph.CompleteOnVertices([0, 1, 2, 3, 4, 5])) == str(graphs.Complete(6))
+    assert Graph.CompleteOnVertices(
+        ["a", "b", "c", "d", "e", "f", "g", "h"]
+    ).is_isomorphic(graphs.Complete(8))
+    assert Graph.CompleteOnVertices(["vertex", 1, "vertex_1", 3, 4]).is_isomorphic(
+        graphs.Complete(5)
+    )
+    assert Graph.CompleteOnVertices(["vertex", 1]).is_isomorphic(graphs.Complete(2))
+    assert Graph.CompleteOnVertices(["vertex"]).is_isomorphic(graphs.Complete(1))
+    assert Graph.CompleteOnVertices(
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    ).is_isomorphic(graphs.Complete(20))
+
+
 def test_check_edge_list():
     G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
     G._check_edge((1, 2))

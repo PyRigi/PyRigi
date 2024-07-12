@@ -143,11 +143,14 @@ class Graph(nx.Graph):
         """
         Generate a complete graph on ``vertices``.
 
-        TODO
-        ----
-        examples, tests
-        """
-        edges = combinations(vertices, 2)
+        Examples
+        --------
+        >>> Graph.CompleteOnVertices([0, 1, 2, 3, 4])
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+        >>> Graph.CompleteOnVertices(['a', 'b', 'c', 'd'])
+        Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
+        """  # noqa: E501
+        edges = list(combinations(vertices, 2))
         return Graph.from_vertices_and_edges(vertices, edges)
 
     def _check_edge_format(self, input_pair: Edge) -> None:
