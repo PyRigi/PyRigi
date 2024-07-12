@@ -234,13 +234,13 @@ class Graph(nx.Graph):
         >>> G.vertex_list()
         [0, 1, 2, 3]
 
-        >>> G = Graph.from_vertices(['a', 'c', 'b'])
+        >>> G = Graph.from_vertices(['c', 'a', 'b'])
         >>> G.vertex_list()
         ['a', 'b', 'c']
 
-        >>> G = Graph.from_vertices(['a', 1, 'b'])
+        >>> G = Graph.from_vertices(['b', 1, 'a']) # incomparable vertices
         >>> G.vertex_list()
-        ['a', 1, 'b']
+        ['b', 1, 'a']
         """
         try:
             return sorted(self.nodes)
@@ -269,7 +269,7 @@ class Graph(nx.Graph):
         >>> G.edge_list()
         [['a', 'b'], ['b', 'c']]
 
-        >>> G = Graph([['c', 1], [2, 'a']])
+        >>> G = Graph([['c', 1], [2, 'a']]) # incomparable vertices
         >>> G.edge_list()
         [('c', 1), (2, 'a')]
         """
