@@ -112,10 +112,15 @@ class Graph(nx.Graph):
             Edges are tuples of vertices. They can either be a tuple ``(i,j)`` or
             a list ``[i,j]`` with two entries.
 
-        TODO
-        ----
-        examples, tests
-        """
+        Examples
+        --------
+        >>> Graph.from_vertices_and_edges([0, 1, 2, 3], [])
+        Graph with vertices [0, 1, 2, 3] and edges []
+        >>> Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [1, 3]])
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [1, 3]]
+        >>> Graph.from_vertices_and_edges(['a', 'b', 'c', 'd'], [['a','c'], ['a', 'd']])
+        Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'c'], ['a', 'd']]
+        """  # noqa: E501
         G = Graph()
         G.add_nodes_from(vertices)
         G._check_edge_format_list(edges)
