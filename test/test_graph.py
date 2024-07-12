@@ -383,3 +383,19 @@ def test_check_edge_format_list():
         G._check_edge_format([3, 3])
     with pytest.raises(LoopError):
         G._check_edge_format_list([(1, 1), (1, 3), (2, 3)])
+
+
+def test_from_vertices_and_edges():
+    G = Graph.from_vertices_and_edges([], [])
+    assert G.vertex_list() == [] and G.edge_list() == []
+    G = Graph.from_vertices_and_edges([0], [])
+    assert G.vertex_list() == [0] and G.edge_list() == []
+    G = Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [[0, 1]])
+    assert G.vertex_list() == [0, 1, 2, 3, 4, 5] and G.edge_list() == [[0, 1]]
+    G = Graph.from_vertices_and_edges([0, 1, 2], [[0, 1], [0, 2], [1, 2]])
+    assert G.vertex_list() == [0, 1, 2] and G.edge_list() == [[0, 1], [0, 2], [1, 2]]
+    G = Graph.from_vertices_and_edges(["a", "b", "c", "d"], [["a", "c"], ["a", "d"]])
+    assert G.vertex_list() == ["a", "b", "c", "d"] and G.edge_list() == [
+        ["a", "c"],
+        ["a", "d"],
+    ]
