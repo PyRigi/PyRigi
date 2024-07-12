@@ -181,7 +181,39 @@ def test_not_globally_in_d2(graph):
 
 
 @pytest.mark.slow
-def test_min_max_rigid_subgraphs():
+def test_min_rigid_subgraphs():
+    G = Graph()
+    G.add_nodes_from([0, 1, 2, 3, 4, 5, "a", "b"])
+    G.add_edges_from(
+        [
+            (0, 1),
+            (1, 2),
+            (2, 3),
+            (3, 4),
+            (4, 5),
+            (5, 0),
+            (0, 3),
+            (1, 4),
+            (2, 5),
+            (0, "a"),
+            (0, "b"),
+            ("a", "b"),
+        ]
+    )
+    min_subgraphs = G.min_rigid_subgraphs()
+    print(min_subgraphs[0])
+    print(min_subgraphs[1])
+    assert (
+        len(min_subgraphs) == 2
+        and len(min_subgraphs[0].vertex_list()) in [3, 6]
+        and len(min_subgraphs[1].vertex_list()) in [3, 6]
+        and len(min_subgraphs[0].edges) in [3, 9]
+        and len(min_subgraphs[1].edges) in [3, 9]
+    )
+
+
+@pytest.mark.slow
+def test_max_rigid_subgraphs():
     G = Graph()
     G.add_nodes_from([0, 1, 2, 3, 4, 5, "a", "b"])
     G.add_edges_from(
@@ -207,16 +239,6 @@ def test_min_max_rigid_subgraphs():
         and len(max_subgraphs[1].vertex_list()) in [3, 6]
         and len(max_subgraphs[0].edges) in [3, 9]
         and len(max_subgraphs[1].edges) in [3, 9]
-    )
-    min_subgraphs = G.min_rigid_subgraphs()
-    print(min_subgraphs[0])
-    print(min_subgraphs[1])
-    assert (
-        len(min_subgraphs) == 2
-        and len(min_subgraphs[0].vertex_list()) in [3, 6]
-        and len(min_subgraphs[1].vertex_list()) in [3, 6]
-        and len(min_subgraphs[0].edges) in [3, 9]
-        and len(min_subgraphs[1].edges) in [3, 9]
     )
 
 
