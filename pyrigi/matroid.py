@@ -2,17 +2,17 @@
 This is the module for matroid functionality.
 """
 
+from __future__ import annotations
 from copy import deepcopy
 
 from networkx import minimum_spanning_tree
 
 from pyrigi.graph import Graph
-from pyrigi.data_type import MatroidType
 
 
 class Matroid(object):
 
-    def __init__(self, _ground_set) -> MatroidType:
+    def __init__(self, _ground_set) -> Matroid:
         """Initialize the matroid object."""
         raise NotImplementedError()
 

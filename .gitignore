@@ -13,4 +13,3 @@
 .vscode/settings.json
 *.ipynb
 /.pytest_cache/
-poetry.lock
