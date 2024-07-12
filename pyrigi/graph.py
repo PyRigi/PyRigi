@@ -230,17 +230,18 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [0, 3], [1, 3]])
-        >>> G
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 3]]
+        >>> G = Graph.from_vertices_and_edges([2, 0, 3, 1], [[0, 1], [0, 2], [0, 3]])
         >>> G.vertex_list()
         [0, 1, 2, 3]
-        >>> G = Graph.from_vertices(['a', 'b', 'c'])
-        >>> G
-        Graph with vertices ['a', 'b', 'c'] and edges []
+
+        >>> G = Graph.from_vertices(['a', 'c', 'b'])
         >>> G.vertex_list()
         ['a', 'b', 'c']
-        """  # noqa: E501
+
+        >>> G = Graph.from_vertices(['a', 1, 'b'])
+        >>> G.vertex_list()
+        ['a', 1, 'b']
+        """
         try:
             return sorted(self.nodes)
         except BaseException:
@@ -256,22 +257,22 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [0, 3], [1, 3]])
-        >>> G
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 3]]
+        >>> G = Graph([[0, 3], [3, 1], [0, 1], [2, 0]])
         >>> G.edge_list()
         [[0, 1], [0, 2], [0, 3], [1, 3]]
-        >>> G = Graph.from_vertices(['a', 'b', 'c'])
-        >>> G
-        Graph with vertices ['a', 'b', 'c'] and edges []
+
+        >>> G = Graph.from_vertices(['a', 'c', 'b'])
         >>> G.edge_list()
         []
-        >>> G = Graph.from_vertices_and_edges(['a', 'b', 'c'], [['a', 'b'], ['b', 'c']])
-        >>> G
-        Graph with vertices ['a', 'b', 'c'] and edges [['a', 'b'], ['b', 'c']]
+
+        >>> G = Graph([['c', 'b'], ['b', 'a']])
         >>> G.edge_list()
         [['a', 'b'], ['b', 'c']]
-        """  # noqa: E501
+
+        >>> G = Graph([['c', 1], [2, 'a']])
+        >>> G.edge_list()
+        [('c', 1), (2, 'a')]
+        """
         try:
             return sorted([sorted(e) for e in self.edges])
         except BaseException:
