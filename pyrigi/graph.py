@@ -228,10 +228,19 @@ class Graph(nx.Graph):
         The output is sorted if possible,
         otherwise, the internal order is used instead.
 
-        TODO
-        ----
-        examples
-        """
+        Examples
+        --------
+        >>> G = Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [0, 3], [1, 3]])
+        >>> G
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 3]]
+        >>> G.vertex_list()
+        [0, 1, 2, 3]
+        >>> G = Graph.from_vertices(['a', 'b', 'c'])
+        >>> G
+        Graph with vertices ['a', 'b', 'c'] and edges []
+        >>> G.vertex_list()
+        ['a', 'b', 'c']
+        """  # noqa: E501
         try:
             return sorted(self.nodes)
         except BaseException:
@@ -245,10 +254,24 @@ class Graph(nx.Graph):
         The output is sorted if possible,
         otherwise, the internal order is used instead.
 
-        TODO
-        ----
-        examples
-        """
+        Examples
+        --------
+        >>> G = Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [0, 3], [1, 3]])
+        >>> G
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 3]]
+        >>> G.edge_list()
+        [[0, 1], [0, 2], [0, 3], [1, 3]]
+        >>> G = Graph.from_vertices(['a', 'b', 'c'])
+        >>> G
+        Graph with vertices ['a', 'b', 'c'] and edges []
+        >>> G.edge_list()
+        []
+        >>> G = Graph.from_vertices_and_edges(['a', 'b', 'c'], [['a', 'b'], ['b', 'c']])
+        >>> G
+        Graph with vertices ['a', 'b', 'c'] and edges [['a', 'b'], ['b', 'c']]
+        >>> G.edge_list()
+        [['a', 'b'], ['b', 'c']]
+        """  # noqa: E501
         try:
             return sorted([sorted(e) for e in self.edges])
         except BaseException:
