@@ -231,9 +231,19 @@ class Graph(nx.Graph):
         The output is sorted if possible,
         otherwise, the internal order is used instead.
 
-        TODO
-        ----
-        examples
+        Examples
+        --------
+        >>> G = Graph.from_vertices_and_edges([2, 0, 3, 1], [[0, 1], [0, 2], [0, 3]])
+        >>> G.vertex_list()
+        [0, 1, 2, 3]
+
+        >>> G = Graph.from_vertices(['c', 'a', 'b'])
+        >>> G.vertex_list()
+        ['a', 'b', 'c']
+
+        >>> G = Graph.from_vertices(['b', 1, 'a']) # incomparable vertices
+        >>> G.vertex_list()
+        ['b', 1, 'a']
         """
         try:
             return sorted(self.nodes)
@@ -248,9 +258,23 @@ class Graph(nx.Graph):
         The output is sorted if possible,
         otherwise, the internal order is used instead.
 
-        TODO
-        ----
-        examples
+        Examples
+        --------
+        >>> G = Graph([[0, 3], [3, 1], [0, 1], [2, 0]])
+        >>> G.edge_list()
+        [[0, 1], [0, 2], [0, 3], [1, 3]]
+
+        >>> G = Graph.from_vertices(['a', 'c', 'b'])
+        >>> G.edge_list()
+        []
+
+        >>> G = Graph([['c', 'b'], ['b', 'a']])
+        >>> G.edge_list()
+        [['a', 'b'], ['b', 'c']]
+
+        >>> G = Graph([['c', 1], [2, 'a']]) # incomparable vertices
+        >>> G.edge_list()
+        [('c', 1), (2, 'a')]
         """
         try:
             return sorted([sorted(e) for e in self.edges])
