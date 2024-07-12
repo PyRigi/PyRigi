@@ -180,7 +180,6 @@ def test_not_globally_in_d2(graph):
     assert not graph.is_globally_rigid(dim=2)
 
 
-@pytest.mark.slow
 def test_min_rigid_subgraphs():
     G = Graph(
         [
@@ -207,7 +206,6 @@ def test_min_rigid_subgraphs():
     ]
 
 
-@pytest.mark.slow
 def test_max_rigid_subgraphs():
     G = Graph(
         [
