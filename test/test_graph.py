@@ -386,26 +386,16 @@ def test_check_edge_format_list():
 
 
 def test_from_vertices_and_edges():
-    assert (
-        str(Graph.from_vertices_and_edges([], []))
-        == "Graph with vertices [] and edges []"
-    )
-    assert (
-        str(Graph.from_vertices_and_edges([0], []))
-        == "Graph with vertices [0] and edges []"
-    )
-    assert (
-        str(Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [[0, 1]]))
-        == "Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1]]"
-    )
-    assert str(
-        Graph.from_vertices_and_edges([0, 1, 2], [[0, 1], [0, 2], [1, 2]])
-    ) == str(graphs.Complete(3))
-    assert (
-        str(
-            Graph.from_vertices_and_edges(
-                ["a", "b", "c", "d"], [["a", "c"], ["a", "d"]]
-            )
-        )
-        == "Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'c'], ['a', 'd']]"
-    )
+    G = Graph.from_vertices_and_edges([], [])
+    assert G.vertex_list() == [] and G.edge_list() == []
+    G = Graph.from_vertices_and_edges([0], [])
+    assert G.vertex_list() == [0] and G.edge_list() == []
+    G = Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [[0, 1]])
+    assert G.vertex_list() == [0, 1, 2, 3, 4, 5] and G.edge_list() == [[0, 1]]
+    G = Graph.from_vertices_and_edges([0, 1, 2], [[0, 1], [0, 2], [1, 2]])
+    assert G.vertex_list() == [0, 1, 2] and G.edge_list() == [[0, 1], [0, 2], [1, 2]]
+    G = Graph.from_vertices_and_edges(["a", "b", "c", "d"], [["a", "c"], ["a", "d"]])
+    assert G.vertex_list() == ["a", "b", "c", "d"] and G.edge_list() == [
+        ["a", "c"],
+        ["a", "d"],
+    ]
