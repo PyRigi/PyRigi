@@ -145,11 +145,9 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph.CompleteOnVertices([0,1,2,3,4])
-        >>> G
+        >>> Graph.CompleteOnVertices([0, 1, 2, 3, 4])
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> G = Graph.CompleteOnVertices(['a','b','c', 'd'])
-        >>> G
+        >>> Graph.CompleteOnVertices(['a', 'b', 'c', 'd'])
         Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
         """  # noqa: E501
         edges = list(combinations(vertices, 2))
