@@ -777,6 +777,12 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        if not nx.is_connected(self):
+            res = []
+            for comp in nx.connected_components(self):
+                res += self.subgraph(comp).max_rigid_subgraphs(dim)
+            return res
+
         if self.number_of_nodes() <= dim:
             return []
         if self.is_rigid(dim):
@@ -833,6 +839,12 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+
+        if not nx.is_connected(self):
+            res = []
+            for comp in nx.connected_components(self):
+                res += self.subgraph(comp).min_rigid_subgraphs(dim)
+            return res
 
         if self.number_of_nodes() <= dim:
             return []

@@ -205,6 +205,15 @@ def test_min_rigid_subgraphs():
         set([0, "a", "b"]),
     ]
 
+    G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
+    assert [set(H) for H in G.max_rigid_subgraphs()] == [
+        set([0, 1, 2]),
+        set([3, 4, 5]),
+    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
+        set([3, 4, 5]),
+        set([0, 1, 2]),
+    ]
+
 
 def test_max_rigid_subgraphs():
     G = Graph(
@@ -229,6 +238,15 @@ def test_max_rigid_subgraphs():
     ] or [set(H) for H in G.max_rigid_subgraphs()] == [
         set([0, 1, 5, 3, 2, 4]),
         set([0, "a", "b"]),
+    ]
+
+    G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
+    assert [set(H) for H in G.max_rigid_subgraphs()] == [
+        set([0, 1, 2]),
+        set([3, 4, 5]),
+    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
+        set([3, 4, 5]),
+        set([0, 1, 2]),
     ]
 
 
