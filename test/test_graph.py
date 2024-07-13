@@ -214,6 +214,13 @@ def test_min_rigid_subgraphs():
         set([0, 1, 2]),
     ]
 
+    G = graphs.ThreePrism()
+    min_subgraphs = G.min_rigid_subgraphs()
+    assert len(min_subgraphs) == 2 and (
+        min_subgraphs == [[0, 1, 2], [3, 4, 5]]
+        or min_subgraphs == [[3, 4, 5], [0, 1, 2]]
+    )
+
 
 def test_max_rigid_subgraphs():
     G = Graph(
@@ -248,6 +255,11 @@ def test_max_rigid_subgraphs():
         set([3, 4, 5]),
         set([0, 1, 2]),
     ]
+
+    G = graphs.ThreePrism()
+    G.delete_edge([4, 5])
+    max_subgraphs = G.max_rigid_subgraphs()
+    assert len(max_subgraphs) == 1 and max_subgraphs[0] == [0, 1, 2]
 
 
 def test_str():

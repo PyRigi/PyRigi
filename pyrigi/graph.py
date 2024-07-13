@@ -794,11 +794,14 @@ class Graph(nx.Graph):
             if self.subgraph(vertex_subset).is_rigid(dim)
         }
 
-        for H1, H2 in combinations(rigid_subgraphs.keys(), 2):
-            if set(H1).issubset(set(H2)):
-                rigid_subgraphs[H1] = False
-            if set(H2).issubset(set(H1)):
-                rigid_subgraphs[H2] = False
+        sorted_rigid_subgraphs = sorted(
+            rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True
+        )
+        for i, H1 in enumerate(sorted_rigid_subgraphs):
+            if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
+                for H2 in sorted_rigid_subgraphs[i + 1 :]:
+                    if set(H2).issubset(set(H1)):
+                        rigid_subgraphs[H2] = False
         return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
 
     @doc_category("Generic rigidity")
@@ -855,11 +858,12 @@ class Graph(nx.Graph):
             if self.subgraph(vertex_subset).is_rigid(dim)
         }
 
-        for H1, H2 in combinations(rigid_subgraphs.keys(), 2):
-            if set(H1).issubset(set(H2)):
-                rigid_subgraphs[H2] = False
-            if set(H2).issubset(set(H1)):
-                rigid_subgraphs[H1] = False
+        sorted_rigid_subgraphs = sorted(rigid_subgraphs.keys(), key=lambda t: len(t))
+        for i, H1 in enumerate(sorted_rigid_subgraphs):
+            if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
+                for H2 in sorted_rigid_subgraphs[i + 1 :]:
+                    if set(H1).issubset(set(H2)):
+                        rigid_subgraphs[H2] = False
         return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
 
     @doc_category("General graph theoretical properties")
