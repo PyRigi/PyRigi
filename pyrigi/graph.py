@@ -810,7 +810,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        We only return nontrivial proper subgraphs, meaning that there need to be at
+        We only return nontrivial subgraphs, meaning that there need to be at
         least ``dim+1`` vertices present.
 
         Examples
@@ -820,7 +820,7 @@ class Graph(nx.Graph):
         >>> G.is_rigid()
         True
         >>> G.min_rigid_subgraphs()
-        []
+        [[0, 1, 2, 3, 4, 5]]
         >>> G = graphs.ThreePrism()
         >>> G.is_rigid()
         True
@@ -834,15 +834,11 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        if self.number_of_nodes() <= 2:
-            return []
-        elif self.number_of_nodes() == dim + 1 and self.is_rigid():
-            return [self]
-        elif self.number_of_nodes() == dim + 1:
+        if self.number_of_nodes() <= dim:
             return []
         rigid_subgraphs = {
             tuple(vertex_subset): True
-            for r in range(dim + 1, self.number_of_nodes() - 1)
+            for r in range(dim + 1, self.number_of_nodes() + 1)
             for vertex_subset in combinations(self.nodes, r)
             if self.subgraph(vertex_subset).is_rigid(dim)
         }
