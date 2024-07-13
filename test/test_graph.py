@@ -535,6 +535,21 @@ def test_extension_sequence_solution():
             G.k_extension(*solution_ext[i], dim=2, inplace=True)
 
 
+def test_CompleteOnVertices():
+    assert str(Graph.CompleteOnVertices([0, 1, 2, 3, 4, 5])) == str(graphs.Complete(6))
+    assert Graph.CompleteOnVertices(
+        ["a", "b", "c", "d", "e", "f", "g", "h"]
+    ).is_isomorphic(graphs.Complete(8))
+    assert Graph.CompleteOnVertices(["vertex", 1, "vertex_1", 3, 4]).is_isomorphic(
+        graphs.Complete(5)
+    )
+    assert Graph.CompleteOnVertices(["vertex", 1]).is_isomorphic(graphs.Complete(2))
+    assert Graph.CompleteOnVertices(["vertex"]).is_isomorphic(graphs.Complete(1))
+    assert Graph.CompleteOnVertices(
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    ).is_isomorphic(graphs.Complete(20))
+
+
 def test_check_edge_list():
     G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
     G._check_edge((1, 2))
@@ -576,3 +591,19 @@ def test_check_edge_format_list():
         G._check_edge_format([3, 3])
     with pytest.raises(LoopError):
         G._check_edge_format_list([(1, 1), (1, 3), (2, 3)])
+
+
+def test_from_vertices_and_edges():
+    G = Graph.from_vertices_and_edges([], [])
+    assert G.vertex_list() == [] and G.edge_list() == []
+    G = Graph.from_vertices_and_edges([0], [])
+    assert G.vertex_list() == [0] and G.edge_list() == []
+    G = Graph.from_vertices_and_edges([0, 1, 2, 3, 4, 5], [[0, 1]])
+    assert G.vertex_list() == [0, 1, 2, 3, 4, 5] and G.edge_list() == [[0, 1]]
+    G = Graph.from_vertices_and_edges([0, 1, 2], [[0, 1], [0, 2], [1, 2]])
+    assert G.vertex_list() == [0, 1, 2] and G.edge_list() == [[0, 1], [0, 2], [1, 2]]
+    G = Graph.from_vertices_and_edges(["a", "b", "c", "d"], [["a", "c"], ["a", "d"]])
+    assert G.vertex_list() == ["a", "b", "c", "d"] and G.edge_list() == [
+        ["a", "c"],
+        ["a", "d"],
+    ]

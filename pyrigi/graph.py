@@ -108,13 +108,16 @@ class Graph(nx.Graph):
         Parameters
         ----------
         vertices
-        edges:
-            Edges are tuples of vertices. They can either be a tuple ``(i,j)`` or
-            a list ``[i,j]`` with two entries.
+        edges
 
-        TODO
-        ----
-        examples, tests
+        Examples
+        --------
+        >>> Graph.from_vertices_and_edges([0, 1, 2, 3], [])
+        Graph with vertices [0, 1, 2, 3] and edges []
+        >>> Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [1, 3]])
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [1, 3]]
+        >>> Graph.from_vertices_and_edges(['a', 'b', 'c', 'd'], [['a','c'], ['a', 'd']])
+        Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'c'], ['a', 'd']]
         """
         G = Graph()
         G.add_nodes_from(vertices)
@@ -143,11 +146,14 @@ class Graph(nx.Graph):
         """
         Generate a complete graph on ``vertices``.
 
-        TODO
-        ----
-        examples, tests
-        """
-        edges = combinations(vertices, 2)
+        Examples
+        --------
+        >>> Graph.CompleteOnVertices([0, 1, 2, 3, 4])
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+        >>> Graph.CompleteOnVertices(['a', 'b', 'c', 'd'])
+        Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
+        """  # noqa: E501
+        edges = list(combinations(vertices, 2))
         return Graph.from_vertices_and_edges(vertices, edges)
 
     def _check_edge_format(self, input_pair: Edge) -> None:
@@ -225,9 +231,19 @@ class Graph(nx.Graph):
         The output is sorted if possible,
         otherwise, the internal order is used instead.
 
-        TODO
-        ----
-        examples
+        Examples
+        --------
+        >>> G = Graph.from_vertices_and_edges([2, 0, 3, 1], [[0, 1], [0, 2], [0, 3]])
+        >>> G.vertex_list()
+        [0, 1, 2, 3]
+
+        >>> G = Graph.from_vertices(['c', 'a', 'b'])
+        >>> G.vertex_list()
+        ['a', 'b', 'c']
+
+        >>> G = Graph.from_vertices(['b', 1, 'a']) # incomparable vertices
+        >>> G.vertex_list()
+        ['b', 1, 'a']
         """
         try:
             return sorted(self.nodes)
@@ -242,9 +258,23 @@ class Graph(nx.Graph):
         The output is sorted if possible,
         otherwise, the internal order is used instead.
 
-        TODO
-        ----
-        examples
+        Examples
+        --------
+        >>> G = Graph([[0, 3], [3, 1], [0, 1], [2, 0]])
+        >>> G.edge_list()
+        [[0, 1], [0, 2], [0, 3], [1, 3]]
+
+        >>> G = Graph.from_vertices(['a', 'c', 'b'])
+        >>> G.edge_list()
+        []
+
+        >>> G = Graph([['c', 'b'], ['b', 'a']])
+        >>> G.edge_list()
+        [['a', 'b'], ['b', 'c']]
+
+        >>> G = Graph([['c', 1], [2, 'a']]) # incomparable vertices
+        >>> G.edge_list()
+        [('c', 1), (2, 'a')]
         """
         try:
             return sorted([sorted(e) for e in self.edges])
