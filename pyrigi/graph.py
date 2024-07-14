@@ -104,7 +104,7 @@ class Graph(nx.Graph):
         Note
         ----
         :func:`~networkx.utils.misc.graphs_equal(self, other)`
-        behaves strange, hence it is not used.
+        behaves strangely, hence it is not used.
         """
         if (
             self.number_of_edges() != other.number_of_edges()
