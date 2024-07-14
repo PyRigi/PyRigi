@@ -101,6 +101,14 @@ class Graph(nx.Graph):
         """
         Return whether the other graph has the same vertices and edges.
 
+        Examples
+        --------
+        >>> from pyrigi import Graph
+        >>> G = Graph([[1,2]])
+        >>> H = Graph([[2,1]])
+        >>> G == H
+        True
+
         Note
         ----
         :func:`~networkx.utils.misc.graphs_equal(self, other)`
