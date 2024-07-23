@@ -271,6 +271,76 @@ class Framework(object):
         """
         return deepcopy(self._graph)
 
+    def resolve_edge_colors(
+        self, edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]])
+    ) -> tuple[list, list]:
+        edge_list = self.graph().edge_list()
+        edge_list_ref = []
+        edge_color_array = []
+        colors = [
+            "red",
+            "green",
+            "blue",
+            "yellow",
+            "orange",
+            "purple",
+            "pink",
+            "lime",
+            "cyan",
+            "magenta",
+            "brown",
+            "darkblue",
+            "gold",
+            "lightgreen",
+            "violet",
+            "lightblue",
+            "orangered",
+            "olive",
+            "dodgerblue",
+        ]
+        color = ""
+        if isinstance(edge_color, str):
+            edge_list_ref = edge_list
+            for e in edge_list_ref:
+                edge_color_array.append(edge_color)
+        elif isinstance(edge_color, list):
+            edge_list_list = edge_color
+            for i in range(len(edge_list_list)):
+                if i >= len(colors):
+                    color = "black"
+                else:
+                    color = colors[i]
+                for e in edge_list_list[i]:
+                    if not self.graph().has_edge(e[0], e[1]):
+                        raise ValueError(
+                            "Input includes edge that is not part of the framework"
+                        )
+                    edge_color_array.append(color)
+                    edge_list_ref.append(e)
+            for e in edge_list:
+                if (e[0], e[1]) in edge_list_ref or (e[1], e[0]) in edge_list_ref:
+                    continue
+                else:
+                    edge_color_array.append("black")
+                    edge_list_ref.append(e)
+        elif isinstance(edge_color, dict):
+            color_edges_dict = edge_color
+            for color, edges in color_edges_dict.items():
+                for e in edges:
+                    if not self.graph().has_edge(e[0], e[1]):
+                        raise ValueError(
+                            "Input includes edge that is not part of the framework"
+                        )
+                    edge_color_array.append(color)
+                    edge_list_ref.append(e)
+            for e in edge_list:
+                if (e[0], e[1]) in edge_list_ref or (e[1], e[0]) in edge_list_ref:
+                    continue
+                else:
+                    edge_color_array.append("black")
+                    edge_list_ref.append(e)
+        return edge_color_array, edge_list_ref
+
     @doc_category("Plotting")
     def plot(
         self,
@@ -340,56 +410,7 @@ class Framework(object):
         fig.set_figwidth(canvas_width)
         fig.set_figheight(canvas_height)
         ax.set_aspect(aspect_ratio)
-
-        edge_list = self.graph().edge_list()
-        edge_list_ref = []
-        edge_color_array = []
-        colors = [
-            "red",
-            "green",
-            "blue",
-            "yellow",
-            "orange",
-            "purple",
-            "pink",
-            "lime",
-            "cyan",
-            "magenta",
-            "brown",
-            "darkblue",
-            "gold",
-            "lightgreen",
-            "violet",
-            "lightblue",
-            "orangered",
-            "olive",
-            "dodgerblue",
-        ]
-        color = ""
-        if isinstance(edge_color, str):
-            edge_list_ref = edge_list
-            for e in edge_list_ref:
-                edge_color_array.append(edge_color)
-        elif isinstance(edge_color, list):
-            edge_list_list = edge_color
-            for i in range(len(edge_list_list)):
-                if i >= len(colors):
-                    color = "black"
-                else:
-                    color = colors[i]
-                for e in edge_list_list[i]:
-                    if not self.graph().has_edge(e[0], e[1]):
-                        raise ValueError(
-                            "Input includes edge that is not part of the framework"
-                        )
-                    edge_color_array.append(color)
-                    edge_list_ref.append(e)
-            for e in edge_list:
-                if (e[0], e[1]) in edge_list_ref or (e[1], e[0]) in edge_list_ref:
-                    continue
-                else:
-                    edge_color_array.append("black")
-                    edge_list_ref.append(e)
+        edge_color_array, edge_list_ref = self.resolve_edge_colors(edge_color)
 
         nx.draw(
             self._graph,

@@ -69,6 +69,7 @@ for i in range(5):
 F1 = Framework(Graph([(0,1), (1,2), (2,3), (3,0)]), {0:(0,0), 1:(0,100), 2:(100,100), 3:(100,0)})
 F1.plot(canvas_width=5, canvas_height=2, edge_color=[[(0,1),(1,2)],[(2,3),(3,0)]], edge_width=2)
 F1.plot(edge_color=[[(0,1)],[(1,2)],[(2,3)],[(0,3)]])
+F1.plot(edge_color={"pink":[(0,1),(1,2)],"maroon":[(2,3),(3,0),(1,2)]})
 ```
 
 ```{code-cell} ipython3
