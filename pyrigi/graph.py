@@ -1035,7 +1035,11 @@ class Graph(nx.Graph):
         -----
         Use a networkx internal routine to plot the graph."""
 
-        plt.figure(figsize=(canvas_width, canvas_height))
+        fig, ax = plt.subplots()
+        ax.set_adjustable("datalim")
+        fig.set_figwidth(canvas_width)
+        fig.set_figheight(canvas_height)
+
         nx.draw(
             self,
             node_size=vertex_size,
