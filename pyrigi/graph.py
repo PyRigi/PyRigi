@@ -986,9 +986,12 @@ class Graph(nx.Graph):
 
         return Framework.Random(self, dim, rand_range)
 
-    def resolve_edge_colors(
+    def _resolve_edge_colors(
         self, edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]])
     ) -> tuple[list, list]:
+        """
+        Return the lists of colors and edges in the format for plotting.
+        """
         edge_list = self.edge_list()
         edge_list_ref = []
         edge_color_array = []
@@ -1015,29 +1018,22 @@ class Graph(nx.Graph):
         ]
         color = ""
         if isinstance(edge_color, str):
-            edge_list_ref = edge_list
-            for e in edge_list_ref:
-                edge_color_array.append(edge_color)
-        elif isinstance(edge_color, list):
-            edge_list_list = edge_color
-            for i in range(len(edge_list_list)):
+            return [edge_color for _ in edge_list], edge_list
+
+        if isinstance(edge_color, list):
+            edges_partition = edge_color
+            for i, part in enumerate(edges_partition):
                 if i >= len(colors):
                     color = "black"
                 else:
                     color = colors[i]
-                for e in edge_list_list[i]:
+                for e in part:
                     if not self.has_edge(e[0], e[1]):
                         raise ValueError(
-                            "Input includes edge that is not part of the framework"
+                            "The input includes a pair that is not an edge."
                         )
                     edge_color_array.append(color)
-                    edge_list_ref.append(e)
-            for e in edge_list:
-                if (e[0], e[1]) in edge_list_ref or (e[1], e[0]) in edge_list_ref:
-                    continue
-                else:
-                    edge_color_array.append("black")
-                    edge_list_ref.append(e)
+                    edge_list_ref.append(tuple(e))
         elif isinstance(edge_color, dict):
             color_edges_dict = edge_color
             for color, edges in color_edges_dict.items():
@@ -1047,13 +1043,17 @@ class Graph(nx.Graph):
                             "Input includes edge that is not part of the framework"
                         )
                     edge_color_array.append(color)
-                    edge_list_ref.append(e)
-            for e in edge_list:
-                if (e[0], e[1]) in edge_list_ref or (e[1], e[0]) in edge_list_ref:
-                    continue
-                else:
-                    edge_color_array.append("black")
-                    edge_list_ref.append(e)
+                    edge_list_ref.append(tuple(e))
+        else:
+            raise ValueError("The input color_edge has none of the supported formats.")
+        for e in edge_list:
+            if (e[0], e[1]) not in edge_list_ref and (e[1], e[0]) not in edge_list_ref:
+                edge_color_array.append("black")
+                edge_list_ref.append(e)
+        if len(edge_list_ref) > self.number_of_edges():
+            raise ValueError(
+                "There is an edge whose color was specified multiple times."
+            )
         return edge_color_array, edge_list_ref
 
     @doc_category("Other")
@@ -1117,7 +1117,7 @@ class Graph(nx.Graph):
         fig.set_figwidth(canvas_width)
         fig.set_figheight(canvas_height)
         ax.set_aspect(aspect_ratio)
-        edge_color_array, edge_list_ref = self.resolve_edge_colors(edge_color)
+        edge_color_array, edge_list_ref = self._resolve_edge_colors(edge_color)
 
         if placement is None:
             placement = nx.drawing.layout.spring_layout(self)
