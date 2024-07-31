@@ -1057,9 +1057,38 @@ class Graph(nx.Graph):
         return edge_color_array, edge_list_ref
 
     @doc_category("Other")
+    def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
+        """
+        Generate a placement of the vertices.
+
+        This method a is wrapper for functions
+        :func:`~networkx.drawing.layout.spring_layout`,
+        :func:`~networkx.drawing.layout.random_layout`,
+        :func:`~networkx.drawing.layout.circular_layout`
+        and :func:`~networkx.drawing.layout.planar_layout`
+
+        Parameters
+        ----------
+        layout_type:
+            The supported layouts are ``circular``, ``planar``,
+            ``random`` and ``spring`` (default).
+        """
+        if layout_type == "circular":
+            return nx.drawing.layout.circular_layout(self)
+        elif layout_type == "planar":
+            return nx.drawing.layout.planar_layout(self)
+        elif layout_type == "random":
+            return nx.drawing.layout.random_layout(self)
+        elif layout_type == "spring":
+            return nx.drawing.layout.spring_layout(self)
+        else:
+            raise ValueError(f"layout_type {layout_type} is not supported.")
+
+    @doc_category("Other")
     def plot(
         self,
         placement: dict[Vertex, Point] = None,
+        layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4584B6",
         vertex_shape: str = "o",
@@ -1120,7 +1149,7 @@ class Graph(nx.Graph):
         edge_color_array, edge_list_ref = self._resolve_edge_colors(edge_color)
 
         if placement is None:
-            placement = nx.drawing.layout.spring_layout(self)
+            placement = self.layout(layout)
 
         nx.draw(
             self,
