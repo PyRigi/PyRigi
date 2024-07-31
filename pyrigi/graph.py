@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from sympy import Matrix
 import math
 
-from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType
+from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType, Point
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 
@@ -986,17 +986,90 @@ class Graph(nx.Graph):
 
         return Framework.Random(self, dim, rand_range)
 
+    def resolve_edge_colors(
+        self, edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]])
+    ) -> tuple[list, list]:
+        edge_list = self.edge_list()
+        edge_list_ref = []
+        edge_color_array = []
+        colors = [
+            "red",
+            "green",
+            "blue",
+            "yellow",
+            "orange",
+            "purple",
+            "pink",
+            "lime",
+            "cyan",
+            "magenta",
+            "brown",
+            "darkblue",
+            "gold",
+            "lightgreen",
+            "violet",
+            "lightblue",
+            "orangered",
+            "olive",
+            "dodgerblue",
+        ]
+        color = ""
+        if isinstance(edge_color, str):
+            edge_list_ref = edge_list
+            for e in edge_list_ref:
+                edge_color_array.append(edge_color)
+        elif isinstance(edge_color, list):
+            edge_list_list = edge_color
+            for i in range(len(edge_list_list)):
+                if i >= len(colors):
+                    color = "black"
+                else:
+                    color = colors[i]
+                for e in edge_list_list[i]:
+                    if not self.has_edge(e[0], e[1]):
+                        raise ValueError(
+                            "Input includes edge that is not part of the framework"
+                        )
+                    edge_color_array.append(color)
+                    edge_list_ref.append(e)
+            for e in edge_list:
+                if (e[0], e[1]) in edge_list_ref or (e[1], e[0]) in edge_list_ref:
+                    continue
+                else:
+                    edge_color_array.append("black")
+                    edge_list_ref.append(e)
+        elif isinstance(edge_color, dict):
+            color_edges_dict = edge_color
+            for color, edges in color_edges_dict.items():
+                for e in edges:
+                    if not self.has_edge(e[0], e[1]):
+                        raise ValueError(
+                            "Input includes edge that is not part of the framework"
+                        )
+                    edge_color_array.append(color)
+                    edge_list_ref.append(e)
+            for e in edge_list:
+                if (e[0], e[1]) in edge_list_ref or (e[1], e[0]) in edge_list_ref:
+                    continue
+                else:
+                    edge_color_array.append("black")
+                    edge_list_ref.append(e)
+        return edge_color_array, edge_list_ref
+
     @doc_category("Other")
     def plot(
         self,
+        placement: dict[Vertex, Point] = None,
         vertex_size: int = 300,
         vertex_color: str = "#4584B6",
         vertex_shape: str = "o",
         vertex_labels: bool = True,
         edge_width: float = 1.0,
+        edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
         edge_style: str = "solid",
         canvas_width: int = 6.4,
         canvas_height: int = 4.8,
+        aspect_ratio: float = 1.0,
         **kwargs,
     ) -> None:
         """
@@ -1004,6 +1077,8 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
+        placement:
+            The placement of vertices in the plane.
         vertex_size:
             The size of the vertex. By default 300.
         vertex_color:
@@ -1030,6 +1105,8 @@ class Graph(nx.Graph):
             The width of the canvas in inches. By default 6.4.
         canvas_height:
             The height of the canvas in inches. By default 4.8.
+        aspect_ratio:
+            The ratio of y-unit to x-unit. By default 1.0.
 
         Notes
         -----
@@ -1039,14 +1116,23 @@ class Graph(nx.Graph):
         ax.set_adjustable("datalim")
         fig.set_figwidth(canvas_width)
         fig.set_figheight(canvas_height)
+        ax.set_aspect(aspect_ratio)
+        edge_color_array, edge_list_ref = self.resolve_edge_colors(edge_color)
+
+        if placement is None:
+            placement = nx.drawing.layout.spring_layout(self)
 
         nx.draw(
             self,
+            pos=placement,
+            ax=ax,
             node_size=vertex_size,
             node_color=vertex_color,
             node_shape=vertex_shape,
             with_labels=vertex_labels,
             width=edge_width,
+            edge_color=edge_color_array,
+            edgelist=edge_list_ref,
             style=edge_style,
             **kwargs,
         )
