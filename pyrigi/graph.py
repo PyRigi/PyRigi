@@ -6,14 +6,14 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from typing import List, Any, Union
+from typing import List, Union, Iterable
 
 import networkx as nx
 import matplotlib.pyplot as plt
 from sympy import Matrix
 import math
 
-from pyrigi.data_type import Vertex, Edge, GraphType, FrameworkType, Point
+from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 
@@ -98,39 +98,67 @@ class Graph(nx.Graph):
         """
         return self.__str__()
 
+    def __eq__(self, other: Graph):
+        """
+        Return whether the other graph has the same vertices and edges.
+
+        Examples
+        --------
+        >>> from pyrigi import Graph
+        >>> G = Graph([[1,2]])
+        >>> H = Graph([[2,1]])
+        >>> G == H
+        True
+
+        Note
+        ----
+        :func:`~networkx.utils.misc.graphs_equal(self, other)`
+        behaves strangely, hence it is not used.
+        """
+        if (
+            self.number_of_edges() != other.number_of_edges()
+            or self.number_of_nodes() != other.number_of_nodes()
+        ):
+            return False
+        for v in self.nodes:
+            if v not in other.nodes:
+                return False
+        for e in self.edges:
+            if not other.has_edge(*e):
+                return False
+        return True
+
     @classmethod
     @doc_category("Class methods")
     def from_vertices_and_edges(
         cls, vertices: List[Vertex], edges: List[Edge]
-    ) -> GraphType:
+    ) -> Graph:
         """
         Create a graph from a list of vertices and edges.
 
         Parameters
         ----------
         vertices
-        edges:
-            Edges are tuples of vertices. They can either be a tuple ``(i,j)`` or
-            a list ``[i,j]`` with two entries.
+        edges
 
-        TODO
-        ----
-        examples, tests
+        Examples
+        --------
+        >>> Graph.from_vertices_and_edges([0, 1, 2, 3], [])
+        Graph with vertices [0, 1, 2, 3] and edges []
+        >>> Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [1, 3]])
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [1, 3]]
+        >>> Graph.from_vertices_and_edges(['a', 'b', 'c', 'd'], [['a','c'], ['a', 'd']])
+        Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'c'], ['a', 'd']]
         """
         G = Graph()
         G.add_nodes_from(vertices)
-        for edge in edges:
-            if len(edge) != 2 or not edge[0] in G.nodes or not edge[1] in G.nodes:
-                raise TypeError(
-                    f"Edge {edge} does not have the correct format "
-                    "or has adjacent vertices the graph does not contain"
-                )
-            G.add_edge(*edge)
+        G._check_edge_format_list(edges)
+        G.add_edges(edges)
         return G
 
     @classmethod
     @doc_category("Class methods")
-    def from_vertices(cls, vertices: List[Vertex]) -> GraphType:
+    def from_vertices(cls, vertices: List[Vertex]) -> Graph:
         """
         Create a graph with no edges from a list of vertices.
 
@@ -145,16 +173,86 @@ class Graph(nx.Graph):
 
     @classmethod
     @doc_category("Class methods")
-    def CompleteOnVertices(cls, vertices: List[Vertex]) -> GraphType:
+    def CompleteOnVertices(cls, vertices: List[Vertex]) -> Graph:
         """
         Generate a complete graph on ``vertices``.
 
-        TODO
-        ----
-        examples, tests
-        """
-        edges = combinations(vertices, 2)
+        Examples
+        --------
+        >>> Graph.CompleteOnVertices([0, 1, 2, 3, 4])
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+        >>> Graph.CompleteOnVertices(['a', 'b', 'c', 'd'])
+        Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
+        """  # noqa: E501
+        edges = list(combinations(vertices, 2))
         return Graph.from_vertices_and_edges(vertices, edges)
+
+    def _check_edge_format(self, input_pair: Edge) -> None:
+        """
+        Check if an input_pair is a pair of distinct vertices of the graph.
+        """
+        if (
+            not (isinstance(input_pair, tuple) or isinstance(input_pair, list))
+            or not len(input_pair) == 2
+        ):
+            raise TypeError(
+                f"The input {input_pair} must be a tuple or list of length 2."
+            )
+        if not input_pair[0] in self.nodes or not input_pair[1] in self.nodes:
+            raise ValueError(
+                f"The elements of the pair {input_pair} are not vertices of the graph."
+            )
+        if input_pair[0] == input_pair[1]:
+            raise LoopError("The input {input_pair} must be two distinct vertices.")
+
+    def _check_edge(self, edge: Edge, vertices: List[Vertex] = None) -> None:
+        """
+        Check if the given input is an edge of the graph with endvertices in vertices.
+
+        Parameters
+        ----------
+        edge:
+            an edge to be checked
+        vertices:
+            Check if the endvertices of the edge are contained in the list ``vertices``.
+            If None, the function considers all vertices of the graph.
+        """
+        self._check_edge_format(edge)
+        if vertices and (not edge[0] in vertices or not edge[1] in vertices):
+            raise ValueError(
+                f"The elements of the edge {edge} are not among vertices {vertices}."
+            )
+        if not self.has_edge(edge[0], edge[1]):
+            raise ValueError(f"Edge {edge} is not contained in the graph.")
+
+    def _check_edge_list(
+        self, edges: List[Edge], vertices: List[Vertex] = None
+    ) -> None:
+        """
+        Apply _check_edge to all edges in a list.
+
+        Parameters
+        ----------
+        edges:
+            a list of edges to be checked
+        vertices:
+            Check if the endvertices of the edges are contained in the list ``vertices``.
+            If None (default), the function considers all vertices of the graph.
+        """
+        for edge in edges:
+            self._check_edge(edge, vertices)
+
+    def _check_edge_format_list(self, pairs: List[Edge]) -> None:
+        """
+        Apply _check_edge_format to all pairs in a list.
+
+        Parameters
+        ----------
+        pairs:
+            a list of pairs to be checked
+        """
+        for pair in pairs:
+            self._check_edge_format(pair)
 
     @doc_category("Attribute getters")
     def vertex_list(self) -> List[Vertex]:
@@ -164,9 +262,19 @@ class Graph(nx.Graph):
         The output is sorted if possible,
         otherwise, the internal order is used instead.
 
-        TODO
-        ----
-        examples
+        Examples
+        --------
+        >>> G = Graph.from_vertices_and_edges([2, 0, 3, 1], [[0, 1], [0, 2], [0, 3]])
+        >>> G.vertex_list()
+        [0, 1, 2, 3]
+
+        >>> G = Graph.from_vertices(['c', 'a', 'b'])
+        >>> G.vertex_list()
+        ['a', 'b', 'c']
+
+        >>> G = Graph.from_vertices(['b', 1, 'a']) # incomparable vertices
+        >>> G.vertex_list()
+        ['b', 1, 'a']
         """
         try:
             return sorted(self.nodes)
@@ -181,9 +289,23 @@ class Graph(nx.Graph):
         The output is sorted if possible,
         otherwise, the internal order is used instead.
 
-        TODO
-        ----
-        examples
+        Examples
+        --------
+        >>> G = Graph([[0, 3], [3, 1], [0, 1], [2, 0]])
+        >>> G.edge_list()
+        [[0, 1], [0, 2], [0, 3], [1, 3]]
+
+        >>> G = Graph.from_vertices(['a', 'c', 'b'])
+        >>> G.edge_list()
+        []
+
+        >>> G = Graph([['c', 'b'], ['b', 'a']])
+        >>> G.edge_list()
+        [['a', 'b'], ['b', 'c']]
+
+        >>> G = Graph([['c', 1], [2, 'a']]) # incomparable vertices
+        >>> G.edge_list()
+        [('c', 1), (2, 'a')]
         """
         try:
             return sorted([sorted(e) for e in self.edges])
@@ -323,57 +445,353 @@ class Graph(nx.Graph):
             and self.number_of_edges() == K * self.number_of_nodes() - L
         )
 
-    @doc_category("Waiting for implementation")
-    def zero_extension(self, vertices: List[Vertex], dim: int = 2) -> None:
+    @doc_category("Graph manipulation")
+    def zero_extension(
+        self,
+        vertices: List[Vertex],
+        new_vertex: Vertex = None,
+        dim: int = 2,
+        inplace: bool = False,
+    ) -> Graph:
         """
-        Notes
-        -----
-        Modifies self only when explicitly required.
-        """
-        raise NotImplementedError()
+        Return a :prf:ref:`dim-dimensional 0-extension <def-k-extension>`.
 
-    @doc_category("Waiting for implementation")
-    def one_extension(self, vertices: List[Vertex], edge: Edge, dim: int = 2) -> None:
-        """
-        Notes
-        -----
-        Modifies self only when explicitly required.
-        """
-        raise NotImplementedError()
+        Parameters
+        ----------
+        vertices:
+            A new vertex will be connected to these vertices.
+            All the vertices must be contained in the graph
+            and there must be ``dim`` of them.
+        new_vertex:
+            Newly added vertex will be named according to this parameter.
+            If None, the name will be set as the lowest possible integer value
+            greater or equal than the number of nodes.
+        dim:
+            The dimension in which the k-extension is created.
+        inplace:
+            If True, the graph will be modified,
+            otherwise a new modified graph will be created,
+            while the original graph remains unchanged (default).
 
-    @doc_category("Waiting for implementation")
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G.zero_extension([0, 2])
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
+        >>> G.zero_extension([0, 2], 5)
+        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [2, 5]]
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G.zero_extension([0, 1, 2], 5, dim=3, inplace=True);
+        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
+        >>> G
+        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
+        """  # noqa: E501
+        return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
+
+    @doc_category("Graph manipulation")
+    def one_extension(
+        self,
+        vertices: List[Vertex],
+        edge: Edge,
+        new_vertex: Vertex = None,
+        dim: int = 2,
+        inplace: bool = False,
+    ) -> Graph:
+        """
+        Return a :prf:ref:`dim-dimensional 1-extension <def-k-extension>`.
+
+        Parameters
+        ----------
+        vertices:
+            A new vertex will be connected to these vertices.
+            All the vertices must be contained in the graph
+            and there must be ``dim + 1`` of them.
+        edge:
+            An edge with endvertices from the list ``vertices`` that will be deleted.
+            The edge must be contained in the graph.
+        new_vertex:
+            Newly added vertex will be named according to this parameter.
+            If None, the name will be set as the lowest possible integer value
+            greater or equal than the number of nodes.
+        dim:
+            The dimension in which the k-extension is created.
+        inplace:
+            If True, the graph will be modified,
+            otherwise a new modified graph will be created,
+            while the original graph remains unchanged (default).
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G.one_extension([0, 1, 2], [0, 1])
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G = graphs.ThreePrism()
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
+        >>> G.one_extension([0, 1], [0, 1], dim=1)
+        Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 2], [0, 3], [0, 6], [1, 2], [1, 4], [1, 6], [2, 5], [3, 4], [3, 5], [4, 5]]
+        >>> G = graphs.CompleteBipartite(3, 2)
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]
+        >>> G.one_extension([0, 1, 2, 3, 4], [0, 3], dim=4, inplace = True)
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
+        """  # noqa: E501
+        return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
+
+    @doc_category("Graph manipulation")
     def k_extension(
-        self, k: int, vertices: List[Vertex], edges: Edge, dim: int = 2
-    ) -> None:
+        self,
+        k: int,
+        vertices: List[Vertex],
+        edges: List[Edge],
+        new_vertex: Vertex = None,
+        dim: int = 2,
+        inplace: bool = False,
+    ) -> Graph:
         """
+        Return a :prf:ref:`dim-dimensional k-extension <def-k-extension>`.
+
+        Parameters
+        ----------
+        k
+        vertices:
+            A new vertex will be connected to these vertices.
+            All the vertices must be contained in the graph
+            and there must be ``dim + k`` of them.
+        edges:
+            A list of edges that will be deleted.
+            The endvertices of all the edges must be contained
+            in the list ``vertices``.
+            The edges must be contained in the graph and there must be k of them.
+        new_vertex:
+            Newly added vertex will be named according to this parameter.
+            If None, the name will be set as the lowest possible integer value
+            greater or equal than the number of nodes.
+        dim:
+            The dimension in which the k-extension is created.
+        inplace:
+            If True, the graph will be modified,
+            otherwise a new modified graph will be created,
+            while the original graph remains unchanged (default).
+
         Notes
         -----
-        Modifies self only when explicitly required.
-        """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        raise NotImplementedError()
+        See also :meth:`~Graph.zero_extension` and :meth:`~Graph.one_extension`.
 
-    @doc_category("Waiting for implementation")
-    def all_k_extensions(self, k: int, dim: int = 2) -> None:
-        """
-        Return list of all possible k-extensions of the graph.
-        """
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+        >>> G.k_extension(2, [0, 1, 2, 3], [[0, 1], [0,2]])
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5]]
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+        >>> G = graphs.Complete(5)
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+        >>> G.k_extension(2, [0, 1, 2, 3, 4], [[0, 1], [0,2]], dim = 3)
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
+        >>> G = graphs.Path(6)
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]]
+        >>> G.k_extension(2, [0, 1, 2], [[0, 1], [1,2]], dim = 1, inplace = True)
+        Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
+        """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        raise NotImplementedError()
+        for vertex in vertices:
+            if vertex not in self.nodes:
+                raise ValueError(f"Vertex {vertex} is not contained in the graph")
+        if len(set(vertices)) != dim + k:
+            raise ValueError(
+                f"List of vertices must contain {dim + k} distinct vertices"
+            )
+        self._check_edge_list(edges, vertices)
+        if len(edges) != k:
+            raise ValueError(f"List of edges must contain {k} distinct edges")
+        if new_vertex is None:
+            candidate = self.number_of_nodes()
+            while candidate in self.nodes:
+                candidate += 1
+            new_vertex = candidate
+        if new_vertex in self.nodes:
+            raise ValueError(f"Vertex {new_vertex} is already a vertex of the graph!")
+        G = self
+        if not inplace:
+            G = deepcopy(self)
+        G.remove_edges_from(edges)
+        for vertex in vertices:
+            G.add_edge(vertex, new_vertex)
+        return G
 
-    @doc_category("Waiting for implementation")
-    def extension_sequence(self, dim: int = 2) -> Any:
+    @doc_category("Graph manipulation")
+    def all_k_extensions(
+        self,
+        k: int,
+        dim: int = 2,
+        only_non_isomorphic: bool = False,
+    ) -> Iterable[Graph]:
+        """
+        Return an iterator over all possible
+        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`.
+
+        Parameters
+        ----------
+        k
+        dim
+        only_non_isomorphic:
+            If True, only one graph per isomorphism class is included.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> type(G.all_k_extensions(0))
+        <class 'generator'>
+        >>> len(list(G.all_k_extensions(0)))
+        3
+        >>> len(list(G.all_k_extensions(0, only_non_isomorphic=True)))
+        1
+
+        >>> len(list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)))
+        2
+        """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        raise NotImplementedError()
+        if self.number_of_nodes() < (dim + k):
+            raise ValueError(
+                f"The number of nodes in the graph needs to be "
+                f"greater or equal than {dim + k}!"
+            )
+        if self.number_of_edges() < k:
+            raise ValueError(
+                f"The number of edges in the graph needs to be greater or equal than {k}!"
+            )
+        solutions = []
+        for edges in combinations(self.edges, k):
+            s = set(self.nodes)
+            w = set()
+            for edge in edges:
+                s.discard(edge[0])
+                s.discard(edge[1])
+                w.add(edge[0])
+                w.add(edge[1])
+            if len(w) > (dim + k):
+                break
+            w = list(w)
+            for vertices in combinations(s, dim + k - len(w)):
+                current = self.k_extension(k, list(vertices) + w, edges, dim=dim)
+                if only_non_isomorphic:
+                    for other in solutions:
+                        if current.is_isomorphic(other):
+                            break
+                    else:
+                        solutions.append(current)
+                        yield current
+                else:
+                    yield current
+
+    @doc_category("Generic rigidity")
+    def extension_sequence(
+        self, dim: int = 2, return_solution: bool = False
+    ) -> Union[List[Graph], bool]:
+        """
+        Check the existence of a sequence of
+        :prf:ref:`0 and 1-extensions <def-k-extension>`.
+
+        The method returns whether the graph can be constructed
+        by a sequence of 0 and 1-extensions starting from an edge.
+
+        Parameters
+        ----------
+        dim:
+            The dimension in which the extensions are created.
+            Currently implemented only for ``dim==2``.
+        return_solution:
+            If False, a boolean value indicating if the graph can be
+            created by a sequence of extensions is returned.
+            If True, an extension sequence of graphs that creates the graph
+            is returned, or None if no such extension sequence exists.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.ThreePrism()
+        >>> G
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
+        >>> G.extension_sequence()
+        True
+        >>> G = graphs.CompleteBipartite(1, 2)
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2]]
+        >>> G.extension_sequence()
+        False
+        >>> G = graphs.Complete(3)
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G.extension_sequence(return_solution=True)
+        [Graph with vertices [1, 2] and edges [[1, 2]], Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]]
+        >>> G = graphs.Diamond()
+        >>> G
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
+        >>> G.extension_sequence(return_solution=True)
+        [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
+        """  # noqa: E501
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError(
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
+        if not dim == 2:
+            raise NotImplementedError()
+        if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
+            return None if return_solution else False
+        if self.number_of_nodes() == 2:
+            return [self] if return_solution else True
+        degrees = sorted(self.degree, key=lambda node: node[1])
+        if degrees[0][1] < 2 or degrees[0][1] > 3:
+            return None if return_solution else False
+        if degrees[0][1] == 2:
+            G = deepcopy(self)
+            G.remove_node(degrees[0][0])
+            branch = G.extension_sequence(dim, return_solution)
+            if return_solution:
+                if branch is not None:
+                    return branch + [self]
+                return None
+            return branch
+        if degrees[0][1] == 3:
+            neighbors = list(self.neighbors(degrees[0][0]))
+            G = deepcopy(self)
+            G.remove_node(degrees[0][0])
+            for i, j in [[0, 1], [0, 2], [1, 2]]:
+                if not G.has_edge(neighbors[i], neighbors[j]):
+                    G.add_edge(neighbors[i], neighbors[j])
+                    branch = G.extension_sequence(dim, return_solution)
+                    if return_solution and branch is not None:
+                        return branch + [self]
+                    elif branch:
+                        return True
+                    G.remove_edge(neighbors[i], neighbors[j])
+        return None if return_solution else False
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
@@ -676,9 +1094,9 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     @doc_category("Generic rigidity")
-    def max_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
+    def max_rigid_subgraphs(self, dim: int = 2) -> List[Graph]:
         """
-        List vertex-maximal rigid subgraphs of the graph.
+        List the vertex sets inducing vertex-maximal rigid subgraphs.
 
         Definitions
         -----
@@ -686,7 +1104,7 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        missing definition
+        missing definition, tests
 
         Notes
         -----
@@ -704,8 +1122,8 @@ class Graph(nx.Graph):
         >>> G.is_rigid()
         False
         >>> G.max_rigid_subgraphs()
-        [Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]], Graph with vertices [3, 4, 5] and edges [[3, 4], [3, 5], [4, 5]]]
-        """  # noqa: E501
+        [[0, 1, 2], [3, 4, 5]]
+        """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
@@ -713,35 +1131,37 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        if not nx.is_connected(self):
+            res = []
+            for comp in nx.connected_components(self):
+                res += self.subgraph(comp).max_rigid_subgraphs(dim)
+            return res
+
         if self.number_of_nodes() <= dim:
             return []
-        if self.is_rigid():
+        if self.is_rigid(dim):
             return [self]
-        max_subgraphs = []
-        for vertex_subset in combinations(self.nodes, self.number_of_nodes() - 1):
-            G = self.subgraph(vertex_subset)
-            max_subgraphs = [
-                j for i in [max_subgraphs, G.max_rigid_subgraphs(dim)] for j in i
-            ]
+        rigid_subgraphs = {
+            tuple(vertex_subset): True
+            for r in range(dim + 1, self.number_of_nodes() - 1)
+            for vertex_subset in combinations(self.nodes, r)
+            if self.subgraph(vertex_subset).is_rigid(dim)
+        }
 
-        # We now remove the graphs that were found at least twice.
-        clean_list = []
-        for i in range(len(max_subgraphs)):
-            iso_bool = False
-            for j in range(i + 1, len(max_subgraphs)):
-                if set(max_subgraphs[i].nodes) == set(
-                    max_subgraphs[j].nodes
-                ) and max_subgraphs[i].is_isomorphic(max_subgraphs[j]):
-                    iso_bool = True
-                    break
-            if not iso_bool:
-                clean_list.append(max_subgraphs[i])
-        return clean_list
+        sorted_rigid_subgraphs = sorted(
+            rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True
+        )
+        for i, H1 in enumerate(sorted_rigid_subgraphs):
+            if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
+                for H2 in sorted_rigid_subgraphs[i + 1 :]:
+                    if set(H2).issubset(set(H1)):
+                        rigid_subgraphs[H2] = False
+        return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
 
     @doc_category("Generic rigidity")
-    def min_rigid_subgraphs(self, dim: int = 2) -> List[GraphType]:
+    def min_rigid_subgraphs(self, dim: int = 2) -> List[Graph]:
         """
-        List vertex-minimal non-trivial rigid subgraphs of the graph.
+        List the vertex sets inducing vertex-minimal non-trivial rigid subgraphs.
 
         Definitions
         -----
@@ -749,7 +1169,7 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        missing definition
+        missing definition, tests
 
         Notes
         -----
@@ -758,12 +1178,18 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,3), (4,1), (5,2)])
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.CompleteBipartite(3, 3)
         >>> G.is_rigid()
         True
         >>> G.min_rigid_subgraphs()
-        [Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 3], [0, 5], [1, 2], [1, 4], [2, 3], [2, 5], [3, 4], [4, 5]]]
-        """  # noqa: E501
+        [[0, 1, 2, 3, 4, 5]]
+        >>> G = graphs.ThreePrism()
+        >>> G.is_rigid()
+        True
+        >>> G.min_rigid_subgraphs()
+        [[0, 1, 2], [3, 4, 5]]
+        """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
@@ -771,42 +1197,31 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        min_subgraphs = []
-        if self.number_of_nodes() <= 2:
-            return []
-        elif self.number_of_nodes() == dim + 1 and self.is_rigid():
-            return [self]
-        elif self.number_of_nodes() == dim + 1:
-            return []
-        for vertex_subset in combinations(self.nodes, self.number_of_nodes() - 1):
-            G = self.subgraph(vertex_subset)
-            subgraphs = G.min_rigid_subgraphs(dim)
-            if len(subgraphs) == 0 and G.is_rigid():
-                min_subgraphs.append(G)
-            else:
-                min_subgraphs = [
-                    j for i in [min_subgraphs, G.min_rigid_subgraphs(dim)] for j in i
-                ]
+        if not nx.is_connected(self):
+            res = []
+            for comp in nx.connected_components(self):
+                res += self.subgraph(comp).min_rigid_subgraphs(dim)
+            return res
 
-        # We now remove the graphs that were found at least twice.
-        clean_list = []
-        for i in range(len(min_subgraphs)):
-            iso_bool = False
-            for j in range(i + 1, len(min_subgraphs)):
-                if set(min_subgraphs[i].nodes) == set(
-                    min_subgraphs[j].nodes
-                ) and min_subgraphs[i].is_isomorphic(min_subgraphs[j]):
-                    iso_bool = True
-                    break
-            if not iso_bool:
-                clean_list.append(min_subgraphs[i])
-        # If no smaller graph is found and the graph is rigid, it is returned.
-        if not clean_list and self.is_rigid():
-            clean_list = [self]
-        return clean_list
+        if self.number_of_nodes() <= dim:
+            return []
+        rigid_subgraphs = {
+            tuple(vertex_subset): True
+            for r in range(dim + 1, self.number_of_nodes() + 1)
+            for vertex_subset in combinations(self.nodes, r)
+            if self.subgraph(vertex_subset).is_rigid(dim)
+        }
+
+        sorted_rigid_subgraphs = sorted(rigid_subgraphs.keys(), key=lambda t: len(t))
+        for i, H1 in enumerate(sorted_rigid_subgraphs):
+            if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
+                for H2 in sorted_rigid_subgraphs[i + 1 :]:
+                    if set(H1).issubset(set(H2)):
+                        rigid_subgraphs[H2] = False
+        return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
 
     @doc_category("General graph theoretical properties")
-    def is_isomorphic(self, graph: GraphType) -> bool:
+    def is_isomorphic(self, graph: Graph) -> bool:
         """
         Check whether two graphs are isomorphic.
 
@@ -877,7 +1292,7 @@ class Graph(nx.Graph):
 
     @classmethod
     @doc_category("Class methods")
-    def from_int(cls, N: int) -> GraphType:
+    def from_int(cls, N: int) -> Graph:
         """
         Return a graph given its integer representation.
 
@@ -903,7 +1318,7 @@ class Graph(nx.Graph):
 
     @classmethod
     @doc_category("Class methods")
-    def from_adjacency_matrix(cls, M: Matrix) -> GraphType:
+    def from_adjacency_matrix(cls, M: Matrix) -> Graph:
         """
         Create a graph from a given adjacency matrix.
 
@@ -974,9 +1389,8 @@ class Graph(nx.Graph):
         return Matrix(row_list)
 
     @doc_category("Other")
-    def random_framework(
-        self, dim: int = 2, rand_range: Union(int, List[int]) = None
-    ) -> FrameworkType:
+    def random_framework(self, dim: int = 2, rand_range: Union(int, List[int]) = None):
+        # the return type is intentionally omitted to avoid circular import
         """
         Return framework with random realization.
 

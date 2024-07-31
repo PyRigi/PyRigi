@@ -9,7 +9,7 @@ import pyrigi.misc as misc
 import sympy as sp
 
 
-def Cycle(n: int, d: int = 2):
+def Cycle(n: int, d: int = 2) -> Framework:
     """Return d-dimensional framework of the n-cycle."""
     misc.check_integrality_and_range(n, "number of vertices n", 3)
     misc.check_integrality_and_range(d, "dimension d", 1)
@@ -25,18 +25,24 @@ def Cycle(n: int, d: int = 2):
     )
 
 
-def Square():
+def Square() -> Framework:
     """Framework of the 4-cycle with square realization in the plane"""
     return Framework(graphs.Cycle(4), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
 
 
-def Diamond():
+def Diamond() -> Framework:
     """Framework of the diamond with square realization in the plane"""
     return Framework(graphs.Diamond(), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
 
 
-def Complete(n: int, d: int = 2):
-    """Return d-dimensional framework of the complete graph on n vertices."""
+def Complete(n: int, d: int = 2) -> Framework:
+    """
+    Return d-dimensional framework of the complete graph on n vertices.
+
+    TODO
+    ----
+    Describe the generated realization.
+    """
     misc.check_integrality_and_range(n, "number of vertices n", 1)
     misc.check_integrality_and_range(d, "dimension d", 1)
     if n - 1 <= d:
@@ -51,7 +57,7 @@ def Complete(n: int, d: int = 2):
     )
 
 
-def Path(n: int, d: int = 2):
+def Path(n: int, d: int = 2) -> Framework:
     """Return d-dimensional framework of the path graph on n vertices."""
     misc.check_integrality_and_range(n, "number of vertices n", 2)
     misc.check_integrality_and_range(d, "dimension d", 1)
@@ -67,7 +73,7 @@ def Path(n: int, d: int = 2):
     )
 
 
-def ThreePrism(realization: str = None):
+def ThreePrism(realization: str = None) -> Framework:
     """
     Return 3-prism framework.
 
@@ -95,14 +101,14 @@ def ThreePrism(realization: str = None):
     )
 
 
-def ThreePrismPlusEdge():
+def ThreePrismPlusEdge() -> Framework:
     """Return a framework of the 3-prism graph with one extra edge."""
     G = ThreePrism()
     G.add_edge([0, 5])
     return G
 
 
-def CompleteBipartite(m: int, n: int, realization: str = None):
+def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
     """
     Return a complete bipartite framework on m+n vertices in the plane.
 
@@ -144,7 +150,7 @@ def CompleteBipartite(m: int, n: int, realization: str = None):
     )
 
 
-def K33plusEdge():
+def K33plusEdge() -> Framework:
     """Return a framework of the complete bipartite graph on 3+3 vertices plus an edge."""
     G = CompleteBipartite(3, 3, "dixonI")
     G.add_edge([0, 1])

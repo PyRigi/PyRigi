@@ -15,6 +15,9 @@ A $d$-dimensional _realization_ of $G$ is a map $p\colon V\rightarrow \RR^d$.
 For convenience, for $v \in V$ we may denote $p(v)$ by $p_v$.
 
 The realization $p$ is _quasi-injective_ if $p(u)\neq p(v)$ for every edge $uv\in E$.
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_injective`
+{meth}`~.Framework.is_quasi_injective`
 :::
 
 
@@ -250,5 +253,32 @@ A graph $G = (V, E)$ is generically $2$-rigid if and only if ...
 
 {{references}} {cite:p}`Geiringer1927`
 {cite:p}`Laman1970`
+:::
+
+
+:::{prf:definition} k-extension
+:label: def-k-extension
+
+Let $d,k \in \NN$.
+Let $G=(V,E)$ be a graph, let $F \subset E$ with $|F|=k$
+and let $v \notin V$.
+Let $H=(W,F)$ be the subgraph of $G$ induced by $F$.
+Let further $S \subset V$ be a set of vertices such that
+$S \cap W= \emptyset$ and $|S|+|W|=d+k$.
+We define
+\begin{equation*}
+ E_v = \bigl\{ \{v,u\} : u \in W \cup S \bigr\} \,.
+\end{equation*}
+Then
+\begin{equation*}
+ G'= \bigl( V \cup \{v\}, (E \setminus F) \cup E_v \bigr)
+\end{equation*}
+is called a $d$-dimensional _k-extension_ of $G$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.k_extension`
+{meth}`~.Graph.one_extension`
+{meth}`~.Graph.zero_extension`
+{meth}`~.Graph.all_k_extensions`
+{meth}`~.Graph.extension_sequence`
 :::
 
