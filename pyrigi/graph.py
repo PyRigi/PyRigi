@@ -1016,7 +1016,6 @@ class Graph(nx.Graph):
             "olive",
             "dodgerblue",
         ]
-        color = ""
         if isinstance(edge_color, str):
             return [edge_color for _ in edge_list], edge_list
 
@@ -1096,50 +1095,57 @@ class Graph(nx.Graph):
         edge_width: float = 1.0,
         edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
         edge_style: str = "solid",
-        canvas_width: int = 6.4,
-        canvas_height: int = 4.8,
+        canvas_width: float = 6.4,
+        canvas_height: float = 4.8,
         aspect_ratio: float = 1.0,
         **kwargs,
     ) -> None:
         """
         Plot the graph.
 
+        See tutorial Plotting for illustration of the options.
+
         Parameters
         ----------
         placement:
             The placement of vertices in the plane.
+        layout:
+            If ``placement`` is not specified,
+            then it is generated using :meth:`~Graph.layout`.
         vertex_size:
-            The size of the vertex. By default 300.
+            The size of the vertices.
         vertex_color:
-            The color of the vertex. Color can be string or rgb (or rgba)
+            The color of the vertices. Color can be string or rgb (or rgba)
             tuple of floats from 0-1.
         vertex_shape:
-            The shape of the vertex. Specification is as matplotlib.scatter
-            marker, one of 'so^>v<dph8'. By default 'o'.
+            The shape of the vertices specified as as matplotlib.scatter
+            marker, one of ``so^>v<dph8``.
         vertex_labels:
-            If True, vertex labels are displayed. By default True.
+            If ``True`` (default), vertex labels are displayed.
         edge_width:
-            The width of the edge. By default 1.0.
         edge_color:
-            The color of the edge. Color can be string or rgb (or rgba) tuple
-            of floats from 0-1. By default 'k'.
+            If a single color is given as a string or rgb (or rgba) tuple
+            of floats from 0-1, then all edges get this color.
+            If a (possible incomplete) partition of the edges is given,
+            then each part gets a different color.
+            If a dictionary from color to a list of edge is given,
+            edges are colored accordingly.
+            The edges missing in the partition/dictionary, are colored black.
         edge_style:
-            Edge line style e.g.: '-', '–', '-', ':' or words like 'solid' or
-            'dashed'. By default '-'.
+            Edge line style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
         font_size:
-            The size of the font used for the labels. By default 12.
+            The size of the font used for the labels.
         font_color:
-            The color of the font used for the labels. By default 'k'.
+            The color of the font used for the labels.
         canvas_width:
-            The width of the canvas in inches. By default 6.4.
+            The width of the canvas in inches.
         canvas_height:
-            The height of the canvas in inches. By default 4.8.
+            The height of the canvas in inches.
         aspect_ratio:
             The ratio of y-unit to x-unit. By default 1.0.
 
-        Notes
-        -----
-        Use a networkx internal routine to plot the graph."""
+        """
 
         fig, ax = plt.subplots()
         ax.set_adjustable("datalim")

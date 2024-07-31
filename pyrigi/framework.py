@@ -19,7 +19,6 @@ from copy import deepcopy
 from random import randrange
 
 import networkx as nx
-import matplotlib.pyplot as plt
 import sympy as sp
 from sympy import Matrix, flatten, binomial
 
@@ -279,7 +278,7 @@ class Framework(object):
         """
         Plot the framework.
 
-        For the various formatting options, see :meth:`~Graph.plot`.
+        For various formatting options, see :meth:`.Graph.plot`.
 
         Parameters
         ----------
@@ -287,12 +286,8 @@ class Framework(object):
 
         TODO
         ----
-        implement plotting also for other dimensions than 2,
-        more plotting options
-
-        Notes
-        -----
-        Use a networkx internal routine to plot the framework."""
+        implement plotting also for other dimensions than 2
+        """
 
         if self._dim != 2:
             raise NotImplementedError(
