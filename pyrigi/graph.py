@@ -1444,8 +1444,17 @@ class Graph(nx.Graph):
                 edge_color_array.append("black")
                 edge_list_ref.append(e)
         if len(edge_list_ref) > self.number_of_edges():
+            multiple_colored = [
+                e
+                for e in edge_list_ref
+                if (edge_list_ref.count(e) > 1 or (e[1], e[0]) in edge_list_ref)
+            ]
+            duplicates = []
+            for e in multiple_colored:
+                if not (e in duplicates or (e[1], e[0]) in duplicates):
+                    duplicates.append(e)
             raise ValueError(
-                "There is an edge whose color was specified multiple times."
+                f"The color of the edges in the following list was specified multiple times: {duplicates}."
             )
         return edge_color_array, edge_list_ref
 
