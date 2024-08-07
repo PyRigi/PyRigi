@@ -1454,7 +1454,8 @@ class Graph(nx.Graph):
                 if not (e in duplicates or (e[1], e[0]) in duplicates):
                     duplicates.append(e)
             raise ValueError(
-                f"The color of the edges in the following list was specified multiple times: {duplicates}."
+                f"The color of the edges in the following list"
+                f"was specified multiple times: {duplicates}."
             )
         return edge_color_array, edge_list_ref
 
