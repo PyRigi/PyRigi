@@ -1433,7 +1433,7 @@ class Graph(nx.Graph):
                 for e in edges:
                     if not self.has_edge(e[0], e[1]):
                         raise ValueError(
-                            "Input includes edge that is not part of the framework"
+                            "The input includes an edge that is not part of the framework"
                         )
                     edge_color_array.append(color)
                     edge_list_ref.append(tuple(e))
@@ -1454,7 +1454,7 @@ class Graph(nx.Graph):
         """
         Generate a placement of the vertices.
 
-        This method a is wrapper for functions
+        This method a is wrapper for the functions
         :func:`~networkx.drawing.layout.spring_layout`,
         :func:`~networkx.drawing.layout.random_layout`,
         :func:`~networkx.drawing.layout.circular_layout`
@@ -1509,7 +1509,7 @@ class Graph(nx.Graph):
         vertex_size:
             The size of the vertices.
         vertex_color:
-            The color of the vertices. Color can be string or rgb (or rgba)
+            The color of the vertices. The color can be a string or an rgb (or rgba)
             tuple of floats from 0-1.
         vertex_shape:
             The shape of the vertices specified as as matplotlib.scatter
@@ -1520,9 +1520,9 @@ class Graph(nx.Graph):
         edge_color:
             If a single color is given as a string or rgb (or rgba) tuple
             of floats from 0-1, then all edges get this color.
-            If a (possible incomplete) partition of the edges is given,
+            If a (possibly incomplete) partition of the edges is given,
             then each part gets a different color.
-            If a dictionary from color to a list of edge is given,
+            If a dictionary from colors to a list of edge is given,
             edges are colored accordingly.
             The edges missing in the partition/dictionary, are colored black.
         edge_style:
