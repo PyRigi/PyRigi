@@ -162,7 +162,7 @@ P.plot(edge_color={
        **formatting)
 ```
 
-# Framework plotting
+## Framework plotting
 
 Currently, only plots of frameworks in the plane are implemented.
 
