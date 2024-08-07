@@ -1502,10 +1502,11 @@ class Graph(nx.Graph):
         Parameters
         ----------
         placement:
-            The placement of vertices in the plane.
-        layout:
             If ``placement`` is not specified,
-            then it is generated using :meth:`~Graph.layout`.
+            then it is generated depending on parameter ``layout``.
+        layout:
+            The possibilities are ``spring`` (default), ``circular``,
+            ``random`` or ``planar``, see also :meth:`~Graph.layout`.
         vertex_size:
             The size of the vertices.
         vertex_color:
