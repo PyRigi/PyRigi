@@ -12,6 +12,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from sympy import Matrix
 import math
+import distinctipy
 
 from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.misc import doc_category, generate_category_tables
@@ -1409,43 +1410,22 @@ class Graph(nx.Graph):
         edge_list = self.edge_list()
         edge_list_ref = []
         edge_color_array = []
-        colors = [
-            "red",
-            "green",
-            "blue",
-            "yellow",
-            "orange",
-            "purple",
-            "pink",
-            "lime",
-            "cyan",
-            "magenta",
-            "brown",
-            "darkblue",
-            "gold",
-            "lightgreen",
-            "violet",
-            "lightblue",
-            "orangered",
-            "olive",
-            "dodgerblue",
-        ]
+
         if isinstance(edge_color, str):
             return [edge_color for _ in edge_list], edge_list
 
         if isinstance(edge_color, list):
             edges_partition = edge_color
+            colors = distinctipy.get_colors(
+                len(edges_partition), colorblind_type="Deuteranomaly", pastel_factor=0.2
+            )
             for i, part in enumerate(edges_partition):
-                if i >= len(colors):
-                    color = "black"
-                else:
-                    color = colors[i]
                 for e in part:
                     if not self.has_edge(e[0], e[1]):
                         raise ValueError(
                             "The input includes a pair that is not an edge."
                         )
-                    edge_color_array.append(color)
+                    edge_color_array.append(colors[i])
                     edge_list_ref.append(tuple(e))
         elif isinstance(edge_color, dict):
             color_edges_dict = edge_color
