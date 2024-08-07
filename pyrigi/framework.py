@@ -267,6 +267,8 @@ class Framework(object):
     @doc_category("Other")
     def plot(
         self,
+        vertex_color="#ff8c00",
+        edge_width=1.5,
         **kwargs,
     ) -> None:
         """
@@ -289,7 +291,10 @@ class Framework(object):
             )
 
         self._graph.plot(
-            placement=self.realization(as_points=True, numerical=True), **kwargs
+            placement=self.realization(as_points=True, numerical=True),
+            vertex_color=vertex_color,
+            edge_width=edge_width,
+            **kwargs,
         )
 
     @classmethod

@@ -165,6 +165,12 @@ P.plot(edge_color={
 # Framework plotting
 
 Currently, only plots of frameworks in the plane are implemented.
+
+```{code-cell} ipython3
+F = frameworks.Complete(9)
+F.plot()
+```
+
 The same formatting options as for graphs are available for frameworks.
 
 ```{code-cell} ipython3
@@ -172,7 +178,7 @@ F = frameworks.Complete(9)
 F.plot(vertex_labels=False,
        vertex_color='#A2B4C6',
        edge_style='dashed',
-       edge_width=1.2,
+       edge_width=2,
        edge_color={"pink" : [[0,1],[3,6]], "lightgreen" : [[2,3],[3,5]]}
       )
 ```

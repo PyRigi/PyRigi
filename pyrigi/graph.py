@@ -1483,12 +1483,13 @@ class Graph(nx.Graph):
         placement: dict[Vertex, Point] = None,
         layout: str = "spring",
         vertex_size: int = 300,
-        vertex_color: str = "#4584B6",
+        vertex_color: str = "#4169E1",
         vertex_shape: str = "o",
         vertex_labels: bool = True,
-        edge_width: float = 1.0,
+        edge_width: float = 2.5,
         edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
         edge_style: str = "solid",
+        font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
         aspect_ratio: float = 1.0,
@@ -1552,7 +1553,7 @@ class Graph(nx.Graph):
         if placement is None:
             placement = self.layout(layout)
 
-        nx.draw(
+        nx.draw_networkx(
             self,
             pos=placement,
             ax=ax,
@@ -1562,6 +1563,7 @@ class Graph(nx.Graph):
             with_labels=vertex_labels,
             width=edge_width,
             edge_color=edge_color_array,
+            font_color=font_color,
             edgelist=edge_list_ref,
             style=edge_style,
             **kwargs,
