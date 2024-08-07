@@ -142,7 +142,7 @@ If the partition is incomplete, the missing edges are black.
 P.plot(edge_color=[[[0,1],[2,3]], [[5,4],[4,3]]], **formatting)
 ```
 
-Visually distinct colors are generated using the package [`distinctipy`](https://pypi.org/project/distinctipy/).
+Visually distinct colors are generated using the package [`distinctipy`](https://zenodo.org/doi/10.5281/zenodo.3985191).
 
 ```{code-cell} ipython3
 P30 = graphs.Path(30)
