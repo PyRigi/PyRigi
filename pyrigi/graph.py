@@ -1563,7 +1563,7 @@ class Graph(nx.Graph):
         if placement is None:
             placement = self.layout(layout)
 
-        nx.draw_networkx(
+        nx.draw(
             self,
             pos=placement,
             ax=ax,
