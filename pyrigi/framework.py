@@ -264,7 +264,7 @@ class Framework(object):
         """
         return deepcopy(self._graph)
 
-    @doc_category("Plotting")
+    @doc_category("Other")
     def plot(
         self,
         **kwargs,
@@ -1325,7 +1325,7 @@ Framework.__doc__ = Framework.__doc__.replace(
             "Class methods",
             "Framework manipulation",
             "Infinitesimal rigidity",
-            "Plotting",
+            "Other",
             "Waiting for implementation",
         ],
         include_all=False,
