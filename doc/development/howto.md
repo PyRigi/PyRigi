@@ -55,6 +55,12 @@ We propose a few categories for contributing branches:
 * _refactoring_: branches to refactor the code; their name should start by `refactor-`
 
 Once in a while, the maintainers merge the branch `dev` into `main` and create a new release.
+The release numbers follow this scheme:
+
+* MAJOR version: significant functionality extensions yielding possibly incompatible API changes (x+1.y.z)
+* MINOR version: new functionality in a backward compatible manner (x.y+1.z)
+* PATCH version: backward compatible bug fixes (x.y.z+1).
+
 
 ## Code
 
