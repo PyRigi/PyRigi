@@ -81,8 +81,3 @@ The decision to create PyRigi was made by the participants of the workshop
 [Code of Rigidity](https://www.ricam.oeaw.ac.at/specsem/specsem2024/workshop2/)
 (March 11–15, 2024), which was part of the 
 Special Semester on Rigidity and Flexibility at [RICAM](https://www.oeaw.ac.at/ricam/), Linz, Austria.
-
-
-
-
-
