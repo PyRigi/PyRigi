@@ -26,9 +26,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "0.1"
+version = "0.2"
 # The full version, including alpha/beta/rc tags
-release = "0.1.0"
+release = "0.2.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -65,6 +65,7 @@ bibtex_bibfiles = ["refs.bib"]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
+    "sympy": ("https://docs.sympy.org/latest/", None),
 }
 
 napoleon_google_docstring = False
@@ -85,6 +86,7 @@ autodoc_type_aliases = {
     "Vertex": "Vertex",
     "Edge": "Edge",
     "Point": "Point",
+    "Coordinate": "Coordinate",
 }
 napoleon_attr_annotations = True
 

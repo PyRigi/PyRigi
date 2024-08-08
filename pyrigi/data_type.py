@@ -4,7 +4,9 @@ Module for defining data type used for type hinting.
 
 """
 
-from typing import TypeVar, List, Tuple, Hashable
+from sympy import Matrix, SympifyError, MatrixBase
+from typing import Tuple, Hashable
+from collections.abc import Sequence
 
 
 Vertex = Hashable
@@ -17,11 +19,35 @@ Edge = Tuple[Vertex, Vertex]
 An Edge is a pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
 """
 
-Point = List[float]
+Coordinate = int | float | str
 """
-A Point is a list of coordinates whose length is the dimension of its affine space.
+An integer, float or a string interpretable by :func:`~sympy.core.sympify.sympify`.
 """
 
-GraphType = TypeVar("Graph")
-FrameworkType = TypeVar("Framework")
-MatroidType = TypeVar("Matroid")
+Point = Sequence[Coordinate]
+"""
+A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
+"""
+
+
+def point_to_vector(point: Point) -> Matrix:
+    """
+    Return point as single column sympy Matrix.
+    """
+
+    if isinstance(point, MatrixBase):
+        if point.shape[1] != 1:
+            raise ValueError("Point could not be interpreted as column vector.")
+        return point
+
+    if not isinstance(point, Sequence) or isinstance(point, str):
+        raise TypeError("The point must be a Sequence of Coordinates.")
+
+    try:
+        res = Matrix(point)
+    except SympifyError as e:
+        raise ValueError("A coordinate could not be interpreted by sympify:\n" + str(e))
+
+    if res.shape[1] != 1:
+        raise ValueError("Point could not be interpreted as column vector.")
+    return res

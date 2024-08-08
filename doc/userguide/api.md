@@ -7,4 +7,5 @@ api/framework
 api/graphDB
 api/frameworkDB
 api/datatype
+api/misc
 :::

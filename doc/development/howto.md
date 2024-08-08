@@ -8,9 +8,20 @@
 
 This page provides basic information to start contributing.
 
+## Communication
+
+We use a [Zulip chat](https://pyrigi.zulipchat.com) for the communication among contributors.
+If you want to get access to it, please send an email to
+[this address](mailto:external.dc4f45edef70cb7e0c621ad50377d9f1.show-sender.include-footer@streams.zulipchat.com).
+Feel free to ask any questions regarding PyRigi in a Zulip channel.
+
+You can come with your own ideas on what to develop or you can check the channel
+[To be implemented](https://pyrigi.zulipchat.com/#narrow/stream/444087-To-be-implemented)
+for some suggestions about what the maintainers would be happy to have in PyRigi.
+
 :::{important}
 Currently, we prefer the following contributions to the code:
- - resolving and existing TODO (especially adding examples and tests),
+ - resolving an existing TODO (especially adding examples and tests),
  - implementing a method marked as `Waiting for implementation`
    or returning `NotImplementedError`,
  - or adding missing definitions.
@@ -44,6 +55,12 @@ We propose a few categories for contributing branches:
 * _refactoring_: branches to refactor the code; their name should start by `refactor-`
 
 Once in a while, the maintainers merge the branch `dev` into `main` and create a new release.
+The release numbers follow this scheme:
+
+* MAJOR version: significant functionality extensions yielding possibly incompatible API changes (x+1.y.z)
+* MINOR version: new functionality in a backward compatible manner (x.y+1.z)
+* PATCH version: backward compatible bug fixes (x.y.z+1).
+
 
 ## Code
 
@@ -202,3 +219,12 @@ is achieved using [Jupytext](https://jupytext.readthedocs.io/en/latest/index.htm
 Please, **do not** commit the `.ipynb` to the repository.
 You can contact a maintainer if you have a `.ipynb` tutorial
 you want to contribute but struggle to get its `.md` version.
+
+
+In case `poetry shell` is used as described above, Jupyterlab and Jupytext
+can be install using
+```
+pip install jupyterlab jupytext
+```
+After setting the virtual enviroment in Jupyterlab to the one created
+by `poetry shell`, `.md` notebooks can be opened directly.
