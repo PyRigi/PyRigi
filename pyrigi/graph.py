@@ -9,10 +9,12 @@ from itertools import combinations
 from typing import List, Union, Iterable
 
 import networkx as nx
+import matplotlib.pyplot as plt
 from sympy import Matrix
 import math
+import distinctipy
 
-from pyrigi.data_type import Vertex, Edge
+from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 
@@ -1398,6 +1400,185 @@ class Graph(nx.Graph):
         from pyrigi.framework import Framework
 
         return Framework.Random(self, dim, rand_range)
+
+    def _resolve_edge_colors(
+        self, edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]])
+    ) -> tuple[list, list]:
+        """
+        Return the lists of colors and edges in the format for plotting.
+        """
+        edge_list = self.edge_list()
+        edge_list_ref = []
+        edge_color_array = []
+
+        if isinstance(edge_color, str):
+            return [edge_color for _ in edge_list], edge_list
+
+        if isinstance(edge_color, list):
+            edges_partition = edge_color
+            colors = distinctipy.get_colors(
+                len(edges_partition), colorblind_type="Deuteranomaly", pastel_factor=0.2
+            )
+            for i, part in enumerate(edges_partition):
+                for e in part:
+                    if not self.has_edge(e[0], e[1]):
+                        raise ValueError(
+                            "The input includes a pair that is not an edge."
+                        )
+                    edge_color_array.append(colors[i])
+                    edge_list_ref.append(tuple(e))
+        elif isinstance(edge_color, dict):
+            color_edges_dict = edge_color
+            for color, edges in color_edges_dict.items():
+                for e in edges:
+                    if not self.has_edge(e[0], e[1]):
+                        raise ValueError(
+                            "The input includes an edge that is not part of the framework"
+                        )
+                    edge_color_array.append(color)
+                    edge_list_ref.append(tuple(e))
+        else:
+            raise ValueError("The input color_edge has none of the supported formats.")
+        for e in edge_list:
+            if (e[0], e[1]) not in edge_list_ref and (e[1], e[0]) not in edge_list_ref:
+                edge_color_array.append("black")
+                edge_list_ref.append(e)
+        if len(edge_list_ref) > self.number_of_edges():
+            multiple_colored = [
+                e
+                for e in edge_list_ref
+                if (edge_list_ref.count(e) > 1 or (e[1], e[0]) in edge_list_ref)
+            ]
+            duplicates = []
+            for e in multiple_colored:
+                if not (e in duplicates or (e[1], e[0]) in duplicates):
+                    duplicates.append(e)
+            raise ValueError(
+                f"The color of the edges in the following list"
+                f"was specified multiple times: {duplicates}."
+            )
+        return edge_color_array, edge_list_ref
+
+    @doc_category("Other")
+    def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
+        """
+        Generate a placement of the vertices.
+
+        This method a is wrapper for the functions
+        :func:`~networkx.drawing.layout.spring_layout`,
+        :func:`~networkx.drawing.layout.random_layout`,
+        :func:`~networkx.drawing.layout.circular_layout`
+        and :func:`~networkx.drawing.layout.planar_layout`
+
+        Parameters
+        ----------
+        layout_type:
+            The supported layouts are ``circular``, ``planar``,
+            ``random`` and ``spring`` (default).
+        """
+        if layout_type == "circular":
+            return nx.drawing.layout.circular_layout(self)
+        elif layout_type == "planar":
+            return nx.drawing.layout.planar_layout(self)
+        elif layout_type == "random":
+            return nx.drawing.layout.random_layout(self)
+        elif layout_type == "spring":
+            return nx.drawing.layout.spring_layout(self)
+        else:
+            raise ValueError(f"layout_type {layout_type} is not supported.")
+
+    @doc_category("Other")
+    def plot(
+        self,
+        placement: dict[Vertex, Point] = None,
+        layout: str = "spring",
+        vertex_size: int = 300,
+        vertex_color: str = "#4169E1",
+        vertex_shape: str = "o",
+        vertex_labels: bool = True,
+        edge_width: float = 2.5,
+        edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
+        edge_style: str = "solid",
+        font_color: str = "whitesmoke",
+        canvas_width: float = 6.4,
+        canvas_height: float = 4.8,
+        aspect_ratio: float = 1.0,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the graph.
+
+        See tutorial Plotting for illustration of the options.
+
+        Parameters
+        ----------
+        placement:
+            If ``placement`` is not specified,
+            then it is generated depending on parameter ``layout``.
+        layout:
+            The possibilities are ``spring`` (default), ``circular``,
+            ``random`` or ``planar``, see also :meth:`~Graph.layout`.
+        vertex_size:
+            The size of the vertices.
+        vertex_color:
+            The color of the vertices. The color can be a string or an rgb (or rgba)
+            tuple of floats from 0-1.
+        vertex_shape:
+            The shape of the vertices specified as as matplotlib.scatter
+            marker, one of ``so^>v<dph8``.
+        vertex_labels:
+            If ``True`` (default), vertex labels are displayed.
+        edge_width:
+        edge_color:
+            If a single color is given as a string or rgb (or rgba) tuple
+            of floats from 0-1, then all edges get this color.
+            If a (possibly incomplete) partition of the edges is given,
+            then each part gets a different color.
+            If a dictionary from colors to a list of edge is given,
+            edges are colored accordingly.
+            The edges missing in the partition/dictionary, are colored black.
+        edge_style:
+            Edge line style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        font_size:
+            The size of the font used for the labels.
+        font_color:
+            The color of the font used for the labels.
+        canvas_width:
+            The width of the canvas in inches.
+        canvas_height:
+            The height of the canvas in inches.
+        aspect_ratio:
+            The ratio of y-unit to x-unit. By default 1.0.
+
+        """
+
+        fig, ax = plt.subplots()
+        ax.set_adjustable("datalim")
+        fig.set_figwidth(canvas_width)
+        fig.set_figheight(canvas_height)
+        ax.set_aspect(aspect_ratio)
+        edge_color_array, edge_list_ref = self._resolve_edge_colors(edge_color)
+
+        if placement is None:
+            placement = self.layout(layout)
+
+        nx.draw(
+            self,
+            pos=placement,
+            ax=ax,
+            node_size=vertex_size,
+            node_color=vertex_color,
+            node_shape=vertex_shape,
+            with_labels=vertex_labels,
+            width=edge_width,
+            edge_color=edge_color_array,
+            font_color=font_color,
+            edgelist=edge_list_ref,
+            style=edge_style,
+            **kwargs,
+        )
+        plt.show()
 
 
 Graph.__doc__ = Graph.__doc__.replace(

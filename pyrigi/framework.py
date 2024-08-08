@@ -264,27 +264,37 @@ class Framework(object):
         """
         return deepcopy(self._graph)
 
-    @doc_category("Plotting")
-    def plot(self, vertex_labels: bool = True) -> None:
+    @doc_category("Other")
+    def plot(
+        self,
+        vertex_color="#ff8c00",
+        edge_width=1.5,
+        **kwargs,
+    ) -> None:
         """
         Plot the framework.
 
+        For various formatting options, see :meth:`.Graph.plot`.
+
+        Parameters
+        ----------
+
+
         TODO
         ----
-        implement plotting also for other dimensions than 2,
-        more plotting options
+        implement plotting also for other dimensions than 2
+        """
 
-        Notes
-        -----
-        Use a networkx internal routine to plot the framework."""
         if self._dim != 2:
             raise NotImplementedError(
                 "Plotting is currently supported only for 2-dimensional frameworks."
             )
-        nx.draw(
-            self._graph,
-            pos=self.realization(as_points=True, numerical=True),
-            with_labels=vertex_labels,
+
+        self._graph.plot(
+            placement=self.realization(as_points=True, numerical=True),
+            vertex_color=vertex_color,
+            edge_width=edge_width,
+            **kwargs,
         )
 
     @classmethod
@@ -1320,7 +1330,7 @@ Framework.__doc__ = Framework.__doc__.replace(
             "Class methods",
             "Framework manipulation",
             "Infinitesimal rigidity",
-            "Plotting",
+            "Other",
             "Waiting for implementation",
         ],
         include_all=False,
