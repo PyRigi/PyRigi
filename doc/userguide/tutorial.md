@@ -10,4 +10,5 @@ Generate (when the documentation uploaded to the web) `.ipynb` notebooks from `.
 tutorials/graph_basics
 tutorials/framework_database
 tutorials/plotting
+tutorials/Shonan_meeting
 :::
