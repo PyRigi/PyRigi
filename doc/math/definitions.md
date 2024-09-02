@@ -249,7 +249,7 @@ The graph $G$ is called
 :::{prf:theorem}
 :label: thm-2-gen-rigidity
 
-A graph $G = (V, E)$ is generically $2$-rigid if and only if ...
+A graph $G = (V, E)$ is minimally generically $2$-rigid if and only if $G$ is {prf:ref}`(2,3)-tight <def-kl-sparse-tight>`.
 
 {{references}} {cite:p}`Geiringer1927`
 {cite:p}`Laman1970`
