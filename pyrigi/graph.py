@@ -46,6 +46,10 @@ class Graph(nx.Graph):
     Implement an alias for plotting.
     Graphical output in Jupyter.
     Graph names.
+    Describe in the documentation when an output
+    of a randomized algorithm is guaranteed to be correct.
+    Switch from  parameter `combinatorial=True/False`
+    to `algorithm='combinatorial'/'randomized'...`
 
     METHODS
 
@@ -849,6 +853,9 @@ class Graph(nx.Graph):
         TODO
         ----
         Tests, examples.
+        Create a copy to work on to avoid modifying the graph
+        (also for vertex-redundancy).
+        Improve with pebble games.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
