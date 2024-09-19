@@ -45,6 +45,34 @@ def test_not_rigid_in_d2(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        graphs.Complete(2),
+        graphs.Diamond(),
+        graphs.K33plusEdge(),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Cycle(4),
+        graphs.Path(3),
+    ],
+)
+def test_rigid_in_d1(graph):
+    assert graph.is_rigid(dim=1, combinatorial=True)
+    assert graph.is_rigid(dim=1, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [Graph.from_vertices(range(3)), Graph([[0, 1], [2, 3]])],
+)
+def test_not_rigid_in_d1(graph):
+    assert not graph.is_rigid(dim=1, combinatorial=True)
+    assert not graph.is_rigid(dim=1, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
         graphs.CompleteBipartite(1, 3),
         graphs.CompleteBipartite(2, 3),
         graphs.CompleteBipartite(3, 3),
