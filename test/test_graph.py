@@ -142,6 +142,39 @@ def test_not_2_3_tight(graph):
     "graph",
     [
         graphs.Complete(2),
+        graphs.CompleteBipartite(1, 3),
+        graphs.Path(3),
+        Graph.from_int(102),  # a tree on 5 vertices
+    ],
+)
+def test_min_rigid_in_d1(graph):
+    assert graph.is_min_rigid(dim=1, combinatorial=True)
+    assert graph.is_min_rigid(dim=1, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        Graph.from_vertices(range(3)),
+        Graph([[0, 1], [2, 3]]),
+        graphs.Complete(3),
+        graphs.Diamond(),
+        graphs.K33plusEdge(),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Cycle(4),
+    ],
+)
+def test_not_min_rigid_in_d1(graph):
+    assert not graph.is_min_rigid(dim=1, combinatorial=True)
+    assert not graph.is_min_rigid(dim=1, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
         graphs.Complete(3),
         graphs.CompleteBipartite(3, 3),
         graphs.Diamond(),
