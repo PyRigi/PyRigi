@@ -911,7 +911,7 @@ class Graph(nx.Graph):
             raise LoopError()
 
         elif dim == 1:
-            return self.is_connected()
+            return nx.is_connected(self)
         elif dim == 2 and combinatorial:
             deficiency = -(2 * self.number_of_nodes() - 3) + self.number_of_edges()
             if deficiency < 0:
@@ -970,8 +970,8 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        elif dim == 1:
-            return self.is_tree()
+        elif dim == 1 and combinatorial:
+            return nx.is_tree(self)
         elif dim == 2 and combinatorial:
             return self.is_tight(2, 3)
         elif not combinatorial:
