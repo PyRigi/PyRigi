@@ -850,9 +850,20 @@ class Graph(nx.Graph):
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
 
+        Examples
+        --------
+        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 5], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
+        >>> G.is_k_redundantly_rigid(1, 2)
+        True
+        >>> G = Graph([[0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G.is_k_redundantly_rigid(1, 2)
+        False
+        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G.is_k_redundantly_rigid(2, 2)
+        True
+
         TODO
         ----
-        examples.
         Create a copy to work on to avoid modifying the graph
         (also for vertex-redundancy).
         Improve with pebble games.
