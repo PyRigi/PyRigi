@@ -799,7 +799,9 @@ class Graph(nx.Graph):
         return None if return_solution else False
 
     @doc_category("Generic rigidity")
-    def is_vertex_redundantly_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_vertex_redundantly_rigid(
+        self, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
@@ -811,7 +813,9 @@ class Graph(nx.Graph):
         return self.is_k_vertex_redundantly_rigid(1, dim)
 
     @doc_category("Generic rigidity")
-    def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_k_vertex_redundantly_rigid(
+        self, k: int, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
@@ -830,7 +834,7 @@ class Graph(nx.Graph):
         TODO
         ----
         Avoid creating deepcopies by remembering the edges.
-        """
+        """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
@@ -857,7 +861,9 @@ class Graph(nx.Graph):
         return self.is_k_redundantly_rigid(1, dim, combinatorial)
 
     @doc_category("Generic rigidity")
-    def is_k_redundantly_rigid(self, k: int, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_k_redundantly_rigid(
+        self, k: int, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
@@ -879,7 +885,7 @@ class Graph(nx.Graph):
         Create a copy to work on to avoid modifying the graph
         (also for vertex-redundancy).
         Improve with pebble games.
-        """
+        """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
@@ -889,7 +895,10 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        if self.number_of_edges() < dim*self.number_of_nodes() - math.comb(dim+1,2)  + k:
+        if (
+            self.number_of_edges()
+            < dim * self.number_of_nodes() - math.comb(dim + 1, 2) + k
+        ):
             return False
         if self.min_degree() < dim + k:
             return False
