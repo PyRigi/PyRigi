@@ -244,6 +244,55 @@ def test_not_globally_in_d2(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        Graph.from_int(511),
+        Graph.from_int(1023),
+        Graph.from_int(7679),
+    ],
+)
+def test_vertex_redundantly_rigid_in_d2(graph):
+    assert graph.is_vertex_redundantly_rigid(dim=2)
+    assert graph.is_vertex_redundantly_rigid(dim=2, combinatorial=False)
+
+def test_k_vertex_redundantly_rigid():
+    assert Graph.from_int(30).is_k_vertex_redundantly_rigid(1, dim=1)
+    assert Graph.from_int(3294).is_k_vertex_redundantly_rigid(1, dim=1)
+    assert Graph.from_int(511).is_k_vertex_redundantly_rigid(2, dim=1)
+    assert Graph.from_int(16351).is_k_vertex_redundantly_rigid(3, dim=1)
+
+    assert Graph.from_int(7679).is_k_vertex_redundantly_rigid(1, dim=2)
+    assert Graph.from_int(16383).is_k_vertex_redundantly_rigid(2, dim=2)
+    assert Graph.from_int(32767).is_k_vertex_redundantly_rigid(2, dim=2)
+    assert Graph.from_int(1048575).is_k_vertex_redundantly_rigid(3, dim=2)
+
+    assert Graph.from_int(16383).is_k_vertex_redundantly_rigid(1, dim=3, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.CompleteBipartite(3, 3),
+        graphs.ThreePrismPlusEdge(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_not_vertex_redundantly_rigid_in_d2(graph):
+    assert not graph.is_vertex_redundantly_rigid(dim=2)
+    assert not graph.is_vertex_redundantly_rigid(dim=2, combinatorial=False)
+
+def test_not_k_vertex_redundantly_rigid():
+    assert not Graph.from_int(101739).is_k_vertex_redundantly_rigid(1, dim=1)
+    assert not Graph.from_int(255567).is_k_vertex_redundantly_rigid(2, dim=1)
+    assert not Graph.from_int(515576).is_k_vertex_redundantly_rigid(3, dim=1)
+
+    assert not Graph.from_int(7916).is_k_vertex_redundantly_rigid(1, dim=2)
+    assert not Graph.from_int(8191).is_k_vertex_redundantly_rigid(2, dim=2)
+    assert not Graph.from_int(1048059).is_k_vertex_redundantly_rigid(3, dim=2)
+
+    assert not Graph.from_int(16351).is_k_vertex_redundantly_rigid(1, dim=3, combinatorial=False)
+
+@pytest.mark.parametrize(
+    "graph",
+    [
         graphs.Complete(4),
         graphs.CompleteBipartite(3, 4),
         graphs.CompleteBipartite(4, 4),

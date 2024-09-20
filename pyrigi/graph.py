@@ -799,7 +799,7 @@ class Graph(nx.Graph):
         return None if return_solution else False
 
     @doc_category("Generic rigidity")
-    def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
+    def is_vertex_redundantly_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
@@ -811,7 +811,7 @@ class Graph(nx.Graph):
         return self.is_k_vertex_redundantly_rigid(1, dim)
 
     @doc_category("Generic rigidity")
-    def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
+    def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
@@ -832,7 +832,7 @@ class Graph(nx.Graph):
         for vertex_set in combinations(self.nodes, k):
             G = deepcopy(self)
             G.delete_vertices(vertex_set)
-            if not G.is_rigid(dim):
+            if not G.is_rigid(dim, combinatorial):
                 return False
         return True
 
