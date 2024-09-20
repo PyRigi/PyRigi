@@ -819,7 +819,7 @@ class Graph(nx.Graph):
         TODO
         ----
         Avoid creating deepcopies by remembering the edges.
-        Tests, examples.
+        examples.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -829,6 +829,8 @@ class Graph(nx.Graph):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+        if self.min_degree() < dim + k:
+            return False
         for vertex_set in combinations(self.nodes, k):
             G = deepcopy(self)
             G.delete_vertices(vertex_set)
