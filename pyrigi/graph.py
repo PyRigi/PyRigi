@@ -866,7 +866,12 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        if dim==1 or dim==2:
+        if self.number_of_edges() < dim*self.number_of_nodes() - math.comb(dim+1,2)  + k:
+            return False
+        if self.min_degree() < dim + k:
+            return False
+
+        if dim == 1 or dim == 2:
             comb=True
         else:
             comb=False
