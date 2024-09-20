@@ -865,9 +865,14 @@ class Graph(nx.Graph):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+
+        if dim==1 or dim==2:
+            comb=True
+        else:
+            comb=False
         for edge_set in combinations(self.edge_list(), k):
             self.delete_edges(edge_set)
-            if not self.is_rigid(dim):
+            if not self.is_rigid(dim,combinatorial=comb):
                 self.add_edges(edge_set)
                 return False
             self.add_edges(edge_set)
