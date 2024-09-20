@@ -816,10 +816,20 @@ class Graph(nx.Graph):
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
 
+        Examples
+        --------
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G.is_k_vertex_redundantly_rigid(1, 2)
+        True
+        >>> G.is_k_vertex_redundantly_rigid(2, 2)
+        False
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
+        >>> G.is_k_vertex_redundantly_rigid(1, 2)
+        False
+
         TODO
         ----
         Avoid creating deepcopies by remembering the edges.
-        examples.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
