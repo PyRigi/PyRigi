@@ -241,6 +241,63 @@ def test_not_globally_in_d2(graph):
     assert not graph.is_globally_rigid(dim=2)
 
 
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(4, 4),
+        graphs.K33plusEdge(),
+        graphs.ThreePrismPlusEdge(),
+    ],
+)
+def test_redundantly_rigid_in_d2(graph):
+    assert graph.is_redundantly_rigid(dim=2)
+
+def test_k_redundantly_rigid():
+    assert Graph.from_int(31).is_k_redundantly_rigid(1,dim=1)
+    assert Graph.from_int(63).is_k_redundantly_rigid(1,dim=1)
+    assert Graph.from_int(222).is_k_redundantly_rigid(1,dim=1)
+    assert Graph.from_int(507).is_k_redundantly_rigid(2,dim=1)
+    assert Graph.from_int(511).is_k_redundantly_rigid(2,dim=1)
+    assert Graph.from_int(1023).is_k_redundantly_rigid(3,dim=1)
+
+    assert Graph.from_int(63).is_k_redundantly_rigid(1,dim=2)
+    assert Graph.from_int(1023).is_k_redundantly_rigid(2,dim=2)
+    assert Graph.from_int(16350).is_k_redundantly_rigid(2,dim=2)
+    assert Graph.from_int(32767).is_k_redundantly_rigid(2,dim=2)
+    assert Graph.from_int(32767).is_k_redundantly_rigid(3,dim=2)
+    #assert Graph.from_int(1048059).is_k_redundantly_rigid(3,dim=2)
+    #assert Graph.from_int(2097151).is_k_redundantly_rigid(3,dim=2)
+
+    assert Graph.from_int(1023).is_k_redundantly_rigid(1,dim=3)
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Cycle(4),
+        graphs.Cycle(5),
+        graphs.Diamond(),
+        graphs.Path(3),
+        graphs.Path(4),
+        graphs.ThreePrism(),
+    ],
+)
+def test_not_redundantly_rigid_in_d2(graph):
+    assert not graph.is_redundantly_rigid(dim=2)
+
+def test_not_k_redundantly_rigid():
+    assert not Graph.from_int(15).is_k_redundantly_rigid(1,dim=1)
+    assert not Graph.from_int(31).is_k_redundantly_rigid(2,dim=1)
+
+    assert not Graph.from_int(255).is_k_redundantly_rigid(1,dim=2)
+    assert not Graph.from_int(507).is_k_redundantly_rigid(2,dim=2)
+
 def test_min_rigid_subgraphs():
     G = Graph(
         [
