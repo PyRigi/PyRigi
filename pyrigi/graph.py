@@ -837,22 +837,22 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Generic rigidity")
-    def is_redundantly_rigid(self, dim: int = 2) -> bool:
+    def is_redundantly_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
         """
-        return self.is_k_redundantly_rigid(1, dim)
+        return self.is_k_redundantly_rigid(1, dim, combinatorial)
 
     @doc_category("Generic rigidity")
-    def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
+    def is_k_redundantly_rigid(self, k: int, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
 
         TODO
         ----
-        Tests, examples.
+        examples.
         Create a copy to work on to avoid modifying the graph
         (also for vertex-redundancy).
         Improve with pebble games.
@@ -871,13 +871,9 @@ class Graph(nx.Graph):
         if self.min_degree() < dim + k:
             return False
 
-        if dim == 1 or dim == 2:
-            comb=True
-        else:
-            comb=False
         for edge_set in combinations(self.edge_list(), k):
             self.delete_edges(edge_set)
-            if not self.is_rigid(dim,combinatorial=comb):
+            if not self.is_rigid(dim, combinatorial):
                 self.add_edges(edge_set)
                 return False
             self.add_edges(edge_set)

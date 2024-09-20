@@ -253,24 +253,25 @@ def test_not_globally_in_d2(graph):
 )
 def test_redundantly_rigid_in_d2(graph):
     assert graph.is_redundantly_rigid(dim=2)
+    assert graph.is_redundantly_rigid(dim=2, combinatorial=False)
 
 def test_k_redundantly_rigid():
-    assert Graph.from_int(31).is_k_redundantly_rigid(1,dim=1)
-    assert Graph.from_int(63).is_k_redundantly_rigid(1,dim=1)
-    assert Graph.from_int(222).is_k_redundantly_rigid(1,dim=1)
-    assert Graph.from_int(507).is_k_redundantly_rigid(2,dim=1)
-    assert Graph.from_int(511).is_k_redundantly_rigid(2,dim=1)
-    assert Graph.from_int(1023).is_k_redundantly_rigid(3,dim=1)
+    assert Graph.from_int(31).is_k_redundantly_rigid(1, dim=1)
+    assert Graph.from_int(63).is_k_redundantly_rigid(1, dim=1)
+    assert Graph.from_int(222).is_k_redundantly_rigid(1, dim=1)
+    assert Graph.from_int(507).is_k_redundantly_rigid(2, dim=1)
+    assert Graph.from_int(511).is_k_redundantly_rigid(2, dim=1)
+    assert Graph.from_int(1023).is_k_redundantly_rigid(3, dim=1)
 
-    assert Graph.from_int(63).is_k_redundantly_rigid(1,dim=2)
-    assert Graph.from_int(1023).is_k_redundantly_rigid(2,dim=2)
-    assert Graph.from_int(16350).is_k_redundantly_rigid(2,dim=2)
-    assert Graph.from_int(32767).is_k_redundantly_rigid(2,dim=2)
-    assert Graph.from_int(32767).is_k_redundantly_rigid(3,dim=2)
-    #assert Graph.from_int(1048059).is_k_redundantly_rigid(3,dim=2)
-    #assert Graph.from_int(2097151).is_k_redundantly_rigid(3,dim=2)
+    assert Graph.from_int(63).is_k_redundantly_rigid(1, dim=2)
+    assert Graph.from_int(1023).is_k_redundantly_rigid(2, dim=2)
+    assert Graph.from_int(16350).is_k_redundantly_rigid(2, dim=2)
+    assert Graph.from_int(32767).is_k_redundantly_rigid(2, dim=2)
+    assert Graph.from_int(32767).is_k_redundantly_rigid(3, dim=2)
+    #assert Graph.from_int(1048059).is_k_redundantly_rigid(3, dim=2)
+    #assert Graph.from_int(2097151).is_k_redundantly_rigid(3, dim=2)
 
-    assert Graph.from_int(1023).is_k_redundantly_rigid(1,dim=3)
+    assert Graph.from_int(1023).is_k_redundantly_rigid(1, dim=3, combinatorial=False)
 
 @pytest.mark.parametrize(
     "graph",
@@ -290,6 +291,7 @@ def test_k_redundantly_rigid():
 )
 def test_not_redundantly_rigid_in_d2(graph):
     assert not graph.is_redundantly_rigid(dim=2)
+    assert not graph.is_redundantly_rigid(dim=2, combinatorial=False)
 
 def test_not_k_redundantly_rigid():
     assert not Graph.from_int(15).is_k_redundantly_rigid(1,dim=1)
