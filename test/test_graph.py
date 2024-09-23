@@ -247,6 +247,7 @@ def test_not_globally_in_d2(graph):
         Graph.from_int(511),
         Graph.from_int(1023),
         Graph.from_int(7679),
+        Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]),
     ],
 )
 def test_vertex_redundantly_rigid_in_d2(graph):
@@ -260,6 +261,7 @@ def test_vertex_redundantly_rigid_in_d2(graph):
         [Graph.from_int(30), 1],
         [Graph.from_int(3294), 1],
         [Graph.from_int(511), 2],
+        [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]), 2],
         [Graph.from_int(16351), 3],
     ],
 )
@@ -272,6 +274,7 @@ def test_k_vertex_redundantly_rigid_in_d1(graph, k):
     "graph, k",
     [
         [Graph.from_int(7679), 1],
+        [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]), 1],
         [Graph.from_int(16383), 2],
         [Graph.from_int(32767), 2],
         [Graph.from_int(1048575), 3],
@@ -286,6 +289,7 @@ def test_k_vertex_redundantly_rigid_in_d2(graph, k):
     "graph, k",
     [
         [Graph.from_int(16383), 1],
+        [Graph([["a", "b"], ["a", "c"], ["a", "d"], ["a", "e"], ["b", "c"], ["b", "d"], ["b", "e"], ["c", "d"], ["c", "e"], ["d", "e"]]), 1],
     ],
 )
 def test_k_vertex_redundantly_rigid_in_d3(graph, k):
@@ -300,6 +304,7 @@ def test_k_vertex_redundantly_rigid_in_d3(graph, k):
         graphs.CompleteBipartite(3, 3),
         graphs.ThreePrismPlusEdge(),
         graphs.K33plusEdge(),
+        Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]),
     ],
 )
 def test_not_vertex_redundantly_rigid_in_d2(graph):
@@ -313,6 +318,7 @@ def test_not_vertex_redundantly_rigid_in_d2(graph):
         [Graph.from_int(101739), 1],
         [Graph.from_int(255567), 2],
         [Graph.from_int(515576), 3],
+        [Graph([["a", "b"], ["b", "c"], ["c", "a"], ["d", "a"], ["e", "d"]]), 1],
     ],
 )
 def test_not_k_vertex_redundantly_rigid_in_d1(graph, k):
@@ -326,6 +332,7 @@ def test_not_k_vertex_redundantly_rigid_in_d1(graph, k):
         [Graph.from_int(7916), 1],
         [Graph.from_int(8191), 2],
         [Graph.from_int(1048059), 3],
+        [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]), 1],
     ],
 )
 def test_not_k_vertex_redundantly_rigid_in_d2(graph, k):
@@ -337,6 +344,7 @@ def test_not_k_vertex_redundantly_rigid_in_d2(graph, k):
     "graph, k",
     [
         [Graph.from_int(16351), 1],
+        [Graph([["a", "b"], ["a", "c"], ["a", "d"], ["a", "e"], ["b", "c"], ["b", "d"], ["b", "e"], ["c", "d"], ["c", "e"], ["d", "e"]]), 2],
     ],
 )
 def test_not_k_vertex_redundantly_rigid_in_d3(graph, k):
@@ -353,6 +361,7 @@ def test_not_k_vertex_redundantly_rigid_in_d3(graph, k):
         graphs.CompleteBipartite(4, 4),
         graphs.K33plusEdge(),
         graphs.ThreePrismPlusEdge(),
+        Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]),
     ],
 )
 def test_redundantly_rigid_in_d2(graph):
@@ -365,6 +374,7 @@ def test_redundantly_rigid_in_d2(graph):
     [
         [Graph.from_int(31), 1],
         [Graph.from_int(63), 1],
+        [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]), 2],
         [Graph.from_int(222), 1],
         [Graph.from_int(507), 2],
         [Graph.from_int(511), 2],
@@ -380,6 +390,7 @@ def test_k_redundantly_rigid_in_d1(graph, k):
     "graph, k",
     [
         [Graph.from_int(63), 1],
+        [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]), 1],
         [Graph.from_int(1023), 2],
         [Graph.from_int(16350), 2],
         [Graph.from_int(32767), 2],
@@ -398,6 +409,7 @@ def test_k_redundantly_rigid_in_d2(graph, k):
     [
         [Graph.from_int(1023), 1],
         [Graph.from_int(16351), 1],
+        [Graph([["a", "b"], ["a", "c"], ["a", "d"], ["a", "e"], ["b", "c"], ["b", "d"], ["b", "e"], ["c", "d"], ["c", "e"], ["d", "e"]]), 1],
     ],
 )
 def test_k_redundantly_rigid_in_d3(graph, k):
@@ -418,6 +430,7 @@ def test_k_redundantly_rigid_in_d3(graph, k):
         graphs.Path(3),
         graphs.Path(4),
         graphs.ThreePrism(),
+        Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]),
     ],
 )
 def test_not_redundantly_rigid_in_d2(graph):
@@ -430,6 +443,7 @@ def test_not_redundantly_rigid_in_d2(graph):
     [
         [Graph.from_int(15), 1],
         [Graph.from_int(31), 2],
+        [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]), 3],
     ],
 )
 def test_not_k_redundantly_rigid_in_d1(graph, k):
@@ -442,6 +456,7 @@ def test_not_k_redundantly_rigid_in_d1(graph, k):
     [
         [Graph.from_int(255), 1],
         [Graph.from_int(507), 2],
+        [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]), 2],
     ],
 )
 def test_not_k_redundantly_rigid_in_d2(graph, k):
@@ -454,6 +469,7 @@ def test_not_k_redundantly_rigid_in_d2(graph, k):
     [
         [Graph.from_int(7679), 1],
         [Graph.from_int(16351), 2],
+        [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]), 1],
     ],
 )
 def test_not_k_redundantly_rigid_in_d3(graph, k):
