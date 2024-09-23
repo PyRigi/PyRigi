@@ -831,9 +831,6 @@ class Graph(nx.Graph):
         >>> G.is_k_vertex_redundantly_rigid(1, 2)
         False
 
-        TODO
-        ----
-        Avoid creating deepcopies by remembering the edges.
         """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -845,11 +842,18 @@ class Graph(nx.Graph):
             raise LoopError()
         if self.min_degree() < dim + k:
             return False
+
+        G = deepcopy(self)
         for vertex_set in combinations(self.nodes, k):
-            G = deepcopy(self)
+            adj = [[v, list(G.neighbors(v))] for v in vertex_set]
             G.delete_vertices(vertex_set)
             if not G.is_rigid(dim, combinatorial):
                 return False
+            # add vertices and edges back
+            G.add_vertices(vertex_set)
+            for v, neighbors in adj:
+                for neighbor in neighbors:
+                    G.add_edge(v, neighbor)
         return True
 
     @doc_category("Generic rigidity")
@@ -882,8 +886,6 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        Create a copy to work on to avoid modifying the graph
-        (also for vertex-redundancy).
         Improve with pebble games.
         """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
@@ -903,12 +905,13 @@ class Graph(nx.Graph):
         if self.min_degree() < dim + k:
             return False
 
+        G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
-            self.delete_edges(edge_set)
-            if not self.is_rigid(dim, combinatorial):
-                self.add_edges(edge_set)
+            G.delete_edges(edge_set)
+            if not G.is_rigid(dim, combinatorial):
+                G.add_edges(edge_set)
                 return False
-            self.add_edges(edge_set)
+            G.add_edges(edge_set)
         return True
 
     @doc_category("Generic rigidity")
