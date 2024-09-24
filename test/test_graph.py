@@ -244,8 +244,8 @@ def test_not_globally_in_d2(graph):
 @pytest.mark.parametrize(
     "graph",
     [
-        Graph.from_int(511),
-        Graph.from_int(1023),
+        graphs.CompleteMinusOne(5),
+        graphs.Complete(5),
         Graph.from_int(7679),
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]),
     ],
@@ -258,9 +258,9 @@ def test_vertex_redundantly_rigid_in_d2(graph):
 @pytest.mark.parametrize(
     "graph, k",
     [
-        [Graph.from_int(30), 1],
+        [graphs.Cycle(4), 1],
         [Graph.from_int(3294), 1],
-        [Graph.from_int(511), 2],
+        [graphs.CompleteMinusOne(5), 2],
         [
             Graph(
                 [["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]
@@ -285,9 +285,9 @@ def test_k_vertex_redundantly_rigid_in_d1(graph, k):
             ),
             1,
         ],
-        [Graph.from_int(16383), 2],
-        [Graph.from_int(32767), 2],
-        [Graph.from_int(1048575), 3],
+        [graphs.CompleteMinusOne(6), 2],
+        [graphs.Complete(6), 2],
+        [graphs.CompleteMinusOne(7), 3],
     ],
 )
 def test_k_vertex_redundantly_rigid_in_d2(graph, k):
@@ -298,7 +298,7 @@ def test_k_vertex_redundantly_rigid_in_d2(graph, k):
 @pytest.mark.parametrize(
     "graph, k",
     [
-        [Graph.from_int(16383), 1],
+        [graphs.CompleteMinusOne(6), 1],
         [
             Graph(
                 [
@@ -353,7 +353,7 @@ def test_not_k_vertex_redundantly_rigid_in_d1(graph, k):
 @pytest.mark.parametrize(
     "graph, k",
     [
-        [Graph.from_int(7916), 1],
+        [graphs.ThreePrism(), 1],
         [Graph.from_int(8191), 2],
         [Graph.from_int(1048059), 3],
         [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]), 1],
@@ -410,8 +410,8 @@ def test_redundantly_rigid_in_d2(graph):
 @pytest.mark.parametrize(
     "graph, k",
     [
-        [Graph.from_int(31), 1],
-        [Graph.from_int(63), 1],
+        [graphs.Diamond(), 1],
+        [graphs.Complete(4), 1],
         [
             Graph(
                 [["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]
@@ -420,8 +420,8 @@ def test_redundantly_rigid_in_d2(graph):
         ],
         [Graph.from_int(222), 1],
         [Graph.from_int(507), 2],
-        [Graph.from_int(511), 2],
-        [Graph.from_int(1023), 3],
+        [graphs.CompleteMinusOne(5), 2],
+        [graphs.Complete(5), 3],
     ],
 )
 def test_k_redundantly_rigid_in_d1(graph, k):
@@ -432,17 +432,17 @@ def test_k_redundantly_rigid_in_d1(graph, k):
 @pytest.mark.parametrize(
     "graph, k",
     [
-        [Graph.from_int(63), 1],
+        [graphs.Complete(4), 1],
         [
             Graph(
                 [["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]
             ),
             1,
         ],
-        [Graph.from_int(1023), 2],
-        [Graph.from_int(16350), 2],
-        [Graph.from_int(32767), 2],
-        [Graph.from_int(32767), 3],
+        [graphs.Complete(5), 2],
+        [graphs.Octahedral(), 2],
+        [graphs.Complete(6), 2],
+        [graphs.Complete(6), 3],
         # [Graph.from_int(1048059), 3],
         # [Graph.from_int(2097151), 3],
     ],
@@ -455,7 +455,7 @@ def test_k_redundantly_rigid_in_d2(graph, k):
 @pytest.mark.parametrize(
     "graph, k",
     [
-        [Graph.from_int(1023), 1],
+        [graphs.Complete(5), 1],
         [Graph.from_int(16351), 1],
         [
             Graph(
@@ -506,7 +506,7 @@ def test_not_redundantly_rigid_in_d2(graph):
     "graph, k",
     [
         [Graph.from_int(15), 1],
-        [Graph.from_int(31), 2],
+        [graphs.Diamond(), 2],
         [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]), 3],
     ],
 )
