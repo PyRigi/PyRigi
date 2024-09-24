@@ -810,7 +810,7 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_k_vertex_redundantly_rigid(1, dim)
+        return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial)
 
     @doc_category("Generic rigidity")
     def is_k_vertex_redundantly_rigid(
