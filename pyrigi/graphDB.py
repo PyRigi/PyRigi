@@ -52,7 +52,7 @@ def ThreePrismPlusEdge() -> Graph:
     )
 
 
-def CubeWithDiagonal():
+def CubeWithDiagonal() -> Graph:
     """Return the graph given by the skeleton of the cube with a main diagonal."""
     return Graph(
         [(0, 1), (1, 2), (2, 3), (0, 3)]
@@ -60,3 +60,13 @@ def CubeWithDiagonal():
         + [(0, 4), (1, 5), (2, 6), (3, 7)]
         + [(0, 6)]
     )
+
+
+def DoubleBanana(d: int = 3) -> Graph:
+    """Return the d-dimensional double banana graph."""
+    K = Complete(d + 2)
+    K1 = K1.edge_list()
+    K2 = [[e[0] + d, e[1] + d] for e in K1]
+    K1.remove([d, d + 1])
+    K1.remove([d + 1, d])
+    return Graph(K1 + K2)
