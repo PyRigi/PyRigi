@@ -65,8 +65,8 @@ def CubeWithDiagonal() -> Graph:
 def DoubleBanana(d: int = 3) -> Graph:
     """Return the d-dimensional double banana graph."""
     K = Complete(d + 2)
-    K1 = K1.edge_list()
+    K1 = K.edge_list()
     K2 = [[e[0] + d, e[1] + d] for e in K1]
-    K1.remove([d, d + 1])
-    K1.remove([d + 1, d])
-    return Graph(K1 + K2)
+    DB = Graph(K1 + K2)
+    DB.delete_edge([d, d + 1])
+    return DB
