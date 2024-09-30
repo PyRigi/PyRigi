@@ -426,6 +426,19 @@ class Graph(nx.Graph):
         return max([self.degree(v) for v in self.nodes])
 
     @doc_category("Sparseness")
+    def _pebble_values_are_correct(self, K: int, L: int) -> bool:
+        r"""
+        Checks if K and L satisfy the conditions so that they can be used with pebble game algorithm.
+
+        K and L need to be integers that satisfy the conditions of K > 0, L >= 0 and L < 2K
+        """
+        if not (isinstance(K, int) and isinstance(L, int)):
+            return False
+        if K <= 0 or L < 0 or L >= 2 * K:
+            return False
+        return True
+
+    @doc_category("Sparseness")
     def _build_directed_graph_from_scratch(self, K: int, L: int) -> None:
         r"""
         Build and save the directed representation of the graph from scratch.
@@ -434,11 +447,9 @@ class Graph(nx.Graph):
         Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
         from the rest of the graph.
         """
-        if not (isinstance(K, int) and isinstance(L, int)):
-            raise TypeError("K and L need to be integers!")
-        if K <= 0 or L < 0 or L >= 2 * K:
-            raise ValueError(
-                "To run the pebble game algorithm we need K > 0, L>= 0 and L<2K"
+        if not self._pebble_values_are_correct(K, L):
+            raise TypeError(
+                "K and L need to be integers that satisfy the conditions of K > 0, L >= 0 and L < 2K"
             )
 
         dir_graph = pyrigi.directed_graph.MultiDiGraph(K, L)
@@ -535,7 +546,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Sparseness")
-    def is_sparse(self, K: int, L: int, combinatorial: bool = True) -> bool:
+    def is_sparse(self, K: int, L: int, algorithm: str = "pebble") -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
 
@@ -546,19 +557,27 @@ class Graph(nx.Graph):
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
 
-        if combinatorial:
-            return self._is_directed_graph_sparse(K, L)
+        if algorithm == "pebble":
+            if self._pebble_values_are_correct(K, L):
+                return self._is_directed_graph_sparse(K, L)
+            else:
+                # fallback option to subgaph method
+                algorithm = "subgraph"
 
-        else:
+        if algorithm == "subgraph":
             for j in range(K, self.number_of_nodes() + 1):
                 for vertex_set in combinations(self.nodes, j):
                     G = self.subgraph(vertex_set)
                     if G.number_of_edges() > K * G.number_of_nodes() - L:
                         return False
             return True
+        else:
+            raise ValueError(
+                f'the algorithm needs to be either "pebble" or "subgraph", or not specified.'
+            )
 
     @doc_category("Sparseness")
-    def is_tight(self, K: int, L: int, combinatorial: bool = True) -> bool:
+    def is_tight(self, K: int, L: int, algorithm: str = "pebble") -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
 
@@ -567,7 +586,7 @@ class Graph(nx.Graph):
         examples, tests for other cases than (2,3)
         """
         return (
-            self.is_sparse(K, L, combinatorial)
+            self.is_sparse(K, L, algorithm)
             and self.number_of_edges() == K * self.number_of_nodes() - L
         )
 
@@ -1092,7 +1111,7 @@ class Graph(nx.Graph):
         elif dim == 1 and combinatorial:
             return nx.is_tree(self)
         elif dim == 2 and combinatorial:
-            return self.is_tight(2, 3, combinatorial=True)
+            return self.is_tight(2, 3, algorithm="pebble")
         elif not combinatorial:
             from pyrigi.framework import Framework
 

@@ -87,8 +87,8 @@ def test_not_rigid_in_d1(graph):
     ],
 )
 def test_2_3_sparse(graph):
-    assert graph.is_sparse(2, 3, combinatorial=False)
-    assert graph.is_sparse(2, 3, combinatorial=True)
+    assert graph.is_sparse(2, 3, algorithm="subgraph")
+    assert graph.is_sparse(2, 3, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
@@ -102,8 +102,8 @@ def test_2_3_sparse(graph):
     ],
 )
 def test_not_2_3_sparse(graph):
-    assert not graph.is_sparse(2, 3, combinatorial=False)
-    assert not graph.is_sparse(2, 3, combinatorial=True)
+    assert not graph.is_sparse(2, 3, algorithm="subgraph")
+    assert not graph.is_sparse(2, 3, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
@@ -117,8 +117,8 @@ def test_not_2_3_sparse(graph):
     ],
 )
 def test_2_3_tight(graph):
-    assert graph.is_tight(2, 3, combinatorial=True)
-    assert graph.is_tight(2, 3, combinatorial=False)
+    assert graph.is_tight(2, 3, algorithm="pebble")
+    assert graph.is_tight(2, 3, algorithm="subgraph")
 
 
 @pytest.mark.parametrize(
@@ -138,8 +138,8 @@ def test_2_3_tight(graph):
     ],
 )
 def test_not_2_3_tight(graph):
-    assert not graph.is_tight(2, 3, combinatorial=True)
-    assert not graph.is_tight(2, 3, combinatorial=False)
+    assert not graph.is_tight(2, 3, algorithm="subgraph")
+    assert not graph.is_tight(2, 3, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
