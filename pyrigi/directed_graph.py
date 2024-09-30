@@ -26,16 +26,15 @@ class MultiDiGraph(nx.MultiDiGraph):
         if K is not None and L is not None:
             self.__check_K_and_L(K, L)
 
-        super().__init__(*args, **kwargs)
-
         self.__K = K
         self.__L = L
+
+        super().__init__(*args, **kwargs)
 
     def __check_K_and_L(self, K: int, L: int) -> None:
         """
         Raises an error, if K and L don't satisfy the value constraints:
-        K, L in Z
-        0 < K, 0 <= L < 2K
+        K, L are integers, 0 < K, 0 <= L < 2K
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
@@ -64,6 +63,8 @@ class MultiDiGraph(nx.MultiDiGraph):
         """
         Set L outside of the constructor.
         This will invalidate the current directions of the edges.
+        Parameters
+        ----------
         L: L must be integer and 0 <= L. Also, L < 2K.
         """
         self.__check_K_and_L(self.get_K(), L)
@@ -100,32 +101,72 @@ class MultiDiGraph(nx.MultiDiGraph):
         return self.__L
 
     def get_number_of_edges(self) -> int:
+        """
+        Number of directed edges
+        """
         return len(super().edges)
 
     def in_degree(self, node: Vertex) -> int:
+        """
+        Number of edges leading to node.
+        Parameters
+        ----------
+        node: Vertex, that we wish to know the indegree.
+        TODO check if vertex exists
+        """
         return super().in_degree(node)
 
     def out_degree(self, node: Vertex) -> int:
+        """
+        Number of edges leading out from a node.
+        Parameters
+        ----------
+        node: Vertex, that we wish to know the outdegree.
+        TODO check if vertex exists
+        """
         return super().out_degree(node)
 
-    # Redirect edge to the given head
     def point_edge_head_to(self, edge: Edge, node_to: Vertex) -> None:
-        # placeholder
-        tail = edge[0]
-        head = edge[1]
-        self.remove_edge(tail, head)
-        self.add_edge(head, node_to)
+        """
+        Redirect given edge to the given head.
+        Parameters
+        ----------
+        edge: Edge to redirect.
+        node_to: Vertex to which the Edge will point to.
+        """
+        if self.has_node(node_to):
+            tail = edge[0]
+            head = edge[1]
+            self.remove_edge(tail, head)
+            self.add_edge(head, node_to)
 
-    # Checks if you can add edge between the the vertices u and v
-    # It returns if the given edge can be added
-    # and the fundamental (matroid) cycle of the edge u, v.
-    def added_edge_between(self, u: Vertex, v: Vertex) -> (bool, set):
-        # Running depth first search to find vertices that can be reached
-        # returns if any of these has outdegree < self._K
-        # It will also turn edges around by this path.
+    def added_edge_between(self, u: Vertex, v: Vertex) -> {bool, set}:
+        """
+        Checks if edge can be added between the vertices u and v
+        It returns if the given edge can be added
+        and the fundamental (matroid) cycle of the edge uv.
+        Parameters
+        ----------
+        u, v: vertices to add edge between.
+        TODO check if vertices exist
+        """
+
         def dfs(
             node: Vertex, visited: set, edge_path: list[Edge], current_edge=None
         ) -> {bool, set}:
+            """
+            Running depth first search to find vertices
+            that can be reached from u or v.
+            Returns if any of these has outdegree < self._K
+            and the set of reachable vertices.
+            It will also turn edges around by this path.
+            Parameters
+            ----------
+            node: Vertex, starting position of the dfs
+            visited: set of Vertex. Contains the vertices already reached.
+            edge_path: list of Edge. Contains the used edges in the transversal.
+            current_edge: Edge. The edge through we reached this node.
+            """
             visited.add(node)
             if current_edge:
                 edge_path.append(current_edge)
@@ -182,35 +223,54 @@ class MultiDiGraph(nx.MultiDiGraph):
 
         return can_add_edge, visited_nodes
 
-    # Get the list of nodes that form the fundamental circuit of {uv}
-    # These are the vertices that are
-    # accessible from u and v at the last passing of the dfs
     def fundamental_circuit(self, u: Vertex, v: Vertex) -> set:
+        """
+        Get the list of nodes that form the fundamental circuit of uv
+        These are the vertices that are
+        accessible from u and v at the last passing of the dfs.
+        Parameters
+        ----------
+        u, v: vertices, between the edge is formed,
+        which we look for the fundamental circuit.
+        TODO check if vertices exist
+        """
         can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
         if can_add_edge:
             return {u, v}
         else:
             return fundamental_circuit
 
-    # Can you add the edge between the nodes u and v,
-    # so that it still respects the node degrees?
     def can_add_edge_between_nodes(self, u: Vertex, v: Vertex) -> bool:
+        """
+        Can you add the edge between the nodes u and v,
+        so that it still respects the node degrees?
+        Parameters
+        ----------
+        u, v: vertices, between an edge is proposed
+
+        TODO check if vertices exist
+        """
         can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
         return can_add_edge
 
-    # Function to add the given edge to the directed graph, if possible.
-    #
-    # This will also check the possibility of adding the edge and return
-    # True or False depending on it.
     def add_edge_to_maintain_digraph_if_possible(self, u: Vertex, v: Vertex) -> bool:
+        """
+        Function to add the given edge to the directed graph, if possible.
+
+        This will also check the possibility of adding the edge and return
+        True or False depending on it.
+        Parameters
+        ----------
+        u, v: vertices, between an edge is proposed
+        """
         # if the vertex u is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
-        if u not in self.nodes():
+        if not self.has_node(u):
             self.add_edges_from([(u, v)])
             return True
         # if the vertex v is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
-        if v not in self.nodes():
+        if not self.has_node(v):
             self.add_edges_from([(v, u)])
             return True
 
@@ -224,11 +284,16 @@ class MultiDiGraph(nx.MultiDiGraph):
         else:  # if not possible to add, just don't add
             return False
 
-    # Simple way to add a list of edges to the directed graph
-    # so that it will choose the correct orientations of them and
-    # constructs the corresponding pebble graph.
-    # !Note that this might not add all the edges, only the edges that
-    # ! take part of the maximal sparse subgraph
     def add_edges_to_maintain_out_degrees(self, edges: list[Edge]) -> None:
+        """
+        Simple way to add a list of edges to the directed graph
+        so that it will choose the correct orientations of them and
+        constructs the corresponding pebble graph.
+        ! Note that this might not add all the edges, only the edges that
+        ! take part of the maximal sparse subgraph
+        Parameters
+        ----------
+        edges: List of Edge to add
+        """
         for edge in edges:
             self.add_edge_to_maintain_digraph_if_possible(edge[0], edge[1])
