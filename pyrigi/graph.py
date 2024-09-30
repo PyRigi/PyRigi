@@ -1023,8 +1023,6 @@ class Graph(nx.Graph):
                 return False
             else:
                 self._build_directed_graph_from_scratch(2, 3)
-                print(self.__directed_pebble_graph__.get_number_of_edges())
-                print(2 * self.number_of_nodes() - 3)
                 return (
                     self.__directed_pebble_graph__.get_number_of_edges()
                     == 2 * self.number_of_nodes() - 3
