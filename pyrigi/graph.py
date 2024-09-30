@@ -494,7 +494,7 @@ class Graph(nx.Graph):
 
 
     @doc_category("Sparseness")
-    def is_sparse(self, K: int, L: int, combinatorial : bool = False) -> bool:
+    def is_sparse(self, K: int, L: int, combinatorial : bool = True) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
 
@@ -517,7 +517,7 @@ class Graph(nx.Graph):
             return True
 
     @doc_category("Sparseness")
-    def is_tight(self, K: int, L: int) -> bool:
+    def is_tight(self, K: int, L: int, combinatorial : bool = True) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
 
@@ -526,7 +526,7 @@ class Graph(nx.Graph):
         examples, tests for other cases than (2,3)
         """
         return (
-            self.is_sparse(K, L)
+            self.is_sparse(K, L, combinatorial)
             and self.number_of_edges() == K * self.number_of_nodes() - L
         )
 
@@ -1050,7 +1050,7 @@ class Graph(nx.Graph):
         elif dim == 1 and combinatorial:
             return nx.is_tree(self)
         elif dim == 2 and combinatorial:
-            return self.is_tight(2, 3)
+            return self.is_tight(2, 3, combinatorial=True)
         elif not combinatorial:
             from pyrigi.framework import Framework
 
