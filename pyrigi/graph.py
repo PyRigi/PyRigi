@@ -428,9 +428,11 @@ class Graph(nx.Graph):
     @doc_category("Sparseness")
     def _pebble_values_are_correct(self, K: int, L: int) -> bool:
         r"""
-        Checks if K and L satisfy the conditions so that they can be used with pebble game algorithm.
+        Checks if K and L satisfy the conditions so that they can be used with
+        pebble game algorithm.
 
-        K and L need to be integers that satisfy the conditions of K > 0, L >= 0 and L < 2K
+        K and L need to be integers that satisfy the conditions of
+        K > 0, L >= 0 and L < 2K
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             return False
@@ -449,7 +451,8 @@ class Graph(nx.Graph):
         """
         if not self._pebble_values_are_correct(K, L):
             raise TypeError(
-                "K and L need to be integers that satisfy the conditions of K > 0, L >= 0 and L < 2K"
+                "K and L need to be integers that satisfy the conditions of\
+                 K > 0, L >= 0 and L < 2K."
             )
 
         dir_graph = pyrigi.directed_graph.MultiDiGraph(K, L)
@@ -573,7 +576,8 @@ class Graph(nx.Graph):
             return True
         else:
             raise ValueError(
-                f'the algorithm needs to be either "pebble" or "subgraph", or not specified.'
+                'the algorithm needs to be either "pebble" or "subgraph"\
+                 or not specified.'
             )
 
     @doc_category("Sparseness")
