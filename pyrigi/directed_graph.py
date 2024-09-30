@@ -1,12 +1,4 @@
-from __future__ import annotations
-
-from copy import deepcopy
-from itertools import combinations
-from typing import List, Union, Iterable
-
 import networkx as nx
-from sympy import Matrix
-import math
 
 #from pyrigi.data_type import Vertex, Edge
 #from pyrigi.misc import doc_category, generate_category_tables
@@ -14,10 +6,6 @@ import math
 
 """
 Auxilary class for directed graph used in pebble game style algorithms.
-"""
-
-"""
-TODO imports are copied, might not need all of them. 
 """
 
 class MultiDiGraph(nx.MultiDiGraph):
