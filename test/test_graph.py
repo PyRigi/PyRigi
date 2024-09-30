@@ -90,6 +90,7 @@ def test_2_3_sparse(graph):
     assert graph.is_sparse(2, 3, combinatorial=False)
     assert graph.is_sparse(2, 3, combinatorial=True)
 
+
 @pytest.mark.parametrize(
     "graph",
     [
@@ -103,6 +104,7 @@ def test_2_3_sparse(graph):
 def test_not_2_3_sparse(graph):
     assert not graph.is_sparse(2, 3, combinatorial=False)
     assert not graph.is_sparse(2, 3, combinatorial=True)
+
 
 @pytest.mark.parametrize(
     "graph",

@@ -89,14 +89,13 @@ class Graph(nx.Graph):
     - :doc:`Converting to and from other Data Formats <networkx:reference/convert>`
     """
 
-    
     """
     Private variable to save the auxiliary directed graph used for 
     pebble game algorithm here. We don't need to recalculate it necesserily 
     every time. 
     """
     __directed_pebble_graph__ = pyrigi.directed_graph.MultiDiGraph()
-    
+
     def __str__(self) -> str:
         """
         Return the string representation.
@@ -425,74 +424,101 @@ class Graph(nx.Graph):
         2
         """
         return max([self.degree(v) for v in self.nodes])
-    
+
     @doc_category("Sparseness")
-    def _build_directed_graph_from_scratch(self, K: int, L: int)->None:
+    def _build_directed_graph_from_scratch(self, K: int, L: int) -> None:
         r"""
         Builds and saves the directed representation of the graph from scratch.
-        Adds edges one-by-one, as long as it can. 
-        Will discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` 
-        from the rest of the graph. 
+        Adds edges one-by-one, as long as it can.
+        Will discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
+        from the rest of the graph.
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
-        if K <= 0 or L < 0 or L >= 2*K:
-            raise ValueError("To run the pebble game algorithm we need K > 0, L>= 0 and L<2K")
+        if K <= 0 or L < 0 or L >= 2 * K:
+            raise ValueError(
+                "To run the pebble game algorithm we need K > 0, L>= 0 and L<2K"
+            )
 
-        dir_graph = pyrigi.directed_graph.MultiDiGraph(K,L)
+        dir_graph = pyrigi.directed_graph.MultiDiGraph(K, L)
         dir_graph.add_nodes_from(self.nodes())
         for edge in self.edge_list():
             u, v = edge[0], edge[1]
-            dir_graph.add_edge_to_maintain_digraph_if_possible(u,v)
-        self.__directed_pebble_graph__ = dir_graph    
+            dir_graph.add_edge_to_maintain_digraph_if_possible(u, v)
+        self.__directed_pebble_graph__ = dir_graph
 
-    #@doc_category("Sparseness")
-    def is_independent(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
+    # @doc_category("Sparseness")
+    def is_independent(
+        self, u, v, K: int, L: int, use_precomputed_directed_graph: bool = False
+    ) -> bool:
         r"""
         Is the (not yet existing) edge between u and v would be
         :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph?
         """
 
-        if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
-            self._build_directed_graph_from_scratch(K,L)
+        if (
+            not use_precomputed_directed_graph
+            or K != self.__directed_pebble_graph__.get_K()
+            or L != self.__directed_pebble_graph__.get_L()
+        ):
+            self._build_directed_graph_from_scratch(K, L)
 
-        return  self.__directed_pebble_graph__.can_add_edge_between_nodes(u,v)
-        
-    #@doc_category("Sparseness")
-    def get_matroid_circuit(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> set:
+        return self.__directed_pebble_graph__.can_add_edge_between_nodes(u, v)
+
+    # @doc_category("Sparseness")
+    def get_matroid_circuit(
+        self, u, v, K: int, L: int, use_precomputed_directed_graph: bool = False
+    ) -> set:
         r"""
-        What is the fundamental circuit of the (not yet existing) edge between 
+        What is the fundamental circuit of the (not yet existing) edge between
         u and v? If uv is :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph, it is uv.
         """
 
-        if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
-            self._build_directed_graph_from_scratch(K,L)
+        if (
+            not use_precomputed_directed_graph
+            or K != self.__directed_pebble_graph__.get_K()
+            or L != self.__directed_pebble_graph__.get_L()
+        ):
+            self._build_directed_graph_from_scratch(K, L)
 
-        return  self.__directed_pebble_graph__.fundamental_circuit(u,v,K,L)
-    
+        return self.__directed_pebble_graph__.fundamental_circuit(u, v, K, L)
 
     @doc_category("Sparseness")
-    def get_one_spanning_sparse_subgraph(self, K: int, L: int, use_precomputed_directed_graph=False) -> pyrigi.Graph:
-        if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
-            self._build_directed_graph_from_scratch(K,L)
+    def get_one_spanning_sparse_subgraph(
+        self, K: int, L: int, use_precomputed_directed_graph=False
+    ) -> pyrigi.Graph:
+        if (
+            not use_precomputed_directed_graph
+            or K != self.__directed_pebble_graph__.get_K()
+            or L != self.__directed_pebble_graph__.get_L()
+        ):
+            self._build_directed_graph_from_scratch(K, L)
 
         return self.__directed_pebble_graph__.to_undirected()
-    
+
     @doc_category("Sparseness")
-    def _is_directed_graph_sparse(self, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
+    def _is_directed_graph_sparse(
+        self, K: int, L: int, use_precomputed_directed_graph: bool = False
+    ) -> bool:
         """
         Checks if the given directed graph contains exactly the same number of edges
         as the graph itself. Then it is sparse
         """
-        if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
-            self._build_directed_graph_from_scratch(K,L)
-        
-        # all edges are in fact inside the directed graph
-        return len(self.edge_list()) == self.__directed_pebble_graph__.get_number_of_edges() 
+        if (
+            not use_precomputed_directed_graph
+            or K != self.__directed_pebble_graph__.get_K()
+            or L != self.__directed_pebble_graph__.get_L()
+        ):
+            self._build_directed_graph_from_scratch(K, L)
 
+        # all edges are in fact inside the directed graph
+        return (
+            len(self.edge_list())
+            == self.__directed_pebble_graph__.get_number_of_edges()
+        )
 
     @doc_category("Sparseness")
-    def is_sparse(self, K: int, L: int, combinatorial : bool = True) -> bool:
+    def is_sparse(self, K: int, L: int, combinatorial: bool = True) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
 
@@ -504,9 +530,9 @@ class Graph(nx.Graph):
             raise TypeError("K and L need to be integers!")
 
         if combinatorial:
-            return self._is_directed_graph_sparse(K,L)
-                
-        else:    
+            return self._is_directed_graph_sparse(K, L)
+
+        else:
             for j in range(K, self.number_of_nodes() + 1):
                 for vertex_set in combinations(self.nodes, j):
                     G = self.subgraph(vertex_set)
@@ -515,7 +541,7 @@ class Graph(nx.Graph):
             return True
 
     @doc_category("Sparseness")
-    def is_tight(self, K: int, L: int, combinatorial : bool = True) -> bool:
+    def is_tight(self, K: int, L: int, combinatorial: bool = True) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
 
@@ -997,8 +1023,11 @@ class Graph(nx.Graph):
             else:
                 self._build_directed_graph_from_scratch(2, 3)
                 print(self.__directed_pebble_graph__.get_number_of_edges())
-                print(2*self.number_of_nodes() - 3)
-                return self.__directed_pebble_graph__.get_number_of_edges() == 2*self.number_of_nodes() - 3
+                print(2 * self.number_of_nodes() - 3)
+                return (
+                    self.__directed_pebble_graph__.get_number_of_edges()
+                    == 2 * self.number_of_nodes() - 3
+                )
         elif not combinatorial:
             from pyrigi.framework import Framework
 
@@ -1133,7 +1162,7 @@ class Graph(nx.Graph):
          * dim=2: (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
 
-         TODO 
+         TODO
          Add unit tests
         """
         if not isinstance(dim, int) or dim < 1:
@@ -1142,11 +1171,11 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        if dim ==1:
+        if dim == 1:
             return len(self.cycle_basis()) == 0
- 
+
         if dim == 2:
-            self.is_sparse(2,3)
+            self.is_sparse(2, 3)
 
         raise NotImplementedError()
 
@@ -1179,22 +1208,30 @@ class Graph(nx.Graph):
                 if self.degree(node) != 2:
                     return False
             return True
-        
+
         if dim == 2:
-            # get max sparse sugraph and check the fundamental circuit of 
+            # get max sparse sugraph and check the fundamental circuit of
             # the one last edge
-            if self.number_of_edges() != 2*self.number_of_nodes() - 2:
+            if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
                 return False
-            max_sparse_subgraph = self.get_one_spanning_sparse_subgraph(K=2,L=3, use_precomputed_directed_graph=True)
-            if max_sparse_subgraph.number_of_edges() != 2*self.number_of_nodes() - 3:
+            max_sparse_subgraph = self.get_one_spanning_sparse_subgraph(
+                K=2, L=3, use_precomputed_directed_graph=True
+            )
+            if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
                 return False
 
             remaining_edge = list(set(self.edges()) - set(max_sparse_subgraph.edges()))
             if len(remaining_edge) != 1:
                 # this should not happen
                 raise RuntimeError
-            return self.get_matroid_circuit(u = remaining_edge[0][0], v = remaining_edge[0][1], K = 2, L = 3, use_precomputed_directed_graph=True) == set(self.vertex_list())
-            
+            return self.get_matroid_circuit(
+                u=remaining_edge[0][0],
+                v=remaining_edge[0][1],
+                K=2,
+                L=3,
+                use_precomputed_directed_graph=True,
+            ) == set(self.vertex_list())
+
         raise NotImplementedError()
 
     @doc_category("Waiting for implementation")
