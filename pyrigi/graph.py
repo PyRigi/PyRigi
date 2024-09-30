@@ -488,7 +488,7 @@ class Graph(nx.Graph):
         r"""
         Return the fundamental circuit of the (not yet existing) edge between u and v.
 
-        If uv is :prf:ref:(K, L)-independent <def-kl-sparse-tight> from the graph, 
+        If uv is :prf:ref:(K, L)-independent <def-kl-sparse-tight> from the graph,
         it is uv.
         """
 
@@ -548,9 +548,7 @@ class Graph(nx.Graph):
             self._build_directed_graph_from_scratch(K, L)
 
         # all edges are in fact inside the directed graph
-        return (
-            len(self.edge_list()) == self._directed_pebble_graph.number_of_edges()
-        )
+        return len(self.edge_list()) == self._directed_pebble_graph.number_of_edges()
 
     @doc_category("Sparseness")
     def is_sparse(self, K: int, L: int, algorithm: str = "pebble") -> bool:
