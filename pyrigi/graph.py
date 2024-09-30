@@ -90,9 +90,9 @@ class Graph(nx.Graph):
     """
 
     """
-    Private variable to save the auxiliary directed graph used for 
-    pebble game algorithm here. We don't need to recalculate it necesserily 
-    every time. 
+    Private variable to save the auxiliary directed graph used for
+    pebble game algorithm here. We don't need to recalculate it necessarily
+    every time.
     """
     __directed_pebble_graph__ = pyrigi.directed_graph.MultiDiGraph()
 
@@ -430,7 +430,7 @@ class Graph(nx.Graph):
         r"""
         Builds and saves the directed representation of the graph from scratch.
         Adds edges one-by-one, as long as it can.
-        Will discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
+        Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
         from the rest of the graph.
         """
         if not (isinstance(K, int) and isinstance(L, int)):
@@ -471,7 +471,8 @@ class Graph(nx.Graph):
     ) -> set:
         r"""
         What is the fundamental circuit of the (not yet existing) edge between
-        u and v? If uv is :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph, it is uv.
+        u and v? If uv is :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
+        from the graph, it is uv.
         """
 
         if (

@@ -12,7 +12,8 @@ Auxilary class for directed graph used in pebble game style algorithms.
 
 class MultiDiGraph(nx.MultiDiGraph):
     """
-    Class representing a directed graph that keeps all necessary data for pebble game algorithm.
+    Class representing a directed graph that keeps
+    all necessary data for pebble game algorithm.
     All nx methods in use need a wrapper - to make future developments easier.
     """
 
@@ -22,7 +23,7 @@ class MultiDiGraph(nx.MultiDiGraph):
         used for the pebble game algorithm.
         """
         # We allow not defining them yet
-        if K != None and L != None:
+        if K is not None and L is not None:
             self.__check_K_and_L(K, L)
 
         super().__init__(*args, **kwargs)
