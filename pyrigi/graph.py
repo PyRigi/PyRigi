@@ -1186,7 +1186,9 @@ class Graph(nx.Graph):
          * dim=1: Graphic Matroid
          * dim=2: not (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
-         TODO
+
+        TODO
+        -----
          Add unit tests
         """
         return not self.is_Rd_independent(dim)
@@ -1200,7 +1202,8 @@ class Graph(nx.Graph):
          * dim=2: (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
 
-         TODO
+        TODO
+        -----
          Add unit tests
         """
         if not isinstance(dim, int) or dim < 1:
@@ -1228,7 +1231,8 @@ class Graph(nx.Graph):
          * Not combinatorially:
          * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
 
-         TODO
+        TODO
+        -----
          Add unit tests
         """
         if not isinstance(dim, int) or dim < 1:
