@@ -126,6 +126,9 @@ def test_can_add_edge_between_nodes():
 
     assert Path_graph.can_add_edge_between_nodes(0, 3)
 
+    with pytest.raises(ValueError):
+        Path_graph.can_add_edge_between_nodes(0, "A")
+
 
 def test_can_not_add_edge_between_nodes():
     Cycle_graph = DirectedCycle(4, 2, 3)

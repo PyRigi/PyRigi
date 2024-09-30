@@ -148,7 +148,7 @@ class MultiDiGraph(nx.MultiDiGraph):
         Parameters
         ----------
         u, v: vertices to add edge between.
-        TODO check if vertices exist
+        If u or v is not present in the graph, Error is raised.
         """
 
         def dfs(
@@ -192,6 +192,20 @@ class MultiDiGraph(nx.MultiDiGraph):
 
         max_degree_for_u_and_v_together = 2 * self.get_K() - self.get_L() - 1
 
+        if not self.has_node(u):
+            raise ValueError(
+                "Cannot check if edge can be added, since Vertex "
+                + u
+                + " is not present in graph."
+            )
+
+        if not self.has_node(v):
+            raise ValueError(
+                "Cannot check if edge can be added, since Vertex "
+                + v
+                + " is not present in graph."
+            )
+
         while self.out_degree(u) + self.out_degree(v) > max_degree_for_u_and_v_together:
             visited_nodes = {u, v}
 
@@ -232,7 +246,7 @@ class MultiDiGraph(nx.MultiDiGraph):
         ----------
         u, v: vertices, between the edge is formed,
         which we look for the fundamental circuit.
-        TODO check if vertices exist
+        If u or v is not present in the graph, Error is raised.
         """
         can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
         if can_add_edge:
@@ -246,9 +260,9 @@ class MultiDiGraph(nx.MultiDiGraph):
         so that it still respects the node degrees?
         Parameters
         ----------
-        u, v: vertices, between an edge is proposed
+        u, v: vertices, between an edge is proposed.
+        If u or v is not present in the graph, Error is raised.
 
-        TODO check if vertices exist
         """
         can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
         return can_add_edge
