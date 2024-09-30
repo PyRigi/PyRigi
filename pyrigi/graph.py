@@ -428,7 +428,7 @@ class Graph(nx.Graph):
     @doc_category("Sparseness")
     def _build_directed_graph_from_scratch(self, K: int, L: int) -> None:
         r"""
-        Builds and saves the directed representation of the graph from scratch.
+        Build and save the directed representation of the graph from scratch.
         Adds edges one-by-one, as long as it can.
         Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
         from the rest of the graph.
@@ -452,8 +452,8 @@ class Graph(nx.Graph):
         self, u, v, K: int, L: int, use_precomputed_directed_graph: bool = False
     ) -> bool:
         r"""
-        Is the (not yet existing) edge between u and v would be
-        :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph?
+        Check whether the (not yet existing) edge between u and v
+        would be :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph.
         """
 
         if (
@@ -470,9 +470,7 @@ class Graph(nx.Graph):
         self, u, v, K: int, L: int, use_precomputed_directed_graph: bool = False
     ) -> set:
         r"""
-        What is the fundamental circuit of the (not yet existing) edge between
-        u and v? If uv is :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
-        from the graph, it is uv.
+        Return the fundamental circuit of the (not yet existing) edge between u and v.
         """
 
         if (
@@ -502,7 +500,7 @@ class Graph(nx.Graph):
         self, K: int, L: int, use_precomputed_directed_graph: bool = False
     ) -> bool:
         """
-        Checks if the given directed graph contains exactly the same number of edges
+        Check if the given directed graph contains exactly the same number of edges
         as the graph itself. Then it is sparse
         """
         if (

@@ -142,8 +142,8 @@ class MultiDiGraph(nx.MultiDiGraph):
 
     def added_edge_between(self, u: Vertex, v: Vertex) -> {bool, set}:
         """
-        Checks if edge can be added between the vertices u and v
-        It returns if the given edge can be added
+        Check if edge can be added between the vertices u and v
+        Return whether the given edge can be added
         and the fundamental (matroid) cycle of the edge uv.
         Parameters
         ----------
@@ -155,9 +155,9 @@ class MultiDiGraph(nx.MultiDiGraph):
             node: Vertex, visited: set, edge_path: list[Edge], current_edge=None
         ) -> {bool, set}:
             """
-            Running depth first search to find vertices
+            Run depth first search to find vertices
             that can be reached from u or v.
-            Returns if any of these has outdegree < self._K
+            Returns whether any of these has outdegree < self._K
             and the set of reachable vertices.
             It will also turn edges around by this path.
             Parameters
@@ -256,7 +256,7 @@ class MultiDiGraph(nx.MultiDiGraph):
 
     def can_add_edge_between_nodes(self, u: Vertex, v: Vertex) -> bool:
         """
-        Can you add the edge between the nodes u and v,
+        Check whether one can add the edge between the nodes u and v,
         so that it still respects the node degrees?
         Parameters
         ----------
@@ -269,7 +269,7 @@ class MultiDiGraph(nx.MultiDiGraph):
 
     def add_edge_to_maintain_digraph_if_possible(self, u: Vertex, v: Vertex) -> bool:
         """
-        Function to add the given edge to the directed graph, if possible.
+        Add the given edge to the directed graph, if possible.
 
         This will also check the possibility of adding the edge and return
         True or False depending on it.
@@ -300,7 +300,7 @@ class MultiDiGraph(nx.MultiDiGraph):
 
     def add_edges_to_maintain_out_degrees(self, edges: list[Edge]) -> None:
         """
-        Simple way to add a list of edges to the directed graph
+        Add a list of edges to the directed graph
         so that it will choose the correct orientations of them and
         constructs the corresponding pebble graph.
         ! Note that this might not add all the edges, only the edges that
