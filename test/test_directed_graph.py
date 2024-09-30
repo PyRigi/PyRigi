@@ -42,6 +42,36 @@ Unit tests
 """
 
 
+def test_set_K_and_L_check_setup():
+    graph = MultiDiGraph(2, 3)
+    assert graph.get_K() == 2
+    assert graph.get_L() == 3
+    with pytest.raises(ValueError):
+        graph.set_L(4)
+    with pytest.raises(TypeError):
+        graph.set_L((2, 3))
+    with pytest.raises(ValueError):
+        graph.set_K(1)
+    with pytest.raises(ValueError):
+        graph.set_K_and_L(1, 2)
+    assert graph.get_K() == 2
+    assert graph.get_L() == 3
+    graph.set_K_and_L(4, 5)
+    assert graph.get_K() == 4
+    assert graph.get_L() == 5
+    graph.set_K(3)
+    assert graph.get_K() == 3
+    assert graph.get_L() == 5
+    graph.set_L(0)
+    assert graph.get_L() == 0
+    with pytest.raises(ValueError):
+        graph.set_K(0)
+    with pytest.raises(ValueError):
+        graph.set_L(-1)
+    with pytest.raises(TypeError):
+        graph.set_L(1.5)
+
+
 @pytest.mark.parametrize(
     "graphs",
     [DirectedCycle(5, 2, 3), OutStar(5, 2, 3), InStar(5, 2, 3)],
