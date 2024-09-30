@@ -1,5 +1,4 @@
 from pyrigi.directed_graph import MultiDiGraph
-import networkx as nx
 
 import pytest
 
