@@ -77,7 +77,7 @@ def test_set_K_and_L_check_setup():
     [DirectedCycle(5, 2, 3), OutStar(5, 2, 3), InStar(5, 2, 3)],
 )
 def test_dir_graph_edges(graphs):
-    assert 5 == graphs.get_number_of_edges()
+    assert 5 == graphs.number_of_edges()
 
 
 def test_in_degree():
