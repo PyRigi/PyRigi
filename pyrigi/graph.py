@@ -89,6 +89,14 @@ class Graph(nx.Graph):
     - :doc:`Converting to and from other Data Formats <networkx:reference/convert>`
     """
 
+    
+    """
+    Private variable to save the auxiliary directed graph used for 
+    pebble game algorithm here. We don't need to recalculate it necesserily 
+    every time. 
+    """
+    __directed_pebble_graph__ = pyrigi.directed_graph.MultiDiGraph()
+    
     def __str__(self) -> str:
         """
         Return the string representation.
@@ -417,9 +425,76 @@ class Graph(nx.Graph):
         2
         """
         return max([self.degree(v) for v in self.nodes])
+    
+    @doc_category("Sparseness")
+    def _build_directed_graph_from_scratch(self, K: int, L: int):
+        r"""
+        Builds and saves the directed representation of the graph from scratch.
+        Adds edges one-by-one, as long as it can. 
+        Will discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` 
+        from the rest of the graph. 
+        """
+        if not (isinstance(K, int) and isinstance(L, int)):
+            raise TypeError("K and L need to be integers!")
+        if K <= 0 or L < 0 or L >= 2*K:
+            raise ValueError("To run the pebble game algorithm we need K > 0, L>= 0 and L<2K")
+
+        dir_graph = pyrigi.directed_graph.MultiDiGraph()
+        dir_graph.add_nodes_from(self.nodes())
+        for edge in self.edge_list():
+            u, v = edge[0], edge[1]
+            if dir_graph.can_add_edge_between_nodes(u, v, K, L):
+                if dir_graph.out_degree(u) < dir_graph.out_degree(v):
+                    dir_graph.add_edges_from([(u,v)])
+                else:
+                    dir_graph.add_edges_from([(v,u)])
+        self.__directed_pebble_graph__ = dir_graph    
+
+    #@doc_category("Sparseness")
+    def is_independent(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
+        r"""
+        Is the (not yet existing) edge between u and v would be
+        :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph?
+        """
+
+        if not use_precomputed_directed_graph:
+            self._build_directed_graph_from_scratch(K,L)
+
+        return  self.__directed_pebble_graph__.can_add_edge_between_nodes(u,v,K,L)
+        
+    #@doc_category("Sparseness")
+    def get_M_component(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
+        r"""
+        Is the (not yet existing) edge between u and v would be
+        :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph?
+        """
+
+        if not use_precomputed_directed_graph:
+            self._build_directed_graph_from_scratch(K,L)
+
+        return  self.__directed_pebble_graph__.reachable_nodes(u,v,K,L)
+    
+
+    #@doc_category("Sparseness")
+    #def get_one_spanning_sparse_subgraph(self, K: int, L: int, use_precomputed_directed_graph=False):
+    # TODO
+    # This would need cross-referencing. We want to return a pyrigi.graph here
 
     @doc_category("Sparseness")
-    def is_sparse(self, K: int, L: int, combinatorial=False) -> bool:
+    def _is_directed_graph_sparse(self, K: int, L: int, use_precomputed_directed_graph: bool =False):
+        """
+        Checks if the given directed graph contains exactly the same number of edges
+        as the graph itself. Then it is sparse
+        """
+        if not use_precomputed_directed_graph:
+            self._build_directed_graph_from_scratch(K,L)
+        
+        # all edges are in fact inside the directed graph
+        return len(self.edge_list()) == self.__directed_pebble_graph__.get_number_of_edges() 
+
+
+    @doc_category("Sparseness")
+    def is_sparse(self, K: int, L: int, combinatorial : bool = False) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
 
@@ -431,27 +506,15 @@ class Graph(nx.Graph):
             raise TypeError("K and L need to be integers!")
 
         if combinatorial:
-            dir_G = pyrigi.directed_graph.MultiDiGraph()
-            dir_G.add_nodes_from(self.nodes())
-            for edge in self.edge_list():
-                u, v = edge[0], edge[1]
-                if dir_G.can_add_edge_between_nodes(u, v, K, L):
-                    if dir_G.out_degree(u) < dir_G.out_degree(v):
-                        dir_G.add_edges_from([(u,v)])
-                    else:
-                        dir_G.add_edges_from([(v,u)])
-                else:
-                    # cannot add this edge, thus not sparse
-                    return False
-            # we could add all edges
+            return self._is_directed_graph_sparse(K,L)
+                
+        else:    
+            for j in range(K, self.number_of_nodes() + 1):
+                for vertex_set in combinations(self.nodes, j):
+                    G = self.subgraph(vertex_set)
+                    if G.number_of_edges() > K * G.number_of_nodes() - L:
+                        return False
             return True
-        #else    
-        for j in range(K, self.number_of_nodes() + 1):
-            for vertex_set in combinations(self.nodes, j):
-                G = self.subgraph(vertex_set)
-                if G.number_of_edges() > K * G.number_of_nodes() - L:
-                    return False
-        return True
 
     @doc_category("Sparseness")
     def is_tight(self, K: int, L: int) -> bool:

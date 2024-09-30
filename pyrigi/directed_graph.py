@@ -11,8 +11,11 @@ Auxilary class for directed graph used in pebble game style algorithms.
 class MultiDiGraph(nx.MultiDiGraph):
     """
     Class representing a directed graph.
-    All nx methods need a wrapper - to make future developments easier. 
+    All nx methods in use need a wrapper - to make future developments easier. 
     """
+
+    def get_number_of_edges(self):
+        return len(super().edges)
 
     def in_degree(self, node):
         return super().in_degree(node)
