@@ -10,7 +10,7 @@ Auxilary class for directed graph used in pebble game style algorithms.
 """
 
 
-class MultiDiGraph(nx.MultiDiGraph):
+class PebbleDiGraph(nx.MultiDiGraph):
     """
     Class representing a directed graph
     that keeps all necessary data for pebble game algorithm.

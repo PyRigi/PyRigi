@@ -1,4 +1,4 @@
-from pyrigi.directed_graph import MultiDiGraph
+from pyrigi._pebble_di_graph import PebbleDiGraph
 
 import pytest
 
@@ -9,30 +9,30 @@ Use other methods.
 """
 
 
-def DirectedCycle(n: int, K: int, L: int) -> MultiDiGraph:
+def DirectedCycle(n: int, K: int, L: int) -> PebbleDiGraph:
     """Return the directed cycle on n vertices."""
-    G = MultiDiGraph(K, L)
+    G = PebbleDiGraph(K, L)
     G.add_edges_from((i, (i + 1) % n) for i in range(n))
     return G
 
 
-def DirectedPath(n: int, K: int, L: int) -> MultiDiGraph:
+def DirectedPath(n: int, K: int, L: int) -> PebbleDiGraph:
     """Return the directed path from vertex 0 to vertex n-1."""
-    G = MultiDiGraph(K, L)
+    G = PebbleDiGraph(K, L)
     G.add_edges_from((i, i + 1) for i in range(n - 1))
     return G
 
 
-def OutStar(n: int, K: int, L: int) -> MultiDiGraph:
+def OutStar(n: int, K: int, L: int) -> PebbleDiGraph:
     """Return a K_{1,n} with all edges directed out of the center."""
-    G = MultiDiGraph(K, L)
+    G = PebbleDiGraph(K, L)
     G.add_edges_from((0, i) for i in range(1, n + 1))
     return G
 
 
-def InStar(n: int, K: int, L: int) -> MultiDiGraph:
+def InStar(n: int, K: int, L: int) -> PebbleDiGraph:
     """Return a K_{1,n} with all edges directed into the center."""
-    G = MultiDiGraph(K, L)
+    G = PebbleDiGraph(K, L)
     G.add_edges_from((i, 0) for i in range(1, n + 1))
     return G
 
@@ -43,7 +43,7 @@ Unit tests
 
 
 def test_set_K_and_L_check_setup():
-    graph = MultiDiGraph(2, 3)
+    graph = PebbleDiGraph(2, 3)
     assert graph.get_K() == 2
     assert graph.get_L() == 3
     with pytest.raises(ValueError):
@@ -116,7 +116,7 @@ def test_can_add_edge_between_nodes():
         assert Cycle_graph.can_add_edge_between_nodes(i, (i + 2) % 4)
         assert Cycle_graph.can_add_edge_between_nodes((i + 2) % 4, i)
 
-    Disjoint_graph = MultiDiGraph(1, 1)
+    Disjoint_graph = PebbleDiGraph(1, 1)
     Disjoint_graph.add_edges_from([(0, 1), (2, 3)])
     assert Disjoint_graph.can_add_edge_between_nodes(0, 2)
     assert Disjoint_graph.can_add_edge_between_nodes(3, 0)
@@ -150,7 +150,7 @@ def test_added_edge_between():
 
 
 def test_reachable_nodes():
-    graph = MultiDiGraph(2, 3)
+    graph = PebbleDiGraph(2, 3)
     graph.add_edges_to_maintain_out_degrees(
         [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (3, 4)]
     )
