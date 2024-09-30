@@ -451,6 +451,7 @@ class Graph(nx.Graph):
         self.__directed_pebble_graph__ = dir_graph    
 
     #@doc_category("Sparseness")
+    # TODO check relation with is_Rd_independent()
     def is_independent(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
         r"""
         Is the (not yet existing) edge between u and v would be
@@ -463,7 +464,8 @@ class Graph(nx.Graph):
         return  self.__directed_pebble_graph__.can_add_edge_between_nodes(u,v,K,L)
         
     #@doc_category("Sparseness")
-    def get_M_component(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
+    # TODO check relation to is_Rd_circuit()
+    def get_Matroid_circuit(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
         r"""
         Is the (not yet existing) edge between u and v would be
         :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph?
@@ -477,7 +479,7 @@ class Graph(nx.Graph):
 
     #@doc_category("Sparseness")
     #def get_one_spanning_sparse_subgraph(self, K: int, L: int, use_precomputed_directed_graph=False):
-    # TODO
+    # TODO check relation to max_rigid_subgraphs()
     # This would need cross-referencing. We want to return a pyrigi.graph here
 
     @doc_category("Sparseness")

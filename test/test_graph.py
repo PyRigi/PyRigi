@@ -115,7 +115,8 @@ def test_not_2_3_sparse(graph):
     ],
 )
 def test_2_3_tight(graph):
-    assert graph.is_tight(2, 3)
+    assert graph.is_tight(2, 3, combinatorial=True)
+    assert graph.is_tight(2, 3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -135,7 +136,8 @@ def test_2_3_tight(graph):
     ],
 )
 def test_not_2_3_tight(graph):
-    assert not graph.is_tight(2, 3)
+    assert not graph.is_tight(2, 3, combinatorial=True)
+    assert not graph.is_tight(2, 3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
