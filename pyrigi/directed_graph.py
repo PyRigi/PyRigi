@@ -12,8 +12,8 @@ Auxilary class for directed graph used in pebble game style algorithms.
 
 class MultiDiGraph(nx.MultiDiGraph):
     """
-    Class representing a directed graph that keeps
-    all necessary data for pebble game algorithm.
+    Class representing a directed graph that keeps all necessary data for pebble game algorithm.
+
     All nx methods in use need a wrapper - to make future developments easier.
     """
 
@@ -24,14 +24,14 @@ class MultiDiGraph(nx.MultiDiGraph):
         """
         # We allow not defining them yet
         if K is not None and L is not None:
-            self.__check_K_and_L(K, L)
+            self._check_K_and_L(K, L)
 
-        self.__K = K
-        self.__L = L
+        self._K = K
+        self._L = L
 
         super().__init__(*args, **kwargs)
 
-    def __check_K_and_L(self, K: int, L: int) -> None:
+    def _check_K_and_L(self, K: int, L: int) -> None:
         """
         Raises an error, if K and L don't satisfy the value constraints:
         K, L are integers, 0 < K, 0 <= L < 2K
@@ -56,8 +56,8 @@ class MultiDiGraph(nx.MultiDiGraph):
         ----------
         K: K must be integer and 0 < K. Also, L < 2K.
         """
-        self.__check_K_and_L(K, self.get_L())
-        self.__K = K
+        self._check_K_and_L(K, self.get_L())
+        self._K = K
 
     def set_L(self, L: int) -> None:
         """
@@ -67,9 +67,9 @@ class MultiDiGraph(nx.MultiDiGraph):
         ----------
         L: L must be integer and 0 <= L. Also, L < 2K.
         """
-        self.__check_K_and_L(self.get_K(), L)
+        self._check_K_and_L(self.get_K(), L)
 
-        self.__L = L
+        self._L = L
 
     def set_K_and_L(self, K: int, L: int) -> None:
         """
@@ -81,24 +81,24 @@ class MultiDiGraph(nx.MultiDiGraph):
         L: L is integer and 0 <= L.
         Also, L < 2K.
         """
-        self.__check_K_and_L(K, L)
+        self._check_K_and_L(K, L)
 
-        self.__K = K
-        self.__L = L
+        self._K = K
+        self._L = L
 
     def get_K(self) -> int:
         """
         Get the value of K.
         K is integer and 0 < K. Also, L < 2K.
         """
-        return self.__K
+        return self._K
 
     def get_L(self) -> int:
         """
         Get the value of L.
         L is integer and 0 <= L. Also, L < 2K.
         """
-        return self.__L
+        return self._L
 
     def get_number_of_edges(self) -> int:
         """
