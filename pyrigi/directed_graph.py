@@ -12,7 +12,8 @@ Auxilary class for directed graph used in pebble game style algorithms.
 
 class MultiDiGraph(nx.MultiDiGraph):
     """
-    Class representing a directed graph that keeps all necessary data for pebble game algorithm.
+    Class representing a directed graph
+    that keeps all necessary data for pebble game algorithm.
 
     All nx methods in use need a wrapper - to make future developments easier.
     """
@@ -66,7 +67,7 @@ class MultiDiGraph(nx.MultiDiGraph):
         Set L outside of the constructor.
 
         This will invalidate the current directions of the edges.
-        
+
         Parameters
         ----------
         L: L must be integer and 0 <= L. Also, L < 2K.
@@ -78,9 +79,9 @@ class MultiDiGraph(nx.MultiDiGraph):
     def set_K_and_L(self, K: int, L: int) -> None:
         """
         Set K and L together outside of the constructor.
-        
+
         This will invalidate the current directions of the edges.
-        
+
         Parameters
         ----------
         K: K is integer and 0 < K.
@@ -95,7 +96,7 @@ class MultiDiGraph(nx.MultiDiGraph):
     def get_K(self) -> int:
         """
         Get the value of K.
-        
+
         K is integer and 0 < K. Also, L < 2K.
         """
         return self._K
@@ -103,7 +104,7 @@ class MultiDiGraph(nx.MultiDiGraph):
     def get_L(self) -> int:
         """
         Get the value of L.
-        
+
         L is integer and 0 <= L. Also, L < 2K.
         """
         return self._L
@@ -117,7 +118,7 @@ class MultiDiGraph(nx.MultiDiGraph):
     def in_degree(self, node: Vertex) -> int:
         """
         Number of edges leading to node.
-        
+
         Parameters
         ----------
         node: Vertex, that we wish to know the indegree.
@@ -128,7 +129,7 @@ class MultiDiGraph(nx.MultiDiGraph):
     def out_degree(self, node: Vertex) -> int:
         """
         Number of edges leading out from a node.
-        
+
         Parameters
         ----------
         node: Vertex, that we wish to know the outdegree.
@@ -139,7 +140,7 @@ class MultiDiGraph(nx.MultiDiGraph):
     def point_edge_head_to(self, edge: Edge, node_to: Vertex) -> None:
         """
         Redirect given edge to the given head.
-        
+
         Parameters
         ----------
         edge: Edge to redirect.
@@ -154,10 +155,10 @@ class MultiDiGraph(nx.MultiDiGraph):
     def added_edge_between(self, u: Vertex, v: Vertex) -> {bool, set}:
         """
         Check if edge can be added between the vertices u and v
-        
+
         Return whether the given edge can be added
         and the fundamental (matroid) cycle of the edge uv.
-        
+
         Parameters
         ----------
         u, v: vertices to add edge between.
@@ -174,7 +175,7 @@ class MultiDiGraph(nx.MultiDiGraph):
             Returns whether any of these has outdegree < self._K
             and the set of reachable vertices.
             It will also turn edges around by this path.
-            
+
             Parameters
             ----------
             node: Vertex, starting position of the dfs
@@ -255,15 +256,15 @@ class MultiDiGraph(nx.MultiDiGraph):
     def fundamental_circuit(self, u: Vertex, v: Vertex) -> set:
         """
         Get the list of nodes that form the fundamental circuit of uv
-        
+
         These are the vertices that are
         accessible from u and v at the last passing of the dfs.
-        
+
         Parameters
         ----------
         u, v: vertices, between the edge is formed,
         which we look for the fundamental circuit.
-        
+
         If u or v is not present in the graph, Error is raised.
         """
         can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
@@ -276,11 +277,11 @@ class MultiDiGraph(nx.MultiDiGraph):
         """
         Check whether one can add the edge between the nodes u and v,
         so that it still respects the node degrees?
-        
+
         Parameters
         ----------
         u, v: vertices, between an edge is proposed.
-        
+
         If u or v is not present in the graph, Error is raised.
 
         """
@@ -293,7 +294,7 @@ class MultiDiGraph(nx.MultiDiGraph):
 
         This will also check the possibility of adding the edge and return
         True or False depending on it.
-        
+
         Parameters
         ----------
         u, v: vertices, between an edge is proposed
@@ -327,7 +328,7 @@ class MultiDiGraph(nx.MultiDiGraph):
 
         ! Note that this might not add all the edges, only the edges that
         ! take part of the maximal sparse subgraph
-        
+
         Parameters
         ----------
         edges: List of Edge to add
