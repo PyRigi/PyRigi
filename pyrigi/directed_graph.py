@@ -109,7 +109,7 @@ class MultiDiGraph(nx.MultiDiGraph):
         """
         return self._L
 
-    def get_number_of_edges(self) -> int:
+    def number_of_edges(self) -> int:
         """
         Number of directed edges
         """
