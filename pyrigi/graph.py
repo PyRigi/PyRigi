@@ -464,7 +464,7 @@ class Graph(nx.Graph):
         self._directed_pebble_graph = dir_graph
 
     # @doc_category("Sparseness")
-    def is_independent(
+    def edge_is_kl_independent(
         self, u, v, K: int, L: int, use_precomputed_directed_graph: bool = False
     ) -> bool:
         r"""
@@ -502,7 +502,7 @@ class Graph(nx.Graph):
         return self._directed_pebble_graph.fundamental_circuit(u, v, K, L)
 
     @doc_category("Sparseness")
-    def get_one_spanning_sparse_subgraph(
+    def spanning_sparse_subgraph(
         self, K: int, L: int, use_precomputed_directed_graph=False
     ) -> pyrigi.Graph:
         r"""
@@ -1258,7 +1258,7 @@ class Graph(nx.Graph):
             # the one last edge
             if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
                 return False
-            max_sparse_subgraph = self.get_one_spanning_sparse_subgraph(
+            max_sparse_subgraph = self.spanning_sparse_subgraph(
                 K=2, L=3, use_precomputed_directed_graph=True
             )
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:

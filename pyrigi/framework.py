@@ -1081,7 +1081,7 @@ class Framework(object):
         return True
 
     @doc_category("Waiting for implementation")
-    def is_independent(self) -> bool:
+    def edge_is_kl_independent(self) -> bool:
         raise NotImplementedError()
 
     @doc_category("Waiting for implementation")
