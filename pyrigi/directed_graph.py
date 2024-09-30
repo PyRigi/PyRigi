@@ -41,7 +41,7 @@ class MultiDiGraph(nx.MultiDiGraph):
                 edge_path.append(current_edge)
 
             # Check if the stopping criteria is met
-            if node != u and node != v and G.out_degree(node) < K:
+            if node != u and node != v and self.out_degree(node) < K:
                 # turn around edges via path
                 for i in range(len(path) - 1):
                     self.remove_edge(path[i], path[i + 1])
@@ -57,7 +57,6 @@ class MultiDiGraph(nx.MultiDiGraph):
                     found = dfs(next_node, visited, path, edge_path, out_edge)
                 if found:
                     return True
-
             path.pop()
             if edge_path:
                 edge_path.pop()
@@ -66,17 +65,17 @@ class MultiDiGraph(nx.MultiDiGraph):
         max_degree_for_u_and_v_together = 2 * K - L - 1
         while self.out_degree(u) + self.out_degree(v) > max_degree_for_u_and_v_together:
             #print(self.edges())
-            visited_u, visited_v = set(), set()
+            visited = {u,v}
             path_u, path_v = [], []
             edge_path_u, edge_path_v = [], []
 
             # Perform DFS from u
-            found_from_u = dfs(u, visited_u, path_u, edge_path_u)
+            found_from_u = dfs(u, visited, path_u, edge_path_u)
             if found_from_u:
                 continue
 
             # Perform DFS from v
-            found_from_v = dfs(v, visited_v, path_v, edge_path_v)
+            found_from_v = dfs(v, visited, path_v, edge_path_v)
             if found_from_v:
                 continue
             # not found_from_u and not found_from_v
@@ -84,9 +83,6 @@ class MultiDiGraph(nx.MultiDiGraph):
 
         return self.out_degree(u) + self.out_degree(v) <= max_degree_for_u_and_v_together
 
-    
-
-#G = MultiDiGraph([(1, 2), (2, 3), (3, 4),(4, 1)] )
 
 # Example usage
 G = MultiDiGraph()
@@ -97,7 +93,6 @@ print(result)
 
 result = G.can_add_edge_between_nodes(1, 3, K, L)
 print(result)
-
 
 G.add_edges_from([(2, 4)])
 
