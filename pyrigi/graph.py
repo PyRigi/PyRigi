@@ -17,6 +17,7 @@ import distinctipy
 from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
+import pyrigi.directed_graph
 
 
 class Graph(nx.Graph):
@@ -418,7 +419,7 @@ class Graph(nx.Graph):
         return max([self.degree(v) for v in self.nodes])
 
     @doc_category("Sparseness")
-    def is_sparse(self, K: int, L: int) -> bool:
+    def is_sparse(self, K: int, L: int, combinatorial=False) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
 
@@ -429,6 +430,22 @@ class Graph(nx.Graph):
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
 
+        if combinatorial:
+            dir_G = pyrigi.directed_graph.MultiDiGraph()
+            dir_G.add_nodes_from(self.nodes())
+            for edge in self.edge_list():
+                u, v = edge[0], edge[1]
+                if dir_G.can_add_edge_between_nodes(u, v, K, L):
+                    if dir_G.out_degree(u) < dir_G.out_degree(v):
+                        dir_G.add_edges_from([(u,v)])
+                    else:
+                        dir_G.add_edges_from([(v,u)])
+                else:
+                    # cannot add this edge, thus not sparse
+                    return False
+            # we could add all edges
+            return True
+        #else    
         for j in range(K, self.number_of_nodes() + 1):
             for vertex_set in combinations(self.nodes, j):
                 G = self.subgraph(vertex_set)
