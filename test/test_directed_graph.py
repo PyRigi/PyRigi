@@ -1,10 +1,11 @@
 from pyrigi.directed_graph import MultiDiGraph
-from pyrigi.exception import LoopError
 
 import pytest
 
 """
-Database of directed graphs:
+Create the most used directed graphs. Note that the edges added here are in fact directed.
+If you want to add them in a way so that they necessarily keep the pebble game directions
+Use other methods.
 """
 
 

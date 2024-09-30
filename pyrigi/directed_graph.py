@@ -1,6 +1,7 @@
 import networkx as nx
 
-# from pyrigi.data_type import Vertex, Edge
+from pyrigi.data_type import Vertex, Edge
+
 # from pyrigi.misc import doc_category, generate_category_tables
 # from pyrigi.exception import LoopError
 
@@ -11,38 +12,103 @@ Auxilary class for directed graph used in pebble game style algorithms.
 
 class MultiDiGraph(nx.MultiDiGraph):
     """
-    Class representing a directed graph.
+    Class representing a directed graph that keeps all necessary data for pebble game algorithm.
     All nx methods in use need a wrapper - to make future developments easier.
     """
 
-    def __init__(self, K=None, L=None, *args, **kwargs):
+    def __init__(self, K: int = None, L: int = None, *args, **kwargs) -> None:
+        """
+        Initialisation, in which we can set up the graph and the values of K and L,
+        used for the pebble game algorithm.
+        """
+        # We allow not defining them yet
+        if K != None and L != None:
+            self.__check_K_and_L(K, L)
+
         super().__init__(*args, **kwargs)
+
         self.__K = K
         self.__L = L
 
-    def set_K(self, K):
+    def __check_K_and_L(self, K: int, L: int) -> None:
+        """
+        Raises an error, if K and L don't satisfy the value constraints:
+        K, L in Z
+        0 < K, 0 <= L < 2K
+        """
+        if not (isinstance(K, int) and isinstance(L, int)):
+            raise TypeError("K and L need to be integers!")
+
+        if 0 >= K:
+            raise ValueError("K must be positive")
+
+        if 0 > L:
+            raise ValueError("L must be non-negative")
+
+        if L >= 2 * K:
+            raise ValueError("L<2K must hold")
+
+    def set_K(self, K: int) -> None:
+        """
+        Set K outside of the constructor.
+        This will invalidate the current directions of the edges.
+        Parameters
+        ----------
+        K: K must be integer and 0 < K. Also, L < 2K.
+        """
+        self.__check_K_and_L(K, self.get_L())
         self.__K = K
 
-    def set_L(self, L):
+    def set_L(self, L: int) -> None:
+        """
+        Set L outside of the constructor.
+        This will invalidate the current directions of the edges.
+        L: L must be integer and 0 <= L. Also, L < 2K.
+        """
+        self.__check_K_and_L(self.get_K(), L)
+
         self.__L = L
 
-    def get_K(self):
+    def set_K_and_L(self, K: int, L: int) -> None:
+        """
+        Set K and L together outside of the constructor.
+        This will invalidate the current directions of the edges.
+        Parameters
+        ----------
+        K: K is integer and 0 < K.
+        L: L is integer and 0 <= L.
+        Also, L < 2K.
+        """
+        self.__check_K_and_L(K, L)
+
+        self.__K = K
+        self.__L = L
+
+    def get_K(self) -> int:
+        """
+        Get the value of K.
+        K is integer and 0 < K. Also, L < 2K.
+        """
         return self.__K
 
-    def get_L(self):
+    def get_L(self) -> int:
+        """
+        Get the value of L.
+        L is integer and 0 <= L. Also, L < 2K.
+        """
         return self.__L
 
-    def get_number_of_edges(self):
+    def get_number_of_edges(self) -> int:
         return len(super().edges)
 
-    def in_degree(self, node):
+    def in_degree(self, node: Vertex) -> int:
         return super().in_degree(node)
 
-    def out_degree(self, node):
+    def out_degree(self, node: Vertex) -> int:
         return super().out_degree(node)
 
     # Redirect edge to the given head
-    def point_edge_head_to(self, edge, node_to):
+    def point_edge_head_to(self, edge: Edge, node_to: Vertex) -> None:
         # placeholder
         tail = edge[0]
         head = edge[1]
@@ -52,11 +118,13 @@ class MultiDiGraph(nx.MultiDiGraph):
     # Checks if you can add edge between the the vertices u and v
     # It returns if the given edge can be added
     # and the fundamental (matroid) cycle of the edge u, v.
-    def added_edge_between(self, u, v):
+    def added_edge_between(self, u: Vertex, v: Vertex) -> (bool, set):
         # Running depth first search to find vertices that can be reached
         # returns if any of these has outdegree < self._K
         # It will also turn edges around by this path.
-        def dfs(node, visited, edge_path, current_edge=None):
+        def dfs(
+            node: Vertex, visited: set, edge_path: list[Edge], current_edge=None
+        ) -> {bool, set}:
             visited.add(node)
             if current_edge:
                 edge_path.append(current_edge)
@@ -116,7 +184,7 @@ class MultiDiGraph(nx.MultiDiGraph):
     # Get the list of nodes that form the fundamental circuit of {uv}
     # These are the vertices that are
     # accessible from u and v at the last passing of the dfs
-    def fundamental_circuit(self, u, v) -> set:
+    def fundamental_circuit(self, u: Vertex, v: Vertex) -> set:
         can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
         if can_add_edge:
             return {u, v}
@@ -125,7 +193,7 @@ class MultiDiGraph(nx.MultiDiGraph):
 
     # Can you add the edge between the nodes u and v,
     # so that it still respects the node degrees?
-    def can_add_edge_between_nodes(self, u, v) -> bool:
+    def can_add_edge_between_nodes(self, u: Vertex, v: Vertex) -> bool:
         can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
         return can_add_edge
 
@@ -133,17 +201,17 @@ class MultiDiGraph(nx.MultiDiGraph):
     #
     # This will also check the possibility of adding the edge and return
     # True or False depending on it.
-    def add_edge_to_maintain_digraph_if_possible(self, u, v):
+    def add_edge_to_maintain_digraph_if_possible(self, u: Vertex, v: Vertex) -> bool:
         # if the vertex u is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
         if u not in self.nodes():
             self.add_edges_from([(u, v)])
-            return
+            return True
         # if the vertex v is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
         if v not in self.nodes():
             self.add_edges_from([(v, u)])
-            return
+            return True
 
         # heuristics: point it out from the one with the fewer outdegrees
         if self.can_add_edge_between_nodes(u, v):
@@ -160,6 +228,6 @@ class MultiDiGraph(nx.MultiDiGraph):
     # constructs the corresponding pebble graph.
     # !Note that this might not add all the edges, only the edges that
     # ! take part of the maximal sparse subgraph
-    def add_edges_to_maintain_out_degrees(self, edges):
+    def add_edges_to_maintain_out_degrees(self, edges: list[Edge]) -> None:
         for edge in edges:
             self.add_edge_to_maintain_digraph_if_possible(edge[0], edge[1])
