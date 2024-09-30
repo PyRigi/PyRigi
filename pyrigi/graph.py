@@ -425,8 +425,9 @@ class Graph(nx.Graph):
         """
         return max([self.degree(v) for v in self.nodes])
 
+    @staticmethod
     @doc_category("Sparseness")
-    def _pebble_values_are_correct(self, K: int, L: int) -> bool:
+    def _pebble_values_are_correct(K: int, L: int) -> bool:
         r"""
         Checks if K and L satisfy the conditions so that they can be used with
         pebble game algorithm.

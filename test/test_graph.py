@@ -6,6 +6,26 @@ import pytest
 from sympy import Matrix
 
 
+def test_KL_values_are_correct():
+    assert Graph._pebble_values_are_correct(2, 3)
+    assert Graph._pebble_values_are_correct(1, 1)
+    assert Graph._pebble_values_are_correct(20, 20)
+    assert Graph._pebble_values_are_correct(5, 1)
+    assert Graph._pebble_values_are_correct(2, 0)
+    assert Graph._pebble_values_are_correct(40, 79)
+
+
+def test_KL_values_are_not_correct():
+    assert not Graph._pebble_values_are_correct(2, 4)
+    assert not Graph._pebble_values_are_correct(1, -1)
+    assert not Graph._pebble_values_are_correct(0, 0)
+    assert not Graph._pebble_values_are_correct(1, 5)
+    assert not Graph._pebble_values_are_correct(2.0, 3)
+    assert not Graph._pebble_values_are_correct(2, 3.14)
+    assert not Graph._pebble_values_are_correct(2, "three")
+    assert not Graph._pebble_values_are_correct(-2, -1)
+
+
 @pytest.mark.parametrize(
     "graph",
     [
