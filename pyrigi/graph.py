@@ -997,13 +997,10 @@ class Graph(nx.Graph):
             if deficiency < 0:
                 return False
             else:
-                for edge_subset in combinations(self.edges, deficiency):
-                    H = self.edge_subgraph(
-                        [edge for edge in self.edges if edge not in edge_subset]
-                    )
-                    if H.is_tight(2, 3):
-                        return True
-                return False
+                self._build_directed_graph_from_scratch(2, 3)
+                print(self.__directed_pebble_graph__.get_number_of_edges())
+                print(2*self.number_of_nodes() - 3)
+                return self.__directed_pebble_graph__.get_number_of_edges() == 2*self.number_of_nodes() - 3
         elif not combinatorial:
             from pyrigi.framework import Framework
 
