@@ -427,7 +427,7 @@ class Graph(nx.Graph):
         return max([self.degree(v) for v in self.nodes])
     
     @doc_category("Sparseness")
-    def _build_directed_graph_from_scratch(self, K: int, L: int):
+    def _build_directed_graph_from_scratch(self, K: int, L: int)->None:
         r"""
         Builds and saves the directed representation of the graph from scratch.
         Adds edges one-by-one, as long as it can. 
@@ -447,7 +447,6 @@ class Graph(nx.Graph):
         self.__directed_pebble_graph__ = dir_graph    
 
     #@doc_category("Sparseness")
-    # TODO check relation with is_Rd_independent()
     def is_independent(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
         r"""
         Is the (not yet existing) edge between u and v would be
@@ -460,11 +459,10 @@ class Graph(nx.Graph):
         return  self.__directed_pebble_graph__.can_add_edge_between_nodes(u,v)
         
     #@doc_category("Sparseness")
-    # TODO check relation to is_Rd_circuit()
-    def get_Matroid_circuit(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
+    def get_matroid_circuit(self, u, v, K: int, L: int, use_precomputed_directed_graph: bool =False) -> set:
         r"""
-        Is the (not yet existing) edge between u and v would be
-        :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph?
+        What is the fundamental circuit of the (not yet existing) edge between 
+        u and v? If uv is :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph, it is uv.
         """
 
         if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
@@ -473,13 +471,15 @@ class Graph(nx.Graph):
         return  self.__directed_pebble_graph__.fundamental_circuit(u,v,K,L)
     
 
-    #@doc_category("Sparseness")
-    #def get_one_spanning_sparse_subgraph(self, K: int, L: int, use_precomputed_directed_graph=False):
-    # TODO check relation to max_rigid_subgraphs()
-    # This would need cross-referencing. We want to return a pyrigi.graph here
-
     @doc_category("Sparseness")
-    def _is_directed_graph_sparse(self, K: int, L: int, use_precomputed_directed_graph: bool =False):
+    def get_one_spanning_sparse_subgraph(self, K: int, L: int, use_precomputed_directed_graph=False) -> pyrigi.Graph:
+        if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
+            self._build_directed_graph_from_scratch(K,L)
+
+        return self.__directed_pebble_graph__.to_undirected()
+    
+    @doc_category("Sparseness")
+    def _is_directed_graph_sparse(self, K: int, L: int, use_precomputed_directed_graph: bool =False) -> bool:
         """
         Checks if the given directed graph contains exactly the same number of edges
         as the graph itself. Then it is sparse
@@ -498,7 +498,7 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        pebble game algorithm, examples, tests for other cases than (2,3)
+        examples, tests for other cases than (2,3)
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
@@ -1111,7 +1111,7 @@ class Graph(nx.Graph):
             # of vertices.
             raise NotImplementedError()
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Partially implemented")
     def is_Rd_dependent(self, dim: int = 2) -> bool:
         """
         Notes
@@ -1119,12 +1119,12 @@ class Graph(nx.Graph):
          * dim=1: Graphic Matroid
          * dim=2: not (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+         TODO
+         Add unit tests
         """
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
-        raise NotImplementedError()
+        return not self.is_Rd_independent(dim)
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Partially implemented")
     def is_Rd_independent(self, dim: int = 2) -> bool:
         """
         Notes
@@ -1132,6 +1132,9 @@ class Graph(nx.Graph):
          * dim=1: Graphic Matroid
          * dim=2: (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+
+         TODO 
+         Add unit tests
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1139,18 +1142,27 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-            
+        if dim ==1:
+            return len(self.cycle_basis()) == 0
+ 
+        if dim == 2:
+            self.is_sparse(2,3)
+
         raise NotImplementedError()
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Partially implemented")
     def is_Rd_circuit(self, dim: int = 2) -> bool:
         """
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim=2: Remove any edge and it becomes sparse
-           (sparsity for every subgraph except whole graph?)
+         * dim=2: It is not sparse, but remove any edge and it becomes sparse
+                  Fundamental circuit is the whole graph
+         * Not combinatorially:
          * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
+
+         TODO
+         Add unit tests
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1158,6 +1170,31 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+        if dim == 1:
+            if not self.is_connected():
+                return False
+
+            # Check if every vertex has degree 2
+            for node in self.nodes():
+                if self.degree(node) != 2:
+                    return False
+            return True
+        
+        if dim == 2:
+            # get max sparse sugraph and check the fundamental circuit of 
+            # the one last edge
+            if self.number_of_edges() != 2*self.number_of_nodes() - 2:
+                return False
+            max_sparse_subgraph = self.get_one_spanning_sparse_subgraph(K=2,L=3, use_precomputed_directed_graph=True)
+            if max_sparse_subgraph.number_of_edges() != 2*self.number_of_nodes() - 3:
+                return False
+
+            remaining_edge = list(set(self.edges()) - set(max_sparse_subgraph.edges()))
+            if len(remaining_edge) != 1:
+                # this should not happen
+                raise RuntimeError
+            return self.get_matroid_circuit(u = remaining_edge[0][0], v = remaining_edge[0][1], K = 2, L = 3, use_precomputed_directed_graph=True) == set(self.vertex_list())
+            
         raise NotImplementedError()
 
     @doc_category("Waiting for implementation")

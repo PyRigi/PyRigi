@@ -112,7 +112,7 @@ class MultiDiGraph(nx.MultiDiGraph):
     # Get the list of nodes that form the fundamental circuit of {uv}
     # These are the vertices that are 
     # accessible from u and v at the last passing of the dfs
-    def fundamental_circuit(self, u, v):
+    def fundamental_circuit(self, u, v) -> set:
         can_add_edge, fundamental_circuit = self.added_edge_between(u,v)
         if can_add_edge:
             return {u,v}
@@ -121,7 +121,7 @@ class MultiDiGraph(nx.MultiDiGraph):
 
     # Can you add the edge between the nodes u and v, 
     # so that it still respects the node degrees?   
-    def can_add_edge_between_nodes(self, u, v):
+    def can_add_edge_between_nodes(self, u, v) -> bool:
         can_add_edge, fundamental_circuit = self.added_edge_between(u,v)
         return can_add_edge
 
