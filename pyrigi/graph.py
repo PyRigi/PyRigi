@@ -439,15 +439,11 @@ class Graph(nx.Graph):
         if K <= 0 or L < 0 or L >= 2*K:
             raise ValueError("To run the pebble game algorithm we need K > 0, L>= 0 and L<2K")
 
-        dir_graph = pyrigi.directed_graph.MultiDiGraph()
+        dir_graph = pyrigi.directed_graph.MultiDiGraph(K,L)
         dir_graph.add_nodes_from(self.nodes())
         for edge in self.edge_list():
             u, v = edge[0], edge[1]
-            if dir_graph.can_add_edge_between_nodes(u, v, K, L):
-                if dir_graph.out_degree(u) < dir_graph.out_degree(v):
-                    dir_graph.add_edges_from([(u,v)])
-                else:
-                    dir_graph.add_edges_from([(v,u)])
+            dir_graph.add_edge_to_maintain_digraph_if_possible(u,v)
         self.__directed_pebble_graph__ = dir_graph    
 
     #@doc_category("Sparseness")
@@ -458,10 +454,10 @@ class Graph(nx.Graph):
         :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph?
         """
 
-        if not use_precomputed_directed_graph:
+        if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
             self._build_directed_graph_from_scratch(K,L)
 
-        return  self.__directed_pebble_graph__.can_add_edge_between_nodes(u,v,K,L)
+        return  self.__directed_pebble_graph__.can_add_edge_between_nodes(u,v)
         
     #@doc_category("Sparseness")
     # TODO check relation to is_Rd_circuit()
@@ -471,10 +467,10 @@ class Graph(nx.Graph):
         :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph?
         """
 
-        if not use_precomputed_directed_graph:
+        if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
             self._build_directed_graph_from_scratch(K,L)
 
-        return  self.__directed_pebble_graph__.reachable_nodes(u,v,K,L)
+        return  self.__directed_pebble_graph__.fundamental_circuit(u,v,K,L)
     
 
     #@doc_category("Sparseness")
@@ -488,7 +484,7 @@ class Graph(nx.Graph):
         Checks if the given directed graph contains exactly the same number of edges
         as the graph itself. Then it is sparse
         """
-        if not use_precomputed_directed_graph:
+        if not use_precomputed_directed_graph or K != self.__directed_pebble_graph__.get_K() or L !=self.__directed_pebble_graph__.get_L():
             self._build_directed_graph_from_scratch(K,L)
         
         # all edges are in fact inside the directed graph
@@ -1143,6 +1139,7 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+            
         raise NotImplementedError()
 
     @doc_category("Waiting for implementation")
