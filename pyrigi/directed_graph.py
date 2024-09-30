@@ -60,20 +60,23 @@ class MultiDiGraph(nx.MultiDiGraph):
 
         while self.out_degree(u) + self.out_degree(v) > max_degree_for_u_and_v_together:
             visited_nodes = {u,v}
+
             edge_path_u, edge_path_v = [], []
 
             # Perform DFS from u
             found_from_u, visited_nodes = dfs(u, visited_nodes, edge_path_u)
+
             if found_from_u:
                 continue
 
             # Perform DFS from v
             found_from_v, visited_nodes = dfs(v, visited_nodes, edge_path_v)
+
             if found_from_v:
                 continue
+
             # not found_from_u and not found_from_v
             break 
-
         return (self.out_degree(u) + self.out_degree(v) <= max_degree_for_u_and_v_together), visited_nodes
 
     # get the list of nodes accessible from u and v 
@@ -90,6 +93,33 @@ class MultiDiGraph(nx.MultiDiGraph):
     def can_add_edge_between_nodes(self, u, v, K, L):
         can_add_edge, reached_vertices = self.added_edge_between(u,v,K,L)
         return can_add_edge
+
+
+    def add_edge_in_out_degrees(self, u, v, K, L):
+        if self.number_of_nodes() < u+1:
+            self.add_edges_from([(u,v)])
+            return
+        if self.number_of_nodes() < v+1:
+            self.add_edges_from([(v,u)])
+            return
+        if self.can_add_edge_between_nodes(u, v, K, L):
+            if self.out_degree(u) < self.out_degree(v):
+                self.add_edges_from([(u,v)])
+            else:
+                self.add_edges_from([(v,u)])
+
+    def add_edges_to_maintain_out_degrees(self, edges, K, L):
+        for edge in edges:
+            self.add_edge_in_out_degrees(edge[0], edge[1], K, L)
+
+
+graph = MultiDiGraph()
+K, L = 2, 3
+
+graph.add_edges_to_maintain_out_degrees([(0,1), (1,2),(2,3),(3,0),(3,4),(0,2)], K, L)
+
+can_add, reachable = graph.added_edge_between(1, 3, 2, 3)
+print(can_add, reachable)    
 
 # Example usage
 G = MultiDiGraph()

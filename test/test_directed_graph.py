@@ -108,6 +108,16 @@ def test_added_edge_between():
 
 def test_reachable_nodes():
     graph = MultiDiGraph()
-    graph.add_edges_from([(0,1), (1,2), (2,3),(3,0), (0,2), (3,4)])
-    reachable = graph.reachable_nodes(0, 1, 2, 3)
+    graph.add_edges_to_maintain_out_degrees([(0,1), (1,2), (2,3),(3,0), (0,2), (3,4)], 2, 3)
+
+    # not addable edge, get base circuit
+    reachable = graph.reachable_nodes(1, 3, 2, 3)
     assert reachable == {0, 1, 2, 3}
+
+    # Edge can be added: get back the two vertices
+    reachable = graph.reachable_nodes(2, 4, 2, 3)
+    assert reachable == {2, 4}
+
+    # Edge already exist: get back the two vertices
+    reachable = graph.reachable_nodes(2, 3, 2, 3)
+    assert reachable == {2, 3}
