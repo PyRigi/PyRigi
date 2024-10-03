@@ -920,6 +920,7 @@ class Graph(nx.Graph):
         ):
             return False
 
+        # in all other cases check by definition
         G = deepcopy(self)
         for vertex_set in combinations(self.nodes, k):
             adj = [[v, list(G.neighbors(v))] for v in vertex_set]
@@ -1003,6 +1004,72 @@ class Graph(nx.Graph):
         if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
             return False
 
+        # note: for the following we need to know that it is k-vertex-redundantly rigid
+        if (
+            dim == 2
+            and (
+                # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
+                (
+                    k == 1
+                    and self.number_of_nodes() >= 5
+                    and self.number_of_edges() == 2 * self.number_of_nodes() - 1
+                )
+                or
+                # edge bound from :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`
+                (
+                    k == 2
+                    and self.number_of_nodes() >= 6
+                    and self.number_of_edges() == 2 * self.number_of_nodes() + 2
+                )
+                or
+                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`
+                (
+                    k >= 3
+                    and self.number_of_nodes() >= 6 * (k + 1) + 23
+                    and self.number_of_edges()
+                    == ((k + 2) * self.number_of_nodes() + 1) // 2
+                )
+            )
+        ) or (
+            dim == 3
+            and (
+                # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
+                (
+                    k == 3
+                    and self.number_of_nodes() >= 15
+                    and self.number_of_edges() == 3 * self.number_of_nodes() + 5
+                )
+                or
+                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
+                (
+                    k >= 4
+                    and self.number_of_nodes() >= 12 * (k + 1) + 10
+                    and self.number_of_nodes() % 2 == 0
+                    and self.number_of_edges()
+                    == ((k + 3) * self.number_of_nodes() + 1) // 2
+                )
+            )
+        ):
+            return True
+        # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
+        if (
+            self.number_of_nodes() >= dim * dim + dim + k + 1
+            and self.number_of_edges()
+            == dim * self.number_of_nodes()
+            - math.comb(dim + 1, 2)
+            + k * dim
+            + max(0, k - (dim + 1) // 2)
+        ):
+            return True
+        # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
+        if (
+            k >= dim + 1
+            and self.number_of_nodes() >= dim + k + 1
+            and self.number_of_edges() == ((dim + k) * self.number_of_nodes() + 1) // 2
+        ):
+            return True
+
+        # in all other cases check by definition
         G = deepcopy(self)
         for edge in self.edge_list():
             G.delete_edges([edge])
@@ -1070,7 +1137,7 @@ class Graph(nx.Graph):
             return False
         if dim == 1:
             return nx.edge_connectivity(self) >= k + 1
-        # edge bounds from ...
+        # edge bounds
         if (
             dim == 2
             and (
@@ -1114,6 +1181,7 @@ class Graph(nx.Graph):
         ):
             return False
 
+        # in all other cases check by definition
         G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
             G.delete_edges(edge_set)
@@ -1187,6 +1255,51 @@ class Graph(nx.Graph):
         if not self.is_k_redundantly_rigid(k, dim, combinatorial):
             return False
 
+        # for the following we that to know k-redundancy
+        if (
+            dim == 2
+            and (
+                # basic edge bound
+                (k == 1 and self.number_of_edges() == 2 * self.number_of_nodes() - 2)
+                or
+                # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
+                (
+                    k == 2
+                    and self.number_of_nodes() >= 5
+                    and self.number_of_edges() == 2 * self.number_of_nodes()
+                )
+                or
+                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
+                (
+                    k >= 3
+                    and self.number_of_nodes() >= 6 * (k + 1) + 23
+                    and self.number_of_edges()
+                    == ((k + 2) * self.number_of_nodes() + 1) // 2
+                )
+            )
+        ) or (
+            dim == 3
+            and (
+                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
+                (
+                    k == 2
+                    and self.number_of_nodes() >= 14
+                    and self.number_of_edges() == 3 * self.number_of_nodes() - 4
+                )
+                or
+                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
+                (
+                    k >= 4
+                    and self.number_of_nodes() >= 12 * (k + 1) + 10
+                    and self.number_of_nodes() % 2 == 0
+                    and self.number_of_edges()
+                    == ((k + 3) * self.number_of_nodes() + 1) // 2
+                )
+            )
+        ):
+            return True
+
+        # in all other cases check by definition
         G = deepcopy(self)
         for edge in self.edge_list():
             G.delete_edges([edge])
