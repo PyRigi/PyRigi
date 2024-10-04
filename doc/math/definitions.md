@@ -203,20 +203,6 @@ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigi
 {{pyrigi_crossref}} {meth}`~.Framework.is_min_inf_rigid`
 :::
 
-:::{prf:definition} Redundantly rigid frameworks
-:label: def-redundantly-rigid-framework
-
-Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` and let $k \in \NN$.
-The framework $(G, p)$ is called
-
-* _redundantly (infinitesimally) $d$-rigid_ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
-* _vertex redundantly (infinitesimally) $d$-rigid_ if removing any vertex from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
-* _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ edges from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
-* _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ vertices from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`.
-
-{{pyrigi_crossref}} {meth}`~.Framework.is_redundantly_rigid`
-:::
-
 
 :::{prf:definition} Minimally generically rigid graphs
 :label: def-min-rigid-graph
@@ -265,6 +251,20 @@ is called a $d$-dimensional _k-extension_ of $G$.
 :::
 
 # Redundant Rigidity
+
+:::{prf:definition} Redundantly rigid frameworks
+:label: def-redundantly-rigid-framework
+
+Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` and let $k \in \NN$.
+The framework $(G, p)$ is called
+
+* _redundantly (infinitesimally) $d$-rigid_ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
+* _vertex redundantly (infinitesimally) $d$-rigid_ if removing any vertex from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
+* _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ edges from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
+* _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ vertices from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`.
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_redundantly_rigid`
+:::
 
 :::{prf:definition} Redundantly generically rigid graphs
 :label: def-redundantly-rigid-graph
@@ -472,4 +472,23 @@ Let $G = (V, E)$ be a {prf:ref}`minimally 1-redundantly 2-rigid <def-redundantly
 \end{equation*}
 
 {{references}} {cite:p}`Jordan2016`
+:::
+
+# Globally rigid
+
+:::{prf:theorem}
+:label: thm-globally-redundant-3connected
+
+A graph $G$ is globally $2$-rigid if and only if it either is a
+complete graph on at most three vertices or it is $3$-connected and {prf:ref}`redundantly rigid<def-redundantly-rigid-graph>`.
+
+{{references}} {cite:p}`Jackson2005` Thm 7.1
+:::
+
+:::{prf:theorem}
+:label: thm-globally-mindeg6-dim2
+
+Let $G$ be a $6$-connected {prf:ref}`2-rigid <def-gen-rigid>` graph. Then $G$ is globally $2$-rigid.
+
+{{references}} {cite:p}`Jackson2005` Thm 7.2
 :::

@@ -513,6 +513,7 @@ def test_not_minimally_k_vertex_redundantly_rigid_in_d3(graph, k):
         graphs.K33plusEdge(),
         graphs.ThreePrismPlusEdge(),
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]),
+        graphs.Complete(7),
     ],
 )
 def test_redundantly_rigid_in_d2(graph):
