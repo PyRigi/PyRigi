@@ -70,7 +70,7 @@ def CompleteMinusOne(n: int) -> Graph:
 
 
 def Octahedral():
-    """Return the graph given by the skeleton of the cube with a main diagonal."""
+    """Return the graph given by the skeleton of an octahedron."""
     return Graph(
         [
             (0, 2),

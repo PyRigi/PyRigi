@@ -941,7 +941,7 @@ class Graph(nx.Graph):
         """
         Check whether the graph is
         :prf:ref:`minimally vertex redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>`.
+        <def-min-redundantly-rigid-graph>`.
 
         See :meth:`.is_minimally_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
@@ -1196,7 +1196,7 @@ class Graph(nx.Graph):
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>`.
+        <def-min-redundantly-rigid-graph>`.
 
         See :meth:`.is_minimally_k_redundantly_rigid` (using k = 1) for details.
         """

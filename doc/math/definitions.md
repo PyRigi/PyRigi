@@ -228,35 +228,6 @@ The graph $G$ is called _minimally generically (infinitesimally) $d$-rigid_ if a
 :::
 
 
-:::{prf:definition} Redundantly generically rigid graphs
-:label: def-redundantly-rigid-graph
-
-Let $G$ be a graph, let $d, k \in \NN$.
-The graph $G$ is called
-
-* _redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
-* _vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`vertex redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
-* _$k$-redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`k-redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
-* _$k$-vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`k-vertex redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`.
-
-* _minimally_redundantly generically (infinitesimally) $d$-rigid_ if it is _redundantly generically (infinitesimally) $d$-rigid_ and there is an edge such that the graph obtained by deleting this edge is not _redundantly generically (infinitesimally) $d$-rigid_ any more.
-* _minimally_vertex_redundantly generically (infinitesimally) $d$-rigid_ if it is _vertex_redundantly generically (infinitesimally) $d$-rigid_ and there is an edge such that the graph obtained by deleting this edge is not _vertex_redundantly generically (infinitesimally) $d$-rigid_ any more.
-* _minimally_k_redundantly generically (infinitesimally) $d$-rigid_ if it is _k_redundantly generically (infinitesimally) $d$-rigid_ and there is an edge such that the graph obtained by deleting this edge is not _k_redundantly generically (infinitesimally) $d$-rigid_ any more.
-* _minimally_k_vertex_redundantly generically (infinitesimally) $d$-rigid_ if it is _k_vertex_redundantly generically (infinitesimally) $d$-rigid_ and there is an edge such that the graph obtained by deleting this edge is not _k_vertex_redundantly generically (infinitesimally) $d$-rigid_ any more.
-
-Note, that the word generically is ofen ommited when talking about graphs.
-
-{{pyrigi_crossref}} {meth}`~.Graph.is_redundantly_rigid`
-{meth}`~.Graph.is_minimally_redundantly_rigid`
-{meth}`~.Graph.is_vertex_redundantly_rigid`
-{meth}`~.Graph.is_minimally_vertex_redundantly_rigid`
-{meth}`~.Graph.is_k_redundantly_rigid`
-{meth}`~.Graph.is_minimally_k_redundantly_rigid`
-{meth}`~.Graph.is_k_vertex_redundantly_rigid`
-{meth}`~.Graph.is_minimally_k_vertex_redundantly_rigid`
-:::
-
-
 :::{prf:theorem}
 :label: thm-2-gen-rigidity
 
@@ -293,6 +264,48 @@ is called a $d$-dimensional _k-extension_ of $G$.
 {meth}`~.Graph.extension_sequence`
 :::
 
+# Redundant Rigidity
+
+:::{prf:definition} Redundantly generically rigid graphs
+:label: def-redundantly-rigid-graph
+
+Let $G$ be a graph, let $d, k \in \NN$.
+The graph $G$ is called
+
+* _redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
+* _vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`vertex redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
+* _$k$-redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`k-redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
+* _$k$-vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`k-vertex redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`.
+
+Note, that the word generically is ofen ommited when talking about graphs.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_redundantly_rigid`
+{meth}`~.Graph.is_vertex_redundantly_rigid`
+{meth}`~.Graph.is_k_redundantly_rigid`
+{meth}`~.Graph.is_k_vertex_redundantly_rigid`
+:::
+
+
+:::{prf:definition} Minimally redundantly generically rigid graphs
+:label: def-min-redundantly-rigid-graph
+
+Let $G$ be a graph, let $d, k \in \NN$.
+The graph $G$ is called
+
+* _minimally_redundantly generically (infinitesimally) $d$-rigid_ if it is {prf:ref}`redundantly generically (infinitesimally) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not redundantly generically (infinitesimally) $d$-rigid any more.
+* _minimally_vertex_redundantly generically (infinitesimally) $d$-rigid_ if it is {prf:ref}`vertex_redundantly generically (infinitesimally) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not vertex_redundantly generically (infinitesimally) $d$-rigid any more.
+* _minimally_k_redundantly generically (infinitesimally) $d$-rigid_ if it is {prf:ref}`k_redundantly generically (infinitesimally) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_redundantly generically (infinitesimally) $d$-rigid any more.
+* _minimally_k_vertex_redundantly generically (infinitesimally) $d$-rigid_ if it is {prf:ref}`k_vertex_redundantly generically (infinitesimally) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_vertex_redundantly generically (infinitesimally) $d$-rigid any more.
+
+Note, that the word generically is ofen ommited when talking about graphs.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_minimally_redundantly_rigid`
+{meth}`~.Graph.is_minimally_vertex_redundantly_rigid`
+{meth}`~.Graph.is_minimally_k_redundantly_rigid`
+{meth}`~.Graph.is_minimally_k_vertex_redundantly_rigid`
+:::
+
+
 :::{prf:theorem}
 :label: thm-k-vertex-redundant-edge-bound-general
 
@@ -304,6 +317,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-ri
 {{references}} {cite:p}`Kaszanitzky2015` Thm 5
 :::
 
+
 :::{prf:theorem}
 :label: thm-k-vertex-redundant-edge-bound-general2
 
@@ -314,6 +328,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-ri
 
 {{references}} {cite:p}`Kaszanitzky2015` Thm 6
 :::
+
 
 :::{prf:theorem}
 :label: thm-1-vertex-redundant-edge-bound-dim2
@@ -327,6 +342,7 @@ Let $G = (V, E)$ be a {prf:ref}`1-vertex-redundantly 2-rigid <def-redundantly-ri
 {cite:p}`Summers2008` Lem 1
 :::
 
+
 :::{prf:theorem}
 :label: thm-2-vertex-redundant-edge-bound-dim2
 
@@ -337,6 +353,7 @@ Let $G = (V, E)$ be a {prf:ref}`2-vertex-redundantly 2-rigid <def-redundantly-ri
 
 {{references}} {cite:p}`AlirezaMotevallian2014` Lem 4.9
 :::
+
 
 :::{prf:theorem}
 :label: thm-k-vertex-redundant-edge-bound-dim2
@@ -349,6 +366,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly 2-rigid <def-redundantly-ri
 {{references}} {cite:p}`Jordan2021` Thm 5
 :::
 
+
 :::{prf:theorem}
 :label: thm-3-vertex-redundant-edge-bound-dim3
 
@@ -359,6 +377,7 @@ Let $G = (V, E)$ be a {prf:ref}`3-vertex-redundantly 3-rigid <def-redundantly-ri
 
 {{references}} {cite:p}`Jordan2022` Thm 2.12
 :::
+
 
 :::{prf:theorem}
 :label: thm-k-vertex-redundant-edge-bound-dim3
@@ -371,6 +390,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly 3-rigid <def-redundantly-ri
 {{references}} {cite:p}`Jordan2022` Thm 3.3
 :::
 
+
 :::{prf:theorem}
 :label: thm-k-edge-redundant-edge-bound-dim2
 
@@ -381,6 +401,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-redundantly 2-rigid <def-redundantly-rigid-gra
 
 {{references}} {cite:p}`Jordan2021` Thm 6
 :::
+
 
 :::{prf:theorem}
 :label: thm-1-edge-redundant-edge-bound-dim2
@@ -393,6 +414,7 @@ Let $G = (V, E)$ be a {prf:ref}`1-redundantly 2-rigid <def-redundantly-rigid-gra
 {{references}} {cite:p}`Jordan2021` Thm 7
 :::
 
+
 :::{prf:theorem}
 :label: thm-2-edge-redundant-edge-bound-dim3
 
@@ -403,6 +425,7 @@ Let $G = (V, E)$ be a {prf:ref}`2-redundantly 3-rigid <def-redundantly-rigid-gra
 
 {{references}} {cite:p}`Jordan2022` Thm 4.5
 :::
+
 
 :::{prf:theorem}
 :label: thm-k-edge-redundant-edge-bound-dim3
@@ -415,6 +438,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-redundantly 3-rigid <def-redundantly-rigid-gra
 {{references}} {cite:p}`Jordan2022` Thm 4.9
 :::
 
+
 :::{prf:theorem}
 :label: thm-minimal-k-vertex-redundant-upper-edge-bound
 
@@ -426,6 +450,7 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly d-rigid <def-redu
 {{references}} {cite:p}`Kaszanitzky2015` Thm 7
 :::
 
+
 :::{prf:theorem}
 :label: thm-minimal-k-vertex-redundant-upper-edge-bound-dim1
 
@@ -436,6 +461,7 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly 1-rigid <def-redu
 
 {{references}} {cite:p}`Kaszanitzky2015` Thm 8
 :::
+
 
 :::{prf:theorem}
 :label: thm-minimal-1-edge-redundant-upper-edge-bound-dim2
