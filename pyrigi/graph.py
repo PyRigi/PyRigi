@@ -1183,7 +1183,7 @@ class Graph(nx.Graph):
         ):
             return False
         # use global rigidity property of :prf:ref:`thm-globally-redundant-3connected` and :prf:ref:`thm-globally-mindeg6-dim2`
-        if dim == 2 and k ==1 and self.vertex_connectivity() >= 6:
+        if dim == 2 and k == 1 and self.vertex_connectivity() >= 6:
             return True
 
         # in all other cases check by definition
