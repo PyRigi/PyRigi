@@ -174,7 +174,7 @@ A {prf:ref}`framework <def-framework>` $(G, p)$, where $p$ is generic, is called
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
-The graph $G$ is called _generically $d$-rigid_ if any {prf:ref}`generic d-dimensional framework <def-gen-realization>` $(G, p)$ is {prf:ref}`rigid <def-cont-rigid-framework>`; this is equivalent to $(G, p)$ being {prf:ref}`infinitesimally rigid <def-inf-rigid-framework>`.
+The graph $G$ is called _(generically) $d$-rigid_ if any {prf:ref}`generic d-dimensional framework <def-gen-realization>` $(G, p)$ is {prf:ref}`rigid <def-cont-rigid-framework>`; this is equivalent to $(G, p)$ being {prf:ref}`infinitesimally rigid <def-inf-rigid-framework>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_rigid`
 :::
@@ -208,7 +208,7 @@ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigi
 :label: def-min-rigid-graph
 
 Let $G$ be a graph, let $d, k \in \NN$.
-The graph $G$ is called _minimally generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`minimally (infinitesimally) d-rigid <def-min-rigid-framework>`.
+The graph $G$ is called _minimally (generically) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`minimally (infinitesimally) d-rigid <def-min-rigid-framework>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_min_rigid`
 :::
@@ -217,7 +217,7 @@ The graph $G$ is called _minimally generically (infinitesimally) $d$-rigid_ if a
 :::{prf:theorem}
 :label: thm-2-gen-rigidity
 
-A graph $G = (V, E)$ is minimally generically $2$-rigid if and only if $G$ is {prf:ref}`(2,3)-tight <def-kl-sparse-tight>`.
+A graph $G = (V, E)$ is minimally (generically) $2$-rigid if and only if $G$ is {prf:ref}`(2,3)-tight <def-kl-sparse-tight>`.
 
 {{references}} {cite:p}`Geiringer1927`
 {cite:p}`Laman1970`
@@ -272,10 +272,10 @@ The framework $(G, p)$ is called
 Let $G$ be a graph, let $d, k \in \NN$.
 The graph $G$ is called
 
-* _redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
-* _vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`vertex redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
-* _$k$-redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`k-redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
-* _$k$-vertex redundantly generically (infinitesimally) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`k-vertex redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`.
+* _redundantly (generically) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
+* _vertex redundantly (generically) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`vertex redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
+* _$k$-redundantly (generically) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`k-redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`;
+* _$k$-vertex redundantly (generically) $d$-rigid_ if a (equivalently, any) {prf:ref}`generic framework <def-gen-realization>` $(G, p)$ is {prf:ref}`k-vertex redundantly (infinitesimally) d-rigid <def-redundantly-rigid-framework>`.
 
 Note, that the word generically is ofen ommited when talking about graphs.
 
@@ -292,10 +292,10 @@ Note, that the word generically is ofen ommited when talking about graphs.
 Let $G$ be a graph, let $d, k \in \NN$.
 The graph $G$ is called
 
-* _minimally_redundantly generically (infinitesimally) $d$-rigid_ if it is {prf:ref}`redundantly generically (infinitesimally) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not redundantly generically (infinitesimally) $d$-rigid any more.
-* _minimally_vertex_redundantly generically (infinitesimally) $d$-rigid_ if it is {prf:ref}`vertex_redundantly generically (infinitesimally) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not vertex_redundantly generically (infinitesimally) $d$-rigid any more.
-* _minimally_k_redundantly generically (infinitesimally) $d$-rigid_ if it is {prf:ref}`k_redundantly generically (infinitesimally) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_redundantly generically (infinitesimally) $d$-rigid any more.
-* _minimally_k_vertex_redundantly generically (infinitesimally) $d$-rigid_ if it is {prf:ref}`k_vertex_redundantly generically (infinitesimally) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_vertex_redundantly generically (infinitesimally) $d$-rigid any more.
+* _minimally_redundantly (generically) $d$-rigid_ if it is {prf:ref}`redundantly (generically) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not redundantly (generically) $d$-rigid any more.
+* _minimally_vertex_redundantly (generically) $d$-rigid_ if it is {prf:ref}`vertex_redundantly (generically) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not vertex_redundantly (generically) $d$-rigid any more.
+* _minimally_k_redundantly (generically) $d$-rigid_ if it is {prf:ref}`k_redundantly (generically) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_redundantly (generically) $d$-rigid any more.
+* _minimally_k_vertex_redundantly (generically) $d$-rigid_ if it is {prf:ref}`k_vertex_redundantly (generically) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_vertex_redundantly (generically) $d$-rigid any more.
 
 Note, that the word generically is ofen ommited when talking about graphs.
 
