@@ -852,7 +852,10 @@ class Graph(nx.Graph):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        if self.number_of_nodes() >= dim + k + 1 and self.min_degree() < dim + k:
+
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
+        if n >= dim + k + 1 and self.min_degree() < dim + k:
             return False
         if dim == 1:
             return self.vertex_connectivity() >= k + 1
@@ -860,64 +863,40 @@ class Graph(nx.Graph):
             dim == 2
             and (
                 # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
-                (
-                    k == 1
-                    and self.number_of_nodes() >= 5
-                    and self.number_of_edges() < 2 * self.number_of_nodes() - 1
-                )
+                (k == 1 and n >= 5 and m < 2 * n - 1)
                 or
                 # edge bound from :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`
-                (
-                    k == 2
-                    and self.number_of_nodes() >= 6
-                    and self.number_of_edges() < 2 * self.number_of_nodes() + 2
-                )
+                (k == 2 and n >= 6 and m < 2 * n + 2)
                 or
                 # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`
-                (
-                    k >= 3
-                    and self.number_of_nodes() >= 6 * (k + 1) + 23
-                    and self.number_of_edges()
-                    < ((k + 2) * self.number_of_nodes() + 1) // 2
-                )
+                (k >= 3 and n >= 6 * (k + 1) + 23 and m < ((k + 2) * n + 1) // 2)
             )
         ) or (
             dim == 3
             and (
                 # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
-                (
-                    k == 3
-                    and self.number_of_nodes() >= 15
-                    and self.number_of_edges() < 3 * self.number_of_nodes() + 5
-                )
+                (k == 3 and n >= 15 and m < 3 * n + 5)
                 or
                 # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
                 (
                     k >= 4
-                    and self.number_of_nodes() >= 12 * (k + 1) + 10
-                    and self.number_of_nodes() % 2 == 0
-                    and self.number_of_edges()
-                    < ((k + 3) * self.number_of_nodes() + 1) // 2
+                    and n >= 12 * (k + 1) + 10
+                    and n % 2 == 0
+                    and m < ((k + 3) * n + 1) // 2
                 )
             )
         ):
             return False
         # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
         if (
-            self.number_of_nodes() >= dim * dim + dim + k + 1
-            and self.number_of_edges()
-            < dim * self.number_of_nodes()
-            - math.comb(dim + 1, 2)
-            + k * dim
-            + max(0, k - (dim + 1) // 2)
+            #
+            n >= dim * dim + dim + k + 1
+            and m
+            < dim * n - math.comb(dim + 1, 2) + k * dim + max(0, k - (dim + 1) // 2)
         ):
             return False
         # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
-        if (
-            k >= dim + 1
-            and self.number_of_nodes() >= dim + k + 1
-            and self.number_of_edges() < ((dim + k) * self.number_of_nodes() + 1) // 2
-        ):
+        if k >= dim + 1 and n >= dim + k + 1 and m < ((dim + k) * n + 1) // 2:
             return False
 
         # in all other cases check by definition
@@ -989,16 +968,14 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
         # edge bound from :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound`
-        if self.number_of_edges() > (dim + k) * self.number_of_nodes() - math.comb(
-            dim + k + 1, 2
-        ):
+        if m > (dim + k) * n - math.comb(dim + k + 1, 2):
             return False
         # edge bound from :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound-dim1`
         if dim == 1:
-            if self.number_of_nodes() >= 3 * (k + 1) - 1 and self.number_of_edges() > (
-                k + 1
-            ) * self.number_of_nodes() - (k + 1) * (k + 1):
+            if n >= 3 * (k + 1) - 1 and m > (k + 1) * n - (k + 1) * (k + 1):
                 return False
 
         if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
@@ -1009,64 +986,40 @@ class Graph(nx.Graph):
             dim == 2
             and (
                 # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
-                (
-                    k == 1
-                    and self.number_of_nodes() >= 5
-                    and self.number_of_edges() == 2 * self.number_of_nodes() - 1
-                )
+                (k == 1 and n >= 5 and m == 2 * n - 1)
                 or
                 # edge bound from :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`
-                (
-                    k == 2
-                    and self.number_of_nodes() >= 6
-                    and self.number_of_edges() == 2 * self.number_of_nodes() + 2
-                )
+                (k == 2 and n >= 6 and m == 2 * n + 2)
                 or
                 # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`
-                (
-                    k >= 3
-                    and self.number_of_nodes() >= 6 * (k + 1) + 23
-                    and self.number_of_edges()
-                    == ((k + 2) * self.number_of_nodes() + 1) // 2
-                )
+                (k >= 3 and n >= 6 * (k + 1) + 23 and m == ((k + 2) * n + 1) // 2)
             )
         ) or (
             dim == 3
             and (
                 # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
-                (
-                    k == 3
-                    and self.number_of_nodes() >= 15
-                    and self.number_of_edges() == 3 * self.number_of_nodes() + 5
-                )
+                (k == 3 and n >= 15 and m == 3 * n + 5)
                 or
                 # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
                 (
                     k >= 4
-                    and self.number_of_nodes() >= 12 * (k + 1) + 10
-                    and self.number_of_nodes() % 2 == 0
-                    and self.number_of_edges()
-                    == ((k + 3) * self.number_of_nodes() + 1) // 2
+                    and n >= 12 * (k + 1) + 10
+                    and n % 2 == 0
+                    and m == ((k + 3) * n + 1) // 2
                 )
             )
         ):
             return True
         # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
         if (
-            self.number_of_nodes() >= dim * dim + dim + k + 1
-            and self.number_of_edges()
-            == dim * self.number_of_nodes()
-            - math.comb(dim + 1, 2)
-            + k * dim
-            + max(0, k - (dim + 1) // 2)
+            #
+            n >= dim * dim + dim + k + 1
+            and m
+            == dim * n - math.comb(dim + 1, 2) + k * dim + max(0, k - (dim + 1) // 2)
         ):
             return True
         # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
-        if (
-            k >= dim + 1
-            and self.number_of_nodes() >= dim + k + 1
-            and self.number_of_edges() == ((dim + k) * self.number_of_nodes() + 1) // 2
-        ):
+        if k >= dim + 1 and n >= dim + k + 1 and m == ((dim + k) * n + 1) // 2:
             return True
 
         # in all other cases check by definition
@@ -1130,10 +1083,10 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        if (
-            self.number_of_edges()
-            < dim * self.number_of_nodes() - math.comb(dim + 1, 2) + k
-        ):
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
+
+        if m < dim * n - math.comb(dim + 1, 2) + k:
             return False
         if self.min_degree() < dim + k:
             return False
@@ -1144,40 +1097,26 @@ class Graph(nx.Graph):
             dim == 2
             and (
                 # basic edge bound
-                (k == 1 and self.number_of_edges() < 2 * self.number_of_nodes() - 2)
+                (k == 1 and m < 2 * n - 2)
                 or
                 # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
-                (
-                    k == 2
-                    and self.number_of_nodes() >= 5
-                    and self.number_of_edges() < 2 * self.number_of_nodes()
-                )
+                (k == 2 and n >= 5 and m < 2 * n)
                 or
                 # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
-                (
-                    k >= 3
-                    and self.number_of_nodes() >= 6 * (k + 1) + 23
-                    and self.number_of_edges()
-                    < ((k + 2) * self.number_of_nodes() + 1) // 2
-                )
+                (k >= 3 and n >= 6 * (k + 1) + 23 and m < ((k + 2) * n + 1) // 2)
             )
         ) or (
             dim == 3
             and (
                 # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
-                (
-                    k == 2
-                    and self.number_of_nodes() >= 14
-                    and self.number_of_edges() < 3 * self.number_of_nodes() - 4
-                )
+                (k == 2 and n >= 14 and m < 3 * n - 4)
                 or
                 # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
                 (
                     k >= 4
-                    and self.number_of_nodes() >= 12 * (k + 1) + 10
-                    and self.number_of_nodes() % 2 == 0
-                    and self.number_of_edges()
-                    < ((k + 3) * self.number_of_nodes() + 1) // 2
+                    and n >= 12 * (k + 1) + 10
+                    and n % 2 == 0
+                    and m < ((k + 3) * n + 1) // 2
                 )
             )
         ):
@@ -1249,13 +1188,12 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
         # use bound from thm-minimal-1-edge-redundant-upper-edge-bound-dim2
         if dim == 2:
             if k == 1:
-                if (
-                    self.number_of_nodes() >= 7
-                    and self.number_of_edges() > 3 * self.number_of_nodes() - 9
-                ):
+                if n >= 7 and m > 3 * n - 9:
                     return False
 
         if not self.is_k_redundantly_rigid(k, dim, combinatorial):
@@ -1266,40 +1204,26 @@ class Graph(nx.Graph):
             dim == 2
             and (
                 # basic edge bound
-                (k == 1 and self.number_of_edges() == 2 * self.number_of_nodes() - 2)
+                (k == 1 and m == 2 * n - 2)
                 or
                 # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
-                (
-                    k == 2
-                    and self.number_of_nodes() >= 5
-                    and self.number_of_edges() == 2 * self.number_of_nodes()
-                )
+                (k == 2 and n >= 5 and m == 2 * n)
                 or
                 # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
-                (
-                    k >= 3
-                    and self.number_of_nodes() >= 6 * (k + 1) + 23
-                    and self.number_of_edges()
-                    == ((k + 2) * self.number_of_nodes() + 1) // 2
-                )
+                (k >= 3 and n >= 6 * (k + 1) + 23 and m == ((k + 2) * n + 1) // 2)
             )
         ) or (
             dim == 3
             and (
                 # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
-                (
-                    k == 2
-                    and self.number_of_nodes() >= 14
-                    and self.number_of_edges() == 3 * self.number_of_nodes() - 4
-                )
+                (k == 2 and n >= 14 and m == 3 * n - 4)
                 or
                 # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
                 (
                     k >= 4
-                    and self.number_of_nodes() >= 12 * (k + 1) + 10
-                    and self.number_of_nodes() % 2 == 0
-                    and self.number_of_edges()
-                    == ((k + 3) * self.number_of_nodes() + 1) // 2
+                    and n >= 12 * (k + 1) + 10
+                    and n % 2 == 0
+                    and m == ((k + 3) * n + 1) // 2
                 )
             )
         ):
