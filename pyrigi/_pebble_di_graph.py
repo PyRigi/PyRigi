@@ -34,12 +34,14 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def _check_K_and_L(self, K: int, L: int) -> None:
         """
-        Raises an error, if K and L don't satisfy the value constraints:
-        K, L are integers, 0 < K, 0 <= L < 2K
+        Check if K and L satisfy the conditions of
+        K > 0, 0 <= L < 2K
         """
+        # Check that K and L are integers
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
 
+        # Check the conditions
         if 0 >= K:
             raise ValueError("K must be positive")
 
