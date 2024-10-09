@@ -482,7 +482,7 @@ class Graph(nx.Graph):
         return self._directed_pebble_graph.can_add_edge_between_nodes(u, v)
 
     # @doc_category("Sparseness")
-    def get_matroid_circuit(
+    def edge_kl_circuit(
         self, u, v, K: int, L: int, use_precomputed_directed_graph: bool = False
     ) -> set:
         r"""
@@ -1268,7 +1268,7 @@ class Graph(nx.Graph):
             if len(remaining_edge) != 1:
                 # this should not happen
                 raise RuntimeError
-            return self.get_matroid_circuit(
+            return self.edge_kl_circuit(
                 u=remaining_edge[0][0],
                 v=remaining_edge[0][1],
                 K=2,
