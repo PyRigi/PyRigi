@@ -555,6 +555,16 @@ class Graph(nx.Graph):
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
 
+        Parameters
+        ----------
+        K:
+        L:
+        algorithm:
+            "pebble" or "subgraph".
+            If "pebble", the function uses the pebble game algorithm to check
+            for sparseness. If "subgraph", it uses the subgraph method.
+            If not specified, it defaults to "pebble".
+
         TODO
         ----
         examples, tests for other cases than (2,3)
@@ -566,9 +576,10 @@ class Graph(nx.Graph):
             if self._pebble_values_are_correct(K, L):
                 return self._is_directed_graph_sparse(K, L)
             else:
-                # fallback option to subgaph method
-                algorithm = "subgraph"
-
+                raise ValueError(
+                    "K and L with pebble algorithm need to satisfy the\
+                     conditions of K > 0, 0 <= L < 2K."
+                )
         if algorithm == "subgraph":
             for j in range(K, self.number_of_nodes() + 1):
                 for vertex_set in combinations(self.nodes, j):
@@ -576,16 +587,35 @@ class Graph(nx.Graph):
                     if G.number_of_edges() > K * G.number_of_nodes() - L:
                         return False
             return True
-        else:
-            raise ValueError(
-                'the algorithm needs to be either "pebble" or "subgraph"\
-                 or not specified.'
-            )
+        if algorithm == "default":
+            if self._pebble_values_are_correct(K, L):
+                # use "pebble" if possible
+                algorithm = "pebble"
+            else:
+                # otherwise use "subgraph"
+                algorithm = "subgraph"
+            return self.is_sparse(K, L, algorithm)
+
+        # reaching this position means that the algorithm is unknown
+        raise ValueError(
+            'The algorithm needs to be either "pebble",\
+             "subgraph", "default" or not specified.'
+        )
 
     @doc_category("Sparseness")
     def is_tight(self, K: int, L: int, algorithm: str = "pebble") -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
+
+        Parameters
+        ----------
+        K:
+        L:
+        algorithm:
+            "pebble" or "subgraph".
+            If "pebble", the function uses the pebble game algorithm to check
+            for sparseness. If "subgraph", it uses the subgraph method.
+            If not specified, it defaults to "pebble".
 
         TODO
         ----
