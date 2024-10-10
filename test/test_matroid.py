@@ -19,7 +19,7 @@ def test_linear_matroid_rank():
 def test_linear_matroid_independence():
     A = Matrix([[1, 2, 3], [2, 4, 6], [3, 4, 5]])
     M = LinearMatroid(A)
-    assert M.is_independent([0, 2])
+    assert M.edge_is_kl_independent([0, 2])
     assert M.is_dependent([0, 1])
     assert M.is_circuit([0, 1])
     assert M.is_basis([0, 2])

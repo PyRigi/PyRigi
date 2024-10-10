@@ -6,6 +6,26 @@ import pytest
 from sympy import Matrix
 
 
+def test_KL_values_are_correct():
+    assert Graph._pebble_values_are_correct(2, 3)
+    assert Graph._pebble_values_are_correct(1, 1)
+    assert Graph._pebble_values_are_correct(20, 20)
+    assert Graph._pebble_values_are_correct(5, 1)
+    assert Graph._pebble_values_are_correct(2, 0)
+    assert Graph._pebble_values_are_correct(40, 79)
+
+
+def test_KL_values_are_not_correct():
+    assert not Graph._pebble_values_are_correct(2, 4)
+    assert not Graph._pebble_values_are_correct(1, -1)
+    assert not Graph._pebble_values_are_correct(0, 0)
+    assert not Graph._pebble_values_are_correct(1, 5)
+    assert not Graph._pebble_values_are_correct(2.0, 3)
+    assert not Graph._pebble_values_are_correct(2, 3.14)
+    assert not Graph._pebble_values_are_correct(2, "three")
+    assert not Graph._pebble_values_are_correct(-2, -1)
+
+
 @pytest.mark.parametrize(
     "graph",
     [
@@ -87,7 +107,8 @@ def test_not_rigid_in_d1(graph):
     ],
 )
 def test_2_3_sparse(graph):
-    assert graph.is_sparse(2, 3)
+    assert graph.is_sparse(2, 3, algorithm="subgraph")
+    assert graph.is_sparse(2, 3, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
@@ -101,7 +122,8 @@ def test_2_3_sparse(graph):
     ],
 )
 def test_not_2_3_sparse(graph):
-    assert not graph.is_sparse(2, 3)
+    assert not graph.is_sparse(2, 3, algorithm="subgraph")
+    assert not graph.is_sparse(2, 3, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
@@ -115,7 +137,8 @@ def test_not_2_3_sparse(graph):
     ],
 )
 def test_2_3_tight(graph):
-    assert graph.is_tight(2, 3)
+    assert graph.is_tight(2, 3, algorithm="pebble")
+    assert graph.is_tight(2, 3, algorithm="subgraph")
 
 
 @pytest.mark.parametrize(
@@ -135,7 +158,8 @@ def test_2_3_tight(graph):
     ],
 )
 def test_not_2_3_tight(graph):
-    assert not graph.is_tight(2, 3)
+    assert not graph.is_tight(2, 3, algorithm="subgraph")
+    assert not graph.is_tight(2, 3, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
