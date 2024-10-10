@@ -51,7 +51,17 @@ class PebbleDiGraph(nx.MultiDiGraph):
         if L >= 2 * K:
             raise ValueError("L<2K must hold")
 
-    def set_K(self, K: int) -> None:
+    @property
+    def K(self) -> int:
+        """
+        Get the value of K.
+
+        K is integer and 0 < K. Also, L < 2K.
+        """
+        return self._K
+
+    @K.setter
+    def K(self, value: int) -> None:
         """
         Set K outside of the constructor.
 
@@ -61,10 +71,20 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         K: K must be integer and 0 < K. Also, L < 2K.
         """
-        self._check_K_and_L(K, self.get_L())
-        self._K = K
+        self._check_K_and_L(value, self._L)
+        self._K = value
 
-    def set_L(self, L: int) -> None:
+    @property
+    def L(self) -> int:
+        """
+        Get the value of L.
+
+        L is integer and 0 <= L. Also, L < 2K.
+        """
+        return self._L
+
+    @L.setter
+    def L(self, value: int) -> None:
         """
         Set L outside of the constructor.
 
@@ -74,9 +94,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         L: L must be integer and 0 <= L. Also, L < 2K.
         """
-        self._check_K_and_L(self.get_K(), L)
-
-        self._L = L
+        self._check_K_and_L(self._K, value)
+        self._L = value
 
     def set_K_and_L(self, K: int, L: int) -> None:
         """
@@ -94,22 +113,6 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         self._K = K
         self._L = L
-
-    def get_K(self) -> int:
-        """
-        Get the value of K.
-
-        K is integer and 0 < K. Also, L < 2K.
-        """
-        return self._K
-
-    def get_L(self) -> int:
-        """
-        Get the value of L.
-
-        L is integer and 0 <= L. Also, L < 2K.
-        """
-        return self._L
 
     def number_of_edges(self) -> int:
         """
@@ -190,7 +193,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
                 edge_path.append(current_edge)
 
             # Check if the stopping criteria is met
-            if node != u and node != v and self.out_degree(node) < self.get_K():
+            if node != u and node != v and self.out_degree(node) < self.K:
                 # turn around edges via path
                 for edge in edge_path:
                     self.point_edge_head_to(edge, edge[0])
@@ -208,7 +211,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
                 edge_path.pop()
             return False, visited
 
-        max_degree_for_u_and_v_together = 2 * self.get_K() - self.get_L() - 1
+        max_degree_for_u_and_v_together = 2 * self.K - self.L - 1
 
         if not self.has_node(u):
             raise ValueError(

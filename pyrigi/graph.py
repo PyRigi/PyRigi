@@ -473,8 +473,8 @@ class Graph(nx.Graph):
 
         if (
             not use_precomputed_directed_graph
-            or K != self._directed_pebble_graph.get_K()
-            or L != self._directed_pebble_graph.get_L()
+            or K != self._directed_pebble_graph.K
+            or L != self._directed_pebble_graph.L
         ):
             self._build_directed_graph_from_scratch(K, L)
 
@@ -493,8 +493,8 @@ class Graph(nx.Graph):
 
         if (
             not use_precomputed_directed_graph
-            or K != self._directed_pebble_graph.get_K()
-            or L != self._directed_pebble_graph.get_L()
+            or K != self._directed_pebble_graph.K
+            or L != self._directed_pebble_graph.L
         ):
             self._build_directed_graph_from_scratch(K, L)
 
@@ -524,8 +524,8 @@ class Graph(nx.Graph):
         """
         if (
             not use_precomputed_directed_graph
-            or K != self._directed_pebble_graph.get_K()
-            or L != self._directed_pebble_graph.get_L()
+            or K != self._directed_pebble_graph.K
+            or L != self._directed_pebble_graph.L
         ):
             self._build_directed_graph_from_scratch(K, L)
 
@@ -541,8 +541,8 @@ class Graph(nx.Graph):
         """
         if (
             not use_precomputed_directed_graph
-            or K != self._directed_pebble_graph.get_K()
-            or L != self._directed_pebble_graph.get_L()
+            or K != self._directed_pebble_graph.K
+            or L != self._directed_pebble_graph.L
         ):
             self._build_directed_graph_from_scratch(K, L)
 

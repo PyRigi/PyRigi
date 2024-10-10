@@ -44,32 +44,32 @@ Unit tests
 
 def test_set_K_and_L_check_setup():
     graph = PebbleDiGraph(2, 3)
-    assert graph.get_K() == 2
-    assert graph.get_L() == 3
+    assert graph.K == 2
+    assert graph.L == 3
     with pytest.raises(ValueError):
-        graph.set_L(4)
+        graph.L = 4
     with pytest.raises(TypeError):
-        graph.set_L((2, 3))
+        graph.L = (2, 3)
     with pytest.raises(ValueError):
-        graph.set_K(1)
+        graph.K = 1
     with pytest.raises(ValueError):
         graph.set_K_and_L(1, 2)
-    assert graph.get_K() == 2
-    assert graph.get_L() == 3
+    assert graph.K == 2
+    assert graph.L == 3
     graph.set_K_and_L(4, 5)
-    assert graph.get_K() == 4
-    assert graph.get_L() == 5
-    graph.set_K(3)
-    assert graph.get_K() == 3
-    assert graph.get_L() == 5
-    graph.set_L(0)
-    assert graph.get_L() == 0
+    assert graph.K == 4
+    assert graph.L == 5
+    graph.K = 3
+    assert graph.K == 3
+    assert graph.L == 5
+    graph.L = 0
+    assert graph.L == 0
     with pytest.raises(ValueError):
-        graph.set_K(0)
+        graph.K = 0
     with pytest.raises(ValueError):
-        graph.set_L(-1)
+        graph.L = -1
     with pytest.raises(TypeError):
-        graph.set_L(1.5)
+        graph.L = 1.5
 
 
 @pytest.mark.parametrize(
