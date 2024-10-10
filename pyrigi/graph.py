@@ -94,7 +94,6 @@ class Graph(nx.Graph):
     pebble game algorithm here. We don't need to recalculate it necessarily
     every time.
     """
-    _directed_pebble_graph = pyrigi._pebble_di_graph.PebbleDiGraph()
 
     def __str__(self) -> str:
         """
