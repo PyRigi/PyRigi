@@ -89,12 +89,6 @@ class Graph(nx.Graph):
     - :doc:`Converting to and from other Data Formats <networkx:reference/convert>`
     """
 
-    """
-    Private variable to save the auxiliary directed graph used for
-    pebble game algorithm here. We don't need to recalculate it necessarily
-    every time.
-    """
-
     def __str__(self) -> str:
         """
         Return the string representation.
