@@ -1305,7 +1305,8 @@ class Graph(nx.Graph):
                 return False
             max_sparse_subgraph = self.spanning_sparse_subgraph(
                 K=2, L=3, use_precomputed_directed_graph=False
-            )  # first step, should build it. TODO maybe use_precomputed_directed_graph as a parameter here, too
+            )  # first step, should build it.
+            # TODO maybe use_precomputed_directed_graph as a parameter here, too
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
                 return False
 
