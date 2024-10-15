@@ -94,20 +94,36 @@ def test_out_degree():
     assert graph.out_degree(2) == 0
 
 
-def test_redirect_edge():
+def test_redirect_edge_to_head():
+    graph = DirectedPath(3, 2, 2)
+
+    # Turn edge around
+    graph.redirect_edge_to_head((0, 1), 0)
+    assert (0, 1) not in graph.edges
+    assert (1, 2) in graph.edges
+    assert (1, 0) in graph.edges
+
     Cycle_graph = DirectedCycle(3, 1, 0)
-    Cycle_graph.point_edge_head_to([0, 1], 0)
+    # Turn edge around
+    Cycle_graph.redirect_edge_to_head([0, 1], 0)
     assert 2 == Cycle_graph.in_degree(0)
     assert 0 == Cycle_graph.out_degree(0)
     assert 2 == Cycle_graph.out_degree(1)
 
+    # only possible if the proposed head is part of the edge itself
+    Cycle_graph = DirectedCycle(3, 1, 0)
+    # Does nothing
+    Cycle_graph.redirect_edge_to_head([0, 1], 2)
+    assert 1 == Cycle_graph.in_degree(0)
+    assert 1 == Cycle_graph.out_degree(0)
+    assert 1 == Cycle_graph.out_degree(1)
 
-def test_point_edge_head_to():
     graph = DirectedPath(3, 2, 2)
-    graph.point_edge_head_to((0, 1), 2)
-    assert (0, 1) not in graph.edges
+    # Does nothing
+    graph.redirect_edge_to_head((0, 1), "A")
+    assert (0, 1) in graph.edges
     assert (1, 2) in graph.edges
-    assert (1, 2) in graph.edges
+    assert 2 == len(graph.edges)
 
 
 def test_can_add_edge_between_nodes():

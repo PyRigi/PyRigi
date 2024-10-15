@@ -142,7 +142,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         return super().out_degree(node)
 
-    def point_edge_head_to(self, edge: Edge, node_to: Vertex) -> None:
+    def redirect_edge_to_head(self, edge: Edge, node_to: Vertex) -> None:
         """
         Redirect given edge to the given head.
 
@@ -150,8 +150,9 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         edge: Edge to redirect.
         node_to: Vertex to which the Edge will point to.
+                 Vertex must be part of the Edge.
         """
-        if self.has_node(node_to):
+        if self.has_node(node_to) and node_to in edge:
             tail = edge[0]
             head = edge[1]
             self.remove_edge(tail, head)
@@ -196,7 +197,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
             if node != u and node != v and self.out_degree(node) < self.K:
                 # turn around edges via path
                 for edge in edge_path:
-                    self.point_edge_head_to(edge, edge[0])
+                    self.redirect_edge_to_head(edge, edge[0])
 
                 return True, visited
 
