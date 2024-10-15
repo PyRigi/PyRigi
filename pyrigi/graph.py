@@ -483,6 +483,17 @@ class Graph(nx.Graph):
 
         If uv is :prf:ref:(K, L)-independent <def-kl-sparse-tight> from the graph,
         it is uv.
+
+        Parameters
+        ----------
+        u, v: points between the edge is checked
+        K:
+        L:
+        use_precomputed_directed_graph:
+            If True, we use the directed graph that is present in the cache.
+            If False, recompute the graph.
+            Use True only if you are certain that the pebble game directed graph
+            was not touched since its creation.
         """
 
         if (
@@ -532,6 +543,16 @@ class Graph(nx.Graph):
         """
         Check if the given directed graph contains exactly the same number of edges
         as the graph itself. Then it is sparse.
+
+        Parameters
+        ----------
+        K:
+        L:
+        use_precomputed_directed_graph:
+            If True, we use the directed graph that is present in the cache.
+            If False, recompute the graph.
+            Use True only if you are certain that the pebble game directed graph
+            was not touched since its creation.
         """
         if (
             not use_precomputed_directed_graph
@@ -1282,8 +1303,8 @@ class Graph(nx.Graph):
             if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
                 return False
             max_sparse_subgraph = self.spanning_sparse_subgraph(
-                K=2, L=3, use_precomputed_directed_graph=True
-            )
+                K=2, L=3, use_precomputed_directed_graph=False
+            ) # first step, should build it. TODO maybe use_precomputed_directed_graph as a parameter here, too
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
                 return False
 
