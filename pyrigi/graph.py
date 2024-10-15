@@ -565,7 +565,7 @@ class Graph(nx.Graph):
         return len(self.edge_list()) == self._directed_pebble_graph.number_of_edges()
 
     @doc_category("Sparseness")
-    def is_sparse(self, K: int, L: int, algorithm: str = "pebble") -> bool:
+    def is_sparse(self, K: int, L: int, algorithm: str = "default") -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
 
@@ -577,7 +577,8 @@ class Graph(nx.Graph):
             "pebble" or "subgraph".
             If "pebble", the function uses the pebble game algorithm to check
             for sparseness. If "subgraph", it uses the subgraph method.
-            If not specified, it defaults to "pebble".
+            If not specified, it defaults to "pebble" whenever possible,
+            otherwise "subgraph".
 
         TODO
         ----
@@ -617,7 +618,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Sparseness")
-    def is_tight(self, K: int, L: int, algorithm: str = "pebble") -> bool:
+    def is_tight(self, K: int, L: int, algorithm: str = "default") -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
 
@@ -1304,7 +1305,7 @@ class Graph(nx.Graph):
                 return False
             max_sparse_subgraph = self.spanning_sparse_subgraph(
                 K=2, L=3, use_precomputed_directed_graph=False
-            ) # first step, should build it. TODO maybe use_precomputed_directed_graph as a parameter here, too
+            )  # first step, should build it. TODO maybe use_precomputed_directed_graph as a parameter here, too
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
                 return False
 
