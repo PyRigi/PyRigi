@@ -613,8 +613,8 @@ class Graph(nx.Graph):
 
         # reaching this position means that the algorithm is unknown
         raise ValueError(
-            'The algorithm needs to be either "pebble",\
-             "subgraph", "default" or not specified.'
+            f"If specified, the value of the algorithm parameter must be one of "
+            f'"pebble", "subgraph", or "default". Instead, it is {algorithm}.'
         )
 
     @doc_category("Sparseness")
