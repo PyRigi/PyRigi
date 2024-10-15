@@ -31,7 +31,7 @@ class Matroid(object):
             F = self.ground_set()
         raise NotImplementedError()
 
-    def edge_is_kl_independent(self, F):
+    def is_independent(self, F):
         """Check whether a given subset of the ground set is independent."""
 
         return self.rank(F) == len(F)
@@ -39,12 +39,12 @@ class Matroid(object):
     def is_dependent(self, F):
         """Check whether a given subset of the ground set is dependent."""
 
-        return not (self.edge_is_kl_independent(F))
+        return not (self.is_independent(F))
 
     def is_circuit(self, F):
         """Check whether a given subset of the ground set is a circuit."""
 
-        if self.edge_is_kl_independent(F):
+        if self.is_independent(F):
             return False
         for a in F:
             FF = deepcopy(F)
