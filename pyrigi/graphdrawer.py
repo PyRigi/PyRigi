@@ -14,6 +14,7 @@ from ipywidgets import (
 from ipycanvas import Canvas, hold_canvas
 from IPython.display import display
 from pyrigi.graph import Graph
+from ipyevents import Event
 import networkx as nx
 import numpy as np
 import time
@@ -58,17 +59,16 @@ class GraphDrawer(object):
         self._v_color = "blue"
         self._e_color = "black"
 
-        self._last_mdown_time = -5  # last time mouse was down
-        self._last_mup_time = -3  # last time mouse was up
-        self._last_click_pos = [-1, -1]
+        #self._last_mdown_time = -5  # last time mouse was down
+        #self._last_mup_time = -3  # last time mouse was up
+        #self._last_click_pos = [-1, -1]
 
-        self._last_click_time = -1
+        #self._last_click_time = -1
         self._selected_vertex = None
         self._next_vertex_label = 0
         self._show_vlabels = True
         self._mouse_down = False
-        self._edge_draw = False
-        self._mouse_pos = [0, 0]
+        #self._mouse_pos = [0, 0]
 
         self._G = Graph()  # the graph on canvas
         self._out = Output()  # can later be used to represent some properties
@@ -77,14 +77,20 @@ class GraphDrawer(object):
         self._canvas = Canvas(width=600, height=600)
         self._canvas.stroke_rect(0, 0, self._canvas.width, self._canvas.height)
 
-        self._canvas.on_key_down(self._on_keyboard_event)
-        self._canvas.on_mouse_down(self._handle_mouse_down)
-        self._canvas.on_mouse_up(self._handle_mouse_up)
-        self._canvas.on_mouse_move(self._handle_mouse_move)
-        self._canvas.on_mouse_out(self._handle_mouse_out)
+        #self._canvas.on_key_down(self._on_keyboard_event)
+        #self._canvas.on_mouse_down(self._handle_mouse_down)
+        #self._canvas.on_mouse_up(self._handle_mouse_up)
+        #self._canvas.on_mouse_move(self._handle_mouse_move)
+        #self._canvas.on_mouse_out(self._handle_mouse_out)
         self._canvas.font = "12px serif"
         self._canvas.text_align = "center"
         self._canvas.text_baseline = "middle"
+
+        ##### IpyEvents Part ###
+        self._events = Event()
+        self._events.source = self._canvas
+        self._events.watched_events=['click', 'mousedown','dblclick','mousemove','mouseup','mouseleave']
+        self._events.on_dom_event(self._handle_event)
 
         ##### menu items #######
         # # Edit Type radio buttons
@@ -167,9 +173,24 @@ class GraphDrawer(object):
         display(box)
         display(self._out)
 
+    def _handle_event(self,event):
+        x,y = event['relativeX'],event['relativeY']
+        if event['event']=='mousemove':
+            self._handle_mouse_move(x,y,event['ctrlKey'])
+        elif event['event']=='mousedown':
+            self._handle_mouse_down(x,y)
+        elif event['event']=='dblclick':
+            self._handle_dblclick(x,y)
+        elif event['event']=='mouseup':
+            self._handle_mouse_up(x,y)
+        elif event['event']=='mouseleave':
+            self._handle_mouse_out(x,y)
+        #with self._out:
+            #print(event['relativeX'],event['relativeY'],event['shiftKey'],event['event'])
+
     def _assign_pos(self, x, y, place):
         """
-        This function converts layout positions which are bertween -1 and 1 to canvas positions according to the chosen place by scaling.
+        This function converts layout positions which are between -1 and 1 to canvas positions according to the chosen place by scaling.
         """
         width = self._canvas.width
         height = self._canvas.height
@@ -312,75 +333,64 @@ class GraphDrawer(object):
             with hold_canvas():
                 self._canvas.clear()
                 self._redraw_graph()
-        self._last_mdown_time = time.time()
+        #self._last_mdown_time = time.time()
         self._mouse_down = True
 
-    def _handle_mouse_up(self, x, y):
+    def _handle_mouse_up(self,x,y):
+        vertex = self._collided_vertex(x,y)
+        s_vertex = self._selected_vertex
 
+        if s_vertex is None:
+            # This is to ignore the case when mousebutton is pressed outside canvas and released on canvas
+            return 
+        if vertex is None:
+            vertex = self._next_vertex_label
+            self._G.add_node(vertex, color=self._v_color, pos=[x, y])
+            # self.vertex_pos_dict[self.next_vertex_label] = (x, y)
+            #self._selected_vertex = self._next_vertex_label
+            self._G.add_edge(vertex, s_vertex, color=self._e_color)
+            self._next_vertex_label += 1
+        elif vertex is not None and vertex is not s_vertex:
+            # if isinstance(collided, int) and collided != vertex:
+            #     neighbour = collided
+            if sorted((vertex, s_vertex)) in self._G.edge_list():
+                self._G.remove_edge(vertex, s_vertex)
+            else:
+                self._G.add_edge(vertex, s_vertex, color=self._e_color)
+
+            #     self._selected_vertex = neighbour
+
+        #self._selected_vertex = None
+        with hold_canvas():
+                self._canvas.clear()
+                self._redraw_graph()
         self._mouse_down = False
-        self._edge_draw = False
-        self._edit_type = "Edge"
-        self._last_mup_time = time.time()
+        with hold_canvas():
+            self._canvas.clear()
+            self._redraw_graph()
 
-        [cx, cy] = self._last_click_pos
-        if (
-            self._is_double_click()
-            and (cx - 3) <= x <= (cx + 3)
-            and (cy - 3) <= y <= (cy + 3)
-        ):
-            # checks whether the click is a double click and it is close enough (3 pixel -max- distance from x and y coordinates) to the first click
 
-            edge = self._collided_edge(x, y)
-            vertex = self._collided_vertex(x, y)
-            if vertex != None and vertex == self._selected_vertex:
-                self._G.remove_node(self._selected_vertex)
-            elif edge != None:
-                self._G.remove_edge(edge[0], edge[1])
 
-            self._last_click_time = (
-                -1
-            )  # set to -1 so that triple clicks will not be accepted as consecutive double clicks
-        elif self._is_click():
-            self._last_click_time = self._last_mup_time
-            self._last_click_pos = [x, y]
-
+    def _handle_dblclick(self,x,y):
+        edge = self._collided_edge(x, y)
+        vertex = self._collided_vertex(x, y)
+        if vertex != None and vertex == self._selected_vertex:
+            self._G.remove_node(self._selected_vertex)
+        elif edge != None:
+            self._G.remove_edge(edge[0], edge[1])
+        
         with hold_canvas():
             self._canvas.clear()
             self._redraw_graph()
         self._selected_vertex = None
 
-    def _is_click(self) -> bool:
-        if self._last_mup_time - self._last_mdown_time < 0.2:
-            return True
-        return False
 
-    def _is_double_click(self) -> bool:
-        if self._is_click() == False:
-            return False
-        if self._last_mup_time - self._last_click_time < 0.5:
-            return True
-        return False
-
-    def _handle_mouse_move(self, x, y):
+    def _handle_mouse_move(self, x, y, vertexmove_on):
 
         vertex = self._selected_vertex
         self._mouse_pos = [x, y]
 
-        if self._collided_vertex(x, y) == None and vertex == None:
-            self._edit_type = "Edge"
-
-        if isinstance(vertex, int) and self._edit_type == "Edge":
-            collided = self._collided_vertex(x, y)
-            if collided != vertex:
-                self._edge_draw = True
-            if isinstance(collided, int) and collided != vertex:
-                neighbour = collided
-                if sorted((vertex, neighbour)) in self._G.edge_list():
-                    self._G.remove_edge(vertex, neighbour)
-                else:
-                    self._G.add_edge(vertex, neighbour, color=self._e_color)
-
-                self._selected_vertex = neighbour
+        if isinstance(vertex, int) and not vertexmove_on and self._mouse_down:
             with hold_canvas():
                 self._canvas.clear()
                 self._canvas.stroke_style = self._e_color
@@ -394,7 +404,7 @@ class GraphDrawer(object):
                 self._redraw_graph()
 
         elif (
-            isinstance(vertex, int) and self._edit_type == "Vertex" and self._mouse_down
+            isinstance(vertex, int) and vertexmove_on and self._mouse_down
         ):
             self._G.nodes[vertex]["pos"] = [x, y]
             with hold_canvas():
@@ -410,17 +420,6 @@ class GraphDrawer(object):
             self._canvas.clear()
             self._redraw_graph()
 
-    def _is_double_clicked(self) -> bool:
-        """
-        A method for checking whether the click is a double click.
-        """
-        # ipcanvas package does not support double click events. This method is a simple way of adding
-        # this support. If it does not seem good enough, ipyevents package can be used.
-
-        if time.time() - self._last_click_time < 0.35:
-            return True
-        return False
-
     def _collided_vertex(self, x, y) -> int | None:
         """
         Return the vertex containing the point (x,y) on canvas.
@@ -432,15 +431,15 @@ class GraphDrawer(object):
                 return vertex
         return None
 
-    def _on_keyboard_event(self, key, shift_key, ctrl_key, meta_key):
-        if (
-            ctrl_key == True
-            and not self._edge_draw
-            and self._collided_vertex(self._mouse_pos[0], self._mouse_pos[1]) != None
-        ):
-            self._edit_type = "Vertex"
-        else:
-            self._edit_type = "Edge"
+ #   def _on_keyboard_event(self, key, shift_key, ctrl_key, meta_key):
+ #       if (
+ #           ctrl_key == True
+ #           and not self._edge_draw
+ #           and self._collided_vertex(self._mouse_pos[0], self._mouse_pos[1]) != None
+ #       ):
+ #           self._edit_type = "Vertex"
+ #       else:
+ #           self._edit_type = "Edge"
 
     def _collided_edge(self, x, y):
         """
