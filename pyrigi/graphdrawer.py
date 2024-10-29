@@ -69,6 +69,7 @@ class GraphDrawer(object):
         self._next_vertex_label = 0
         self._show_vlabels = True
         self._mouse_down = False
+        self._vertexmove_on = False
         #self._mouse_pos = [0, 0]
 
         self._G = Graph()  # the graph on canvas
@@ -79,20 +80,19 @@ class GraphDrawer(object):
         self._canvas.stroke_rect(0, 0, self._canvas.width, self._canvas.height)
 
         #self._canvas.on_key_down(self._on_keyboard_event)
-        #self._canvas.on_mouse_down(self._handle_mouse_down)
-        #self._canvas.on_mouse_up(self._handle_mouse_up)
-        #self._canvas.on_mouse_move(self._handle_mouse_move)
-        #self._canvas.on_mouse_out(self._handle_mouse_out)
+        self._canvas.on_mouse_down(self._handle_mouse_down)
+        self._canvas.on_mouse_up(self._handle_mouse_up)
+        self._canvas.on_mouse_move(self._handle_mouse_move)
+        self._canvas.on_mouse_out(self._handle_mouse_out)
         self._canvas.font = "12px serif"
         self._canvas.text_align = "center"
         self._canvas.text_baseline = "middle"
 
         ##### IpyEvents Part ###
-        self._events = Event(wait=10)
+        self._events = Event()
         self._events.source = self._canvas
-        self._events.watched_events=['click', 'mousedown','dblclick','mousemove','mouseup','mouseleave']
+        self._events.watched_events=['keydown','keyup','dblclick']
         self._events.on_dom_event(self._handle_event)
-        self._events.ignore_modifier_key_events=True
 
         ##### menu items #######
         # # Edit Type radio buttons
@@ -177,17 +177,22 @@ class GraphDrawer(object):
         display(self._out)
 
     def _handle_event(self,event):
+        if event['event']=='keydown':
+            self._vertexmove_on = event['ctrlKey']
+        elif event['event']=='keyup':
+            self._vertexmove_on = event['ctrlKey']
         x,y = event['relativeX'],event['relativeY']
-        if event['event']=='mousemove':
-            self._handle_mouse_move(x,y,event['ctrlKey'])
-        elif event['event']=='mousedown':
-            self._handle_mouse_down(x,y)
-        elif event['event']=='dblclick':
+        #if event['event']=='mousemove':
+        #    self._handle_mouse_move(x,y,event['ctrlKey'])
+        #if event['event']=='mousedown':
+        #    self._handle_mouse_down(x,y)
+        if event['event']=='dblclick':
             self._handle_dblclick(x,y)
-        elif event['event']=='mouseup':
-            self._handle_mouse_up(x,y)
-        elif event['event']=='mouseleave':
-            self._handle_mouse_out(x,y)
+        #elif event['event']=='mouseup':
+        #    self._handle_mouse_up(x,y)
+        #elif event['event']=='mouseleave':
+        #    self._handle_mouse_out(x,y)
+        
         #with self._out:
             #print(event['relativeX'],event['relativeY'],event['shiftKey'],event['event'])
 
@@ -202,48 +207,48 @@ class GraphDrawer(object):
         # -3 is used below so that the vertices do not touch the edges of the canvas
         if place == "all":
             return [
-                width / 2 + x * (width / 2 - r - 3),
-                height / 2 + y * (height / 2 - r - 3),
+                int(width / 2 + x * (width / 2 - r - 3)),
+                int(height / 2 + y * (height / 2 - r - 3)),
             ]
         if place == "N":
             return [
-                width / 2 + x * (width / 2 - r - 3),
-                height / 4 + y * (height / 4 - r - 3),
+                int(width / 2 + x * (width / 2 - r - 3)),
+                int(height / 4 + y * (height / 4 - r - 3)),
             ]
         if place == "S":
             return [
-                width / 2 + x * (width / 2 - r - 3),
-                height * 3 / 4 + y * (height / 4 - r - 3),
+                int(width / 2 + x * (width / 2 - r - 3)),
+                int(height * 3 / 4 + y * (height / 4 - r - 3)),
             ]
         if place == "W":
             return [
-                width / 4 + x * (width / 4 - r - 3),
-                height / 2 + y * (height / 2 - r - 3),
+                int(width / 4 + x * (width / 4 - r - 3)),
+                int(height / 2 + y * (height / 2 - r - 3)),
             ]
         if place == "E":
             return [
-                width * 3 / 4 + x * (width / 4 - r - 3),
-                height / 2 + y * (height / 2 - r - 3),
+                int(width * 3 / 4 + x * (width / 4 - r - 3)),
+                int(height / 2 + y * (height / 2 - r - 3)),
             ]
         if place == "NE":
             return [
-                width * 3 / 4 + x * (width / 4 - r - 3),
-                height / 4 + y * (height / 4 - r - 3),
+                int(width * 3 / 4 + x * (width / 4 - r - 3)),
+                int(height / 4 + y * (height / 4 - r - 3)),
             ]
         if place == "NW":
             return [
-                width / 4 + x * (width / 4 - r - 3),
-                height / 4 + y * (height / 4 - r - 3),
+                int(width / 4 + x * (width / 4 - r - 3)),
+                int(height / 4 + y * (height / 4 - r - 3)),
             ]
         if place == "SE":
             return [
-                width * 3 / 4 + x * (width / 4 - r - 3),
-                height * 3 / 4 + y * (height / 4 - r - 3),
+                int(width * 3 / 4 + x * (width / 4 - r - 3)),
+                int(height * 3 / 4 + y * (height / 4 - r - 3)),
             ]
         if place == "SW":
             return [
-                width / 4 + x * (width / 4 - r - 3),
-                height * 3 / 4 + y * (height / 4 - r - 3),
+                int(width / 4 + x * (width / 4 - r - 3)),
+                int(height * 3 / 4 + y * (height / 4 - r - 3)),
             ]
 
     def _set_G(self, graph: Graph, layout_type, place):
@@ -328,7 +333,7 @@ class GraphDrawer(object):
         self._selected_vertex = self._collided_vertex(x, y)
 
         if self._selected_vertex == None and self._collided_edge(x, y) == None:
-            self._G.add_node(self._next_vertex_label, color=self._v_color, pos=[x, y])
+            self._G.add_node(self._next_vertex_label, color=self._v_color, pos=[int(x), int(y)])
             # self.vertex_pos_dict[self.next_vertex_label] = (x, y)
             self._selected_vertex = self._next_vertex_label
             self._next_vertex_label += 1
@@ -347,7 +352,7 @@ class GraphDrawer(object):
             return 
         if vertex is None:
             vertex = self._next_vertex_label
-            self._G.add_node(vertex, color=self._v_color, pos=[x, y])
+            self._G.add_node(vertex, color=self._v_color, pos=[int(x), int(y)])
             # self.vertex_pos_dict[self.next_vertex_label] = (x, y)
             #self._selected_vertex = self._next_vertex_label
             self._G.add_edge(vertex, s_vertex, color=self._e_color)
@@ -387,7 +392,7 @@ class GraphDrawer(object):
         self._selected_vertex = None
 
 
-    def _handle_mouse_move(self, x, y, vertexmove_on):
+    def _handle_mouse_move(self, x, y):
 
         vertex = self._selected_vertex
 
@@ -396,7 +401,7 @@ class GraphDrawer(object):
             return
         #self._mouse_pos = [x, y]
 
-        if not vertexmove_on:
+        if not self._vertexmove_on:
             with hold_canvas():
                 self._canvas.clear()
                 self._canvas.stroke_style = self._e_color
@@ -410,7 +415,7 @@ class GraphDrawer(object):
                 self._redraw_graph()
 
         else:
-            self._G.nodes[vertex]["pos"] = [x, y]
+            self._G.nodes[vertex]["pos"] = [int(x), int(y)]
             with hold_canvas():
                 self._canvas.clear()
                 self._redraw_graph()
