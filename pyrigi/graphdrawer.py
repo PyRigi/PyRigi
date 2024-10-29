@@ -357,13 +357,16 @@ class GraphDrawer(object):
             # self.vertex_pos_dict[self.next_vertex_label] = (x, y)
             self._selected_vertex = self._next_vertex_label
             self._next_vertex_label += 1
-            with hold_canvas():
-                self._mcanvas[2].clear()
-                self._redraw_graph()
-        elif self._selected_vertex is not None:
-            with hold_canvas():
-                self._mcanvas[2].clear()
-                self._redraw_graph(self._selected_vertex)
+        with hold_canvas():
+                 self._mcanvas[2].clear()
+                 self._redraw_graph(self._selected_vertex)
+        #     with hold_canvas():
+        #         self._mcanvas[2].clear()
+        #         self._redraw_graph()
+        # elif self._selected_vertex is not None:
+        #     with hold_canvas():
+        #         self._mcanvas[3].clear()
+        #         self._redraw_graph(self._selected_vertex)
         #self._last_mdown_time = time.time()
         self._mouse_down = True
 
