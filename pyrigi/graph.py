@@ -981,7 +981,7 @@ class Graph(nx.Graph):
         if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
             return False
 
-        # note: for the following we need to know that it is k-vertex-redundantly rigid
+        # for the following we need to know that the graph is k-vertex-redundantly rigid
         if (
             dim == 2
             and (
@@ -1199,7 +1199,7 @@ class Graph(nx.Graph):
         if not self.is_k_redundantly_rigid(k, dim, combinatorial):
             return False
 
-        # for the following we that to know k-redundancy
+        # for the following we need to know that the graph is k-redundantly rigid
         if (
             dim == 2
             and (
