@@ -12,7 +12,7 @@ from ipywidgets import (
     Checkbox,
     interact
 )
-from ipycanvas import Canvas, hold_canvas
+from ipycanvas import Canvas, MultiCanvas, hold_canvas
 from IPython.display import display
 from pyrigi.graph import Graph
 from ipyevents import Event
@@ -75,7 +75,26 @@ class GraphDrawer(object):
         self._G = Graph()  # the graph on canvas
         self._out = Output()  # can later be used to represent some properties
 
+        ### MultiCanvas Approach#####
+        self._mcanvas = MultiCanvas(4, width=600, height=600)
+        self._mcanvas[0].stroke_rect(0, 0, self._mcanvas.width, self._mcanvas.height)
+        self._mcanvas[2].font = "12px serif"
+        self._mcanvas[2].text_align = "center"
+        self._mcanvas[2].text_baseline = "middle"
+        self._mcanvas[3].font = "12px serif"
+        self._mcanvas[3].text_align = "center"
+        self._mcanvas[3].text_baseline = "middle"
+        self._mcanvas.on_mouse_down(self._handle_mouse_down)
+        self._mcanvas.on_mouse_up(self._handle_mouse_up)
+        self._mcanvas.on_mouse_move(self._handle_mouse_move)
+        self._mcanvas.on_mouse_out(self._handle_mouse_out)
+
+
+
+
         # setting canvas properties
+
+        """
         self._canvas = Canvas(width=600, height=600)
         self._canvas.stroke_rect(0, 0, self._canvas.width, self._canvas.height)
 
@@ -87,10 +106,11 @@ class GraphDrawer(object):
         self._canvas.font = "12px serif"
         self._canvas.text_align = "center"
         self._canvas.text_baseline = "middle"
+        """
 
         ##### IpyEvents Part ###
         self._events = Event()
-        self._events.source = self._canvas
+        self._events.source = self._mcanvas
         self._events.watched_events=['keydown','keyup','dblclick']
         self._events.on_dom_event(self._handle_event)
 
@@ -164,12 +184,12 @@ class GraphDrawer(object):
                 self._vlabel_checkbox,
             ]
         )
-        box = HBox([self._canvas, right_box])
+        box = HBox([self._mcanvas, right_box])
 
         if isinstance(graph, Graph) and graph.number_of_nodes() > 0:
             self._set_G(graph, layout_type, place)
             with hold_canvas():
-                self._canvas.clear()
+                self._mcanvas[1].clear()
                 self._redraw_graph()
 
         # displaying the combined menu and canvas, and the output
@@ -200,8 +220,8 @@ class GraphDrawer(object):
         """
         This function converts layout positions which are between -1 and 1 to canvas positions according to the chosen place by scaling.
         """
-        width = self._canvas.width
-        height = self._canvas.height
+        width = self._mcanvas.width
+        height = self._mcanvas.height
         r = self._radius
 
         # -3 is used below so that the vertices do not touch the edges of the canvas
@@ -304,7 +324,7 @@ class GraphDrawer(object):
         if change["type"] == "change" and change["name"] == "value":
             self._radius = change["new"]
             with hold_canvas():
-                self._canvas.clear()
+                self._mcanvas[2].clear()
                 self._redraw_graph()
 
     def _on_ewidth_change(self, change) -> None:
@@ -314,7 +334,7 @@ class GraphDrawer(object):
         if change["type"] == "change" and change["name"] == "value":
             self._ewidth = change["new"]
             with hold_canvas():
-                self._canvas.clear()
+                self._mcanvas[2].clear()
                 self._redraw_graph()
 
     def _on_show_vlabel_change(self, change) -> None:
@@ -324,7 +344,7 @@ class GraphDrawer(object):
         if change["type"] == "change" and change["name"] == "value":
             self._show_vlabels = change["new"]
             with hold_canvas():
-                self._canvas.clear()
+                self._mcanvas[2].clear()
                 self._redraw_graph()
 
     def _handle_mouse_down(self, x, y):
@@ -332,14 +352,20 @@ class GraphDrawer(object):
         # self._edit_type = 'Edge'
         self._selected_vertex = self._collided_vertex(x, y)
 
-        if self._selected_vertex == None and self._collided_edge(x, y) == None:
+        if self._selected_vertex is None and self._collided_edge(x, y) == None:
             self._G.add_node(self._next_vertex_label, color=self._v_color, pos=[int(x), int(y)])
             # self.vertex_pos_dict[self.next_vertex_label] = (x, y)
             self._selected_vertex = self._next_vertex_label
             self._next_vertex_label += 1
             with hold_canvas():
-                self._canvas.clear()
+                self._mcanvas[2].clear()
                 self._redraw_graph()
+        elif self._selected_vertex is not None:
+            with hold_canvas():
+                self._mcanvas[2].clear()
+                self._redraw_graph(self._selected_vertex)
+        with self._out:
+            print('hi')
         #self._last_mdown_time = time.time()
         self._mouse_down = True
 
@@ -369,12 +395,11 @@ class GraphDrawer(object):
 
         #self._selected_vertex = None
         with hold_canvas():
-                self._canvas.clear()
-                self._redraw_graph()
-        self._mouse_down = False
-        with hold_canvas():
-            self._canvas.clear()
+            self._mcanvas[1].clear()
+            self._mcanvas[2].clear()
+            self._mcanvas[3].clear()
             self._redraw_graph()
+        self._mouse_down = False
 
 
 
@@ -387,7 +412,7 @@ class GraphDrawer(object):
             self._G.remove_edge(edge[0], edge[1])
         
         with hold_canvas():
-            self._canvas.clear()
+            self._mcanvas[2].clear()
             self._redraw_graph()
         self._selected_vertex = None
 
@@ -403,22 +428,23 @@ class GraphDrawer(object):
 
         if not self._vertexmove_on:
             with hold_canvas():
-                self._canvas.clear()
-                self._canvas.stroke_style = self._e_color
-                self._canvas.line_width = self._ewidth
-                self._canvas.stroke_line(
+                self._mcanvas[1].clear()
+                self._mcanvas[1].stroke_style = self._e_color
+                self._mcanvas[1].line_width = self._ewidth
+                self._mcanvas[1].stroke_line(
                     self._G.nodes[vertex]["pos"][0],
                     self._G.nodes[vertex]["pos"][1],
                     x,
                     y,
                 )
-                self._redraw_graph()
+                self._redraw_vertex(vertex)
 
         else:
             self._G.nodes[vertex]["pos"] = [int(x), int(y)]
             with hold_canvas():
-                self._canvas.clear()
-                self._redraw_graph()
+                self._mcanvas[1].clear()
+                self._mcanvas[3].clear()
+                self._redraw_vertex(vertex)
 
     def _handle_mouse_out(self, x, y):
         """
@@ -426,7 +452,9 @@ class GraphDrawer(object):
         """
         self._selected_vertex = None
         with hold_canvas():
-            self._canvas.clear()
+            self._mcanvas[1].clear()
+            self._mcanvas[2].clear()
+            self._mcanvas[3].clear()
             self._redraw_graph()
 
     def _collided_vertex(self, x, y) -> int | None:
@@ -478,7 +506,26 @@ class GraphDrawer(object):
         closest_point = a + t * ab
         return np.linalg.norm(p - closest_point)
 
-    def _redraw_graph(self) -> None:
+    def _redraw_vertex(self, vertex):
+        self._mcanvas[1].line_width = self._ewidth
+        for u, v in self._G.edge_list():
+            if vertex in [u,v]:
+                self._mcanvas[1].stroke_style = self._G[u][v]["color"]
+                self._mcanvas[1].stroke_line(
+                self._G.nodes[u]["pos"][0],
+                self._G.nodes[u]["pos"][1],
+                self._G.nodes[v]["pos"][0],
+                self._G.nodes[v]["pos"][1],
+            )
+        self._mcanvas[3].fill_style = self._G.nodes[vertex]["color"]
+        [x, y] = self._G.nodes[vertex]["pos"]
+        self._mcanvas[3].fill_circle(x, y, self._radius)
+        if self._show_vlabels:
+            self._mcanvas[3].fill_style = "white"
+            self._mcanvas[3].fill_text(str(vertex), x, y)
+        
+
+    def _redraw_graph(self, hvertex=None) -> None:
         """
         Update the graph on canvas to illustrate the latest changes.
         """
@@ -492,11 +539,16 @@ class GraphDrawer(object):
             self._canvas.stroke_line(n,0,n,self._canvas.height)
         """
 
-        self._canvas.line_width = self._ewidth
+        self._mcanvas[2].line_width = self._ewidth
+        self._mcanvas[3].line_width = self._ewidth
         for u, v in self._G.edge_list():
+            if hvertex in [u,v]:
+                n=1
+            else:
+                n=2
 
-            self._canvas.stroke_style = self._G[u][v]["color"]
-            self._canvas.stroke_line(
+            self._mcanvas[n].stroke_style = self._G[u][v]["color"]
+            self._mcanvas[n].stroke_line(
                 self._G.nodes[u]["pos"][0],
                 self._G.nodes[u]["pos"][1],
                 self._G.nodes[v]["pos"][0],
@@ -504,15 +556,20 @@ class GraphDrawer(object):
             )
 
         for vertex in self._G.vertex_list():
-            self._canvas.fill_style = self._G.nodes[vertex]["color"]
+            if hvertex == vertex:
+                n = 3
+            else:
+                n = 2
+            self._mcanvas[n].fill_style = self._G.nodes[vertex]["color"]
             [x, y] = self._G.nodes[vertex]["pos"]
-            self._canvas.fill_circle(x, y, self._radius)
+            self._mcanvas[n].fill_circle(x, y, self._radius)
             if self._show_vlabels:
-                self._canvas.fill_style = "white"
-                self._canvas.fill_text(str(vertex), x, y)
-        self._canvas.stroke_style = "black"
-        self._canvas.line_width = 1
-        self._canvas.stroke_rect(0, 0, self._canvas.width, self._canvas.height)
+                self._mcanvas[n].fill_style = "white"
+                self._mcanvas[n].fill_text(str(vertex), x, y)
+        #layer 0 below from previous version
+        #self._canvas.stroke_style = "black"
+        #self._canvas.line_width = 1
+        #self._canvas.stroke_rect(0, 0, self._canvas.width, self._canvas.height)
 
     def graph(self) -> Graph:
         """
