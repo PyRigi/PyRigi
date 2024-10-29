@@ -10,6 +10,7 @@ from ipywidgets import (
     VBox,
     IntSlider,
     Checkbox,
+    interact
 )
 from ipycanvas import Canvas, hold_canvas
 from IPython.display import display
@@ -87,10 +88,11 @@ class GraphDrawer(object):
         self._canvas.text_baseline = "middle"
 
         ##### IpyEvents Part ###
-        self._events = Event()
+        self._events = Event(wait=10)
         self._events.source = self._canvas
         self._events.watched_events=['click', 'mousedown','dblclick','mousemove','mouseup','mouseleave']
         self._events.on_dom_event(self._handle_event)
+        self._events.ignore_modifier_key_events=True
 
         ##### menu items #######
         # # Edit Type radio buttons
@@ -144,6 +146,7 @@ class GraphDrawer(object):
             readour_format="d",
         )
         self._ewidth_slider.observe(self._on_ewidth_change)
+     
 
         # setting checkbox for showing vertex labels
         self._vlabel_checkbox = Checkbox(
@@ -285,7 +288,6 @@ class GraphDrawer(object):
         """
         Handler of the color picker for the new edges.
         """
-
         if change["type"] == "change" and change["name"] == "value":
             self._e_color = change["new"]
 
@@ -388,9 +390,13 @@ class GraphDrawer(object):
     def _handle_mouse_move(self, x, y, vertexmove_on):
 
         vertex = self._selected_vertex
-        self._mouse_pos = [x, y]
 
-        if isinstance(vertex, int) and not vertexmove_on and self._mouse_down:
+        if vertex is None or not self._mouse_down:
+            # do nothing if no vertex is selected or mouse button is not down
+            return
+        #self._mouse_pos = [x, y]
+
+        if not vertexmove_on:
             with hold_canvas():
                 self._canvas.clear()
                 self._canvas.stroke_style = self._e_color
@@ -403,9 +409,7 @@ class GraphDrawer(object):
                 )
                 self._redraw_graph()
 
-        elif (
-            isinstance(vertex, int) and vertexmove_on and self._mouse_down
-        ):
+        else:
             self._G.nodes[vertex]["pos"] = [x, y]
             with hold_canvas():
                 self._canvas.clear()
@@ -473,6 +477,16 @@ class GraphDrawer(object):
         """
         Update the graph on canvas to illustrate the latest changes.
         """
+
+        """ BELOW IS FOR SNAPPING FEATURE
+        self._canvas.stroke_style = 'gray'
+        self._canvas.line_width = 1
+        for n in range(30, self._canvas.height, 30):
+            self._canvas.stroke_line(0,n,self._canvas.width,n)
+        for n in range(30, self._canvas.width, 30):
+            self._canvas.stroke_line(n,0,n,self._canvas.height)
+        """
+
         self._canvas.line_width = self._ewidth
         for u, v in self._G.edge_list():
 
