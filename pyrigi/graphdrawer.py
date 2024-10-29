@@ -364,8 +364,6 @@ class GraphDrawer(object):
             with hold_canvas():
                 self._mcanvas[2].clear()
                 self._redraw_graph(self._selected_vertex)
-        with self._out:
-            print('hi')
         #self._last_mdown_time = time.time()
         self._mouse_down = True
 
