@@ -20,36 +20,52 @@ import networkx as nx
 import numpy as np
 
 
-
 class GraphDrawer(object):
     """
-    Class for the drawer. An instance of this class creates a canvas and takes mouse inputs in order to construct a graph.
-    The vertices of the graph will be labelled using non-negative integers. Supported inputs are:
+    Class for the drawer. An instance of this class creates a canvas and
+    takes mouse inputs in order to construct a graph. The vertices of the graph
+    will be labelled using non-negative integers. Supported inputs are listed below.
 
-    - Press mouse button on an empty place on canvas -> add a vertex at the pointer position.
-    - Press mouse button on an existing vertex -> select the corresponding vertex for repositioning or adding an incident edge.
-    - Move mouse pointer when the mouse button is down, a vertex is selected and ``ctrl`` is being pressed -> reposition the vertex according to the pointer.
-    - Double click on an existing vertex -> remove the corresponding vertex.
-    - Press mouse button on an existing vertex and release the mouse button on another vertex -> add / remove and edge between the two vertices.
-    - Double click on an existing edge -> remove the corresponding edge.
+    - Press mouse button on an empty place on canvas:
+        Add a vertex at the pointer position.
+    - Press mouse button on an existing vertex:
+        Select the corresponding vertex for repositioning or adding an incident edge.
+    - Move mouse pointer when the mouse button is down, a vertex is selected and ``ctrl`` is being pressed:
+        Reposition the vertex according to the pointer.
+    - Double click on an existing vertex:
+        Remove the corresponding vertex.
+    - Press mouse button on an existing vertex and release the mouse button on another vertex:
+        Add / remove and edge between the two vertices.
+    - Double click on an existing edge:
+        Remove the corresponding edge.
 
     Parameters
     ----------
     graph:
-        (optional) A graph without loops which is to be drawn on canvas when the object is created.
+        (optional) A graph without loops which is to be drawn on canvas
+        when the object is created.
     layout_type:
-        Layout type to visualise the ``graph``. Supported layout types are ``spring`` (default), ``random``, ``planar`` and ``circular``.
+        Layout type to visualise the ``graph``. Supported layout types are
+        ``spring`` (default), ``random``, ``planar`` and ``circular``.
         If ``graph`` is ``None`` or empty this parameter will not have any effect.
     place:
-        The part of the canvas that will be used for drawing ``graph``. Options are ``all`` (default, use all canvas), ``E`` (use the east part), ``W`` (use the west part),
-        ``N`` (use the north part), ``S`` (use the south part), and also ``NE``, ``NW``, ``SE`` and ``SW``. If ``graph`` is ``None`` or empty this parameter will not have any effect.
+        The part of the canvas that will be used for drawing ``graph``.
+        Options are ``all`` (default, use all canvas), ``E`` (use the east part),
+        ``W`` (use the west part), ``N`` (use the north part), ``S`` (use the south part),
+        and also ``NE``, ``NW``, ``SE`` and ``SW``.
+        If ``graph`` is ``None`` or empty this parameter will not have any effect.
 
 
     Examples
     --------
     >>> from pyrigi.graphdrawer import GraphDrawer
     >>> Drawer = GraphDrawer()
-    HBox(children=(MultiCanvas(height=600, width=600), VBox(children=(ColorPicker(value='blue', description='V-Color'), ColorPicker(value='black', description='E-Color'), IntSlider(value=10, description='V-Size:', max=20, min=8), IntSlider(value=2, description='E-Size:', max=10, min=1), Checkbox(value=True, description='Show V-Labels', indent=False)))))
+    HBox(children=(MultiCanvas(height=600, width=600),
+    VBox(children=(ColorPicker(value='blue', description='V-Color'),
+    ColorPicker(value='black', description='E-Color'),
+    IntSlider(value=10, description='V-Size:', max=20, min=8),
+    IntSlider(value=2, description='E-Size:', max=10, min=1),
+    Checkbox(value=True, description='Show V-Labels', indent=False)))))
     Output()
     press and hold ctrl key to move vertices around with mouse.
     >>> Drawer.graph()
@@ -57,10 +73,10 @@ class GraphDrawer(object):
 
     TODO
     ----
-    - Add width/height parameters to canvas. Currently canvas has fixed width=600 and height=600.
+    - Add width/height parameters to canvas. Currently width=600 and height=600 are fixed.
     - Add a background grid option.
 
-    """
+    """  # noqa: E501
 
     def __init__(
         self, graph: Graph = None, layout_type: str = "spring", place: str = "all"
@@ -74,9 +90,7 @@ class GraphDrawer(object):
         self._v_color = "blue"  # default color for vertices
         self._e_color = "black"  # default color for edges
 
-        self._selected_vertex = (
-            None  # this parameter determines on what vertex changes will happen
-        )
+        self._selected_vertex = None  # this determines what vertex to update on canvas
         self._next_vertex_label = 0  # label for next vertex
         self._show_vlabels = True
         self._mouse_down = False
@@ -193,7 +207,8 @@ class GraphDrawer(object):
 
     def _assign_pos(self, x, y, place):
         """
-        This function converts layout positions which are between -1 and 1 to canvas positions according to the chosen place by scaling.
+        This function converts layout positions which are between -1 and 1
+        to canvas positions according to the chosen place by scaling.
         """
         width = self._mcanvas.width
         height = self._mcanvas.height
@@ -257,12 +272,14 @@ class GraphDrawer(object):
         graph = nx.relabel_nodes(graph, map, copy=True)
         placement = graph.layout(layout_type)
 
-        # random layout assigns coordinates between 0 and 1. adjust the coordinates to between -1 and 1 as other layouts
+        # random layout assigns coordinates between 0 and 1.
+        # adjust the coordinates to between -1 and 1 as other layouts
         if layout_type == "random":
             for vertex in placement:
                 placement[vertex] = [2 * x - 1 for x in placement[vertex]]
 
-        # add vertices to the graph of the graphdrawer by scaling the coordinates from [-1,1] to [self._mcanvas.width, self._cmanvas.height]
+        # add vertices to the graph of the graphdrawer by scaling the coordinates
+        # from [-1,1] to [self._mcanvas.width, self._mcanvas.height]
         for vertex in graph.nodes:
             [px, py] = placement[vertex]
             self._G.add_node(
@@ -332,16 +349,17 @@ class GraphDrawer(object):
         self._selected_vertex = self._collided_vertex(
             x, y
         )  # select the vertex containing the mouse pointer position
-        if self._selected_vertex is None and self._collided_edge(x, y) == None:
-            # add a new vertex if no vertex is selected and no edge contains the mouse pointer position
+        if self._selected_vertex is None and self._collided_edge(x, y) is None:
+            # add a new vertex if no vertex is selected and
+            # no edge contains the mouse pointer position
             self._G.add_node(
                 self._next_vertex_label, color=self._v_color, pos=[int(x), int(y)]
             )
             self._selected_vertex = self._next_vertex_label
             self._next_vertex_label += 1
         with hold_canvas():
-            # redraw graph and send the edges incident with selected vertex to layer 1 and the selected vertex to layer 3
-            # for possible continuous update.
+            # redraw graph and send the edges incident with selected vertex to layer 1
+            # and the selected vertex to layer 3 for possible continuous update.
             self._mcanvas[2].clear()
             self._redraw_graph(self._selected_vertex)
 
@@ -357,16 +375,19 @@ class GraphDrawer(object):
         s_vertex = self._selected_vertex
 
         if s_vertex is None:
-            # This is to ignore the case when mousebutton is pressed outside multicanvas and released on multicanvas
+            # This is to ignore the case when mousebutton is pressed
+            # outside multicanvas and released on multicanvas
             return
         if vertex is None:
-            # if there is no existing vertex containing the mouse pointer position, add a new vertex and an edge between the new vertex and the selected vertex
+            # if there is no existing vertex containing the mouse pointer position,
+            # add a new vertex and an edge between the new vertex and the selected vertex
             vertex = self._next_vertex_label
             self._G.add_node(vertex, color=self._v_color, pos=[int(x), int(y)])
             self._G.add_edge(vertex, s_vertex, color=self._e_color)
             self._next_vertex_label += 1
         elif vertex is not None and vertex is not s_vertex:
-            # if there is a vertex containing mouse pointer position other than the selected vertex, add / remove edge between these two vertices.
+            # if there is a vertex containing mouse pointer position other than
+            # the selected vertex, add / remove edge between these two vertices.
             if self._G.has_edge(vertex, s_vertex):
                 self._G.remove_edge(vertex, s_vertex)
             else:
@@ -382,13 +403,13 @@ class GraphDrawer(object):
     def _handle_dblclick(self, x, y):
         """
         This function is the handler for double click event (using ipyevents).
-        Double clicking on a vertex or edge will remove the vertex or the edge, respectively.
+        Double clicking on a vertex or edge will remove the vertex or the edge, resp.
         """
         edge = self._collided_edge(x, y)
         vertex = self._collided_vertex(x, y)
-        if vertex != None and vertex == self._selected_vertex:
+        if vertex is not None and vertex == self._selected_vertex:
             self._G.remove_node(self._selected_vertex)
-        elif edge != None:
+        elif edge is not None:
             self._G.remove_edge(edge[0], edge[1])
 
         with hold_canvas():
@@ -410,7 +431,8 @@ class GraphDrawer(object):
             return
 
         if not self._vertexmove_on:
-            # add a line segment between vertex and the mouse pointer and update layer 1 of multicanvas
+            # add a line segment between selected vertex and the mouse pointer position
+            # and update layer 1 of multicanvas
             with hold_canvas():
                 self._mcanvas[1].clear()
                 self._mcanvas[1].stroke_style = self._e_color
@@ -422,9 +444,9 @@ class GraphDrawer(object):
                     y,
                 )
                 self._redraw_vertex(vertex)
-
         else:
-            # move vertex to mouse pointer position and update layer 1 and 3 of multicanvas
+            # move vertex to mouse pointer position
+            # and update layer 1 and 3 of multicanvas
             self._G.nodes[vertex]["pos"] = [int(x), int(y)]
             with hold_canvas():
                 self._mcanvas[1].clear()
@@ -471,7 +493,8 @@ class GraphDrawer(object):
 
     def _point_distance_to_segment(self, a, b, p):
         """
-        Return the distance between a line segment with endpoints 'a' and 'b', and a point 'p'
+        Return the distance between a line segment
+        with endpoints 'a' and 'b', and a point 'p'
         """
         a = np.asarray(a)
         b = np.asarray(b)
@@ -485,9 +508,13 @@ class GraphDrawer(object):
 
     def _redraw_vertex(self, vertex):
         """
-        This function is used to update the position of a specific vertex and its incident edges. It is used when repositioning a vertex and adding/removing a
-        new edge so that only the parts related to the vertex are updated on canvas. The incident edges with vertex are drawn on layer 1 and the vertex itself is
-        drawn on layer 3 of the multicanvas. This is to make sure that edges do not show up above other vertices.
+        This function is used to update the position of a specific vertex
+        and its incident edges. It is used when repositioning a vertex and
+        adding/removing a new edge so that only the parts related to
+        the vertex are updated on canvas. The incident edges with vertex
+        are drawn on layer 1 and the vertex itself is drawn on layer 3
+        of the multicanvas.
+        This is to make sure that edges do not show up above other vertices.
         """
         self._mcanvas[1].line_width = self._ewidth
         for v in self._G[vertex]:
@@ -507,15 +534,19 @@ class GraphDrawer(object):
 
     def _redraw_graph(self, hvertex=None) -> None:
         """
-        This function is used to redraw the whole graph. If hvertex is not None then the edges incident with hvertex are drawn on layer 1, hvertex is drawn on layer 3 and all other
-        vertices and edges are drawn on layer 2. This is to prepare multicanvas for adding/removing edges incident with hvertex and repositioning hvertex while keeping other vertices
+        This function is used to redraw the whole graph. If hvertex is not None
+        then the edges incident with hvertex are drawn on layer 1,
+        hvertex is drawn on layer 3 and all other vertices and edges are drawn
+        on layer 2. This is to prepare multicanvas for adding/removing edges
+        incident with hvertex and repositioning hvertex while keeping other vertices
         and edges fixed on multicanvas in layer 2.
         """
         self._mcanvas[2].line_width = self._ewidth
         self._mcanvas[3].line_width = self._ewidth
         for u, v in self._G.edges:
             # n below is the index of the layer to be used.
-            # if the edge is incident with hvertex, draw this edge on layer 1 of multicanvas.
+            # if the edge is incident with hvertex,
+            # draw this edge on layer 1 of multicanvas.
             # otherwise draw it on layer 2.
             if hvertex in [u, v]:
                 n = 1
@@ -532,7 +563,8 @@ class GraphDrawer(object):
 
         for vertex in self._G.nodes:
             # n below is the index of the layer to be used.
-            # draw hvertex on layer 3 and other vertices on layer 2 so that moving vertex (hvertex) will show up above others.
+            # draw hvertex on layer 3 and other vertices on layer 2
+            # so that moving vertex (hvertex) will show up above others.
             if hvertex == vertex:
                 n = 3
             else:
