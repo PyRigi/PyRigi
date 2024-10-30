@@ -292,10 +292,10 @@ Note, that the word generically is ofen ommited when talking about graphs.
 Let $G$ be a graph, let $d, k \in \NN$.
 The graph $G$ is called
 
-* _minimally_redundantly (generically) $d$-rigid_ if it is {prf:ref}`redundantly (generically) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not redundantly (generically) $d$-rigid any more.
-* _minimally_vertex_redundantly (generically) $d$-rigid_ if it is {prf:ref}`vertex_redundantly (generically) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not vertex_redundantly (generically) $d$-rigid any more.
-* _minimally_k_redundantly (generically) $d$-rigid_ if it is {prf:ref}`k_redundantly (generically) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_redundantly (generically) $d$-rigid any more.
-* _minimally_k_vertex_redundantly (generically) $d$-rigid_ if it is {prf:ref}`k_vertex_redundantly (generically) $d$-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_vertex_redundantly (generically) $d$-rigid any more.
+* _minimally_redundantly (generically) $d$-rigid_ if it is {prf:ref}`redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not redundantly (generically) $d$-rigid any more.
+* _minimally_vertex_redundantly (generically) $d$-rigid_ if it is {prf:ref}`vertex_redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not vertex_redundantly (generically) $d$-rigid any more.
+* _minimally_k_redundantly (generically) $d$-rigid_ if it is {prf:ref}`k_redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_redundantly (generically) $d$-rigid any more.
+* _minimally_k_vertex_redundantly (generically) $d$-rigid_ if it is {prf:ref}`k_vertex_redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_vertex_redundantly (generically) $d$-rigid any more.
 
 Note, that the word generically is ofen ommited when talking about graphs.
 
