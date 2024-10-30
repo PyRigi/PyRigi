@@ -16,12 +16,9 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
-
+  build:
+    name: Build release for PyPI
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
@@ -34,8 +31,15 @@ jobs:
         pip install build
     - name: Build package
       run: python -m build
+
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pyrigi
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    steps:
     - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      uses: pypa/gh-action-pypi-publish@release/v1
