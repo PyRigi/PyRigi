@@ -259,14 +259,14 @@ class GraphDrawer(object):
             ]
 
     def _set_G(self, graph: Graph, layout_type, place):
-        map = {}
+        vertex_map = {}
         for vertex in graph:
             if not isinstance(vertex, int) or vertex < 0:
                 for k in range(graph.number_of_nodes()):
-                    if not graph.has_node(k) and k not in map.values():
-                        map[vertex] = k
+                    if not graph.has_node(k) and k not in vertex_map.values():
+                        vertex_map[vertex] = k
                         break
-        graph = nx.relabel_nodes(graph, map, copy=True)
+        graph = nx.relabel_nodes(graph, vertex_map, copy=True)
         placement = graph.layout(layout_type)
 
         # random layout assigns coordinates between 0 and 1.
@@ -286,9 +286,9 @@ class GraphDrawer(object):
             self._G.add_edge(edge[0], edge[1], color=self._e_color)
 
         self._next_vertex_label = max(self._G.nodes) + 1
-        if len(map) != 0:
+        if len(vertex_map) != 0:
             with self._out:
-                print("relabeled vertices:", map)
+                print("relabeled vertices:", vertex_map)
 
     def _on_vcolor_change(self, change) -> None:
         """
