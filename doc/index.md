@@ -1,7 +1,7 @@
 # PyRigi
 
 ```{include} ../README.md
-:relative-docs: docs/
+:relative-docs: doc/
 :start-after: <!-- start-input -->
 ```
 
