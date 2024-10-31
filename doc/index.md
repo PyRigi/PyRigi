@@ -19,7 +19,8 @@ userguide/api
 :::{toctree}
 :maxdepth: 2
 :caption: Math
-math/definitions
+math/rigidity
+math/graph_theory
 math/references
 :::
 
