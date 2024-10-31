@@ -3,26 +3,17 @@
 
 ## Installation and usage
 
-We have not reached a stable version yet.
-Hence, the current usage is to install the dependencies
+We have not reached a stable version yet,
+but the latest version requiring at least Python 3.10
+can be installed by
 ```
-pip install sympy networkx
+pip install pyrigi
 ```
-and clone/download the package
+Then it can be used by
+```python
+from pyrigi import Graph, Framework
+```
+
+Alternatively, one can clone/download the package
 from [this GitHub repository](https://github.com/pyRigi/PyRigi).
-In the root folder of the package, it can be used by
-```python
-from pyrigi import Graph, Framework
-```
-If you are not working in the root folder of the package you may use
-```python
-import os
-import sys
-sys.path.insert(0,os.path.abspath("<path_to_pyrigi>"))
-from pyrigi import Graph, Framework
-```
-where `<path_to_pyrigi>` is replaced by the path to the root folder of the package.
-
-In the future, we will enable installation via `pip`.
-
-An alternative way of installation is the one used for the [development via Poetry](#dev-dependencies).
+Installation for development is done via [Poetry](#dev-dependencies).

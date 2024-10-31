@@ -1,7 +1,7 @@
 # Graph Drawer
 
 ```{eval-rst}
-.. automodule:: pyrigi.graphdrawer
+.. automodule:: pyrigi.graph_drawer
    :members:
    :undoc-members:
    :show-inheritance:
