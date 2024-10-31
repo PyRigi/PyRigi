@@ -23,7 +23,7 @@ import numpy as np
 class GraphDrawer(object):
     """
     Class for graph drawing.
-    
+
     An instance of this class creates a canvas and
     takes mouse inputs in order to construct a graph. The vertices of the graph
     will be labeled using non-negative integers. Supported inputs are listed below.
@@ -482,7 +482,9 @@ class GraphDrawer(object):
         for edge in self._graph.edges:
             if (
                 self._point_distance_to_segment(
-                    self._graph.nodes[edge[0]]["pos"], self._graph.nodes[edge[1]]["pos"], [x, y]
+                    self._graph.nodes[edge[0]]["pos"],
+                    self._graph.nodes[edge[1]]["pos"],
+                    [x, y],
                 )
                 < self._ewidth / 2 + 1
             ):
@@ -491,7 +493,7 @@ class GraphDrawer(object):
 
     def _point_distance_to_segment(self, a, b, p):
         """
-        Return the distance between point 'p' and line segment given by 'a' and 'b'. 
+        Return the distance between point 'p' and line segment given by 'a' and 'b'.
         """
         a = np.asarray(a)
         b = np.asarray(b)
@@ -506,7 +508,7 @@ class GraphDrawer(object):
     def _redraw_vertex(self, vertex):
         """
         Update the position of a specific vertex and its incident edges
-        
+
         It is used when repositioning a vertex and
         adding/removing a new edge so that only the parts related to
         the vertex are updated on canvas. The incident edges with vertex
@@ -533,7 +535,7 @@ class GraphDrawer(object):
     def _redraw_graph(self, hvertex=None) -> None:
         """
         Redraw the whole graph.
-        
+
         If hvertex is not None,
         then the edges incident with hvertex are drawn on layer 1,
         hvertex is drawn on layer 3 and all other vertices and edges are drawn
