@@ -23,7 +23,7 @@ import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
 
-from pyrigi.data_type import Vertex, Edge, Point, point_to_vector
+from pyrigi.data_type import Vertex, Edge, Point, Stress, point_to_vector
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -997,10 +997,30 @@ class Framework(object):
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Infinitesimal rigidity")
     def stresses(self) -> Any:
-        r"""Return a basis of the space of stresses."""
-        raise NotImplementedError()
+        r"""
+        Return a basis of the space of stresses.
+
+        Definitions
+        -----------
+        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
+        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
+        >>> F = Framework(G, pos)
+        >>> F.stresses()
+        [Matrix([
+        [-8],
+        [-4],
+        [-4],
+        [ 2],
+        [ 2],
+        [ 1]])]
+        """
+        return self.rigidity_matrix().transpose().nullspace()
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:

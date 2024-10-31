@@ -101,3 +101,18 @@ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigi
 
 {{pyrigi_crossref}} {meth}`~.Framework.is_min_inf_rigid`
 :::
+
+:::{prf:definition} Equilibriuim stress
+:label: def-equilibrium-stress
+
+Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>`.
+An _equilibrium stress_ of $(G,p)$ is a map $\omega\colon E\rightarrow \RR$ such that for every $v\in V$
+\begin{equation*}
+ \sum_{w\sim v}\omega(vw)(p(v)-p(w)) = 0.
+\end{equation*}
+Here $w\sim v$ indicates that there exist an edge between $v$ and $w$.  
+Equivalently, interpreting $\omega$ as a row vector, $\omega$ is an equilibrium stress if and only if $\omega \cdot R(G,p) = 0$.
+
+{{pyrigi_crossref}} {meth}`~.Framework.stresses`
+:::
+:::
