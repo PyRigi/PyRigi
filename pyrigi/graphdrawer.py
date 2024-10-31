@@ -278,7 +278,7 @@ class GraphDrawer(object):
         # add vertices to the graph of the graphdrawer by scaling the coordinates
         # from [-1,1] to [self._mcanvas.width, self._mcanvas.height]
         for vertex in graph.nodes:
-            [px, py] = placement[vertex]
+            px, py = placement[vertex]
             self._G.add_node(
                 vertex, color=self._v_color, pos=self._assign_pos(px, py, place)
             )
@@ -524,7 +524,7 @@ class GraphDrawer(object):
                 self._G.nodes[v]["pos"][1],
             )
         self._mcanvas[3].fill_style = self._G.nodes[vertex]["color"]
-        [x, y] = self._G.nodes[vertex]["pos"]
+        x, y = self._G.nodes[vertex]["pos"]
         self._mcanvas[3].fill_circle(x, y, self._radius)
         if self._show_vlabels:
             self._mcanvas[3].fill_style = "white"
@@ -570,7 +570,7 @@ class GraphDrawer(object):
             else:
                 n = 2
             self._mcanvas[n].fill_style = self._G.nodes[vertex]["color"]
-            [x, y] = self._G.nodes[vertex]["pos"]
+            x, y = self._G.nodes[vertex]["pos"]
             self._mcanvas[n].fill_circle(x, y, self._radius)
             if self._show_vlabels:
                 self._mcanvas[n].fill_style = "white"
@@ -597,5 +597,4 @@ class GraphDrawer(object):
             ]
             for v in H.nodes
         }
-        F = Framework(graph=H, realization=posdict)
-        return F
+        return Framework(graph=H, realization=posdict)
