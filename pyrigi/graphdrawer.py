@@ -400,6 +400,7 @@ class GraphDrawer(object):
     def _handle_dblclick(self, x, y):
         """
         This function is the handler for double click event (using ipyevents).
+
         Double clicking on a vertex or edge will remove the vertex or the edge, resp.
         """
         edge = self._collided_edge(x, y)
@@ -490,8 +491,7 @@ class GraphDrawer(object):
 
     def _point_distance_to_segment(self, a, b, p):
         """
-        Return the distance between a line segment
-        with endpoints 'a' and 'b', and a point 'p'
+        Return the distance between point 'p' and line segment given by 'a' and 'b'. 
         """
         a = np.asarray(a)
         b = np.asarray(b)
@@ -505,8 +505,9 @@ class GraphDrawer(object):
 
     def _redraw_vertex(self, vertex):
         """
-        This function is used to update the position of a specific vertex
-        and its incident edges. It is used when repositioning a vertex and
+        Update the position of a specific vertex and its incident edges
+        
+        It is used when repositioning a vertex and
         adding/removing a new edge so that only the parts related to
         the vertex are updated on canvas. The incident edges with vertex
         are drawn on layer 1 and the vertex itself is drawn on layer 3
@@ -531,7 +532,9 @@ class GraphDrawer(object):
 
     def _redraw_graph(self, hvertex=None) -> None:
         """
-        This function is used to redraw the whole graph. If hvertex is not None
+        Redraw the whole graph.
+        
+        If hvertex is not None,
         then the edges incident with hvertex are drawn on layer 1,
         hvertex is drawn on layer 3 and all other vertices and edges are drawn
         on layer 2. This is to prepare multicanvas for adding/removing edges
