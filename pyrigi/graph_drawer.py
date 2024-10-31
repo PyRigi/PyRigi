@@ -28,7 +28,7 @@ class GraphDrawer(object):
     takes mouse inputs in order to construct a graph. The vertices of the graph
     will be labeled using non-negative integers. Supported inputs are listed below.
 
-    - Click mouse button on an empty place on canvas:
+    - Press mouse button on an empty place on canvas:
         Add a vertex at the pointer position.
     - Press mouse button on an existing vertex (or empty space)
       and release the mouse button on another vertex  (or empty space):
@@ -458,6 +458,7 @@ class GraphDrawer(object):
         It determines what to do when the mouse leaves multicanvas.
         """
         self._selected_vertex = None
+        self._vertexmove_on = False
         with hold_canvas():
             self._mcanvas[1].clear()
             self._mcanvas[2].clear()
