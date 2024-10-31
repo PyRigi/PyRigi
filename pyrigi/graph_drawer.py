@@ -1,7 +1,7 @@
 """
 Module for graph drawing on a canvas in jupyter notebook.
 
-.. currentmodule:: pyrigi.graphdrawer
+.. currentmodule:: pyrigi.graph_drawer
 
 Classes:
 
@@ -60,7 +60,7 @@ class GraphDrawer(object):
 
     Examples
     --------
-    >>> from pyrigi.graphdrawer import GraphDrawer
+    >>> from pyrigi import GraphDrawer
     >>> Drawer = GraphDrawer()
     HBox(children=(MultiCanvas(height=600, width=600), VBox(children=(ColorPicker(value='blue', description='V-Color'), ColorPicker(value='black', description='E-Color'), IntSlider(value=10, description='V-Size:', max=20, min=8), IntSlider(value=2, description='E-Size:', max=10, min=1), Checkbox(value=True, description='Show V-Labels', indent=False)))))
     Output()
