@@ -22,20 +22,21 @@ import numpy as np
 
 class GraphDrawer(object):
     """
-    Class for the drawer. An instance of this class creates a canvas and
+    Class for graph drawing.
+    
+    An instance of this class creates a canvas and
     takes mouse inputs in order to construct a graph. The vertices of the graph
-    will be labelled using non-negative integers. Supported inputs are listed below.
+    will be labeled using non-negative integers. Supported inputs are listed below.
 
-    - Press mouse button on an empty place on canvas:
+    - Click mouse button on an empty place on canvas:
         Add a vertex at the pointer position.
-    - Press mouse button on an existing vertex:
-        Select the corresponding vertex for repositioning or adding an incident edge.
-    - Move mouse pointer when the mouse button is down, a vertex is selected and ``ctrl`` is being pressed:
-        Reposition the vertex according to the pointer.
+    - Press mouse button on an existing vertex (or empty space)
+      and release the mouse button on another vertex  (or empty space):
+        Add / remove and edge between the two vertices.
+    - Drag a vertex with ``ctrl`` is being pressed:
+        Reposition the vertex.
     - Double click on an existing vertex:
         Remove the corresponding vertex.
-    - Press mouse button on an existing vertex and release the mouse button on another vertex:
-        Add / remove and edge between the two vertices.
     - Double click on an existing edge:
         Remove the corresponding edge.
 
@@ -43,10 +44,11 @@ class GraphDrawer(object):
     ----------
     graph:
         (optional) A graph without loops which is to be drawn on canvas
-        when the object is created.
+        when the object is created. The non-integer labels are relabeled
     layout_type:
-        Layout type to visualise the ``graph``. Supported layout types are
-        ``spring`` (default), ``random``, ``planar`` and ``circular``.
+        Layout type to visualise the ``graph``.
+        For supported layout types see :meth:`.Graph.layout`.
+        The default is ``spring``.
         If ``graph`` is ``None`` or empty this parameter will not have any effect.
     place:
         The part of the canvas that will be used for drawing ``graph``.
