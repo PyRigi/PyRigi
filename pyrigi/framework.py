@@ -844,10 +844,10 @@ class Framework(object):
         pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
         return pinned_rigidity_matrix
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Infinitesimal rigidity")
     def stress_matrix(
         self,
-        data: Any,
+        stress: Stress,
         edge_order: List[Edge] = None,
     ) -> Matrix:
         r"""
@@ -857,8 +857,49 @@ class Framework(object):
         -----
         * :prf:ref:`Stress Matrix <def-stress-matrix>`
 
+        Parameters
+        ----------
+        stress:
+            A stress of the graph
+        edges_ordered:
+            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
+            or whether they should be internally sorted (``False``).
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
+        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
+        >>> F = Framework(G, pos)
+        >>> omega = [-8, -4, -4, 2, 2, 1]
+        >>> F.stress_matrix(omega)
+        Matrix([
+        [-16,  8,  4,  4],
+        [  8, -4, -2, -2],
+        [  4, -2, -1, -1],
+        [  4, -2, -1, -1]])
         """
-        raise NotImplementedError()
+        if edge_order is None:
+            edge_order = self._graph.edge_list()
+        else:
+            if not (
+                set([set(e) for e in self._graph.edges])
+                == set([set(e) for e in edge_order])
+                and len(edge_order) == self._graph.number_of_edges()
+            ):
+                raise ValueError(
+                    "edge_order must contain exactly the same edges as the graph!"
+                )
+        # creation of a zero |V|x|V| matrix
+        stress_matr = sp.zeros(len(self._graph))
+        for v in self._graph.nodes:
+            for edge in edge_order:
+                if v in edge:
+                    stress_matr[v, v] += stress[edge_order.index(edge)]
+        for v, w in combinations(self._graph.nodes, 2):
+            if [v, w] in edge_order:
+                stress_matr[v, w] = -stress[edge_order.index([v, w])]
+                stress_matr[w, v] = -stress[edge_order.index([v, w])]
+        return stress_matr
 
     @doc_category("Infinitesimal rigidity")
     def trivial_inf_flexes(self) -> List[Matrix]:

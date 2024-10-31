@@ -115,4 +115,23 @@ Equivalently, interpreting $\omega$ as a row vector, $\omega$ is an equilibrium 
 
 {{pyrigi_crossref}} {meth}`~.Framework.stresses`
 :::
+
+:::{prf:definition} Stress Matrix 
+:label: def-stress-matrix
+
+Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` and $\omega$ be an {prf:ref}`equilibrium stress <def-equilibrium-stress>`.
+A _stress matrix_ of $(G,\omega)$ is the $|V|\times|V|$ matrix $L(G,\omega)$ where, for every pair of vertices $v,w$, we have the entry:
+
+$$
+L(G,\omega)_{(v,w)} :=
+\begin{cases}
+ \sum_{w\sim v}\omega(vw) & \mbox{if $v=w$}\\
+ -\omega(vw) & \mbox{if $v\sim w$ and $v\neq w$}\\
+ 0 & \mbox{otherwise}
+\end{cases}
+$$
+
+Here $w\sim v$ indicates that there exist an edge between $v$ and $w$.
+
+{{pyrigi_crossref}} {meth}`~.Framework.stress_matrix``
 :::
