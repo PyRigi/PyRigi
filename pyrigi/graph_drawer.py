@@ -30,10 +30,9 @@ class GraphDrawer(object):
 
     - Press mouse button on an empty place on canvas:
         Add a vertex at the pointer position.
-    - Press mouse button on an existing vertex (or empty space)
-      and release the mouse button on another vertex  (or empty space):
-        Add / remove and edge between the two vertices.
-    - Drag a vertex with ``ctrl`` is being pressed:
+    - Press mouse button on an existing vertex (or empty space) and release the mouse button on another vertex (or empty space):
+        Add/remove an edge between the two vertices.
+    - Drag a vertex with ``Ctrl`` is being pressed:
         Reposition the vertex.
     - Double click on an existing vertex:
         Remove the corresponding vertex.
