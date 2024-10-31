@@ -93,7 +93,7 @@ class GraphDrawer(object):
         self._mouse_down = False
         self._vertexmove_on = False
 
-        self._G = Graph()  # the graph on canvas
+        self._graph = Graph()  # the graph on canvas
         self._out = Output()  # can later be used to represent some properties
 
         # setting multicanvas properties
@@ -178,7 +178,7 @@ class GraphDrawer(object):
         box = HBox([self._mcanvas, right_box])
 
         if isinstance(graph, Graph) and graph.number_of_nodes() > 0:
-            self._set_G(graph, layout_type, place)
+            self._set_graph(graph, layout_type, place)
             with hold_canvas():
                 self._mcanvas[1].clear()
                 self._redraw_graph()
@@ -258,7 +258,7 @@ class GraphDrawer(object):
                 int(height * 3 / 4 + y * (height / 4 - r - 3)),
             ]
 
-    def _set_G(self, graph: Graph, layout_type, place):
+    def _set_graph(self, graph: Graph, layout_type, place):
         vertex_map = {}
         for vertex in graph:
             if not isinstance(vertex, int) or vertex < 0:
@@ -279,13 +279,13 @@ class GraphDrawer(object):
         # from [-1,1] to [self._mcanvas.width, self._mcanvas.height]
         for vertex in graph.nodes:
             px, py = placement[vertex]
-            self._G.add_node(
+            self._graph.add_node(
                 vertex, color=self._v_color, pos=self._assign_pos(px, py, place)
             )
         for edge in graph.edges:
-            self._G.add_edge(edge[0], edge[1], color=self._e_color)
+            self._graph.add_edge(edge[0], edge[1], color=self._e_color)
 
-        self._next_vertex_label = max(self._G.nodes) + 1
+        self._next_vertex_label = max(self._graph.nodes) + 1
         if len(vertex_map) != 0:
             with self._out:
                 print("relabeled vertices:", vertex_map)
@@ -349,7 +349,7 @@ class GraphDrawer(object):
         if self._selected_vertex is None and self._collided_edge(x, y) is None:
             # add a new vertex if no vertex is selected and
             # no edge contains the mouse pointer position
-            self._G.add_node(
+            self._graph.add_node(
                 self._next_vertex_label, color=self._v_color, pos=[int(x), int(y)]
             )
             self._selected_vertex = self._next_vertex_label
@@ -379,16 +379,16 @@ class GraphDrawer(object):
             # if there is no existing vertex containing the mouse pointer position,
             # add a new vertex and an edge between the new vertex and the selected vertex
             vertex = self._next_vertex_label
-            self._G.add_node(vertex, color=self._v_color, pos=[int(x), int(y)])
-            self._G.add_edge(vertex, s_vertex, color=self._e_color)
+            self._graph.add_node(vertex, color=self._v_color, pos=[int(x), int(y)])
+            self._graph.add_edge(vertex, s_vertex, color=self._e_color)
             self._next_vertex_label += 1
         elif vertex is not None and vertex is not s_vertex:
             # if there is a vertex containing mouse pointer position other than
             # the selected vertex, add / remove edge between these two vertices.
-            if self._G.has_edge(vertex, s_vertex):
-                self._G.remove_edge(vertex, s_vertex)
+            if self._graph.has_edge(vertex, s_vertex):
+                self._graph.remove_edge(vertex, s_vertex)
             else:
-                self._G.add_edge(vertex, s_vertex, color=self._e_color)
+                self._graph.add_edge(vertex, s_vertex, color=self._e_color)
 
         with hold_canvas():
             self._mcanvas[1].clear()
@@ -406,9 +406,9 @@ class GraphDrawer(object):
         edge = self._collided_edge(x, y)
         vertex = self._collided_vertex(x, y)
         if vertex is not None and vertex == self._selected_vertex:
-            self._G.remove_node(self._selected_vertex)
+            self._graph.remove_node(self._selected_vertex)
         elif edge is not None:
-            self._G.remove_edge(edge[0], edge[1])
+            self._graph.remove_edge(edge[0], edge[1])
 
         with hold_canvas():
             self._mcanvas[2].clear()
@@ -436,8 +436,8 @@ class GraphDrawer(object):
                 self._mcanvas[1].stroke_style = self._e_color
                 self._mcanvas[1].line_width = self._ewidth
                 self._mcanvas[1].stroke_line(
-                    self._G.nodes[vertex]["pos"][0],
-                    self._G.nodes[vertex]["pos"][1],
+                    self._graph.nodes[vertex]["pos"][0],
+                    self._graph.nodes[vertex]["pos"][1],
                     x,
                     y,
                 )
@@ -445,7 +445,7 @@ class GraphDrawer(object):
         else:
             # move vertex to mouse pointer position
             # and update layer 1 and 3 of multicanvas
-            self._G.nodes[vertex]["pos"] = [int(x), int(y)]
+            self._graph.nodes[vertex]["pos"] = [int(x), int(y)]
             with hold_canvas():
                 self._mcanvas[1].clear()
                 self._mcanvas[3].clear()
@@ -468,9 +468,9 @@ class GraphDrawer(object):
         """
         Return the vertex containing the point (x,y) on canvas.
         """
-        for vertex in self._G.nodes:
-            if (self._G.nodes[vertex]["pos"][0] - x) ** 2 + (
-                self._G.nodes[vertex]["pos"][1] - y
+        for vertex in self._graph.nodes:
+            if (self._graph.nodes[vertex]["pos"][0] - x) ** 2 + (
+                self._graph.nodes[vertex]["pos"][1] - y
             ) ** 2 < self._radius**2:
                 return vertex
         return None
@@ -479,10 +479,10 @@ class GraphDrawer(object):
         """
         Return the edge containing the point (x,y) on canvas.
         """
-        for edge in self._G.edges:
+        for edge in self._graph.edges:
             if (
                 self._point_distance_to_segment(
-                    self._G.nodes[edge[0]]["pos"], self._G.nodes[edge[1]]["pos"], [x, y]
+                    self._graph.nodes[edge[0]]["pos"], self._graph.nodes[edge[1]]["pos"], [x, y]
                 )
                 < self._ewidth / 2 + 1
             ):
@@ -515,16 +515,16 @@ class GraphDrawer(object):
         This is to make sure that edges do not show up above other vertices.
         """
         self._mcanvas[1].line_width = self._ewidth
-        for v in self._G[vertex]:
-            self._mcanvas[1].stroke_style = self._G[vertex][v]["color"]
+        for v in self._graph[vertex]:
+            self._mcanvas[1].stroke_style = self._graph[vertex][v]["color"]
             self._mcanvas[1].stroke_line(
-                self._G.nodes[vertex]["pos"][0],
-                self._G.nodes[vertex]["pos"][1],
-                self._G.nodes[v]["pos"][0],
-                self._G.nodes[v]["pos"][1],
+                self._graph.nodes[vertex]["pos"][0],
+                self._graph.nodes[vertex]["pos"][1],
+                self._graph.nodes[v]["pos"][0],
+                self._graph.nodes[v]["pos"][1],
             )
-        self._mcanvas[3].fill_style = self._G.nodes[vertex]["color"]
-        x, y = self._G.nodes[vertex]["pos"]
+        self._mcanvas[3].fill_style = self._graph.nodes[vertex]["color"]
+        x, y = self._graph.nodes[vertex]["pos"]
         self._mcanvas[3].fill_circle(x, y, self._radius)
         if self._show_vlabels:
             self._mcanvas[3].fill_style = "white"
@@ -543,7 +543,7 @@ class GraphDrawer(object):
         """
         self._mcanvas[2].line_width = self._ewidth
         self._mcanvas[3].line_width = self._ewidth
-        for u, v in self._G.edges:
+        for u, v in self._graph.edges:
             # n below is the index of the layer to be used.
             # if the edge is incident with hvertex,
             # draw this edge on layer 1 of multicanvas.
@@ -553,15 +553,15 @@ class GraphDrawer(object):
             else:
                 n = 2
 
-            self._mcanvas[n].stroke_style = self._G[u][v]["color"]
+            self._mcanvas[n].stroke_style = self._graph[u][v]["color"]
             self._mcanvas[n].stroke_line(
-                self._G.nodes[u]["pos"][0],
-                self._G.nodes[u]["pos"][1],
-                self._G.nodes[v]["pos"][0],
-                self._G.nodes[v]["pos"][1],
+                self._graph.nodes[u]["pos"][0],
+                self._graph.nodes[u]["pos"][1],
+                self._graph.nodes[v]["pos"][0],
+                self._graph.nodes[v]["pos"][1],
             )
 
-        for vertex in self._G.nodes:
+        for vertex in self._graph.nodes:
             # n below is the index of the layer to be used.
             # draw hvertex on layer 3 and other vertices on layer 2
             # so that moving vertex (hvertex) will show up above others.
@@ -569,8 +569,8 @@ class GraphDrawer(object):
                 n = 3
             else:
                 n = 2
-            self._mcanvas[n].fill_style = self._G.nodes[vertex]["color"]
-            x, y = self._G.nodes[vertex]["pos"]
+            self._mcanvas[n].fill_style = self._graph.nodes[vertex]["color"]
+            x, y = self._graph.nodes[vertex]["pos"]
             self._mcanvas[n].fill_circle(x, y, self._radius)
             if self._show_vlabels:
                 self._mcanvas[n].fill_style = "white"
@@ -581,8 +581,8 @@ class GraphDrawer(object):
         Return a copy of the current graph on the multicanvas.
         """
         H = Graph()
-        H.add_nodes_from(self._G.nodes)
-        H.add_edges_from(self._G.edges)
+        H.add_nodes_from(self._graph.nodes)
+        H.add_edges_from(self._graph.edges)
         return H
 
     def framework(self) -> Framework:
@@ -592,8 +592,8 @@ class GraphDrawer(object):
         H = self.graph()
         posdict = {
             v: [
-                self._G.nodes[v]["pos"][0] - int(self._mcanvas.width / 2),
-                int(self._mcanvas.height / 2) - self._G.nodes[v]["pos"][1],
+                self._graph.nodes[v]["pos"][0] - int(self._mcanvas.width / 2),
+                int(self._mcanvas.height / 2) - self._graph.nodes[v]["pos"][1],
             ]
             for v in H.nodes
         }
