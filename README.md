@@ -1,5 +1,5 @@
 <p align="center">
-<img src="assets/icon.jpg" width="260">
+<img src="https://github.com/PyRigi/PyRigi/blob/main/assets/icon.jpg" alt="Pyrigi Logo" width="260">
 </p>
 
 [![PyRigi documentation](https://img.shields.io/badge/PyRigi-Documentation-blue?style=plastic&link=pyrigi.github.io%2FPyRigi%2F%20)](https://pyrigi.github.io/PyRigi/)
