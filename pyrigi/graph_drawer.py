@@ -543,8 +543,8 @@ class GraphDrawer(object):
         incident with hvertex and repositioning hvertex while keeping other vertices
         and edges fixed on multicanvas in layer 2.
         """
+        self._mcanvas[1].line_width = self._ewidth
         self._mcanvas[2].line_width = self._ewidth
-        self._mcanvas[3].line_width = self._ewidth
         for u, v in self._graph.edges:
             # n below is the index of the layer to be used.
             # if the edge is incident with hvertex,
