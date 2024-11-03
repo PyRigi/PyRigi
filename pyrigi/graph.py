@@ -990,28 +990,51 @@ class Graph(nx.Graph):
         return None if return_solution else False
 
     @doc_category("Generic rigidity")
-    def is_vertex_redundantly_rigid(self, dim: int = 2) -> bool:
+    def is_vertex_redundantly_rigid(
+        self, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
+
+        See :meth:`.is_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_k_vertex_redundantly_rigid(1, dim)
+        return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial)
 
     @doc_category("Generic rigidity")
-    def is_k_vertex_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
+    def is_k_vertex_redundantly_rigid(
+        self, k: int, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
 
-        TODO
-        ----
-        Avoid creating deepcopies by remembering the edges.
-        Tests, examples.
-        """
+        Preliminary checks from
+        :prf:ref:`thm-k-vertex-redundant-edge-bound-general`,
+        :prf:ref:`thm-k-vertex-redundant-edge-bound-general2`,
+        :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`,
+        :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`
+        :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`,
+        :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`,
+        :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
+        ... are used
+
+        Examples
+        --------
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G.is_k_vertex_redundantly_rigid(1, 2)
+        True
+        >>> G.is_k_vertex_redundantly_rigid(2, 2)
+        False
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
+        >>> G.is_k_vertex_redundantly_rigid(1, 2)
+        False
+
+        """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
@@ -1020,34 +1043,228 @@ class Graph(nx.Graph):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
+        if n >= dim + k + 1 and self.min_degree() < dim + k:
+            return False
+        if dim == 1:
+            return self.vertex_connectivity() >= k + 1
+        if (
+            dim == 2
+            and (
+                # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
+                (k == 1 and n >= 5 and m < 2 * n - 1)
+                or
+                # edge bound from :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`
+                (k == 2 and n >= 6 and m < 2 * n + 2)
+                or
+                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`
+                (k >= 3 and n >= 6 * (k + 1) + 23 and m < ((k + 2) * n + 1) // 2)
+            )
+        ) or (
+            dim == 3
+            and (
+                # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
+                (k == 3 and n >= 15 and m < 3 * n + 5)
+                or
+                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
+                (
+                    k >= 4
+                    and n >= 12 * (k + 1) + 10
+                    and n % 2 == 0
+                    and m < ((k + 3) * n + 1) // 2
+                )
+            )
+        ):
+            return False
+        # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
+        if (
+            #
+            n >= dim * dim + dim + k + 1
+            and m
+            < dim * n - math.comb(dim + 1, 2) + k * dim + max(0, k - (dim + 1) // 2)
+        ):
+            return False
+        # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
+        if k >= dim + 1 and n >= dim + k + 1 and m < ((dim + k) * n + 1) // 2:
+            return False
+
+        # in all other cases check by definition
+        G = deepcopy(self)
         for vertex_set in combinations(self.nodes, k):
-            G = deepcopy(self)
+            adj = [[v, list(G.neighbors(v))] for v in vertex_set]
             G.delete_vertices(vertex_set)
-            if not G.is_rigid(dim):
+            if not G.is_rigid(dim, combinatorial):
                 return False
+            # add vertices and edges back
+            G.add_vertices(vertex_set)
+            for v, neighbors in adj:
+                for neighbor in neighbors:
+                    G.add_edge(v, neighbor)
         return True
 
     @doc_category("Generic rigidity")
-    def is_redundantly_rigid(self, dim: int = 2) -> bool:
+    def is_minimally_vertex_redundantly_rigid(
+        self, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
+        """
+        Check whether the graph is
+        :prf:ref:`minimally vertex redundantly (generically) dim-rigid
+        <def-min-redundantly-rigid-graph>`.
+
+        See :meth:`.is_minimally_k_vertex_redundantly_rigid` (using k = 1) for details.
+        """
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError(
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
+        return self.is_minimally_k_vertex_redundantly_rigid(1, dim, combinatorial)
+
+    @doc_category("Generic rigidity")
+    def is_minimally_k_vertex_redundantly_rigid(
+        self, k: int, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
+        """
+        Check whether the graph is :prf:ref:`minimally k-vertex redundantly (generically) dim-rigid
+        <def-redundantly-rigid-graph>`.
+
+        Preliminary checks from
+        :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound`,
+        :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound-dim1`
+        are used.
+
+
+        Examples
+        --------
+        >>> G = Graph([[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
+        >>> G.is_minimally_k_vertex_redundantly_rigid(1, 2)
+        True
+        >>> G.is_minimally_k_vertex_redundantly_rigid(2, 2)
+        False
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]])
+        >>> G.is_k_vertex_redundantly_rigid(1, 2)
+        True
+        >>> G.is_minimally_k_vertex_redundantly_rigid(1, 2)
+        False
+
+        """  # noqa: E501
+
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError(
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
+        if not isinstance(k, int):
+            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
+        if nx.number_of_selfloops(self) > 0:
+            raise LoopError()
+
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
+        # edge bound from :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound`
+        if m > (dim + k) * n - math.comb(dim + k + 1, 2):
+            return False
+        # edge bound from :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound-dim1`
+        if dim == 1:
+            if n >= 3 * (k + 1) - 1 and m > (k + 1) * n - (k + 1) * (k + 1):
+                return False
+
+        if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
+            return False
+
+        # for the following we need to know that the graph is k-vertex-redundantly rigid
+        if (
+            dim == 2
+            and (
+                # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
+                (k == 1 and n >= 5 and m == 2 * n - 1)
+                or
+                # edge bound from :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`
+                (k == 2 and n >= 6 and m == 2 * n + 2)
+                or
+                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`
+                (k >= 3 and n >= 6 * (k + 1) + 23 and m == ((k + 2) * n + 1) // 2)
+            )
+        ) or (
+            dim == 3
+            and (
+                # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
+                (k == 3 and n >= 15 and m == 3 * n + 5)
+                or
+                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
+                (
+                    k >= 4
+                    and n >= 12 * (k + 1) + 10
+                    and n % 2 == 0
+                    and m == ((k + 3) * n + 1) // 2
+                )
+            )
+        ):
+            return True
+        # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
+        if (
+            #
+            n >= dim * dim + dim + k + 1
+            and m
+            == dim * n - math.comb(dim + 1, 2) + k * dim + max(0, k - (dim + 1) // 2)
+        ):
+            return True
+        # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
+        if k >= dim + 1 and n >= dim + k + 1 and m == ((dim + k) * n + 1) // 2:
+            return True
+
+        # in all other cases check by definition
+        G = deepcopy(self)
+        for edge in self.edge_list():
+            G.delete_edges([edge])
+            if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
+                return False
+            G.add_edges([edge])
+        return True
+
+    @doc_category("Generic rigidity")
+    def is_redundantly_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
+
+        See :meth:`.is_k_redundantly_rigid` (using k = 1) for details.
         """
-        return self.is_k_redundantly_rigid(1, dim)
+        return self.is_k_redundantly_rigid(1, dim, combinatorial)
 
     @doc_category("Generic rigidity")
-    def is_k_redundantly_rigid(self, k: int, dim: int = 2) -> bool:
+    def is_k_redundantly_rigid(
+        self, k: int, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
 
+        Preliminary checks from
+        :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`,
+        :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`,
+        :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`,
+        :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`,
+        :prf:ref:`thm-globally-redundant-3connected` and
+        :prf:ref:`thm-globally-mindeg6-dim2`.
+        are used
+
+        Examples
+        --------
+        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 5], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
+        >>> G.is_k_redundantly_rigid(1, 2)
+        True
+        >>> G = Graph([[0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G.is_k_redundantly_rigid(1, 2)
+        False
+        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G.is_k_redundantly_rigid(2, 2)
+        True
+
         TODO
         ----
-        Tests, examples.
-        Create a copy to work on to avoid modifying the graph
-        (also for vertex-redundancy).
         Improve with pebble games.
-        """
+        """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
@@ -1056,12 +1273,160 @@ class Graph(nx.Graph):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
+
+        if m < dim * n - math.comb(dim + 1, 2) + k:
+            return False
+        if self.min_degree() < dim + k:
+            return False
+        if dim == 1:
+            return nx.edge_connectivity(self) >= k + 1
+        # edge bounds
+        if (
+            dim == 2
+            and (
+                # basic edge bound
+                (k == 1 and m < 2 * n - 2)
+                or
+                # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
+                (k == 2 and n >= 5 and m < 2 * n)
+                or
+                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
+                (k >= 3 and n >= 6 * (k + 1) + 23 and m < ((k + 2) * n + 1) // 2)
+            )
+        ) or (
+            dim == 3
+            and (
+                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
+                (k == 2 and n >= 14 and m < 3 * n - 4)
+                or
+                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
+                (
+                    k >= 4
+                    and n >= 12 * (k + 1) + 10
+                    and n % 2 == 0
+                    and m < ((k + 3) * n + 1) // 2
+                )
+            )
+        ):
+            return False
+        # use global rigidity property of :prf:ref:`thm-globally-redundant-3connected`
+        # and :prf:ref:`thm-globally-mindeg6-dim2`
+        if dim == 2 and k == 1 and self.vertex_connectivity() >= 6:
+            return True
+
+        # in all other cases check by definition
+        G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
-            self.delete_edges(edge_set)
-            if not self.is_rigid(dim):
-                self.add_edges(edge_set)
+            G.delete_edges(edge_set)
+            if not G.is_rigid(dim, combinatorial):
                 return False
-            self.add_edges(edge_set)
+            G.add_edges(edge_set)
+        return True
+
+    @doc_category("Generic rigidity")
+    def is_minimally_redundantly_rigid(
+        self, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
+        """
+        Check whether the graph is :prf:ref:`minimally redundantly (generically) dim-rigid
+        <def-min-redundantly-rigid-graph>`.
+
+        See :meth:`.is_minimally_k_redundantly_rigid` (using k = 1) for details.
+        """
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError(
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
+        return self.is_minimally_k_redundantly_rigid(1, dim, combinatorial)
+
+    @doc_category("Generic rigidity")
+    def is_minimally_k_redundantly_rigid(
+        self, k: int, dim: int = 2, combinatorial: bool = True
+    ) -> bool:
+        """
+        Check whether the graph is :prf:ref:`minimally k-redundantly (generically) dim-rigid
+        <def-redundantly-rigid-graph>`.
+
+        Preliminary checks from
+        :prf:ref:`thm-minimal-1-edge-redundant-upper-edge-bound-dim2`
+        are used.
+
+
+        Examples
+        --------
+         >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
+        >>> G.is_minimally_k_redundantly_rigid(1, 2)
+        True
+        >>> G.is_minimally_k_redundantly_rigid(2, 2)
+        False
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G.is_k_redundantly_rigid(1, 2)
+        True
+        >>> G.is_minimally_k_redundantly_rigid(1, 2)
+        False
+
+        """  # noqa: E501
+
+        if not isinstance(dim, int) or dim < 1:
+            raise TypeError(
+                f"The dimension needs to be a positive integer, but is {dim}!"
+            )
+        if not isinstance(k, int):
+            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
+        if nx.number_of_selfloops(self) > 0:
+            raise LoopError()
+
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
+        # use bound from thm-minimal-1-edge-redundant-upper-edge-bound-dim2
+        if dim == 2:
+            if k == 1:
+                if n >= 7 and m > 3 * n - 9:
+                    return False
+
+        if not self.is_k_redundantly_rigid(k, dim, combinatorial):
+            return False
+
+        # for the following we need to know that the graph is k-redundantly rigid
+        if (
+            dim == 2
+            and (
+                # basic edge bound
+                (k == 1 and m == 2 * n - 2)
+                or
+                # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
+                (k == 2 and n >= 5 and m == 2 * n)
+                or
+                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
+                (k >= 3 and n >= 6 * (k + 1) + 23 and m == ((k + 2) * n + 1) // 2)
+            )
+        ) or (
+            dim == 3
+            and (
+                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
+                (k == 2 and n >= 14 and m == 3 * n - 4)
+                or
+                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
+                (
+                    k >= 4
+                    and n >= 12 * (k + 1) + 10
+                    and n % 2 == 0
+                    and m == ((k + 3) * n + 1) // 2
+                )
+            )
+        ):
+            return True
+
+        # in all other cases check by definition
+        G = deepcopy(self)
+        for edge in self.edge_list():
+            G.delete_edges([edge])
+            if G.is_k_redundantly_rigid(k, dim, combinatorial):
+                return False
+            G.add_edges([edge])
         return True
 
     @doc_category("Generic rigidity")
