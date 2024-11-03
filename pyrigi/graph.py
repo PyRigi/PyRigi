@@ -17,7 +17,7 @@ import distinctipy
 from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
-import pyrigi._pebble_di_graph
+import pyrigi._pebble_digraph
 
 
 class Graph(nx.Graph):
@@ -449,7 +449,7 @@ class Graph(nx.Graph):
                  K > 0, L >= 0 and L < 2K."
             )
 
-        dir_graph = pyrigi._pebble_di_graph.PebbleDiGraph(K, L)
+        dir_graph = pyrigi._pebble_digraph.PebbleDiGraph(K, L)
         dir_graph.add_nodes_from(self.nodes())
         for edge in self.edge_list():
             u, v = edge[0], edge[1]

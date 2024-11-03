@@ -1,4 +1,4 @@
-from pyrigi._pebble_di_graph import PebbleDiGraph
+from pyrigi._pebble_digraph import PebbleDiGraph
 
 import pytest
 
