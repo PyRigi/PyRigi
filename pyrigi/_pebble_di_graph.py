@@ -120,43 +120,43 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         return len(super().edges)
 
-    def in_degree(self, node: Vertex) -> int:
+    def in_degree(self, vertex: Vertex) -> int:
         """
-        Number of edges leading to node.
+        Number of edges leading to vertex.
 
         Parameters
         ----------
-        node: Vertex, that we wish to know the indegree.
+        vertex: Vertex, that we wish to know the indegree.
         TODO check if vertex exists
         """
-        return super().in_degree(node)
+        return super().in_degree(vertex)
 
-    def out_degree(self, node: Vertex) -> int:
+    def out_degree(self, vertex: Vertex) -> int:
         """
-        Number of edges leading out from a node.
+        Number of edges leading out from a vertex.
 
         Parameters
         ----------
-        node: Vertex, that we wish to know the outdegree.
+        vertex: Vertex, that we wish to know the outdegree.
         TODO check if vertex exists
         """
-        return super().out_degree(node)
+        return super().out_degree(vertex)
 
-    def redirect_edge_to_head(self, edge: Edge, node_to: Vertex) -> None:
+    def redirect_edge_to_head(self, edge: Edge, vertex_to: Vertex) -> None:
         """
         Redirect given edge to the given head.
 
         Parameters
         ----------
         edge: Edge to redirect.
-        node_to: Vertex to which the Edge will point to.
+        vertex_to: Vertex to which the Edge will point to.
                  Vertex must be part of the Edge.
         """
-        if self.has_node(node_to) and node_to in edge:
+        if self.has_node(vertex_to) and vertex_to in edge:
             tail = edge[0]
             head = edge[1]
             self.remove_edge(tail, head)
-            self.add_edge(head, node_to)
+            self.add_edge(head, vertex_to)
 
     def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:
         """
@@ -172,7 +172,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
 
         def dfs(
-            node: Vertex, visited: set, edge_path: list[Edge], current_edge=None
+            vertex: Vertex, visited: set, edge_path: list[Edge], current_edge=None
         ) -> {bool, set}:
             """
             Run depth first search to find vertices
@@ -184,35 +184,35 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
             Parameters
             ----------
-            node: Vertex, starting position of the dfs
+            vertex: Vertex, starting position of the dfs
             visited: set of Vertex. Contains the vertices already reached.
             edge_path: list of Edge. Contains the used edges in the transversal.
-            current_edge: Edge. The edge through we reached this node.
+            current_edge: Edge. The edge through we reached this vertex.
             """
-            visited.add(node)
+            visited.add(vertex)
             if current_edge:
                 edge_path.append(current_edge)
 
             # Check if the stopping criteria is met
-            if node != u and node != v and self.out_degree(node) < self.K:
+            if vertex != u and vertex != v and self.out_degree(vertex) < self.K:
                 # turn around edges via path
                 for edge in edge_path:
                     self.redirect_edge_to_head(edge, edge[0])
 
                 return True, visited
 
-            for out_edge in self.out_edges(node):
+            for out_edge in self.out_edges(vertex):
                 found = False
-                next_node = out_edge[-1]
-                if next_node not in visited:
-                    found, visited = dfs(next_node, visited, edge_path, out_edge)
+                next_vertex = out_edge[-1]
+                if next_vertex not in visited:
+                    found, visited = dfs(next_vertex, visited, edge_path, out_edge)
                 if found:
                     return True, visited
             if edge_path:
                 edge_path.pop()
             return False, visited
 
-        max_degree_for_u_and_v_together = 2 * self.K - self.L - 1
+        max_degree_u_v_together = 2 * self.K - self.L - 1
 
         if not self.has_node(u):
             raise ValueError(
@@ -228,19 +228,19 @@ class PebbleDiGraph(nx.MultiDiGraph):
                 + " is not present in graph."
             )
 
-        while self.out_degree(u) + self.out_degree(v) > max_degree_for_u_and_v_together:
-            visited_nodes = {u, v}
+        while self.out_degree(u) + self.out_degree(v) > max_degree_u_v_together:
+            visited_vertices = {u, v}
 
             edge_path_u, edge_path_v = [], []
 
             # Perform DFS from u
-            found_from_u, visited_nodes = dfs(u, visited_nodes, edge_path_u)
+            found_from_u, visited_vertices = dfs(u, visited_vertices, edge_path_u)
 
             if found_from_u:
                 continue
 
             # Perform DFS from v
-            found_from_v, visited_nodes = dfs(v, visited_nodes, edge_path_v)
+            found_from_v, visited_vertices = dfs(v, visited_vertices, edge_path_v)
 
             if found_from_v:
                 continue
@@ -251,18 +251,18 @@ class PebbleDiGraph(nx.MultiDiGraph):
             break
 
         can_add_edge = (
-            self.out_degree(u) + self.out_degree(v) <= max_degree_for_u_and_v_together
+            self.out_degree(u) + self.out_degree(v) <= max_degree_u_v_together
         )
         if can_add_edge:
             # The edge is independent
             return None
 
-        return visited_nodes
+        return visited_vertices
 
-    def can_add_edge_between_nodes(self, u: Vertex, v: Vertex) -> bool:
+    def can_add_edge_between_vertices(self, u: Vertex, v: Vertex) -> bool:
         """
-        Check whether one can add the edge between the nodes u and v,
-        so that it still respects the node degrees?
+        Check whether one can add the edge between the vertices u and v,
+        so that it still respects the vertex degrees?
 
         Parameters
         ----------
@@ -273,7 +273,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         return self.fundamental_circuit(u, v) is None
 
-    def add_edge_to_maintain_digraph_if_possible(self, u: Vertex, v: Vertex) -> bool:
+    def add_edge_maintaining_digraph(self, u: Vertex, v: Vertex) -> bool:
         """
         Add the given edge to the directed graph, if possible.
 
@@ -296,7 +296,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
             return True
 
         # heuristics: point it out from the one with the fewer outdegrees
-        if self.can_add_edge_between_nodes(u, v):
+        if self.can_add_edge_between_vertices(u, v):
             if self.out_degree(u) < self.out_degree(v):
                 self.add_edges_from([(u, v)])
             else:
@@ -305,7 +305,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         else:  # if not possible to add, just don't add
             return False
 
-    def add_edges_to_maintain_out_degrees(self, edges: list[Edge]) -> None:
+    def add_edges_maintaining_digraph(self, edges: list[Edge]) -> None:
         """
         Add a list of edges to the directed graph
         so that it will choose the correct orientations of them and
@@ -319,4 +319,4 @@ class PebbleDiGraph(nx.MultiDiGraph):
         edges: List of Edge to add
         """
         for edge in edges:
-            self.add_edge_to_maintain_digraph_if_possible(edge[0], edge[1])
+            self.add_edge_maintaining_digraph(edge[0], edge[1])

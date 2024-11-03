@@ -129,33 +129,33 @@ def test_redirect_edge_to_head():
 def test_can_add_edge_between_nodes():
     Cycle_graph = DirectedCycle(4, 2, 3)
     for i in range(4):  # we can add cyclicly to any of them in any direction
-        assert Cycle_graph.can_add_edge_between_nodes(i, (i + 2) % 4)
-        assert Cycle_graph.can_add_edge_between_nodes((i + 2) % 4, i)
+        assert Cycle_graph.can_add_edge_between_vertices(i, (i + 2) % 4)
+        assert Cycle_graph.can_add_edge_between_vertices((i + 2) % 4, i)
 
     Disjoint_graph = PebbleDiGraph(1, 1)
     Disjoint_graph.add_edges_from([(0, 1), (2, 3)])
-    assert Disjoint_graph.can_add_edge_between_nodes(0, 2)
-    assert Disjoint_graph.can_add_edge_between_nodes(3, 0)
-    assert Disjoint_graph.can_add_edge_between_nodes(1, 2)
+    assert Disjoint_graph.can_add_edge_between_vertices(0, 2)
+    assert Disjoint_graph.can_add_edge_between_vertices(3, 0)
+    assert Disjoint_graph.can_add_edge_between_vertices(1, 2)
 
     Path_graph = DirectedPath(4, 2, 1)
 
-    assert Path_graph.can_add_edge_between_nodes(0, 3)
+    assert Path_graph.can_add_edge_between_vertices(0, 3)
 
     with pytest.raises(ValueError):
-        Path_graph.can_add_edge_between_nodes(0, "A")
+        Path_graph.can_add_edge_between_vertices(0, "A")
 
 
 def test_can_not_add_edge_between_nodes():
     Cycle_graph = DirectedCycle(4, 2, 3)
 
     for i in range(4):  # we can't add cyclicly to any of them in any direction
-        assert not Cycle_graph.can_add_edge_between_nodes(i, (i + 1) % 4)
-        assert not Cycle_graph.can_add_edge_between_nodes((i + 1) % 4, i)
+        assert not Cycle_graph.can_add_edge_between_vertices(i, (i + 1) % 4)
+        assert not Cycle_graph.can_add_edge_between_vertices((i + 1) % 4, i)
 
     Path_graph = DirectedPath(4, 1, 1)
     for i in range(4):
-        assert not Path_graph.can_add_edge_between_nodes(i, (i + 2) % 4)
+        assert not Path_graph.can_add_edge_between_vertices(i, (i + 2) % 4)
 
 
 def test_add_independent_edge():
@@ -166,7 +166,7 @@ def test_add_independent_edge():
 
 def test_nodes_in_fundamental_circuit():
     graph = PebbleDiGraph(2, 3)
-    graph.add_edges_to_maintain_out_degrees(
+    graph.add_edges_maintaining_digraph(
         [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (3, 4)]
     )
 
@@ -186,7 +186,7 @@ def test_nodes_in_fundamental_circuit():
 def test_nodes_in_fundamental_circuit_with_2_2_graph():
     graph = PebbleDiGraph(2, 2)
     # double the path
-    graph.add_edges_to_maintain_out_degrees(
+    graph.add_edges_maintaining_digraph(
         [(0, 1), (0, 1), (1, 2), (1, 2), (2, 3), (2, 3)]
     )
 

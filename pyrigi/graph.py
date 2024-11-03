@@ -435,7 +435,7 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Sparseness")
-    def _build_directed_graph_from_scratch(self, K: int, L: int) -> None:
+    def _build_pebble_digraph(self, K: int, L: int) -> None:
         r"""
         Build and save the directed representation of the graph from scratch.
 
@@ -453,12 +453,12 @@ class Graph(nx.Graph):
         dir_graph.add_nodes_from(self.nodes())
         for edge in self.edge_list():
             u, v = edge[0], edge[1]
-            dir_graph.add_edge_to_maintain_digraph_if_possible(u, v)
-        self._directed_pebble_graph = dir_graph
+            dir_graph.add_edge_maintaining_digraph(u, v)
+        self._pebble_digraph = dir_graph
 
     # @doc_category("Sparseness")
     def edge_is_kl_independent(
-        self, u, v, K: int, L: int, use_precomputed_directed_graph: bool = False
+        self, u, v, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         r"""
         Check whether the (not yet existing) edge between u and v
@@ -466,17 +466,17 @@ class Graph(nx.Graph):
         """
 
         if (
-            not use_precomputed_directed_graph
-            or K != self._directed_pebble_graph.K
-            or L != self._directed_pebble_graph.L
+            not use_precomputed_pebble_digraph
+            or K != self._pebble_digraph.K
+            or L != self._pebble_digraph.L
         ):
-            self._build_directed_graph_from_scratch(K, L)
+            self._build_pebble_digraph(K, L)
 
-        return self._directed_pebble_graph.can_add_edge_between_nodes(u, v)
+        return self._pebble_digraph.can_add_edge_between_vertices(u, v)
 
     # @doc_category("Sparseness")
     def edge_kl_circuit(
-        self, u, v, K: int, L: int, use_precomputed_directed_graph: bool = False
+        self, u, v, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> set:
         r"""
         Return the fundamental circuit of the (not yet existing) edge between u and v.
@@ -489,7 +489,7 @@ class Graph(nx.Graph):
         u, v: points between the edge is checked
         K:
         L:
-        use_precomputed_directed_graph:
+        use_precomputed_pebble_digraph:
             If True, we use the directed graph that is present in the cache.
             If False, recompute the graph.
             Use True only if you are certain that the pebble game directed graph
@@ -497,17 +497,17 @@ class Graph(nx.Graph):
         """
 
         if (
-            not use_precomputed_directed_graph
-            or K != self._directed_pebble_graph.K
-            or L != self._directed_pebble_graph.L
+            not use_precomputed_pebble_digraph
+            or K != self._pebble_digraph.K
+            or L != self._pebble_digraph.L
         ):
-            self._build_directed_graph_from_scratch(K, L)
+            self._build_pebble_digraph(K, L)
 
-        return self._directed_pebble_graph.fundamental_circuit(u, v, K, L)
+        return self._pebble_digraph.fundamental_circuit(u, v, K, L)
 
     @doc_category("Sparseness")
     def spanning_sparse_subgraph(
-        self, K: int, L: int, use_precomputed_directed_graph=False
+        self, K: int, L: int, use_precomputed_pebble_digraph=False
     ) -> pyrigi.Graph:
         r"""
         Return a maximal :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>` subgraph.
@@ -521,24 +521,24 @@ class Graph(nx.Graph):
         ----------
         K:
         L:
-        use_precomputed_directed_graph:
+        use_precomputed_pebble_digraph:
             If True, we use the directed graph that is present in the cache.
             If False, recompute the graph.
             Use True only if you are certain that the pebble game directed graph
             was not touched since its creation.
         """
         if (
-            not use_precomputed_directed_graph
-            or K != self._directed_pebble_graph.K
-            or L != self._directed_pebble_graph.L
+            not use_precomputed_pebble_digraph
+            or K != self._pebble_digraph.K
+            or L != self._pebble_digraph.L
         ):
-            self._build_directed_graph_from_scratch(K, L)
+            self._build_pebble_digraph(K, L)
 
-        return self._directed_pebble_graph.to_undirected()
+        return self._pebble_digraph.to_undirected()
 
     @doc_category("Sparseness")
     def _is_directed_graph_sparse(
-        self, K: int, L: int, use_precomputed_directed_graph: bool = False
+        self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
         Check if the given directed graph contains exactly the same number of edges
@@ -548,21 +548,21 @@ class Graph(nx.Graph):
         ----------
         K:
         L:
-        use_precomputed_directed_graph:
+        use_precomputed_pebble_digraph:
             If True, we use the directed graph that is present in the cache.
             If False, recompute the graph.
             Use True only if you are certain that the pebble game directed graph
             was not touched since its creation.
         """
         if (
-            not use_precomputed_directed_graph
-            or K != self._directed_pebble_graph.K
-            or L != self._directed_pebble_graph.L
+            not use_precomputed_pebble_digraph
+            or K != self._pebble_digraph.K
+            or L != self._pebble_digraph.L
         ):
-            self._build_directed_graph_from_scratch(K, L)
+            self._build_pebble_digraph(K, L)
 
         # all edges are in fact inside the directed graph
-        return len(self.edge_list()) == self._directed_pebble_graph.number_of_edges()
+        return len(self.edge_list()) == self._pebble_digraph.number_of_edges()
 
     @doc_category("Sparseness")
     def is_sparse(self, K: int, L: int, algorithm: str = "default") -> bool:
@@ -1473,9 +1473,9 @@ class Graph(nx.Graph):
             if deficiency < 0:
                 return False
             else:
-                self._build_directed_graph_from_scratch(2, 3)
+                self._build_pebble_digraph(2, 3)
                 return (
-                    self._directed_pebble_graph.number_of_edges()
+                    self._pebble_digraph.number_of_edges()
                     == 2 * self.number_of_nodes() - 3
                 )
         elif not combinatorial:
@@ -1658,8 +1658,8 @@ class Graph(nx.Graph):
                 return False
 
             # Check if every vertex has degree 2
-            for node in self.nodes():
-                if self.degree(node) != 2:
+            for vertex in self.nodes():
+                if self.degree(vertex) != 2:
                     return False
             return True
 
@@ -1669,9 +1669,9 @@ class Graph(nx.Graph):
             if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
                 return False
             max_sparse_subgraph = self.spanning_sparse_subgraph(
-                K=2, L=3, use_precomputed_directed_graph=False
+                K=2, L=3, use_precomputed_pebble_digraph=False
             )  # first step, should build it.
-            # TODO maybe use_precomputed_directed_graph as a parameter here, too
+            # TODO maybe use_precomputed_pebble_digraph as a parameter here, too
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
                 return False
 
@@ -1684,7 +1684,7 @@ class Graph(nx.Graph):
                 v=remaining_edge[0][1],
                 K=2,
                 L=3,
-                use_precomputed_directed_graph=True,
+                use_precomputed_pebble_digraph=True,
             ) == set(self.vertex_list())
 
         raise NotImplementedError()
