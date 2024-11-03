@@ -158,12 +158,12 @@ class PebbleDiGraph(nx.MultiDiGraph):
             self.remove_edge(tail, head)
             self.add_edge(head, node_to)
 
-    def added_edge_between(self, u: Vertex, v: Vertex) -> {bool, set}:
+    def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:
         """
-        Check if edge can be added between the vertices u and v
+        Return the fundamental (matroid) cycle of the edge uv.
 
-        Return whether the given edge can be added
-        and the fundamental (matroid) cycle of the edge uv.
+        If the edge uv is independent, returns None
+
 
         Parameters
         ----------
@@ -254,30 +254,10 @@ class PebbleDiGraph(nx.MultiDiGraph):
             self.out_degree(u) + self.out_degree(v) <= max_degree_for_u_and_v_together
         )
         if can_add_edge:
-            # Then the fundamental circuit is {u,v}
-            visited_nodes = {u, v}
+            # The edge is independent
+            return None
 
-        return can_add_edge, visited_nodes
-
-    def fundamental_circuit(self, u: Vertex, v: Vertex) -> set:
-        """
-        Get the list of nodes that form the fundamental circuit of uv
-
-        These are the vertices that are
-        accessible from u and v at the last passing of the dfs.
-
-        Parameters
-        ----------
-        u, v: vertices, between the edge is formed,
-        which we look for the fundamental circuit.
-
-        If u or v is not present in the graph, Error is raised.
-        """
-        can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
-        if can_add_edge:
-            return {u, v}
-        else:
-            return fundamental_circuit
+        return visited_nodes
 
     def can_add_edge_between_nodes(self, u: Vertex, v: Vertex) -> bool:
         """
@@ -291,8 +271,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         If u or v is not present in the graph, Error is raised.
 
         """
-        can_add_edge, fundamental_circuit = self.added_edge_between(u, v)
-        return can_add_edge
+        return self.fundamental_circuit(u, v) is None
 
     def add_edge_to_maintain_digraph_if_possible(self, u: Vertex, v: Vertex) -> bool:
         """

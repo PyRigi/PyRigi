@@ -158,27 +158,42 @@ def test_can_not_add_edge_between_nodes():
         assert not Path_graph.can_add_edge_between_nodes(i, (i + 2) % 4)
 
 
-def test_added_edge_between():
+def test_add_independent_edge():
     Path_graph = DirectedPath(4, 2, 1)
-    can_add, visited = Path_graph.added_edge_between(0, 3)
-    assert can_add is True
-    assert visited == {0, 3}
+    fund_circle = Path_graph.fundamental_circuit(0, 3)
+    assert fund_circle is None
 
 
-def test_reachable_nodes():
+def test_nodes_in_fundamental_circuit():
     graph = PebbleDiGraph(2, 3)
     graph.add_edges_to_maintain_out_degrees(
         [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (3, 4)]
     )
 
     # not addable edge, get base circuit
-    reachable = graph.fundamental_circuit(1, 3)
-    assert reachable == {0, 1, 2, 3}
+    fund_circuit = graph.fundamental_circuit(1, 3)
+    assert fund_circuit == {0, 1, 2, 3}
 
-    # Edge can be added: get back the two vertices
-    reachable = graph.fundamental_circuit(2, 4)
-    assert reachable == {2, 4}
+    # Edge can be added: fundamental cycle is none
+    fund_circuit = graph.fundamental_circuit(2, 4)
+    assert fund_circuit is None
 
     # Edge already exist: get back the two vertices
-    reachable = graph.fundamental_circuit(2, 3)
-    assert reachable == {2, 3}
+    fund_circuit = graph.fundamental_circuit(2, 3)
+    assert fund_circuit == {2, 3}
+
+
+def test_nodes_in_fundamental_circuit_with_2_2_graph():
+    graph = PebbleDiGraph(2, 2)
+    # double the path
+    graph.add_edges_to_maintain_out_degrees(
+        [(0, 1), (0, 1), (1, 2), (1, 2), (2, 3), (2, 3)]
+    )
+
+    # not addable edge, get base circuit
+    fund_circuit = graph.fundamental_circuit(0, 3)
+    assert fund_circuit == {0, 1, 2, 3}
+
+    # not addable edge, get base circuit, but not all vertices
+    fund_circuit = graph.fundamental_circuit(2, 3)
+    assert fund_circuit == {2, 3}
