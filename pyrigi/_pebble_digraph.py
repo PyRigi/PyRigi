@@ -215,18 +215,10 @@ class PebbleDiGraph(nx.MultiDiGraph):
         max_degree_u_v_together = 2 * self.K - self.L - 1
 
         if not self.has_node(u):
-            raise ValueError(
-                "Cannot check if edge can be added, since Vertex "
-                + u
-                + " is not present in graph."
-            )
+            raise ValueError(f"Vertex {u} is not present in the graph.")
 
         if not self.has_node(v):
-            raise ValueError(
-                "Cannot check if edge can be added, since Vertex "
-                + v
-                + " is not present in graph."
-            )
+            raise ValueError(f"Vertex {u} is not present in the graph.")
 
         while self.out_degree(u) + self.out_degree(v) > max_degree_u_v_together:
             visited_vertices = {u, v}
