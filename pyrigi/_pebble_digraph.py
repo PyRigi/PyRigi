@@ -1,6 +1,6 @@
 import networkx as nx
 
-from pyrigi.data_type import Vertex, Edge
+from pyrigi.data_type import Vertex, DirectedEdge
 
 # from pyrigi.misc import doc_category, generate_category_tables
 # from pyrigi.exception import LoopError
@@ -142,15 +142,15 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         return super().out_degree(vertex)
 
-    def redirect_edge_to_head(self, edge: Edge, vertex_to: Vertex) -> None:
+    def redirect_edge_to_head(self, edge: DirectedEdge, vertex_to: Vertex) -> None:
         """
         Redirect given edge to the given head.
 
         Parameters
         ----------
-        edge: Edge to redirect.
-        vertex_to: Vertex to which the Edge will point to.
-                 Vertex must be part of the Edge.
+        edge: DirectedEdge to redirect.
+        vertex_to: Vertex to which the edge will point to.
+                 Vertex must be part of the edge.
         """
         if self.has_node(vertex_to) and vertex_to in edge:
             tail = edge[0]
@@ -172,8 +172,11 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
 
         def dfs(
-            vertex: Vertex, visited: set, edge_path: list[Edge], current_edge=None
-        ) -> {bool, set}:
+            vertex: Vertex,
+            visited: set[Vertex],
+            edge_path: list[DirectedEdge],
+            current_edge: DirectedEdge = None,
+        ) -> {bool, set[Vertex]}:
             """
             Run depth first search to find vertices
             that can be reached from u or v.
@@ -186,8 +189,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
             ----------
             vertex: Vertex, starting position of the dfs
             visited: set of Vertex. Contains the vertices already reached.
-            edge_path: list of Edge. Contains the used edges in the transversal.
-            current_edge: Edge. The edge through we reached this vertex.
+            edge_path: list of DirectedEdge. Contains the used edges in the transversal.
+            current_edge: DirectedEdge. The edge through we reached this vertex.
             """
             visited.add(vertex)
             if current_edge:
@@ -297,7 +300,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         else:  # if not possible to add, just don't add
             return False
 
-    def add_edges_maintaining_digraph(self, edges: list[Edge]) -> None:
+    def add_edges_maintaining_digraph(self, edges: list[DirectedEdge]) -> None:
         """
         Add a list of edges to the directed graph
         so that it will choose the correct orientations of them and
@@ -308,7 +311,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        edges: List of Edge to add
+        edges: List of DirectedEdge to add
         """
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
