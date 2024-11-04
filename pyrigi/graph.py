@@ -456,66 +456,6 @@ class Graph(nx.Graph):
             dir_graph.add_edge_maintaining_digraph(u, v)
         self._pebble_digraph = dir_graph
 
-    # @doc_category("Sparseness")
-    def edge_is_kl_independent(
-        self, u, v, K: int, L: int, use_precomputed_pebble_digraph: bool = False
-    ) -> bool:
-        r"""
-        Check whether the (not yet existing) edge between u and v
-        would be :prf:ref:`(K, L)-independent <def-kl-sparse-tight>` from the graph.
-
-        Parameters
-        ----------
-        u, v: points between the edge is checked
-        K:
-        L:
-        use_precomputed_pebble_digraph:
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation, or you risk attribute error.
-        """
-
-        if (
-            not use_precomputed_pebble_digraph
-            or K != self._pebble_digraph.K
-            or L != self._pebble_digraph.L
-        ):
-            self._build_pebble_digraph(K, L)
-
-        return self._pebble_digraph.can_add_edge_between_vertices(u, v)
-
-    # @doc_category("Sparseness")
-    def edge_kl_circuit(
-        self, u, v, K: int, L: int, use_precomputed_pebble_digraph: bool = False
-    ) -> set:
-        r"""
-        Return the fundamental circuit of the (not yet existing) edge between u and v.
-
-        If uv is :prf:ref:(K, L)-independent <def-kl-sparse-tight> from the graph,
-        it is uv.
-
-        Parameters
-        ----------
-        u, v: points between the edge is checked
-        K:
-        L:
-        use_precomputed_pebble_digraph:
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation.
-        """
-
-        if (
-            not use_precomputed_pebble_digraph
-            or K != self._pebble_digraph.K
-            or L != self._pebble_digraph.L
-        ):
-            self._build_pebble_digraph(K, L)
-
-        return self._pebble_digraph.fundamental_circuit(u, v, K, L)
-
     @doc_category("Sparseness")
     def spanning_sparse_subgraph(
         self, K: int, L: int, use_precomputed_pebble_digraph=False
@@ -1772,15 +1712,10 @@ class Graph(nx.Graph):
             if len(remaining_edge) != 1:
                 # this should not happen
                 raise RuntimeError
-            # Here we can use the precomputed pebble digraph from above,
-            # no need to recompute it.
-            return self.edge_kl_circuit(
-                u=remaining_edge[0][0],
-                v=remaining_edge[0][1],
-                K=2,
-                L=3,
-                use_precomputed_pebble_digraph=True,
-            ) == set(self.vertex_list())
+
+            return self._pebble_digraph.fundamental_circuit(
+                u=remaining_edge[0][0], v=remaining_edge[0][1], K=2, L=3
+            )
 
         raise NotImplementedError()
 
