@@ -17,7 +17,7 @@ kernelspec:
 +++
 
 This notebook illustrates the basic functionality of {class}`pyrigi.graph.Graph`.
-It can be downloaded [here](https://pyrigi.github.io/PyRigi/_static/tutorials/graph_basics.ipynb).
+It can be downloaded [here](https://pyrigi.github.io/PyRigi/notebooks/graph_basics.ipynb).
 
 ```{code-cell} ipython3
 # The import will work if:

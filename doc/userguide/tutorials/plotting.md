@@ -15,7 +15,7 @@ kernelspec:
 
 +++
 
-This notebook can be downloaded [here](https://pyrigi.github.io/PyRigi/_static/tutorials/plotting.ipynb).
+This notebook can be downloaded :download:`here <../../notebooks/plotting.ipynb>`.
 
 ```{code-cell} ipython3
 # The import will work if:

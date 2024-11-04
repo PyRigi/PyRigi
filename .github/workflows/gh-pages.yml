@@ -29,8 +29,8 @@ jobs:
       run: |
         cd doc/userguide/tutorials/
         jupytext --to notebook  *.md
-        mkdir ../../_static/tutorials
-        cp *.ipynb ../../_static/tutorials
+        mkdir  --verbose ../../notebooks
+        cp --verbose *.ipynb ../../notebooks
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
