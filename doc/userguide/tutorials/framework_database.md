@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.2
+    jupytext_version: 1.16.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -13,6 +13,10 @@ kernelspec:
 ---
 
 # Database of frameworks
+
++++
+
+This notebook can be downloaded [here](https://pyrigi.github.io/PyRigi/_static/tutorials/framework_database.ipynb).
 
 +++
 
