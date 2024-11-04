@@ -31,6 +31,8 @@ jobs:
         jupytext --to notebook  *.md
         mkdir  --verbose ../../notebooks
         cp --verbose *.ipynb ../../notebooks
+        cd ../../notebooks
+        ls
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
