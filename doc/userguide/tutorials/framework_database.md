@@ -16,7 +16,7 @@ kernelspec:
 
 +++
 
-This notebook can be downloaded [here](https://pyrigi.github.io/PyRigi/notebooks/framework_database.ipynb).
+This notebook can be downloaded {download}`here <../../notebooks/framework_database.ipynb>`.
 
 +++
 
