@@ -13,6 +13,10 @@ kernelspec:
 
 # Plotting
 
++++
+
+This notebook can be downloaded [here](https://pyrigi.github.io/PyRigi/_static/tutorials/plotting.ipynb).
+
 ```{code-cell} ipython3
 # The import will work if:
 #     - the tutorial is in the root folder of the package, or

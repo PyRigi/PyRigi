@@ -42,6 +42,7 @@ sphinxcontrib-bibtex = "^2.6.2"
 sphinxcontrib-napoleon = "^0.7"
 sphinx-autobuild = "^2024.4.16"
 setuptools = "^70.0.0"
+jupytext = "^1.16.4"
 
 [build-system]
 requires = ["poetry-core"]
