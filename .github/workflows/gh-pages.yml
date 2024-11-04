@@ -23,7 +23,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install poetry
-        poetry config virtualenvs.create false 
+        poetry config virtualenvs.create false
         poetry install --without dev
     - name: Convert notebooks from md to ipynb
       run: |
@@ -31,8 +31,6 @@ jobs:
         jupytext --to notebook  *.md
         mkdir  --verbose ../../notebooks
         cp --verbose *.ipynb ../../notebooks
-        cd ../../notebooks
-        ls
     - id: deployment
       uses: sphinx-notes/pages@v3
       with:
