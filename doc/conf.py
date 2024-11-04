@@ -180,6 +180,7 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "userguide/tutorials/*.ipynb",
+    "notebooks/*.ipynb",
 ]
 
 # The name of the Pygments (syntax highlighting) style to use.
@@ -229,7 +230,6 @@ html_title = "PyRigi"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 html_css_files = ["tippy.css"]
-html_extra_path = ["notebooks"]
 
 
 # Custom sidebar templates, must be a dictionary that maps document names
