@@ -181,6 +181,7 @@ exclude_patterns = [
     ".DS_Store",
     "userguide/tutorials/*.ipynb",
     "notebooks/*.ipynb",
+    "userguide/*.ipynb",
 ]
 
 # The name of the Pygments (syntax highlighting) style to use.
