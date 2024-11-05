@@ -47,10 +47,10 @@ The graph $G$ is called
 
 Note, that the word generically is often omitted when talking about graphs.
 
-{{pyrigi_crossref}} {meth}`~.Graph.is_minimally_redundantly_rigid`
-{meth}`~.Graph.is_minimally_vertex_redundantly_rigid`
-{meth}`~.Graph.is_minimally_k_redundantly_rigid`
-{meth}`~.Graph.is_minimally_k_vertex_redundantly_rigid`
+{{pyrigi_crossref}} {meth}`~.Graph.is_min_redundantly_rigid`
+{meth}`~.Graph.is_min_vertex_redundantly_rigid`
+{meth}`~.Graph.is_min_k_redundantly_rigid`
+{meth}`~.Graph.is_min_k_vertex_redundantly_rigid`
 :::
 
 
