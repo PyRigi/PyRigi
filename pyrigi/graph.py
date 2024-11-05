@@ -487,11 +487,11 @@ class Graph(nx.Graph):
         return self._pebble_digraph.to_undirected()
 
     @doc_category("Sparseness")
-    def _is_directed_graph_sparse(
+    def _is_pebble_digraph_sparse(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Check the pebble digraph has the same number of edges as the graph.
+        Check whether the pebble digraph has the same number of edges as the graph.
 
         Parameters
         ----------
@@ -549,7 +549,7 @@ class Graph(nx.Graph):
 
         if algorithm == "pebble":
             if self._pebble_values_are_correct(K, L):
-                return self._is_directed_graph_sparse(
+                return self._is_pebble_digraph_sparse(
                     K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
                 )
             else:
