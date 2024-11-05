@@ -914,7 +914,7 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Generic rigidity")
-    def is_minimally_vertex_redundantly_rigid(
+    def is_min_vertex_redundantly_rigid(
         self, dim: int = 2, combinatorial: bool = True
     ) -> bool:
         """
@@ -922,16 +922,16 @@ class Graph(nx.Graph):
         :prf:ref:`minimally vertex redundantly (generically) dim-rigid
         <def-min-redundantly-rigid-graph>`.
 
-        See :meth:`.is_minimally_k_vertex_redundantly_rigid` (using k = 1) for details.
+        See :meth:`.is_min_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_minimally_k_vertex_redundantly_rigid(1, dim, combinatorial)
+        return self.is_min_k_vertex_redundantly_rigid(1, dim, combinatorial)
 
     @doc_category("Generic rigidity")
-    def is_minimally_k_vertex_redundantly_rigid(
+    def is_min_k_vertex_redundantly_rigid(
         self, k: int, dim: int = 2, combinatorial: bool = True
     ) -> bool:
         """
@@ -947,14 +947,14 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
-        >>> G.is_minimally_k_vertex_redundantly_rigid(1, 2)
+        >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
         True
-        >>> G.is_minimally_k_vertex_redundantly_rigid(2, 2)
+        >>> G.is_min_k_vertex_redundantly_rigid(2, 2)
         False
         >>> G = Graph([[0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]])
         >>> G.is_k_vertex_redundantly_rigid(1, 2)
         True
-        >>> G.is_minimally_k_vertex_redundantly_rigid(1, 2)
+        >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
         False
 
         """  # noqa: E501
@@ -1136,23 +1136,23 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Generic rigidity")
-    def is_minimally_redundantly_rigid(
+    def is_min_redundantly_rigid(
         self, dim: int = 2, combinatorial: bool = True
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally redundantly (generically) dim-rigid
         <def-min-redundantly-rigid-graph>`.
 
-        See :meth:`.is_minimally_k_redundantly_rigid` (using k = 1) for details.
+        See :meth:`.is_min_k_redundantly_rigid` (using k = 1) for details.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_minimally_k_redundantly_rigid(1, dim, combinatorial)
+        return self.is_min_k_redundantly_rigid(1, dim, combinatorial)
 
     @doc_category("Generic rigidity")
-    def is_minimally_k_redundantly_rigid(
+    def is_min_k_redundantly_rigid(
         self, k: int, dim: int = 2, combinatorial: bool = True
     ) -> bool:
         """
@@ -1167,14 +1167,14 @@ class Graph(nx.Graph):
         Examples
         --------
          >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
-        >>> G.is_minimally_k_redundantly_rigid(1, 2)
+        >>> G.is_min_k_redundantly_rigid(1, 2)
         True
-        >>> G.is_minimally_k_redundantly_rigid(2, 2)
+        >>> G.is_min_k_redundantly_rigid(2, 2)
         False
         >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
         >>> G.is_k_redundantly_rigid(1, 2)
         True
-        >>> G.is_minimally_k_redundantly_rigid(1, 2)
+        >>> G.is_min_k_redundantly_rigid(1, 2)
         False
 
         """  # noqa: E501
