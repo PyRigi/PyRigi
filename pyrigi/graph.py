@@ -17,6 +17,7 @@ import distinctipy
 from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
+import pyrigi._pebble_digraph
 
 
 class Graph(nx.Graph):
@@ -417,36 +418,209 @@ class Graph(nx.Graph):
         """
         return max([self.degree(v) for v in self.nodes])
 
+    @staticmethod
     @doc_category("Sparseness")
-    def is_sparse(self, K: int, L: int) -> bool:
+    def _pebble_values_are_correct(K: int, L: int) -> bool:
+        r"""
+        Check if K and L satisfy pebble game conditions.
+
+        K and L need to be integers that satisfy the conditions
+        K > 0, L >= 0 and L < 2K
+        """
+        if not (isinstance(K, int) and isinstance(L, int)):
+            return False
+        if K <= 0 or L < 0 or L >= 2 * K:
+            return False
+        return True
+
+    @doc_category("Sparseness")
+    def _build_pebble_digraph(self, K: int, L: int) -> None:
+        r"""
+        Build and save the pebble digraph from scratch.
+
+        Adds edges one-by-one, as long as it can.
+        Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
+        from the rest of the graph.
+        """
+        if not self._pebble_values_are_correct(K, L):
+            raise TypeError(
+                "K and L need to be integers that satisfy the conditions of\
+                 K > 0, L >= 0 and L < 2K."
+            )
+
+        dir_graph = pyrigi._pebble_digraph.PebbleDiGraph(K, L)
+        dir_graph.add_nodes_from(self.nodes)
+        for edge in self.edges:
+            u, v = edge[0], edge[1]
+            dir_graph.add_edge_maintaining_digraph(u, v)
+        self._pebble_digraph = dir_graph
+
+    @doc_category("Sparseness")
+    def spanning_sparse_subgraph(
+        self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
+    ) -> Graph:
+        r"""
+        Return a maximal :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>` subgraph.
+
+        Based on the directed graph calculated by the pebble game algorithm, return
+        a maximal :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>` of the graph.
+        There are multiple possible maximal (K, L)-sparse subgraphs, all of which have
+        the same number of edges.
+
+        Parameters
+        ----------
+        K:
+        L:
+        use_precomputed_pebble_digraph:
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
+        """
+        if (
+            not use_precomputed_pebble_digraph
+            or K != self._pebble_digraph.K
+            or L != self._pebble_digraph.L
+        ):
+            self._build_pebble_digraph(K, L)
+
+        return self._pebble_digraph.to_undirected()
+
+    @doc_category("Sparseness")
+    def _is_pebble_digraph_sparse(
+        self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
+    ) -> bool:
+        """
+        Check whether the pebble digraph has the same number of edges as the graph.
+
+        Parameters
+        ----------
+        K:
+        L:
+        use_precomputed_pebble_digraph:
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
+        """
+        if (
+            not use_precomputed_pebble_digraph
+            or K != self._pebble_digraph.K
+            or L != self._pebble_digraph.L
+        ):
+            self._build_pebble_digraph(K, L)
+
+        # all edges are in fact inside the pebble digraph
+        return self.number_of_edges() == self._pebble_digraph.number_of_edges()
+
+    @doc_category("Sparseness")
+    def is_sparse(
+        self,
+        K: int,
+        L: int,
+        algorithm: str = "default",
+        use_precomputed_pebble_digraph: bool = False,
+    ) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>`.
 
+        Parameters
+        ----------
+        K:
+        L:
+        algorithm:
+            "pebble" or "subgraph".
+            If "pebble", the function uses the pebble game algorithm to check
+            for sparseness. If "subgraph", it uses the subgraph method.
+            If not specified, it defaults to "pebble" whenever possible,
+            otherwise "subgraph".
+        use_precomputed_pebble_digraph:
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
+
         TODO
         ----
-        pebble game algorithm, examples, tests for other cases than (2,3)
+        examples, tests for other cases than (2,3)
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
 
-        for j in range(K, self.number_of_nodes() + 1):
-            for vertex_set in combinations(self.nodes, j):
-                G = self.subgraph(vertex_set)
-                if G.number_of_edges() > K * G.number_of_nodes() - L:
-                    return False
-        return True
+        if algorithm == "pebble":
+            if self._pebble_values_are_correct(K, L):
+                return self._is_pebble_digraph_sparse(
+                    K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+                )
+            else:
+                raise ValueError(
+                    "K and L with pebble algorithm need to satisfy the\
+                     conditions of K > 0, 0 <= L < 2K."
+                )
+        if algorithm == "subgraph":
+            for j in range(K, self.number_of_nodes() + 1):
+                for vertex_set in combinations(self.nodes, j):
+                    G = self.subgraph(vertex_set)
+                    if G.number_of_edges() > K * G.number_of_nodes() - L:
+                        return False
+            return True
+        if algorithm == "default":
+            if self._pebble_values_are_correct(K, L):
+                # use "pebble" if possible
+                algorithm = "pebble"
+            else:
+                # otherwise use "subgraph"
+                algorithm = "subgraph"
+            return self.is_sparse(
+                K,
+                L,
+                algorithm,
+                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+            )
+
+        # reaching this position means that the algorithm is unknown
+        raise ValueError(
+            f"If specified, the value of the algorithm parameter must be one of "
+            f'"pebble", "subgraph", or "default". Instead, it is {algorithm}.'
+        )
 
     @doc_category("Sparseness")
-    def is_tight(self, K: int, L: int) -> bool:
+    def is_tight(
+        self,
+        K: int,
+        L: int,
+        algorithm: str = "default",
+        use_precomputed_pebble_digraph: bool = False,
+    ) -> bool:
         r"""
         Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
+
+        Parameters
+        ----------
+        K:
+        L:
+        algorithm:
+            "pebble" or "subgraph".
+            If "pebble", the function uses the pebble game algorithm to check
+            for sparseness. If "subgraph", it uses the subgraph method.
+            If not specified, it defaults to "pebble".
+        use_precomputed_pebble_digraph:
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         TODO
         ----
         examples, tests for other cases than (2,3)
         """
         return (
-            self.is_sparse(K, L)
+            self.is_sparse(
+                K,
+                L,
+                algorithm,
+                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+            )
             and self.number_of_edges() == K * self.number_of_nodes() - L
         )
 
@@ -1282,13 +1456,11 @@ class Graph(nx.Graph):
             if deficiency < 0:
                 return False
             else:
-                for edge_subset in combinations(self.edges, deficiency):
-                    H = self.edge_subgraph(
-                        [edge for edge in self.edges if edge not in edge_subset]
-                    )
-                    if H.is_tight(2, 3):
-                        return True
-                return False
+                self._build_pebble_digraph(2, 3)
+                return (
+                    self._pebble_digraph.number_of_edges()
+                    == 2 * self.number_of_nodes() - 3
+                )
         elif not combinatorial:
             from pyrigi.framework import Framework
 
@@ -1301,12 +1473,24 @@ class Graph(nx.Graph):
             )
 
     @doc_category("Generic rigidity")
-    def is_min_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_min_rigid(
+        self,
+        dim: int = 2,
+        combinatorial: bool = True,
+        use_precomputed_pebble_digraph: bool = False,
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
         <def-min-rigid-graph>`.
 
-        By default, the graph is in dimension 2 and a combinatorial algorithm is applied.
+        Parameters
+        ----------
+        use_precomputed_pebble_digraph:
+            Only relevant if ``dim=2`` and ``combinatorial=True``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         Examples
         --------
@@ -1338,7 +1522,12 @@ class Graph(nx.Graph):
         elif dim == 1 and combinatorial:
             return nx.is_tree(self)
         elif dim == 2 and combinatorial:
-            return self.is_tight(2, 3)
+            return self.is_tight(
+                2,
+                3,
+                algorithm="pebble",
+                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+            )
         elif not combinatorial:
             from pyrigi.framework import Framework
 
@@ -1401,27 +1590,53 @@ class Graph(nx.Graph):
             # of vertices.
             raise NotImplementedError()
 
-    @doc_category("Waiting for implementation")
-    def is_Rd_dependent(self, dim: int = 2) -> bool:
+    @doc_category("Partially implemented")
+    def is_Rd_dependent(
+        self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
+    ) -> bool:
         """
         Notes
         -----
          * dim=1: Graphic Matroid
          * dim=2: not (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
-        """
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
-        raise NotImplementedError()
 
-    @doc_category("Waiting for implementation")
-    def is_Rd_independent(self, dim: int = 2) -> bool:
+        use_precomputed_pebble_digraph:
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
+
+        TODO
+        -----
+         Add unit tests
+        """
+        return not self.is_Rd_independent(
+            dim, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+        )
+
+    @doc_category("Partially implemented")
+    def is_Rd_independent(
+        self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
+    ) -> bool:
         """
         Notes
         -----
          * dim=1: Graphic Matroid
          * dim=2: (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+
+        use_precomputed_pebble_digraph:
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
+
+        TODO
+        -----
+         Add unit tests
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1429,17 +1644,39 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+        if dim == 1:
+            return len(self.cycle_basis()) == 0
+
+        if dim == 2:
+            self.is_sparse(
+                2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+            )
+
         raise NotImplementedError()
 
-    @doc_category("Waiting for implementation")
-    def is_Rd_circuit(self, dim: int = 2) -> bool:
+    @doc_category("Partially implemented")
+    def is_Rd_circuit(
+        self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
+    ) -> bool:
         """
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim=2: Remove any edge and it becomes sparse
-           (sparsity for every subgraph except whole graph?)
+         * dim=2: It is not sparse, but remove any edge and it becomes sparse
+                  Fundamental circuit is the whole graph
+         * Not combinatorially:
          * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
+
+         use_precomputed_pebble_digraph:
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
+
+        TODO
+        -----
+         Add unit tests
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1447,6 +1684,36 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+        if dim == 1:
+            if not self.is_connected():
+                return False
+
+            # Check if every vertex has degree 2
+            for vertex in self.nodes():
+                if self.degree(vertex) != 2:
+                    return False
+            return True
+
+        if dim == 2:
+            # get max sparse sugraph and check the fundamental circuit of
+            # the one last edge
+            if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
+                return False
+            max_sparse_subgraph = self.spanning_sparse_subgraph(
+                K=2, L=3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+            )
+            if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
+                return False
+
+            remaining_edge = list(set(self.edges()) - set(max_sparse_subgraph.edges()))
+            if len(remaining_edge) != 1:
+                # this should not happen
+                raise RuntimeError
+
+            return self._pebble_digraph.fundamental_circuit(
+                u=remaining_edge[0][0], v=remaining_edge[0][1], K=2, L=3
+            )
+
         raise NotImplementedError()
 
     @doc_category("Waiting for implementation")
