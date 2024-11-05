@@ -60,3 +60,30 @@ def CubeWithDiagonal():
         + [(0, 4), (1, 5), (2, 6), (3, 7)]
         + [(0, 6)]
     )
+
+
+def CompleteMinusOne(n: int) -> Graph:
+    """Return the complete graph on n vertices minus one edge."""
+    G = Complete(n)
+    G.delete_edge((0, 1))
+    return G
+
+
+def Octahedral():
+    """Return the graph given by the skeleton of an octahedron."""
+    return Graph(
+        [
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 5),
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (1, 5),
+            (2, 4),
+            (2, 5),
+            (3, 4),
+            (3, 5),
+        ]
+    )
