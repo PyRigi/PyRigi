@@ -422,10 +422,9 @@ class Graph(nx.Graph):
     @doc_category("Sparseness")
     def _pebble_values_are_correct(K: int, L: int) -> bool:
         r"""
-        Checks if K and L satisfy the conditions so that they can be used with
-        pebble game algorithm.
+        Check if K and L satisfy pebble game conditions.
 
-        K and L need to be integers that satisfy the conditions of
+        K and L need to be integers that satisfy the conditions
         K > 0, L >= 0 and L < 2K
         """
         if not (isinstance(K, int) and isinstance(L, int)):
@@ -437,7 +436,7 @@ class Graph(nx.Graph):
     @doc_category("Sparseness")
     def _build_pebble_digraph(self, K: int, L: int) -> None:
         r"""
-        Build and save the directed representation of the graph from scratch.
+        Build and save the pebble digraph from scratch.
 
         Adds edges one-by-one, as long as it can.
         Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
@@ -458,12 +457,12 @@ class Graph(nx.Graph):
 
     @doc_category("Sparseness")
     def spanning_sparse_subgraph(
-        self, K: int, L: int, use_precomputed_pebble_digraph=False
-    ) -> pyrigi.Graph:
+        self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
+    ) -> Graph:
         r"""
         Return a maximal :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>` subgraph.
 
-        Based on the directed graph calculated by the pebble game algorithm, returns
+        Based on the directed graph calculated by the pebble game algorithm, return
         a maximal :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>` of the graph.
         There are multiple possible maximal (K, L)-sparse subgraphs, all of which have
         the same number of edges.
@@ -473,10 +472,10 @@ class Graph(nx.Graph):
         K:
         L:
         use_precomputed_pebble_digraph:
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation, or you risk attribute error.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
         """
         if (
             not use_precomputed_pebble_digraph
@@ -492,18 +491,17 @@ class Graph(nx.Graph):
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Check if the given directed graph contains exactly the same number of edges
-        as the graph itself. Then it is sparse.
+        Check the pebble digraph has the same number of edges as the graph.
 
         Parameters
         ----------
         K:
         L:
         use_precomputed_pebble_digraph:
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
         """
         if (
             not use_precomputed_pebble_digraph
@@ -537,10 +535,10 @@ class Graph(nx.Graph):
             If not specified, it defaults to "pebble" whenever possible,
             otherwise "subgraph".
         use_precomputed_pebble_digraph:
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation, or you risk attribute error.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         TODO
         ----
@@ -607,10 +605,10 @@ class Graph(nx.Graph):
             for sparseness. If "subgraph", it uses the subgraph method.
             If not specified, it defaults to "pebble".
         use_precomputed_pebble_digraph:
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation, or you risk attribute error.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         TODO
         ----
@@ -1485,15 +1483,14 @@ class Graph(nx.Graph):
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
         <def-min-rigid-graph>`.
 
-        By default, the graph is in dimension 2 and a combinatorial algorithm is applied
-        with reconstructing the pebble-digraph.
-
+        Parameters
+        ----------
         use_precomputed_pebble_digraph:
-            Only relevant if dim=2 and combinatorial=True.
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation, or you risk attribute error.
+            Only relevant if ``dim=2`` and ``combinatorial=True``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         Examples
         --------
@@ -1605,11 +1602,11 @@ class Graph(nx.Graph):
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
 
         use_precomputed_pebble_digraph:
-            Only relevant if dim=2.
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation, or you risk attribute error.
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         TODO
         -----
@@ -1631,11 +1628,11 @@ class Graph(nx.Graph):
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
 
         use_precomputed_pebble_digraph:
-            Only relevant if dim=2.
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation, or you risk attribute error.
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         TODO
         -----
@@ -1671,11 +1668,11 @@ class Graph(nx.Graph):
          * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
 
          use_precomputed_pebble_digraph:
-            Only relevant if dim=2.
-            If True, we use the directed graph that is present in the cache.
-            If False, recompute the graph.
-            Use True only if you are certain that the pebble game directed graph
-            was not touched since its creation, or you risk attribute error.
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         TODO
         -----

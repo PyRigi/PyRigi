@@ -1,27 +1,24 @@
-import networkx as nx
+"""
+Auxiliary class for directed graph used in pebble game style algorithms.
+"""
 
 from pyrigi.data_type import Vertex, DirectedEdge
 
-# from pyrigi.misc import doc_category, generate_category_tables
-# from pyrigi.exception import LoopError
-
-"""
-Auxilary class for directed graph used in pebble game style algorithms.
-"""
+import networkx as nx
 
 
 class PebbleDiGraph(nx.MultiDiGraph):
     """
-    Class representing a directed graph
-    that keeps all necessary data for pebble game algorithm.
+    Class representing a directed graph for pebble game algorithm.
 
+    Notes
+    -----
     All nx methods in use need a wrapper - to make future developments easier.
     """
 
     def __init__(self, K: int = None, L: int = None, *args, **kwargs) -> None:
         """
-        Initialisation, in which we can set up the graph and the values of K and L,
-        used for the pebble game algorithm.
+        Set up the graph and the values of K and L for the pebble game algorithm.
         """
         # We allow not defining them yet
         if K is not None and L is not None:
@@ -34,8 +31,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def _check_K_and_L(self, K: int, L: int) -> None:
         """
-        Check if K and L satisfy the conditions of
-        K > 0, 0 <= L < 2K
+        Check if K and L satisfy the conditions K > 0 and 0 <= L < 2K.
         """
         # Check that K and L are integers
         if not (isinstance(K, int) and isinstance(L, int)):
@@ -63,7 +59,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
     @K.setter
     def K(self, value: int) -> None:
         """
-        Set K outside of the constructor.
+        Set the value K.
 
         This will invalidate the current directions of the edges.
 
@@ -86,7 +82,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
     @L.setter
     def L(self, value: int) -> None:
         """
-        Set L outside of the constructor.
+        Set the value L.
 
         This will invalidate the current directions of the edges.
 
@@ -99,7 +95,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def set_K_and_L(self, K: int, L: int) -> None:
         """
-        Set K and L together outside of the constructor.
+        Set K and L.
 
         This will invalidate the current directions of the edges.
 
@@ -116,13 +112,13 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def number_of_edges(self) -> int:
         """
-        Number of directed edges
+        Return the number of directed edges.
         """
         return len(super().edges)
 
     def in_degree(self, vertex: Vertex) -> int:
         """
-        Number of edges leading to vertex.
+        Return the number of edges leading to vertex.
 
         Parameters
         ----------
@@ -133,7 +129,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def out_degree(self, vertex: Vertex) -> int:
         """
-        Number of edges leading out from a vertex.
+        Return the number of edges leading out from a vertex.
 
         Parameters
         ----------
@@ -162,7 +158,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Return the fundamental (matroid) cycle of the edge uv.
 
-        If the edge uv is independent, returns None
+        If the edge uv is independent, return None.
 
 
         Parameters
@@ -256,15 +252,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def can_add_edge_between_vertices(self, u: Vertex, v: Vertex) -> bool:
         """
-        Check whether one can add the edge between the vertices u and v,
-        so that it still respects the vertex degrees?
-
-        Parameters
-        ----------
-        u, v: vertices, between an edge is proposed.
-
-        If u or v is not present in the graph, Error is raised.
-
+        Check whether the edge (u, v) can be added to the pebble digraph.
         """
         return self.fundamental_circuit(u, v) is None
 
@@ -272,12 +260,10 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Add the given edge to the directed graph, if possible.
 
+        Add an edge to the pebble digraph if it is possible
+        and choose the correct orientation.
         This will also check the possibility of adding the edge and return
-        True or False depending on it.
-
-        Parameters
-        ----------
-        u, v: vertices, between an edge is proposed
+        ``True`` or ``False`` depending on it.
         """
         # if the vertex u is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
@@ -302,16 +288,10 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def add_edges_maintaining_digraph(self, edges: list[DirectedEdge]) -> None:
         """
-        Add a list of edges to the directed graph
-        so that it will choose the correct orientations of them and
-        constructs the corresponding pebble graph.
+        Run ``add_edge_maintaining_digraph`` for each edge in the list.
 
         ! Note that this might not add all the edges, only the edges that
         ! take part of the maximal sparse subgraph
-
-        Parameters
-        ----------
-        edges: List of DirectedEdge to add
         """
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
