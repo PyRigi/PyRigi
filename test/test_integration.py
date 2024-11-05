@@ -67,3 +67,22 @@ def test_big_random_sparse_graphs():
 
     graph = read_graph_from_file("test/input_graphs/sparse_4_6.txt")
     assert graph.is_sparse(K=4, L=6, algorithm="pebble")
+
+
+@pytest.mark.large
+def test_big_random_not_sparse_graphs():
+    # Dense graph on 20 vertices
+    graph = read_graph_from_file("test/input_graphs/not_sparse_5_2.txt")
+    assert not graph.is_sparse(K=5, L=2, algorithm="pebble")
+
+    # (7,7)-tight graph plus one edge on 40 vertices (274 edges)
+    graph = read_graph_from_file("test/input_graphs/not_sparse_7_7.txt")
+    assert not graph.is_sparse(K=7, L=7, algorithm="pebble")
+
+    # few edges in graph on 30 vertices, but has a (3,5)-connected circle
+    graph = read_graph_from_file("test/input_graphs/not_sparse_3_5.txt")
+    assert not graph.is_sparse(K=3, L=5, algorithm="pebble")
+
+    # random large graph on 70 vertices, not sparse
+    graph = read_graph_from_file("test/input_graphs/not_sparse_6_6.txt")
+    assert not graph.is_sparse(K=6, L=6, algorithm="pebble")
