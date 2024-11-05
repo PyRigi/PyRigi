@@ -17,6 +17,10 @@ kernelspec:
 
 +++
 
+This notebook can be downloaded {download}`here <../../notebooks/framework_database.ipynb>`.
+
++++
+
 There are several predefined frameworks in {mod}`pyrigi.frameworkDB`.
 
 ```{code-cell} ipython3

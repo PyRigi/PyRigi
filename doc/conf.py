@@ -180,6 +180,7 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "userguide/tutorials/*.ipynb",
+    "notebooks/*.ipynb",
     "userguide/*.ipynb",
 ]
 
