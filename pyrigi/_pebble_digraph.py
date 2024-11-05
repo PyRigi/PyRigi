@@ -258,7 +258,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def add_edge_maintaining_digraph(self, u: Vertex, v: Vertex) -> bool:
         """
-        Add the given edge to the directed graph, if possible.
+        Add the given edge to the pebble digraph, if possible.
 
         Add an edge to the pebble digraph if it is possible
         and choose the correct orientation.

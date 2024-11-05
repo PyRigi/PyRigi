@@ -510,7 +510,7 @@ class Graph(nx.Graph):
         ):
             self._build_pebble_digraph(K, L)
 
-        # all edges are in fact inside the directed graph
+        # all edges are in fact inside the pebble digraph
         return self.number_of_edges() == self._pebble_digraph.number_of_edges()
 
     @doc_category("Sparseness")
