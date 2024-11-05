@@ -156,15 +156,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:
         """
-        Return the fundamental (matroid) cycle of the edge uv.
-
+        Return the fundamental (k, l)-matroid cycle of the edge uv.
         If the edge uv is independent, return None.
-
-
-        Parameters
-        ----------
-        u, v: vertices to add edge between.
-        If u or v is not present in the graph, Error is raised.
         """
 
         def dfs(
