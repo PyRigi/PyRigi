@@ -122,7 +122,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        vertex: Vertex, that we wish to know the indegree.
+        vertex: Vertex, whose indegree we want to know.
         TODO check if vertex exists
         """
         return super().in_degree(vertex)
@@ -133,7 +133,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        vertex: Vertex, that we wish to know the outdegree.
+        vertex: Vertex, whose outdegree we want to know.
         TODO check if vertex exists
         """
         return super().out_degree(vertex)
