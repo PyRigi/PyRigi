@@ -449,8 +449,8 @@ class Graph(nx.Graph):
             )
 
         dir_graph = pyrigi._pebble_digraph.PebbleDiGraph(K, L)
-        dir_graph.add_nodes_from(self.nodes())
-        for edge in self.edge_list():
+        dir_graph.add_nodes_from(self.nodes)
+        for edge in self.edges:
             u, v = edge[0], edge[1]
             dir_graph.add_edge_maintaining_digraph(u, v)
         self._pebble_digraph = dir_graph
@@ -511,7 +511,7 @@ class Graph(nx.Graph):
             self._build_pebble_digraph(K, L)
 
         # all edges are in fact inside the directed graph
-        return len(self.edge_list()) == self._pebble_digraph.number_of_edges()
+        return self.number_of_edges() == self._pebble_digraph.number_of_edges()
 
     @doc_category("Sparseness")
     def is_sparse(
