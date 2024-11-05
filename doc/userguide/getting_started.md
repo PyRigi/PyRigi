@@ -6,9 +6,9 @@ jupytext:
     format_version: 0.13
     jupytext_version: 1.16.4
 kernelspec:
-  display_name: pyrigi
+  display_name: Python 3 (ipykernel)
   language: python
-  name: pyrigi
+  name: python3
 ---
 
 # Getting started
