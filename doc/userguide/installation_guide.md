@@ -20,9 +20,9 @@ Depending on your operating system, the installation of the `PyRigi` package dif
 
 ## Linux and Mac
 
-1. Make sure that your Python version exceeds 3.10. 
+1. Make sure that your Python version is at least 3.10. 
 2. The command `pip install pyrigi` installs PyRigi on your machine.
-3. If not already installed, you can install Jupyter notebooks via the command `pip install jupyterlabs`. It can be run by typing `jupyter lab`. Doing so provides a convenient user interface to use the functionality of PyRigi. 
+3. If not already installed, you can install Jupyter notebooks via the command `pip install jupyterlab`. It can be run by typing `jupyter lab`. Doing so provides a convenient user interface to use the functionality of PyRigi. 
 
 
 ## Windows
