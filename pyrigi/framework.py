@@ -1318,6 +1318,23 @@ class Framework(object):
         new_framework.rotate2D(angle, True)
         return new_framework
 
+    @doc_category("Other")
+    def generate_onshape_script(self):
+        """
+        Generate OnShape CAD Feature Script for models
+        """
+        from numpy import array as nparray
+        from numpy.linalg import norm as npnorm
+
+        points = self.realization(as_points=True)
+        pairs = self.graph().edge_list()
+        pair_lengths = [npnorm(nparray(points[pair[0]],
+                                       dtype='float64') - nparray(points[pair[1]],
+                                                                  dtype='float64'))
+                        for pair in pairs]
+
+        return pair_lengths
+
 
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
