@@ -5,7 +5,8 @@ Module for miscellaneous functions.
 import math
 from pyrigi.data_type import Point, point_to_vector
 from sympy import Matrix, simplify, Abs
-
+from numpy.random import randn
+from numpy.linalg import qr
 
 def doc_category(category):
     def decorator_doc_category(func):
@@ -46,6 +47,24 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
         res += "\n\n"
     indent = "".join(["    " for _ in range(tabs)])
     return ("\n" + indent).join(res.splitlines())
+
+
+def generate_ortonormal_basis(dim: int) -> Matrix:
+    """
+    Generate random orthonormal basis in the given dimension using qr decomposition.
+    The vectors are in the columns of the returned matrix.
+
+    Parameters
+    ----------
+    dim:
+        Dimension of the space.
+    """
+
+
+    matrix = randn(dim, dim)
+    q, r = qr(matrix)
+    return q
+
 
 
 def check_integrality_and_range(

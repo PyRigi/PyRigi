@@ -22,6 +22,7 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
+from numpy import dot, array, append
 
 from pyrigi.data_type import Vertex, Edge, Point, point_to_vector
 from pyrigi.graph import Graph
@@ -32,6 +33,7 @@ from pyrigi.misc import (
     generate_category_tables,
     check_integrality_and_range,
     is_zero_vector,
+    generate_ortonormal_basis,
 )
 
 
@@ -264,6 +266,48 @@ class Framework(object):
         """
         return deepcopy(self._graph)
 
+    def plot_with_diff_realization(self,
+        realization: dict[Vertex, Point],
+        vertex_color="#ff8c00",
+        edge_width=1.5,
+        **kwargs,) -> None:
+        """
+        Plot this Framework with the given realization.
+
+        Parameters
+        -----------
+        realization:
+            The realization used for plotting.
+        """
+
+        self._graph.plot(
+            placement=realization,
+            vertex_color=vertex_color,
+            edge_width=edge_width,
+            **kwargs,
+        )
+
+    def plot_using_projection_matrix(self,
+        projection_matrix: Matrix,
+        vertex_color="#ff8c00",
+        edge_width=1.5,
+        **kwargs,) -> None:
+        """
+        Plot this Framework with vertices placement's projected using the given projection Matrix.
+        For description of other parameters see Framework.plot()
+
+        Parameters
+        -----------
+        projection_matrix:
+            The Matrix used for projection.
+        """
+        
+        placement = {}
+        for vertex, position in self.realization(as_points=False, numerical=True).items():
+            placement[vertex] = dot(projection_matrix, position)
+
+        return self.plot_with_diff_realization(placement, vertex_color, edge_width, **kwargs)
+
     @doc_category("Other")
     def plot(
         self,
@@ -285,17 +329,39 @@ class Framework(object):
         implement plotting also for other dimensions than 2
         """
 
-        if self._dim != 2:
-            raise NotImplementedError(
-                "Plotting is currently supported only for 2-dimensional frameworks."
-            )
+        # if self._dim != 2:
+        #     raise NotImplementedError(
+        #         "Plotting is currently supported only for 2-dimensional frameworks."
+        #     )
 
-        self._graph.plot(
-            placement=self.realization(as_points=True, numerical=True),
-            vertex_color=vertex_color,
-            edge_width=edge_width,
-            **kwargs,
-        )
+        if self._dim == 1:
+            placement = {}
+            for vertex, position in self.realization(as_points=True, numerical=True).items():
+                placement[vertex] = append(array(position), 0)
+
+            self.plot_with_diff_realization(placement, vertex_color, edge_width, **kwargs)
+            return placement
+        
+        if self._dim == 2:
+            self._graph.plot(
+                placement=self.realization(as_points=True, numerical=True),
+                vertex_color=vertex_color,
+                edge_width=edge_width,
+                **kwargs,
+            )
+            return
+
+        # dim > 2 -> generate random projection to 2D
+        matrix = generate_ortonormal_basis(self._dim)
+        matrix = matrix[:, :2]
+        matrix = matrix.T
+
+        self.plot_using_projection_matrix(matrix, vertex_color, edge_width, **kwargs)
+        return matrix
+
+        
+
+        
 
     @classmethod
     @doc_category("Class methods")
