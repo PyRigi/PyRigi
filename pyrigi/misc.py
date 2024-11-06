@@ -8,6 +8,7 @@ from sympy import Matrix, simplify, Abs
 from numpy.random import randn
 from numpy.linalg import qr
 
+
 def doc_category(category):
     def decorator_doc_category(func):
         setattr(func, "_doc_category", category)
@@ -60,11 +61,9 @@ def generate_ortonormal_basis(dim: int) -> Matrix:
         Dimension of the space.
     """
 
-
     matrix = randn(dim, dim)
     q, r = qr(matrix)
     return q
-
 
 
 def check_integrality_and_range(

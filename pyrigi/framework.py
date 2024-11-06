@@ -266,11 +266,13 @@ class Framework(object):
         """
         return deepcopy(self._graph)
 
-    def plot_with_diff_realization(self,
+    def plot_with_diff_realization(
+        self,
         realization: dict[Vertex, Point],
         vertex_color="#ff8c00",
         edge_width=1.5,
-        **kwargs,) -> None:
+        **kwargs,
+    ) -> None:
         """
         Plot this Framework with the given realization.
 
@@ -287,11 +289,13 @@ class Framework(object):
             **kwargs,
         )
 
-    def plot_using_projection_matrix(self,
+    def plot_using_projection_matrix(
+        self,
         projection_matrix: Matrix,
         vertex_color="#ff8c00",
         edge_width=1.5,
-        **kwargs,) -> None:
+        **kwargs,
+    ) -> None:
         """
         Plot this Framework with vertices placement's projected using the given projection Matrix.
         For description of other parameters see Framework.plot()
@@ -301,12 +305,16 @@ class Framework(object):
         projection_matrix:
             The Matrix used for projection.
         """
-        
+
         placement = {}
-        for vertex, position in self.realization(as_points=False, numerical=True).items():
+        for vertex, position in self.realization(
+            as_points=False, numerical=True
+        ).items():
             placement[vertex] = dot(projection_matrix, position)
 
-        return self.plot_with_diff_realization(placement, vertex_color, edge_width, **kwargs)
+        return self.plot_with_diff_realization(
+            placement, vertex_color, edge_width, **kwargs
+        )
 
     @doc_category("Other")
     def plot(
@@ -336,12 +344,16 @@ class Framework(object):
 
         if self._dim == 1:
             placement = {}
-            for vertex, position in self.realization(as_points=True, numerical=True).items():
+            for vertex, position in self.realization(
+                as_points=True, numerical=True
+            ).items():
                 placement[vertex] = append(array(position), 0)
 
-            self.plot_with_diff_realization(placement, vertex_color, edge_width, **kwargs)
+            self.plot_with_diff_realization(
+                placement, vertex_color, edge_width, **kwargs
+            )
             return placement
-        
+
         if self._dim == 2:
             self._graph.plot(
                 placement=self.realization(as_points=True, numerical=True),
@@ -358,10 +370,6 @@ class Framework(object):
 
         self.plot_using_projection_matrix(matrix, vertex_color, edge_width, **kwargs)
         return matrix
-
-        
-
-        
 
     @classmethod
     @doc_category("Class methods")
