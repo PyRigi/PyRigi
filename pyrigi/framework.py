@@ -1319,9 +1319,9 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def generate_onshape_script(self):
+    def get_edges_lengths(self) -> list:
         """
-        Generate OnShape CAD Feature Script for models
+        Return the lengths (numerically) of all edges in the framework.
         """
         from numpy import array as nparray
         from numpy.linalg import norm as npnorm
@@ -1334,6 +1334,17 @@ class Framework(object):
                         for pair in pairs]
 
         return pair_lengths
+
+    @doc_category("Other")
+    def generate_onshape_script(self):
+        """
+        Generate OnShape CAD Feature Script for models
+        """
+        points = self.realization(as_points=True)
+        pairs = self.graph().edge_list()
+        lengths = self.get_edges_lengths()
+
+        script = "FeatureScript 200\n"
 
 
 Framework.__doc__ = Framework.__doc__.replace(
