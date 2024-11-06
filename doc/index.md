@@ -12,6 +12,7 @@
 :maxdepth: 2
 :caption: User guide
 userguide/getting_started
+userguide/installation_guide
 userguide/tutorial
 userguide/api
 :::
