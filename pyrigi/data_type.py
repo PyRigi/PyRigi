@@ -34,6 +34,11 @@ Point = Sequence[Coordinate]
 A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
 """
 
+Stress = Sequence[int | float]
+"""
+A Stress is a Sequence of int or float numbers.
+"""
+
 
 def point_to_vector(point: Point) -> Matrix:
     """
