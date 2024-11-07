@@ -2048,11 +2048,48 @@ class Graph(nx.Graph):
         vertex_style: Union(str, dict[str : list[Vertex]]) = "gvertex",
         edge_style: Union(str, dict[str : list[Edge]]) = "edge",
         label_style: str = "labelsty",
-        figure_style: str = "",
+        figure_opts: str = "",
         vertex_in_labels: bool = False,
         vertex_out_labels: bool = False,
-        default_styles: bool = True
+        default_styles: bool = True,
     ) -> str:
+        """
+        Create a tikz code for the graph.
+
+
+        Parameters
+        ----------
+        placement:
+            If ``placement`` is not specified,
+            then it is generated depending on parameter ``layout``.
+        layout:
+            The possibilities are ``spring`` (default), ``circular``,
+            ``random`` or ``planar``, see also :meth:`~Graph.layout`.
+        vertex_style:
+            If a single style is given as a string,
+            then all vertices get this style.
+            If a dictionary from styles to a list of vertices is given,
+            vertices are put in style accordingly.
+            The vertices missing in the dictionary, do not get a style.
+        edge_style:
+            If a single style is given as a string,
+            then all edges get this style.
+            If a dictionary from styles to a list of edges is given,
+            edges are put in style accordingly.
+            The edges missing in the dictionary, do not get a style.
+        label_style:
+            The style for labels that are placed next to vertices.
+        figure_opts:
+            Options for the tikztpicture environment.
+        vertex_in_labels
+            A bool on whether vertex names should be put as labesl on the vertices.
+        vertex_out_labels
+            A bool on whether vertex names should be put next to vertices.
+        default_styles
+            A bool on whether default style definitions should be put to the options.
+
+        """
+
         # strings for tikz styles
         if vertex_out_labels and default_styles:
             lstyle_str = "labelsty/.style={font=\scriptsize,black!70!white}"
@@ -2071,7 +2108,7 @@ class Graph(nx.Graph):
         else:
             estyle_str = ""
 
-        figure_str = [figure_style, vstyle_str, estyle_str, lstyle_str]
+        figure_str = [figure_opts, vstyle_str, estyle_str, lstyle_str]
         figure_str = [fs for fs in figure_str if fs != ""]
         figure_str = ",".join(figure_str)
 
@@ -2081,16 +2118,19 @@ class Graph(nx.Graph):
             edge_style_dict[edge_style] = self.edge_list()
         else:
             dict_edges = []
-            for estyle,elist in edge_style.items():
+            for estyle, elist in edge_style.items():
                 cdict_edges = [ee for ee in elist if self.has_edge(*ee)]
                 edge_style_dict[estyle] = cdict_edges
                 dict_edges += cdict_edges
-            remaining_edges = [ee for ee in self.edge_list() if not ((ee in dict_edges) or (ee.reverse() in dict_edges))]
+            remaining_edges = [
+                ee
+                for ee in self.edge_list()
+                if not ((ee in dict_edges) or (ee.reverse() in dict_edges))
+            ]
             edge_style_dict[""] = remaining_edges
 
-        print(edge_style_dict)
-        edges_str=""
-        for estyle,elist in edge_style_dict.items():
+        edges_str = ""
+        for estyle, elist in edge_style_dict.items():
             edges_str += (
                 "\t\\draw["
                 + estyle
@@ -2110,39 +2150,41 @@ class Graph(nx.Graph):
             vertex_style_dict[vertex_style] = self.vertex_list()
         else:
             dict_vertices = []
-            for style,vlist in vertex_style.items():
+            for style, vlist in vertex_style.items():
                 cdict_vertices = [vv for vv in vlist if (vv in self.vertex_list())]
                 vertex_style_dict[style] = cdict_vertices
                 dict_vertices += cdict_vertices
-            remaining_vertices = [vv for vv in self.vertex_list() if not (vv in dict_vertices)]
+            remaining_vertices = [
+                vv for vv in self.vertex_list() if not (vv in dict_vertices)
+            ]
             vertex_style_dict[""] = remaining_vertices
 
         vertices_str = ""
-        for vstyle,vlist in vertex_style_dict.items():
+        for vstyle, vlist in vertex_style_dict.items():
             vertices_str += "".join(
-            [
-                "\t\\node["
-                + vstyle
-                + (
-                    ("," if vertex_style != "" else "")
-                    + "label={[labelsty]right:$"
+                [
+                    "\t\\node["
+                    + vstyle
+                    + (
+                        ("," if vertex_style != "" else "")
+                        + "label={[labelsty]right:$"
+                        + str(v)
+                        + "$}"
+                        if vertex_out_labels
+                        else ""
+                    )
+                    + "] ("
                     + str(v)
-                    + "$}"
-                    if vertex_out_labels
-                    else ""
-                )
-                + "] ("
-                + str(v)
-                + ") at ("
-                + str(round(placement[v][0], 5))
-                + ", "
-                + str(round(placement[v][1], 5))
-                + ") {"
-                + ("$" + str(v) + "$" if vertex_in_labels else "")
-                + "};\n"
-                for v in vlist
-            ]
-        )
+                    + ") at ("
+                    + str(round(placement[v][0], 5))
+                    + ", "
+                    + str(round(placement[v][1], 5))
+                    + ") {"
+                    + ("$" + str(v) + "$" if vertex_in_labels else "")
+                    + "};\n"
+                    for v in vlist
+                ]
+            )
         return (
             "\\begin{tikzpicture}["
             + figure_str
@@ -2209,7 +2251,6 @@ class Graph(nx.Graph):
                 f"was specified multiple times: {duplicates}."
             )
         return edge_color_array, edge_list_ref
-
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
