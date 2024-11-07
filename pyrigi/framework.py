@@ -442,9 +442,12 @@ class Framework(object):
             a natural number that determines the dimension
             in which the framework is realized
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Empty(dim=1); F
+        Framework in 1-dimensional space consisting of:
+        Graph with vertices [] and edges []
+        Realization {}
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
