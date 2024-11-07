@@ -52,7 +52,7 @@ def ThreePrismPlusEdge() -> Graph:
     )
 
 
-def CubeWithDiagonal():
+def CubeWithDiagonal() -> Graph:
     """Return the graph given by the skeleton of the cube with a main diagonal."""
     return Graph(
         [(0, 1), (1, 2), (2, 3), (0, 3)]
@@ -60,6 +60,43 @@ def CubeWithDiagonal():
         + [(0, 4), (1, 5), (2, 6), (3, 7)]
         + [(0, 6)]
     )
+
+
+def DoubleBanana(d: int = 3, t: int = 2) -> Graph:
+    r"""
+    Return the d-dimensional double banana graph.
+
+    Parameters
+    ----------
+    d: integer, must be at least 3
+    t: integer, must be 2 <= t <= d-1
+
+    Definitions
+    -----
+    :prf:ref:`Generalized Double Banana <def-generalized-double-banana>`
+
+    Examples
+    --------
+    >>> DoubleBanana()
+    Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [2, 3], [2, 4], [3, 4], [5, 6], [5, 7], [6, 7]]
+    >>> DoubleBanana(d = 4)
+    Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]]
+    """  # noqa: E501
+    if d < 3:
+        raise ValueError(f"The parameter d must be at least 3, instead it is {d}.")
+    if t < 2 or t > d - 1:
+        raise ValueError(f"The parameter t must be 2 <= t <= {d-1}, instead it is {t}.")
+    r = (d + 2) - t
+    K = Complete(t)
+    K1 = K.copy()
+    for i in range(t, d + 2):
+        K1.add_edges([[i, v] for v in K1.nodes])
+    K2 = K.copy()
+    for i in range(d + 2, d + 2 + r):
+        K2.add_edges([[i, v] for v in K2.nodes])
+    DB = K1 + K2
+    DB.delete_edge([0, 1])
+    return DB
 
 
 def CompleteMinusOne(n: int) -> Graph:
