@@ -258,9 +258,11 @@ class Framework(object):
         """
         Return a copy of the underlying graph.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Random(Graph([(0,1), (1,2), (0,2)]))
+        >>> F.graph()
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         """
         return deepcopy(self._graph)
 
@@ -368,9 +370,14 @@ class Framework(object):
         """
         Return the framework with a regular unit circle realization in the plane.
 
-        TODO
+        Examples
         ----
-        example
+        >>> from pyrigi import graphDB
+        >>> F = Framework.Circular(graphDB.CompleteBipartite(4, 2))  
+        >>> print(F)
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]]
+        Realization {0:(1, 0), 1:(1/2, sqrt(3)/2), 2:(-1/2, sqrt(3)/2), 3:(-1, 0), 4:(-1/2, -sqrt(3)/2), 5:(1/2, -sqrt(3)/2)}       
         """
         n = graph.number_of_nodes()
         return Framework(
@@ -413,9 +420,12 @@ class Framework(object):
             of the ``graph`` minus one.
             If ``d`` is not specified, then the least possible one is used.
 
-        TODO
+        Examples   
         ----
-        examples
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4); F.realization(as_points=True)
+        {0: [0, 0, 0, 0], 1: [1, 0, 0, 0], 2: [0, 1, 0, 0], 3: [0, 0, 1, 0]}
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)])); F.realization(as_points=True) 
+        {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
         if d is None:
             d = graph.number_of_nodes() - 1
@@ -668,10 +678,14 @@ class Framework(object):
         """
         Change the coordinates of a given list of vertices.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]); F.realization(as_points=True)
+        {0:(0, 0), 1:(0, 0), 2:(1, 0), 3:(1, 0)}
+        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]); F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
+        
         Notes
         -----
         It is necessary that both lists have the same length.
@@ -692,9 +706,16 @@ class Framework(object):
         """
         Change the coordinates of vertices given by a dictionary.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]); F.realization(as_points=True)
+        Realization {0:(0, 0), 1:(0, 0), 2:(1, 0), 3:(1, 0)}
+        >>> F.set_vertex_positions({1:(0,1),3:(1,1)}); F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
+
+        Notes
+        -----
+        See `~Framework.set_vertex_pos`.
         """
         for v, pos in subset_of_realization.items():
             self.set_vertex_pos(v, pos)
@@ -978,9 +999,28 @@ class Framework(object):
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
 
+        Examples
+        ----
+        >>> F = Framework.Circular(graphDB.CompleteBipartite(3, 3))
+        >>> F.nontrivial_inf_flexes()
+        [Matrix([
+            [       3/2],
+            [-sqrt(3)/2],
+            [         1],
+            [         0],
+            [         0],
+            [         0],
+            [       3/2],
+            [-sqrt(3)/2],
+            [         1],
+            [         0],
+            [         0],
+            [         0]])
+        ]
+
         TODO
         ----
-        tests, example
+        tests
 
         Notes
         -----
@@ -1095,9 +1135,15 @@ class Framework(object):
         -----
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
 
-        TODO
+        Examples
         ----
-        example
+        >>> from pyrigi import frameworkDB
+        >>> F1 = frameworkDB.CompleteBipartite(4,4)
+        >>> F1.is_inf_rigid()
+        True
+        >>> F2 = frameworkDB.Cycle(4,d=2)
+        >>> F2.is_inf_rigid()
+        False
         """
         if self._graph.number_of_nodes() <= self._dim + 1:
             return self.rigidity_matrix_rank() == binomial(

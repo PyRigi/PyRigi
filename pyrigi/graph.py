@@ -540,9 +540,14 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
+        Examples
         ----
-        examples, tests for other cases than (2,3)
+        >>> G = Graph([(0,2), (0,3), (0,4), (0,5), (0,6), (0,7), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7), (2,3), (2,4), (3,4), (5,6), (6,7), (5,7)]) # Double Banana Graph
+        >>> G.is_sparse(3,6)
+        True
+        >>> G.add_edge(0,1)
+        >>> G.is_sparse(3,6)    
+        False
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
@@ -610,9 +615,14 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
+        Examples
         ----
-        examples, tests for other cases than (2,3)
+        >>> G = graphDB.Complete(4)
+        >>> G.is_tight(2,2)
+        True
+        >>> G1 = graphDB.CompleteBipartite(4,4)
+        >>> G1.is_tight(3,6)
+        False
         """
         return (
             self.is_sparse(
