@@ -6,7 +6,7 @@ api/graph
 api/framework
 api/graphDB
 api/frameworkDB
-api/motion
+api/graphdrawer
 api/datatype
 api/misc
 :::

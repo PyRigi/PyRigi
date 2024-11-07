@@ -14,9 +14,14 @@ Vertex = Hashable
 Any hashable type can be used for a Vertex.
 """
 
-Edge = Tuple[Vertex, Vertex]
+Edge = set[Vertex] | Tuple[Vertex, Vertex] | list[Vertex]
 """
-An Edge is a pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
+An Edge is an unordered pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
+"""
+
+DirectedEdge = Tuple[Vertex, Vertex] | list[Vertex]
+"""
+A DirectedEdge is an ordered pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
 """
 
 Coordinate = int | float | str
@@ -27,6 +32,11 @@ An integer, float or a string interpretable by :func:`~sympy.core.sympify.sympif
 Point = Sequence[Coordinate]
 """
 A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
+"""
+
+Stress = Sequence[int | float]
+"""
+A Stress is a Sequence of int or float numbers.
 """
 
 

@@ -23,7 +23,7 @@ import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
 
-from pyrigi.data_type import Vertex, Edge, Point, point_to_vector
+from pyrigi.data_type import Vertex, Edge, Point, Stress, point_to_vector
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -442,9 +442,12 @@ class Framework(object):
             a natural number that determines the dimension
             in which the framework is realized
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Empty(dim=1); F
+        Framework in 1-dimensional space consisting of:
+        Graph with vertices [] and edges []
+        Realization {}
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -844,21 +847,69 @@ class Framework(object):
         pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
         return pinned_rigidity_matrix
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Infinitesimal rigidity")
     def stress_matrix(
         self,
-        data: Any,
+        stress: Stress,
         edge_order: List[Edge] = None,
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
+        The matrix order is the one from self._graph.vertex_list().
 
         Definitions
         -----
         * :prf:ref:`Stress Matrix <def-stress-matrix>`
 
+        Parameters
+        ----------
+        stress:
+            A stress of the graph
+        edges_ordered:
+            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
+            or whether they should be internally sorted (``False``).
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
+        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
+        >>> F = Framework(G, pos)
+        >>> omega = [-8, -4, -4, 2, 2, 1]
+        >>> F.stress_matrix(omega)
+        Matrix([
+        [-16,  8,  4,  4],
+        [  8, -4, -2, -2],
+        [  4, -2, -1, -1],
+        [  4, -2, -1, -1]])
         """
-        raise NotImplementedError()
+        if edge_order is None:
+            edge_order = self._graph.edge_list()
+        else:
+            if not (
+                set([set(e) for e in self._graph.edges])
+                == set([set(e) for e in edge_order])
+                and len(edge_order) == self._graph.number_of_edges()
+            ):
+                raise ValueError(
+                    "edge_order must contain exactly the same edges as the graph!"
+                )
+        # creation of a zero |V|x|V| matrix
+        stress_matr = sp.zeros(len(self._graph))
+        vertex_list = self._graph.vertex_list()
+        for v in self._graph.nodes:
+            i = vertex_list.index(v)
+            for edge in edge_order:
+                if v in edge:
+                    stress_matr[i, i] += stress[edge_order.index(edge)]
+        for v, w in combinations(self._graph.nodes, 2):
+            i, j = vertex_list.index(v), vertex_list.index(w)
+            correct_edge = (
+                lambda edge: edge if edge in edge_order else [edge[1], edge[0]]
+            )
+            if [v, w] in edge_order or [w, v] in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index(correct_edge([v, w]))]
+                stress_matr[j, i] = -stress[edge_order.index(correct_edge([v, w]))]
+        return stress_matr
 
     @doc_category("Infinitesimal rigidity")
     def trivial_inf_flexes(self) -> List[Matrix]:
@@ -997,10 +1048,30 @@ class Framework(object):
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Infinitesimal rigidity")
     def stresses(self) -> Any:
-        r"""Return a basis of the space of stresses."""
-        raise NotImplementedError()
+        r"""
+        Return a basis of the space of stresses.
+
+        Definitions
+        -----------
+        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
+        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
+        >>> F = Framework(G, pos)
+        >>> F.stresses()
+        [Matrix([
+        [-8],
+        [-4],
+        [-4],
+        [ 2],
+        [ 2],
+        [ 1]])]
+        """
+        return self.rigidity_matrix().transpose().nullspace()
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
@@ -1215,7 +1286,6 @@ class Framework(object):
             )
 
         for u, v in self._graph.edges:
-
             edge_vec = self._realization[u] - self._realization[v]
             dist_squared = (edge_vec.T * edge_vec)[0, 0]
 

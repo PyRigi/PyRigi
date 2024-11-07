@@ -26,9 +26,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "0.2"
+version = "0.3"
 # The full version, including alpha/beta/rc tags
-release = "0.2.0"
+release = "0.3.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -175,7 +175,14 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "userguide/tutorials/*.ipynb"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "userguide/tutorials/*.ipynb",
+    "notebooks/*.ipynb",
+    "userguide/*.ipynb",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None

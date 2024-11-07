@@ -5,28 +5,26 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.2
+    jupytext_version: 1.16.4
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
   name: python3
 ---
 
+(tutorial-framework-database)=
 # Database of frameworks
+
++++
+
+This notebook can be downloaded {download}`here <../../notebooks/framework_database.ipynb>`.
 
 +++
 
 There are several predefined frameworks in {mod}`pyrigi.frameworkDB`.
 
 ```{code-cell} ipython3
-# The import will work if:
-#     - the tutorial is in the root folder of the package, or
-#     - the package was installed using poetry,
-#       see https://pyrigi.github.io/PyRigi/development/howto.html#dependencies, or
-#     - the package is added to the sys.path using the following with the correct
-#       path to the pyrigi root folder
-import os, sys
-sys.path.insert(0, os.path.abspath("../../.."))
+# The import will work if the package was installed using pip.
 import pyrigi.frameworkDB as frameworks
 ```
 

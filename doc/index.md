@@ -1,7 +1,7 @@
 # PyRigi
 
 ```{include} ../README.md
-:relative-docs: docs/
+:relative-docs: doc/
 :start-after: <!-- start-input -->
 ```
 
@@ -12,6 +12,7 @@
 :maxdepth: 2
 :caption: User guide
 userguide/getting_started
+userguide/installation_guide
 userguide/tutorial
 userguide/api
 :::
@@ -19,7 +20,8 @@ userguide/api
 :::{toctree}
 :maxdepth: 2
 :caption: Math
-math/definitions
+math/rigidity
+math/graph_theory
 math/references
 :::
 
