@@ -421,3 +421,24 @@ def test_is_congruent():
 
     assert not F4.is_congruent_realization(R1)
     assert F4.is_congruent_realization(R1, numerical=True)
+
+
+def test_rigidity_matrix_rank_K4():
+    K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
+    assert K4.rigidity_matrix_rank() == 5
+
+    # Deleting one edge does not change the rank of the rigidity matrix ...
+    K4.delete_edge([0, 1])
+    assert K4.rigidity_matrix_rank() == 5
+
+    # ... whereas deleting two edges does
+    K4.delete_edge([2, 3])
+    assert K4.rigidity_matrix_rank() == 4
+
+
+def test_inf_rigidity_n_frustum():
+    """Test if the 3-Frustum (which has a single infinitessimal motion and stress)
+    is infinitessimally rigid"""
+    F = fws.Frustum(3)
+    assert F.rigidity_matrix_rank() == 8
+    assert not F.is_inf_rigid()

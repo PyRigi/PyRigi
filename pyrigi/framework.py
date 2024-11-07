@@ -1082,9 +1082,17 @@ class Framework(object):
         """
         Compute the rank of the rigidity matrix.
 
-        TODO
+        Examples
         ----
-        example, tests
+        >>> K4 = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
+        >>> K4.rigidity_matrix_rank()   # the complete graph is a circuit
+        5
+        >>> K4.delete_edge([0,1])
+        >>> K4.rigidity_matrix_rank()   # deleting a bar gives full rank
+        5
+        >>> K4.delete_edge([2,3])
+        >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
+        4
         """
         return self.rigidity_matrix().rank()
 

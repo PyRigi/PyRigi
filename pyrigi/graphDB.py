@@ -106,7 +106,7 @@ def CompleteMinusOne(n: int) -> Graph:
     return G
 
 
-def Octahedral():
+def Octahedral() -> Graph:
     """Return the graph given by the skeleton of an octahedron."""
     return Graph(
         [
@@ -124,6 +124,15 @@ def Octahedral():
             (3, 5),
         ]
     )
+
+
+def Frustum(n: int) -> Graph:
+    """Return the n-Frustum graph"""
+    G = Graph()
+    G.add_edges([(j, (j + 1) % n) for j in range(0, n)])
+    G.add_edges([(j, (j + 1 - n) % n + n) for j in range(n, 2 * n)])
+    G.add_edges([(j, j + n) for j in range(0, n)])
+    return G
 
 
 def K66MinusPerfectMatching():

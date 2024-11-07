@@ -155,3 +155,18 @@ def K33plusEdge() -> Framework:
     G = CompleteBipartite(3, 3, "dixonI")
     G.add_edge([0, 1])
     return G
+
+
+def Frustum(n: int) -> Framework:
+    """Return the n-Frustum with `n` vertices in dimension 2."""
+    realization = {
+        j: (sp.cos(2 * j * sp.pi / n), sp.sin(2 * j * sp.pi / n)) for j in range(0, n)
+    }
+    realization.update(
+        {
+            (j + n): (2 * sp.cos(2 * j * sp.pi / n), 2 * sp.sin(2 * j * sp.pi / n))
+            for j in range(0, n)
+        }
+    )
+    F = Framework(graphs.Frustum(n), realization)
+    return F
