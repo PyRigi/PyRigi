@@ -1324,6 +1324,11 @@ class Framework(object):
         Return the lengths (numerically) of all edges in the framework.
 
         The ordering is given by graph().edge_list() method.
+
+        Returns
+        -------
+        pair_lengths
+            List of lengths of the edges in the framework.
         """
         from numpy import array as nparray
         from numpy.linalg import norm as npnorm
