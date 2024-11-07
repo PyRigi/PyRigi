@@ -134,6 +134,21 @@ class Graph(nx.Graph):
                 return False
         return True
 
+    def __add__(self, other: Graph):
+        r"""
+        Return the sum of self and other.
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[1,2],[2,0]])
+        >>> H = Graph([[2,3],[3,4],[4,2]])
+        >>> G + H
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]]
+        """  # noqa: E501
+        sum_graph = self.copy()
+        sum_graph.add_edges(other.edges)
+        return sum_graph
+
     @classmethod
     @doc_category("Class methods")
     def from_vertices_and_edges(

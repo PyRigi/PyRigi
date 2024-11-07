@@ -394,9 +394,13 @@ class Framework(object):
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
-        TODO
-        ----
-        example
+        Examples
+        --------
+        >>> from pyrigi import graphDB
+        >>> Framework.Collinear(graphDB.Complete(3), d=2)
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
         check_integrality_and_range(d, "dimension d", 1)
         return Framework(
@@ -929,12 +933,12 @@ class Framework(object):
                     stress_matr[i, i] += stress[edge_order.index(edge)]
         for v, w in combinations(self._graph.nodes, 2):
             i, j = vertex_list.index(v), vertex_list.index(w)
-            correct_edge = lambda edge: (
-                edge if edge in edge_order else [edge[1], edge[0]]
-            )
-            if [v, w] in edge_order or [w, v] in edge_order:
-                stress_matr[i, j] = -stress[edge_order.index(correct_edge([v, w]))]
-                stress_matr[j, i] = -stress[edge_order.index(correct_edge([v, w]))]
+            if [v, w] in edge_order or (v, w) in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index([v, w])]
+                stress_matr[j, i] = -stress[edge_order.index([v, w])]
+            elif [w, v] in edge_order or (w, v) in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index([w, v])]
+                stress_matr[j, i] = -stress[edge_order.index([w, v])]
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
@@ -1169,10 +1173,6 @@ class Framework(object):
         See :meth:`~Framework.is_inf_rigid`
         """
         return not self.is_inf_rigid()
-
-    @doc_category("Waiting for implementation")
-    def is_inf_spanning(self) -> bool:
-        raise NotImplementedError()
 
     @doc_category("Infinitesimal rigidity")
     def is_min_inf_rigid(self) -> bool:
