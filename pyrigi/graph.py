@@ -2053,9 +2053,10 @@ class Graph(nx.Graph):
         vertex_out_labels: bool = False,
         default_styles: bool = True,
     ) -> str:
-        """
+        r"""
         Create a tikz code for the graph.
 
+        For using it in ``LaTeX`` you need to use the ``tikz`` package.
 
         Parameters
         ----------
@@ -2088,7 +2089,76 @@ class Graph(nx.Graph):
         default_styles
             A bool on whether default style definitions should be put to the options.
 
-        """
+        Examples
+        ----------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> print(G.to_tikz()) # doctest: +SKIP
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (-0.98794, -0.61705) {};
+            \node[gvertex] (1) at (0.62772, -1.0) {};
+            \node[gvertex] (2) at (0.98514, 0.62151) {};
+            \node[gvertex] (3) at (-0.62492, 0.99554) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(print(G.to_tikz(layout_type = "circular")))
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (1.0, 0.0) {};
+            \node[gvertex] (1) at (-0.0, 1.0) {};
+            \node[gvertex] (2) at (-1.0, -0.0) {};
+            \node[gvertex] (3) at (0.0, -1.0) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(placement = [[0, 0], [1, 1], [2, 2], [3, 3]]))
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (0, 0) {};
+            \node[gvertex] (1) at (1, 1) {};
+            \node[gvertex] (2) at (2, 2) {};
+            \node[gvertex] (3) at (3, 3) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_out_labels = True))
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white},labelsty/.style={font=\scriptsize,black!70!white}]
+            \node[gvertex,label={[labelsty]right:$0$}] (0) at (1.0, 0.0) {};
+            \node[gvertex,label={[labelsty]right:$1$}] (1) at (-0.0, 1.0) {};
+            \node[gvertex,label={[labelsty]right:$2$}] (2) at (-1.0, -0.0) {};
+            \node[gvertex,label={[labelsty]right:$3$}] (3) at (0.0, -1.0) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_in_labels = True))
+        \begin{tikzpicture}[gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (1.0, 0.0) {$0$};
+            \node[gvertex] (1) at (-0.0, 1.0) {$1$};
+            \node[gvertex] (2) at (-1.0, -0.0) {$2$};
+            \node[gvertex] (3) at (0.0, -1.0) {$3$};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_style = "myvertex", edge_style = "myedge"))
+        \begin{tikzpicture}[]
+            \node[myvertex] (0) at (1.0, 0.0) {};
+            \node[myvertex] (1) at (-0.0, 1.0) {};
+            \node[myvertex] (2) at (-1.0, -0.0) {};
+            \node[myvertex] (3) at (0.0, -1.0) {};
+            \draw[myedge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", edge_style = {"red edge": [[1, 2]], "green egde": [[2, 3], [0, 1]]}, vertex_style = {"red vertex": [0], "blue vertex": [2, 3]}))
+        \begin{tikzpicture}[]
+            \node[red vertex] (0) at (1.0, 0.0) {};
+            \node[blue vertex] (2) at (-1.0, -0.0) {};
+            \node[blue vertex] (3) at (0.0, -1.0) {};
+            \node[] (1) at (-0.0, 1.0) {};
+            \draw[red edge] (1) to (2);
+            \draw[green egde] (2) to (3) (0) to (1);
+            \draw[] (3) to (0);
+        \end{tikzpicture}
+
+
+        """   # noqa: E501
 
         # strings for tikz styles
         if vertex_out_labels and default_styles:
