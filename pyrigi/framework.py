@@ -688,7 +688,7 @@ class Framework(object):
         ----
         >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
         >>> F.realization(as_points=True)
-        {0:(0, 0), 1:(0, 0), 2:(1, 0), 3:(1, 0)}
+        {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
         >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]);
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
@@ -717,7 +717,7 @@ class Framework(object):
         ----
         >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
         >>> F.realization(as_points=True)
-        Realization {0:(0, 0), 1:(0, 0), 2:(1, 0), 3:(1, 0)}
+        {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
         >>> F.set_vertex_positions({1:(0,1),3:(1,1)});
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
@@ -1014,19 +1014,18 @@ class Framework(object):
         >>> F = Framework.Circular(graphs.CompleteBipartite(3, 3))
         >>> F.nontrivial_inf_flexes()
         [Matrix([
-            [       3/2],
-            [-sqrt(3)/2],
-            [         1],
-            [         0],
-            [         0],
-            [         0],
-            [       3/2],
-            [-sqrt(3)/2],
-            [         1],
-            [         0],
-            [         0],
-            [         0]])
-        ]
+        [       3/2],
+        [-sqrt(3)/2],
+        [         1],
+        [         0],
+        [         0],
+        [         0],
+        [       3/2],
+        [-sqrt(3)/2],
+        [         1],
+        [         0],
+        [         0],
+        [         0]])]
 
         TODO
         ----
