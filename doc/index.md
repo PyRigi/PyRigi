@@ -22,6 +22,7 @@ userguide/api
 :caption: Math
 math/rigidity
 math/graph_theory
+math/matroid_theory
 math/references
 :::
 
