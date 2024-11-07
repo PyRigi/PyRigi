@@ -387,9 +387,13 @@ class Framework(object):
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
-        TODO
-        ----
-        example
+        Examples
+        --------
+        >>> from pyrigi import graphDB
+        >>> Framework.Collinear(graphDB.Complete(3), d=2)
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
         check_integrality_and_range(d, "dimension d", 1)
         return Framework(
