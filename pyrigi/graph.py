@@ -2045,7 +2045,7 @@ class Graph(nx.Graph):
         self,
         layout_type: str = "spring",
         placement: dict[Vertex, Point] = None,
-        vertex_style: Union(str, dict[str : list[Vertex]]) = "vertex",
+        vertex_style: Union(str, dict[str : list[Vertex]]) = "gvertex",
         edge_style: Union(str, dict[str : list[Edge]]) = "edge",
         label_style: str = "labelsty",
         figure_style: str = "",
@@ -2059,11 +2059,11 @@ class Graph(nx.Graph):
         else:
             lstyle_str = ""
 
-        if vertex_style == "vertex" and default_styles:
+        if vertex_style == "gvertex" and default_styles:
             if vertex_in_labels:
-                vstyle_str = "vertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize}"
+                vstyle_str = "gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize}"
             else:
-                vstyle_str = "vertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt}"
+                vstyle_str = "gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt}"
         else:
             vstyle_str = ""
         if edge_style == "edge" and default_styles:
