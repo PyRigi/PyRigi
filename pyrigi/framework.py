@@ -907,12 +907,12 @@ class Framework(object):
                     stress_matr[i, i] += stress[edge_order.index(edge)]
         for v, w in combinations(self._graph.nodes, 2):
             i, j = vertex_list.index(v), vertex_list.index(w)
-            correct_edge = (
-                lambda edge: edge if edge in edge_order else [edge[1], edge[0]]
-            )
-            if [v, w] in edge_order or [w, v] in edge_order:
-                stress_matr[i, j] = -stress[edge_order.index(correct_edge([v, w]))]
-                stress_matr[j, i] = -stress[edge_order.index(correct_edge([v, w]))]
+            if [v, w] in edge_order or (v, w) in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index([v, w])]
+                stress_matr[j, i] = -stress[edge_order.index([v, w])]
+            elif [w, v] in edge_order or (w, v) in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index([w, v])]
+                stress_matr[j, i] = -stress[edge_order.index([w, v])]
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
