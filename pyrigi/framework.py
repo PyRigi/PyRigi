@@ -33,7 +33,7 @@ from pyrigi.misc import (
     generate_category_tables,
     check_integrality_and_range,
     is_zero_vector,
-    generate_ortonormal_basis,
+    generate_two_ortonormal_vectors,
 )
 
 
@@ -277,10 +277,15 @@ class Framework(object):
         Plot this Framework with the given realization.
 
         Parameters
-        -----------
+        ----------
         realization:
             The realization used for plotting.
+            The vectors must have a dimension 2! If not, use plot_using_projection_matrix or plot instead.
         """
+
+        for vertex, placement in realization.items():
+            if len(placement) != 2:
+                raise ValueError(f"Placement of vertex {vertex} is not in 2D!")
 
         self._graph.plot(
             placement=realization,
@@ -301,10 +306,16 @@ class Framework(object):
         For description of other parameters see Framework.plot()
 
         Parameters
-        -----------
+        ----------
         projection_matrix:
             The Matrix used for projection.
+            The matrix must have dimensions (2, dim), where dim is the dimension of the currect placements of vertices.
         """
+
+        if projection_matrix.shape != (2, self._dim):
+            raise ValueError(
+                f"The projection matrix has wrong dimensions! {projection_matrix.shape} instead of (2, {self._dim})."
+            )
 
         placement = {}
         for vertex, position in self.realization(
@@ -334,13 +345,8 @@ class Framework(object):
 
         TODO
         ----
-        implement plotting also for other dimensions than 2
+        implement plotting for dimension 3
         """
-
-        # if self._dim != 2:
-        #     raise NotImplementedError(
-        #         "Plotting is currently supported only for 2-dimensional frameworks."
-        #     )
 
         if self._dim == 1:
             placement = {}
@@ -364,10 +370,8 @@ class Framework(object):
             return
 
         # dim > 2 -> generate random projection to 2D
-        matrix = generate_ortonormal_basis(self._dim)
-        matrix = matrix[:, :2]
+        matrix = generate_two_ortonormal_vectors(self._dim)
         matrix = matrix.T
-
         self.plot_using_projection_matrix(matrix, vertex_color, edge_width, **kwargs)
         return matrix
 

@@ -6,7 +6,9 @@ import math
 from pyrigi.data_type import Point, point_to_vector
 from sympy import Matrix, simplify, Abs
 from numpy.random import randn
-from numpy.linalg import qr
+from numpy.linalg import norm
+from numpy import dot
+from random import randint
 
 
 def doc_category(category):
@@ -50,20 +52,34 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
     return ("\n" + indent).join(res.splitlines())
 
 
-def generate_ortonormal_basis(dim: int) -> Matrix:
+def generate_two_ortonormal_vectors(dim: int) -> Matrix:
     """
-    Generate random orthonormal basis in the given dimension using qr decomposition.
-    The vectors are in the columns of the returned matrix.
+    Generate two random ortonormal vectors in the given dimension.
+    The vectors are in the columns of the returned Matrix.
 
     Parameters
     ----------
     dim:
-        Dimension of the space.
+        The dimension in which the vectors are generated.
     """
 
-    matrix = randn(dim, dim)
-    q, r = qr(matrix)
-    return q
+    matrix = randn(dim, 2)
+
+    # for numerical stability regenerate some elements
+    tmp = randint(0, dim - 1)
+    while abs(matrix[tmp, 1]) < 1e-6:
+        matrix[tmp, 1] = randn(1, 1)
+
+    while abs(matrix[-1, 0]) < 1e-6:
+        matrix[-1, 0] = randn(1, 1)
+
+    tmp = dot(matrix[:-1, 0], matrix[:-1, 1]) * -1
+    matrix[-1, 1] = tmp / matrix[-1, 0]
+
+    # normalize
+    matrix[:, 0] = matrix[:, 0] / norm(matrix[:, 0])
+    matrix[:, 1] = matrix[:, 1] / norm(matrix[:, 1])
+    return matrix
 
 
 def check_integrality_and_range(
