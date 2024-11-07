@@ -1396,6 +1396,18 @@ files = [
 ]
 
 [[package]]
+name = "lnumber"
+version = "0.13"
+description = ""
+optional = false
+python-versions = "*"
+files = [
+    {file = "lnumber-0.13-py2.py3-none-win32.whl", hash = "sha256:54f050237b416880d9ef2410dcf0376ae4feb35036fb2dfb5639e5b0b683ad7d"},
+    {file = "lnumber-0.13-py2.py3-none-win_amd64.whl", hash = "sha256:73ba0ef23ee8c810c28ea746c547fc0f4d31dc2bab8436a74cff6afa9775cd5e"},
+    {file = "lnumber-0.13.tar.gz", hash = "sha256:2c0c45a74fd072cb43e05ee70b790e31ae3b72aab011e5e437597a57c8391ce0"},
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "3.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
@@ -3518,4 +3530,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "da578f3f8a5e409eadf4e0a940b189b9e555a8f83c9b2363c878cbe08f0915f3"
+content-hash = "a55f2893ad09790625642b3692968e5b192fc2f4a07104230e3ebccfb9903f92"
