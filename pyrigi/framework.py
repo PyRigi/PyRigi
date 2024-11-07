@@ -1021,10 +1021,6 @@ class Framework(object):
         >>> K4.delete_edge([2,3])
         >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
         4
-
-        TODO
-        ----
-        tests
         """
         return self.rigidity_matrix().rank()
 
