@@ -1123,10 +1123,6 @@ class Framework(object):
         """
         return not self.is_inf_rigid()
 
-    @doc_category("Waiting for implementation")
-    def is_inf_spanning(self) -> bool:
-        raise NotImplementedError()
-
     @doc_category("Infinitesimal rigidity")
     def is_min_inf_rigid(self) -> bool:
         """
