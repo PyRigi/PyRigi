@@ -34,3 +34,7 @@ Typically, the $n$-Frustum is realized as a planar framework two regular $n$-gon
 {meth}`~.frameworkDB.Frustum`
 :::
 
+```{code-cell} ipython3
+G = graphDB.Frustum(3)
+G.plot()
+```
