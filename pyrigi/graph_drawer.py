@@ -91,6 +91,7 @@ class GraphDrawer(object):
         self._show_vlabels = True
         self._mouse_down = False
         self._vertexmove_on = False
+        self._grid_size = 20
 
         self._graph = Graph()  # the graph on canvas
         self._out = Output()  # can later be used to represent some properties
@@ -164,6 +165,28 @@ class GraphDrawer(object):
         )
         self._vlabel_checkbox.observe(self._on_show_vlabel_change)
 
+        self._grid_checkbox = Checkbox(
+            value = False, description = "Show Grid", disabled=False, indent=False
+        )
+        self._grid_checkbox.observe(self._on_grid_checkbox_change)
+
+        self._grid_sticky_checkbox = Checkbox(
+            value = False, description = "Stick Vertices to Corners", disabled = True, indent = False
+        )
+        
+        self._grid_size_slider = IntSlider(
+            value=self._grid_size,
+            min=10,
+            max=50,
+            step=5,
+            description="Grid Size:",
+            disabled=True,
+            continuous_update=True,
+            orientation="horizontal",
+            readout=True,
+            readout_format="d",
+        )
+        self._grid_size_slider.observe(self._on_grid_size_change)
         # combining the menu and canvas
         right_box = VBox(
             [
@@ -172,6 +195,9 @@ class GraphDrawer(object):
                 self._vradius_slider,
                 self._ewidth_slider,
                 self._vlabel_checkbox,
+                self._grid_checkbox,
+                self._grid_sticky_checkbox,
+                self._grid_size_slider
             ]
         )
         box = HBox([self._mcanvas, right_box])
@@ -196,9 +222,8 @@ class GraphDrawer(object):
             self._vertexmove_on = event["ctrlKey"]
         elif event["event"] == "keyup":
             self._vertexmove_on = event["ctrlKey"]
-
-        x, y = event["relativeX"], event["relativeY"]
         if event["event"] == "dblclick":
+            x, y = event["relativeX"], event["relativeY"]
             self._handle_dblclick(x, y)
 
     def _assign_pos(self, x, y, place):
@@ -289,6 +314,25 @@ class GraphDrawer(object):
             with self._out:
                 print("relabeled vertices:", vertex_map)
 
+    def _on_grid_checkbox_change(self,change)->None:
+        """
+        Handler of the grid checkbox.
+
+        """
+        if change["type"] == "change" and change["name"] == "value":
+            self._update_background(change["new"])
+            self._grid_sticky_checkbox.disabled = change["old"]
+            self._grid_size_slider.disabled = change["old"]
+            if change["new"] == False:
+                self._grid_sticky_checkbox.value = False
+    def _on_grid_size_change(self, change) -> None:
+        """
+        Handler of the grid size slider.
+        """
+        if change["type"] == "change" and change["name"] == "value":
+            self._grid_size = change["new"]
+            self._update_background(grid_on=self._grid_checkbox.value)
+
     def _on_vcolor_change(self, change) -> None:
         """
         Handler of the color picker for the new vertices.
@@ -334,6 +378,19 @@ class GraphDrawer(object):
             with hold_canvas():
                 self._mcanvas[2].clear()
                 self._redraw_graph()
+    def _update_background(self, grid_on):
+        self._mcanvas[0].clear()
+        self._mcanvas[0].line_width = 0.2
+        self._mcanvas[0].stroke_rect(0, 0, self._mcanvas.width, self._mcanvas.height)
+        if not grid_on:
+            return
+        size = self._grid_size
+        self._mcanvas[0].set_line_dash([2,2])
+        for n in range(size,self._mcanvas.width,size):
+            self._mcanvas[0].stroke_line(n,0,n,self._mcanvas.height)
+        for n in range(size,self._mcanvas.height,size):
+            self._mcanvas[0].stroke_line(0,n,self._mcanvas.width,n)
+
 
     def _handle_mouse_down(self, x, y):
         """
