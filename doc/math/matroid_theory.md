@@ -22,13 +22,16 @@ A _circuit_ is a minimal dependent subset of $E$
 :::{prf:definition} Rank function and closure
 :label: def-rank-function-closure
 
-The _rank function_ $r$ of a {prf:ref}`matroid <def-matroid>` $\mathcal{M}$ is a function $r \colon E \rightarrow \NN$ with the following properties:
+The _rank function_ $r$ of a {prf:ref}`matroid <def-matroid>` $\mathcal{M}$
+is the function $r \colon E \rightarrow \NN$
+such that $r(A)=\max\{|I| \colon I\subset A, I \in \mathcal{I} \}$.
+The rank function has the following properties:
 
 * for any $A\subset E$, $0\leq r(A) \leq |A|$;
 * any two subsets $A,B\subset E$, $r(A\cap B) + r(A\cup B) \leq r(A)+r(B)$; and
 * any $A\subset E$ and any $x\notin A$, $r(A) \leq r(A\cup \{x\}) \leq r(A)+1$.
 
-For $A\subset E$, the \emph{closure} of $A$ is the set $\textrm{cl}(A)=\{x\in E: r(A)=r(A\cup \{x\}) \}$.
+For $A\subset E$, the _closure_ of $A$ is the set $\textrm{cl}(A)=\{x\in E: r(A)=r(A\cup \{x\}) \}$.
 :::
 
 
