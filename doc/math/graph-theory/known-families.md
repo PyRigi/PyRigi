@@ -14,27 +14,16 @@ kernelspec:
 (known-families)=
 # Known Families of Graphs
 
-Here we introduce several known graphs that can be accessed in the PyRigi graph database. To access them, we need to import the `graphDB`:
-
-```{code-cell} ipython3
-from pyrigi import graphDB
-```
+Here we introduce several known graphs that can be accessed in the PyRigi graph database.
 
 :::{prf:definition} $n$-Frustum
 :label: def-n-frustum
 
-The graph $G=(V,E)$ is called the _$n$-Frustum_ for $n\geq 3$ if $V = V_1\sqcup V_2$ such that $|V_1|=|V_2|=n$ with the following properties: 
+Assume that $n\geq 3$. The graph $G=(V,E)$ is called the _$n$-Frustum_ if it has the following properties: 
+* $V = V_1\sqcup V_2$ with $|V_1|=|V_2|=n$.
 * $G[V_1]$ and $G[V_2]$ are cycle graphs.
-* For each vertex $v_1$ in $V_1$ there is exactly one edge $(v_1,v_2) in $E$ for $v_2\in V_2$.
-
-Typically, the $n$-Frustum is realized as a planar framework two regular $n$-gons that are contained in each other. An example of a 3-Frustum is depicted below.
-
+* For each vertex $v_1$ in $V_1$ there is exactly one edge $(v_1,v_2)$ in $E$ for some $v_2 \in V_2$.
 
 {{pyrigi_crossref}} {meth}`~.graphDB.Frustum`
 {meth}`~.frameworkDB.Frustum`
 :::
-
-```{code-cell} ipython3
-G = graphDB.Frustum(3)
-G.plot()
-```

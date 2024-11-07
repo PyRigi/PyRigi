@@ -52,7 +52,7 @@ def ThreePrismPlusEdge() -> Graph:
     )
 
 
-def CubeWithDiagonal():
+def CubeWithDiagonal() -> Graph:
     """Return the graph given by the skeleton of the cube with a main diagonal."""
     return Graph(
         [(0, 1), (1, 2), (2, 3), (0, 3)]
@@ -69,7 +69,7 @@ def CompleteMinusOne(n: int) -> Graph:
     return G
 
 
-def Octahedral():
+def Octahedral() -> Graph:
     """Return the graph given by the skeleton of an octahedron."""
     return Graph(
         [
