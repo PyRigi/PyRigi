@@ -280,7 +280,8 @@ class Framework(object):
         ----------
         realization:
             The realization used for plotting.
-            The vectors must have a dimension 2! If not, use plot_using_projection_matrix or plot instead.
+            The vectors must have a dimension 2! If not,
+            use plot_using_projection_matrix or plot instead.
         """
 
         for vertex, placement in realization.items():
@@ -302,19 +303,22 @@ class Framework(object):
         **kwargs,
     ) -> None:
         """
-        Plot this Framework with vertices placement's projected using the given projection Matrix.
+        Plot this Framework with vertices placement's
+        projected using the given projection Matrix.
         For description of other parameters see Framework.plot()
 
         Parameters
         ----------
         projection_matrix:
             The Matrix used for projection.
-            The matrix must have dimensions (2, dim), where dim is the dimension of the currect placements of vertices.
+            The matrix must have dimensions (2, dim),
+            where dim is the dimension of the currect placements of vertices.
         """
 
         if projection_matrix.shape != (2, self._dim):
             raise ValueError(
-                f"The projection matrix has wrong dimensions! {projection_matrix.shape} instead of (2, {self._dim})."
+                f"The projection matrix has wrong dimensions! \
+                {projection_matrix.shape} instead of (2, {self._dim})."
             )
 
         placement = {}
