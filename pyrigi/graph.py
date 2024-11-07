@@ -134,6 +134,29 @@ class Graph(nx.Graph):
                 return False
         return True
 
+    def __add__(self, other: Graph):
+        r"""
+        Return the sum of the current graph and the other one.
+
+        Parameters
+        ----------
+        other: another graph
+
+        Examples
+        --------
+        >>> G = Graph([[7,8],[8,9],[9,7]])
+        >>> H = DoubleBanana()
+        >>> G.plot()
+        >>> H.plot()
+        >>> K = H + G
+        >>> K.plot()
+        >>> K
+        Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [2, 3], [2, 4], [3, 4], [5, 6], [5, 7], [6, 7], [7, 8], [7, 9], [8, 9]]
+        """
+        sum_graph = self.copy()
+        sum_graph.add_edges(other.edges)
+        return sum_graph
+
     @classmethod
     @doc_category("Class methods")
     def from_vertices_and_edges(
