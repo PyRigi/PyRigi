@@ -373,11 +373,11 @@ class Framework(object):
         Examples
         ----
         >>> from pyrigi import graphDB
-        >>> F = Framework.Circular(graphDB.CompleteBipartite(4, 2))  
+        >>> F = Framework.Circular(graphDB.CompleteBipartite(4, 2))
         >>> print(F)
         Framework in 2-dimensional space consisting of:
-        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]]
-        Realization {0:(1, 0), 1:(1/2, sqrt(3)/2), 2:(-1/2, sqrt(3)/2), 3:(-1, 0), 4:(-1/2, -sqrt(3)/2), 5:(1/2, -sqrt(3)/2)}       
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges ...
+        Realization {0:(1, 0), 1:(1/2, sqrt(3)/2), ...
         """
         n = graph.number_of_nodes()
         return Framework(
@@ -420,11 +420,13 @@ class Framework(object):
             of the ``graph`` minus one.
             If ``d`` is not specified, then the least possible one is used.
 
-        Examples   
+        Examples
         ----
-        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4); F.realization(as_points=True)
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4);
+        >>> F.realization(as_points=True)
         {0: [0, 0, 0, 0], 1: [1, 0, 0, 0], 2: [0, 1, 0, 0], 3: [0, 0, 1, 0]}
-        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)])); F.realization(as_points=True) 
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]));
+        >>> F.realization(as_points=True)
         {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
         if d is None:
@@ -680,12 +682,13 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]); F.realization(as_points=True)
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F.realization(as_points=True)
         {0:(0, 0), 1:(0, 0), 2:(1, 0), 3:(1, 0)}
-        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]); F.realization(as_points=True)
+        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]);
+        >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
-        
         Notes
         -----
         It is necessary that both lists have the same length.
@@ -708,9 +711,11 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]); F.realization(as_points=True)
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F.realization(as_points=True)
         Realization {0:(0, 0), 1:(0, 0), 2:(1, 0), 3:(1, 0)}
-        >>> F.set_vertex_positions({1:(0,1),3:(1,1)}); F.realization(as_points=True)
+        >>> F.set_vertex_positions({1:(0,1),3:(1,1)});
+        >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
         Notes
@@ -924,8 +929,8 @@ class Framework(object):
                     stress_matr[i, i] += stress[edge_order.index(edge)]
         for v, w in combinations(self._graph.nodes, 2):
             i, j = vertex_list.index(v), vertex_list.index(w)
-            correct_edge = (
-                lambda edge: edge if edge in edge_order else [edge[1], edge[0]]
+            correct_edge = lambda edge: (
+                edge if edge in edge_order else [edge[1], edge[0]]
             )
             if [v, w] in edge_order or [w, v] in edge_order:
                 stress_matr[i, j] = -stress[edge_order.index(correct_edge([v, w]))]

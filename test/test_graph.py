@@ -140,6 +140,7 @@ def test_2_3_tight(graph):
     assert graph.is_tight(2, 3, algorithm="pebble")
     assert graph.is_tight(2, 3, algorithm="subgraph")
 
+
 @pytest.mark.parametrize(
     "graph",
     [
@@ -1250,15 +1251,38 @@ def test_from_vertices_and_edges():
         ["a", "d"],
     ]
 
+
 def test_is_3_6_sparse():
     """The Double Banana is (3,6)-tight."""
-    G = Graph([(0,2), (0,3), (0,4), (0,5), (0,6), (0,7), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7), (2,3), (2,4), (3,4), (5,6), (6,7), (5,7)]) # Double Banana Graph
-    assert G.is_sparse(3,6)
-    G.add_edge(0,1)
-    assert not G.is_sparse(3,6)
+    G = Graph(
+        [
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 5),
+            (0, 6),
+            (0, 7),
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (1, 5),
+            (1, 6),
+            (1, 7),
+            (2, 3),
+            (2, 4),
+            (3, 4),
+            (5, 6),
+            (6, 7),
+            (5, 7),
+        ]
+    )  # Double Banana Graph
+    assert G.is_sparse(3, 6)
+    G.add_edge(0, 1)
+    assert not G.is_sparse(3, 6)
+
 
 def test_is_k_l_tight():
     G = graphs.Complete(4)
-    assert G.is_tight(2,2)
-    G = graphs.CompleteBipartite(4,4)
-    assert not G.is_tight(3,6)
+    assert G.is_tight(2, 2)
+    G = graphs.CompleteBipartite(4, 4)
+    assert not G.is_tight(3, 6)

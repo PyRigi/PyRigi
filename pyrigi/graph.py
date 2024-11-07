@@ -542,11 +542,12 @@ class Graph(nx.Graph):
 
         Examples
         ----
-        >>> G = Graph([(0,2), (0,3), (0,4), (0,5), (0,6), (0,7), (1,2), (1,3), (1,4), (1,5), (1,6), (1,7), (2,3), (2,4), (3,4), (5,6), (6,7), (5,7)]) # Double Banana Graph
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.DoubleBanana()
         >>> G.is_sparse(3,6)
         True
         >>> G.add_edge(0,1)
-        >>> G.is_sparse(3,6)    
+        >>> G.is_sparse(3,6)
         False
         """
         if not (isinstance(K, int) and isinstance(L, int)):
