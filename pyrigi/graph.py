@@ -2040,6 +2040,85 @@ class Graph(nx.Graph):
 
         return Framework.Random(self, dim, rand_range)
 
+        @doc_category("Other")
+    def to_tikz(
+        self,
+        layout_type: str = "spring",
+        placement: dict[Vertex, Point] = None,
+        vertex_style: str = "vertex",
+        edge_style: str = "edge",
+        label_style: str = "labelsty";
+        figure_style: str = "",
+        vertex_in_labels: bool = False,
+        vertex_out_labels: bool = False,
+        default_styles: bool = True
+    ) -> str:
+        if vertex_out_labels and default_styles:
+            lstyle_str = "labelsty/.style={font=\scriptsize,black!70!white}"
+        else:
+            lstyle_str = ""
+        else:
+            lstyle_str = ""
+        if vertex_style == "vertex" and default_styles:
+            if vertex_in_labels:
+                vstyle_str = "vertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize}"
+            else:
+                vstyle_str = "vertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt}"
+        else:
+            vstyle_str = ""
+        if edge_style == "edge" and default_styles:
+            estyle_str = "edge/.style={line width=1.5pt,black!60!white}"
+        else:
+            estyle_str = ""
+
+        figure_str = [figure_style, vstyle_str, estyle_str, lstyle_str]
+        figure_str = [fs for fs in figure_str if fs != ""]
+        figure_str = ",".join(figure_str)
+        edges_str = (
+            "\t\\draw["
+            + edge_style
+            + "] "
+            + " ".join(
+                [" to ".join(["(" + str(v) + ")" for v in e]) for e in self.edge_list()]
+            )
+            + ";\n"
+        )
+
+        if placement is None:
+            placement = self.layout(layout)
+        vertices_str = "".join(
+            [
+                "\t\\node["
+                + vertex_style
+                + (
+                    ("," if vertex_style != "" else "")
+                    + "label={[labelsty]right:$"
+                    + str(v)
+                    + "$}"
+                    if vertex_out_labels
+                    else ""
+                )
+                + "] ("
+                + str(v)
+                + ") at ("
+                + str(round(placement[v][0], 5))
+                + ", "
+                + str(round(placement[v][1], 5))
+                + ") {"
+                + ("$" + str(v) + "$" if vertex_in_labels else "")
+                + "};\n"
+                for v in placement
+            ]
+        )
+        return (
+            "\\begin{tikzpicture}["
+            + figure_str
+            + "]\n"
+            + vertices_str
+            + edges_str
+            + "\\end{tikzpicture}"
+        )
+
     def _resolve_edge_colors(
         self, edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]])
     ) -> tuple[list, list]:
@@ -2097,6 +2176,7 @@ class Graph(nx.Graph):
                 f"was specified multiple times: {duplicates}."
             )
         return edge_color_array, edge_list_ref
+
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
