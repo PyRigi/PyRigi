@@ -50,4 +50,4 @@ is called a $d$-dimensional _k-extension_ of $G$.
 :::{toctree}
 :maxdepth: 2
 graph-theory/known-families
-graph-theory/double-bananas
+graph-theory/double-banana
