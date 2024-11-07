@@ -1585,7 +1585,6 @@ class Graph(nx.Graph):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
-
             # Random sampling from [1,N] for N depending quadratically on number
             # of vertices.
             raise NotImplementedError()

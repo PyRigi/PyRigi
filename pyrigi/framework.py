@@ -900,7 +900,9 @@ class Framework(object):
                     stress_matr[i, i] += stress[edge_order.index(edge)]
         for v, w in combinations(self._graph.nodes, 2):
             i, j = vertex_list.index(v), vertex_list.index(w)
-            correct_edge = lambda edge: edge if edge in edge_order else [edge[1],edge[0]]
+            correct_edge = (
+                lambda edge: edge if edge in edge_order else [edge[1], edge[0]]
+            )
             if [v, w] in edge_order or [w, v] in edge_order:
                 stress_matr[i, j] = -stress[edge_order.index(correct_edge([v, w]))]
                 stress_matr[j, i] = -stress[edge_order.index(correct_edge([v, w]))]
@@ -1281,7 +1283,6 @@ class Framework(object):
             )
 
         for u, v in self._graph.edges:
-
             edge_vec = self._realization[u] - self._realization[v]
             dist_squared = (edge_vec.T * edge_vec)[0, 0]
 
