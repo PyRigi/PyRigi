@@ -852,6 +852,7 @@ class Framework(object):
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
+        The matrix order is the one from self._graph.vertex_list().
 
         Definitions
         -----
@@ -891,14 +892,18 @@ class Framework(object):
                 )
         # creation of a zero |V|x|V| matrix
         stress_matr = sp.zeros(len(self._graph))
+        vertex_list = self._graph.vertex_list()
         for v in self._graph.nodes:
+            i = vertex_list.index(v)
             for edge in edge_order:
                 if v in edge:
-                    stress_matr[v, v] += stress[edge_order.index(edge)]
+                    stress_matr[i, i] += stress[edge_order.index(edge)]
         for v, w in combinations(self._graph.nodes, 2):
-            if [v, w] in edge_order:
-                stress_matr[v, w] = -stress[edge_order.index([v, w])]
-                stress_matr[w, v] = -stress[edge_order.index([v, w])]
+            i, j = vertex_list.index(v), vertex_list.index(w)
+            correct_edge = lambda edge: edge if edge in edge_order else [edge[1],edge[0]]
+            if [v, w] in edge_order or [w, v] in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index(correct_edge([v, w]))]
+                stress_matr[j, i] = -stress[edge_order.index(correct_edge([v, w]))]
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
