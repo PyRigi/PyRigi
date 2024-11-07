@@ -632,11 +632,12 @@ class Graph(nx.Graph):
             is consistent with the graph.
 
         Examples
-        ----
-        >>> G = graphDB.Complete(4)
+        ----´
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(4)
         >>> G.is_tight(2,2)
         True
-        >>> G1 = graphDB.CompleteBipartite(4,4)
+        >>> G1 = graphs.CompleteBipartite(4,4)
         >>> G1.is_tight(3,6)
         False
         """

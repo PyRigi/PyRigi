@@ -372,8 +372,8 @@ class Framework(object):
 
         Examples
         ----
-        >>> from pyrigi import graphDB
-        >>> F = Framework.Circular(graphDB.CompleteBipartite(4, 2))
+        >>> import pyrigi.graphDB as graphs
+        >>> F = Framework.Circular(graphs.CompleteBipartite(4, 2))
         >>> print(F)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges ...
@@ -396,8 +396,8 @@ class Framework(object):
 
         Examples
         --------
-        >>> from pyrigi import graphDB
-        >>> Framework.Collinear(graphDB.Complete(3), d=2)
+        >>> import pyrigi.graphDB as graphs
+        >>> Framework.Collinear(graphs.Complete(3), d=2)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
@@ -1010,7 +1010,8 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Circular(graphDB.CompleteBipartite(3, 3))
+        >>> import pyrigi.graphDB as graphs
+        >>> F = Framework.Circular(graphs.CompleteBipartite(3, 3))
         >>> F.nontrivial_inf_flexes()
         [Matrix([
             [       3/2],
