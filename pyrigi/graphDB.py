@@ -88,9 +88,10 @@ def Octahedral():
         ]
     )
 
+
 def Frustum(n: int) -> Graph:
     G = Graph()
-    G.add_edges([(j,(j+1)%n) for j in range(0,n)])
-    G.add_edges([(j,(j+1-n)%n+n) for j in range(n,2*n)])
-    G.add_edges([(j,j+n) for j in range(0,n)])
+    G.add_edges([(j, (j + 1) % n) for j in range(0, n)])
+    G.add_edges([(j, (j + 1 - n) % n + n) for j in range(n, 2 * n)])
+    G.add_edges([(j, j + n) for j in range(0, n)])
     return G

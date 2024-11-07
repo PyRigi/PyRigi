@@ -1012,7 +1012,7 @@ class Framework(object):
 
         Examples
         ----
-        >>> K4 = Framework.Complete([(0,0),(0,1),(1,0),(1,1)])   
+        >>> K4 = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
         >>> K4.rigidity_matrix_rank()   # the complete graph is a circuit
         5
         >>> K4.delete_edge([0,1])
