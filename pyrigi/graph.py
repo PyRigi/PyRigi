@@ -2040,25 +2040,25 @@ class Graph(nx.Graph):
 
         return Framework.Random(self, dim, rand_range)
 
-        @doc_category("Other")
+    @doc_category("Other")
     def to_tikz(
         self,
         layout_type: str = "spring",
         placement: dict[Vertex, Point] = None,
-        vertex_style: str = "vertex",
-        edge_style: str = "edge",
-        label_style: str = "labelsty";
+        vertex_style: Union(str, dict[str : list[Vertex]]) = "vertex",
+        edge_style: Union(str, dict[str : list[Edge]]) = "edge",
+        label_style: str = "labelsty",
         figure_style: str = "",
         vertex_in_labels: bool = False,
         vertex_out_labels: bool = False,
         default_styles: bool = True
     ) -> str:
+        # strings for tikz styles
         if vertex_out_labels and default_styles:
             lstyle_str = "labelsty/.style={font=\scriptsize,black!70!white}"
         else:
             lstyle_str = ""
-        else:
-            lstyle_str = ""
+
         if vertex_style == "vertex" and default_styles:
             if vertex_in_labels:
                 vstyle_str = "vertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize}"
@@ -2074,22 +2074,55 @@ class Graph(nx.Graph):
         figure_str = [figure_style, vstyle_str, estyle_str, lstyle_str]
         figure_str = [fs for fs in figure_str if fs != ""]
         figure_str = ",".join(figure_str)
-        edges_str = (
-            "\t\\draw["
-            + edge_style
-            + "] "
-            + " ".join(
-                [" to ".join(["(" + str(v) + ")" for v in e]) for e in self.edge_list()]
-            )
-            + ";\n"
-        )
 
+        # tikz for edges
+        edge_style_dict = {}
+        if type(edge_style) is str:
+            edge_style_dict[edge_style] = self.edge_list()
+        else:
+            dict_edges = []
+            for estyle,elist in edge_style.items():
+                cdict_edges = [ee for ee in elist if self.has_edge(*ee)]
+                edge_style_dict[estyle] = cdict_edges
+                dict_edges += cdict_edges
+            remaining_edges = [ee for ee in self.edge_list() if not ((ee in dict_edges) or (ee.reverse() in dict_edges))]
+            edge_style_dict[""] = remaining_edges
+
+        print(edge_style_dict)
+        edges_str=""
+        for estyle,elist in edge_style_dict.items():
+            edges_str += (
+                "\t\\draw["
+                + estyle
+                + "] "
+                + " ".join(
+                    [" to ".join(["(" + str(v) + ")" for v in e]) for e in elist]
+                )
+                + ";\n"
+            )
+
+        # tikz for vertices
         if placement is None:
-            placement = self.layout(layout)
-        vertices_str = "".join(
+            placement = self.layout(layout_type)
+
+        vertex_style_dict = {}
+        if type(vertex_style) is str:
+            vertex_style_dict[vertex_style] = self.vertex_list()
+        else:
+            dict_vertices = []
+            for style,vlist in vertex_style.items():
+                cdict_vertices = [vv for vv in vlist if (vv in self.vertex_list())]
+                vertex_style_dict[style] = cdict_vertices
+                dict_vertices += cdict_vertices
+            remaining_vertices = [vv for vv in self.vertex_list() if not (vv in dict_vertices)]
+            vertex_style_dict[""] = remaining_vertices
+
+        vertices_str = ""
+        for vstyle,vlist in vertex_style_dict.items():
+            vertices_str += "".join(
             [
                 "\t\\node["
-                + vertex_style
+                + vstyle
                 + (
                     ("," if vertex_style != "" else "")
                     + "label={[labelsty]right:$"
@@ -2107,7 +2140,7 @@ class Graph(nx.Graph):
                 + ") {"
                 + ("$" + str(v) + "$" if vertex_in_labels else "")
                 + "};\n"
-                for v in placement
+                for v in vlist
             ]
         )
         return (
