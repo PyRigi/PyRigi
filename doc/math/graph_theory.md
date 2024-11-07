@@ -45,3 +45,9 @@ is called a $d$-dimensional _k-extension_ of $G$.
 {meth}`~.Graph.all_k_extensions`
 {meth}`~.Graph.extension_sequence`
 :::
+
+## Further topics
+:::{toctree}
+:maxdepth: 2
+graph-theory/known-families
+:::
