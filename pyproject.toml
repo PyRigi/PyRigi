@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyrigi"
-version = "0.2.0"
+version = "0.3.0"
 description = "Python package concerning the rigidity and flexibility of bar-and-joint frameworks."
 authors = ["The PyRigi Developers"]
 license = "MIT"
@@ -46,7 +46,8 @@ sphinx-tippy = "^0.4.3"
 sphinxcontrib-bibtex = "^2.6.2"
 sphinxcontrib-napoleon = "^0.7"
 sphinx-autobuild = "^2024.4.16"
-setuptools = "^69.5.1"
+setuptools = "^70.0.0"
+jupytext = "^1.16.4"
 
 [build-system]
 requires = ["poetry-core"]

@@ -12,7 +12,12 @@ kernelspec:
   name: python3
 ---
 
+(tutorial-framework-database)=
 # Database of frameworks
+
++++
+
+This notebook can be downloaded {download}`here <../../notebooks/framework_database.ipynb>`.
 
 +++
 
