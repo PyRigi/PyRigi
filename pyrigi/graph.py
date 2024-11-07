@@ -555,9 +555,15 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
+        Examples
         ----
-        examples, tests for other cases than (2,3)
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.DoubleBanana()
+        >>> G.is_sparse(3,6)
+        True
+        >>> G.add_edge(0,1)
+        >>> G.is_sparse(3,6)
+        False
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
@@ -625,9 +631,15 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
-        ----
-        examples, tests for other cases than (2,3)
+        Examples
+        ----´
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(4)
+        >>> G.is_tight(2,2)
+        True
+        >>> G1 = graphs.CompleteBipartite(4,4)
+        >>> G1.is_tight(3,6)
+        False
         """
         return (
             self.is_sparse(
