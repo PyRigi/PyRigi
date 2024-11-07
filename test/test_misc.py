@@ -4,6 +4,7 @@ from numpy import dot
 from numpy.linalg import norm
 from random import randint
 
+
 def test_is_zero_vector():
     V1 = point_to_vector([0, 0])
     assert is_zero_vector(V1)
@@ -30,6 +31,7 @@ def test_is_zero_vector():
     V6 = point_to_vector([1e-8, 1e-8])
     assert not is_zero_vector(V6)
     assert not is_zero_vector(V6, numerical=True, tolerance=1e-9)
+
 
 def test_generate_two_ortonormal_vectors():
     for i in range(15):

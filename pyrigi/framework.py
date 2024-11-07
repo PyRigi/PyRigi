@@ -315,6 +315,7 @@ class Framework(object):
             where dim is the dimension of the currect placements of vertices.
         """
 
+        projection_matrix = array(projection_matrix)
         if projection_matrix.shape != (2, self._dim):
             raise ValueError(
                 f"The projection matrix has wrong dimensions! \
@@ -325,7 +326,7 @@ class Framework(object):
         for vertex, position in self.realization(
             as_points=False, numerical=True
         ).items():
-            placement[vertex] = dot(projection_matrix, position)
+            placement[vertex] = dot(projection_matrix, array(position))
 
         return self.plot_with_diff_realization(
             placement, vertex_color, edge_width, **kwargs
