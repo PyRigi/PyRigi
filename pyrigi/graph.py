@@ -974,20 +974,23 @@ class Graph(nx.Graph):
         return None if return_solution else False
 
     @doc_category("Generic rigidity")
-    def number_of_minimally_rigid_realizations(
+    def number_of_min_rigid_realizations(
         self, spherical_realizations: bool = False, check_min_rigid: bool = False
     ) -> int:
         """
         Count the number of a planar or spherical realizations of a minimally rigid graph.
 
-        Note that by default, the method does not check if the input graph is minimally rigid.
+        Note that by default, the method does not check if the input graph is minimally
+        rigid.
 
         Parameters
         ----------
         check_min_rigid:
             If not specified the default value is False.
-            If True, the method first checks if the graph is minimally rigid and if it is not minimally rigid the method returns 0.
-            If False, the method assumes that the user is inputing a minimally rigid graph.
+            If True, the method first checks if the graph is minimally rigid and if it is
+            not minimally rigid the method returns 0.
+            If False, the method assumes that the user is inputing a minimally rigid
+            graph.
 
         spherical_realizations:
             If not specified the default value is True.
@@ -998,9 +1001,9 @@ class Graph(nx.Graph):
         --------
         >>> from pyrigi import Graph
         >>> G = Graph([(0,1),(1,2),(2,0)])
-        >>> G.number_of_minimally_rigid_realizations() #returns number of planar realizations
+        >>> G.number_of_min_rigid_realizations() #returns number of planar realizations
         2
-        >>> G.number_of_minimally_rigid_realizations(spherical_realizations=True)
+        >>> G.number_of_min_rigid_realizations(spherical_realizations=True)
         2
         """
         n = self.to_int()
