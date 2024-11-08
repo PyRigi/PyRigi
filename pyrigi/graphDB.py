@@ -136,17 +136,31 @@ def Frustum(n: int) -> Graph:
 
 
 def K66MinusPerfectMatching():
-    """Create a Complete bipartite graph minus a perfect matching
-    by deleting six non-incident edges."""
+    """
+    Return a complete bipartite graph minus a perfect matching.
+
+    A matching is formed by six non-incident edges.
+
+    TODO
+    ----
+    use in tests
+    """
     G = CompleteBipartite(6, 6)
     G.delete_edges([(i, i + 6) for i in range(0, 6)])
     return G
 
 
 def C8FlexibleWithFixedVertex():
-    """Create C_8-symmetric graph with a fixed vertex which satisfies the
-    expected symmetry-adapted Laman count for rotation but is infinitessimally
-    flexible."""
+    """
+    Return a C_8-symmetric graph with a fixed vertex
+
+    The returned graph satisfies the expected symmetry-adapted Laman
+    count for rotation but is infinitesimally flexible.
+
+    TODO
+    ----
+    Create corresponding rotationally symmetric framework.
+    """
     return Graph(
         [
             (0, 1),
@@ -193,7 +207,15 @@ def C8FlexibleWithFixedVertex():
 
 
 def ThreeConnectedR3Circuit():
-    """Create a 3-connected R_3-circuit that is hypothesized to be the smallest."""
+    """
+    Return a 3-connected R_3-circuit.
+
+    The returned graph is hypothesized to be the smallest 3-connected R_3-circuit.
+
+    TODO
+    ----
+    use in tests
+    """
     return Graph(
         [
             (0, 1),
