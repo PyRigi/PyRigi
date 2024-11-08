@@ -13,7 +13,7 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Any, Dict, Union
+from typing import List, Dict, Union
 
 from copy import deepcopy
 from itertools import combinations
@@ -885,7 +885,8 @@ class Framework(object):
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
-        The matrix order is the one from self._graph.vertex_list().
+
+        The matrix order is the one from :meth:`~.Framework.vertex_list`.
 
         Definitions
         -----
@@ -894,7 +895,7 @@ class Framework(object):
         Parameters
         ----------
         stress:
-            A stress of the graph
+            A stress of the framework.
         edges_ordered:
             A Boolean indicating, whether the edges are assumed to be ordered (``True``),
             or whether they should be internally sorted (``False``).
@@ -911,6 +912,11 @@ class Framework(object):
         [  8, -4, -2, -2],
         [  4, -2, -1, -1],
         [  4, -2, -1, -1]])
+
+        TODO
+        ----
+        Implement arbitrary ``vertex_order``.
+        Check that the input is indeed a stress.
         """
         if edge_order is None:
             edge_order = self._graph.edge_list()
@@ -1098,9 +1104,9 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self) -> Any:
+    def stresses(self) -> List[Matrix]:
         r"""
-        Return a basis of the space of stresses.
+        Return a basis of the space of equilibrium stresses.
 
         Definitions
         -----------
