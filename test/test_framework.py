@@ -61,6 +61,7 @@ def test_inf_rigid(framework):
         fws.Cycle(4, d=3),
         fws.Path(3, d=3),
         fws.Path(4, d=3),
+        fws.Frustum(3),
     ]
     + [fws.Cycle(n - 1, d=n) for n in range(5, 10)]
     + [fws.Cycle(n, d=n) for n in range(4, 10)]
@@ -423,7 +424,7 @@ def test_is_congruent():
     assert F4.is_congruent_realization(R1, numerical=True)
 
 
-def test_rigidity_matrix_rank_K4():
+def test_rigidity_matrix_rank():
     K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
     assert K4.rigidity_matrix_rank() == 5
 
@@ -435,10 +436,5 @@ def test_rigidity_matrix_rank_K4():
     K4.delete_edge([2, 3])
     assert K4.rigidity_matrix_rank() == 4
 
-
-def test_inf_rigidity_n_frustum():
-    """Test if the 3-Frustum (which has a single infinitessimal motion and stress)
-    is infinitessimally rigid"""
-    F = fws.Frustum(3)
+    F = fws.Frustum(3)  # has a single infinitesimal motion and stress
     assert F.rigidity_matrix_rank() == 8
-    assert not F.is_inf_rigid()
