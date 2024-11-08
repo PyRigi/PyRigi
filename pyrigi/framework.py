@@ -1104,7 +1104,7 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self) -> Any:
+    def stresses(self) -> List[Matrix]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
