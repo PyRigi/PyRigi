@@ -4,7 +4,6 @@ This is a module for providing common types of graphs.
 
 import networkx as nx
 from pyrigi.graph import Graph
-from pyrigi.data_type import Edge
 
 
 def Cycle(n: int) -> Graph:
@@ -125,36 +124,3 @@ def Octahedral():
             (3, 5),
         ]
     )
-
-
-def sum_2(G1: Graph, G2: Graph, edge: Edge):
-    """
-    Return the 2-sum of G1 and G2 along the given edge.
-
-    Parameters
-    ----------
-    G1: Graph
-    G2: Graph
-    edge: Edge
-
-    Definitions
-    -----
-    :prf:ref:`2-sum <def-2-sum>`
-
-    Examples
-    --------
-    >>> H = Graph([[1,2],[2,3],[3,1]])
-    >>> G = Graph([[0,1],[1,2]])
-    >>> sum_2(G, H, [1, 2])
-    Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [1, 3], [2, 3]]
-
-    """
-    if edge not in G1.edges or edge not in G2.edges:
-        raise ValueError(f"The edge {edge} is not in the intersection of the graphs.")
-    H = G1.copy()
-    H.delete_edges(G2.edges)  # the intersection of G1 and G2
-    if len(H.edges) != 1 and len(H.vertex_list()) != 2:
-        raise ValueError("The intersection of the graphs must be a 2-complete graph.")
-    G = G1 + G2
-    G.remove_edge(edge[0], edge[1])
-    return G

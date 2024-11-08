@@ -2112,6 +2112,45 @@ class Graph(nx.Graph):
             )
         return edge_color_array, edge_list_ref
 
+    @doc_category("Graph manipulation")
+    def sum_t(self, G2: Graph, edge: Edge, t: int = 2):
+        """
+        Return the t-sum of self and G2 along the given edge.
+
+        Parameters
+        ----------
+        G2: Graph
+        edge: Edge
+        t: integer, default value 2
+
+        Definitions
+        -----
+        :prf:ref:`t-sum <def-t-sum>`
+
+        Examples
+        --------
+        >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
+        >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
+        >>> H.sum_t(G, [1, 2], 3)
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [1, 3], [2, 3], [3, 4]]
+        """
+        if edge not in self.edges or edge not in G2.edges:
+            raise ValueError(
+                f"The edge {edge} is not in the intersection of the graphs."
+            )
+        I = Graph()  # the intersection of G1 and G2
+        for e in self.edges:
+            if e in G2.edges:
+                I.add_edge(e[0], e[1])
+        # check if the intersection is a t-complete graph
+        if I.is_isomorphic(Graph(nx.complete_graph(t))) == False:
+            raise ValueError(
+                f"The intersection of the graphs must be a {t}-complete graph."
+            )
+        G = self + G2
+        G.remove_edge(edge[0], edge[1])
+        return G
+
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
         """
