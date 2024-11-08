@@ -1001,7 +1001,7 @@ class Graph(nx.Graph):
         return None if return_solution else False
 
     @doc_category("Generic rigidity")
-    def number_of_min_rigid_realizations(
+    def number_of_realizations(
         self, spherical_realizations: bool = False, check_min_rigid: bool = False
     ) -> int:
         """
@@ -1028,9 +1028,9 @@ class Graph(nx.Graph):
         --------
         >>> from pyrigi import Graph
         >>> G = Graph([(0,1),(1,2),(2,0)])
-        >>> G.number_of_min_rigid_realizations() #returns number of planar realizations
+        >>> G.number_of_realizations() # number of planar realizations
         2
-        >>> G.number_of_min_rigid_realizations(spherical_realizations=True)
+        >>> G.number_of_realizations(spherical_realizations=True)
         2
         """
         n = self.to_int()
