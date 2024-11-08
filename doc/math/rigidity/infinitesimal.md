@@ -102,7 +102,7 @@ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigi
 {{pyrigi_crossref}} {meth}`~.Framework.is_min_inf_rigid`
 :::
 
-:::{prf:definition} Equilibriuim stress
+:::{prf:definition} Equilibrium stress
 :label: def-equilibrium-stress
 
 Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` with $G=(V,E)$.
