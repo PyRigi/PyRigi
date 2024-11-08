@@ -7,13 +7,13 @@ from __future__ import annotations
 from copy import deepcopy
 from itertools import combinations
 from typing import List, Union, Iterable
-from lnumber import lnumber, lnumbers
 
 import networkx as nx
 import matplotlib.pyplot as plt
 from sympy import Matrix
 import math
 import distinctipy
+import lnumber
 
 from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.misc import doc_category, generate_category_tables
@@ -1005,24 +1005,19 @@ class Graph(nx.Graph):
         self, spherical_realizations: bool = False, check_min_rigid: bool = False
     ) -> int:
         """
-        Count the number of a planar or spherical realizations of a minimally rigid graph.
+        Count the number of planar or spherical realizations of a minimally 2-rigid graph.
 
-        Note that by default, the method does not check if the input graph is minimally
-        rigid.
+        Note that by default, the method checks if the input graph is minimally 2-rigid.
 
         Parameters
         ----------
         check_min_rigid:
-            If not specified the default value is False.
-            If True, the method first checks if the graph is minimally rigid and if it is
-            not minimally rigid the method returns 0.
-            If False, the method assumes that the user is inputing a minimally rigid
-            graph.
+            If ``True``, ``ValueError`` is raised if the graph is not minimally 2-rigid
+            If ``False``, it is assumed that the user is inputing a minimally rigid graph.
 
         spherical_realizations:
-            If not specified the default value is True.
-            If True, the method returns the number of spherical realizations of the graph
-            If False, the method returns the number of planar realizations of the graph.
+            If ``True``, the number of spherical realizations of the graph is returned.
+            If ``False`` (default), the number of planar realizations is returned.
 
         Examples
         --------
@@ -1032,14 +1027,19 @@ class Graph(nx.Graph):
         2
         >>> G.number_of_realizations(spherical_realizations=True)
         2
+
+        TODO
+        ----
+        Definition of the number of realizations.
+        Tests
         """
         n = self.to_int()
-        if not self.is_min_rigid():
-            return 0
+        if check_min_rigid and not self.is_min_rigid():
+            raise ValueError("The graph must be minimally 2-rigid.")
         if spherical_realizations:
-            return lnumbers(n)
+            return lnumber.lnumbers(n)
         else:
-            return lnumber(n)
+            return lnumber.lnumber(n)
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
