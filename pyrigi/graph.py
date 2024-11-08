@@ -2158,7 +2158,7 @@ class Graph(nx.Graph):
         \end{tikzpicture}
 
 
-        """   # noqa: E501
+        """  # noqa: E501
 
         # strings for tikz styles
         if vertex_out_labels and default_styles:

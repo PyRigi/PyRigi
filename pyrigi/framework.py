@@ -361,7 +361,7 @@ class Framework(object):
         \end{tikzpicture}
 
         For more examples on formatting options, see also :meth:`.Graph.to_tikz`.
-        """   # noqa: E501
+        """  # noqa: E501
 
         # strings for tikz styles
         if vertex_out_labels and default_styles:
@@ -385,7 +385,16 @@ class Framework(object):
         figure_str = [fs for fs in figure_str if fs != ""]
         figure_str = ",".join(figure_str)
 
-        return self.graph().to_tikz(placement=self.realization(), figure_opts=figure_str, vertex_style=vertex_style, edge_style=edge_style, label_style=label_style, vertex_in_labels=vertex_in_labels, vertex_out_labels=vertex_out_labels,default_styles=False)
+        return self.graph().to_tikz(
+            placement=self.realization(),
+            figure_opts=figure_str,
+            vertex_style=vertex_style,
+            edge_style=edge_style,
+            label_style=label_style,
+            vertex_in_labels=vertex_in_labels,
+            vertex_out_labels=vertex_out_labels,
+            default_styles=False,
+        )
 
     @classmethod
     @doc_category("Class methods")
