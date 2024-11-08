@@ -13,7 +13,7 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Any, Dict, Union
+from typing import List, Dict, Union
 
 from copy import deepcopy
 from itertools import combinations
@@ -885,7 +885,7 @@ class Framework(object):
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
-        
+
         The matrix order is the one from :meth:`~.Framework.vertex_list`.
 
         Definitions
@@ -912,7 +912,7 @@ class Framework(object):
         [  8, -4, -2, -2],
         [  4, -2, -1, -1],
         [  4, -2, -1, -1]])
-        
+
         TODO
         ----
         Implement arbitrary ``vertex_order``.
