@@ -31,6 +31,7 @@ math/references
 :caption: Development guide
 development/howto
 development/cheatsheet
+development/contributors
 :::
 
 
