@@ -127,12 +127,12 @@ def Octahedral() -> Graph:
 
 
 def Frustum(n: int) -> Graph:
-    """Return the n-Frustum graph"""
-    G = Graph()
-    G.add_edges([(j, (j + 1) % n) for j in range(0, n)])
-    G.add_edges([(j, (j + 1 - n) % n + n) for j in range(n, 2 * n)])
-    G.add_edges([(j, j + n) for j in range(0, n)])
-    return G
+    """Return the :prf:ref:`n-Frustum graph <def-n-frustum>`"""
+    return Graph(
+        [(j, (j + 1) % n) for j in range(0, n)]
+        + [(j, (j + 1 - n) % n + n) for j in range(n, 2 * n)]
+        + [(j, j + n) for j in range(0, n)]
+    )
 
 
 def K66MinusPerfectMatching():

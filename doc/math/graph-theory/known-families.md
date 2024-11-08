@@ -10,6 +10,6 @@ Assume that $n\geq 3$. The graph $G=(V,E)$ is called the _$n$-Frustum_ if it has
 * $G[V_1]$ and $G[V_2]$ are cycle graphs.
 * For each vertex $v_1$ in $V_1$ there is exactly one edge $(v_1,v_2)$ in $E$ for some $v_2 \in V_2$.
 
-{{pyrigi_crossref}} {meth}`~pyrigi.graphDB.Frustum`
-{meth}`~pyrigi.frameworkDB.Frustum`
+{{pyrigi_crossref}} {func}`.graphDB.Frustum`
+{func}`.frameworkDB.Frustum`
 :::
