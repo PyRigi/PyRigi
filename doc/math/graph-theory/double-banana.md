@@ -27,7 +27,7 @@ Suppose $G$ is a flexible $\mathcal{R}_d$-circuit with at most $d+6$ vertices. T
 * $d=3$ and $G\in \{B_{3,2}\}\cup \mathcal{B}_{3,2}^+$ or
 * $d\geq 4$ and $G\in \{B_{d,d-1}$, $B_{d,d-2}\}\cup \mathcal{B}_{d,d-1}^+$.
 
-{cite:p}`Grasegger2022`
+{cite:p}`GGJN2022`
 :::
 
 
