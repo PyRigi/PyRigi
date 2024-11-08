@@ -917,6 +917,7 @@ class Framework(object):
         ----
         Implement arbitrary ``vertex_order``.
         Check that the input is indeed a stress.
+        Tests.
         """
         if edge_order is None:
             edge_order = self._graph.edge_list()
@@ -1125,6 +1126,10 @@ class Framework(object):
         [ 2],
         [ 2],
         [ 1]])]
+
+        TODO
+        ----
+        tests
         """
         return self.rigidity_matrix().transpose().nullspace()
 
