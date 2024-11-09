@@ -139,6 +139,10 @@ class Graph(nx.Graph):
         r"""
         Return the union of self and other.
 
+        Definitions
+        -----------
+        :prf:ref:`Union of two graphs <def-union-graph>`
+
         Examples
         --------
         >>> G = Graph([[0,1],[1,2],[2,0]])
