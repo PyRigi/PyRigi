@@ -38,6 +38,7 @@ from pyrigi.misc import (
 
 from typing import Optional
 
+
 class Framework(object):
     r"""
     This class provides the functionality for frameworks.
