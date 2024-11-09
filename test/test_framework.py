@@ -130,6 +130,65 @@ def test_not_min_inf_rigid(framework):
     assert not framework.is_min_inf_rigid()
 
 
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Complete(2, d=1),
+        fws.Complete(2, d=2),
+        fws.Complete(3, d=2),
+        fws.Complete(3, d=3),
+        fws.Complete(4, d=3),
+        fws.CompleteBipartite(3, 3),
+        fws.CompleteBipartite(1, 3),
+        fws.CompleteBipartite(2, 3),
+        fws.Diamond(),
+        fws.ThreePrism(),
+        Framework.from_points([[i] for i in range(4)]),
+        fws.Cycle(4, d=2),
+        fws.Cycle(5, d=2),
+        fws.Cycle(4, d=2),
+        fws.Path(3, d=1),
+        fws.Path(3, d=2),
+        fws.Path(4, d=2),
+        fws.Path(3, d=3),
+        fws.Path(4, d=3),
+    ]
+    + [fws.Complete(2, d=n) for n in range(1, 7)]
+    + [fws.Complete(3, d=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
+    + [fws.Complete(n, d=n) for n in range(1, 7)]
+    + [fws.Complete(n + 1, d=n) for n in range(1, 7)]
+    + [fws.Cycle(n - 1, d=n) for n in range(5, 7)]
+    + [fws.Cycle(n, d=n) for n in range(4, 7)]
+    + [fws.Cycle(n + 1, d=n) for n in range(3, 7)],
+)
+def test_is_independent(framework):
+    assert framework.is_independent()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.K33plusEdge(),
+        fws.ThreePrismPlusEdge(),
+        Framework.Collinear(graphs.Complete(3), d=2),
+        fws.Complete(3, d=1),
+        fws.Complete(4, d=1),
+        fws.Complete(4, d=2),
+        fws.CompleteBipartite(3, 3, "dixonI"),
+        fws.CompleteBipartite(3, 4),
+        fws.CompleteBipartite(4, 4),
+        fws.ThreePrism("flexible"),
+        fws.ThreePrism("parallel"),
+        fws.Cycle(4, d=1),
+        fws.Cycle(5, d=1),
+    ]
+    + [Framework.Random(graphs.Complete(n), dim=n - 2) for n in range(3, 8)],
+)
+def test_is_dependent(framework):
+    assert framework.is_dependent()
+
+
 def test_dimension():
     assert fws.Complete(2, 2).dim() == fws.Complete(2, 2).dimension()
     assert fws.Complete(2, 2).dim() == 2
