@@ -26,7 +26,8 @@ pip install pyrigi
 
 Alternatively, one can clone/download the package
 from [this GitHub repository](https://github.com/pyRigi/PyRigi).
-Installation for development is done via [Poetry](#dev-dependencies).
+Installation for development is done via [Poetry](#dev-dependencies). 
+More detailed installation instructions depending on your operating system can be found [here](installation-guide).
 
 +++
 

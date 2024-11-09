@@ -27,6 +27,7 @@ ipyevents = "^2.0.2"
 ipywidgets = "^8.1.5"
 ipython = "^8.29.0"
 numpy = "^2.1.2"
+lnumber = "^0.13"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"

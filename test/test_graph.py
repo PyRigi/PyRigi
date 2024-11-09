@@ -1250,3 +1250,18 @@ def test_from_vertices_and_edges():
         ["a", "c"],
         ["a", "d"],
     ]
+
+
+def test_is_3_6_sparse():
+    """The Double Banana is (3,6)-tight."""
+    G = graphs.DoubleBanana()
+    assert G.is_sparse(3, 6)
+    G.add_edge(0, 1)
+    assert not G.is_sparse(3, 6)
+
+
+def test_is_k_l_tight():
+    G = graphs.Complete(4)
+    assert G.is_tight(2, 2)
+    G = graphs.CompleteBipartite(4, 4)
+    assert not G.is_tight(3, 6)

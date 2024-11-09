@@ -172,3 +172,7 @@ frameworks.K33plusEdge().plot()
 ```{code-cell} ipython3
 frameworks.ThreePrismPlusEdge().plot()
 ```
+
+```{code-cell} ipython3
+frameworks.Frustum(3).plot()
+```

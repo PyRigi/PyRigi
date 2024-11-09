@@ -61,6 +61,7 @@ def test_inf_rigid(framework):
         fws.Cycle(4, d=3),
         fws.Path(3, d=3),
         fws.Path(4, d=3),
+        fws.Frustum(3),
     ]
     + [fws.Cycle(n - 1, d=n) for n in range(5, 10)]
     + [fws.Cycle(n, d=n) for n in range(4, 10)]
@@ -447,3 +448,19 @@ def test_plot_using_projection_matrix_error():
     F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
     with pytest.raises(ValueError):
         F.plot_using_projection_matrix([[1, 0], [0, 1]])
+
+
+def test_rigidity_matrix_rank():
+    K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
+    assert K4.rigidity_matrix_rank() == 5
+
+    # Deleting one edge does not change the rank of the rigidity matrix ...
+    K4.delete_edge([0, 1])
+    assert K4.rigidity_matrix_rank() == 5
+
+    # ... whereas deleting two edges does
+    K4.delete_edge([2, 3])
+    assert K4.rigidity_matrix_rank() == 4
+
+    F = fws.Frustum(3)  # has a single infinitesimal motion and stress
+    assert F.rigidity_matrix_rank() == 8
