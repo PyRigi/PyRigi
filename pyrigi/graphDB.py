@@ -158,8 +158,8 @@ def C8FlexibleWithFixedVertex():
     count for rotation but is infinitesimally flexible.
 
     TODO
-    ----
-    Create corresponding rotationally symmetric framework.
+    -----
+    Bugfix the graph
     """
     return Graph(
         [
