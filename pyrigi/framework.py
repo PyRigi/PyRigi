@@ -36,6 +36,7 @@ from pyrigi.misc import (
     generate_two_ortonormal_vectors,
 )
 
+from typing import Optional
 
 class Framework(object):
     r"""
@@ -279,10 +280,12 @@ class Framework(object):
         Parameters
         ----------
         realization:
-            The realization used for plotting.
-            The vectors must have a dimension 2! If not,
-            use plot_using_projection_matrix or plot instead.
+            The realization used for plotting. The vectors must have dimension 2!
         """
+
+        for v in self._graph.nodes:
+            if v not in realization:
+                raise KeyError("Vertex {vertex} is not a key of the given realization!")
 
         for vertex, placement in realization.items():
             if len(placement) != 2:
@@ -305,7 +308,7 @@ class Framework(object):
         """
         Plot this Framework with vertices placement's
         projected using the given projection Matrix.
-        For description of other parameters see Framework.plot()
+        For description of other parameters see :meth:`.Framework.plot`
 
         Parameters
         ----------
@@ -338,7 +341,7 @@ class Framework(object):
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
-    ) -> None:
+    ) -> Optional[Matrix]:
         """
         Plot the framework.
 
@@ -350,7 +353,7 @@ class Framework(object):
 
         TODO
         ----
-        implement plotting for dimension 3
+        Implement plotting for dimension 3 and better plotting for dim. 1
         """
 
         if self._dim == 1:
