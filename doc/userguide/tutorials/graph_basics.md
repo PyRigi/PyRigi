@@ -80,7 +80,7 @@ Graph.from_vertices(range(4))
 Graph.from_vertices_and_edges(range(6), [[i, (i+2) % 6] for i in range(6)])
 ```
 
-We can take the union of two graphs:
+We can take the {prf:ref}`union <def-union-graph>` of two graphs:
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [1, 2], [2, 0]])
