@@ -1616,7 +1616,7 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        missing definition, implementation for dim>=3
+        implementation for dim>=3
 
         Examples
         --------
