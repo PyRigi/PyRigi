@@ -1221,9 +1221,32 @@ class Framework(object):
             self.add_edge(edge)
         return True
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Infinitesimal rigidity")
     def is_independent(self) -> bool:
-        raise NotImplementedError()
+        """
+        Check whether the framework is :prf:ref:`independent <def-independent-framework>`.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
+        >>> F.is_independent()
+        False
+        >>> F.delete_edge((0,2))
+        >>> F.is_independent()
+        True
+        """
+        return self.rigidity_matrix_rank() == self._graph.number_of_edges()
+
+    @doc_category("Infinitesimal rigidity")
+    def is_dependent(self) -> bool:
+        """
+        Check whether the framework is :prf:ref:`dependent <def-independent-framework>`.
+
+        Notes
+        -----
+        See also :meth:`~.Framework.is_independent`.
+        """
+        return not self.is_independent()
 
     @doc_category("Waiting for implementation")
     def is_prestress_stable(self) -> bool:
