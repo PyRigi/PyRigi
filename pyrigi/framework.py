@@ -838,7 +838,7 @@ class Framework(object):
         if vertex_order is None:
             vertex_order = self._graph.vertex_list()
         if edge_order is None:
-            edge_order = self._graph.vertex_list()
+            edge_order = self._graph.edge_list()
 
         if pinned_vertices is None:
             freedom = self._dim * (self._dim + 1) // 2
@@ -949,7 +949,7 @@ class Framework(object):
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
-    def trivial_inf_flexes(self) -> List[Matrix]:
+    def trivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
         r"""
         Return a basis of the vector subspace of trivial infinitesimal flexes.
 
@@ -985,9 +985,11 @@ class Framework(object):
         [-2],
         [ 0]])]
         """
+        if vertex_order is None:
+            vertex_order = self._graph.vertex_list()
         dim = self._dim
         translations = [
-            Matrix.vstack(*[A for _ in self._graph.nodes])
+            Matrix.vstack(*[A for _ in vertex_order])
             for A in Matrix.eye(dim).columnspace()
         ]
         basis_skew_symmetric = []
@@ -998,7 +1000,7 @@ class Framework(object):
                 A[j, i] = -1
                 basis_skew_symmetric += [A]
         inf_rot = [
-            Matrix.vstack(*[A * self._realization[v] for v in self._graph.nodes])
+            Matrix.vstack(*[A * self._realization[v] for v in vertex_order])
             for A in basis_skew_symmetric
         ]
         matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
@@ -1007,6 +1009,8 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def nontrivial_inf_flexes(
         self,
+        vertex_order: List[Vertex] = None,
+        edge_order: List[Edge] = None,
     ) -> List[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
@@ -1042,11 +1046,15 @@ class Framework(object):
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(include_trivial=False)
+        return self.inf_flexes(
+            vertex_order=vertex_order, edge_order=edge_order, include_trivial=False
+        )
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
         self,
+        vertex_order: List[Vertex] = None,
+        edge_order: List[Edge] = None,
         include_trivial: bool = False,
     ) -> List[Matrix]:
         r"""
@@ -1088,9 +1096,11 @@ class Framework(object):
         [0],
         [0]])]
         """
+        rigidity_matrix = self.rigidity_matrix(
+            vertex_order=vertex_order, edge_order=edge_order
+        )
         if include_trivial:
-            return self.rigidity_matrix().nullspace()
-        rigidity_matrix = self.rigidity_matrix()
+            return rigidity_matrix.nullspace()
         all_inf_flexes = rigidity_matrix.nullspace()
         trivial_inf_flexes = self.trivial_inf_flexes()
         s = len(trivial_inf_flexes)
