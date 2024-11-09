@@ -3,7 +3,7 @@
 :::{prf:definition}
 :label: def-globally-rigid-graph
 
-A graph $G = (V,E)$ is called _globally $d$-rigid_, if for every {prf:ref}`generic <def-gen-realization>` {prf:ref}`realization <def-realization>` $p:V \rightarrow \mathbb{R}^d$ all {prf:ref}`congruent <def-equivalent-framework>` realizations $p':V\rightarrow \mathbb{R}$ are {prf:ref}`equivalent <def-equivalent-framework>` to $p$.
+A graph $G = (V,E)$ is called _globally $d$-rigid_, if for every {prf:ref}`generic <def-gen-realization>` {prf:ref}`realization <def-realization>` $p:V \rightarrow \mathbb{R}^d$ all {prf:ref}`equivalent <def-equivalent-framework>` realizations $p':V\rightarrow \mathbb{R}$ are {prf:ref}`congruent <def-equivalent-framework>` to $p$.
 
 {{references}} {cite:p}`Jackson2005`
 :::
