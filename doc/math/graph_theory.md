@@ -2,6 +2,18 @@
 
 Here we introduce graph theoretical concepts related to Rigidity Theory.
 
+## General notions
+
+:::{prf:definition} Union
+:label: def-union-graph
+
+Let $G_1 = (V_1, E_1)$ and $G_2 = (V_2, E_2)$ be simple graphs.
+The _union_ of $G_1$ and $G_2$ is the simple graph whose vertex set is $V_1 \cup V_2$
+and whose edge set is $E_1 \cup E_2$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.__add__`
+:::
+
 ## Sparse and tight graphs
 
 :::{prf:definition} $(k, \ell)$-sparse and $(k, \ell)$-tight
