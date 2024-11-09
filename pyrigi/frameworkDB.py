@@ -171,12 +171,36 @@ def Frustum(n: int) -> Framework:
     F = Framework(graphs.Frustum(n), realization)
     return F
 
-def C8FlexibleWithFixedVertex():
+
+def CnFlexibleWithFixedVertex(n: int = 8):
     """
-    Return a C_8-symmetric framework with a fixed vertex
+    Return a C_n-symmetric framework with a fixed vertex.
+    The cyclical group C_n needs to have even order of at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
     """
-    realization = {0:(0,0), 1:(200,0), 2:("sqrt(2)*100", "sqrt(2)*100"), 3:(0, 200), 4:("-sqrt(2)*100", "sqrt(2)*100"), 5:(-200, 0), 6:("-sqrt(2)*100", "-sqrt(2)*100"), 7:(0,-200), 8:("sqrt(2)*100", "-sqrt(2)*100"), 9:(300, 50), 10:("sqrt(2)*125", "sqrt(2)*175"), 11:(-50, 300), 12:("-sqrt(2)*175", "sqrt(2)*125"), 13:(-300, -50), 14:("-sqrt(2)*125", "-sqrt(2)*175"), 15:(50, -300), 16:("sqrt(2)*175", "-sqrt(2)*125")}
+    if not n % 2 == 0 or n < 8:
+        raise ValueError(
+            "To generate this framework, the cyclical group needs to have an even order of at least 8!"
+        )
+    realization = {
+        0: (0, 0),
+        1: (200, 0),
+        2: ("sqrt(2)*100", "sqrt(2)*100"),
+        3: (0, 200),
+        4: ("-sqrt(2)*100", "sqrt(2)*100"),
+        5: (-200, 0),
+        6: ("-sqrt(2)*100", "-sqrt(2)*100"),
+        7: (0, -200),
+        8: ("sqrt(2)*100", "-sqrt(2)*100"),
+        9: (300, 50),
+        10: ("sqrt(2)*125", "sqrt(2)*175"),
+        11: (-50, 300),
+        12: ("-sqrt(2)*175", "sqrt(2)*125"),
+        13: (-300, -50),
+        14: ("-sqrt(2)*125", "-sqrt(2)*175"),
+        15: (50, -300),
+        16: ("sqrt(2)*175", "-sqrt(2)*125"),
+    }
     return Framework(graphs.C8FlexibleWithFixedVertex(), realization)

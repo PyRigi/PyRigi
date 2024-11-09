@@ -150,9 +150,10 @@ def K66MinusPerfectMatching():
     return G
 
 
-def C8FlexibleWithFixedVertex():
+def CnFlexibleWithFixedVertex(n: int = 8):
     """
-    Return a C_8-symmetric graph with a fixed vertex
+    Return a C_n-symmetric graph with a fixed vertex.
+    The cyclical group C_n needs to have even order of at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
@@ -161,6 +162,10 @@ def C8FlexibleWithFixedVertex():
     -----
     Bugfix the graph
     """
+    if not n % 2 == 0 or n < 8:
+        raise ValueError(
+            "To generate this graph, the cyclical group needs to have an even order of at least 8!"
+        )
     return Graph(
         [
             (0, 1),
