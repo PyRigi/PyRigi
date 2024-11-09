@@ -1,7 +1,6 @@
-from pyrigi.misc import is_zero_vector, generate_two_ortonormal_vectors
+from pyrigi.misc import is_zero_vector, generate_two_orthonormal_vectors
 from pyrigi.data_type import point_to_vector
-from numpy import dot
-from numpy.linalg import norm
+import numpy as np
 from random import randint
 
 
@@ -33,9 +32,9 @@ def test_is_zero_vector():
     assert not is_zero_vector(V6, numerical=True, tolerance=1e-9)
 
 
-def test_generate_two_ortonormal_vectors():
+def test_generate_two_orthonormal_vectors():
     for i in range(15):
-        m = generate_two_ortonormal_vectors(randint(2, 10))
-        assert abs(dot(m[:, 0], m[:, 1])) < 1e-9
-        assert abs(norm(m[:, 0])) - 1 < 1e-9
-        assert abs(norm(m[:, 1])) - 1 < 1e-9
+        m = generate_two_orthonormal_vectors(randint(2, 10))
+        assert abs(np.dot(m[:, 0], m[:, 1])) < 1e-9
+        assert abs(np.linalg.norm(m[:, 0])) - 1 < 1e-9
+        assert abs(np.linalg.norm(m[:, 1])) - 1 < 1e-9

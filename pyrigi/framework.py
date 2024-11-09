@@ -22,7 +22,7 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
-from numpy import dot, array, append
+import numpy as np
 
 from pyrigi.data_type import Vertex, Edge, Point, point_to_vector
 from pyrigi.graph import Graph
@@ -33,7 +33,7 @@ from pyrigi.misc import (
     generate_category_tables,
     check_integrality_and_range,
     is_zero_vector,
-    generate_two_ortonormal_vectors,
+    generate_two_orthonormal_vectors,
 )
 
 from typing import Optional
@@ -290,6 +290,7 @@ class Framework(object):
                 raise KeyError("Vertex {vertex} is not a key of the given realization!")
 
         for vertex, placement in realization.items():
+            realization[vertex] = np.array(placement)
             if len(placement) != 2:
                 raise ValueError(f"Placement of vertex {vertex} is not in 2D!")
 
@@ -320,7 +321,7 @@ class Framework(object):
             where dim is the dimension of the currect placements of vertices.
         """
 
-        projection_matrix = array(projection_matrix)
+        projection_matrix = np.array(projection_matrix)
         if projection_matrix.shape != (2, self._dim):
             raise ValueError(
                 f"The projection matrix has wrong dimensions! \
@@ -331,7 +332,7 @@ class Framework(object):
         for vertex, position in self.realization(
             as_points=False, numerical=True
         ).items():
-            placement[vertex] = dot(projection_matrix, array(position))
+            placement[vertex] = np.dot(projection_matrix, np.array(position))
 
         return self.plot_with_diff_realization(
             placement, vertex_color, edge_width, **kwargs
@@ -347,7 +348,7 @@ class Framework(object):
         """
         Plot the framework.
         If this framework is in higher dimension than 2, a random
-        projection matrix containing two ortonormal vectors is used
+        projection matrix containing two orthonormal vectors is used
         for projection into 2D and then returned.
 
         For various formatting options, see :meth:`.Graph.plot`.
@@ -366,7 +367,7 @@ class Framework(object):
             for vertex, position in self.realization(
                 as_points=True, numerical=True
             ).items():
-                placement[vertex] = append(array(position), 0)
+                placement[vertex] = np.append(np.array(position), 0)
 
             self.plot_with_diff_realization(
                 placement, vertex_color, edge_width, **kwargs
@@ -383,7 +384,7 @@ class Framework(object):
             return
 
         # dim > 2 -> generate random projection to 2D
-        matrix = generate_two_ortonormal_vectors(self._dim)
+        matrix = generate_two_orthonormal_vectors(self._dim)
         matrix = matrix.T
         self.plot_using_projection_matrix(matrix, vertex_color, edge_width, **kwargs)
         return matrix

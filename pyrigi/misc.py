@@ -7,7 +7,7 @@ from pyrigi.data_type import Point, point_to_vector
 from sympy import Matrix, simplify, Abs
 from numpy.random import randn
 from numpy.linalg import norm
-from numpy import dot
+import numpy as np
 from random import randint
 
 
@@ -52,9 +52,9 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
     return ("\n" + indent).join(res.splitlines())
 
 
-def generate_two_ortonormal_vectors(dim: int) -> Matrix:
+def generate_two_orthonormal_vectors(dim: int) -> Matrix:
     """
-    Generate two random ortonormal vectors in the given dimension.
+    Generate two random orthonormal vectors in the given dimension.
     The vectors are in the columns of the returned Matrix.
 
     Parameters
@@ -73,7 +73,7 @@ def generate_two_ortonormal_vectors(dim: int) -> Matrix:
     while abs(matrix[-1, 0]) < 1e-6:
         matrix[-1, 0] = randn(1, 1)
 
-    tmp = dot(matrix[:-1, 0], matrix[:-1, 1]) * -1
+    tmp = np.dot(matrix[:-1, 0], matrix[:-1, 1]) * -1
     matrix[-1, 1] = tmp / matrix[-1, 0]
 
     # normalize
