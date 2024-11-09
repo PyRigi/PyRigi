@@ -276,6 +276,7 @@ class Framework(object):
     ) -> None:
         """
         Plot this Framework with the given realization.
+        For description of other parameters see :meth:`.Framework.plot`
 
         Parameters
         ----------
@@ -344,6 +345,9 @@ class Framework(object):
     ) -> Optional[Matrix]:
         """
         Plot the framework.
+        If this framework is in higher dimension than 2, a random
+        projection matrix containing two ortonormal vectors is used
+        for projection into 2D and then returned.
 
         For various formatting options, see :meth:`.Graph.plot`.
 
