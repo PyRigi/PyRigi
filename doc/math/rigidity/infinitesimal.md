@@ -82,7 +82,11 @@ for any other $d$-dimensional framework $(G, p')$.
 :::{prf:definition} Independent framework
 :label: def-independent-framework
 
-A $d$-dimensional {prf:ref}`framework <def-framework>` $(G, p)$ with $G = (V, E)$ is called _independent_ if $\mathrm{rk} \, R(G, p) = |E|$.
+A $d$-dimensional {prf:ref}`framework <def-framework>` $(G, p)$ with $G = (V, E)$
+is called _independent_ if $\mathrm{rk} \, R(G, p) = |E|$,
+otherwise it is dependent.
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_independent` {meth}`~.Framework.is_dependent`
 :::
 
 :::{prf:definition} Isostatic frameworks
