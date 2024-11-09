@@ -137,7 +137,7 @@ class Graph(nx.Graph):
 
     def __add__(self, other: Graph):
         r"""
-        Return the sum of self and other.
+        Return the union of self and other.
 
         Examples
         --------
@@ -146,9 +146,7 @@ class Graph(nx.Graph):
         >>> G + H
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]]
         """  # noqa: E501
-        sum_graph = self.copy()
-        sum_graph.add_edges(other.edges)
-        return sum_graph
+        return Graph(nx.compose(self, other))
 
     @classmethod
     @doc_category("Class methods")
