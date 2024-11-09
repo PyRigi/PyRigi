@@ -6,6 +6,18 @@ import pytest
 from sympy import Matrix
 
 
+def test_add():
+    G = Graph([[0, 1], [1, 2], [2, 0]])
+    H = Graph([[0, 1], [1, 3], [3, 0]])
+    assert G + H == Graph([[0, 1], [1, 2], [2, 0], [1, 3], [3, 0]])
+    G = Graph([[0, 1], [1, 2], [2, 0]])
+    H = Graph([[3, 4], [4, 5], [5, 3]])
+    assert G + H == Graph([[0, 1], [1, 2], [2, 0], [3, 4], [4, 5], [5, 3]])
+    G = Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [1, 2]])
+    H = Graph.from_vertices_and_edges([0, 1, 2, 4], [[0, 1]])
+    assert G + H == Graph.from_vertices_and_edges([0, 1, 2, 3, 4], [[0, 1], [1, 2]])
+
+
 def test_KL_values_are_correct():
     assert Graph._pebble_values_are_correct(2, 3)
     assert Graph._pebble_values_are_correct(1, 1)
