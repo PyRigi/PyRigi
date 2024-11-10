@@ -94,9 +94,7 @@ def DoubleBanana(d: int = 3, t: int = 2) -> Graph:
     K2 = K.copy()
     for i in range(d + 2, d + 2 + r):
         K2.add_edges([[i, v] for v in K2.nodes])
-    DB = K1 + K2
-    DB.delete_edge([0, 1])
-    return DB
+    return K1.sum_t(K2, [0, 1], t)
 
 
 def CompleteMinusOne(n: int) -> Graph:
