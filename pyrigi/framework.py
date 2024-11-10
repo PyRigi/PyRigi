@@ -305,8 +305,7 @@ class Framework(object):
         **kwargs,
     ) -> None:
         """
-        Plot this Framework with vertices placement's
-        projected using the given projection Matrix.
+        Plot this Framework with vertices placement's projected using the given Matrix.
 
         For description of other parameters see :meth:`.Framework.plot`
 
