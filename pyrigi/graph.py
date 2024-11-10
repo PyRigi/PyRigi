@@ -2138,18 +2138,35 @@ class Graph(nx.Graph):
             raise ValueError(
                 f"The edge {edge} is not in the intersection of the graphs."
             )
-        I = Graph.from_vertices_and_edges(
-            [v for v in self.nodes if v in G2.nodes],
-            [e for e in self.edges if e in G2.edges],
-        )  # the intersection of self and G2
         # check if the intersection is a t-complete graph
-        if I.is_isomorphic(Graph(nx.complete_graph(t))) == False:
+        if self.intersection(G2).is_isomorphic(Graph(nx.complete_graph(t))) == False:
             raise ValueError(
                 f"The intersection of the graphs must be a {t}-complete graph."
             )
         G = self + G2
         G.remove_edge(edge[0], edge[1])
         return G
+
+    @doc_category("Graph manipulation")
+    def intersection(self, G2: Graph):
+        """
+        Return the intersection of self and G2.
+
+        Parameters
+        ----------
+        G2: Graph
+
+        Examples
+        --------
+        >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
+        >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
+        >>> G.intersection(H)
+        Graph with vertices [1, 2, 3] and edges [[1, 2], [1, 3], [2, 3]]
+        """
+        return Graph.from_vertices_and_edges(
+            [v for v in self.nodes if v in G2.nodes],
+            [e for e in self.edges if e in G2.edges],
+        )
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
