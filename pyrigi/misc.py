@@ -5,8 +5,6 @@ Module for miscellaneous functions.
 import math
 from pyrigi.data_type import Point, point_to_vector
 from sympy import Matrix, simplify, Abs
-from numpy.random import randn
-from numpy.linalg import norm
 import numpy as np
 from random import randint
 
@@ -54,7 +52,8 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
 
 def generate_two_orthonormal_vectors(dim: int) -> Matrix:
     """
-    Generate two random orthonormal vectors in the given dimension.
+    Generate two random numeric orthonormal vectors in the given dimension.
+
     The vectors are in the columns of the returned Matrix.
 
     Parameters
@@ -63,22 +62,22 @@ def generate_two_orthonormal_vectors(dim: int) -> Matrix:
         The dimension in which the vectors are generated.
     """
 
-    matrix = randn(dim, 2)
+    matrix = np.random.randn(dim, 2)
 
     # for numerical stability regenerate some elements
     tmp = randint(0, dim - 1)
     while abs(matrix[tmp, 1]) < 1e-6:
-        matrix[tmp, 1] = randn(1, 1)
+        matrix[tmp, 1] = np.random.randn(1, 1)
 
     while abs(matrix[-1, 0]) < 1e-6:
-        matrix[-1, 0] = randn(1, 1)
+        matrix[-1, 0] = np.random.randn(1, 1)
 
     tmp = np.dot(matrix[:-1, 0], matrix[:-1, 1]) * -1
     matrix[-1, 1] = tmp / matrix[-1, 0]
 
     # normalize
-    matrix[:, 0] = matrix[:, 0] / norm(matrix[:, 0])
-    matrix[:, 1] = matrix[:, 1] / norm(matrix[:, 1])
+    matrix[:, 0] = matrix[:, 0] / np.linalg.norm(matrix[:, 0])
+    matrix[:, 1] = matrix[:, 1] / np.linalg.norm(matrix[:, 1])
     return matrix
 
 
