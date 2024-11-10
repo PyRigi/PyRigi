@@ -428,26 +428,24 @@ def test_is_congruent():
     "realization",
     [
         {0: [0, 0, 0], 1: [1, 1, 1]},
-        {0: [0, 0], 1: [1, 1, 1]},
+        {0: [0, 0, 1], 1: [1, 1, 1]},
         {0: [0, 0, 0, 0], 1: [0, 0, 0, 0]},
-        {0: [1, 2], 1: [1, 2, 3, 4]},
-        {0: [1, 2, 3], 1: [1, 0, 3, 4]},
     ],
 )
-def test_plot_with_diff_realization_error(realization):
-    F = fws.Complete(2)
+def test_plot_error(realization):
+    F = Framework(graphs.Complete(2), realization)
     with pytest.raises(ValueError):
-        F.plot_with_diff_realization(realization)
+        F.plot()
 
 
-def test_plot_using_projection_matrix_error():
-    F = fws.Complete(2)
+def test_plot2D_error():
+    F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
     with pytest.raises(ValueError):
-        F.plot_using_projection_matrix([[1, 0], [0, 1], [0, 0]])
+        F.plot2D([[1, 0], [0, 1], [0, 0]])
 
     F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
     with pytest.raises(ValueError):
-        F.plot_using_projection_matrix([[1, 0], [0, 1]])
+        F.plot2D([[1, 0], [0, 1]])
 
 
 def test_rigidity_matrix_rank():

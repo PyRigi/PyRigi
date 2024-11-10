@@ -331,7 +331,7 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(
         self,
-        projection_matrix: Matrix,
+        projection_matrix: Matrix = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -342,6 +342,7 @@ class Framework(object):
         If this framework is in dimensions higher than 2 and projection
         matrix is None a random projection matrix containing two orthonormal
         vectors is generated and used for projection into 2D.
+        This matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
 
         Parameters
@@ -349,6 +350,9 @@ class Framework(object):
         projection_matrix:
             The matrix used for projecting the placement of vertices
             only when they are in dimension higher than 2.
+            The matrix must have dimensions (2, dim),
+            where dim is the dimension of the currect placements of vertices.
+            If None, a random projection matrix is generated.
         """
 
         if self._dim == 1:
