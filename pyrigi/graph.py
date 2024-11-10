@@ -2138,10 +2138,10 @@ class Graph(nx.Graph):
             raise ValueError(
                 f"The edge {edge} is not in the intersection of the graphs."
             )
-        I = Graph()  # the intersection of G1 and G2
-        for e in self.edges:
-            if e in G2.edges:
-                I.add_edge(e[0], e[1])
+        I = Graph.from_vertices_and_edges(
+            [v for v in self.nodes if v in G2.nodes],
+            [e for e in self.edges if e in G2.edges],
+        )  # the intersection of self and G2
         # check if the intersection is a t-complete graph
         if I.is_isomorphic(Graph(nx.complete_graph(t))) == False:
             raise ValueError(
