@@ -1345,7 +1345,7 @@ class Framework(object):
     @doc_category("Other")
     def generate_onshape_parameters_for_3d_print(self,
                                                  scale: float = 1.0,
-                                                 roundings: int = 3) -> list:
+                                                 roundings: int = 3) -> tuple:
         """
         Generate OnShape CAD details for models.
 
@@ -1360,23 +1360,30 @@ class Framework(object):
 
         Returns
         -------
+        onshape_bars_gen_url
+            String URL to the OnShape model.
         readable_form
             List of scaled and rounded lengths of the edges in the framework.
 
-        """
-        print('Copy the following model to your OnShape workspace:')
-        print('https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2?renderMode=0&uiState=672cc055af05270e60941bce')
-        print('Use the following array of lengths as input for Bars feature:')
+        Examples
+        --------
+        >>> F = Framework(Graph([(0,1), (1,2), (2,3), (0,3)]), {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> url, l = F.generate_onshape_parameters_for_3d_print(scale=10, roundings=2)
+        >>> print(url)
+        >>> print(l)
 
-        edges_lengths = self.get_edges_lengths()
+        """
+        onshape_bars_gen_url = ('https://cad.onshape.com/documents/6b5c6a508178ccdc'
+                                '56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c'
+                                '77c9dd0d0fe2')
+
+        edges_lengths = self.edge_lengths()
+
+        # round and scale the lengths of the edges
         readable_form = [float(round(scale * length, roundings))
                          for length in edges_lengths]
 
-        # round and convert to string
-        print('Array of distances:')
-        print(readable_form)
-
-        return readable_form
+        return onshape_bars_gen_url, readable_form
 
 
 Framework.__doc__ = Framework.__doc__.replace(
