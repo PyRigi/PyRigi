@@ -1481,6 +1481,88 @@ class Framework(object):
         new_framework.rotate2D(angle, True)
         return new_framework
 
+    @doc_category("Other")
+    def edge_lengths(self) -> dict[tuple[Edge, Edge], float]:
+        """
+        Return the edges and their lengths (numerically) of the framework.
+
+        The ordering is given by graph().edge_list() method.
+
+        TODO symbolic version of this method
+
+        Returns
+        -------
+        lengths
+            Dict of edges and their lengths in the framework.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> l_dict = F.edge_lengths()
+        """
+        from numpy import array as nparray
+        from numpy.linalg import norm as npnorm
+
+        points = self.realization(as_points=True)
+        lengths = {
+            tuple(pair): npnorm(
+                nparray(points[pair[0]], dtype="float64")
+                - nparray(points[pair[1]], dtype="float64")
+            )
+            for pair in self._graph.edges
+        }
+
+        return lengths
+
+    @doc_category("Other")
+    def generate_onshape_parameters_for_3d_print(
+        self, scale: float = 1.0, roundings: int = 3
+    ) -> tuple:
+        """
+        Generate OnShape CAD details for models.
+
+        Prints the output in the console.
+
+        Parameters
+        ----------
+        scale
+            Scale factor for the lengths of the edges.
+        roundings
+            Number of decimal places for the lengths of the edges.
+
+        Returns
+        -------
+        onshape_bars_gen_url
+            String URL to the OnShape model.
+        readable_form
+            List of scaled and rounded lengths of the edges in the framework.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> url, l = F.generate_onshape_parameters_for_3d_print(scale=10, roundings=2)
+        >>> print(url)
+        https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2
+        >>> print(l)
+        [10.0, 14.24, 11.18, 5.44]
+
+        """
+        onshape_bars_gen_url = (
+            "https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/"
+            "5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2"
+        )
+
+        edges_lengths = list(self.edge_lengths().values())
+
+        # round and scale the lengths of the edges
+        readable_form = [
+            float(round(scale * length, roundings)) for length in edges_lengths
+        ]
+
+        return onshape_bars_gen_url, readable_form
+
 
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
