@@ -745,11 +745,11 @@ class Framework(object):
         Parameters
         ----------
         vertex_order:
-            By listing vertices in the preferred order, the rigidity matrix
-            can be computed in a way the user expects.
-        edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+            A list of vertices, providing the ordering for the columns
+            of the rigidity matrix.
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the rigidity matrix.
 
         TODO
         ----
@@ -815,6 +815,15 @@ class Framework(object):
     ) -> Matrix:
         r"""
         Construct the rigidity matrix of the framework.
+
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the columns
+            of the rigidity matrix.
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the rigidity matrix.
 
         TODO
         ----
@@ -896,9 +905,9 @@ class Framework(object):
         ----------
         stress:
             A stress of the framework.
-        edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the stress matrix.
 
         Examples
         --------
@@ -956,6 +965,12 @@ class Framework(object):
         Definitions
         -----------
         * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
 
         TODO
         ----
@@ -1019,6 +1034,15 @@ class Framework(object):
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
 
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the rigidity matrix.
+
         Examples
         ----
         >>> import pyrigi.graphDB as graphs
@@ -1080,6 +1104,12 @@ class Framework(object):
         include_trivial:
             Boolean that decides, whether the trivial motions should
             be included (``True``) or not (``False``)
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the rigidity matrix.
 
         Examples
         --------
@@ -1115,13 +1145,25 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self) -> List[Matrix]:
+    def stresses(
+        self,
+        vertex_order: List[Vertex] = None,
+        edge_order: List[Edge] = None,
+    ) -> List[Matrix]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
         Definitions
         -----------
         :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the columns
+            of the rigidity matrix.
+        edge_order:
+            A list of edges, providing the ordering for the rows of the rigidity matrix.
 
         Examples
         --------
@@ -1141,7 +1183,11 @@ class Framework(object):
         ----
         tests
         """
-        return self.rigidity_matrix().transpose().nullspace()
+        return (
+            self.rigidity_matrix(vertex_order=vertex_order, edge_order=edge_order)
+            .transpose()
+            .nullspace()
+        )
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
