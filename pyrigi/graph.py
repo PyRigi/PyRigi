@@ -2101,7 +2101,7 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(print(G.to_tikz(layout_type = "circular")))
+        >>> print(G.to_tikz(layout_type = "circular"))
         \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (1.0, 0.0) {};
             \node[gvertex] (1) at (-0.0, 1.0) {};
@@ -2202,7 +2202,7 @@ class Graph(nx.Graph):
         edges_str = ""
         for estyle, elist in edge_style_dict.items():
             edges_str += (
-                "\t\\draw["
+                "    \\draw["
                 + estyle
                 + "] "
                 + " ".join(
@@ -2233,7 +2233,7 @@ class Graph(nx.Graph):
         for vstyle, vlist in vertex_style_dict.items():
             vertices_str += "".join(
                 [
-                    "\t\\node["
+                    "    \\node["
                     + vstyle
                     + (
                         ("," if vertex_style != "" else "")
