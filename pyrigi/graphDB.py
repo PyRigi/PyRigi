@@ -150,7 +150,24 @@ def K66MinusPerfectMatching():
     return G
 
 
-def CnFlexibleWithFixedVertex(n: int = 8):
+def NfoldRotation(n: int = 8):
+    """
+    Return a C_n-symmetric graph.
+
+    TODO
+    ----
+    use in tests
+    """
+    G = Graph()
+    G.add_edges([(0,n-1),(n-3,0),(n-2,1),(n-1,2)])
+    for i in range(1,n):
+        G.add_edges([(i,i-1)])
+    for i in range(n-3):
+        G.add_edge(i,i+3)
+    return G
+
+
+def NfoldRotationWithFixedVertex(n: int = 8):
     """
     Return a C_n-symmetric graph with a fixed vertex.
     The cyclical group C_n needs to have even order of at least 8.
@@ -159,56 +176,20 @@ def CnFlexibleWithFixedVertex(n: int = 8):
     count for rotation but is infinitesimally flexible.
 
     TODO
-    -----
-    Bugfix the graph
+    ----
+    use in tests
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
             "To generate this graph, the cyclical group needs to have an even order of at least 8!"
         )
-    return Graph(
-        [
-            (0, 1),
-            (0, 3),
-            (0, 5),
-            (0, 7),
-            (1, 6),
-            (1, 4),
-            (1, 2),
-            (2, 5),
-            (2, 7),
-            (2, 3),
-            (3, 6),
-            (3, 4),
-            (4, 7),
-            (4, 5),
-            (5, 6),
-            (6, 7),
-            (8, 9),
-            (8, 10),
-            (8, 11),
-            (8, 12),
-            (8, 14),
-            (8, 15),
-            (8, 16),
-            (9, 0),
-            (9, 11),
-            (9, 15),
-            (10, 12),
-            (10, 1),
-            (10, 16),
-            (11, 2),
-            (11, 13),
-            (12, 3),
-            (12, 14),
-            (13, 4),
-            (13, 15),
-            (14, 5),
-            (14, 16),
-            (15, 6),
-            (16, 7),
-        ]
-    )
+    G = NfoldRotation(n)
+    G.add_edges([(0,n),(n,2*n)])
+    for i in range(1,n):
+        G.add_vertex(i+n)
+        G.add_edges([(i,i+n),(2*n,i+n)])
+    return G
+
 
 
 def ThreeConnectedR3Circuit():
