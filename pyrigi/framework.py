@@ -88,7 +88,7 @@ class Framework(object):
 
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
-            raise TypeError("The graph has to be aninstance of class Graph.")
+            raise TypeError("The graph has to be an instance of class Graph.")
         if nx.number_of_selfloops(graph) > 0:
             raise LoopError()
         if not len(realization.keys()) == graph.number_of_nodes():
@@ -331,6 +331,7 @@ class Framework(object):
     def plot2D(
         self,
         projection_matrix: Matrix = None,
+        coordinates_indexes: tuple = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -338,9 +339,9 @@ class Framework(object):
         """
         Plot this framework in 2D.
 
-        If this framework is in dimensions higher than 2 and projection
-        matrix is None a random projection matrix containing two orthonormal
-        vectors is generated and used for projection into 2D.
+        If this framework is in dimensions higher than 2 and projection_matrix
+        with coordinates_indexes are None a random projection matrix
+        containing two orthonormal vectors is generated and used for projection into 2D.
         This matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
 
@@ -352,6 +353,8 @@ class Framework(object):
             The matrix must have dimensions (2, dim),
             where dim is the dimension of the currect placements of vertices.
             If None, a random projection matrix is generated.
+        coordinates_indexes:
+            Indexes of two coordinates that will be used as the placement in 2D.
         """
 
         if self._dim == 1:
@@ -368,6 +371,34 @@ class Framework(object):
 
         if self._dim == 2:
             placement = self.realization(as_points=True, numerical=True)
+            self._plot_with_2D_realization(
+                placement, vertex_color, edge_width, **kwargs
+            )
+            return
+
+        if coordinates_indexes is not None:
+            if (
+                not isinstance(coordinates_indexes, tuple)
+                or len(coordinates_indexes) != 2
+            ):
+                raise ValueError(
+                    "coordinates_indexes must have length 2!"
+                    + " Exactly Two coordinates are necessary for plotting in 2D."
+                )
+            if np.max(coordinates_indexes) >= self._dim:
+                raise ValueError(
+                    f"Index {np.max(coordinates_indexes)} out of range"
+                    + f" with placement in dim: {self._dim}."
+                )
+            placement = {}
+            realization = self.realization(as_points=True, numerical=True)
+            for v in self._graph.nodes:
+                placement[v] = np.array(
+                    [
+                        realization[v][coordinates_indexes[0]],
+                        realization[v][coordinates_indexes[1]],
+                    ]
+                )
             self._plot_with_2D_realization(
                 placement, vertex_color, edge_width, **kwargs
             )
