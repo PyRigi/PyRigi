@@ -1319,11 +1319,13 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def get_edges_lengths(self) -> list:
+    def edge_lengths(self) -> list:
         """
         Return the lengths (numerically) of all edges in the framework.
 
         The ordering is given by graph().edge_list() method.
+
+        TODO symbolic version of this method
 
         Returns
         -------
