@@ -1319,9 +1319,9 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self) -> list:
+    def edge_lengths(self) -> dict:
         """
-        Return the lengths (numerically) of all edges in the framework.
+        Return the edges and their lengths (numerically) of the framework.
 
         The ordering is given by graph().edge_list() method.
 
@@ -1330,7 +1330,13 @@ class Framework(object):
         Returns
         -------
         pair_lengths
-            List of lengths of the edges in the framework.
+            Dict of edges and their lengths in the framework.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> l_dict = F.edge_lengths()
         """
         from numpy import array as nparray
         from numpy.linalg import norm as npnorm
@@ -1341,6 +1347,9 @@ class Framework(object):
                                        dtype='float64') - nparray(points[pair[1]],
                                                                   dtype='float64'))
                         for pair in pairs]
+
+        # convert list of lists to tuple and create dictionary
+        pair_lengths = dict(zip([tuple(pair) for pair in pairs], pair_lengths))
 
         return pair_lengths
 
@@ -1380,7 +1389,7 @@ class Framework(object):
                                 '56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c'
                                 '77c9dd0d0fe2')
 
-        edges_lengths = self.edge_lengths()
+        edges_lengths = list(self.edge_lengths().values())
 
         # round and scale the lengths of the edges
         readable_form = [float(round(scale * length, roundings))
