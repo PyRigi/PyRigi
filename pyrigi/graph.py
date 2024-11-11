@@ -2208,12 +2208,8 @@ class Graph(nx.Graph):
         edges_str = ""
         for estyle, elist in edge_style_dict.items():
             edges_str += (
-                "    \\draw["
-                + estyle
-                + "] "
-                + " ".join(
-                    [" to ".join(["(" + str(v) + ")" for v in e]) for e in elist]
-                )
+                f"    \\draw[{estyle}] "
+                + " ".join([" to ".join([f"({v})" for v in e]) for e in elist])
                 + ";\n"
             )
 
@@ -2243,20 +2239,13 @@ class Graph(nx.Graph):
                     + vstyle
                     + (
                         ("," if vertex_style != "" else "")
-                        + "label={[labelsty]right:$"
-                        + str(v)
-                        + "$}"
+                        + f"label={{[labelsty]right:${v}$}}"
                         if vertex_out_labels
                         else ""
                     )
-                    + "] ("
-                    + str(v)
-                    + ") at ("
-                    + str(round(placement[v][0], 5))
-                    + ", "
-                    + str(round(placement[v][1], 5))
-                    + ") {"
-                    + ("$" + str(v) + "$" if vertex_in_labels else "")
+                    + f"] ({v}) at "
+                    + f"({round(placement[v][0], 5)}, {round(placement[v][1], 5)}) {{"
+                    + (f"${v}$" if vertex_in_labels else "")
                     + "};\n"
                     for v in vlist
                 ]
