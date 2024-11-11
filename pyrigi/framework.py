@@ -1342,10 +1342,11 @@ class Framework(object):
         from numpy.linalg import norm as npnorm
 
         points = self.realization(as_points=True)
-        lengths = {tuple(pair): npnorm(nparray(points[pair[0]],
-                                               dtype='float64') - nparray(points[pair[1]],
-                                                                          dtype='float64'))
-                        for pair in self._graph.edges}
+        lengths = {tuple(pair): npnorm(
+            nparray(points[pair[0]],
+                    dtype='float64') - nparray(points[pair[1]],
+                                               dtype='float64'))
+            for pair in self._graph.edges}
 
         return lengths
 
