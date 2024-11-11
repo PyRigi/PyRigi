@@ -1319,7 +1319,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self) -> dict:
+    def edge_lengths(self) -> dict[Edge,float]:
         """
         Return the edges and their lengths (numerically) of the framework.
 
@@ -1382,7 +1382,9 @@ class Framework(object):
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
         >>> url, l = F.generate_onshape_parameters_for_3d_print(scale=10, roundings=2)
         >>> print(url)
+        https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2
         >>> print(l)
+        [10.0, 14.24, 11.18, 5.44]
 
         """
         onshape_bars_gen_url = ('https://cad.onshape.com/documents/6b5c6a508178ccdc'
