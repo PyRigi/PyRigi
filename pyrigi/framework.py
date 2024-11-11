@@ -1319,7 +1319,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self) -> dict[Edge,float]:
+    def edge_lengths(self) -> dict[tuple[Edge, Edge], float]:
         """
         Return the edges and their lengths (numerically) of the framework.
 
@@ -1329,7 +1329,7 @@ class Framework(object):
 
         Returns
         -------
-        pair_lengths
+        lengths
             Dict of edges and their lengths in the framework.
 
         Examples
@@ -1342,16 +1342,12 @@ class Framework(object):
         from numpy.linalg import norm as npnorm
 
         points = self.realization(as_points=True)
-        pairs = self.graph().edge_list()
-        pair_lengths = [npnorm(nparray(points[pair[0]],
-                                       dtype='float64') - nparray(points[pair[1]],
-                                                                  dtype='float64'))
-                        for pair in pairs]
+        lengths = {tuple(pair): npnorm(nparray(points[pair[0]],
+                                               dtype='float64') - nparray(points[pair[1]],
+                                                                          dtype='float64'))
+                        for pair in self._graph.edges}
 
-        # convert list of lists to tuple and create dictionary
-        pair_lengths = dict(zip([tuple(pair) for pair in pairs], pair_lengths))
-
-        return pair_lengths
+        return lengths
 
     @doc_category("Other")
     def generate_onshape_parameters_for_3d_print(self,
