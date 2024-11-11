@@ -1342,18 +1342,20 @@ class Framework(object):
         from numpy.linalg import norm as npnorm
 
         points = self.realization(as_points=True)
-        lengths = {tuple(pair): npnorm(
-            nparray(points[pair[0]],
-                    dtype='float64') - nparray(points[pair[1]],
-                                               dtype='float64'))
-            for pair in self._graph.edges}
+        lengths = {
+            tuple(pair): npnorm(
+                nparray(points[pair[0]], dtype="float64")
+                - nparray(points[pair[1]], dtype="float64")
+            )
+            for pair in self._graph.edges
+        }
 
         return lengths
 
     @doc_category("Other")
-    def generate_onshape_parameters_for_3d_print(self,
-                                                 scale: float = 1.0,
-                                                 roundings: int = 3) -> tuple:
+    def generate_onshape_parameters_for_3d_print(
+        self, scale: float = 1.0, roundings: int = 3
+    ) -> tuple:
         """
         Generate OnShape CAD details for models.
 
@@ -1384,15 +1386,17 @@ class Framework(object):
         [10.0, 14.24, 11.18, 5.44]
 
         """
-        onshape_bars_gen_url = ('https://cad.onshape.com/documents/6b5c6a508178ccdc'
-                                '56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c'
-                                '77c9dd0d0fe2')
+        onshape_bars_gen_url = (
+            "https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/"
+            "5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2"
+        )
 
         edges_lengths = list(self.edge_lengths().values())
 
         # round and scale the lengths of the edges
-        readable_form = [float(round(scale * length, roundings))
-                         for length in edges_lengths]
+        readable_form = [
+            float(round(scale * length, roundings)) for length in edges_lengths
+        ]
 
         return onshape_bars_gen_url, readable_form
 
