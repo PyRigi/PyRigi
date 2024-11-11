@@ -1517,7 +1517,7 @@ class Framework(object):
 
     @doc_category("Other")
     def generate_onshape_parameters_for_3d_print(
-        self, scale: float = 1.0, roundings: int = 3
+        self, scale: float = 1.0, rounding: int = 6
     ) -> tuple:
         """
         Generate OnShape CAD details for models.
@@ -1527,9 +1527,9 @@ class Framework(object):
         Parameters
         ----------
         scale
-            Scale factor for the lengths of the edges.
-        roundings
-            Number of decimal places for the lengths of the edges.
+            Scale factor for the lengths of the edges, default is 1.0.
+        rounding
+            Number of decimal places for the lengths of the edges, default is 6.
 
         Returns
         -------
@@ -1558,7 +1558,7 @@ class Framework(object):
 
         # round and scale the lengths of the edges
         readable_form = [
-            float(round(scale * length, roundings)) for length in edges_lengths
+            float(round(scale * length, rounding)) for length in edges_lengths
         ]
 
         return onshape_bars_gen_url, readable_form
