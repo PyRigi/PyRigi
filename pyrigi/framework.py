@@ -1369,7 +1369,8 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework(Graph([(0,1), (1,2), (2,3), (0,3)]), {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
         >>> url, l = F.generate_onshape_parameters_for_3d_print(scale=10, roundings=2)
         >>> print(url)
         >>> print(l)
