@@ -2162,13 +2162,13 @@ class Graph(nx.Graph):
 
         # strings for tikz styles
         if vertex_out_labels and default_styles:
-            lstyle_str = "labelsty/.style={font=\scriptsize,black!70!white}"
+            lstyle_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
         else:
             lstyle_str = ""
 
         if vertex_style == "gvertex" and default_styles:
             if vertex_in_labels:
-                vstyle_str = "gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize}"
+                vstyle_str = r"gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize}"
             else:
                 vstyle_str = "gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt}"
         else:

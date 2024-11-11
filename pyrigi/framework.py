@@ -365,13 +365,13 @@ class Framework(object):
 
         # strings for tikz styles
         if vertex_out_labels and default_styles:
-            lstyle_str = "labelsty/.style={font=\scriptsize,black!70!white}"
+            lstyle_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
         else:
             lstyle_str = ""
 
         if vertex_style == "fvertex" and default_styles:
             if vertex_in_labels:
-                vstyle_str = "fvertex/.style={circle,inner sep=1pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt,font=\scriptsize}"
+                vstyle_str = r"fvertex/.style={circle,inner sep=1pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt,font=\scriptsize}"
             else:
                 vstyle_str = "fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt}"
         else:
