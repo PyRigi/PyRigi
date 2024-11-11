@@ -371,9 +371,16 @@ class Framework(object):
 
         if vertex_style == "fvertex" and default_styles:
             if vertex_in_labels:
-                vstyle_str = r"fvertex/.style={circle,inner sep=1pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt,font=\scriptsize}"
+                vstyle_str = (
+                    "fvertex/.style={circle,inner sep=1pt,minimum size=3pt,"
+                    "fill=white,draw=black,double=white,double distance=0.25pt,"
+                    r"outer sep=1pt,font=\scriptsize}"
+                )
             else:
-                vstyle_str = "fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt}"
+                vstyle_str = (
+                    "fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,"
+                    "draw=black,double=white,double distance=0.25pt,outer sep=1pt}"
+                )
         else:
             vstyle_str = ""
         if edge_style == "edge" and default_styles:

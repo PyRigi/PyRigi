@@ -2093,7 +2093,7 @@ class Graph(nx.Graph):
         ----------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
         >>> print(G.to_tikz()) # doctest: +SKIP
-        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (-0.98794, -0.61705) {};
             \node[gvertex] (1) at (0.62772, -1.0) {};
             \node[gvertex] (2) at (0.98514, 0.62151) {};
@@ -2102,7 +2102,7 @@ class Graph(nx.Graph):
         \end{tikzpicture}
 
         >>> print(G.to_tikz(layout_type = "circular"))
-        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (1.0, 0.0) {};
             \node[gvertex] (1) at (-0.0, 1.0) {};
             \node[gvertex] (2) at (-1.0, -0.0) {};
@@ -2111,7 +2111,7 @@ class Graph(nx.Graph):
         \end{tikzpicture}
 
         >>> print(G.to_tikz(placement = [[0, 0], [1, 1], [2, 2], [3, 3]]))
-        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (0, 0) {};
             \node[gvertex] (1) at (1, 1) {};
             \node[gvertex] (2) at (2, 2) {};
@@ -2120,7 +2120,7 @@ class Graph(nx.Graph):
         \end{tikzpicture}
 
         >>> print(G.to_tikz(layout_type = "circular", vertex_out_labels = True))
-        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt},edge/.style={line width=1.5pt,black!60!white},labelsty/.style={font=\scriptsize,black!70!white}]
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white},labelsty/.style={font=\scriptsize,black!70!white}]
             \node[gvertex,label={[labelsty]right:$0$}] (0) at (1.0, 0.0) {};
             \node[gvertex,label={[labelsty]right:$1$}] (1) at (-0.0, 1.0) {};
             \node[gvertex,label={[labelsty]right:$2$}] (2) at (-1.0, -0.0) {};
@@ -2168,9 +2168,15 @@ class Graph(nx.Graph):
 
         if vertex_style == "gvertex" and default_styles:
             if vertex_in_labels:
-                vstyle_str = r"gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize}"
+                vstyle_str = (
+                    "gvertex/.style={white,fill=black,draw=black,circle,"
+                    r"inner sep=1pt,font=\scriptsize}"
+                )
             else:
-                vstyle_str = "gvertex/.style={fill=black,draw=white,circle,inner sep=0pt, minimum size=4pt}"
+                vstyle_str = (
+                    "gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,"
+                    "minimum size=4pt}"
+                )
         else:
             vstyle_str = ""
         if edge_style == "edge" and default_styles:
