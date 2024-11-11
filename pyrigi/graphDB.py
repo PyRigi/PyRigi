@@ -159,11 +159,11 @@ def NfoldRotation(n: int) -> Graph:
     use in tests
     """
     G = Graph()
-    G.add_edges([(0,n-1),(n-3,0),(n-2,1),(n-1,2)])
-    for i in range(1,n):
-        G.add_edges([(i,i-1)])
-    for i in range(n-3):
-        G.add_edge(i,i+3)
+    G.add_edges([(0, n - 1), (n - 3, 0), (n - 2, 1), (n - 1, 2)])
+    for i in range(1, n):
+        G.add_edges([(i, i - 1)])
+    for i in range(n - 3):
+        G.add_edge(i, i + 3)
     return G
 
 
@@ -184,12 +184,11 @@ def NfoldRotationWithFixedVertex(n: int = 8) -> Graph:
             "To generate this graph, the cyclical group needs to have an even order of at least 8!"
         )
     G = NfoldRotation(n)
-    G.add_edges([(0,n),(n,2*n)])
-    for i in range(1,n):
-        G.add_vertex(i+n)
-        G.add_edges([(i,i+n),(2*n,i+n)])
+    G.add_edges([(0, n), (n, 2 * n)])
+    for i in range(1, n):
+        G.add_vertex(i + n)
+        G.add_edges([(i, i + n), (2 * n, i + n)])
     return G
-
 
 
 def ThreeConnectedR3Circuit():
