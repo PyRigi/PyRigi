@@ -178,5 +178,9 @@ frameworks.Frustum(3).plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.CnFlexibleWithFixedVertex(8).plot()
+frameworks.NfoldRotation(8).plot()
+```
+
+```{code-cell} ipython3
+frameworks.NfoldRotationWithFixedVertex(8).plot()
 ```

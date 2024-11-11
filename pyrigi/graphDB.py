@@ -150,7 +150,7 @@ def K66MinusPerfectMatching():
     return G
 
 
-def NfoldRotation(n: int = 8):
+def NfoldRotation(n: int) -> Graph:
     """
     Return a C_n-symmetric graph.
 
@@ -167,7 +167,7 @@ def NfoldRotation(n: int = 8):
     return G
 
 
-def NfoldRotationWithFixedVertex(n: int = 8):
+def NfoldRotationWithFixedVertex(n: int = 8) -> Graph:
     """
     Return a C_n-symmetric graph with a fixed vertex.
     The cyclical group C_n needs to have even order of at least 8.

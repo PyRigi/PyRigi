@@ -172,9 +172,13 @@ def Frustum(n: int) -> Framework:
     return F
 
 
-def NfoldRotation(n: int = 8):
+def NfoldRotation(n: int) -> Framework:
     """
     Return a C_n-symmetric framework.
+
+    TODO
+    ----
+    use in tests
     """
     return Framework(
         NfoldRotation(n),
@@ -188,13 +192,17 @@ def NfoldRotation(n: int = 8):
     )
 
 
-def NfoldRotationWithFixedVertex(n: int = 8):
+def NfoldRotationWithFixedVertex(n: int = 8) -> Framework:
     """
     Return a C_n-symmetric framework with a fixed vertex.
     The cyclical group C_n needs to have even order of at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
+
+    TODO
+    ----
+    use in tests
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
