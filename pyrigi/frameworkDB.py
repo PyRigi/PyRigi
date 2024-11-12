@@ -158,7 +158,13 @@ def K33plusEdge() -> Framework:
 
 
 def Frustum(n: int) -> Framework:
-    """Return the n-Frustum with `n` vertices in dimension 2."""
+    """
+    Return the n-Frustum with `n` vertices in dimension 2.
+    
+    Definitions
+    -----------
+    * :prf:ref:`n-Frustum <def-n-frustum>`
+    """
     realization = {
         j: (sp.cos(2 * j * sp.pi / n), sp.sin(2 * j * sp.pi / n)) for j in range(0, n)
     }
@@ -172,16 +178,25 @@ def Frustum(n: int) -> Framework:
     return F
 
 
-def NfoldRotation(n: int) -> Framework:
+def CnSymmetric(n: int = 8) -> Framework:
     """
     Return a C_n-symmetric framework.
 
     TODO
     ----
     use in tests
+
+    Definitions
+    -----------
+    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count with a free group action <def-Cn-symmetric>`
     """
+    if not n % 2 == 0 or n < 8:
+        raise ValueError(
+            "To generate this framework, the cyclical group "
+            + "needs to have an even order of at least 8!"
+        )
     return Framework(
-        graphs.NfoldRotation(n),
+        graphs.CnSymmetric(n),
         {
             i: [
                 sp.cos(2 * i * sp.pi / n),
@@ -192,7 +207,7 @@ def NfoldRotation(n: int) -> Framework:
     )
 
 
-def NfoldRotationWithFixedVertex(n: int = 8) -> Framework:
+def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
     """
     Return a C_n-symmetric framework with a fixed vertex.
     The cyclical group C_n needs to have even order of at least 8.
@@ -203,28 +218,34 @@ def NfoldRotationWithFixedVertex(n: int = 8) -> Framework:
     TODO
     ----
     use in tests
+
+    Definitions
+    -----------
+    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count which contains a joint at the origin <def-Cn-symmetric-joint-at-origin>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this framework, the cyclical group needs to have an even order of at least 8!"
+            "To generate this framework, the cyclical group "
+            + "needs to have an even order of at least 8!"
         )
     return Framework(
-        graphs.NfoldRotationWithFixedVertex(n),
+        graphs.CnSymmetricWithFixedVertex(n),
         {
             i: [
-                sp.cos(2*i * sp.pi / n),
-                sp.sin(2*i * sp.pi / n),
+                sp.cos(2 * i * sp.pi / n),
+                sp.sin(2 * i * sp.pi / n),
             ]
             for i in range(n)
         }
         | {
-            i+n: [
-                1.8*sp.cos((2*i) * sp.pi / n)-sp.sin((2*i) * sp.pi / n),
-                1.8*sp.sin((2*i) * sp.pi / n)+sp.cos((2*i) * sp.pi / n),
+            i
+            + n: [
+                sp.Rational(9, 5) * sp.cos((2 * i) * sp.pi / n)
+                - sp.sin((2 * i) * sp.pi / n),
+                sp.Rational(9, 5) * sp.sin((2 * i) * sp.pi / n)
+                + sp.cos((2 * i) * sp.pi / n),
             ]
             for i in range(n)
         }
-        | {
-            2*n: (0,0)
-        },
+        | {2 * n: (0, 0)},
     )

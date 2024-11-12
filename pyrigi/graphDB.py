@@ -127,7 +127,13 @@ def Octahedral() -> Graph:
 
 
 def Frustum(n: int) -> Graph:
-    """Return the n-Frustum graph"""
+    """
+    Return the n-Frustum graph
+    
+    Definitions
+    -----------
+    * :prf:ref:`n-Frustum <def-n-frustum>`
+    """
     G = Graph()
     G.add_edges([(j, (j + 1) % n) for j in range(0, n)])
     G.add_edges([(j, (j + 1 - n) % n + n) for j in range(n, 2 * n)])
@@ -150,14 +156,23 @@ def K66MinusPerfectMatching():
     return G
 
 
-def NfoldRotation(n: int) -> Graph:
+def CnSymmetric(n: int = 8) -> Graph:
     """
     Return a C_n-symmetric graph.
 
     TODO
     ----
     use in tests
+
+    Definitions
+    -----------
+    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count with a free group action <def-Cn-symmetric>`
     """
+    if not n % 2 == 0 or n < 8:
+        raise ValueError(
+            "To generate this graph, the cyclical group "
+            + "needs to have an even order of at least 8!"
+        )
     G = Graph()
     G.add_edges([(0, n - 1), (n - 3, 0), (n - 2, 1), (n - 1, 2)])
     for i in range(1, n):
@@ -167,7 +182,7 @@ def NfoldRotation(n: int) -> Graph:
     return G
 
 
-def NfoldRotationWithFixedVertex(n: int = 8) -> Graph:
+def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
     """
     Return a C_n-symmetric graph with a fixed vertex.
     The cyclical group C_n needs to have even order of at least 8.
@@ -178,15 +193,20 @@ def NfoldRotationWithFixedVertex(n: int = 8) -> Graph:
     TODO
     ----
     use in tests
+
+    Definitions
+    -----------
+    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count which contains a joint at the origin <def-Cn-symmetric-joint-at-origin>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this graph, the cyclical group needs to have an even order of at least 8!"
+            "To generate this graph, the cyclical group "
+            + "needs to have an even order of at least 8!"
         )
-    G = NfoldRotation(n)
-    G.add_edges([(0,n), (n,2*n), (n+1,2*n-1), (n,2*n-2)])
-    for i in range(1,n):
-        G.add_edges([(i,i+n),(2*n,i+n),((i+1)+n,(i+1)+n-2)])
+    G = CnSymmetric(n)
+    G.add_edges([(0, n), (n, 2 * n), (n + 1, 2 * n - 1), (n, 2 * n - 2)])
+    for i in range(1, n):
+        G.add_edges([(i, i + n), (2 * n, i + n), ((i + 1) + n, (i + 1) + n - 2)])
     return G
 
 
