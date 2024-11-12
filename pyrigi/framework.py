@@ -448,7 +448,7 @@ class Framework(object):
                 + " For projection into 2D use F.plot2D()"
             )
 
-        self.plot2D(None, vertex_color, edge_width, **kwargs)
+        self.plot2D(vertex_color=vertex_color, edge_width=edge_width, **kwargs)
 
     @classmethod
     @doc_category("Class methods")
