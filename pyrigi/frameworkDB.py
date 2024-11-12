@@ -181,7 +181,7 @@ def NfoldRotation(n: int) -> Framework:
     use in tests
     """
     return Framework(
-        NfoldRotation(n),
+        graphs.NfoldRotation(n),
         {
             i: [
                 sp.cos(2 * i * sp.pi / n),
@@ -212,18 +212,19 @@ def NfoldRotationWithFixedVertex(n: int = 8) -> Framework:
         graphs.NfoldRotationWithFixedVertex(n),
         {
             i: [
-                10 * sp.cos(2 * i * sp.pi / n),
-                10 * sp.sin(2 * i * sp.pi / n),
+                sp.cos(2*i * sp.pi / n),
+                sp.sin(2*i * sp.pi / n),
             ]
             for i in range(n)
         }
         | {
-            i
-            + n: [
-                12 * sp.cos(2 * i * sp.pi / n) - 12 * sp.sin(2 * i * sp.pi / n),
-                12 * sp.sin(2 * i * sp.pi / n) + 12 * sp.cos(2 * i * sp.pi / n),
+            i+n: [
+                1.8*sp.cos((2*i) * sp.pi / n)-sp.sin((2*i) * sp.pi / n),
+                1.8*sp.sin((2*i) * sp.pi / n)+sp.cos((2*i) * sp.pi / n),
             ]
             for i in range(n)
         }
-        | {2 * n: (0, 0)},
+        | {
+            2*n: (0,0)
+        },
     )
