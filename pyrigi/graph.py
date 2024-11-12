@@ -2101,7 +2101,7 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(layout_type = "circular"))
+        >>> print(G.to_tikz(layout_type = "circular")) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (1.0, 0.0) {};
             \node[gvertex] (1) at (-0.0, 1.0) {};
@@ -2110,7 +2110,7 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(placement = [[0, 0], [1, 1], [2, 2], [3, 3]]))
+        >>> print(G.to_tikz(placement = [[0, 0], [1, 1], [2, 2], [3, 3]])) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (0, 0) {};
             \node[gvertex] (1) at (1, 1) {};
@@ -2119,7 +2119,7 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(layout_type = "circular", vertex_out_labels = True))
+        >>> print(G.to_tikz(layout_type = "circular", vertex_out_labels = True)) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white},labelsty/.style={font=\scriptsize,black!70!white}]
             \node[gvertex,label={[labelsty]right:$0$}] (0) at (1.0, 0.0) {};
             \node[gvertex,label={[labelsty]right:$1$}] (1) at (-0.0, 1.0) {};
@@ -2128,7 +2128,7 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(layout_type = "circular", vertex_in_labels = True))
+        >>> print(G.to_tikz(layout_type = "circular", vertex_in_labels = True)) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (1.0, 0.0) {$0$};
             \node[gvertex] (1) at (-0.0, 1.0) {$1$};
@@ -2137,7 +2137,7 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(layout_type = "circular", vertex_style = "myvertex", edge_style = "myedge"))
+        >>> print(G.to_tikz(layout_type = "circular", vertex_style = "myvertex", edge_style = "myedge")) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[]
             \node[myvertex] (0) at (1.0, 0.0) {};
             \node[myvertex] (1) at (-0.0, 1.0) {};
@@ -2146,14 +2146,14 @@ class Graph(nx.Graph):
             \draw[myedge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(layout_type = "circular", edge_style = {"red edge": [[1, 2]], "green egde": [[2, 3], [0, 1]]}, vertex_style = {"red vertex": [0], "blue vertex": [2, 3]}))
+        >>> print(G.to_tikz(layout_type = "circular", edge_style = {"red edge": [[1, 2]], "green edge": [[2, 3], [0, 1]]}, vertex_style = {"red vertex": [0], "blue vertex": [2, 3]})) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[]
             \node[red vertex] (0) at (1.0, 0.0) {};
             \node[blue vertex] (2) at (-1.0, -0.0) {};
             \node[blue vertex] (3) at (0.0, -1.0) {};
             \node[] (1) at (-0.0, 1.0) {};
             \draw[red edge] (1) to (2);
-            \draw[green egde] (2) to (3) (0) to (1);
+            \draw[green edge] (2) to (3) (0) to (1);
             \draw[] (3) to (0);
         \end{tikzpicture}
 
@@ -2208,7 +2208,7 @@ class Graph(nx.Graph):
         edges_str = ""
         for estyle, elist in edge_style_dict.items():
             edges_str += (
-                f"    \\draw[{estyle}] "
+                f"\t\\draw[{estyle}] "
                 + " ".join([" to ".join([f"({v})" for v in e]) for e in elist])
                 + ";\n"
             )
@@ -2235,7 +2235,7 @@ class Graph(nx.Graph):
         for vstyle, vlist in vertex_style_dict.items():
             vertices_str += "".join(
                 [
-                    "    \\node["
+                    "\t\\node["
                     + vstyle
                     + (
                         ("," if vertex_style != "" else "")
