@@ -441,11 +441,11 @@ def test_plot_error(realization):
 def test_plot2D_error():
     F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
     with pytest.raises(ValueError):
-        F.plot2D([[1, 0], [0, 1], [0, 0]])
+        F.plot2D(projection_matrix=[[1, 0], [0, 1], [0, 0]])
 
     F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
     with pytest.raises(ValueError):
-        F.plot2D([[1, 0], [0, 1]])
+        F.plot2D(projection_matrix=[[1, 0], [0, 1]])
 
 
 def test_rigidity_matrix_rank():
