@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 from sympy import Matrix
 import math
 import distinctipy
-import lnumber
 
 from pyrigi.data_type import Vertex, Edge, Point
 from pyrigi.misc import doc_category, generate_category_tables
@@ -1035,13 +1034,22 @@ class Graph(nx.Graph):
         Definition of the number of realizations.
         Tests
         """
-        n = self.to_int()
-        if check_min_rigid and not self.is_min_rigid():
-            raise ValueError("The graph must be minimally 2-rigid.")
-        if spherical_realizations:
-            return lnumber.lnumbers(n)
-        else:
-            return lnumber.lnumber(n)
+        try:
+            import lnumber
+
+            n = self.to_int()
+            if check_min_rigid and not self.is_min_rigid():
+                raise ValueError("The graph must be minimally 2-rigid.")
+            if spherical_realizations:
+                return lnumber.lnumbers(n)
+            else:
+                return lnumber.lnumber(n)
+        except ImportError as err:
+            raise ImportError(
+                "For counting the number of realizations, "
+                "the optional package 'lnumber' is used, "
+                "run `pip install pyrigi[lnumber]`."
+            )
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
