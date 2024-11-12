@@ -27,8 +27,8 @@ Define a {prf:ref}`framework <def-framework>` $(G,p)$ on $n$ joints $\{p(v_1),\d
 \end{equation*}
 where $1\leq i\leq n$.
 
-{{pyrigi_crossref}} {meth}`~pyrigi.graphDB.CnSymmetric`
-{meth}`~pyrigi.frameworkDB.CnSymmetric`
+{{pyrigi_crossref}} {func}`~.graphDB.CnSymmetric`
+{func}`~.frameworkDB.CnSymmetric`
 
 {{references}} {cite:p}`LaPorta2024`
 :::
@@ -43,8 +43,8 @@ The previous example can be extended: add a joint $p(u)$ at the origin, and add 
 
 The new edges given in (iii) form two disjoint regular $n/2$-gons. The {prf:ref}`infinitesimal motion <def-inf-flex>` from the previous example extends to an infinitesimal motion of the new framework which rotates the two $n/2$-gons clockwise and anti-clockwise, respectively.
 
-{{pyrigi_crossref}} {meth}`~pyrigi.graphDB.CnSymmetricWithFixedVertex`
-{meth}`~pyrigi.frameworkDB.CnSymmetricWithFixedVertex`
+{{pyrigi_crossref}} {func}`~.graphDB.CnSymmetricWithFixedVertex`
+{func}`~.frameworkDB.CnSymmetricWithFixedVertex`
 
 {{references}} {cite:p}`LaPorta2024`
 :::
