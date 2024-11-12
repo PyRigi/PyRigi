@@ -7,7 +7,7 @@ Here we introduce several known graphs that can be accessed in the PyRigi graph 
 
 Assume that $n\geq 3$. The graph $G=(V,E)$ is called the _$n$-Frustum_ if it is the Cartesian product $G=C_n\,\square \, K_2$ of a cycle graph $C_n$ on $n$ vertices and the complete graph $K_2$ on two vertices.
 
-As a {prf:ref}`framework <def-framework>`, the $n$-Frustum is typically realized as two regular $n$-sided polygons on circles centered in the origin with radii $r_1<r_2$. It has a {prf:ref}`nontrivial infinitessimal flex <def-trivial-inf-flex>` given by the rotation of the outer polygon while the inner polygon ramains fixed. This motion does not extend to a {prf:ref}`continuous flex <def-flex>`.
+As a {prf:ref}`framework <def-framework>`, the $n$-Frustum is typically realized as two regular $n$-sided polygons on circles centered in the origin with radii $r_1<r_2$. It has a {prf:ref}`nontrivial infinitesimal flex <def-trivial-inf-flex>` given by the rotation of the outer polygon while the inner polygon remains fixed. This motion does not extend to a {prf:ref}`continuous flex <def-flex>`.
 
 {{pyrigi_crossref}} {func}`.graphDB.Frustum`
 {func}`.frameworkDB.Frustum`
