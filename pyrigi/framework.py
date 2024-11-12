@@ -342,7 +342,7 @@ class Framework(object):
         ----------
         >>> G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
         >>> F=Framework(G,{0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
-        >>> print(F.to_tikz())
+        >>> print(F.to_tikz()) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt},edge/.style={line width=1.5pt,black!60!white}]
            \node[fvertex] (0) at (0, 0) {};
            \node[fvertex] (1) at (1, 0) {};
@@ -351,7 +351,7 @@ class Framework(object):
            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(F.to_tikz(vertex_in_labels=True))
+        >>> print(F.to_tikz(vertex_in_labels=True)) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[fvertex/.style={circle,inner sep=1pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
            \node[fvertex] (0) at (0, 0) {$0$};
            \node[fvertex] (1) at (1, 0) {$1$};
