@@ -2139,7 +2139,7 @@ class Graph(nx.Graph):
                 f"The edge {edge} is not in the intersection of the graphs."
             )
         # check if the intersection is a t-complete graph
-        if self.intersection(G2).is_isomorphic(Graph(nx.complete_graph(t))) == False:
+        if not self.intersection(G2).is_isomorphic(nx.complete_graph(t)):
             raise ValueError(
                 f"The intersection of the graphs must be a {t}-complete graph."
             )
@@ -2162,6 +2162,12 @@ class Graph(nx.Graph):
         >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
         >>> G.intersection(H)
         Graph with vertices [1, 2, 3] and edges [[1, 2], [1, 3], [2, 3]]
+        >>> G = Graph([[0,1],[0,2],[1,2]])
+        >>> G.add_vertex(3)
+        >>> H = Graph([[0,1],[1,2],[2,4],[4,0]])
+        >>> H.add_vertex(3)
+        >>> G.intersection(H)
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [1, 2]]
         """
         return Graph.from_vertices_and_edges(
             [v for v in self.nodes if v in G2.nodes],
