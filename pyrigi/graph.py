@@ -1746,7 +1746,8 @@ class Graph(nx.Graph):
 
         TODO
         -----
-         Add unit tests
+         Add unit tests,
+         make computation of ``remaining_edge`` more robust
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
