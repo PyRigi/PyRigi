@@ -13,7 +13,7 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Any, Dict, Union
+from typing import List, Dict, Union
 
 from copy import deepcopy
 from itertools import combinations
@@ -258,9 +258,11 @@ class Framework(object):
         """
         Return a copy of the underlying graph.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Random(Graph([(0,1), (1,2), (0,2)]))
+        >>> F.graph()
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         """
         return deepcopy(self._graph)
 
@@ -368,9 +370,14 @@ class Framework(object):
         """
         Return the framework with a regular unit circle realization in the plane.
 
-        TODO
+        Examples
         ----
-        example
+        >>> import pyrigi.graphDB as graphs
+        >>> F = Framework.Circular(graphs.CompleteBipartite(4, 2))
+        >>> print(F)
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges ...
+        Realization {0:(1, 0), 1:(1/2, sqrt(3)/2), ...
         """
         n = graph.number_of_nodes()
         return Framework(
@@ -387,9 +394,13 @@ class Framework(object):
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
-        TODO
-        ----
-        example
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> Framework.Collinear(graphs.Complete(3), d=2)
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
         check_integrality_and_range(d, "dimension d", 1)
         return Framework(
@@ -413,9 +424,14 @@ class Framework(object):
             of the ``graph`` minus one.
             If ``d`` is not specified, then the least possible one is used.
 
-        TODO
+        Examples
         ----
-        examples
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4);
+        >>> F.realization(as_points=True)
+        {0: [0, 0, 0, 0], 1: [1, 0, 0, 0], 2: [0, 1, 0, 0], 3: [0, 0, 1, 0]}
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]));
+        >>> F.realization(as_points=True)
+        {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
         if d is None:
             d = graph.number_of_nodes() - 1
@@ -668,9 +684,14 @@ class Framework(object):
         """
         Change the coordinates of a given list of vertices.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
+        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]);
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
         Notes
         -----
@@ -692,9 +713,18 @@ class Framework(object):
         """
         Change the coordinates of vertices given by a dictionary.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
+        >>> F.set_vertex_positions({1:(0,1),3:(1,1)});
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
+
+        Notes
+        -----
+        See `~Framework.set_vertex_pos`.
         """
         for v, pos in subset_of_realization.items():
             self.set_vertex_pos(v, pos)
@@ -855,7 +885,8 @@ class Framework(object):
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
-        The matrix order is the one from self._graph.vertex_list().
+
+        The matrix order is the one from :meth:`~.Framework.vertex_list`.
 
         Definitions
         -----
@@ -864,7 +895,7 @@ class Framework(object):
         Parameters
         ----------
         stress:
-            A stress of the graph
+            A stress of the framework.
         edges_ordered:
             A Boolean indicating, whether the edges are assumed to be ordered (``True``),
             or whether they should be internally sorted (``False``).
@@ -881,6 +912,12 @@ class Framework(object):
         [  8, -4, -2, -2],
         [  4, -2, -1, -1],
         [  4, -2, -1, -1]])
+
+        TODO
+        ----
+        Implement arbitrary ``vertex_order``.
+        Check that the input is indeed a stress.
+        Tests.
         """
         if edge_order is None:
             edge_order = self._graph.edge_list()
@@ -903,12 +940,12 @@ class Framework(object):
                     stress_matr[i, i] += stress[edge_order.index(edge)]
         for v, w in combinations(self._graph.nodes, 2):
             i, j = vertex_list.index(v), vertex_list.index(w)
-            correct_edge = (
-                lambda edge: edge if edge in edge_order else [edge[1], edge[0]]
-            )
-            if [v, w] in edge_order or [w, v] in edge_order:
-                stress_matr[i, j] = -stress[edge_order.index(correct_edge([v, w]))]
-                stress_matr[j, i] = -stress[edge_order.index(correct_edge([v, w]))]
+            if [v, w] in edge_order or (v, w) in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index([v, w])]
+                stress_matr[j, i] = -stress[edge_order.index([v, w])]
+            elif [w, v] in edge_order or (w, v) in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index([w, v])]
+                stress_matr[j, i] = -stress[edge_order.index([w, v])]
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
@@ -978,9 +1015,28 @@ class Framework(object):
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
 
+        Examples
+        ----
+        >>> import pyrigi.graphDB as graphs
+        >>> F = Framework.Circular(graphs.CompleteBipartite(3, 3))
+        >>> F.nontrivial_inf_flexes()
+        [Matrix([
+        [       3/2],
+        [-sqrt(3)/2],
+        [         1],
+        [         0],
+        [         0],
+        [         0],
+        [       3/2],
+        [-sqrt(3)/2],
+        [         1],
+        [         0],
+        [         0],
+        [         0]])]
+
         TODO
         ----
-        tests, example
+        tests
 
         Notes
         -----
@@ -1049,9 +1105,9 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self) -> Any:
+    def stresses(self) -> List[Matrix]:
         r"""
-        Return a basis of the space of stresses.
+        Return a basis of the space of equilibrium stresses.
 
         Definitions
         -----------
@@ -1070,6 +1126,10 @@ class Framework(object):
         [ 2],
         [ 2],
         [ 1]])]
+
+        TODO
+        ----
+        tests
         """
         return self.rigidity_matrix().transpose().nullspace()
 
@@ -1078,9 +1138,17 @@ class Framework(object):
         """
         Compute the rank of the rigidity matrix.
 
-        TODO
+        Examples
         ----
-        example, tests
+        >>> K4 = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
+        >>> K4.rigidity_matrix_rank()   # the complete graph is a circuit
+        5
+        >>> K4.delete_edge([0,1])
+        >>> K4.rigidity_matrix_rank()   # deleting a bar gives full rank
+        5
+        >>> K4.delete_edge([2,3])
+        >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
+        4
         """
         return self.rigidity_matrix().rank()
 
@@ -1095,9 +1163,15 @@ class Framework(object):
         -----
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
 
-        TODO
+        Examples
         ----
-        example
+        >>> from pyrigi import frameworkDB
+        >>> F1 = frameworkDB.CompleteBipartite(4,4)
+        >>> F1.is_inf_rigid()
+        True
+        >>> F2 = frameworkDB.Cycle(4,d=2)
+        >>> F2.is_inf_rigid()
+        False
         """
         if self._graph.number_of_nodes() <= self._dim + 1:
             return self.rigidity_matrix_rank() == binomial(
@@ -1118,10 +1192,6 @@ class Framework(object):
         See :meth:`~Framework.is_inf_rigid`
         """
         return not self.is_inf_rigid()
-
-    @doc_category("Waiting for implementation")
-    def is_inf_spanning(self) -> bool:
-        raise NotImplementedError()
 
     @doc_category("Infinitesimal rigidity")
     def is_min_inf_rigid(self) -> bool:
@@ -1151,9 +1221,32 @@ class Framework(object):
             self.add_edge(edge)
         return True
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Infinitesimal rigidity")
     def is_independent(self) -> bool:
-        raise NotImplementedError()
+        """
+        Check whether the framework is :prf:ref:`independent <def-independent-framework>`.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
+        >>> F.is_independent()
+        False
+        >>> F.delete_edge((0,2))
+        >>> F.is_independent()
+        True
+        """
+        return self.rigidity_matrix_rank() == self._graph.number_of_edges()
+
+    @doc_category("Infinitesimal rigidity")
+    def is_dependent(self) -> bool:
+        """
+        Check whether the framework is :prf:ref:`dependent <def-independent-framework>`.
+
+        Notes
+        -----
+        See also :meth:`~.Framework.is_independent`.
+        """
+        return not self.is_independent()
 
     @doc_category("Waiting for implementation")
     def is_prestress_stable(self) -> bool:
@@ -1387,6 +1480,88 @@ class Framework(object):
         new_framework = deepcopy(self)
         new_framework.rotate2D(angle, True)
         return new_framework
+
+    @doc_category("Other")
+    def edge_lengths(self) -> dict[tuple[Edge, Edge], float]:
+        """
+        Return the edges and their lengths (numerically) of the framework.
+
+        The ordering is given by graph().edge_list() method.
+
+        TODO symbolic version of this method
+
+        Returns
+        -------
+        lengths
+            Dict of edges and their lengths in the framework.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> l_dict = F.edge_lengths()
+        """
+        from numpy import array as nparray
+        from numpy.linalg import norm as npnorm
+
+        points = self.realization(as_points=True)
+        lengths = {
+            tuple(pair): npnorm(
+                nparray(points[pair[0]], dtype="float64")
+                - nparray(points[pair[1]], dtype="float64")
+            )
+            for pair in self._graph.edges
+        }
+
+        return lengths
+
+    @doc_category("Other")
+    def generate_onshape_parameters_for_3d_print(
+        self, scale: float = 1.0, roundings: int = 3
+    ) -> tuple:
+        """
+        Generate OnShape CAD details for models.
+
+        Prints the output in the console.
+
+        Parameters
+        ----------
+        scale
+            Scale factor for the lengths of the edges.
+        roundings
+            Number of decimal places for the lengths of the edges.
+
+        Returns
+        -------
+        onshape_bars_gen_url
+            String URL to the OnShape model.
+        readable_form
+            List of scaled and rounded lengths of the edges in the framework.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> url, l = F.generate_onshape_parameters_for_3d_print(scale=10, roundings=2)
+        >>> print(url)
+        https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2
+        >>> print(l)
+        [10.0, 14.24, 11.18, 5.44]
+
+        """
+        onshape_bars_gen_url = (
+            "https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/"
+            "5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2"
+        )
+
+        edges_lengths = list(self.edge_lengths().values())
+
+        # round and scale the lengths of the edges
+        readable_form = [
+            float(round(scale * length, roundings)) for length in edges_lengths
+        ]
+
+        return onshape_bars_gen_url, readable_form
 
 
 Framework.__doc__ = Framework.__doc__.replace(

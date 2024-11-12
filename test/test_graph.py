@@ -6,6 +6,18 @@ import pytest
 from sympy import Matrix
 
 
+def test_add():
+    G = Graph([[0, 1], [1, 2], [2, 0]])
+    H = Graph([[0, 1], [1, 3], [3, 0]])
+    assert G + H == Graph([[0, 1], [1, 2], [2, 0], [1, 3], [3, 0]])
+    G = Graph([[0, 1], [1, 2], [2, 0]])
+    H = Graph([[3, 4], [4, 5], [5, 3]])
+    assert G + H == Graph([[0, 1], [1, 2], [2, 0], [3, 4], [4, 5], [5, 3]])
+    G = Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [1, 2]])
+    H = Graph.from_vertices_and_edges([0, 1, 2, 4], [[0, 1]])
+    assert G + H == Graph.from_vertices_and_edges([0, 1, 2, 3, 4], [[0, 1], [1, 2]])
+
+
 def test_KL_values_are_correct():
     assert Graph._pebble_values_are_correct(2, 3)
     assert Graph._pebble_values_are_correct(1, 1)
@@ -1250,3 +1262,18 @@ def test_from_vertices_and_edges():
         ["a", "c"],
         ["a", "d"],
     ]
+
+
+def test_is_3_6_sparse():
+    """The Double Banana is (3,6)-tight."""
+    G = graphs.DoubleBanana()
+    assert G.is_sparse(3, 6)
+    G.add_edge(0, 1)
+    assert not G.is_sparse(3, 6)
+
+
+def test_is_k_l_tight():
+    G = graphs.Complete(4)
+    assert G.is_tight(2, 2)
+    G = graphs.CompleteBipartite(4, 4)
+    assert not G.is_tight(3, 6)

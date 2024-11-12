@@ -7,6 +7,7 @@ from __future__ import annotations
 from copy import deepcopy
 from itertools import combinations
 from typing import List, Union, Iterable
+from lnumber import lnumber, lnumbers
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -136,7 +137,11 @@ class Graph(nx.Graph):
 
     def __add__(self, other: Graph):
         r"""
-        Return the sum of self and other.
+        Return the union of self and other.
+
+        Definitions
+        -----------
+        :prf:ref:`Union of two graphs <def-union-graph>`
 
         Examples
         --------
@@ -145,9 +150,7 @@ class Graph(nx.Graph):
         >>> G + H
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]]
         """  # noqa: E501
-        sum_graph = self.copy()
-        sum_graph.add_edges(other.edges)
-        return sum_graph
+        return Graph(nx.compose(self, other))
 
     @classmethod
     @doc_category("Class methods")
@@ -555,9 +558,15 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
+        Examples
         ----
-        examples, tests for other cases than (2,3)
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.DoubleBanana()
+        >>> G.is_sparse(3,6)
+        True
+        >>> G.add_edge(0,1)
+        >>> G.is_sparse(3,6)
+        False
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
@@ -625,9 +634,15 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
-        ----
-        examples, tests for other cases than (2,3)
+        Examples
+        ----´
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(4)
+        >>> G.is_tight(2,2)
+        True
+        >>> G1 = graphs.CompleteBipartite(4,4)
+        >>> G1.is_tight(3,6)
+        False
         """
         return (
             self.is_sparse(
@@ -986,6 +1001,47 @@ class Graph(nx.Graph):
                         return True
                     G.remove_edge(neighbors[i], neighbors[j])
         return None if return_solution else False
+
+    @doc_category("Generic rigidity")
+    def number_of_min_rigid_realizations(
+        self, spherical_realizations: bool = False, check_min_rigid: bool = False
+    ) -> int:
+        """
+        Count the number of a planar or spherical realizations of a minimally rigid graph.
+
+        Note that by default, the method does not check if the input graph is minimally
+        rigid.
+
+        Parameters
+        ----------
+        check_min_rigid:
+            If not specified the default value is False.
+            If True, the method first checks if the graph is minimally rigid and if it is
+            not minimally rigid the method returns 0.
+            If False, the method assumes that the user is inputing a minimally rigid
+            graph.
+
+        spherical_realizations:
+            If not specified the default value is True.
+            If True, the method returns the number of spherical realizations of the graph
+            If False, the method returns the number of planar realizations of the graph.
+
+        Examples
+        --------
+        >>> from pyrigi import Graph
+        >>> G = Graph([(0,1),(1,2),(2,0)])
+        >>> G.number_of_min_rigid_realizations() #returns number of planar realizations
+        2
+        >>> G.number_of_min_rigid_realizations(spherical_realizations=True)
+        2
+        """
+        n = self.to_int()
+        if not self.is_min_rigid():
+            return 0
+        if spherical_realizations:
+            return lnumbers(n)
+        else:
+            return lnumber(n)
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
@@ -1562,7 +1618,7 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        missing definition, implementation for dim>=3
+        implementation for dim>=3
 
         Examples
         --------
