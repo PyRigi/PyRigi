@@ -1277,3 +1277,57 @@ def test_is_k_l_tight():
     assert G.is_tight(2, 2)
     G = graphs.CompleteBipartite(4, 4)
     assert not G.is_tight(3, 6)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [graphs.Cycle(n) for n in range(3, 7)],
+)
+def test_Rd_circuit_d1(graph):
+    assert graph.is_Rd_circuit(dim=1)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Diamond(),
+        graphs.K33plusEdge(),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Path(3),
+    ],
+)
+def test_not_Rd_circuit_d1(graph):
+    assert not graph.is_Rd_circuit(dim=1)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.ThreePrismPlusEdge(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_Rd_circuit_d2(graph):
+    assert graph.is_Rd_circuit(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Complete(5),
+        graphs.Diamond(),
+        graphs.ThreePrism(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Path(3),
+        graphs.Cycle(4),
+    ],
+)
+def test_not_Rd_circuit_d2(graph):
+    assert not graph.is_Rd_circuit(dim=2)

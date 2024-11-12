@@ -1746,7 +1746,8 @@ class Graph(nx.Graph):
 
         TODO
         -----
-         Add unit tests
+         Add unit tests,
+         make computation of ``remaining_edge`` more robust
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1755,7 +1756,7 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
-            if not self.is_connected():
+            if not nx.is_connected(self):
                 return False
 
             # Check if every vertex has degree 2
@@ -1780,8 +1781,14 @@ class Graph(nx.Graph):
                 # this should not happen
                 raise RuntimeError
 
-            return self._pebble_digraph.fundamental_circuit(
-                u=remaining_edge[0][0], v=remaining_edge[0][1], K=2, L=3
+            return (
+                len(
+                    self._pebble_digraph.fundamental_circuit(
+                        u=remaining_edge[0][0],
+                        v=remaining_edge[0][1],
+                    )
+                )
+                == self.number_of_nodes()
             )
 
         raise NotImplementedError()
