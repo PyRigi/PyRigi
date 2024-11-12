@@ -86,6 +86,9 @@ class Framework(object):
     However, :meth:`~Framework.realization` can also return ``Dict[Vertex,Point]``.
     """
 
+    plot_vertex_color = "#ff8c00"
+    plot_edge_width = 1.5
+
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
@@ -330,20 +333,22 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(
         self,
+        coordinates: Union[tuple, list] = None,
         projection_matrix: Matrix = None,
-        coordinates_indexes: tuple = None,
-        vertex_color="#ff8c00",
-        edge_width=1.5,
+        return_matrix: bool = False,
+        vertex_color=plot_vertex_color,
+        edge_width=plot_edge_width,
         **kwargs,
     ) -> Optional[Matrix]:
         """
         Plot this framework in 2D.
 
         If this framework is in dimensions higher than 2 and projection_matrix
-        with coordinates_indexes are None a random projection matrix
+        with coordinates are None a random projection matrix
         containing two orthonormal vectors is generated and used for projection into 2D.
         This matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
+        Only coordinates or projection_matrix parameter can be used, not both!
 
         Parameters
         ----------
@@ -353,8 +358,10 @@ class Framework(object):
             The matrix must have dimensions (2, dim),
             where dim is the dimension of the currect placements of vertices.
             If None, a random projection matrix is generated.
-        coordinates_indexes:
+        coordinates:
             Indexes of two coordinates that will be used as the placement in 2D.
+        return_matrix:
+            If True the matrix used for projection into 2D is returned.
         """
 
         if self._dim == 1:
@@ -376,35 +383,26 @@ class Framework(object):
             )
             return
 
-        if coordinates_indexes is not None:
+        # dim > 2 -> use projection to 2D
+        if coordinates is not None:
             if (
-                not isinstance(coordinates_indexes, tuple)
-                or len(coordinates_indexes) != 2
+                not isinstance(coordinates, tuple)
+                and not isinstance(coordinates, list)
+                or len(coordinates) != 2
             ):
                 raise ValueError(
-                    "coordinates_indexes must have length 2!"
+                    "coordinates must have length 2!"
                     + " Exactly Two coordinates are necessary for plotting in 2D."
                 )
-            if np.max(coordinates_indexes) >= self._dim:
+            if np.max(coordinates) >= self._dim:
                 raise ValueError(
-                    f"Index {np.max(coordinates_indexes)} out of range"
+                    f"Index {np.max(coordinates)} out of range"
                     + f" with placement in dim: {self._dim}."
                 )
-            placement = {}
-            realization = self.realization(as_points=True, numerical=True)
-            for v in self._graph.nodes:
-                placement[v] = np.array(
-                    [
-                        realization[v][coordinates_indexes[0]],
-                        realization[v][coordinates_indexes[1]],
-                    ]
-                )
-            self._plot_with_2D_realization(
-                placement, vertex_color, edge_width, **kwargs
-            )
-            return
+            projection_matrix = np.zeros((2, self._dim))
+            projection_matrix[0, coordinates[0]] = 1
+            projection_matrix[1, coordinates[1]] = 1
 
-        # dim > 2 -> use projection to 2D
         if projection_matrix is not None:
             projection_matrix = np.array(projection_matrix)
             if projection_matrix.shape != (2, self._dim):
@@ -418,13 +416,14 @@ class Framework(object):
         self._plot_using_projection_matrix(
             projection_matrix, vertex_color, edge_width, **kwargs
         )
-        return projection_matrix
+        if return_matrix:
+            return projection_matrix
 
     @doc_category("Other")
     def plot(
         self,
-        vertex_color="#ff8c00",
-        edge_width=1.5,
+        vertex_color=plot_vertex_color,
+        edge_width=plot_edge_width,
         **kwargs,
     ) -> Optional[Matrix]:
         """
