@@ -178,7 +178,7 @@ def Frustum(n: int) -> Framework:
     return F
 
 
-def CnSymmetric(n: int = 8) -> Framework:
+def CnSymmetricFourRegular(n: int = 8) -> Framework:
     """
     Return a C_n-symmetric framework.
 
@@ -188,8 +188,8 @@ def CnSymmetric(n: int = 8) -> Framework:
 
     Definitions
     -----------
-    * :prf:ref:`Counterexample for the symmetry-adjusted Laman
-    count with a free group action <def-Cn-symmetric>`
+    * :prf:ref:`Example with a free group action <def-Cn-symmetric>`
+
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
@@ -197,7 +197,7 @@ def CnSymmetric(n: int = 8) -> Framework:
             + "needs to have an even order of at least 8!"
         )
     return Framework(
-        graphs.CnSymmetric(n),
+        graphs.CnSymmetricFourRegular(n),
         {
             i: [
                 sp.cos(2 * i * sp.pi / n),
@@ -208,7 +208,7 @@ def CnSymmetric(n: int = 8) -> Framework:
     )
 
 
-def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
+def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
     """
     Return a C_n-symmetric framework with a fixed vertex.
     The cyclical group C_n needs to have even order of at least 8.
@@ -222,8 +222,7 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
 
     Definitions
     -----------
-    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count
-    which contains a joint at the origin <def-Cn-symmetric-joint-at-origin>`
+    * :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
@@ -231,7 +230,7 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
             + "needs to have an even order of at least 8!"
         )
     return Framework(
-        graphs.CnSymmetricWithFixedVertex(n),
+        graphs.CnSymmetricFourRegularWithFixedVertex(n),
         {
             i: [
                 sp.cos(2 * i * sp.pi / n),

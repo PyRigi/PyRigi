@@ -178,9 +178,9 @@ frameworks.Frustum(3).plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.CnSymmetric(10).plot()
+frameworks.CnSymmetricFourRegular(10).plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.CnSymmetricWithFixedVertex(8).plot()
+frameworks.CnSymmetricFourRegularWithFixedVertex(8).plot()
 ```

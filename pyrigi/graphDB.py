@@ -150,7 +150,7 @@ def K66MinusPerfectMatching():
     return G
 
 
-def CnSymmetric(n: int = 8) -> Graph:
+def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
     Return a C_n-symmetric graph.
 
@@ -160,8 +160,8 @@ def CnSymmetric(n: int = 8) -> Graph:
 
     Definitions
     -----------
-    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count
-    with a free group action <def-Cn-symmetric>`
+    * :prf:ref:`Example with a free group action <def-Cn-symmetric>`
+
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
@@ -177,7 +177,7 @@ def CnSymmetric(n: int = 8) -> Graph:
     return G
 
 
-def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
+def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
     """
     Return a C_n-symmetric graph with a fixed vertex.
     The cyclical group C_n needs to have even order of at least 8.
@@ -191,15 +191,14 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
 
     Definitions
     -----------
-    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count
-    which contains a joint at the origin <def-Cn-symmetric-joint-at-origin>`
+    * :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
             "To generate this graph, the cyclical group "
             + "needs to have an even order of at least 8!"
         )
-    G = CnSymmetric(n)
+    G = CnSymmetricFourRegular(n)
     G.add_edges([(0, n), (n, 2 * n), (n + 1, 2 * n - 1), (n, 2 * n - 2)])
     for i in range(1, n):
         G.add_edges([(i, i + n), (2 * n, i + n), ((i + 1) + n, (i + 1) + n - 2)])

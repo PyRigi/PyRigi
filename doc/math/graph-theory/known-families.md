@@ -11,6 +11,7 @@ As a {prf:ref}`framework <def-framework>`, the $n$-Frustum is typically realized
 
 {{pyrigi_crossref}} {func}`.graphDB.Frustum`
 {func}`.frameworkDB.Frustum`
+:::
 
 
 :::{prf:definition} Counterexample for the symmetry-adjusted Laman count with a free group action
