@@ -134,7 +134,7 @@ def Frustum(n: int) -> Graph:
         + [(j, j + n) for j in range(0, n)]
     )
 
-  
+
 def K66MinusPerfectMatching():
     """
     Return a complete bipartite graph minus a perfect matching.
@@ -160,7 +160,8 @@ def CnSymmetric(n: int = 8) -> Graph:
 
     Definitions
     -----------
-    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count with a free group action <def-Cn-symmetric>`
+    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count
+    with a free group action <def-Cn-symmetric>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
@@ -190,7 +191,8 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
 
     Definitions
     -----------
-    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count which contains a joint at the origin <def-Cn-symmetric-joint-at-origin>`
+    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count
+    which contains a joint at the origin <def-Cn-symmetric-joint-at-origin>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(

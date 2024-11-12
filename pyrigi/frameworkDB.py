@@ -160,7 +160,7 @@ def K33plusEdge() -> Framework:
 def Frustum(n: int) -> Framework:
     """
     Return the n-Frustum with `n` vertices in dimension 2.
-    
+
     Definitions
     -----------
     * :prf:ref:`n-Frustum <def-n-frustum>`
@@ -188,7 +188,8 @@ def CnSymmetric(n: int = 8) -> Framework:
 
     Definitions
     -----------
-    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count with a free group action <def-Cn-symmetric>`
+    * :prf:ref:`Counterexample for the symmetry-adjusted Laman
+    count with a free group action <def-Cn-symmetric>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
@@ -221,7 +222,8 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
 
     Definitions
     -----------
-    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count which contains a joint at the origin <def-Cn-symmetric-joint-at-origin>`
+    * :prf:ref:`Counterexample for the symmetry-adjusted Laman count
+    which contains a joint at the origin <def-Cn-symmetric-joint-at-origin>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
