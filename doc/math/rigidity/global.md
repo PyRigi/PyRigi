@@ -1,5 +1,17 @@
 # Global Rigidity
 
+:::{prf:definition}
+:label: def-globally-rigid-graph
+
+A graph $G = (V,E)$ is called _globally $d$-rigid_,
+if for every {prf:ref}`generic <def-gen-realization>` $d$-dimensional {prf:ref}`framework <def-framework>` $(G,p)$,
+all $d$-dimensional frameworks $(G,p')$ {prf:ref}`equivalent <def-equivalent-framework>` to $(G,p)$
+are {prf:ref}`congruent <def-equivalent-framework>` to $(G,p)$.
+
+{{references}} {cite:p}`Jackson2005`
+:::
+
+
 :::{prf:theorem}
 :label: thm-globally-redundant-3connected
 
