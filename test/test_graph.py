@@ -1265,3 +1265,17 @@ def test_is_k_l_tight():
     assert G.is_tight(2, 2)
     G = graphs.CompleteBipartite(4, 4)
     assert not G.is_tight(3, 6)
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 16],
+        [graphs.Diamond(), 4],
+        [graphs.ThreePrism(), 24],
+    ],
+)
+def test_number_of_realizations(graph, n):
+    assert graph.number_of_realizations() == n
