@@ -329,6 +329,7 @@ class Framework(object):
         coordinates: Union[tuple, list] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
+        random_seed: Union[int, None] = None,
         **kwargs,
     ) -> Optional[Matrix]:
         """
@@ -349,6 +350,9 @@ class Framework(object):
             The matrix must have dimensions (2, dim),
             where dim is the dimension of the currect placements of vertices.
             If None, a random projection matrix is generated.
+        random_seed:
+            The random seed used for generating the projection matrix.
+            When the same value is provided, the framework will plot exactly same.
         coordinates:
             Indexes of two coordinates that will be used as the placement in 2D.
         return_matrix:
@@ -398,7 +402,9 @@ class Framework(object):
                     {projection_matrix.shape} instead of (2, {self._dim})."
                 )
         if projection_matrix is None:
-            projection_matrix = generate_two_orthonormal_vectors(self._dim)
+            projection_matrix = generate_two_orthonormal_vectors(
+                self._dim, random_seed=random_seed
+            )
             projection_matrix = projection_matrix.T
         self._plot_using_projection_matrix(projection_matrix, **kwargs)
         if return_matrix:

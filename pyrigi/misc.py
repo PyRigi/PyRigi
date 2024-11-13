@@ -3,10 +3,10 @@ Module for miscellaneous functions.
 """
 
 import math
+from typing import Union
 from pyrigi.data_type import Point, point_to_vector
 from sympy import Matrix, simplify, Abs
 import numpy as np
-from random import randint
 
 
 def doc_category(category):
@@ -50,7 +50,9 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
     return ("\n" + indent).join(res.splitlines())
 
 
-def generate_two_orthonormal_vectors(dim: int) -> Matrix:
+def generate_two_orthonormal_vectors(
+    dim: int, random_seed: Union[int, None] = None
+) -> Matrix:
     """
     Generate two random numeric orthonormal vectors in the given dimension.
 
@@ -60,12 +62,18 @@ def generate_two_orthonormal_vectors(dim: int) -> Matrix:
     ----------
     dim:
         The dimension in which the vectors are generated.
+    random_seed:
+        Seed for generating random vectors.
+        When the same value is provided, the same vectors are generated.
     """
+
+    if random_seed is not None:
+        np.random.seed(random_seed)
 
     matrix = np.random.randn(dim, 2)
 
     # for numerical stability regenerate some elements
-    tmp = randint(0, dim - 1)
+    tmp = np.random.randint(0, dim - 1)
     while abs(matrix[tmp, 1]) < 1e-6:
         matrix[tmp, 1] = np.random.randn(1, 1)
 
