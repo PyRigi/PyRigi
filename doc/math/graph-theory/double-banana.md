@@ -63,6 +63,7 @@ for all $e\in E$. Jackson, Nixon and Smith {cite:p}`Jackson2024` introduced a
 generalisation to _$k$-fold circuits_ i.e. sets $D\subseteq E$ such that 
 $r(D)=|D|-2=r(D-e)$ for all $e\in D$, for some fixed integer $k\geq 0$. 
 
+
 :::{prf:lemma}
 :label: lem-k-sum
 
@@ -76,7 +77,8 @@ $k_1,k_2\geq 1$ with $k_1+k_2=k+1$.
 {cite:p}`Jackson2024`
 :::
 
-:::{prf:definition} B-d-d-1
+
+:::{prf:definition}
 :label: def-B-d-d-1
 
 Define $\overline B_{d,d-1}$ to be obtained from $B_{d,d-1}$ by adding back the edge $e$.
