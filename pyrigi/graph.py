@@ -1004,7 +1004,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def number_of_realizations(
-        self, spherical_realizations: bool = False, check_min_rigid: bool = False
+        self, spherical_realizations: bool = False, check_min_rigid: bool = True
     ) -> int:
         """
         Count the number of planar or spherical realizations of a minimally 2-rigid graph.

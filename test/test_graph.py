@@ -1292,6 +1292,37 @@ def test_is_k_l_tight():
 def test_number_of_realizations(graph, n):
     assert graph.number_of_realizations() == n
 
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 16],
+        [graphs.Diamond(), 4],
+        [graphs.ThreePrism(), 32],
+    ],
+)
+def test_number_of_realizations_sphere(graph, n):
+    assert graph.number_of_realizations(spherical_realizations=True) == n
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.K33plusEdge(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Path(3),
+    ],
+)
+def test_number_of_realizations_error(graph):
+    with pytest.raises(ValueError):
+        graph.number_of_realizations()
+
+
 @pytest.mark.parametrize(
     "graph",
     [graphs.Cycle(n) for n in range(3, 7)],
