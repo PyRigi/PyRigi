@@ -1096,7 +1096,8 @@ class Framework(object):
 
         TODO
         ----
-        more tests
+        more tests, in particular testing `trivial_inf_flexes`==
+        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Examples
         --------
@@ -1198,7 +1199,8 @@ class Framework(object):
 
         TODO
         ----
-        more tests
+        more tests, in particular testing `trivial_inf_flexes`==
+        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Definitions
         -----------

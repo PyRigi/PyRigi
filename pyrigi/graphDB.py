@@ -150,60 +150,59 @@ def K66MinusPerfectMatching():
     return G
 
 
-def C8FlexibleWithFixedVertex():
+def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
-    Return a C_8-symmetric graph with a fixed vertex
+    Return a C_n-symmetric graph.
+
+    TODO
+    ----
+    use in tests
+
+    Definitions
+    -----------
+    * :prf:ref:`Example with a free group action <def-Cn-symmetric>`
+
+    """
+    if not n % 2 == 0 or n < 8:
+        raise ValueError(
+            "To generate this graph, the cyclical group "
+            + "needs to have an even order of at least 8!"
+        )
+    G = Graph()
+    G.add_edges([(0, n - 1), (n - 3, 0), (n - 2, 1), (n - 1, 2)])
+    for i in range(1, n):
+        G.add_edges([(i, i - 1)])
+    for i in range(n - 3):
+        G.add_edge(i, i + 3)
+    return G
+
+
+def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
+    """
+    Return a C_n-symmetric graph with a fixed vertex.
+    The cyclical group C_n needs to have even order of at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
 
     TODO
     ----
-    Create corresponding rotationally symmetric framework.
+    use in tests
+
+    Definitions
+    -----------
+    * :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
     """
-    return Graph(
-        [
-            (0, 1),
-            (0, 3),
-            (0, 5),
-            (0, 7),
-            (1, 6),
-            (1, 4),
-            (1, 2),
-            (2, 5),
-            (2, 7),
-            (2, 3),
-            (3, 6),
-            (3, 4),
-            (4, 7),
-            (4, 5),
-            (5, 6),
-            (6, 7),
-            (8, 9),
-            (8, 10),
-            (8, 11),
-            (8, 12),
-            (8, 14),
-            (8, 15),
-            (8, 16),
-            (9, 0),
-            (9, 11),
-            (9, 15),
-            (10, 12),
-            (10, 1),
-            (10, 16),
-            (11, 2),
-            (11, 13),
-            (12, 3),
-            (12, 14),
-            (13, 4),
-            (13, 15),
-            (14, 5),
-            (14, 16),
-            (15, 6),
-            (16, 7),
-        ]
-    )
+    if not n % 2 == 0 or n < 8:
+        raise ValueError(
+            "To generate this graph, the cyclical group "
+            + "needs to have an even order of at least 8!"
+        )
+    G = CnSymmetricFourRegular(n)
+    G.add_edges([(0, n), (n, 2 * n), (n + 1, 2 * n - 1), (n, 2 * n - 2)])
+    for i in range(1, n):
+        G.add_edges([(i, i + n), (2 * n, i + n), ((i + 1) + n, (i + 1) + n - 2)])
+    return G
 
 
 def ThreeConnectedR3Circuit():
