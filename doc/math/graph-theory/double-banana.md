@@ -52,15 +52,15 @@ $\mathcal{R}_{d}$-circuits.
 :::
 
 
-Using this lemma we can create one family of generalised bananas in which
+Using this lemma we can create one family of generalized bananas in which
 every element of the family is a $\mathcal{R}_d$-circuit.
 
-A different generalisation is as follows.
+A different generalization is as follows.
 
 Let $\mathcal{M}=(E,r)$ be a matroid with finite ground set $E$ and rank function $r$.
 A _circuit_ of $\mathcal{M}$ is a set $C\subseteq E$ such that $r(C)=|C|-1=r(C-e)$
 for all $e\in E$. Jackson, Nixon and Smith {cite:p}`Jackson2024` introduced a
-generalisation to _$k$-fold circuits_ i.e. sets $D\subseteq E$ such that
+generalization to _$k$-fold circuits_ i.e. sets $D\subseteq E$ such that
 $r(D)=|D|-2=r(D-e)$ for all $e\in D$, for some fixed integer $k\geq 0$.
 
 
