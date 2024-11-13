@@ -3,7 +3,6 @@ Module for miscellaneous functions.
 """
 
 import math
-from typing import Union
 from pyrigi.data_type import Point, point_to_vector
 from sympy import Matrix, simplify, Abs
 import numpy as np
@@ -51,7 +50,7 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
 
 
 def generate_two_orthonormal_vectors(
-    dim: int, random_seed: Union[int, None] = None
+    dim: int, random_seed: int = None
 ) -> Matrix:
     """
     Generate two random numeric orthonormal vectors in the given dimension.

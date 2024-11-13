@@ -329,7 +329,7 @@ class Framework(object):
         coordinates: Union[tuple, list] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
-        random_seed: Union[int, None] = None,
+        random_seed: int = None,
         **kwargs,
     ) -> Optional[Matrix]:
         """
