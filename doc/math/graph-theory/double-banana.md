@@ -28,7 +28,7 @@ Then either
 * $d=3$ and $G\in \{B_{3,2}\}\cup \mathcal{B}_{3,2}^+$ or
 * $d\geq 4$ and $G\in \{B_{d,d-1}$, $B_{d,d-2}\}\cup \mathcal{B}_{d,d-1}^+$.
 
-{cite:p}`Grasegger2022`
+{{references}} {cite:p}`Grasegger2022`
 :::
 
 
@@ -48,7 +48,7 @@ Suppose that $G=(V,E)$ is the $2$-sum of $G_1=(V_1,E_1)$ and $G_2=(V_2,E_2)$.
 Then $G$ is an $\mathcal{R}_d$-circuit if and only if $G_1$ and $G_2$ are both
 $\mathcal{R}_{d}$-circuits.
 
-{cite:p}`Grasegger2022`
+{{references}} {cite:p}`Grasegger2022`
 :::
 
 
@@ -74,7 +74,7 @@ Then $G$ is a $k$-fold circuit in $\mathcal{R}_d$ if and only if $G_1$ is a $k_1
 $\mathcal{R}_d$-circuit and $G_2$ is a $k_2$-fold $\mathcal{R}_d$-circuit for some
 $k_1,k_2\geq 1$ with $k_1+k_2=k+1$.
 
-{cite:p}`Jackson2024`
+{{references}} {cite:p}`Jackson2024`
 :::
 
 
