@@ -86,9 +86,6 @@ class Framework(object):
     However, :meth:`~Framework.realization` can also return ``Dict[Vertex,Point]``.
     """
 
-    plot_vertex_color = "#ff8c00"
-    plot_edge_width = 1.5
-
     def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
@@ -277,8 +274,8 @@ class Framework(object):
     def _plot_with_2D_realization(
         self,
         realization: dict[Vertex, Point],
-        vertex_color,
-        edge_width,
+        vertex_color="#ff8c00",
+        edge_width=1.5,
         **kwargs,
     ) -> None:
         """
@@ -303,8 +300,6 @@ class Framework(object):
     def _plot_using_projection_matrix(
         self,
         projection_matrix: Matrix,
-        vertex_color,
-        edge_width,
         **kwargs,
     ) -> None:
         """
@@ -326,9 +321,7 @@ class Framework(object):
         ).items():
             placement[vertex] = np.dot(projection_matrix, np.array(position))
 
-        return self._plot_with_2D_realization(
-            placement, vertex_color, edge_width, **kwargs
-        )
+        return self._plot_with_2D_realization(placement, **kwargs)
 
     @doc_category("Other")
     def plot2D(
@@ -336,8 +329,6 @@ class Framework(object):
         coordinates: Union[tuple, list] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
-        vertex_color=plot_vertex_color,
-        edge_width=plot_edge_width,
         **kwargs,
     ) -> Optional[Matrix]:
         """
@@ -371,16 +362,12 @@ class Framework(object):
             ).items():
                 placement[vertex] = np.append(np.array(position), 0)
 
-            self._plot_with_2D_realization(
-                placement, vertex_color, edge_width, **kwargs
-            )
+            self._plot_with_2D_realization(placement, **kwargs)
             return
 
         if self._dim == 2:
             placement = self.realization(as_points=True, numerical=True)
-            self._plot_with_2D_realization(
-                placement, vertex_color, edge_width, **kwargs
-            )
+            self._plot_with_2D_realization(placement, **kwargs)
             return
 
         # dim > 2 -> use projection to 2D
@@ -413,17 +400,13 @@ class Framework(object):
         if projection_matrix is None:
             projection_matrix = generate_two_orthonormal_vectors(self._dim)
             projection_matrix = projection_matrix.T
-        self._plot_using_projection_matrix(
-            projection_matrix, vertex_color, edge_width, **kwargs
-        )
+        self._plot_using_projection_matrix(projection_matrix, **kwargs)
         if return_matrix:
             return projection_matrix
 
     @doc_category("Other")
     def plot(
         self,
-        vertex_color=plot_vertex_color,
-        edge_width=plot_edge_width,
         **kwargs,
     ) -> Optional[Matrix]:
         """
@@ -448,7 +431,7 @@ class Framework(object):
                 + " For projection into 2D use F.plot2D()"
             )
 
-        self.plot2D(vertex_color=vertex_color, edge_width=edge_width, **kwargs)
+        self.plot2D(**kwargs)
 
     @classmethod
     @doc_category("Class methods")
