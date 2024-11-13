@@ -279,14 +279,14 @@ class Framework(object):
         **kwargs,
     ) -> None:
         """
-        Plot this Framework with the given realization.
+        Plot the graph of the framework with the given realization in the plane.
 
-        For description of other parameters see :meth:`.Framework.plot`
+        For description of other parameters see :meth:`.Framework.plot`.
 
         Parameters
         ----------
         realization:
-            The realization used for plotting. The vectors must have dimension 2!
+            The realization in the plane used for plotting.
         """
 
         self._graph.plot(
@@ -303,16 +303,16 @@ class Framework(object):
         **kwargs,
     ) -> None:
         """
-        Plot this Framework with vertices placement's projected using the given Matrix.
+        Plot the framework with the realization projected using the given matrix.
 
-        For description of other parameters see :meth:`.Framework.plot`
+        For description of other parameters see :meth:`.Framework.plot`.
 
         Parameters
         ----------
         projection_matrix:
-            The Matrix used for projection.
-            The matrix must have dimensions (2, dim),
-            where dim is the dimension of the currect placements of vertices.
+            The matrix used for projection.
+            The matrix must have dimensions ``(2, dim)``,
+            where ``dim`` is the dimension of the framework.
         """
 
         placement = {}
@@ -321,7 +321,7 @@ class Framework(object):
         ).items():
             placement[vertex] = np.dot(projection_matrix, np.array(position))
 
-        return self._plot_with_2D_realization(placement, **kwargs)
+        self._plot_with_2D_realization(placement, **kwargs)
 
     @doc_category("Other")
     def plot2D(
@@ -414,21 +414,18 @@ class Framework(object):
     def plot(
         self,
         **kwargs,
-    ) -> Optional[Matrix]:
+    ) -> None:
         """
         Plot the framework.
 
-        If this framework is in higher dimension than 2, ValueError is raised.
-        For plotting frameworks in higher dimensions, use :meth:`.Framework.plot2D`
+        If the dimension of the framework is greater than 2, ``ValueError`` is raised,
+        use :meth:`.Framework.plot2D` instead.
         For various formatting options, see :meth:`.Graph.plot`.
-
-        Parameters
-        ----------
 
 
         TODO
         ----
-        Implement plotting for dimension 3 and better plotting for dim. 1
+        Implement plotting in dimension 3 and better plotting for dimension 1
         """
 
         if self._dim > 2:

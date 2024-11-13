@@ -49,13 +49,11 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
     return ("\n" + indent).join(res.splitlines())
 
 
-def generate_two_orthonormal_vectors(
-    dim: int, random_seed: int = None
-) -> Matrix:
+def generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
     """
     Generate two random numeric orthonormal vectors in the given dimension.
 
-    The vectors are in the columns of the returned Matrix.
+    The vectors are in the columns of the returned matrix.
 
     Parameters
     ----------
