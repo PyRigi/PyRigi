@@ -2175,6 +2175,68 @@ class Graph(nx.Graph):
             )
         return edge_color_array, edge_list_ref
 
+    @doc_category("Graph manipulation")
+    def sum_t(self, G2: Graph, edge: Edge, t: int = 2):
+        """
+        Return the t-sum of self and G2 along the given edge.
+
+        Parameters
+        ----------
+        G2: Graph
+        edge: Edge
+        t: integer, default value 2
+
+        Definitions
+        -----
+        :prf:ref:`t-sum <def-t-sum>`
+
+        Examples
+        --------
+        >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
+        >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
+        >>> H.sum_t(G, [1, 2], 3)
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [1, 3], [2, 3], [3, 4]]
+        """
+        if edge not in self.edges or edge not in G2.edges:
+            raise ValueError(
+                f"The edge {edge} is not in the intersection of the graphs."
+            )
+        # check if the intersection is a t-complete graph
+        if not self.intersection(G2).is_isomorphic(nx.complete_graph(t)):
+            raise ValueError(
+                f"The intersection of the graphs must be a {t}-complete graph."
+            )
+        G = self + G2
+        G.remove_edge(edge[0], edge[1])
+        return G
+
+    @doc_category("Graph manipulation")
+    def intersection(self, G2: Graph):
+        """
+        Return the intersection of self and G2.
+
+        Parameters
+        ----------
+        G2: Graph
+
+        Examples
+        --------
+        >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
+        >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
+        >>> G.intersection(H)
+        Graph with vertices [1, 2, 3] and edges [[1, 2], [1, 3], [2, 3]]
+        >>> G = Graph([[0,1],[0,2],[1,2]])
+        >>> G.add_vertex(3)
+        >>> H = Graph([[0,1],[1,2],[2,4],[4,0]])
+        >>> H.add_vertex(3)
+        >>> G.intersection(H)
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [1, 2]]
+        """
+        return Graph.from_vertices_and_edges(
+            [v for v in self.nodes if v in G2.nodes],
+            [e for e in self.edges if e in G2.edges],
+        )
+
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
         """
