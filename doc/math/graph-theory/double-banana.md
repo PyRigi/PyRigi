@@ -84,7 +84,7 @@ It follows that $\textrm{cl} (B_{d,d-1})=\overline B_{d,d-1}$, and so
 $\overline B_{d,d-1}$ is a flexible 2-fold circuit in $\mathcal{R}_d$.
 We define the triple banana $B^{(3)}_{d,d-1}$ to be the $2$-sum of $\overline B_{d,d-1}$
 and $K_{d+2}$ again along $e$.
-By `Lemma <def-lem-k-sum>`, $B^{(3)}_{d,d-1}$ is a 2-fold circuit in $\mathcal{R}_d$.
+By `Lemma <lem-k-sum>`, $B^{(3)}_{d,d-1}$ is a 2-fold circuit in $\mathcal{R}_d$.
 Iterating this process, we get that the $(k+1)$-tuple banana $B^{(k+1)}_{d,d-1}$ is a 
 $k$-fold circuit in $\mathcal{R}_d$.
 :::
