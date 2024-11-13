@@ -137,7 +137,11 @@ class Graph(nx.Graph):
 
     def __add__(self, other: Graph):
         r"""
-        Return the sum of self and other.
+        Return the union of self and other.
+
+        Definitions
+        -----------
+        :prf:ref:`Union of two graphs <def-union-graph>`
 
         Examples
         --------
@@ -146,9 +150,7 @@ class Graph(nx.Graph):
         >>> G + H
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]]
         """  # noqa: E501
-        sum_graph = self.copy()
-        sum_graph.add_edges(other.edges)
-        return sum_graph
+        return Graph(nx.compose(self, other))
 
     @classmethod
     @doc_category("Class methods")
@@ -1616,7 +1618,7 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        missing definition, implementation for dim>=3
+        implementation for dim>=3
 
         Examples
         --------
@@ -1744,7 +1746,8 @@ class Graph(nx.Graph):
 
         TODO
         -----
-         Add unit tests
+         Add unit tests,
+         make computation of ``remaining_edge`` more robust
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1753,7 +1756,7 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
-            if not self.is_connected():
+            if not nx.is_connected(self):
                 return False
 
             # Check if every vertex has degree 2
@@ -1778,8 +1781,14 @@ class Graph(nx.Graph):
                 # this should not happen
                 raise RuntimeError
 
-            return self._pebble_digraph.fundamental_circuit(
-                u=remaining_edge[0][0], v=remaining_edge[0][1], K=2, L=3
+            return (
+                len(
+                    self._pebble_digraph.fundamental_circuit(
+                        u=remaining_edge[0][0],
+                        v=remaining_edge[0][1],
+                    )
+                )
+                == self.number_of_nodes()
             )
 
         raise NotImplementedError()

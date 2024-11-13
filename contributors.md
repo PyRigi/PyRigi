@@ -1,6 +1,7 @@
 # Contributors to PyRigi
 
 (M) indicates maintainers
+<!-- start-input -->
 
 ## Version 0.3.0 (November 5, 2024)
 

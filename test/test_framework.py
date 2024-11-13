@@ -61,6 +61,7 @@ def test_inf_rigid(framework):
         fws.Cycle(4, d=3),
         fws.Path(3, d=3),
         fws.Path(4, d=3),
+        fws.Frustum(3),
     ]
     + [fws.Cycle(n - 1, d=n) for n in range(5, 10)]
     + [fws.Cycle(n, d=n) for n in range(4, 10)]
@@ -127,6 +128,65 @@ def test_inf_min_rigid(framework):
 )
 def test_not_min_inf_rigid(framework):
     assert not framework.is_min_inf_rigid()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Complete(2, d=1),
+        fws.Complete(2, d=2),
+        fws.Complete(3, d=2),
+        fws.Complete(3, d=3),
+        fws.Complete(4, d=3),
+        fws.CompleteBipartite(3, 3),
+        fws.CompleteBipartite(1, 3),
+        fws.CompleteBipartite(2, 3),
+        fws.Diamond(),
+        fws.ThreePrism(),
+        Framework.from_points([[i] for i in range(4)]),
+        fws.Cycle(4, d=2),
+        fws.Cycle(5, d=2),
+        fws.Cycle(4, d=2),
+        fws.Path(3, d=1),
+        fws.Path(3, d=2),
+        fws.Path(4, d=2),
+        fws.Path(3, d=3),
+        fws.Path(4, d=3),
+    ]
+    + [fws.Complete(2, d=n) for n in range(1, 7)]
+    + [fws.Complete(3, d=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
+    + [fws.Complete(n, d=n) for n in range(1, 7)]
+    + [fws.Complete(n + 1, d=n) for n in range(1, 7)]
+    + [fws.Cycle(n - 1, d=n) for n in range(5, 7)]
+    + [fws.Cycle(n, d=n) for n in range(4, 7)]
+    + [fws.Cycle(n + 1, d=n) for n in range(3, 7)],
+)
+def test_is_independent(framework):
+    assert framework.is_independent()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.K33plusEdge(),
+        fws.ThreePrismPlusEdge(),
+        Framework.Collinear(graphs.Complete(3), d=2),
+        fws.Complete(3, d=1),
+        fws.Complete(4, d=1),
+        fws.Complete(4, d=2),
+        fws.CompleteBipartite(3, 3, "dixonI"),
+        fws.CompleteBipartite(3, 4),
+        fws.CompleteBipartite(4, 4),
+        fws.ThreePrism("flexible"),
+        fws.ThreePrism("parallel"),
+        fws.Cycle(4, d=1),
+        fws.Cycle(5, d=1),
+    ]
+    + [Framework.Random(graphs.Complete(n), dim=n - 2) for n in range(3, 8)],
+)
+def test_is_dependent(framework):
+    assert framework.is_dependent()
 
 
 def test_dimension():
@@ -423,7 +483,7 @@ def test_is_congruent():
     assert F4.is_congruent_realization(R1, numerical=True)
 
 
-def test_rigidity_matrix_rank_K4():
+def test_rigidity_matrix_rank():
     K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
     assert K4.rigidity_matrix_rank() == 5
 
@@ -435,10 +495,5 @@ def test_rigidity_matrix_rank_K4():
     K4.delete_edge([2, 3])
     assert K4.rigidity_matrix_rank() == 4
 
-
-def test_inf_rigidity_n_frustum():
-    """Test if the 3-Frustum (which has a single infinitessimal motion and stress)
-    is infinitessimally rigid"""
-    F = fws.Frustum(3)
+    F = fws.Frustum(3)  # has a single infinitesimal motion and stress
     assert F.rigidity_matrix_rank() == 8
-    assert not F.is_inf_rigid()
