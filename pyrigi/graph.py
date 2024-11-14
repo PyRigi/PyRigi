@@ -1937,6 +1937,52 @@ class Graph(nx.Graph):
                         rigid_subgraphs[H2] = False
         return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
 
+    @doc_category("Generic rigidity")
+    def max_dim_generic_rigidity(self) -> int:
+        """
+        Compute the maximum dimension, in which a graph is generically rigid
+
+        Notes
+        -----
+        This is done by taking the dimension predicted by the Maxwell count
+        as a starting point.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> G.max_dim_generic_rigidity()
+        inf
+
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(4)
+        >>> G.add_edges([(0,4),(1,4),(2,4)])
+        >>> G.max_dim_generic_rigidity()
+        3
+        """
+        if nx.number_of_selfloops(self) > 0:
+            raise LoopError()
+
+        V = self.number_of_nodes()
+        E = self.number_of_edges()
+        d = 1
+        while True:
+            # Find the smallest d for which the Maxwell count holds.
+            if E < d*V-(d+1)*d/2 or 2*V == d+1:
+                dim = d
+                break
+            d = d+1
+
+        for d in range(dim, 0, -1):
+            if self.is_rigid(d, combinatorial=False):
+                if d == 2*V-1 and self.is_rigid(d, combinatorial=False):
+                    # If the dimension is sufficiently large and the graph
+                    # is rigid, all following dimensions automatically are
+                    # rigid as well.
+                    return math.inf
+                return d
+        return 0
+
     @doc_category("General graph theoretical properties")
     def is_isomorphic(self, graph: Graph) -> bool:
         """
