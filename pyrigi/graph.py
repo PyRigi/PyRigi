@@ -12,6 +12,7 @@ from lnumber import lnumber, lnumbers
 import networkx as nx
 import matplotlib.pyplot as plt
 from sympy import Matrix
+import numpy as np
 import math
 import distinctipy
 
@@ -2279,7 +2280,7 @@ class Graph(nx.Graph):
         edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
         edge_style: str = "solid",
         flex_width: float = 2.5,
-        flex_length: float = 0.075,
+        flex_length: float = 0.15,
         flex_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "limegreen",
         flex_style: str = "solid",
         flex_arrowsize: int = 20,
@@ -2337,7 +2338,7 @@ class Graph(nx.Graph):
             ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
         flex_length:
             Length of the displayed flex relative to the total canvas
-            diagonal in percent. By default 7.5%.
+            diagonal in percent. By default 15%.
         flex_arrowsize:
             Size of the arrowhead's length and width.
         font_size:
@@ -2391,7 +2392,7 @@ class Graph(nx.Graph):
                     )
                 if len(inf_flex[flex_key]) == 1:
                     inf_flex[flex_key] = (inf_flex[flex_key][0], 0)
-                if not inf_flex[flex_key] == (0, 0):
+                if not all(entry == 0 for entry in inf_flex[flex_key]):
                     # normalize the edge length by its Euclidean norm
                     flex_mag = math.sqrt(sum(flex**2 for flex in inf_flex[flex_key]))
                     inf_flex[flex_key] = tuple(
@@ -2399,23 +2400,25 @@ class Graph(nx.Graph):
                     )
             # Delete the edges with zero length
             inf_flex = {
-                flex_key: inf_flex[flex_key]
+                flex_key: np.array(inf_flex[flex_key], dtype=float)
                 for flex_key in inf_flex.keys()
-                if not inf_flex[flex_key] == (0, 0)
+                if not all(entry == 0 for entry in inf_flex[flex_key])
             }
-
-            arrow_length = math.sqrt(canvas_width**2 + canvas_height**2) * flex_length
+            x_canvas_width = ax.get_xlim()[1]-ax.get_xlim()[0]
+            y_canvas_width = ax.get_ylim()[1]-ax.get_ylim()[0]
+            arrow_length = math.sqrt(x_canvas_width**2 + y_canvas_width**2) * flex_length
             H = nx.DiGraph(
-                [(v, (v, "_inf_flex_target_vertex")) for v in inf_flex.keys()]
+                [(v, str(v)+"_flex") for v in inf_flex.keys()]
             )
             H_placement = {
-                (v, "_inf_flex_target_vertex"): (
+                str(v)+"_flex": np.array([
                     placement[v][0] + arrow_length * inf_flex[v][0],
                     placement[v][1] + arrow_length * inf_flex[v][1],
-                )
+                ], dtype=float)
                 for v in inf_flex.keys()
             }
-            H_placement.update(placement)
+            H_placement.update({v: np.array(placement[v], dtype=float) for v in inf_flex.keys()})
+
             nx.draw(
                 H,
                 pos=H_placement,

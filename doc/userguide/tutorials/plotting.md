@@ -179,3 +179,28 @@ F.plot(vertex_labels=False,
        edge_color={"pink" : [[0,1],[3,6]], "lightgreen" : [[2,3],[3,5]]}
       )
 ```
+
+It is possible to include infinitesimal motions in the plot. With the keyword
+`inf_flex = n`, we can pick the $n$-th nontrivial infinitesimal motion from
+a basis of the rigidity matrix's kernel. There are several keywords that allow
+us to alter the style of the drawn arrows.
+
+```{code-cell} ipython3
+F = frameworks.Path(5)
+F.plot(inf_flex = 0,
+      flex_width = 4,
+      flex_length = 0.25,
+      flex_color = "darkgrey",
+      flex_style = "-",
+      flex_arrowsize = 15
+)
+```
+
+It is also possible to provide a specific infinitesimal motion with the
+following chain of commands:
+
+```{code-cell} ipython3
+F = frameworks.ThreePrism(realization="flexible")
+flex = F.nontrivial_inf_flexes()[0]
+F.plot(inf_flex = flex)
+```

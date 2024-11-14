@@ -386,7 +386,7 @@ class Framework(object):
         """
         inf_flex_pointwise = None
         if inf_flex is not None:
-            if inf_flex is int and inf_flex >= 0:
+            if isinstance(inf_flex, int) and inf_flex >= 0:
                 inf_flex_basis = self.nontrivial_inf_flexes()
                 if inf_flex >= len(inf_flex_basis):
                     raise IndexError(
@@ -394,11 +394,11 @@ class Framework(object):
                         + "the dimension of the space "
                         + "of infinitesimal motions!"
                     )
-                inf_flex_pointwise = self._transform_flex_to_pointwise(
-                    inf_flex_basis[inf_flex]
+                inf_flex_pointwise = _transform_inf_flex_to_pointwise(
+                    self, inf_flex_basis[inf_flex]
                 )
-            elif inf_flex is Matrix:
-                inf_flex_pointwise = self._transform_flex_to_pointwise(inf_flex)
+            elif isinstance(inf_flex, Matrix):
+                inf_flex_pointwise = _transform_inf_flex_to_pointwise(self, inf_flex)
             else:
                 raise TypeError("inf_flex does not have the correct Type!")
 
@@ -1292,8 +1292,8 @@ class Framework(object):
 
 
 @doc_category("Other")
-def _transform_flex_to_pointwise(  # noqa: C901
-    self, flex: Matrix, vertex_order: List[Vertex] = None
+def _transform_inf_flex_to_pointwise(  # noqa: C901
+    F: Framework, flex: Matrix, vertex_order: List[Vertex] = None
 ) -> dict[Vertex, Sequence[Coordinate]]:
     r"""
     Transform the natural data type of a flex (Matrix) to a
@@ -1310,20 +1310,20 @@ def _transform_flex_to_pointwise(  # noqa: C901
     >>> F = from_points([(0,0), (1,0), (0,1)])
     >>> F.add_edges([(0,1),(0,2)])
     >>> flex = F.nontrivial_inf_flexes()[0]
-    >>> F._transform_flex_to_pointwise(flex)
+    >>> _transform_inf_flex_to_pointwise(F, flex)
     {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
     """
     if vertex_order is None:
-        vertex_order = self._graph.vertex_list()
+        vertex_order = F._graph.vertex_list()
     else:
-        if not set(self._graph.nodes) == set(vertex_order):
+        if not set(F._graph.nodes) == set(vertex_order):
             raise ValueError(
                 "vertex_order must contain "
                 + "exactly the same vertices as the graph!"
             )
     return {
-        vertex_order[i]: [flex[i * self.dim() + j] for j in range(self.dim())]
+        vertex_order[i]: [flex[i * F.dim() + j] for j in range(F.dim())]
         for i in range(len(vertex_order))
     }
 
