@@ -29,4 +29,4 @@ the package `lnumber` is necessary. To install `PyRigi` including `lnumber`, run
 ```
 pip install pyrigi[lnumber]
 ```
-If you encounter any troubles, please, check the [Python instructions of the package](https://github.com/jcapco/lnumber). 
+Before installing this package, please read the [Python instructions of the package](https://github.com/jcapco/lnumber). 
