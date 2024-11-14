@@ -1940,12 +1940,13 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def max_dim_generic_rigidity(self) -> int:
         """
-        Compute the maximum dimension, in which a graph is generically rigid
+        Compute the maximum dimension, in which a graph is generically rigid.
 
         Notes
         -----
         This is done by taking the dimension predicted by the Maxwell count
-        as a starting point.
+        as a starting point and iteratively reducing the dimension until
+        generic rigidity is found.
 
         Examples
         --------
