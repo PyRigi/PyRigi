@@ -20,3 +20,13 @@ In this tutorial, we assume a clean Windows without Python installed. In case th
 3. As soon as your installation is successful, go to the Windows command line tool by following Windows key > type "cmd" > Enter. You can check if your Python Installation has been added to the environment variables by typing `python -v`. This command opens Python. It can be closed again with the command `exit()`.
 4. Install PyRigi by typing `python -m pip install pyrigi`.
 5. If you want to use PyRigi in a Jupyter notebook, install Jupyter Labs via the command `python -m pip install jupyterlab`. You can open a Jupyter notebook by typing `jupyter lab`. This provides a convenient user interface for PyRigi.
+
+
+## Optional packages
+
+For counting the number of realizations of a minimally rigid graph,
+the package `lnumber` is necessary. To install `PyRigi` including `lnumber`, run 
+```
+pip install pyrigi[lnumber]
+```
+If you encounter any troubles, please, check the [Python instructions of the package](https://github.com/jcapco/lnumber). 
