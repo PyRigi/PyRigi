@@ -2303,7 +2303,7 @@ class Graph(nx.Graph):
         inf_flex:
             It is possible to plot an infinitesimal flex alongside the
             realization of your graph. It is specified as a ``dict`` of
-            motions.
+            flexes.
         layout:
             The possibilities are ``spring`` (default), ``circular``,
             ``random`` or ``planar``, see also :meth:`~Graph.layout`.
@@ -2388,7 +2388,7 @@ class Graph(nx.Graph):
                     )
                 if len(inf_flex[flex_key]) > 2:
                     raise ValueError(
-                        "The infinitesimal motion needs to be in dimension 2 or below!"
+                        "The infinitesimal flex needs to be in dimension 2 or below!"
                     )
                 if len(inf_flex[flex_key]) == 1:
                     inf_flex[flex_key] = (inf_flex[flex_key][0], 0)
