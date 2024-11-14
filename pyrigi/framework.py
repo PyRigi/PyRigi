@@ -394,11 +394,11 @@ class Framework(object):
                         + "the dimension of the space "
                         + "of infinitesimal motions!"
                     )
-                inf_flex_pointwise = _transform_inf_flex_to_pointwise(
-                    self, inf_flex_basis[inf_flex]
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
+                    inf_flex_basis[inf_flex]
                 )
             elif isinstance(inf_flex, Matrix):
-                inf_flex_pointwise = _transform_inf_flex_to_pointwise(self, inf_flex)
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
             elif isinstance(inf_flex, dict) and all(
                 isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
             ):
@@ -1294,42 +1294,6 @@ class Framework(object):
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
 
-
-@doc_category("Other")
-def _transform_inf_flex_to_pointwise(  # noqa: C901
-    F: Framework, flex: Matrix, vertex_order: List[Vertex] = None
-) -> dict[Vertex, Sequence[Coordinate]]:
-    r"""
-    Transform the natural data type of a flex (Matrix) to a
-    dictionary that maps a vertex to a Sequence of coordinates
-    (i.e. a vector).
-
-    Notes
-    ----
-    For example, this method can be used for generating an
-    infinitesimal flex for plotting purposes.
-
-    Examples
-    ----
-    >>> F = from_points([(0,0), (1,0), (0,1)])
-    >>> F.add_edges([(0,1),(0,2)])
-    >>> flex = F.nontrivial_inf_flexes()[0]
-    >>> _transform_inf_flex_to_pointwise(F, flex)
-    {0: [1, 0], 1: [1, 0], 2: [0, 0]}
-
-    """
-    if vertex_order is None:
-        vertex_order = F._graph.vertex_list()
-    else:
-        if not set(F._graph.nodes) == set(vertex_order):
-            raise ValueError(
-                "vertex_order must contain " + "exactly the same vertices as the graph!"
-            )
-    return {
-        vertex_order[i]: [flex[i * F.dim() + j] for j in range(F.dim())]
-        for i in range(len(vertex_order))
-    }
-
     @doc_category("Infinitesimal rigidity")
     def stresses(self) -> List[Matrix]:
         r"""
@@ -1788,6 +1752,42 @@ def _transform_inf_flex_to_pointwise(  # noqa: C901
         ]
 
         return onshape_bars_gen_url, readable_form
+
+    @doc_category("Other")
+    def _transform_inf_flex_to_pointwise(  # noqa: C901
+        self, flex: Matrix, vertex_order: List[Vertex] = None
+    ) -> dict[Vertex, Sequence[Coordinate]]:
+        r"""
+        Transform the natural data type of a flex (Matrix) to a
+        dictionary that maps a vertex to a Sequence of coordinates
+        (i.e. a vector).
+
+        Notes
+        ----
+        For example, this method can be used for generating an
+        infinitesimal flex for plotting purposes.
+
+        Examples
+        ----
+        >>> F = Framework.from_points([(0,0), (1,0), (0,1)])
+        >>> F.add_edges([(0,1),(0,2)])
+        >>> flex = F.nontrivial_inf_flexes()[0]
+        >>> F._transform_inf_flex_to_pointwise(flex)
+        {0: [1, 0], 1: [1, 0], 2: [0, 0]}
+
+        """
+        if vertex_order is None:
+            vertex_order = self._graph.vertex_list()
+        else:
+            if not set(self._graph.nodes) == set(vertex_order):
+                raise ValueError(
+                    "vertex_order must contain " +
+                    "exactly the same vertices as the graph!"
+                )
+        return {
+            vertex_order[i]: [flex[i * self.dim() + j] for j in range(self.dim())]
+            for i in range(len(vertex_order))
+        }
 
 
 Framework.__doc__ = Framework.__doc__.replace(
