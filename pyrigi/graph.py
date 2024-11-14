@@ -1032,19 +1032,25 @@ class Graph(nx.Graph):
         TODO
         ----
         Definition of the number of realizations.
-        Tests
         """
         try:
             import lnumber
 
-            n = self.to_int()
             if check_min_rigid and not self.is_min_rigid():
                 raise ValueError("The graph must be minimally 2-rigid.")
+
+            if self.number_of_nodes() == 1:
+                return 1
+
+            if self.number_of_nodes() == 2 and self.number_of_edges() == 1:
+                return 1
+
+            n = self.to_int()
             if spherical_realizations:
                 return lnumber.lnumbers(n)
             else:
                 return lnumber.lnumber(n)
-        except ImportError as err:
+        except ImportError:
             raise ImportError(
                 "For counting the number of realizations, "
                 "the optional package 'lnumber' is used, "
