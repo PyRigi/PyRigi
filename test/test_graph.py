@@ -1346,7 +1346,7 @@ def test_not_Rd_circuit_d2(graph):
         [graphs.ThreePrism(), 2],
         [graphs.DoubleBanana(), 2],
         [graphs.CompleteMinusOne(5), 3],
-        [graphs.Octahedral(), 3]
+        [graphs.Octahedral(), 3],
     ],
 )
 def test_max_rigid_dimension(graph, k):

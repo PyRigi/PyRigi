@@ -1966,17 +1966,12 @@ class Graph(nx.Graph):
 
         V = self.number_of_nodes()
         E = self.number_of_edges()
-        d = 1
-        while True:
-            # Find the smallest d for which the Maxwell count holds.
-            if E < d * V - (d + 1) * d / 2 or 2 * V == d + 1:
-                dim = d
-                break
-            d = d + 1
+        # Find the larger root of the Maxwell function E = d*V-d*(d+1)/2
+        dim = int(math.ceil(0.5 * (2 * V + math.sqrt((1 - 2 * V) ** 2 - 8 * E) - 1)))
 
         for d in range(dim, 0, -1):
             if self.is_rigid(d, combinatorial=False):
-                if d == 2 * V - 1 and self.is_rigid(d, combinatorial=False):
+                if d == dim and self.is_rigid(d + 1, combinatorial=False):
                     # If the dimension is sufficiently large and the graph
                     # is rigid, all following dimensions automatically are
                     # rigid as well.
