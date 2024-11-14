@@ -15,7 +15,7 @@ from sympy import Matrix
 import math
 import distinctipy
 
-from pyrigi.data_type import Vertex, Edge, Point
+from pyrigi.data_type import Vertex, Edge, Point, Sequence, Coordinate
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
@@ -2269,6 +2269,7 @@ class Graph(nx.Graph):
     def plot(
         self,
         placement: dict[Vertex, Point] = None,
+        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
         layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4169E1",
@@ -2277,6 +2278,11 @@ class Graph(nx.Graph):
         edge_width: float = 2.5,
         edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
         edge_style: str = "solid",
+        flex_width: float = 2.5,
+        flex_length: float = 0.075,
+        flex_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "limegreen",
+        flex_style: str = "solid",
+        flex_arrowsize: int = 20,
         font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
@@ -2293,6 +2299,10 @@ class Graph(nx.Graph):
         placement:
             If ``placement`` is not specified,
             then it is generated depending on parameter ``layout``.
+        inf_flex:
+            It is possible to plot an infinitesimal flex alongside the
+            realization of your graph. It is specified as a ``dict`` of
+            motions.
         layout:
             The possibilities are ``spring`` (default), ``circular``,
             ``random`` or ``planar``, see also :meth:`~Graph.layout`.
@@ -2318,6 +2328,18 @@ class Graph(nx.Graph):
         edge_style:
             Edge line style: ``-``/``solid``, ``--``/``dashed``,
             ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        flex_width:
+            The width of the infinitesimal flex's arrow tail.
+        flex_color:
+            The color of the infinitesimal flex is by default 'limegreen'.
+        flex_style:
+            Line Style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        flex_length:
+            Length of the displayed flex relative to the total canvas
+            diagonal in percent. By default 7.5%.
+        flex_arrowsize:
+            Size of the arrowhead's length and width.
         font_size:
             The size of the font used for the labels.
         font_color:
@@ -2356,6 +2378,58 @@ class Graph(nx.Graph):
             style=edge_style,
             **kwargs,
         )
+
+        if inf_flex is not None:
+            for flex_key in inf_flex.keys():
+                if flex_key not in self.vertex_list():
+                    raise KeyError(
+                        "A key in inf_flex does not exist as a vertex in the graph!"
+                    )
+                if len(inf_flex[flex_key]) > 2:
+                    raise ValueError(
+                        "The infinitesimal motion needs to be in dimension 2 or below!"
+                    )
+                if len(inf_flex[flex_key]) == 1:
+                    inf_flex[flex_key] = (inf_flex[flex_key][0], 0)
+                if not inf_flex[flex_key] == (0, 0):
+                    # normalize the edge length by its Euclidean norm
+                    flex_mag = math.sqrt(sum(flex**2 for flex in inf_flex[flex_key]))
+                    inf_flex[flex_key] = tuple(
+                        flex / flex_mag for flex in inf_flex[flex_key]
+                    )
+            # Delete the edges with zero length
+            inf_flex = {
+                flex_key: inf_flex[flex_key]
+                for flex_key in inf_flex.keys()
+                if not inf_flex[flex_key] == (0, 0)
+            }
+
+            arrow_length = math.sqrt(canvas_width**2 + canvas_height**2) * flex_length
+            H = nx.DiGraph(
+                [(v, (v, "_inf_flex_target_vertex")) for v in inf_flex.keys()]
+            )
+            H_placement = {
+                (v, "_inf_flex_target_vertex"): (
+                    placement[v][0] + arrow_length * inf_flex[v][0],
+                    placement[v][1] + arrow_length * inf_flex[v][1],
+                )
+                for v in inf_flex.keys()
+            }
+            H_placement.update(placement)
+            nx.draw(
+                H,
+                pos=H_placement,
+                ax=ax,
+                arrows=True,
+                arrowsize=flex_arrowsize,
+                node_size=0,
+                node_color="white",
+                width=flex_width,
+                edge_color=flex_color,
+                style=flex_style,
+                **kwargs,
+            )
+
         plt.show()
 
 
