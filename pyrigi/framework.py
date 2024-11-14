@@ -392,7 +392,7 @@ class Framework(object):
                     raise IndexError(
                         "The value of inf_flex exceeds "
                         + "the dimension of the space "
-                        + "of infinitesimal motions!"
+                        + "of infinitesimal flexes!"
                     )
                 inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
                     inf_flex_basis[inf_flex]
@@ -1260,7 +1260,7 @@ class Framework(object):
         Parameters
         ----------
         include_trivial:
-            Boolean that decides, whether the trivial motions should
+            Boolean that decides, whether the trivial flexes should
             be included (``True``) or not (``False``)
 
         Examples
