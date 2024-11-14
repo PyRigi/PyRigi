@@ -4,6 +4,7 @@ from pyrigi.exception import LoopError
 
 import pytest
 from sympy import Matrix
+import math
 
 
 def test_add():
@@ -1331,3 +1332,22 @@ def test_Rd_circuit_d2(graph):
 )
 def test_not_Rd_circuit_d2(graph):
     assert not graph.is_Rd_circuit(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 1],
+        [graphs.Diamond(), 2],
+        [graphs.Complete(4), math.inf],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), math.inf],
+        [graphs.Frustum(3), 2],
+        [graphs.ThreePrism(), 2],
+        [graphs.DoubleBanana(), 2],
+        [graphs.CompleteMinusOne(5), 3],
+        [graphs.Octahedral(), 3]
+    ],
+)
+def test_max_rigid_dimension(graph, k):
+    assert graph.max_rigid_dimension() == k

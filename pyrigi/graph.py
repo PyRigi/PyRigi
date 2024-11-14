@@ -1938,7 +1938,7 @@ class Graph(nx.Graph):
         return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
 
     @doc_category("Generic rigidity")
-    def max_dim_generic_rigidity(self) -> int:
+    def max_rigid_dimension(self) -> int:
         """
         Compute the maximum dimension, in which a graph is generically rigid.
 
@@ -1952,13 +1952,13 @@ class Graph(nx.Graph):
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(3)
-        >>> G.max_dim_generic_rigidity()
+        >>> G.max_rigid_dimension()
         inf
 
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(4)
         >>> G.add_edges([(0,4),(1,4),(2,4)])
-        >>> G.max_dim_generic_rigidity()
+        >>> G.max_rigid_dimension()
         3
         """
         if nx.number_of_selfloops(self) > 0:
