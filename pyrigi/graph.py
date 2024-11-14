@@ -2404,20 +2404,26 @@ class Graph(nx.Graph):
                 for flex_key in inf_flex.keys()
                 if not all(entry == 0 for entry in inf_flex[flex_key])
             }
-            x_canvas_width = ax.get_xlim()[1]-ax.get_xlim()[0]
-            y_canvas_width = ax.get_ylim()[1]-ax.get_ylim()[0]
-            arrow_length = math.sqrt(x_canvas_width**2 + y_canvas_width**2) * flex_length
-            H = nx.DiGraph(
-                [(v, str(v)+"_flex") for v in inf_flex.keys()]
+            x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
+            y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
+            arrow_length = (
+                math.sqrt(x_canvas_width**2 + y_canvas_width**2) * flex_length
             )
+            H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex.keys()])
             H_placement = {
-                str(v)+"_flex": np.array([
-                    placement[v][0] + arrow_length * inf_flex[v][0],
-                    placement[v][1] + arrow_length * inf_flex[v][1],
-                ], dtype=float)
+                str(v)
+                + "_flex": np.array(
+                    [
+                        placement[v][0] + arrow_length * inf_flex[v][0],
+                        placement[v][1] + arrow_length * inf_flex[v][1],
+                    ],
+                    dtype=float,
+                )
                 for v in inf_flex.keys()
             }
-            H_placement.update({v: np.array(placement[v], dtype=float) for v in inf_flex.keys()})
+            H_placement.update(
+                {v: np.array(placement[v], dtype=float) for v in inf_flex.keys()}
+            )
 
             nx.draw(
                 H,

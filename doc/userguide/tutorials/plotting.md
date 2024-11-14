@@ -180,8 +180,10 @@ F.plot(vertex_labels=False,
       )
 ```
 
+## Infinitesimal Motions
+
 It is possible to include infinitesimal motions in the plot. With the keyword
-`inf_flex = n`, we can pick the $n$-th nontrivial infinitesimal motion from
+`inf_flex = n`, we can pick the `n`-th nontrivial infinitesimal motion from
 a basis of the rigidity matrix's kernel. There are several keywords that allow
 us to alter the style of the drawn arrows.
 
@@ -202,5 +204,15 @@ following chain of commands:
 ```{code-cell} ipython3
 F = frameworks.ThreePrism(realization="flexible")
 flex = F.nontrivial_inf_flexes()[0]
+F.plot(inf_flex = flex)
+```
+
+It is important to use the internal vertex order of the vertices of `F` when
+providing the infinitesimal motion as a `Matrix`. To circumvent that, 
+we also support adding an infinitesimal motion as a `dict[Vertex, Vector]`:
+
+```{code-cell} ipython3
+F = frameworks.Square()
+flex = {0: (1, -1), 1: (1, 1), 2: (-1, 1), 3: (-1, -1)}
 F.plot(inf_flex = flex)
 ```

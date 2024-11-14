@@ -340,7 +340,7 @@ class Framework(object):
     def plot2D(
         self,
         coordinates: Union[tuple, list] = None,
-        inf_flex: Matrix | int = None,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -399,6 +399,10 @@ class Framework(object):
                 )
             elif isinstance(inf_flex, Matrix):
                 inf_flex_pointwise = _transform_inf_flex_to_pointwise(self, inf_flex)
+            elif isinstance(inf_flex, dict) and all(
+                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+            ):
+                inf_flex_pointwise = inf_flex
             else:
                 raise TypeError("inf_flex does not have the correct Type!")
 
@@ -1319,8 +1323,7 @@ def _transform_inf_flex_to_pointwise(  # noqa: C901
     else:
         if not set(F._graph.nodes) == set(vertex_order):
             raise ValueError(
-                "vertex_order must contain "
-                + "exactly the same vertices as the graph!"
+                "vertex_order must contain " + "exactly the same vertices as the graph!"
             )
     return {
         vertex_order[i]: [flex[i * F.dim() + j] for j in range(F.dim())]
