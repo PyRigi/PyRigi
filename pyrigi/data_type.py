@@ -5,7 +5,7 @@ Module for defining data type used for type hinting.
 """
 
 from sympy import Matrix, SympifyError, MatrixBase
-from typing import Tuple, Hashable, Union
+from typing import Tuple, Hashable
 from collections.abc import Sequence
 from numbers import Number
 

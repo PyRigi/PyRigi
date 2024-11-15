@@ -1946,8 +1946,8 @@ class Graph(nx.Graph):
         -----
         This is done by taking the dimension predicted by the Maxwell count
         as a starting point and iteratively reducing the dimension until
-        generic rigidity is found. 
-        This method returns `sympy.oo` (infinity) if and only if the graph 
+        generic rigidity is found.
+        This method returns `sympy.oo` (infinity) if and only if the graph
         is complete. It has the data type `Inf`.
 
         Examples
