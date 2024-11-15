@@ -1969,8 +1969,10 @@ class Graph(nx.Graph):
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(3)
-        >>> G.max_rigid_dimension()
+        >>> rigid_dim = G.max_rigid_dimension(); rigid_dim
         oo
+        >>> rigid_dim.is_infinite
+        True
 
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(4)
