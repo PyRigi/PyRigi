@@ -1515,54 +1515,112 @@ class Framework(object):
 
         return lengths
 
-    @doc_category("Other")
-    def generate_onshape_parameters_for_3d_print(
-        self, scale: float = 1.0, rounding: int = 6
-    ) -> tuple:
+    @staticmethod
+    def _generate_stl_bar(holes_distance: float,
+                          holes_diameter: float,
+                          bar_width: float,
+                          bar_height: float,
+                          filename="bar.stl"):
         """
-        Generate OnShape CAD details for models.
+        Generate an STL file for a bar.
 
-        Prints the output in the console.
+        The method uses Trimesh and Manifold3d packages to create a model of a bar
+        with two holes at the ends. The bar is saved as an STL file.
+
+        Parameters
+        ----------
+        holes_distance : float
+            Distance between the centers of the holes.
+        holes_diameter : float
+            Diameter of the holes.
+        bar_width : float
+            Width of the bar.
+        bar_height : float
+            Height of the bar.
+        filename : str
+            Name of the output STL file.
+
+        Returns
+        -------
+        bar_mesh : trimesh.base.Trimesh
+            The bar as a Trimesh object.
+        """
+        from trimesh.creation import box as trimesh_box
+        from trimesh.creation import cylinder as trimesh_cylinder
+
+        if holes_distance <= 0 or holes_diameter <= 0 or bar_width <= 0 or bar_height <= 0:
+            raise ValueError("Use only positive values for the parameters.")
+
+        if bar_width <= holes_diameter:
+            raise ValueError("The bar width must be greater than the holes diameter.")
+
+        if holes_distance <= 2 * holes_diameter:
+            raise ValueError("The distance between the holes must be greater "
+                             "than twice the holes diameter.")
+
+        # Create the main bar as a box
+        bar = trimesh_box(extents=[holes_distance, bar_width, bar_height])
+
+        # Define the positions of the holes (relative to the center of the bar)
+        hole_position_1 = [-holes_distance / 2, 0, 0]
+        hole_position_2 = [holes_distance / 2, 0, 0]
+
+        # Create cylindrical shapes at the ends of the bar
+        rounding_1 = trimesh_cylinder(radius=bar_width / 2, height=bar_height)
+        rounding_1.apply_translation(hole_position_1)
+        rounding_2 = trimesh_cylinder(radius=bar_width / 2, height=bar_height)
+        rounding_2.apply_translation(hole_position_2)
+
+        # Use boolean union to combine the bar and the roundings
+        bar = bar.union([rounding_1, rounding_2])
+
+        # Create cylindrical holes
+        hole_1 = trimesh_cylinder(radius=holes_diameter / 2, height=bar_height)
+        hole_1.apply_translation(hole_position_1)
+        hole_2 = trimesh_cylinder(radius=holes_diameter / 2, height=bar_height)
+        hole_2.apply_translation(hole_position_2)
+
+        # Use boolean subtraction to create holes in the bar
+        bar_mesh = bar.difference([hole_1, hole_2])
+
+        # Export to STL
+        bar_mesh.export(filename)
+        return bar_mesh
+
+    @doc_category("Other")
+    def generate_stl_bars(self,
+                          scale: float = 1.0,
+                          width_of_bars: float = 8.,
+                          height_of_bars: float = 3.,
+                          holes_diameter: float = 4.3):
+        """
+        Generate STL files for the bars of the framework.
+
+        Generates STL files in folder 'stl_bars' for the bars of the framework.
 
         Parameters
         ----------
         scale
             Scale factor for the lengths of the edges, default is 1.0.
-        rounding
-            Number of decimal places for the lengths of the edges, default is 6.
-
-        Returns
-        -------
-        onshape_bars_gen_url
-            String URL to the OnShape model.
-        readable_form
-            List of scaled and rounded lengths of the edges in the framework.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
-        >>> url, l = F.generate_onshape_parameters_for_3d_print(scale=10, roundings=2)
-        >>> print(url)
-        https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2
-        >>> print(l)
-        [10.0, 14.24, 11.18, 5.44]
+        >>> F.generate_stl_bars(scale=20)
 
         """
-        onshape_bars_gen_url = (
-            "https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/"
-            "5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2"
-        )
+        edges_with_lengths = self.edge_lengths()
 
-        edges_lengths = list(self.edge_lengths().values())
+        for edge, length in edges_with_lengths.items():
+            scaled_length = length * scale
+            naming = str(edge[0]) + "-" + str(edge[1])
 
-        # round and scale the lengths of the edges
-        readable_form = [
-            float(round(scale * length, rounding)) for length in edges_lengths
-        ]
-
-        return onshape_bars_gen_url, readable_form
-
+            self._generate_stl_bar(holes_distance=scaled_length,
+                                   holes_diameter=holes_diameter,
+                                   bar_width=width_of_bars,
+                                   bar_height=height_of_bars,
+                                   filename=f"bar_{naming}.stl")
 
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
