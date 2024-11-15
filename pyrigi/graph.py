@@ -1971,8 +1971,8 @@ class Graph(nx.Graph):
         # Only the complete graph is rigid in all dimensions
         if E == V * (V - 1) / 2:
             return math.inf
-        # Find the largest d suchso that d*(d+1)/2 - d*V + E = 0
-        max_dim = int(math.floor(0.5 * (2 * V + math.sqrt((1 - 2 * V) ** 2 - 8 * E) - 1)))
+        # Find the largest d such that d*(d+1)/2 - d*V + E = 0
+        max_dim = int(math.ceil(0.5 * (2 * V + math.sqrt((1 - 2 * V) ** 2 - 8 * E) - 1)))
 
         for d in range(max_dim, 0, -1):
             if self.is_rigid(d, combinatorial=False):
