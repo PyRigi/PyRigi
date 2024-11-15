@@ -1940,7 +1940,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def max_rigid_dimension(self) -> int | Inf:
         """
-        Compute the maximum dimension, in which a graph is 
+        Compute the maximum dimension, in which a graph is
         :prf:ref:`generically rigid <def-gen-rigid>`.
 
         Notes
