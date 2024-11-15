@@ -7,16 +7,16 @@ from __future__ import annotations
 from copy import deepcopy
 from itertools import combinations
 from typing import List, Union, Iterable
-from lnumber import lnumber, lnumbers
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from sympy import Matrix
+
+from sympy import Matrix, oo
 import numpy as np
 import math
 import distinctipy
 
-from pyrigi.data_type import Vertex, Edge, Point, Sequence, Coordinate
+from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence, Coordinate
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
@@ -1004,45 +1004,60 @@ class Graph(nx.Graph):
         return None if return_solution else False
 
     @doc_category("Generic rigidity")
-    def number_of_min_rigid_realizations(
-        self, spherical_realizations: bool = False, check_min_rigid: bool = False
+    def number_of_realizations(
+        self, spherical_realizations: bool = False, check_min_rigid: bool = True
     ) -> int:
         """
-        Count the number of a planar or spherical realizations of a minimally rigid graph.
+        Count the number of planar or spherical realizations of a minimally 2-rigid graph.
 
-        Note that by default, the method does not check if the input graph is minimally
-        rigid.
+        Note that by default, the method checks if the input graph is minimally 2-rigid.
 
         Parameters
         ----------
         check_min_rigid:
-            If not specified the default value is False.
-            If True, the method first checks if the graph is minimally rigid and if it is
-            not minimally rigid the method returns 0.
-            If False, the method assumes that the user is inputing a minimally rigid
-            graph.
+            If ``True``, ``ValueError`` is raised if the graph is not minimally 2-rigid
+            If ``False``, it is assumed that the user is inputing a minimally rigid graph.
 
         spherical_realizations:
-            If not specified the default value is True.
-            If True, the method returns the number of spherical realizations of the graph
-            If False, the method returns the number of planar realizations of the graph.
+            If ``True``, the number of spherical realizations of the graph is returned.
+            If ``False`` (default), the number of planar realizations is returned.
 
         Examples
         --------
         >>> from pyrigi import Graph
         >>> G = Graph([(0,1),(1,2),(2,0)])
-        >>> G.number_of_min_rigid_realizations() #returns number of planar realizations
+        >>> G.number_of_realizations() # number of planar realizations
         2
-        >>> G.number_of_min_rigid_realizations(spherical_realizations=True)
+        >>> G.number_of_realizations(spherical_realizations=True)
         2
+
+        TODO
+        ----
+        Definition of the number of realizations.
         """
-        n = self.to_int()
-        if not self.is_min_rigid():
-            return 0
-        if spherical_realizations:
-            return lnumbers(n)
-        else:
-            return lnumber(n)
+        try:
+            import lnumber
+
+            if check_min_rigid and not self.is_min_rigid():
+                raise ValueError("The graph must be minimally 2-rigid.")
+
+            if self.number_of_nodes() == 1:
+                return 1
+
+            if self.number_of_nodes() == 2 and self.number_of_edges() == 1:
+                return 1
+
+            n = self.to_int()
+            if spherical_realizations:
+                return lnumber.lnumbers(n)
+            else:
+                return lnumber.lnumber(n)
+        except ImportError:
+            raise ImportError(
+                "For counting the number of realizations, "
+                "the optional package 'lnumber' is used, "
+                "run `pip install pyrigi[lnumber]`."
+            )
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
@@ -1937,6 +1952,52 @@ class Graph(nx.Graph):
                     if set(H1).issubset(set(H2)):
                         rigid_subgraphs[H2] = False
         return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
+
+    @doc_category("Generic rigidity")
+    def max_rigid_dimension(self) -> int | Inf:
+        """
+        Compute the maximum dimension, in which a graph is
+        :prf:ref:`generically rigid <def-gen-rigid>`.
+
+        Notes
+        -----
+        This is done by taking the dimension predicted by the Maxwell count
+        as a starting point and iteratively reducing the dimension until
+        generic rigidity is found.
+        This method returns `sympy.oo` (infinity) if and only if the graph
+        is complete. It has the data type `Inf`.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> G.max_rigid_dimension()
+        oo
+
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(4)
+        >>> G.add_edges([(0,4),(1,4),(2,4)])
+        >>> G.max_rigid_dimension()
+        3
+        """
+        if nx.number_of_selfloops(self) > 0:
+            raise LoopError()
+        if not nx.is_connected(self):
+            return 0
+
+        V = self.number_of_nodes()
+        E = self.number_of_edges()
+        # Only the complete graph is rigid in all dimensions
+        if E == V * (V - 1) / 2:
+            return oo
+        # Find the largest d such that d*(d+1)/2 - d*V + E = 0
+        max_dim = int(
+            math.floor(0.5 * (2 * V + math.sqrt((1 - 2 * V) ** 2 - 8 * E) - 1))
+        )
+
+        for d in range(max_dim, 0, -1):
+            if self.is_rigid(d, combinatorial=False):
+                return d
 
     @doc_category("General graph theoretical properties")
     def is_isomorphic(self, graph: Graph) -> bool:

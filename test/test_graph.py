@@ -4,6 +4,7 @@ from pyrigi.exception import LoopError
 
 import pytest
 from sympy import Matrix
+import math
 
 
 def test_add():
@@ -1280,6 +1281,50 @@ def test_is_k_l_tight():
 
 
 @pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 16],
+        [graphs.Diamond(), 4],
+        [graphs.ThreePrism(), 24],
+    ],
+)
+def test_number_of_realizations(graph, n):
+    assert graph.number_of_realizations() == n
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 16],
+        [graphs.Diamond(), 4],
+        [graphs.ThreePrism(), 32],
+    ],
+)
+def test_number_of_realizations_sphere(graph, n):
+    assert graph.number_of_realizations(spherical_realizations=True) == n
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.K33plusEdge(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Path(3),
+    ],
+)
+def test_number_of_realizations_error(graph):
+    with pytest.raises(ValueError):
+        graph.number_of_realizations()
+
+
+@pytest.mark.parametrize(
     "graph",
     [graphs.Cycle(n) for n in range(3, 7)],
 )
@@ -1331,3 +1376,22 @@ def test_Rd_circuit_d2(graph):
 )
 def test_not_Rd_circuit_d2(graph):
     assert not graph.is_Rd_circuit(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 1],
+        [graphs.Diamond(), 2],
+        [graphs.Complete(4), math.inf],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), math.inf],
+        [graphs.Frustum(3), 2],
+        [graphs.ThreePrism(), 2],
+        [graphs.DoubleBanana(), 2],
+        [graphs.CompleteMinusOne(5), 3],
+        [graphs.Octahedral(), 3],
+    ],
+)
+def test_max_rigid_dimension(graph, k):
+    assert graph.max_rigid_dimension() == k
