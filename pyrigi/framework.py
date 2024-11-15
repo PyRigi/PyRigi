@@ -747,9 +747,11 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the columns
             of the rigidity matrix.
+            If none is provided, the list from `~Graph.vertex_list` is taken.
         edge_order:
             A list of edges, providing the ordering for the rows
             of the rigidity matrix.
+            If none is provided, the list from `~Graph.edge_list` is taken.
 
         TODO
         ----
@@ -1039,9 +1041,7 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-        edge_order:
-            A list of edges, providing the ordering for the rows
-            of the rigidity matrix.
+            If none is provided, the list from `~Graph.vertex_list` is taken.
 
         Examples
         ----
@@ -1107,9 +1107,7 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-        edge_order:
-            A list of edges, providing the ordering for the rows
-            of the rigidity matrix.
+            If none is provided, the list from `~Graph.vertex_list` is taken.
 
         Examples
         --------
@@ -1172,11 +1170,10 @@ class Framework(object):
 
         Parameters
         ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the columns
-            of the rigidity matrix.
+
         edge_order:
-            A list of edges, providing the ordering for the rows of the rigidity matrix.
+            A list of edges, providing the ordering for the entries of the stresses.
+            If none is provided, the list from `~Graph.edge_list` is taken.
 
         Examples
         --------
