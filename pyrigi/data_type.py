@@ -44,6 +44,7 @@ Ordinal = Union[int, float]
 Provides a data type that can become infinite.
 """
 
+
 def point_to_vector(point: Point) -> Matrix:
     """
     Return point as single column sympy Matrix.
