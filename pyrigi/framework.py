@@ -373,12 +373,12 @@ class Framework(object):
             Optional parameter for plotting a given infinitesimal flex. It is
             important to use the internal vertex order from the framework for this
             to properly work.
-            Alternatively, an int can be specified to choose the 0,1,2,...-th
+            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
+            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
-        inf_flex:
-            It is possible to provide infinitesimal flexes for plotting.
 
         TODO
         -----
