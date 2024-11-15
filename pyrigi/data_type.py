@@ -7,6 +7,7 @@ Module for defining data type used for type hinting.
 from sympy import Matrix, SympifyError, MatrixBase
 from typing import Tuple, Hashable, Union
 from collections.abc import Sequence
+from numbers import Number
 
 
 Vertex = Hashable
@@ -39,7 +40,7 @@ Stress = Sequence[int | float]
 A Stress is a Sequence of int or float numbers.
 """
 
-Ordinal = Union[int, float]
+Inf = Number
 """
 Provides a data type that can become infinite.
 """

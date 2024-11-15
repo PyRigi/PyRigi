@@ -11,11 +11,11 @@ from lnumber import lnumber, lnumbers
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from sympy import Matrix
+from sympy import Matrix, oo
 import math
 import distinctipy
 
-from pyrigi.data_type import Vertex, Edge, Point, Ordinal
+from pyrigi.data_type import Vertex, Edge, Point, Inf
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
@@ -1938,7 +1938,7 @@ class Graph(nx.Graph):
         return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
 
     @doc_category("Generic rigidity")
-    def max_rigid_dimension(self) -> Ordinal:
+    def max_rigid_dimension(self) -> int | Inf:
         """
         Compute the maximum dimension, in which a graph is generically rigid.
 
@@ -1946,14 +1946,16 @@ class Graph(nx.Graph):
         -----
         This is done by taking the dimension predicted by the Maxwell count
         as a starting point and iteratively reducing the dimension until
-        generic rigidity is found.
+        generic rigidity is found. 
+        This method returns `sympy.oo` (infinity) if and only if the graph 
+        is complete. It has the data type `Inf`.
 
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(3)
         >>> G.max_rigid_dimension()
-        inf
+        oo
 
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(4)
@@ -1970,7 +1972,7 @@ class Graph(nx.Graph):
         E = self.number_of_edges()
         # Only the complete graph is rigid in all dimensions
         if E == V * (V - 1) / 2:
-            return math.inf
+            return oo
         # Find the largest d such that d*(d+1)/2 - d*V + E = 0
         max_dim = int(
             math.floor(0.5 * (2 * V + math.sqrt((1 - 2 * V) ** 2 - 8 * E) - 1))
