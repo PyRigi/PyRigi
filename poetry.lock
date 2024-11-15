@@ -1399,7 +1399,7 @@ files = [
 name = "lnumber"
 version = "0.13"
 description = ""
-optional = false
+optional = true
 python-versions = "*"
 files = [
     {file = "lnumber-0.13-py2.py3-none-win32.whl", hash = "sha256:54f050237b416880d9ef2410dcf0376ae4feb35036fb2dfb5639e5b0b683ad7d"},
@@ -3527,7 +3527,10 @@ enabler = ["pytest-enabler (>=2.2)"]
 test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-itertools", "pytest (>=6,!=8.1.*)", "pytest-ignore-flaky"]
 type = ["pytest-mypy"]
 
+[extras]
+lnumber = ["lnumber"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1b5308c4d06f1973002d120896936443cc4353ec791bc7b8670055d0010aba7c"
+content-hash = "1e95a1b7210052b396f5c37a276af4fd240d49f079eb5c5054beb324c33d9ca0"
