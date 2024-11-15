@@ -724,7 +724,7 @@ class Framework(object):
 
         Notes
         -----
-        See `~Framework.set_vertex_pos`.
+        See :meth:`~Framework.set_vertex_pos`.
         """
         for v, pos in subset_of_realization.items():
             self.set_vertex_pos(v, pos)
@@ -747,11 +747,11 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the columns
             of the rigidity matrix.
-            If none is provided, the list from `~Graph.vertex_list` is taken.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
         edge_order:
             A list of edges, providing the ordering for the rows
             of the rigidity matrix.
-            If none is provided, the list from `~Graph.edge_list` is taken.
+            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
 
         TODO
         ----
@@ -1041,7 +1041,7 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-            If none is provided, the list from `~Graph.vertex_list` is taken.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
         ----
@@ -1107,7 +1107,7 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-            If none is provided, the list from `~Graph.vertex_list` is taken.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
         --------
@@ -1173,7 +1173,7 @@ class Framework(object):
 
         edge_order:
             A list of edges, providing the ordering for the entries of the stresses.
-            If none is provided, the list from `~Graph.edge_list` is taken.
+            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
 
         Examples
         --------
