@@ -15,7 +15,7 @@ from sympy import Matrix
 import math
 import distinctipy
 
-from pyrigi.data_type import Vertex, Edge, Point
+from pyrigi.data_type import Vertex, Edge, Point, Ordinal
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
@@ -1938,7 +1938,7 @@ class Graph(nx.Graph):
         return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
 
     @doc_category("Generic rigidity")
-    def max_rigid_dimension(self) -> int:
+    def max_rigid_dimension(self) -> Ordinal:
         """
         Compute the maximum dimension, in which a graph is generically rigid.
 

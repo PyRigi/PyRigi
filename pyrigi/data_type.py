@@ -5,7 +5,7 @@ Module for defining data type used for type hinting.
 """
 
 from sympy import Matrix, SympifyError, MatrixBase
-from typing import Tuple, Hashable
+from typing import Tuple, Hashable, Union
 from collections.abc import Sequence
 
 
@@ -39,6 +39,10 @@ Stress = Sequence[int | float]
 A Stress is a Sequence of int or float numbers.
 """
 
+Ordinal = Union[int, float]
+"""
+Provides a data type that can become infinite.
+"""
 
 def point_to_vector(point: Point) -> Matrix:
     """
