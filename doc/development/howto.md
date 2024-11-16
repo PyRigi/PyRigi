@@ -72,10 +72,11 @@ See the [installation instructions](https://python-poetry.org/docs/#installation
 
 To install the package dependencies including those needed for the development, run
 ```
-poetry install --no-root
+poetry install --no-root --all-extras
 ```
 in the root folder of PyRigi.
 Omitting `--no-root` installs also PyRigi itself, so it can be used system-wide.
+The option `--all-extras` specifies to install also all optional packages. 
 Poetry installs the dependencies and the package to a virtual environment.
 To activate this environment, run `poetry shell`.
 You can exit it with `exit` or `Ctrl+D`.

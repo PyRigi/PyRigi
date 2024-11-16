@@ -155,3 +155,98 @@ def K33plusEdge() -> Framework:
     G = CompleteBipartite(3, 3, "dixonI")
     G.add_edge([0, 1])
     return G
+
+
+def Frustum(n: int) -> Framework:
+    """
+    Return the n-Frustum with `n` vertices in dimension 2.
+
+    Definitions
+    -----------
+    * :prf:ref:`n-Frustum <def-n-frustum>`
+    """
+    realization = {
+        j: (sp.cos(2 * j * sp.pi / n), sp.sin(2 * j * sp.pi / n)) for j in range(0, n)
+    }
+    realization.update(
+        {
+            (j + n): (2 * sp.cos(2 * j * sp.pi / n), 2 * sp.sin(2 * j * sp.pi / n))
+            for j in range(0, n)
+        }
+    )
+    F = Framework(graphs.Frustum(n), realization)
+    return F
+
+
+def CnSymmetricFourRegular(n: int = 8) -> Framework:
+    """
+    Return a C_n-symmetric framework.
+
+    TODO
+    ----
+    use in tests
+
+    Definitions
+    -----------
+    * :prf:ref:`Example with a free group action <def-Cn-symmetric>`
+
+    """
+    if not n % 2 == 0 or n < 8:
+        raise ValueError(
+            "To generate this framework, the cyclical group "
+            + "needs to have an even order of at least 8!"
+        )
+    return Framework(
+        graphs.CnSymmetricFourRegular(n),
+        {
+            i: [
+                sp.cos(2 * i * sp.pi / n),
+                sp.sin(2 * i * sp.pi / n),
+            ]
+            for i in range(n)
+        },
+    )
+
+
+def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
+    """
+    Return a C_n-symmetric framework with a fixed vertex.
+    The cyclical group C_n needs to have even order of at least 8.
+
+    The returned graph satisfies the expected symmetry-adapted Laman
+    count for rotation but is infinitesimally flexible.
+
+    TODO
+    ----
+    use in tests
+
+    Definitions
+    -----------
+    * :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
+    """
+    if not n % 2 == 0 or n < 8:
+        raise ValueError(
+            "To generate this framework, the cyclical group "
+            + "needs to have an even order of at least 8!"
+        )
+    return Framework(
+        graphs.CnSymmetricFourRegularWithFixedVertex(n),
+        {
+            i: [
+                sp.cos(2 * i * sp.pi / n),
+                sp.sin(2 * i * sp.pi / n),
+            ]
+            for i in range(n)
+        }
+        | {
+            i
+            + n: [
+                sp.Rational(9, 5) * sp.cos((2 * i) * sp.pi / n)
+                - sp.sin((2 * i) * sp.pi / n),
+                sp.Rational(9, 5) * sp.sin((2 * i) * sp.pi / n)
+                + sp.cos((2 * i) * sp.pi / n),
+            ]
+            for i in range(n)
+        }
+        | {2 * n: (0, 0)},
+    )

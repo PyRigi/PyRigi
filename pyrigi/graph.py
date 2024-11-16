@@ -10,11 +10,11 @@ from typing import List, Union, Iterable
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from sympy import Matrix
+from sympy import Matrix, oo
 import math
 import distinctipy
 
-from pyrigi.data_type import Vertex, Edge, Point
+from pyrigi.data_type import Vertex, Edge, Point, Inf
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
@@ -133,6 +133,23 @@ class Graph(nx.Graph):
             if not other.has_edge(*e):
                 return False
         return True
+
+    def __add__(self, other: Graph):
+        r"""
+        Return the union of self and other.
+
+        Definitions
+        -----------
+        :prf:ref:`Union of two graphs <def-union-graph>`
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[1,2],[2,0]])
+        >>> H = Graph([[2,3],[3,4],[4,2]])
+        >>> G + H
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]]
+        """  # noqa: E501
+        return Graph(nx.compose(self, other))
 
     @classmethod
     @doc_category("Class methods")
@@ -540,9 +557,15 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
+        Examples
         ----
-        examples, tests for other cases than (2,3)
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.DoubleBanana()
+        >>> G.is_sparse(3,6)
+        True
+        >>> G.add_edge(0,1)
+        >>> G.is_sparse(3,6)
+        False
         """
         if not (isinstance(K, int) and isinstance(L, int)):
             raise TypeError("K and L need to be integers!")
@@ -610,9 +633,15 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
-        ----
-        examples, tests for other cases than (2,3)
+        Examples
+        ----´
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(4)
+        >>> G.is_tight(2,2)
+        True
+        >>> G1 = graphs.CompleteBipartite(4,4)
+        >>> G1.is_tight(3,6)
+        False
         """
         return (
             self.is_sparse(
@@ -971,6 +1000,62 @@ class Graph(nx.Graph):
                         return True
                     G.remove_edge(neighbors[i], neighbors[j])
         return None if return_solution else False
+
+    @doc_category("Generic rigidity")
+    def number_of_realizations(
+        self, spherical_realizations: bool = False, check_min_rigid: bool = True
+    ) -> int:
+        """
+        Count the number of planar or spherical realizations of a minimally 2-rigid graph.
+
+        Note that by default, the method checks if the input graph is minimally 2-rigid.
+
+        Parameters
+        ----------
+        check_min_rigid:
+            If ``True``, ``ValueError`` is raised if the graph is not minimally 2-rigid
+            If ``False``, it is assumed that the user is inputing a minimally rigid graph.
+
+        spherical_realizations:
+            If ``True``, the number of spherical realizations of the graph is returned.
+            If ``False`` (default), the number of planar realizations is returned.
+
+        Examples
+        --------
+        >>> from pyrigi import Graph
+        >>> G = Graph([(0,1),(1,2),(2,0)])
+        >>> G.number_of_realizations() # number of planar realizations
+        2
+        >>> G.number_of_realizations(spherical_realizations=True)
+        2
+
+        TODO
+        ----
+        Definition of the number of realizations.
+        """
+        try:
+            import lnumber
+
+            if check_min_rigid and not self.is_min_rigid():
+                raise ValueError("The graph must be minimally 2-rigid.")
+
+            if self.number_of_nodes() == 1:
+                return 1
+
+            if self.number_of_nodes() == 2 and self.number_of_edges() == 1:
+                return 1
+
+            n = self.to_int()
+            if spherical_realizations:
+                return lnumber.lnumbers(n)
+            else:
+                return lnumber.lnumber(n)
+        except ImportError:
+            raise ImportError(
+                "For counting the number of realizations, "
+                "the optional package 'lnumber' is used, "
+                "run `pip install pyrigi[lnumber]`."
+            )
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
@@ -1547,7 +1632,7 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        missing definition, implementation for dim>=3
+        implementation for dim>=3
 
         Examples
         --------
@@ -1585,7 +1670,6 @@ class Graph(nx.Graph):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
-
             # Random sampling from [1,N] for N depending quadratically on number
             # of vertices.
             raise NotImplementedError()
@@ -1676,7 +1760,8 @@ class Graph(nx.Graph):
 
         TODO
         -----
-         Add unit tests
+         Add unit tests,
+         make computation of ``remaining_edge`` more robust
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1685,7 +1770,7 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
-            if not self.is_connected():
+            if not nx.is_connected(self):
                 return False
 
             # Check if every vertex has degree 2
@@ -1710,8 +1795,14 @@ class Graph(nx.Graph):
                 # this should not happen
                 raise RuntimeError
 
-            return self._pebble_digraph.fundamental_circuit(
-                u=remaining_edge[0][0], v=remaining_edge[0][1], K=2, L=3
+            return (
+                len(
+                    self._pebble_digraph.fundamental_circuit(
+                        u=remaining_edge[0][0],
+                        v=remaining_edge[0][1],
+                    )
+                )
+                == self.number_of_nodes()
             )
 
         raise NotImplementedError()
@@ -1859,6 +1950,54 @@ class Graph(nx.Graph):
                     if set(H1).issubset(set(H2)):
                         rigid_subgraphs[H2] = False
         return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
+
+    @doc_category("Generic rigidity")
+    def max_rigid_dimension(self) -> int | Inf:
+        """
+        Compute the maximum dimension, in which a graph is
+        :prf:ref:`generically rigid <def-gen-rigid>`.
+
+        Notes
+        -----
+        This is done by taking the dimension predicted by the Maxwell count
+        as a starting point and iteratively reducing the dimension until
+        generic rigidity is found.
+        This method returns `sympy.oo` (infinity) if and only if the graph
+        is complete. It has the data type `Inf`.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> rigid_dim = G.max_rigid_dimension(); rigid_dim
+        oo
+        >>> rigid_dim.is_infinite
+        True
+
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(4)
+        >>> G.add_edges([(0,4),(1,4),(2,4)])
+        >>> G.max_rigid_dimension()
+        3
+        """
+        if nx.number_of_selfloops(self) > 0:
+            raise LoopError()
+        if not nx.is_connected(self):
+            return 0
+
+        V = self.number_of_nodes()
+        E = self.number_of_edges()
+        # Only the complete graph is rigid in all dimensions
+        if E == V * (V - 1) / 2:
+            return oo
+        # Find the largest d such that d*(d+1)/2 - d*V + E = 0
+        max_dim = int(
+            math.floor(0.5 * (2 * V + math.sqrt((1 - 2 * V) ** 2 - 8 * E) - 1))
+        )
+
+        for d in range(max_dim, 0, -1):
+            if self.is_rigid(d, combinatorial=False):
+                return d
 
     @doc_category("General graph theoretical properties")
     def is_isomorphic(self, graph: Graph) -> bool:
@@ -2097,6 +2236,68 @@ class Graph(nx.Graph):
                 f"was specified multiple times: {duplicates}."
             )
         return edge_color_array, edge_list_ref
+
+    @doc_category("Graph manipulation")
+    def sum_t(self, G2: Graph, edge: Edge, t: int = 2):
+        """
+        Return the t-sum of self and G2 along the given edge.
+
+        Parameters
+        ----------
+        G2: Graph
+        edge: Edge
+        t: integer, default value 2
+
+        Definitions
+        -----
+        :prf:ref:`t-sum <def-t-sum>`
+
+        Examples
+        --------
+        >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
+        >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
+        >>> H.sum_t(G, [1, 2], 3)
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [1, 3], [2, 3], [3, 4]]
+        """
+        if edge not in self.edges or edge not in G2.edges:
+            raise ValueError(
+                f"The edge {edge} is not in the intersection of the graphs."
+            )
+        # check if the intersection is a t-complete graph
+        if not self.intersection(G2).is_isomorphic(nx.complete_graph(t)):
+            raise ValueError(
+                f"The intersection of the graphs must be a {t}-complete graph."
+            )
+        G = self + G2
+        G.remove_edge(edge[0], edge[1])
+        return G
+
+    @doc_category("Graph manipulation")
+    def intersection(self, G2: Graph):
+        """
+        Return the intersection of self and G2.
+
+        Parameters
+        ----------
+        G2: Graph
+
+        Examples
+        --------
+        >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
+        >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
+        >>> G.intersection(H)
+        Graph with vertices [1, 2, 3] and edges [[1, 2], [1, 3], [2, 3]]
+        >>> G = Graph([[0,1],[0,2],[1,2]])
+        >>> G.add_vertex(3)
+        >>> H = Graph([[0,1],[1,2],[2,4],[4,0]])
+        >>> H.add_vertex(3)
+        >>> G.intersection(H)
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [1, 2]]
+        """
+        return Graph.from_vertices_and_edges(
+            [v for v in self.nodes if v in G2.nodes],
+            [e for e in self.edges if e in G2.edges],
+        )
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:

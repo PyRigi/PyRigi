@@ -26,9 +26,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "0.2"
+version = "0.3"
 # The full version, including alpha/beta/rc tags
-release = "0.2.0"
+release = "0.3.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -180,6 +180,7 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     "userguide/tutorials/*.ipynb",
+    "notebooks/*.ipynb",
     "userguide/*.ipynb",
 ]
 

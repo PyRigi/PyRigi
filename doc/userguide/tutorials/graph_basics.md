@@ -17,6 +17,7 @@ kernelspec:
 +++
 
 This notebook illustrates the basic functionality of {class}`pyrigi.graph.Graph`.
+It can be downloaded {download}`here <../../notebooks/graph_basics.ipynb>`.
 
 ```{code-cell} ipython3
 # The import will work if the package was installed using pip.
@@ -77,6 +78,26 @@ Graph.from_vertices(range(4))
 
 ```{code-cell} ipython3
 Graph.from_vertices_and_edges(range(6), [[i, (i+2) % 6] for i in range(6)])
+```
+
+We can take the {prf:ref}`union <def-union-graph>` of two graphs:
+
+```{code-cell} ipython3
+G = Graph([[0, 1], [1, 2], [2, 0]])
+H = Graph([[0, 1], [1, 3], [3, 0]])
+G + H
+```
+
+```{code-cell} ipython3
+G = Graph([[0, 1], [1, 2], [2, 0]])
+H = Graph([[3, 4], [4, 5], [5, 3]])
+G + H
+```
+
+```{code-cell} ipython3
+G = Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [1, 2]])
+H = Graph.from_vertices_and_edges([0, 1, 2, 4], [[0, 1]])
+G + H
 ```
 
 A vertex of a graph can be of any hashable type, but it is recommended to have all of them of the same type, not as above. If all vertices have the same type, the vertex/edge set can be sorted when a list is required; otherwise, the order might differ:

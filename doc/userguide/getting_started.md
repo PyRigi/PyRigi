@@ -6,9 +6,9 @@ jupytext:
     format_version: 0.13
     jupytext_version: 1.16.4
 kernelspec:
-  display_name: pyrigi
+  display_name: Python 3 (ipykernel)
   language: python
-  name: pyrigi
+  name: python3
 ---
 
 # Getting started
@@ -26,7 +26,8 @@ pip install pyrigi
 
 Alternatively, one can clone/download the package
 from [this GitHub repository](https://github.com/pyRigi/PyRigi).
-Installation for development is done via [Poetry](#dev-dependencies).
+Installation for development is done via [Poetry](#dev-dependencies). 
+More detailed installation instructions depending on your operating system can be found [here](installation-guide).
 
 +++
 

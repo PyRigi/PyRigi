@@ -82,7 +82,11 @@ for any other $d$-dimensional framework $(G, p')$.
 :::{prf:definition} Independent framework
 :label: def-independent-framework
 
-A $d$-dimensional {prf:ref}`framework <def-framework>` $(G, p)$ with $G = (V, E)$ is called _independent_ if $\mathrm{rk} \, R(G, p) = |E|$.
+A $d$-dimensional {prf:ref}`framework <def-framework>` $(G, p)$ with $G = (V, E)$
+is called _independent_ if $\mathrm{rk} \, R(G, p) = |E|$,
+otherwise it is dependent.
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_independent` {meth}`~.Framework.is_dependent`
 :::
 
 :::{prf:definition} Isostatic frameworks
@@ -100,4 +104,35 @@ The framework $(G, p)$ is called _minimally (infinitesimally) $d$-rigid_
 if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`flexible framework <def-cont-rigid-framework>`.
 
 {{pyrigi_crossref}} {meth}`~.Framework.is_min_inf_rigid`
+:::
+
+:::{prf:definition} Equilibrium stress
+:label: def-equilibrium-stress
+
+Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` with $G=(V,E)$.
+An _equilibrium stress_ of $(G,p)$ is a map $\omega\colon E\rightarrow \RR$ such that for every $v\in V$
+\begin{equation*}
+ \sum_{vw\in E}\omega(vw)(p(v)-p(w)) = 0.
+\end{equation*}
+Equivalently, interpreting $\omega$ as a row vector, $\omega$ is an equilibrium stress if and only if $\omega \cdot R(G,p) = 0$.
+
+{{pyrigi_crossref}} {meth}`~.Framework.stresses`
+:::
+
+:::{prf:definition} Stress Matrix 
+:label: def-stress-matrix
+
+Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` with $G=(V,E)$ and $\omega$ be an {prf:ref}`equilibrium stress <def-equilibrium-stress>`.
+A _stress matrix_ of $(G,\omega)$ is the $|V|\times|V|$ matrix $L(G,\omega)$ where, for every pair of vertices $v,w$, we have the entry:
+
+$$
+L(G,\omega)_{(v,w)} :=
+\begin{cases}
+ \sum_{vw\in E}\omega(vw) & \mbox{if $v=w$}\\
+ -\omega(vw) & \mbox{if $vw\in E$ and $v\neq w$}\\
+ 0 & \mbox{otherwise}
+\end{cases}
+$$
+
+{{pyrigi_crossref}} {meth}`~.Framework.stress_matrix``
 :::

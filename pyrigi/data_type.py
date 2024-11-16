@@ -7,6 +7,7 @@ Module for defining data type used for type hinting.
 from sympy import Matrix, SympifyError, MatrixBase
 from typing import Tuple, Hashable
 from collections.abc import Sequence
+from numbers import Number
 
 
 Vertex = Hashable
@@ -32,6 +33,16 @@ An integer, float or a string interpretable by :func:`~sympy.core.sympify.sympif
 Point = Sequence[Coordinate]
 """
 A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
+"""
+
+Stress = Sequence[int | float]
+"""
+A Stress is a Sequence of int or float numbers.
+"""
+
+Inf = Number
+"""
+Provides a data type that can become infinite.
 """
 
 
