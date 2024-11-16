@@ -2272,6 +2272,38 @@ class Graph(nx.Graph):
         G.remove_edge(edge[0], edge[1])
         return G
 
+    @doc_category("Generic rigidity")
+    def is_generically_locally_rigid(self, N: int, d: int = 2):
+        """
+        Check if the graph is generically locally rigid, with probability of getting a
+        false `False` bounded above by t/N. Never return a false `True`.
+
+        TODO
+        -------
+        Corresponding theory
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2]])
+        >>> G.is_generically_locally_rigid(1000)
+        False
+        >>> H = Graph([[0,1],[0,2],[1,2]])
+        >>> H.is_generically_locally_rigid(1000)
+        True
+        >>> J = Graph([[0,1],[0,2],[1,2],[3,4],[4,5],[5,3],[2,5],[0,3],[1,4]])
+        >>> J.is_generically_locally_rigid(1000)
+        True
+        """
+        v = self.number_of_nodes()
+        t = v * d - math.comb(d + 1, 2)  # rank of the rigidity matrix
+        if v < d + 1:
+            return ValueError(f"The graph must have at least {d + 1} vertices.")
+        # take a random framework with integer coordinates
+        from pyrigi.framework import Framework
+
+        F = Framework.Random(self, rand_range=[1, N])
+        return F.rigidity_matrix().rank() >= t
+
     @doc_category("Graph manipulation")
     def intersection(self, G2: Graph):
         """
