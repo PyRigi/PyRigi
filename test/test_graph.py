@@ -6,6 +6,11 @@ import pytest
 from sympy import Matrix
 import math
 
+try:
+    import lnumber
+except ImportError:
+    lnumber = None
+
 
 def test_add():
     G = Graph([[0, 1], [1, 2], [2, 0]])
@@ -1290,6 +1295,9 @@ def test_is_k_l_tight():
         [graphs.ThreePrism(), 24],
     ],
 )
+@pytest.mark.skipif(
+    lnumber is None, reason="Skipped test since lnumber is not installed"
+)
 def test_number_of_realizations(graph, n):
     assert graph.number_of_realizations() == n
 
@@ -1303,6 +1311,9 @@ def test_number_of_realizations(graph, n):
         [graphs.Diamond(), 4],
         [graphs.ThreePrism(), 32],
     ],
+)
+@pytest.mark.skipif(
+    lnumber is None, reason="Skipped test since lnumber is not installed"
 )
 def test_number_of_realizations_sphere(graph, n):
     assert graph.number_of_realizations(spherical_realizations=True) == n
@@ -1318,6 +1329,9 @@ def test_number_of_realizations_sphere(graph, n):
         graphs.CompleteBipartite(2, 3),
         graphs.Path(3),
     ],
+)
+@pytest.mark.skipif(
+    lnumber is None, reason="Skipped test since lnumber is not installed"
 )
 def test_number_of_realizations_error(graph):
     with pytest.raises(ValueError):

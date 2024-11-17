@@ -1022,6 +1022,8 @@ class Graph(nx.Graph):
 
         Examples
         --------
+        >>> import pytest
+        >>> lnumber = pytest.importorskip("lnumber")
         >>> from pyrigi import Graph
         >>> G = Graph([(0,1),(1,2),(2,0)])
         >>> G.number_of_realizations() # number of planar realizations
