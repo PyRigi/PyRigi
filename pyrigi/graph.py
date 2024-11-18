@@ -10,11 +10,10 @@ from typing import List, Union, Iterable
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from sympy import Matrix, oo, zeros, linsolve
+from sympy import Matrix, oo, zeros
 import math
 import distinctipy
 from random import randint
-import numpy as np
 
 from pyrigi.data_type import Vertex, Edge, Point, Inf
 from pyrigi.misc import doc_category, generate_category_tables
@@ -1632,15 +1631,26 @@ class Graph(nx.Graph):
         Check whether the graph is :prf:ref:`globally dim-rigid
         <def-globally-rigid-graph>`.
 
-        TODO
-        ----
-        implementation for dim>=3
-
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,0)])
         >>> G.is_globally_rigid()
         True
+        >>> J = Graph([[0,1],[0,2],[1,2],[3,4],[4,5],[5,3],[2,5],[0,3],[1,4]])
+        >>> J.is_globally_rigid(dim=3)
+        False
+        >>> J.is_globally_rigid()
+        False
+        >>> K = Graph([[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
+        >>> K.is_globally_rigid()
+        True
+        >>> K.is_globally_rigid(dim=3)
+        True
+        >>> C = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> C.is_globally_rigid()
+        True
+        >>> C.is_globally_rigid(dim=3)
+        False
 
         Notes
         -----
@@ -1649,7 +1659,7 @@ class Graph(nx.Graph):
          * dim>=3: Randomized Rigidity Matrix => Stress (symbolic maybe?)
         By default, the graph is in dimension 2.
         A complete graph is automatically globally rigid
-        """
+        """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
@@ -1678,13 +1688,14 @@ class Graph(nx.Graph):
             N = 2 * v * math.comb(v, 2) + 1
             if v < dim + 2:
                 return self.is_isomorphic(nx.complete_graph(v))
+            elif self.is_isomorphic(nx.complete_graph(v)):
+                return True
             if e < t:
                 return False
             # take a random framework with integer coordinates
             from pyrigi.framework import Framework
 
             F = Framework.Random(self, dim=dim, rand_range=[1, N])
-            # there should be just one solution, so the if should not be mandatory
             w = F.stresses()
             if e == t:
                 omega = zeros(F.rigidity_matrix().rows, 1)
