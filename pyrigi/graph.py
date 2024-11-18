@@ -2442,6 +2442,7 @@ class Graph(nx.Graph):
         )
 
         if inf_flex is not None:
+            magnidutes = []
             for flex_key in inf_flex.keys():
                 if flex_key not in self.vertex_list():
                     raise KeyError(
@@ -2451,9 +2452,14 @@ class Graph(nx.Graph):
                     raise ValueError(
                         "The infinitesimal flex needs to be in dimension 2."
                     )
+                magnidutes.append(
+                    math.sqrt(sum(flex**2 for flex in inf_flex[flex_key]))
+                )
+
+            # normalize the edge lengths by the Euclidean norm of the longest one
+            flex_mag = max(magnidutes)
+            for flex_key in inf_flex.keys():
                 if not all(entry == 0 for entry in inf_flex[flex_key]):
-                    # normalize the edge length by its Euclidean norm
-                    flex_mag = math.sqrt(sum(flex**2 for flex in inf_flex[flex_key]))
                     inf_flex[flex_key] = tuple(
                         flex / flex_mag for flex in inf_flex[flex_key]
                     )
