@@ -22,6 +22,7 @@ In this tutorial, we assume a clean Windows without Python installed. In case th
 5. If you want to use PyRigi in a Jupyter notebook, install Jupyter Labs via the command `python -m pip install jupyterlab`. You can open a Jupyter notebook by typing `jupyter lab`. This provides a convenient user interface for PyRigi.
 
 
+(optional-packages)=
 ## Optional packages
 
 For counting the number of realizations of a minimally rigid graph,

@@ -77,6 +77,12 @@ poetry install --no-root --all-extras
 in the root folder of PyRigi.
 Omitting `--no-root` installs also PyRigi itself, so it can be used system-wide.
 The option `--all-extras` specifies to install also all optional packages.
+To install a specific group of optional packages, use
+```
+poetry install --extras "extra_name"
+```
+These are documented in the [Installation Guide](#optional-packages).
+
 Poetry installs the dependencies and the package to a virtual environment.
 To activate this environment, run `poetry shell`.
 You can exit it with `exit` or `Ctrl+D`.
@@ -150,6 +156,7 @@ if you want to skip some specific optional feature, run
 ```
 pytest -m "not optional_feature_name"
 ```
+See the file `pyproject.toml` for the markers that specify groups of tests relying on optional packages.
 
 ## Documentation
 
