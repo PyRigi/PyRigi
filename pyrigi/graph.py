@@ -19,6 +19,8 @@ from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
 
+__doctest_requires__ = {('Graph.number_of_realizations', ): ['lnumber']}
+
 
 class Graph(nx.Graph):
     """
@@ -1022,8 +1024,6 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> import pytest
-        >>> lnumber = pytest.importorskip("lnumber")
         >>> from pyrigi import Graph
         >>> G = Graph([(0,1),(1,2),(2,0)])
         >>> G.number_of_realizations() # number of planar realizations
