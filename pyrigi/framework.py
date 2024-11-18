@@ -431,7 +431,7 @@ class Framework(object):
 
         if self._dim == 3:
             # Create a figure for the rapresentation of the framework
-            fig = plt.figure()
+            fig = plt.figure(figsize=(10, 10))
             ax = fig.add_subplot(111, projection='3d')
             
             pos = self.realization(as_points=True, numerical=True)
