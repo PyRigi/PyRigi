@@ -1056,7 +1056,7 @@ class Graph(nx.Graph):
             raise ImportError(
                 "For counting the number of realizations, "
                 "the optional package 'lnumber' is used, "
-                "run `pip install pyrigi[lnumber]`."
+                "run `pip install pyrigi[realization-counting]`."
             )
 
     @doc_category("Generic rigidity")

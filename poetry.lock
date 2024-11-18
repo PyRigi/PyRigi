@@ -3547,9 +3547,9 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 type = ["pytest-mypy"]
 
 [extras]
-lnumber = ["lnumber"]
+realization-counting = ["lnumber"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "79511f9e5108ac15e5bfd18513e4d59afe864158e1e1d34735039b5be41d4fd8"
+content-hash = "9182f35f0160aa0640a83cd5d3d9aa6f96ccaaef38405ddc27bfc88e056f693e"
