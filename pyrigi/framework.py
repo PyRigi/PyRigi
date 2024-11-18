@@ -37,7 +37,8 @@ from pyrigi.misc import (
 )
 
 from typing import Optional
-
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class Framework(object):
     r"""
@@ -428,13 +429,38 @@ class Framework(object):
         Implement plotting in dimension 3 and better plotting for dimension 1
         """
 
-        if self._dim > 2:
+        if self._dim == 3:
+            # Create a figure for the rapresentation of the framework
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
+            
+            pos = self.realization(as_points=True, numerical=True)
+            # Draw the vertices as points in the 3D enviroment
+            x_nodes = [pos[node][0] for node in self._graph.nodes]
+            y_nodes = [pos[node][1] for node in self._graph.nodes]
+            z_nodes = [pos[node][2] for node in self._graph.nodes]
+            ax.scatter(x_nodes, y_nodes, z_nodes, c="#ff8c00", s=200)
+            for edge in self._graph.edges():
+                x = [pos[edge[0]][0], pos[edge[1]][0]]
+                y = [pos[edge[0]][1], pos[edge[1]][1]]
+                z = [pos[edge[0]][2], pos[edge[1]][2]]
+                ax.plot(x, y, z, c='k', lw=1.5) 
+            for node in self._graph.nodes:
+                x, y, z = pos[node]
+                # To show the name of the vertex
+                ax.text(x, y, z, str(node), color='w', fontsize=10, ha='center', va='center')
+            ax.set_xlabel('X')
+            ax.set_ylabel('Y')
+            ax.set_zlabel('Z')
+            plt.show()
+            return        
+        elif self._dim > 3:
             raise ValueError(
-                "This framework is in higher dimension than 2!"
+                "This framework is in higher dimension than 3!"
                 + " For projection into 2D use F.plot2D()"
             )
-
-        self.plot2D(**kwargs)
+        else:
+            self.plot2D(**kwargs)
 
     @classmethod
     @doc_category("Class methods")
