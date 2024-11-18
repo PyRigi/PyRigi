@@ -483,6 +483,30 @@ def test_is_congruent():
     assert F4.is_congruent_realization(R1, numerical=True)
 
 
+@pytest.mark.parametrize(
+    "realization",
+    [
+        {0: [0, 0, 0], 1: [1, 1, 1]},
+        {0: [0, 0, 1], 1: [1, 1, 1]},
+        {0: [0, 0, 0, 0], 1: [0, 0, 0, 0]},
+    ],
+)
+def test_plot_error(realization):
+    F = Framework(graphs.Complete(2), realization)
+    with pytest.raises(ValueError):
+        F.plot()
+
+
+def test_plot2D_error():
+    F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot2D(projection_matrix=[[1, 0], [0, 1], [0, 0]])
+
+    F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot2D(projection_matrix=[[1, 0], [0, 1]])
+
+
 def test_rigidity_matrix_rank():
     K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
     assert K4.rigidity_matrix_rank() == 5

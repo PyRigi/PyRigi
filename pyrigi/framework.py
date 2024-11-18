@@ -22,6 +22,7 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
+import numpy as np
 
 from pyrigi.data_type import Vertex, Edge, Point, Stress, point_to_vector
 from pyrigi.graph import Graph
@@ -32,7 +33,10 @@ from pyrigi.misc import (
     generate_category_tables,
     check_integrality_and_range,
     is_zero_vector,
+    generate_two_orthonormal_vectors,
 )
+
+from typing import Optional
 
 
 class Framework(object):
@@ -267,37 +271,170 @@ class Framework(object):
         return deepcopy(self._graph)
 
     @doc_category("Other")
-    def plot(
+    def _plot_with_2D_realization(
         self,
+        realization: dict[Vertex, Point],
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
     ) -> None:
         """
-        Plot the framework.
+        Plot the graph of the framework with the given realization in the plane.
 
-        For various formatting options, see :meth:`.Graph.plot`.
+        For description of other parameters see :meth:`.Framework.plot`.
 
         Parameters
         ----------
-
-
-        TODO
-        ----
-        implement plotting also for other dimensions than 2
+        realization:
+            The realization in the plane used for plotting.
         """
 
-        if self._dim != 2:
-            raise NotImplementedError(
-                "Plotting is currently supported only for 2-dimensional frameworks."
-            )
-
         self._graph.plot(
-            placement=self.realization(as_points=True, numerical=True),
+            placement=realization,
             vertex_color=vertex_color,
             edge_width=edge_width,
             **kwargs,
         )
+
+    @doc_category("Other")
+    def _plot_using_projection_matrix(
+        self,
+        projection_matrix: Matrix,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the framework with the realization projected using the given matrix.
+
+        For description of other parameters see :meth:`.Framework.plot`.
+
+        Parameters
+        ----------
+        projection_matrix:
+            The matrix used for projection.
+            The matrix must have dimensions ``(2, dim)``,
+            where ``dim`` is the dimension of the framework.
+        """
+
+        placement = {}
+        for vertex, position in self.realization(
+            as_points=False, numerical=True
+        ).items():
+            placement[vertex] = np.dot(projection_matrix, np.array(position))
+
+        self._plot_with_2D_realization(placement, **kwargs)
+
+    @doc_category("Other")
+    def plot2D(
+        self,
+        coordinates: Union[tuple, list] = None,
+        projection_matrix: Matrix = None,
+        return_matrix: bool = False,
+        random_seed: int = None,
+        **kwargs,
+    ) -> Optional[Matrix]:
+        """
+        Plot this framework in 2D.
+
+        If this framework is in dimensions higher than 2 and projection_matrix
+        with coordinates are None a random projection matrix
+        containing two orthonormal vectors is generated and used for projection into 2D.
+        This matrix is then returned.
+        For various formatting options, see :meth:`.Graph.plot`.
+        Only coordinates or projection_matrix parameter can be used, not both!
+
+        Parameters
+        ----------
+        projection_matrix:
+            The matrix used for projecting the placement of vertices
+            only when they are in dimension higher than 2.
+            The matrix must have dimensions (2, dim),
+            where dim is the dimension of the currect placements of vertices.
+            If None, a random projection matrix is generated.
+        random_seed:
+            The random seed used for generating the projection matrix.
+            When the same value is provided, the framework will plot exactly same.
+        coordinates:
+            Indexes of two coordinates that will be used as the placement in 2D.
+        return_matrix:
+            If True the matrix used for projection into 2D is returned.
+        """
+
+        if self._dim == 1:
+            placement = {}
+            for vertex, position in self.realization(
+                as_points=True, numerical=True
+            ).items():
+                placement[vertex] = np.append(np.array(position), 0)
+
+            self._plot_with_2D_realization(placement, **kwargs)
+            return
+
+        if self._dim == 2:
+            placement = self.realization(as_points=True, numerical=True)
+            self._plot_with_2D_realization(placement, **kwargs)
+            return
+
+        # dim > 2 -> use projection to 2D
+        if coordinates is not None:
+            if (
+                not isinstance(coordinates, tuple)
+                and not isinstance(coordinates, list)
+                or len(coordinates) != 2
+            ):
+                raise ValueError(
+                    "coordinates must have length 2!"
+                    + " Exactly Two coordinates are necessary for plotting in 2D."
+                )
+            if np.max(coordinates) >= self._dim:
+                raise ValueError(
+                    f"Index {np.max(coordinates)} out of range"
+                    + f" with placement in dim: {self._dim}."
+                )
+            projection_matrix = np.zeros((2, self._dim))
+            projection_matrix[0, coordinates[0]] = 1
+            projection_matrix[1, coordinates[1]] = 1
+
+        if projection_matrix is not None:
+            projection_matrix = np.array(projection_matrix)
+            if projection_matrix.shape != (2, self._dim):
+                raise ValueError(
+                    f"The projection matrix has wrong dimensions! \
+                    {projection_matrix.shape} instead of (2, {self._dim})."
+                )
+        if projection_matrix is None:
+            projection_matrix = generate_two_orthonormal_vectors(
+                self._dim, random_seed=random_seed
+            )
+            projection_matrix = projection_matrix.T
+        self._plot_using_projection_matrix(projection_matrix, **kwargs)
+        if return_matrix:
+            return projection_matrix
+
+    @doc_category("Other")
+    def plot(
+        self,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the framework.
+
+        If the dimension of the framework is greater than 2, ``ValueError`` is raised,
+        use :meth:`.Framework.plot2D` instead.
+        For various formatting options, see :meth:`.Graph.plot`.
+
+
+        TODO
+        ----
+        Implement plotting in dimension 3 and better plotting for dimension 1
+        """
+
+        if self._dim > 2:
+            raise ValueError(
+                "This framework is in higher dimension than 2!"
+                + " For projection into 2D use F.plot2D()"
+            )
+
+        self.plot2D(**kwargs)
 
     @classmethod
     @doc_category("Class methods")
@@ -959,7 +1096,8 @@ class Framework(object):
 
         TODO
         ----
-        more tests
+        more tests, in particular testing `trivial_inf_flexes`==
+        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Examples
         --------
@@ -1061,7 +1199,8 @@ class Framework(object):
 
         TODO
         ----
-        more tests
+        more tests, in particular testing `trivial_inf_flexes`==
+        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Definitions
         -----------
