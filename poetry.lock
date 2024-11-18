@@ -2269,6 +2269,25 @@ tomli = {version = ">=1", markers = "python_version < \"3.11\""}
 dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
+name = "pytest-doctestplus"
+version = "1.2.1"
+description = "Pytest plugin with advanced doctest features."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pytest-doctestplus-1.2.1.tar.gz", hash = "sha256:2472a8a2c8cea34d2f65f6499543faeb748eecb59c597852fd98839b47307679"},
+    {file = "pytest_doctestplus-1.2.1-py3-none-any.whl", hash = "sha256:103705daee8d4468eb59d444c29b0d71eb85b8f6d582295c8bc3d68ee1d88911"},
+]
+
+[package.dependencies]
+packaging = ">=17.0"
+pytest = ">=4.6"
+setuptools = ">=30.3.0"
+
+[package.extras]
+test = ["numpy", "pytest-remotedata (>=0.3.2)", "sphinx"]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 description = "Extensions to the standard Python datetime module"
@@ -3528,9 +3547,9 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 type = ["pytest-mypy"]
 
 [extras]
-lnumber = ["lnumber"]
+realization-counting = ["lnumber"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1e95a1b7210052b396f5c37a276af4fd240d49f079eb5c5054beb324c33d9ca0"
+content-hash = "9182f35f0160aa0640a83cd5d3d9aa6f96ccaaef38405ddc27bfc88e056f693e"

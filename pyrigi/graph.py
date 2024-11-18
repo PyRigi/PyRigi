@@ -19,6 +19,8 @@ from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
 
+__doctest_requires__ = {('Graph.number_of_realizations', ): ['lnumber']}
+
 
 class Graph(nx.Graph):
     """
@@ -1054,7 +1056,7 @@ class Graph(nx.Graph):
             raise ImportError(
                 "For counting the number of realizations, "
                 "the optional package 'lnumber' is used, "
-                "run `pip install pyrigi[lnumber]`."
+                "run `pip install pyrigi[realization-counting]`."
             )
 
     @doc_category("Generic rigidity")
