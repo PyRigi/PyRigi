@@ -1,33 +1,14 @@
 import pytest
 from pyrigi.graph import Graph
-import pyrigi.graphDB as graphs
 import networkx as nx
 
 
 # can be run with pytest -m large
 
 
-# utility function to read a graph from a file
-# Graph is in the following format:
-# N M
-# v1 v2
-#
-# v_n v_m
-# where N is n the number of vertices and M the number of edges
-# the N vertices are [0,1,2,...,N-1]
-def read_graph_from_file(filename):
-    with open(filename) as f:
-        n, m = [int(x) for x in next(f).split()]
-        g = Graph()
-        for i in range(n):
-            g.add_vertex(i)
-        for i in range(m):
-            v1, v2 = [int(x) for x in next(f).split()]
-            g.add_edge(v1, v2)
-        return g
-
 def read_from_sparse6(filename):
     return Graph(nx.read_sparse6(filename))
+
 
 @pytest.mark.large
 def test_rigid_in_d2():
@@ -90,6 +71,8 @@ def test_big_random_not_sparse_graphs():
     graph = read_from_sparse6("test/input_graphs/not_sparse_6_6.s6")
     assert not graph.is_sparse(K=6, L=6, algorithm="pebble")
 
+
+@pytest.mark.large
 def test_Rd_circuit_graphs():
     graph = read_from_sparse6("test/input_graphs/circle_5_8.s6")
     assert graph.is_Rd_circuit(dim=2)
