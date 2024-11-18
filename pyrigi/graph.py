@@ -10,10 +10,11 @@ from typing import List, Union, Iterable
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from sympy import Matrix, oo
+from sympy import Matrix, oo, zeros, linsolve
 import math
 import distinctipy
 from random import randint
+import numpy as np
 
 from pyrigi.data_type import Vertex, Edge, Point, Inf
 from pyrigi.misc import doc_category, generate_category_tables
@@ -1674,34 +1675,28 @@ class Graph(nx.Graph):
             v = self.number_of_nodes()
             e = self.number_of_edges()
             t = v * dim - math.comb(dim + 1, 2)  # rank of the rigidity matrix
-            N = 2 * v * math.comb(v , 2) + 1
+            N = 2 * v * math.comb(v, 2) + 1
             if v < dim + 2:
                 return self.is_isomorphic(nx.complete_graph(v))
             if e < t:
                 return False
             # take a random framework with integer coordinates
             from pyrigi.framework import Framework
-            F = Framework.Random(self, rand_range=[1, N])
-            # create the linear system Ew = b
-            E = F.rigidity_matrix().transpose()
-            for i in range(e - t):
-                random_integers = [randint(1, N) for _ in range(e)]
-                E = E.col_join(Matrix([random_integers]))
-            if E.rank() < e:
-                return False
-            b = zeros(e + math.comb(dim + 1, 2), 1)
-            if e - t > 0:
-                b[e - t - 1] = 1
-            w, _, _, _ = np.linalg.lstsq(E, b)
-            # there should be just one solution, so the following if should not be mandatory
-            if w:
-                omega = w.args[0]
+
+            F = Framework.Random(self, dim=dim, rand_range=[1, N])
+            # there should be just one solution, so the if should not be mandatory
+            w = F.stresses()
+            if e == t:
+                omega = zeros(F.rigidity_matrix().rows, 1)
+                return F.stress_matrix(omega).rank() == v - dim - 1
+            elif w:
+                omega = w[0]
                 return F.stress_matrix(omega).rank() == v - dim - 1
             else:
                 raise ValueError(
-                    "There must be an error somewhere in the code/algorithm(?)"
+                    "There must be an error somewhere in the code/algorithm(?) since "
+                    + "there must be at least one stress."
                 )
-            raise NotImplementedError()
 
     @doc_category("Partially implemented")
     def is_Rd_dependent(
