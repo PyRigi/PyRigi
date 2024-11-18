@@ -1623,7 +1623,7 @@ class Framework(object):
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
         >>> F.generate_stl_bars(scale=20)
-        "STL files for the bars have been generated in the working folder."
+        STL files for the bars have been generated in the working folder.
 
         """
         edges_with_lengths = self.edge_lengths()
