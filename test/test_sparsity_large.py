@@ -42,6 +42,7 @@ def test_big_random_tight_graphs():
     graph = read_from_sparse6("test/input_graphs/huge_tight_2_3.s6")
     assert graph.is_tight(K=2, L=3, algorithm="pebble")
 
+
 @pytest.mark.large
 def test_big_random_sparse_graphs():
     # (3,1)-sparse graph on 20 vertices and 58 edges
@@ -103,13 +104,13 @@ def test_Rd_circuit_graphs():
 
 @pytest.mark.large
 def test_Rd_not_circuit_graphs():
-    graph = read_from_sparse6("test/input_graphs/not_circle_5_8.s6")
+    graph = read_from_sparse6("test/input_graphs/not_circle_5_7.s6")
     assert not graph.is_Rd_circuit(dim=2)
 
     graph = read_from_sparse6("test/input_graphs/not_circle_10_18.s6")
     assert not graph.is_Rd_circuit(dim=2)
 
-    graph = read_from_sparse6("test/input_graphs/not_circle_20_38.s6")
+    graph = read_from_sparse6("test/input_graphs/not_circle_20_39.s6")
     assert not graph.is_Rd_circuit(dim=2)
 
     graph = read_from_sparse6("test/input_graphs/not_circle_30_58.s6")
