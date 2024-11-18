@@ -1516,11 +1516,13 @@ class Framework(object):
         return lengths
 
     @staticmethod
-    def _generate_stl_bar(holes_distance: float,
-                          holes_diameter: float,
-                          bar_width: float,
-                          bar_height: float,
-                          filename="bar.stl"):
+    def _generate_stl_bar(
+        holes_distance: float,
+        holes_diameter: float,
+        bar_width: float,
+        bar_height: float,
+        filename="bar.stl",
+    ):
         """
         Generate an STL file for a bar.
 
@@ -1548,15 +1550,22 @@ class Framework(object):
         from trimesh.creation import box as trimesh_box
         from trimesh.creation import cylinder as trimesh_cylinder
 
-        if holes_distance <= 0 or holes_diameter <= 0 or bar_width <= 0 or bar_height <= 0:
+        if (
+            holes_distance <= 0
+            or holes_diameter <= 0
+            or bar_width <= 0
+            or bar_height <= 0
+        ):
             raise ValueError("Use only positive values for the parameters.")
 
         if bar_width <= holes_diameter:
             raise ValueError("The bar width must be greater than the holes diameter.")
 
         if holes_distance <= 2 * holes_diameter:
-            raise ValueError("The distance between the holes must be greater "
-                             "than twice the holes diameter.")
+            raise ValueError(
+                "The distance between the holes must be greater "
+                "than twice the holes diameter."
+            )
 
         # Create the main bar as a box
         bar = trimesh_box(extents=[holes_distance, bar_width, bar_height])
@@ -1588,12 +1597,14 @@ class Framework(object):
         return bar_mesh
 
     @doc_category("Other")
-    def generate_stl_bars(self,
-                          scale: float = 1.0,
-                          width_of_bars: float = 8.,
-                          height_of_bars: float = 3.,
-                          holes_diameter: float = 4.3,
-                          filename_prefix: str = "bar_") -> None:
+    def generate_stl_bars(
+        self,
+        scale: float = 1.0,
+        width_of_bars: float = 8.0,
+        height_of_bars: float = 3.0,
+        holes_diameter: float = 4.3,
+        filename_prefix: str = "bar_",
+    ) -> None:
         """
         Generate STL files for the bars of the framework.
 
@@ -1632,13 +1643,16 @@ class Framework(object):
             scaled_length = length * scale
             f_name = filename_prefix + str(edge[0]) + "-" + str(edge[1]) + ".stl"
 
-            self._generate_stl_bar(holes_distance=scaled_length,
-                                   holes_diameter=holes_diameter,
-                                   bar_width=width_of_bars,
-                                   bar_height=height_of_bars,
-                                   filename=f_name)
+            self._generate_stl_bar(
+                holes_distance=scaled_length,
+                holes_diameter=holes_diameter,
+                bar_width=width_of_bars,
+                bar_height=height_of_bars,
+                filename=f_name,
+            )
 
         print("STL files for the bars have been generated in the working folder.")
+
 
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
