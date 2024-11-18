@@ -22,7 +22,7 @@ This notebook can be downloaded {download}`here <../../notebooks/graph_realizati
 from pyrigi import Graph, Framework
 ```
 
-Method {meth}`.Framework.generate_stl_bars` allows to generate simple bars of a framework that can be 3D printed.
+Method {meth}`.Framework.generate_stl_bars` allows one to generate simple bars of a framework that can be 3D printed.
 
 We start with a definition of Graph and its Framework.
 
@@ -33,7 +33,7 @@ F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
 F.plot()
 ```
 
-If a method {meth}`.Framework.generate_stl_bars` is called, it will generate bars 
+If the method {meth}`.Framework.generate_stl_bars` is called, it will generate bars 
 in the working directory in STL format.
 
 Sometimes we wish to alter the design of the bars...

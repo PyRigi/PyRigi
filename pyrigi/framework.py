@@ -1592,7 +1592,8 @@ class Framework(object):
                           scale: float = 1.0,
                           width_of_bars: float = 8.,
                           height_of_bars: float = 3.,
-                          holes_diameter: float = 4.3):
+                          holes_diameter: float = 4.3,
+                          filename_prefix: str = "bar_") -> None:
         """
         Generate STL files for the bars of the framework.
 
@@ -1614,6 +1615,9 @@ class Framework(object):
         holes_diameter
             Diameter of the holes at the ends of the bars, default is 4.3 mm.
 
+        filename_prefix
+            Prefix for the filenames of the generated STL files, default is "bar_".
+
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
@@ -1626,13 +1630,13 @@ class Framework(object):
 
         for edge, length in edges_with_lengths.items():
             scaled_length = length * scale
-            naming = str(edge[0]) + "-" + str(edge[1])
+            f_name = filename_prefix + str(edge[0]) + "-" + str(edge[1]) + ".stl"
 
             self._generate_stl_bar(holes_distance=scaled_length,
                                    holes_diameter=holes_diameter,
                                    bar_width=width_of_bars,
                                    bar_height=height_of_bars,
-                                   filename=f"bar_{naming}.stl")
+                                   filename=f_name)
 
         print("STL files for the bars have been generated in the working folder.")
 
