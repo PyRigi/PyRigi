@@ -40,6 +40,7 @@ from typing import Optional
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+
 class Framework(object):
     r"""
     This class provides the functionality for frameworks.
@@ -432,8 +433,8 @@ class Framework(object):
         if self._dim == 3:
             # Create a figure for the rapresentation of the framework
             fig = plt.figure(figsize=(10, 10))
-            ax = fig.add_subplot(111, projection='3d')
-            
+            ax = fig.add_subplot(111, projection="3d")
+
             pos = self.realization(as_points=True, numerical=True)
             # Draw the vertices as points in the 3D enviroment
             x_nodes = [pos[node][0] for node in self._graph.nodes]
@@ -444,16 +445,18 @@ class Framework(object):
                 x = [pos[edge[0]][0], pos[edge[1]][0]]
                 y = [pos[edge[0]][1], pos[edge[1]][1]]
                 z = [pos[edge[0]][2], pos[edge[1]][2]]
-                ax.plot(x, y, z, c='k', lw=1.5) 
+                ax.plot(x, y, z, c="k", lw=1.5)
             for node in self._graph.nodes:
                 x, y, z = pos[node]
                 # To show the name of the vertex
-                ax.text(x, y, z, str(node), color='w', fontsize=10, ha='center', va='center')
-            ax.set_xlabel('X')
-            ax.set_ylabel('Y')
-            ax.set_zlabel('Z')
+                ax.text(
+                    x, y, z, str(node), color="w", fontsize=10, ha="center", va="center"
+                )
+            ax.set_xlabel("X")
+            ax.set_ylabel("Y")
+            ax.set_zlabel("Z")
             plt.show()
-            return        
+            return
         elif self._dim > 3:
             raise ValueError(
                 "This framework is in higher dimension than 3!"
