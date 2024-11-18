@@ -141,6 +141,10 @@ pytest
 in the root folder of PyRigi (with poetry shell activated).
 The reason why the examples in the docstrings are tested is to make sure their outputs are valid,
 they do **not** replace the tests in the `test` folder.
+If you do not want to run doctests, run
+```
+pytest -p no:doctestplus
+```
 Functionalities requiring optional packages are tested by default;
 if you want to skip some specific optional feature, run
 ```
