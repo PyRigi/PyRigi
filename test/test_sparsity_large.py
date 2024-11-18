@@ -89,3 +89,16 @@ def test_big_random_not_sparse_graphs():
     # random large graph on 70 vertices, not sparse
     graph = read_from_sparse6("test/input_graphs/not_sparse_6_6.s6")
     assert not graph.is_sparse(K=6, L=6, algorithm="pebble")
+
+def test_Rd_circuit_graphs():
+    graph = read_from_sparse6("test/input_graphs/circle_5_8.s6")
+    assert graph.is_Rd_circuit(dim=2)
+
+    graph = read_from_sparse6("test/input_graphs/circle_10_18.s6")
+    assert graph.is_Rd_circuit(dim=2)
+
+    graph = read_from_sparse6("test/input_graphs/circle_20_38.s6")
+    assert graph.is_Rd_circuit(dim=2)
+
+    graph = read_from_sparse6("test/input_graphs/circle_30_58.s6")
+    assert graph.is_Rd_circuit(dim=2)
