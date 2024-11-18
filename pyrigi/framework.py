@@ -1596,18 +1596,30 @@ class Framework(object):
         """
         Generate STL files for the bars of the framework.
 
-        Generates STL files in folder 'stl_bars' for the bars of the framework.
+        Generates STL files for the bars of the framework. The files are generated
+        in the working folder. The naming convention for the files is "bar_i-j.stl",
+        where i and j are the vertices of an edge.
 
         Parameters
         ----------
         scale
             Scale factor for the lengths of the edges, default is 1.0.
 
+        width_of_bars
+            Width of the bars, default is 8.0 mm.
+
+        height_of_bars
+            Height of the bars, default is 3.0 mm.
+
+        holes_diameter
+            Diameter of the holes at the ends of the bars, default is 4.3 mm.
+
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
         >>> F.generate_stl_bars(scale=20)
+        "STL files for the bars have been generated in the working folder."
 
         """
         edges_with_lengths = self.edge_lengths()
@@ -1621,6 +1633,8 @@ class Framework(object):
                                    bar_width=width_of_bars,
                                    bar_height=height_of_bars,
                                    filename=f"bar_{naming}.stl")
+
+        print("STL files for the bars have been generated in the working folder.")
 
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
