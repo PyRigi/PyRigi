@@ -413,6 +413,10 @@ class Framework(object):
             ).items():
                 placement[vertex] = np.append(np.array(position), 0)
 
+            if inf_flex_pointwise is not None:
+                inf_flex_pointwise = {
+                    v: (flex_v[0], 0) for v, flex_v in inf_flex_pointwise.items()
+                }
             self._plot_with_2D_realization(
                 placement, inf_flex=inf_flex_pointwise, **kwargs
             )
@@ -1782,8 +1786,8 @@ class Framework(object):
         else:
             if not set(self._graph.nodes) == set(vertex_order):
                 raise ValueError(
-                    "vertex_order must contain " +
-                    "exactly the same vertices as the graph!"
+                    "vertex_order must contain "
+                    + "exactly the same vertices as the graph!"
                 )
         return {
             vertex_order[i]: [flex[i * self.dim() + j] for j in range(self.dim())]

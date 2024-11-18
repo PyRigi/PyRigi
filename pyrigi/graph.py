@@ -2447,12 +2447,10 @@ class Graph(nx.Graph):
                     raise KeyError(
                         "A key in inf_flex does not exist as a vertex in the graph!"
                     )
-                if len(inf_flex[flex_key]) > 2:
+                if len(inf_flex[flex_key]) != 2:
                     raise ValueError(
-                        "The infinitesimal flex needs to be in dimension 2 or below!"
+                        "The infinitesimal flex needs to be in dimension 2."
                     )
-                if len(inf_flex[flex_key]) == 1:
-                    inf_flex[flex_key] = (inf_flex[flex_key][0], 0)
                 if not all(entry == 0 for entry in inf_flex[flex_key]):
                     # normalize the edge length by its Euclidean norm
                     flex_mag = math.sqrt(sum(flex**2 for flex in inf_flex[flex_key]))
