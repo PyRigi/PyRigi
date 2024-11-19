@@ -538,6 +538,9 @@ def test_plot2D_error():
     with pytest.raises(ValueError):
         F.plot2D(projection_matrix=[[1, 0], [0, 1]])
 
+    with pytest.raises(ValueError):
+        F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0]})
+
 
 def test_rigidity_matrix_rank():
     K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])

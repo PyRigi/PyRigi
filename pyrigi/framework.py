@@ -392,7 +392,7 @@ class Framework(object):
                     raise IndexError(
                         "The value of inf_flex exceeds "
                         + "the dimension of the space "
-                        + "of infinitesimal flexes!"
+                        + "of infinitesimal flexes."
                     )
                 inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
                     inf_flex_basis[inf_flex]
@@ -404,7 +404,12 @@ class Framework(object):
             ):
                 inf_flex_pointwise = inf_flex
             else:
-                raise TypeError("inf_flex does not have the correct Type!")
+                raise TypeError("inf_flex does not have the correct Type.")
+
+            if not self.is_dict_inf_flex(inf_flex_pointwise):
+                raise ValueError(
+                    "The provided `inf_flex` is not an infinitesimal flex."
+                )
 
         if self._dim == 1:
             placement = {}
