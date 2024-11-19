@@ -11,11 +11,11 @@ kernelspec:
   name: python3
 ---
 
-# Graph Realizations (3D printing)
+# Mesh Generation of Graphs
 
 +++
 
-This notebook can be downloaded {download}`here <../../notebooks/graph_realizations.ipynb>`.
+This notebook can be downloaded {download}`here <../../notebooks/mesh_generation.ipynb>`.
 
 ```{code-cell} ipython3
 # The import will work if the package was installed using pip.
@@ -24,7 +24,7 @@ from pyrigi import Graph, Framework
 
 Method {meth}`.Framework.generate_stl_bars` allows one to generate simple bars of a framework that can be 3D printed.
 
-We start with a definition of Graph and its Framework.
+We start by creating a `Graph` and a `Framework`.
 
 
 ```{code-cell} ipython3
