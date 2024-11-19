@@ -1815,6 +1815,14 @@ class Framework(object):
         vertex_order:
             If ``None``, the :meth:`.Graph.vertex_list`
             is taken as the vertex order.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,1]])
+        >>> F.is_vector_inf_flex([0,0,-1,1])
+        True
+        >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)", 0, 0], vertex_order=[1,0])
+        True
         """
         vect_as_dict = self._transform_inf_flex_to_pointwise(
             vect, vertex_order=vertex_order
@@ -1836,6 +1844,14 @@ class Framework(object):
         vert_to_flex:
             Dictionary that maps the vertex labels to
             vectors of the same dimension as the framework is.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,1]])
+        >>> F.is_dict_inf_flex({0:[0,0], 1:[-1,1]})
+        True
+        >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
+        True
         """
         vert_to_matrix = {}
         for v in self._graph.nodes:
