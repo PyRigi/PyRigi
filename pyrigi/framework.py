@@ -371,8 +371,8 @@ class Framework(object):
             Indexes of two coordinates that will be used as the placement in 2D.
         inf_flex:
             Optional parameter for plotting a given infinitesimal flex. It is
-            important to use the internal vertex order from the framework for this
-            to properly work.
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
             Alternatively, an `int` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
             Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
@@ -1793,6 +1793,63 @@ class Framework(object):
             vertex_order[i]: [flex[i * self.dim() + j] for j in range(self.dim())]
             for i in range(len(vertex_order))
         }
+
+    def is_vector_inf_flex(
+        self, vect: Matrix, vertex_order: List[Vertex] = None
+    ) -> bool:
+        """
+        Return whether a vector is an infinitesimal flex of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Infinitesimal flex <def-inf-flex>`
+
+        Parameters
+        ----------
+        vect:
+        vertex_order:
+            If ``None``, the :meth:`.Graph.vertex_list`
+            is taken as the vertex order.
+        """
+        vect_as_dict = self._transform_inf_flex_to_pointwise(
+            vect, vertex_order=vertex_order
+        )
+        return self.is_dict_inf_flex(vect_as_dict)
+
+    def is_dict_inf_flex(
+        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]]
+    ) -> bool:
+        """
+        Return whether a dictionary specifies an infinitesimal flex of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Infinitesimal flex <def-inf-flex>`
+
+        Parameters
+        ----------
+        vert_to_flex:
+            Dictionary that maps the vertex labels to
+            vectors of the same dimension as the framework is.
+        """
+        vert_to_matrix = {}
+        for v in self._graph.nodes:
+            if v not in vert_to_flex:
+                raise ValueError(
+                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
+                )
+            vert_to_matrix[v] = Matrix(vert_to_flex[v])
+
+        if len(vert_to_flex) != self._graph.number_of_nodes():
+            raise ValueError("The keys in `vert_to_flex` have to match the vertex set.")
+
+        for u, v in self._graph.edges:
+            if (
+                (vert_to_matrix[u] - vert_to_matrix[v]).transpose()
+                * (self[u] - self[v])
+            )[0, 0] != 0:
+                return False
+        return True
 
 
 Framework.__doc__ = Framework.__doc__.replace(

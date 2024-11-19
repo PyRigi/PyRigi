@@ -221,6 +221,38 @@ def test_inf_flexes():
     assert len(fws.Square().inf_flexes(include_trivial=False)) == 1
 
 
+def test_is_vector_inf_flex():
+    F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
+    assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
+    assert not F.is_vector_inf_flex([0, 0, 0, 1, -2, 0])
+    assert F.is_vector_inf_flex([0, 1, 0, 0, -1, 0], [1, 0, 2])
+
+    F.delete_edge([1, 2])
+    assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
+    assert F.is_vector_inf_flex([0, 0, 0, -1, -2, 0])
+    assert not F.is_vector_inf_flex([0, 0, 2, 1, -2, 1])
+
+    F = fws.ThreePrism(realization="flexible")
+    for inf_flex in F.inf_flexes(include_trivial=True):
+        assert F.is_vector_inf_flex(inf_flex)
+
+
+def test_is_dict_inf_flex():
+    F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, 1], 2: [-1, 0]})
+    assert not F.is_dict_inf_flex({0: [0, 0], 1: [0, -1], 2: [-2, 0]})
+
+    F.delete_edge([1, 2])
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, 1], 2: [-1, 0]})
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, -1], 2: [-2, 0]})
+    assert not F.is_dict_inf_flex({0: [0, 0], 1: [2, 1], 2: [-2, 1]})
+
+    F = fws.ThreePrism(realization="flexible")
+    assert F.is_dict_inf_flex(
+        {0: [0, 0], 1: [0, 0], 2: [0, 0], 3: [1, 0], 4: [1, 0], 5: [1, 0]}
+    )
+
+
 def test_is_injective():
     F1 = fws.Complete(4, 2)
     assert F1.is_injective()

@@ -189,8 +189,8 @@ us to alter the style of the drawn arrows.
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
-r = {0: [6, 8], 1: [6, -14], 2: [0, 0], 3: [-4, 4], 4: [-4, -4]}
-F = Framework(G, r)
+p = {0: [6, 8], 1: [6, -14], 2: [0, 0], 3: [-4, 4], 4: [-4, -4]}
+F = Framework(G, p)
 F.plot(inf_flex=0,
       flex_width=4,
       flex_length=0.25,
