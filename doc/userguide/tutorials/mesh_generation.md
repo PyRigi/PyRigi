@@ -11,14 +11,14 @@ kernelspec:
   name: python3
 ---
 
-# Mesh Generation of Graphs
+# Mesh generation
 
 +++
 
 This notebook can be downloaded {download}`here <../../notebooks/mesh_generation.ipynb>`.
 
 ```{code-cell} ipython3
-# The import will work if the package was installed using pip.
+# The import will work if the package was installed using `pip install pyrigi[meshing]
 from pyrigi import Graph, Framework
 ```
 
