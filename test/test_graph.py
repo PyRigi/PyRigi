@@ -1290,6 +1290,7 @@ def test_is_k_l_tight():
         [graphs.ThreePrism(), 24],
     ],
 )
+@pytest.mark.realization_counting
 def test_number_of_realizations(graph, n):
     assert graph.number_of_realizations() == n
 
@@ -1304,6 +1305,7 @@ def test_number_of_realizations(graph, n):
         [graphs.ThreePrism(), 32],
     ],
 )
+@pytest.mark.realization_counting
 def test_number_of_realizations_sphere(graph, n):
     assert graph.number_of_realizations(spherical_realizations=True) == n
 
@@ -1319,6 +1321,7 @@ def test_number_of_realizations_sphere(graph, n):
         graphs.Path(3),
     ],
 )
+@pytest.mark.realization_counting
 def test_number_of_realizations_error(graph):
     with pytest.raises(ValueError):
         graph.number_of_realizations()

@@ -35,6 +35,7 @@ flake8 = "^7.0.0"
 pre-commit = "^3.7.1"
 pytest = "^8.2.1"
 sphinx = "^7.3.7"
+pytest-doctestplus = "^1.2.1"
 
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.5.6"
@@ -51,20 +52,21 @@ setuptools = "^70.0.0"
 jupytext = "^1.16.4"
 
 [tool.poetry.extras]
-lnumber = ["lnumber"]
+realization-counting = ["lnumber"]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-
 [tool.pytest.ini_options]
+doctest_plus = "enabled"
 pythonpath = [
   "."
 ]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "serial",
+    "realization_counting: marks tests using extra realization-counting"
 ]
 
 [tool.jupytext]
