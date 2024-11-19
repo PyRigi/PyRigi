@@ -48,7 +48,7 @@ class ParametricMotion(Motion):
 
         for v in self._graph.nodes:
             if v not in motion:
-                raise KeyError("Vertex {vertex} is not a key of the given realization!")
+                raise KeyError("Vertex {v} is not a key of the given realization!")
 
         self._parametrization = {i: point_to_vector(v) for i, v in motion.items()}
 
@@ -88,7 +88,7 @@ class ParametricMotion(Motion):
                 return False
         return True
 
-    def get_realization(self, value, numeric: bool = False) -> dict[Vertex:Point]:
+    def realization(self, value, numeric: bool = False) -> dict[Vertex:Point]:
         """
         Return specific realization for the given value of the parameter.
 
