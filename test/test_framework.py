@@ -521,3 +521,43 @@ def test_rigidity_matrix_rank():
 
     F = fws.Frustum(3)  # has a single infinitesimal motion and stress
     assert F.rigidity_matrix_rank() == 8
+
+
+def test_edge_lengths():
+    G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]})
+    l_dict = F.edge_lengths()
+
+    expected_result = {
+        (0, 1): 1.0,
+        (0, 3): 1.4240006242195884,
+        (1, 2): 1.118033988749895,
+        (2, 3): 0.5443838790578374,
+    }
+
+    for edge, length in l_dict.items():
+        assert length == expected_result[edge]
+
+
+def test__generate_stl_bar():
+    mesh = Framework._generate_stl_bar(30, 4, 10, 5)
+    assert mesh is not None
+
+    with pytest.raises(ValueError):
+        # negative values are not allowed
+        Framework._generate_stl_bar(30, 4, 10, -5)
+    with pytest.raises(ValueError):
+        # width must be greater than diameter
+        Framework._generate_stl_bar(30, 4, 3, 5)
+    with pytest.raises(ValueError):
+        # holes_distance <= 2 * holes_diameter
+        Framework._generate_stl_bar(6, 4, 10, 5)
+
+
+def test_generate_stl_bars():
+    gr = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+    fr = Framework(
+        gr, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]}
+    )
+    n = fr.generate_stl_bars(scale=20, filename_prefix="mybar")
+    assert n is None

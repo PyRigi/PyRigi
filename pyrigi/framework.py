@@ -1691,8 +1691,10 @@ class Framework(object):
             from trimesh.creation import cylinder as trimesh_cylinder
         except ImportError:
             raise ImportError(
-                "The 'trimesh' and 'manifold3d' packages are required for this method. "
-                "You can install it using 'pip install trimesh manifold3d'."
+                "To create meshes of bars that can be exported as STL files, "
+                "the packages 'trimesh' and 'manifold3d' are required. "
+                "To install PyRigi including trimesh and manifold3d, "
+                "run 'pip install pyrigi[meshing]'"
             )
 
         if (
