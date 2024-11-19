@@ -63,10 +63,13 @@ doctest_plus = "enabled"
 pythonpath = [
   "."
 ]
+addopts = "-m 'not medium'" # deselect large tests by default
+# you can run all tests with -m 'not medium or medium'
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "serial",
-    "realization_counting: marks tests using extra realization-counting"
+    "realization_counting: marks tests using extra realization-counting",
+    "medium: marks slower tests run at merge to main",
 ]
 
 [tool.jupytext]

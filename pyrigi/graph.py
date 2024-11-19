@@ -19,7 +19,7 @@ from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
 
-__doctest_requires__ = {('Graph.number_of_realizations', ): ['lnumber']}
+__doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
 
 class Graph(nx.Graph):
