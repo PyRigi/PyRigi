@@ -337,7 +337,7 @@ class Framework(object):
         self._plot_with_2D_realization(placement, **kwargs)
 
     @doc_category("Other")
-    def plot2D(
+    def plot2D(  # noqa: C901
         self,
         coordinates: Union[tuple, list] = None,
         inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
