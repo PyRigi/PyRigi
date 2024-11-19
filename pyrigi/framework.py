@@ -1686,8 +1686,14 @@ class Framework(object):
         bar_mesh : trimesh.base.Trimesh
             The bar as a Trimesh object.
         """
-        from trimesh.creation import box as trimesh_box
-        from trimesh.creation import cylinder as trimesh_cylinder
+        try:
+            from trimesh.creation import box as trimesh_box
+            from trimesh.creation import cylinder as trimesh_cylinder
+        except ImportError:
+            raise ImportError(
+                "The 'trimesh' and 'manifold3d' packages are required for this method. "
+                "You can install it using 'pip install trimesh manifold3d'."
+            )
 
         if (
             holes_distance <= 0
