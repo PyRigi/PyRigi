@@ -1751,7 +1751,7 @@ class Framework(object):
         height_of_bars: float = 3.0,
         holes_diameter: float = 4.3,
         filename_prefix: str = "bar_",
-        folder_name: str = "stl_output",
+        output_dir: str = "stl_output",
     ) -> None:
         """
         Generate STL files for the bars of the framework.
@@ -1777,7 +1777,7 @@ class Framework(object):
         filename_prefix
             Prefix for the filenames of the generated STL files, default is "bar_".
 
-        folder_name
+        output_dir
             Name or path of the folder where the STL files are saved,
             default is "stl_output". Relative to the working directory.
 
@@ -1792,7 +1792,7 @@ class Framework(object):
         from pathlib import Path as plPath
 
         # Create the folder if it does not exist
-        folder_path = plPath(folder_name)
+        folder_path = plPath(output_dir)
         if not folder_path.exists():
             folder_path.mkdir(parents=True, exist_ok=True)
 
@@ -1801,7 +1801,7 @@ class Framework(object):
         for edge, length in edges_with_lengths.items():
             scaled_length = length * scale
             f_name = (
-                folder_name
+                output_dir
                 + "/"
                 + filename_prefix
                 + str(edge[0])

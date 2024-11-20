@@ -37,10 +37,11 @@ If the method {meth}`.Framework.generate_stl_bars` is called, it will generate b
 in the working directory in STL format. The naming scheme consists of the prefix `bar_` and the two indexes
 of the vertices of an edge. 
 
-Sometimes we wish to alter the design of the bars, especially scale them up or down.
+Sometimes we wish to alter the design of the bars, especially scale them up or down, 
+and change the file names or output directory (relative to working directory).
 
 ```{code-cell} ipython3
-F.generate_stl_bars(scale=20, filename_prefix='scaled_bar_')
+F.generate_stl_bars(scale=20, filename_prefix='scaled_bar_', output_dir='my_bars')
 ```
 
 The other parameters that can be passed to the method {meth}`.Framework.generate_stl_bars` alter
