@@ -14,3 +14,4 @@
 *.ipynb
 /.pytest_cache/
 /.idea/
+*.stl
