@@ -13,3 +13,5 @@
 .vscode/settings.json
 *.ipynb
 /.pytest_cache/
+/.idea/
+*.stl

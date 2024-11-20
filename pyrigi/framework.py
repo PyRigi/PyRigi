@@ -13,7 +13,7 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Any, Dict, Union
+from typing import List, Dict, Union
 
 from copy import deepcopy
 from itertools import combinations
@@ -22,8 +22,9 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
+import numpy as np
 
-from pyrigi.data_type import Vertex, Edge, Point, point_to_vector
+from pyrigi.data_type import Vertex, Edge, Point, Stress, point_to_vector
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -32,7 +33,10 @@ from pyrigi.misc import (
     generate_category_tables,
     check_integrality_and_range,
     is_zero_vector,
+    generate_two_orthonormal_vectors,
 )
+
+from typing import Optional
 
 
 class Framework(object):
@@ -258,44 +262,179 @@ class Framework(object):
         """
         Return a copy of the underlying graph.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Random(Graph([(0,1), (1,2), (0,2)]))
+        >>> F.graph()
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         """
         return deepcopy(self._graph)
 
     @doc_category("Other")
-    def plot(
+    def _plot_with_2D_realization(
         self,
+        realization: dict[Vertex, Point],
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
     ) -> None:
         """
-        Plot the framework.
+        Plot the graph of the framework with the given realization in the plane.
 
-        For various formatting options, see :meth:`.Graph.plot`.
+        For description of other parameters see :meth:`.Framework.plot`.
 
         Parameters
         ----------
-
-
-        TODO
-        ----
-        implement plotting also for other dimensions than 2
+        realization:
+            The realization in the plane used for plotting.
         """
 
-        if self._dim != 2:
-            raise NotImplementedError(
-                "Plotting is currently supported only for 2-dimensional frameworks."
-            )
-
         self._graph.plot(
-            placement=self.realization(as_points=True, numerical=True),
+            placement=realization,
             vertex_color=vertex_color,
             edge_width=edge_width,
             **kwargs,
         )
+
+    @doc_category("Other")
+    def _plot_using_projection_matrix(
+        self,
+        projection_matrix: Matrix,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the framework with the realization projected using the given matrix.
+
+        For description of other parameters see :meth:`.Framework.plot`.
+
+        Parameters
+        ----------
+        projection_matrix:
+            The matrix used for projection.
+            The matrix must have dimensions ``(2, dim)``,
+            where ``dim`` is the dimension of the framework.
+        """
+
+        placement = {}
+        for vertex, position in self.realization(
+            as_points=False, numerical=True
+        ).items():
+            placement[vertex] = np.dot(projection_matrix, np.array(position))
+
+        self._plot_with_2D_realization(placement, **kwargs)
+
+    @doc_category("Other")
+    def plot2D(
+        self,
+        coordinates: Union[tuple, list] = None,
+        projection_matrix: Matrix = None,
+        return_matrix: bool = False,
+        random_seed: int = None,
+        **kwargs,
+    ) -> Optional[Matrix]:
+        """
+        Plot this framework in 2D.
+
+        If this framework is in dimensions higher than 2 and projection_matrix
+        with coordinates are None a random projection matrix
+        containing two orthonormal vectors is generated and used for projection into 2D.
+        This matrix is then returned.
+        For various formatting options, see :meth:`.Graph.plot`.
+        Only coordinates or projection_matrix parameter can be used, not both!
+
+        Parameters
+        ----------
+        projection_matrix:
+            The matrix used for projecting the placement of vertices
+            only when they are in dimension higher than 2.
+            The matrix must have dimensions (2, dim),
+            where dim is the dimension of the currect placements of vertices.
+            If None, a random projection matrix is generated.
+        random_seed:
+            The random seed used for generating the projection matrix.
+            When the same value is provided, the framework will plot exactly same.
+        coordinates:
+            Indexes of two coordinates that will be used as the placement in 2D.
+        return_matrix:
+            If True the matrix used for projection into 2D is returned.
+        """
+
+        if self._dim == 1:
+            placement = {}
+            for vertex, position in self.realization(
+                as_points=True, numerical=True
+            ).items():
+                placement[vertex] = np.append(np.array(position), 0)
+
+            self._plot_with_2D_realization(placement, **kwargs)
+            return
+
+        if self._dim == 2:
+            placement = self.realization(as_points=True, numerical=True)
+            self._plot_with_2D_realization(placement, **kwargs)
+            return
+
+        # dim > 2 -> use projection to 2D
+        if coordinates is not None:
+            if (
+                not isinstance(coordinates, tuple)
+                and not isinstance(coordinates, list)
+                or len(coordinates) != 2
+            ):
+                raise ValueError(
+                    "coordinates must have length 2!"
+                    + " Exactly Two coordinates are necessary for plotting in 2D."
+                )
+            if np.max(coordinates) >= self._dim:
+                raise ValueError(
+                    f"Index {np.max(coordinates)} out of range"
+                    + f" with placement in dim: {self._dim}."
+                )
+            projection_matrix = np.zeros((2, self._dim))
+            projection_matrix[0, coordinates[0]] = 1
+            projection_matrix[1, coordinates[1]] = 1
+
+        if projection_matrix is not None:
+            projection_matrix = np.array(projection_matrix)
+            if projection_matrix.shape != (2, self._dim):
+                raise ValueError(
+                    f"The projection matrix has wrong dimensions! \
+                    {projection_matrix.shape} instead of (2, {self._dim})."
+                )
+        if projection_matrix is None:
+            projection_matrix = generate_two_orthonormal_vectors(
+                self._dim, random_seed=random_seed
+            )
+            projection_matrix = projection_matrix.T
+        self._plot_using_projection_matrix(projection_matrix, **kwargs)
+        if return_matrix:
+            return projection_matrix
+
+    @doc_category("Other")
+    def plot(
+        self,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the framework.
+
+        If the dimension of the framework is greater than 2, ``ValueError`` is raised,
+        use :meth:`.Framework.plot2D` instead.
+        For various formatting options, see :meth:`.Graph.plot`.
+
+
+        TODO
+        ----
+        Implement plotting in dimension 3 and better plotting for dimension 1
+        """
+
+        if self._dim > 2:
+            raise ValueError(
+                "This framework is in higher dimension than 2!"
+                + " For projection into 2D use F.plot2D()"
+            )
+
+        self.plot2D(**kwargs)
 
     @doc_category("Other")
     def to_tikz(
@@ -474,9 +613,14 @@ class Framework(object):
         """
         Return the framework with a regular unit circle realization in the plane.
 
-        TODO
+        Examples
         ----
-        example
+        >>> import pyrigi.graphDB as graphs
+        >>> F = Framework.Circular(graphs.CompleteBipartite(4, 2))
+        >>> print(F)
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2, 3, 4, 5] and edges ...
+        Realization {0:(1, 0), 1:(1/2, sqrt(3)/2), ...
         """
         n = graph.number_of_nodes()
         return Framework(
@@ -493,9 +637,13 @@ class Framework(object):
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
-        TODO
-        ----
-        example
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> Framework.Collinear(graphs.Complete(3), d=2)
+        Framework in 2-dimensional space consisting of:
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
         check_integrality_and_range(d, "dimension d", 1)
         return Framework(
@@ -519,9 +667,14 @@ class Framework(object):
             of the ``graph`` minus one.
             If ``d`` is not specified, then the least possible one is used.
 
-        TODO
+        Examples
         ----
-        examples
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4);
+        >>> F.realization(as_points=True)
+        {0: [0, 0, 0, 0], 1: [1, 0, 0, 0], 2: [0, 1, 0, 0], 3: [0, 0, 1, 0]}
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]));
+        >>> F.realization(as_points=True)
+        {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
         if d is None:
             d = graph.number_of_nodes() - 1
@@ -774,9 +927,14 @@ class Framework(object):
         """
         Change the coordinates of a given list of vertices.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
+        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]);
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
         Notes
         -----
@@ -798,9 +956,18 @@ class Framework(object):
         """
         Change the coordinates of vertices given by a dictionary.
 
-        TODO
+        Examples
         ----
-        example
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
+        >>> F.set_vertex_positions({1:(0,1),3:(1,1)});
+        >>> F.realization(as_points=True)
+        {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
+
+        Notes
+        -----
+        See `~Framework.set_vertex_pos`.
         """
         for v, pos in subset_of_realization.items():
             self.set_vertex_pos(v, pos)
@@ -953,21 +1120,76 @@ class Framework(object):
         pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
         return pinned_rigidity_matrix
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Infinitesimal rigidity")
     def stress_matrix(
         self,
-        data: Any,
+        stress: Stress,
         edge_order: List[Edge] = None,
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
 
+        The matrix order is the one from :meth:`~.Framework.vertex_list`.
+
         Definitions
         -----
         * :prf:ref:`Stress Matrix <def-stress-matrix>`
 
+        Parameters
+        ----------
+        stress:
+            A stress of the framework.
+        edges_ordered:
+            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
+            or whether they should be internally sorted (``False``).
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
+        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
+        >>> F = Framework(G, pos)
+        >>> omega = [-8, -4, -4, 2, 2, 1]
+        >>> F.stress_matrix(omega)
+        Matrix([
+        [-16,  8,  4,  4],
+        [  8, -4, -2, -2],
+        [  4, -2, -1, -1],
+        [  4, -2, -1, -1]])
+
+        TODO
+        ----
+        Implement arbitrary ``vertex_order``.
+        Check that the input is indeed a stress.
+        Tests.
         """
-        raise NotImplementedError()
+        if edge_order is None:
+            edge_order = self._graph.edge_list()
+        else:
+            if not (
+                set([set(e) for e in self._graph.edges])
+                == set([set(e) for e in edge_order])
+                and len(edge_order) == self._graph.number_of_edges()
+            ):
+                raise ValueError(
+                    "edge_order must contain exactly the same edges as the graph!"
+                )
+        # creation of a zero |V|x|V| matrix
+        stress_matr = sp.zeros(len(self._graph))
+        vertex_list = self._graph.vertex_list()
+        for v in self._graph.nodes:
+            i = vertex_list.index(v)
+            for edge in edge_order:
+                if v in edge:
+                    stress_matr[i, i] += stress[edge_order.index(edge)]
+        for v, w in combinations(self._graph.nodes, 2):
+            i, j = vertex_list.index(v), vertex_list.index(w)
+            if [v, w] in edge_order or (v, w) in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index([v, w])]
+                stress_matr[j, i] = -stress[edge_order.index([v, w])]
+            elif [w, v] in edge_order or (w, v) in edge_order:
+                stress_matr[i, j] = -stress[edge_order.index([w, v])]
+                stress_matr[j, i] = -stress[edge_order.index([w, v])]
+        return stress_matr
 
     @doc_category("Infinitesimal rigidity")
     def trivial_inf_flexes(self) -> List[Matrix]:
@@ -980,7 +1202,8 @@ class Framework(object):
 
         TODO
         ----
-        more tests
+        more tests, in particular testing `trivial_inf_flexes`==
+        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Examples
         --------
@@ -1036,9 +1259,28 @@ class Framework(object):
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
 
+        Examples
+        ----
+        >>> import pyrigi.graphDB as graphs
+        >>> F = Framework.Circular(graphs.CompleteBipartite(3, 3))
+        >>> F.nontrivial_inf_flexes()
+        [Matrix([
+        [       3/2],
+        [-sqrt(3)/2],
+        [         1],
+        [         0],
+        [         0],
+        [         0],
+        [       3/2],
+        [-sqrt(3)/2],
+        [         1],
+        [         0],
+        [         0],
+        [         0]])]
+
         TODO
         ----
-        tests, example
+        tests
 
         Notes
         -----
@@ -1063,7 +1305,8 @@ class Framework(object):
 
         TODO
         ----
-        more tests
+        more tests, in particular testing `trivial_inf_flexes`==
+        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Definitions
         -----------
@@ -1106,19 +1349,51 @@ class Framework(object):
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
 
-    @doc_category("Waiting for implementation")
-    def stresses(self) -> Any:
-        r"""Return a basis of the space of stresses."""
-        raise NotImplementedError()
+    @doc_category("Infinitesimal rigidity")
+    def stresses(self) -> List[Matrix]:
+        r"""
+        Return a basis of the space of equilibrium stresses.
+
+        Definitions
+        -----------
+        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
+        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
+        >>> F = Framework(G, pos)
+        >>> F.stresses()
+        [Matrix([
+        [-8],
+        [-4],
+        [-4],
+        [ 2],
+        [ 2],
+        [ 1]])]
+
+        TODO
+        ----
+        tests
+        """
+        return self.rigidity_matrix().transpose().nullspace()
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
         """
         Compute the rank of the rigidity matrix.
 
-        TODO
+        Examples
         ----
-        example, tests
+        >>> K4 = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
+        >>> K4.rigidity_matrix_rank()   # the complete graph is a circuit
+        5
+        >>> K4.delete_edge([0,1])
+        >>> K4.rigidity_matrix_rank()   # deleting a bar gives full rank
+        5
+        >>> K4.delete_edge([2,3])
+        >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
+        4
         """
         return self.rigidity_matrix().rank()
 
@@ -1133,9 +1408,15 @@ class Framework(object):
         -----
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
 
-        TODO
+        Examples
         ----
-        example
+        >>> from pyrigi import frameworkDB
+        >>> F1 = frameworkDB.CompleteBipartite(4,4)
+        >>> F1.is_inf_rigid()
+        True
+        >>> F2 = frameworkDB.Cycle(4,d=2)
+        >>> F2.is_inf_rigid()
+        False
         """
         if self._graph.number_of_nodes() <= self._dim + 1:
             return self.rigidity_matrix_rank() == binomial(
@@ -1156,10 +1437,6 @@ class Framework(object):
         See :meth:`~Framework.is_inf_rigid`
         """
         return not self.is_inf_rigid()
-
-    @doc_category("Waiting for implementation")
-    def is_inf_spanning(self) -> bool:
-        raise NotImplementedError()
 
     @doc_category("Infinitesimal rigidity")
     def is_min_inf_rigid(self) -> bool:
@@ -1189,9 +1466,32 @@ class Framework(object):
             self.add_edge(edge)
         return True
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Infinitesimal rigidity")
     def is_independent(self) -> bool:
-        raise NotImplementedError()
+        """
+        Check whether the framework is :prf:ref:`independent <def-independent-framework>`.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
+        >>> F.is_independent()
+        False
+        >>> F.delete_edge((0,2))
+        >>> F.is_independent()
+        True
+        """
+        return self.rigidity_matrix_rank() == self._graph.number_of_edges()
+
+    @doc_category("Infinitesimal rigidity")
+    def is_dependent(self) -> bool:
+        """
+        Check whether the framework is :prf:ref:`dependent <def-independent-framework>`.
+
+        Notes
+        -----
+        See also :meth:`~.Framework.is_independent`.
+        """
+        return not self.is_independent()
 
     @doc_category("Waiting for implementation")
     def is_prestress_stable(self) -> bool:
@@ -1324,7 +1624,6 @@ class Framework(object):
             )
 
         for u, v in self._graph.edges:
-
             edge_vec = self._realization[u] - self._realization[v]
             dist_squared = (edge_vec.T * edge_vec)[0, 0]
 
@@ -1426,6 +1725,201 @@ class Framework(object):
         new_framework = deepcopy(self)
         new_framework.rotate2D(angle, True)
         return new_framework
+
+    @doc_category("Other")
+    def edge_lengths(self) -> dict[tuple[Edge, Edge], float]:
+        """
+        Return the edges and their lengths (numerically) of the framework.
+
+        The ordering is given by graph().edge_list() method.
+
+        TODO symbolic version of this method
+
+        Returns
+        -------
+        lengths
+            Dict of edges and their lengths in the framework.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> l_dict = F.edge_lengths()
+        """
+        from numpy import array as nparray
+        from numpy.linalg import norm as npnorm
+
+        points = self.realization(as_points=True)
+        lengths = {
+            tuple(pair): npnorm(
+                nparray(points[pair[0]], dtype="float64")
+                - nparray(points[pair[1]], dtype="float64")
+            )
+            for pair in self._graph.edges
+        }
+
+        return lengths
+
+    @staticmethod
+    def _generate_stl_bar(
+        holes_distance: float,
+        holes_diameter: float,
+        bar_width: float,
+        bar_height: float,
+        filename="bar.stl",
+    ):
+        """
+        Generate an STL file for a bar.
+
+        The method uses Trimesh and Manifold3d packages to create a model of a bar
+        with two holes at the ends. The bar is saved as an STL file.
+
+        Parameters
+        ----------
+        holes_distance : float
+            Distance between the centers of the holes.
+        holes_diameter : float
+            Diameter of the holes.
+        bar_width : float
+            Width of the bar.
+        bar_height : float
+            Height of the bar.
+        filename : str
+            Name of the output STL file.
+
+        Returns
+        -------
+        bar_mesh : trimesh.base.Trimesh
+            The bar as a Trimesh object.
+        """
+        try:
+            from trimesh.creation import box as trimesh_box
+            from trimesh.creation import cylinder as trimesh_cylinder
+        except ImportError:
+            raise ImportError(
+                "To create meshes of bars that can be exported as STL files, "
+                "the packages 'trimesh' and 'manifold3d' are required. "
+                "To install PyRigi including trimesh and manifold3d, "
+                "run 'pip install pyrigi[meshing]'"
+            )
+
+        if (
+            holes_distance <= 0
+            or holes_diameter <= 0
+            or bar_width <= 0
+            or bar_height <= 0
+        ):
+            raise ValueError("Use only positive values for the parameters.")
+
+        if bar_width <= holes_diameter:
+            raise ValueError("The bar width must be greater than the holes diameter.")
+
+        if holes_distance <= 2 * holes_diameter:
+            raise ValueError(
+                "The distance between the holes must be greater "
+                "than twice the holes diameter."
+            )
+
+        # Create the main bar as a box
+        bar = trimesh_box(extents=[holes_distance, bar_width, bar_height])
+
+        # Define the positions of the holes (relative to the center of the bar)
+        hole_position_1 = [-holes_distance / 2, 0, 0]
+        hole_position_2 = [holes_distance / 2, 0, 0]
+
+        # Create cylindrical shapes at the ends of the bar
+        rounding_1 = trimesh_cylinder(radius=bar_width / 2, height=bar_height)
+        rounding_1.apply_translation(hole_position_1)
+        rounding_2 = trimesh_cylinder(radius=bar_width / 2, height=bar_height)
+        rounding_2.apply_translation(hole_position_2)
+
+        # Use boolean union to combine the bar and the roundings
+        bar = bar.union([rounding_1, rounding_2])
+
+        # Create cylindrical holes
+        hole_1 = trimesh_cylinder(radius=holes_diameter / 2, height=bar_height)
+        hole_1.apply_translation(hole_position_1)
+        hole_2 = trimesh_cylinder(radius=holes_diameter / 2, height=bar_height)
+        hole_2.apply_translation(hole_position_2)
+
+        # Use boolean subtraction to create holes in the bar
+        bar_mesh = bar.difference([hole_1, hole_2])
+
+        # Export to STL
+        bar_mesh.export(filename)
+        return bar_mesh
+
+    @doc_category("Other")
+    def generate_stl_bars(
+        self,
+        scale: float = 1.0,
+        width_of_bars: float = 8.0,
+        height_of_bars: float = 3.0,
+        holes_diameter: float = 4.3,
+        filename_prefix: str = "bar_",
+        output_dir: str = "stl_output",
+    ) -> None:
+        """
+        Generate STL files for the bars of the framework.
+
+        Generates STL files for the bars of the framework. The files are generated
+        in the working folder. The naming convention for the files is ``bar_i-j.stl``,
+        where i and j are the vertices of an edge.
+
+        Parameters
+        ----------
+        scale
+            Scale factor for the lengths of the edges, default is 1.0.
+        width_of_bars
+            Width of the bars, default is 8.0 mm.
+        height_of_bars
+            Height of the bars, default is 3.0 mm.
+        holes_diameter
+            Diameter of the holes at the ends of the bars, default is 4.3 mm.
+        filename_prefix
+            Prefix for the filenames of the generated STL files, default is ``bar_``.
+        output_dir
+            Name or path of the folder where the STL files are saved,
+            default is ``stl_output``. Relative to the working directory.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+        >>> F.generate_stl_bars(scale=20)
+        STL files for the bars have been generated in the chosen folder.
+
+        """
+        from pathlib import Path as plPath
+
+        # Create the folder if it does not exist
+        folder_path = plPath(output_dir)
+        if not folder_path.exists():
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+        edges_with_lengths = self.edge_lengths()
+
+        for edge, length in edges_with_lengths.items():
+            scaled_length = length * scale
+            f_name = (
+                output_dir
+                + "/"
+                + filename_prefix
+                + str(edge[0])
+                + "-"
+                + str(edge[1])
+                + ".stl"
+            )
+
+            self._generate_stl_bar(
+                holes_distance=scaled_length,
+                holes_diameter=holes_diameter,
+                bar_width=width_of_bars,
+                bar_height=height_of_bars,
+                filename=f_name,
+            )
+
+        print("STL files for the bars have been generated in the chosen folder.")
 
 
 Framework.__doc__ = Framework.__doc__.replace(

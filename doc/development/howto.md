@@ -72,10 +72,17 @@ See the [installation instructions](https://python-poetry.org/docs/#installation
 
 To install the package dependencies including those needed for the development, run
 ```
-poetry install --no-root
+poetry install --no-root --all-extras
 ```
 in the root folder of PyRigi.
 Omitting `--no-root` installs also PyRigi itself, so it can be used system-wide.
+The option `--all-extras` specifies to install also all optional packages.
+To install a specific group of optional packages, use
+```
+poetry install --extras "extra_name"
+```
+These are documented in the [Installation Guide](#optional-packages).
+
 Poetry installs the dependencies and the package to a virtual environment.
 To activate this environment, run `poetry shell`.
 You can exit it with `exit` or `Ctrl+D`.
@@ -135,11 +142,21 @@ Moreover, please add a section `EXAMPLES` in the docstring of the classes and me
 Please keep in mind that whenever a pull request is opened, all the tests in the `test`folder and in the docstrings are run.
 Therefore, before opening a pull request we **strongly advise** to run
 ```
-pytest --doctest-modules
+pytest
 ```
 in the root folder of PyRigi (with poetry shell activated).
 The reason why the examples in the docstrings are tested is to make sure their outputs are valid,
 they do **not** replace the tests in the `test` folder.
+If you do not want to run doctests, run
+```
+pytest -p no:doctestplus
+```
+Functionalities requiring optional packages are tested by default;
+if you want to skip some specific optional feature, run
+```
+pytest -m "not optional_feature_name"
+```
+See the file `pyproject.toml` for the markers that specify groups of tests relying on optional packages.
 
 ## Documentation
 

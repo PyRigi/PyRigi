@@ -22,6 +22,7 @@ userguide/api
 :caption: Math
 math/rigidity
 math/graph_theory
+math/matroid_theory
 math/references
 :::
 
@@ -30,6 +31,7 @@ math/references
 :caption: Development guide
 development/howto
 development/cheatsheet
+development/contributors
 :::
 
 
