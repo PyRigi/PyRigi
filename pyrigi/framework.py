@@ -39,6 +39,7 @@ from pyrigi.misc import (
 from typing import Optional
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import FuncAnimation
 
 
 class Framework(object):
@@ -464,6 +465,93 @@ class Framework(object):
             )
         else:
             self.plot2D(**kwargs)
+
+    @doc_category("Other")
+    def plot3D_rotating(
+        self,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the framework and makes it rotate.
+
+        If the dimension of the framework is different from 3, ``ValueError`` is raised,
+
+        TODO
+        ----
+        Implement plotting in dimension 2 and better plotting for dimension 1
+        """
+        if self._dim != 3:
+            raise ValueError(
+                "The graph is in dimension {self._dim}, it must be in dim 3."
+            )
+
+        # Creation of the figure
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+
+        # Limits of the axes
+        a = 10 * self._graph.number_of_nodes() ** 2 * self._dim
+        abs_list = [list(abs(i)) for i in self.realization().values()]
+        abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
+        b = max(a, max(abs_list)) + 2
+        ax.set_xlim(-b, b)
+        ax.set_ylim(-b, b)
+        ax.set_zlim(-b, b)
+
+        vertices = np.array(
+            [
+                list(list(self.realization().values())[i])
+                for i in range(self._graph.number_of_nodes())
+            ]
+        )
+
+        # Initializing points (vertices) and lines (edges) for display
+        (vertices_plot,) = ax.plot([], [], [], "bo", markersize=10)
+        lines = [ax.plot([], [], [], "k-")[0] for _ in range(len(self._graph.edges))]
+
+        # Animation initialization function.
+        def init():
+            vertices_plot.set_data([], [])  # Initial coordinates of vertices
+            vertices_plot.set_3d_properties([])  # Initial 3D properties of the vertices
+            for line in lines:
+                line.set_data([], [])
+                line.set_3d_properties([])
+            return [vertices_plot] + lines
+
+        # Function to update data at each frame
+        def update(frame):
+            angle = frame * np.pi / 50
+            # Rotation of vertices around the z-axis
+            rotation_matrix = np.array(
+                [
+                    [np.cos(angle), -np.sin(angle), 0],
+                    [np.sin(angle), np.cos(angle), 0],
+                    [0, 0, 1],
+                ]
+            )
+
+            rotated_vertices = vertices.dot(rotation_matrix.T)
+
+            # Update vertices positions
+            vertices_plot.set_data(rotated_vertices[:, 0], rotated_vertices[:, 1])
+            vertices_plot.set_3d_properties(rotated_vertices[:, 2])
+
+            # Update the edges
+            for i, (start, end) in enumerate(self._graph.edges):
+                line = lines[i]
+                line.set_data(
+                    [rotated_vertices[start, 0], rotated_vertices[end, 0]],
+                    [rotated_vertices[start, 1], rotated_vertices[end, 1]],
+                )
+                line.set_3d_properties(
+                    [rotated_vertices[start, 2], rotated_vertices[end, 2]]
+                )
+
+            return [vertices_plot] + lines
+
+        # Creating the animation
+        ani = FuncAnimation(fig, update, frames=200, init_func=init, blit=True)
+        plt.show()
 
     @classmethod
     @doc_category("Class methods")
