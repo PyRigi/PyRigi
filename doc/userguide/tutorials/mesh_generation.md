@@ -33,8 +33,9 @@ F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
 F.plot()
 ```
 
-If the method {meth}`.Framework.generate_stl_bars` is called, it will generate bars 
-in the working directory in STL format. The naming scheme consists of the prefix `bar_` and the two indexes
+The method {meth}`.Framework.generate_stl_bars` generates bars 
+in the working directory in STL format.
+The naming scheme consists of the prefix `bar_` and the two indexes
 of the vertices of an edge. 
 
 Sometimes we wish to alter the design of the bars, especially scale them up or down, 
@@ -49,7 +50,7 @@ the design of the bars. The default values are:
 
 - `width_of_bars = 8` mm
 - `height_of_bars = 3` mm 
-- `holes_diameter 4.3` mm
+- `holes_diameter = 4.3` mm
 
 The 3D printed bars can be assembled as shown in the figure below. For the dimensions above,
 standard M4 screws and stop-nuts are suggested.
