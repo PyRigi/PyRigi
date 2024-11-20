@@ -1757,29 +1757,24 @@ class Framework(object):
         Generate STL files for the bars of the framework.
 
         Generates STL files for the bars of the framework. The files are generated
-        in the working folder. The naming convention for the files is "bar_i-j.stl",
+        in the working folder. The naming convention for the files is ``bar_i-j.stl``,
         where i and j are the vertices of an edge.
 
         Parameters
         ----------
         scale
             Scale factor for the lengths of the edges, default is 1.0.
-
         width_of_bars
             Width of the bars, default is 8.0 mm.
-
         height_of_bars
             Height of the bars, default is 3.0 mm.
-
         holes_diameter
             Diameter of the holes at the ends of the bars, default is 4.3 mm.
-
         filename_prefix
-            Prefix for the filenames of the generated STL files, default is "bar_".
-
+            Prefix for the filenames of the generated STL files, default is ``bar_``.
         output_dir
             Name or path of the folder where the STL files are saved,
-            default is "stl_output". Relative to the working directory.
+            default is ``stl_output``. Relative to the working directory.
 
         Examples
         --------
