@@ -536,7 +536,7 @@ def test_edge_lengths():
     }
 
     for edge, length in l_dict.items():
-        assert length == expected_result[edge]
+        assert abs(length - expected_result[edge]) < 1e-9
 
 
 def test__generate_stl_bar():
