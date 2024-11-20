@@ -1751,6 +1751,7 @@ class Framework(object):
         height_of_bars: float = 3.0,
         holes_diameter: float = 4.3,
         filename_prefix: str = "bar_",
+        folder_name: str = "stl_output",
     ) -> None:
         """
         Generate STL files for the bars of the framework.
@@ -1776,19 +1777,38 @@ class Framework(object):
         filename_prefix
             Prefix for the filenames of the generated STL files, default is "bar_".
 
+        folder_name
+            Name or path of the folder where the STL files are saved,
+            default is "stl_output". Relative to the working directory.
+
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
         >>> F.generate_stl_bars(scale=20)
-        STL files for the bars have been generated in the working folder.
+        STL files for the bars have been generated in the chosen folder.
 
         """
+        from pathlib import Path as plPath
+
+        # Create the folder if it does not exist
+        folder_path = plPath(folder_name)
+        if not folder_path.exists():
+            folder_path.mkdir(parents=True, exist_ok=True)
+
         edges_with_lengths = self.edge_lengths()
 
         for edge, length in edges_with_lengths.items():
             scaled_length = length * scale
-            f_name = filename_prefix + str(edge[0]) + "-" + str(edge[1]) + ".stl"
+            f_name = (
+                folder_name
+                + "/"
+                + filename_prefix
+                + str(edge[0])
+                + "-"
+                + str(edge[1])
+                + ".stl"
+            )
 
             self._generate_stl_bar(
                 holes_distance=scaled_length,
@@ -1798,7 +1818,7 @@ class Framework(object):
                 filename=f_name,
             )
 
-        print("STL files for the bars have been generated in the working folder.")
+        print("STL files for the bars have been generated in the chosen folder.")
 
 
 Framework.__doc__ = Framework.__doc__.replace(
