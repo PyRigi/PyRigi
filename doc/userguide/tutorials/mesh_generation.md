@@ -17,8 +17,9 @@ kernelspec:
 
 This notebook can be downloaded {download}`here <../../notebooks/mesh_generation.ipynb>`.
 
+For the following, the package has to be installed using `pip install pyrigi[meshing]`.
+
 ```{code-cell} ipython3
-# The import will work if the package was installed using `pip install pyrigi[meshing]
 from pyrigi import Graph, Framework
 ```
 
