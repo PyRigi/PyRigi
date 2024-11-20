@@ -448,7 +448,7 @@ class Framework(object):
         default_styles: bool = True,
     ) -> str:
         r"""
-        Create a tikz code for the graph.
+        Create a tikz code for the framework.
 
         For using it in ``LaTeX`` you need to use the ``tikz`` package.
 
@@ -459,19 +459,19 @@ class Framework(object):
             then all vertices get this style.
             If a dictionary from styles to a list of vertices is given,
             vertices are put in style accordingly.
-            The vertices missing in the dictionary, do not get a style.
+            The vertices missing in the dictionary do not get a style.
         edge_style:
             If a single style is given as a string,
             then all edges get this style.
             If a dictionary from styles to a list of edges is given,
             edges are put in style accordingly.
-            The edges missing in the dictionary, do not get a style.
+            The edges missing in the dictionary do not get a style.
         label_style:
             The style for labels that are placed next to vertices.
         figure_opts:
-            Options for the tikztpicture environment.
+            Options for the tikzpicture environment.
         vertex_in_labels
-            A bool on whether vertex names should be put as labesl on the vertices.
+            A bool on whether vertex names should be put as labels on the vertices.
         vertex_out_labels
             A bool on whether vertex names should be put next to vertices.
         default_styles

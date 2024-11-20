@@ -19,7 +19,7 @@ from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
 
-__doctest_requires__ = {('Graph.number_of_realizations', ): ['lnumber']}
+__doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
 
 class Graph(nx.Graph):
@@ -2212,19 +2212,19 @@ class Graph(nx.Graph):
             then all vertices get this style.
             If a dictionary from styles to a list of vertices is given,
             vertices are put in style accordingly.
-            The vertices missing in the dictionary, do not get a style.
+            The vertices missing in the dictionary do not get a style.
         edge_style:
             If a single style is given as a string,
             then all edges get this style.
             If a dictionary from styles to a list of edges is given,
             edges are put in style accordingly.
-            The edges missing in the dictionary, do not get a style.
+            The edges missing in the dictionary do not get a style.
         label_style:
             The style for labels that are placed next to vertices.
         figure_opts:
-            Options for the tikztpicture environment.
+            Options for the tikzpicture environment.
         vertex_in_labels
-            A bool on whether vertex names should be put as labesl on the vertices.
+            A bool on whether vertex names should be put as labels on the vertices.
         vertex_out_labels
             A bool on whether vertex names should be put next to vertices.
         default_styles
@@ -2297,8 +2297,6 @@ class Graph(nx.Graph):
             \draw[green edge] (2) to (3) (0) to (1);
             \draw[] (3) to (0);
         \end{tikzpicture}
-
-
         """  # noqa: E501
 
         # strings for tikz styles
