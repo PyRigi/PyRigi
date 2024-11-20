@@ -550,7 +550,7 @@ class Framework(object):
             return [vertices_plot] + lines
 
         # Creating the animation
-        ani = FuncAnimation(fig, update, frames=200, init_func=init, blit=True)
+        ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
         plt.show()
 
     @classmethod
