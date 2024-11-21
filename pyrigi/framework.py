@@ -24,7 +24,15 @@ import sympy as sp
 from sympy import Matrix, flatten, binomial
 import numpy as np
 
-from pyrigi.data_type import Vertex, Edge, Point, Stress, point_to_vector
+from pyrigi.data_type import (
+    Vertex,
+    Edge,
+    Point,
+    Stress,
+    point_to_vector,
+    Sequence,
+    Coordinate,
+)
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -274,6 +282,7 @@ class Framework(object):
     def _plot_with_2D_realization(
         self,
         realization: dict[Vertex, Point],
+        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -287,12 +296,16 @@ class Framework(object):
         ----------
         realization:
             The realization in the plane used for plotting.
+        inf_flex:
+            Optional parameter for plotting an infinitesimal flex. We expect
+            it to have the same format as `realization`: `dict[Vertex, Point]`.
         """
 
         self._graph.plot(
             placement=realization,
             vertex_color=vertex_color,
             edge_width=edge_width,
+            inf_flex=inf_flex,
             **kwargs,
         )
 
@@ -324,9 +337,10 @@ class Framework(object):
         self._plot_with_2D_realization(placement, **kwargs)
 
     @doc_category("Other")
-    def plot2D(
+    def plot2D(  # noqa: C901
         self,
         coordinates: Union[tuple, list] = None,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -355,9 +369,47 @@ class Framework(object):
             When the same value is provided, the framework will plot exactly same.
         coordinates:
             Indexes of two coordinates that will be used as the placement in 2D.
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
+
+        TODO
+        -----
+        project the inf-flex as well in `_plot_using_projection_matrix`.
         """
+        inf_flex_pointwise = None
+        if inf_flex is not None:
+            if isinstance(inf_flex, int) and inf_flex >= 0:
+                inf_flex_basis = self.nontrivial_inf_flexes()
+                if inf_flex >= len(inf_flex_basis):
+                    raise IndexError(
+                        "The value of inf_flex exceeds "
+                        + "the dimension of the space "
+                        + "of infinitesimal flexes."
+                    )
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
+                    inf_flex_basis[inf_flex]
+                )
+            elif isinstance(inf_flex, Matrix):
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
+            elif isinstance(inf_flex, dict) and all(
+                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+            ):
+                inf_flex_pointwise = inf_flex
+            else:
+                raise TypeError("inf_flex does not have the correct Type.")
+
+            if not self.is_dict_inf_flex(inf_flex_pointwise):
+                raise ValueError(
+                    "The provided `inf_flex` is not an infinitesimal flex."
+                )
 
         if self._dim == 1:
             placement = {}
@@ -366,12 +418,20 @@ class Framework(object):
             ).items():
                 placement[vertex] = np.append(np.array(position), 0)
 
-            self._plot_with_2D_realization(placement, **kwargs)
+            if inf_flex_pointwise is not None:
+                inf_flex_pointwise = {
+                    v: (flex_v[0], 0) for v, flex_v in inf_flex_pointwise.items()
+                }
+            self._plot_with_2D_realization(
+                placement, inf_flex=inf_flex_pointwise, **kwargs
+            )
             return
 
         if self._dim == 2:
             placement = self.realization(as_points=True, numerical=True)
-            self._plot_with_2D_realization(placement, **kwargs)
+            self._plot_with_2D_realization(
+                placement, inf_flex=inf_flex_pointwise, **kwargs
+            )
             return
 
         # dim > 2 -> use projection to 2D
@@ -425,7 +485,8 @@ class Framework(object):
 
         TODO
         ----
-        Implement plotting in dimension 3 and better plotting for dimension 1
+        Implement plotting in dimension 3 and
+        better plotting for dimension 1 using ``connectionstyle``
         """
 
         if self._dim > 2:
@@ -1209,7 +1270,7 @@ class Framework(object):
         Parameters
         ----------
         include_trivial:
-            Boolean that decides, whether the trivial motions should
+            Boolean that decides, whether the trivial flexes should
             be included (``True``) or not (``False``)
 
         Examples
@@ -1814,6 +1875,115 @@ class Framework(object):
             )
 
         print("STL files for the bars have been generated in the chosen folder.")
+
+    @doc_category("Other")
+    def _transform_inf_flex_to_pointwise(  # noqa: C901
+        self, flex: Matrix, vertex_order: List[Vertex] = None
+    ) -> dict[Vertex, Sequence[Coordinate]]:
+        r"""
+        Transform the natural data type of a flex (Matrix) to a
+        dictionary that maps a vertex to a Sequence of coordinates
+        (i.e. a vector).
+
+        Notes
+        ----
+        For example, this method can be used for generating an
+        infinitesimal flex for plotting purposes.
+
+        Examples
+        ----
+        >>> F = Framework.from_points([(0,0), (1,0), (0,1)])
+        >>> F.add_edges([(0,1),(0,2)])
+        >>> flex = F.nontrivial_inf_flexes()[0]
+        >>> F._transform_inf_flex_to_pointwise(flex)
+        {0: [1, 0], 1: [1, 0], 2: [0, 0]}
+
+        """
+        if vertex_order is None:
+            vertex_order = self._graph.vertex_list()
+        else:
+            if not set(self._graph.nodes) == set(vertex_order):
+                raise ValueError(
+                    "vertex_order must contain "
+                    + "exactly the same vertices as the graph!"
+                )
+        return {
+            vertex_order[i]: [flex[i * self.dim() + j] for j in range(self.dim())]
+            for i in range(len(vertex_order))
+        }
+
+    def is_vector_inf_flex(
+        self, vect: Matrix, vertex_order: List[Vertex] = None
+    ) -> bool:
+        """
+        Return whether a vector is an infinitesimal flex of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Infinitesimal flex <def-inf-flex>`
+
+        Parameters
+        ----------
+        vect:
+        vertex_order:
+            If ``None``, the :meth:`.Graph.vertex_list`
+            is taken as the vertex order.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,1]])
+        >>> F.is_vector_inf_flex([0,0,-1,1])
+        True
+        >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)", 0, 0], vertex_order=[1,0])
+        True
+        """
+        vect_as_dict = self._transform_inf_flex_to_pointwise(
+            vect, vertex_order=vertex_order
+        )
+        return self.is_dict_inf_flex(vect_as_dict)
+
+    def is_dict_inf_flex(
+        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]]
+    ) -> bool:
+        """
+        Return whether a dictionary specifies an infinitesimal flex of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Infinitesimal flex <def-inf-flex>`
+
+        Parameters
+        ----------
+        vert_to_flex:
+            Dictionary that maps the vertex labels to
+            vectors of the same dimension as the framework is.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,1]])
+        >>> F.is_dict_inf_flex({0:[0,0], 1:[-1,1]})
+        True
+        >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
+        True
+        """
+        vert_to_matrix = {}
+        for v in self._graph.nodes:
+            if v not in vert_to_flex:
+                raise ValueError(
+                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
+                )
+            vert_to_matrix[v] = Matrix(vert_to_flex[v])
+
+        if len(vert_to_flex) != self._graph.number_of_nodes():
+            raise ValueError("The keys in `vert_to_flex` have to match the vertex set.")
+
+        for u, v in self._graph.edges:
+            if (
+                (vert_to_matrix[u] - vert_to_matrix[v]).transpose()
+                * (self[u] - self[v])
+            )[0, 0] != 0:
+                return False
+        return True
 
 
 Framework.__doc__ = Framework.__doc__.replace(

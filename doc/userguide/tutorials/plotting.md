@@ -179,3 +179,42 @@ F.plot(vertex_labels=False,
        edge_color={"pink" : [[0,1],[3,6]], "lightgreen" : [[2,3],[3,5]]}
       )
 ```
+
+## Infinitesimal Flexes
+
+It is possible to include infinitesimal flexes in the plot. With the keyword
+`inf_flex=n`, we can pick the `n`-th nontrivial infinitesimal flex from
+a basis of the rigidity matrix's kernel. There are several keywords that allow
+us to alter the style of the drawn arrows.
+
+```{code-cell} ipython3
+G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
+p = {0: [6, 8], 1: [6, -14], 2: [0, 0], 3: [-4, 4], 4: [-4, -4]}
+F = Framework(G, p)
+F.plot(inf_flex=0,
+      flex_width=4,
+      flex_length=0.25,
+      flex_color="darkgrey",
+      flex_style="-",
+      flex_arrowsize=15
+)
+```
+
+It is also possible to provide a specific infinitesimal flex with the
+following chain of commands:
+
+```{code-cell} ipython3
+F = frameworks.ThreePrism(realization="flexible")
+flex = F.nontrivial_inf_flexes()[0]
+F.plot(inf_flex=flex)
+```
+
+It is important to use the same order of the vertices of `F` as {meth}`.Graph.vertex_list` when
+providing the infinitesimal flex as a `Matrix`. To circumvent that,
+we also support adding an infinitesimal flex as a `dict[Vertex, Vector]`:
+
+```{code-cell} ipython3
+F = frameworks.Square()
+flex = {0: (1, -1), 1: (1, 1), 2: (-1, 1), 3: (-1, -1)}
+F.plot(inf_flex=flex)
+```
