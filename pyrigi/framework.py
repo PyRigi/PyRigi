@@ -490,10 +490,9 @@ class Framework(object):
         ax = fig.add_subplot(111, projection="3d")
 
         # Limits of the axes
-        a = 10 * self._graph.number_of_nodes() ** 2 * self._dim
-        abs_list = [list(abs(i)) for i in self.realization().values()]
+        abs_list = [list(abs(i)) for i in self._realization.values()]
         abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
-        b = max(a, max(abs_list)) + 2
+        b = float(max(abs_list) * 1.2)
         ax.set_xlim(-b, b)
         ax.set_ylim(-b, b)
         ax.set_zlim(-b, b)
