@@ -1664,11 +1664,11 @@ class Graph(nx.Graph):
          * dim>=3: Randomized Rigidity Matrix => Stress (symbolic maybe?)
         By default, the graph is in dimension 2.
         A complete graph is automatically globally rigid
-        
-        Since the deterministic algorithm is not very efficient, in the code we use a 
-        polynomial-time randomize algorithm, which will answer "False" all the time if 
+
+        Since the deterministic algorithm is not very efficient, in the code we use a
+        polynomial-time randomize algorithm, which will answer "False" all the time if
         the graph is not generically globally rigid in $\mathbb{R}^d$, and it will answer
-        "True" at least half the time if the graph is generically globally rigid in 
+        "True" at least half the time if the graph is generically globally rigid in
         $\mathbb{R}^d$.
 
         """  # noqa: E501
