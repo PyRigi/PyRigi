@@ -574,6 +574,7 @@ def test_edge_lengths():
         assert abs(length - expected_result[edge]) < 1e-9
 
 
+@pytest.mark.meshing
 def test__generate_stl_bar():
     mesh = Framework._generate_stl_bar(30, 4, 10, 5)
     assert mesh is not None
@@ -589,6 +590,7 @@ def test__generate_stl_bar():
         Framework._generate_stl_bar(6, 4, 10, 5)
 
 
+@pytest.mark.meshing
 def test_generate_stl_bars():
     gr = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
     fr = Framework(
