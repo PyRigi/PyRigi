@@ -68,7 +68,7 @@ except ValueError as e:
 {func}`~.frameworkDB.CompleteBipartite` returns 2-dimensional complete bipartite frameworks.
 
 ```{code-cell} ipython3
-K34 = frameworks.CompleteBipartite(3,3)
+K34 = frameworks.CompleteBipartite(3, 3)
 K34.plot()
 K34.is_inf_rigid()
 ```
@@ -76,7 +76,7 @@ K34.is_inf_rigid()
 The first construction of a flexible realization by Dixon places one part on the $x$-axis and the other part on the $y$-axis.
 
 ```{code-cell} ipython3
-K34_dixonI = frameworks.CompleteBipartite(3,3,'dixonI')
+K34_dixonI = frameworks.CompleteBipartite(3, 3, 'dixonI')
 K34_dixonI.plot()
 K34_dixonI.is_inf_flexible()
 ```
@@ -95,11 +95,11 @@ C5.plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.Cycle(5,d=1)
+frameworks.Cycle(5, d=1)
 ```
 
 ```{code-cell} ipython3
-frameworks.Cycle(5,d=4)
+frameworks.Cycle(5, d=4)
 ```
 
 ## Path frameworks
@@ -116,11 +116,11 @@ P5.plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.Path(5,d=1)
+frameworks.Path(5, d=1)
 ```
 
 ```{code-cell} ipython3
-frameworks.Path(5,d=4)
+frameworks.Path(5, d=4)
 ```
 
 ## 3-prism
