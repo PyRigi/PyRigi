@@ -20,7 +20,7 @@ from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
 
-__doctest_requires__ = {('Graph.number_of_realizations', ): ['lnumber']}
+__doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
 
 class Graph(nx.Graph):
@@ -1687,7 +1687,7 @@ class Graph(nx.Graph):
             v = self.number_of_nodes()
             e = self.number_of_edges()
             t = v * dim - math.comb(dim + 1, 2)  # rank of the rigidity matrix
-            N = 2 * v * math.comb(v, 2) + 1
+            N = 2 * v * math.comb(v, 2) + 2
             if v < dim + 2:
                 return self.is_isomorphic(nx.complete_graph(v))
             elif self.is_isomorphic(nx.complete_graph(v)):
@@ -1704,11 +1704,12 @@ class Graph(nx.Graph):
                 return F.stress_matrix(omega).rank() == v - dim - 1
             elif w:
                 omega = w[0]
+                for i in range(len(w)):
+                    omega += randint(1, N) * w[i]
                 return F.stress_matrix(omega).rank() == v - dim - 1
             else:
                 raise ValueError(
-                    "There must be an error somewhere in the code/algorithm(?) since "
-                    + "there must be at least one stress."
+                    "There must be at least one stress but none was found."
                 )
 
     @doc_category("Partially implemented")

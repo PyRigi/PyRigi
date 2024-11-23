@@ -5,6 +5,8 @@ from pyrigi.exception import LoopError
 import pytest
 from sympy import Matrix
 import math
+import networkx as nx
+from random import randint
 
 
 def test_add():
@@ -258,6 +260,130 @@ def test_not_min_rigid_in_d2(graph):
 )
 def test_globally_rigid_in_d2(graph):
     assert graph.is_globally_rigid(dim=2)
+
+
+def read_from_globally_rigid6(filename):
+    file_ = nx.read_graph6(filename)
+    if type(file_) == list:
+        return Graph(file_[randint(0, len(file_) - 1)])
+    else:
+        return Graph(file_)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V4.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V5.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V6.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V7.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V8.g6"
+        ),
+    ],
+)
+def test_globally_rigid_in_d3(graph):
+    assert graph.is_globally_rigid(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V5.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V6.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V7.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V8.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V9.g6"
+        ),
+    ],
+)
+def test_globally_rigid_in_d4(graph):
+    assert graph.is_globally_rigid(dim=4)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD6/GloballyRigidGraphsD6V7.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD6/GloballyRigidGraphsD6V8.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD6/GloballyRigidGraphsD6V9.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD6/GloballyRigidGraphsD6V10.g6"
+        ),
+    ],
+)
+def test_globally_rigid_in_d6(graph):
+    assert graph.is_globally_rigid(dim=6)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(3),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD10/GloballyRigidGraphsD10V11.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD10/GloballyRigidGraphsD10V12.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD10/GloballyRigidGraphsD10V13.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD10/GloballyRigidGraphsD10V14.g6"
+        ),
+    ],
+)
+def test_globally_rigid_in_d10(graph):
+    assert graph.is_globally_rigid(dim=10)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD19/GloballyRigidGraphsD19V20.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD19/GloballyRigidGraphsD19V21.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD19/GloballyRigidGraphsD19V22.g6"
+        ),
+        read_from_globally_rigid6(
+            "test/input_graphs/GloballyRigidGraphsD19/GloballyRigidGraphsD19V23.g6"
+        ),
+    ],
+)
+def test_globally_rigid_in_d19(graph):
+    assert graph.is_globally_rigid(dim=19)
 
 
 @pytest.mark.parametrize(
