@@ -1703,9 +1703,7 @@ class Graph(nx.Graph):
                 omega = zeros(F.rigidity_matrix().rows, 1)
                 return F.stress_matrix(omega).rank() == v - dim - 1
             elif w:
-                omega = w[0]
-                for i in range(len(w)):
-                    omega += randint(1, N) * w[i]
+                omega = sum([randint(1, N) * u for u in w], w[0])
                 return F.stress_matrix(omega).rank() == v - dim - 1
             else:
                 raise ValueError(
