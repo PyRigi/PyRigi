@@ -264,7 +264,7 @@ def test_globally_rigid_in_d2(graph):
 
 def read_from_globally_rigid6(filename):
     file_ = nx.read_graph6(filename)
-    if type(file_) == list:
+    if isinstance(file_, list):
         return Graph(file_[randint(0, len(file_) - 1)])
     else:
         return Graph(file_)
