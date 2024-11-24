@@ -33,10 +33,10 @@ Let $G$ be a $6$-connected {prf:ref}`2-rigid <def-gen-rigid>` graph. Then $G$ is
 :label: def-stress-kernel
 
 Let $G$ be a graph, if $\Omega$ is an {prf:ref}`equilibrium stress matrix <def-stress-matrix>`, 
-its kernel is called _stress kernel_;we denote it by $K(\Omega)$ and its dimension by $k(\Omega)$.
+its kernel is called _stress kernel_; we denote it by $K(\Omega)$ and its dimension by $k(\Omega)$.
 We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges over all 
 {prf:ref}`equilibrium stress matrices <def-stress-matrix>` of all 
-{prf:ref}`generic frameworks <def-gen-realization>` of $G$.
+{prf:ref}`generic $d$-dimensional frameworks <def-gen-realization>` of $G$.
 
 {{references}} {cite:p}`Gortler2010`
 :::
@@ -53,7 +53,7 @@ it holds $k_{min}(G,d) \geq d+1$.
 :::{prf:definition}
 :label: def-has-min-stress-kernel
 
-A graph $G$ _has a minimal {prf:ref}`stress kernel <def-stress-kernel>` in $\mathbb{R}^d$_ 
+A graph $G$ has a _minimal {prf:ref}`stress kernel <def-stress-kernel>` in $\mathbb{R}^d$_ 
 if $k_{min}(G,d) = d+1$.
 
 {{references}} {cite:p}`Gortler2010`
@@ -78,23 +78,23 @@ in $\mathbb{R}^d$, then any {prf:ref}`generic framework <def-gen-realization>` $
 
 {{references}} {cite:p}`Gortler2010`
 :::
-The method {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid` uses the following randomized algorith:
+The method {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid` uses the following randomized algorithm:
 
-Set $dim =$ dimension of the graph, $v =$ number of verteces, $e =$ number of edges, 
-$t = v\cdot dim - \binom{dim+1}{2}$ and $N = 2\cdot v\cdot \binom{v}{2} +2$.
-To check if a graph with at least $d + 2$ vertices is generically globally rigid in $RR^d$, 
-proceed as follows. First, if $e < t$, output 'False' 
-(as the graph cannot even be generically locally rigid with so few edges), otherwise continue.
-Next, pick a framework with integer coordinates randomly chosen from 1 to $N$.
-The next step is to pick one equilibrium stress vector in a suitably random
-way.(If $e = t$, there are no stresses, so we consider the zero vector.) 
-Then consider the corresponding equilibrium stress matrix and compute its rank. 
-If the rank is $v-dim-1$, return 'True', otherwise return 'False' .
+Let $d$ be the dimension for which we want to test whether the graph is globally $d$-rigid, 
+$v$ be the number of vertices, $e$ be the number of edges, 
+$t = v\cdot dim - \binom{dim+1}{2}$ and $N = 10000\cdot v\cdot \binom{v}{2} +2$.
+To check if a graph with at least $d + 2$ vertices is generically globally rigid in $\RR^d$, 
+proceed as follows:
+* If $e < t$, output `False` (as the graph cannot even be generically locally rigid with so few edges), otherwise continue.
+* Pick a framework with integer coordinates randomly chosen from 1 to $N$.
+* Pick one equilibrium stress vector in a suitably random way.(If $e = t$, there are no stresses, so we consider the zero vector.) 
+* Consider the corresponding equilibrium stress matrix and compute its rank. 
+* If the rank is $v-dim-1$, return `True`, otherwise return `False` .
 
 :::{prf:theorem}
 :label: thm-globally-randomize-algorithm
 
-The randomize algorithm for checking global rigidity never returns a false "True" answer, 
+The randomized algorithm for checking global rigidity never returns a false "True" answer, 
 and returns a false "False" answer with probability bounded above by $ve/N$, where $v$ is the
 number of vertices, $e$ is the number of edges and $N$ is an arbitrarily large integer. 
 In this case, we chose $N = 2\cdot ve + 2$ so that the probability of getting a false "False"

@@ -1631,27 +1631,33 @@ class Graph(nx.Graph):
             )
 
     @doc_category("Generic rigidity")
-    def is_globally_rigid(self, dim: int = 2) -> bool:
+    def is_globally_rigid(self, dim: int = 2, prob: float = 0.0001) -> bool:
         """
         Check whether the graph is :prf:ref:`globally dim-rigid
         <def-globally-rigid-graph>`.
+
+        Parameters
+        ----------
+        dim: dimension d for which we test whether the graph is globally $d$-rigid
+        prob: probability of getting a wrong `False` answer
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,0)])
         >>> G.is_globally_rigid()
         True
-        >>> J = Graph([[0,1],[0,2],[1,2],[3,4],[4,5],[5,3],[2,5],[0,3],[1,4]])
+        >>> import pyrigi.graphDB as graphs
+        >>> J = graphs.ThreePrism()
         >>> J.is_globally_rigid(dim=3)
         False
         >>> J.is_globally_rigid()
         False
-        >>> K = Graph([[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
+        >>> K = graphs.Complete(6)
         >>> K.is_globally_rigid()
         True
         >>> K.is_globally_rigid(dim=3)
         True
-        >>> C = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> C = graphs.CompleteMinusOne(5)
         >>> C.is_globally_rigid()
         True
         >>> C.is_globally_rigid(dim=3)
@@ -1667,10 +1673,9 @@ class Graph(nx.Graph):
 
         Since the deterministic algorithm is not very efficient, in the code we use a
         polynomial-time randomize algorithm, which will answer "False" all the time if
-        the graph is not generically globally rigid in $\mathbb{R}^d$, and it will answer
-        "True" at least half the time if the graph is generically globally rigid in
-        $\mathbb{R}^d$.
-
+        the graph is not generically globally rigid in $\mathbb{R}^d$, and it will
+        give a wrong answer "False" with probability less than `prob`, which is 0.0001
+        by default.
         """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1697,7 +1702,7 @@ class Graph(nx.Graph):
             v = self.number_of_nodes()
             e = self.number_of_edges()
             t = v * dim - math.comb(dim + 1, 2)  # rank of the rigidity matrix
-            N = 2 * v * math.comb(v, 2) + 2
+            N = int(1 / prob) * v * math.comb(v, 2) + 2
             if v < dim + 2:
                 return self.is_isomorphic(nx.complete_graph(v))
             elif self.is_isomorphic(nx.complete_graph(v)):
