@@ -82,14 +82,14 @@ The method {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid` uses the follow
 
 Let $d$ be the dimension for which we want to test whether the graph is globally $d$-rigid, 
 $v$ be the number of vertices, $e$ be the number of edges, 
-$t = v\cdot dim - \binom{dim+1}{2}$ and $N = 10000\cdot v\cdot \binom{v}{2} +2$.
+$t = v\cdot d - \binom{d+1}{2}$ and $N = 10000\cdot v\cdot \binom{v}{2} +2$.
 To check if a graph with at least $d + 2$ vertices is generically globally rigid in $\RR^d$, 
 proceed as follows:
 * If $e < t$, output `False` (as the graph cannot even be generically locally rigid with so few edges), otherwise continue.
 * Pick a framework with integer coordinates randomly chosen from 1 to $N$.
-* Pick one equilibrium stress vector in a suitably random way.(If $e = t$, there are no stresses, so we consider the zero vector.) 
+* Pick one equilibrium stress vector in a suitably random way. (If $e = t$, there are no stresses, so we consider the zero vector.) 
 * Consider the corresponding equilibrium stress matrix and compute its rank. 
-* If the rank is $v-dim-1$, return `True`, otherwise return `False` .
+* If the rank is $v-d-1$, return `True`, otherwise return `False` .
 
 :::{prf:theorem}
 :label: thm-globally-randomize-algorithm
