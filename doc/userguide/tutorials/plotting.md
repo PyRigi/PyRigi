@@ -33,7 +33,7 @@ G.plot()
 ```
 
 ```{code-cell} ipython3
-F = Framework(G, {0:(0,0), 1:(1,1), 2:(3,1), 3:(2,0)})
+F = Framework(G, {0: (0,0), 1: (1,1), 2: (3,1), 3: (2,0)})
 F.plot()
 ```
 
@@ -90,8 +90,8 @@ Vertex color/size or label color/size can be changed.
 ```{code-cell} ipython3
 G = Graph([[0,1]])
 formatting = {
-    "placement" : {0:[0,0], 1:[1,0]},
-    "canvas_height" : 1,
+    "placement": {0: [0,0], 1: [1,0]},
+    "canvas_height": 1,
 }
 G.plot(vertex_labels=False, vertex_color='green', **formatting)
 G.plot(vertex_size=1500, font_size=30, font_color='#FFFFFF', **formatting)
@@ -120,9 +120,9 @@ The color of all edges can be changed.
 ```{code-cell} ipython3
 P = graphs.Path(6)
 formatting = {
-    "placement" : {v:[v,0] for v in P.vertex_list()},
-    "canvas_height" : 2,
-    "edge_width" : 5,
+    "placement": {v: [v, 0] for v in P.vertex_list()},
+    "canvas_height": 2,
+    "edge_width": 5,
 }
 P.plot(edge_color='red', **formatting)
 ```
@@ -130,33 +130,37 @@ P.plot(edge_color='red', **formatting)
 If a partition of the edges is specified, then each part is colored differently.
 
 ```{code-cell} ipython3
-P.plot(edge_color=[[[0,1],[2,3]], [[1,2]], [[5,4],[4,3]]], **formatting)
+P.plot(edge_color=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]], **formatting)
 ```
 
 If the partition is incomplete, the missing edges are black.
 
 ```{code-cell} ipython3
-P.plot(edge_color=[[[0,1],[2,3]], [[5,4],[4,3]]], **formatting)
+P.plot(edge_color=[[[0, 1], [2, 3]], [[5, 4], [4, 3]]], **formatting)
 ```
 
 Visually distinct colors are generated using the package [`distinctipy`](https://pypi.org/project/distinctipy/).
 
 ```{code-cell} ipython3
 P30 = graphs.Path(30)
-P30.plot(vertex_size=15,
-        vertex_labels=False,
-        edge_color=[[e] for e in P30.edge_list()],
-        edge_width=3
-       )
+P30.plot(
+    vertex_size=15,
+    vertex_labels=False,
+    edge_color=[[e] for e in P30.edge_list()],
+    edge_width=3
+)
 ```
 
 Another possibility is to provide a dictionary assigning to a color a list of edges. Missing edges are again black.
 
 ```{code-cell} ipython3
-P.plot(edge_color={
-    "yellow" : [[0,1],[2,3]],
-    "#ABCDEF": [[5,4],[4,3]]},
-       **formatting)
+P.plot(
+    edge_color={
+        "yellow": [[0, 1], [2, 3]],
+        "#ABCDEF": [[5, 4], [4, 3]]
+    },
+    **formatting
+)
 ```
 
 ## Framework plotting
@@ -172,12 +176,13 @@ The same formatting options as for graphs are available for frameworks.
 
 ```{code-cell} ipython3
 F = frameworks.Complete(9)
-F.plot(vertex_labels=False,
-       vertex_color='#A2B4C6',
-       edge_style='dashed',
-       edge_width=2,
-       edge_color={"pink" : [[0,1],[3,6]], "lightgreen" : [[2,3],[3,5]]}
-      )
+F.plot(
+    vertex_labels=False,
+    vertex_color='#A2B4C6',
+    edge_style='dashed',
+    edge_width=2,
+    edge_color={"pink": [[0,1],[3,6]], "lightgreen": [[2, 3], [3, 5]]}
+)
 ```
 
 ## Infinitesimal Flexes
@@ -191,12 +196,13 @@ us to alter the style of the drawn arrows.
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
 p = {0: [6, 8], 1: [6, -14], 2: [0, 0], 3: [-4, 4], 4: [-4, -4]}
 F = Framework(G, p)
-F.plot(inf_flex=0,
-      flex_width=4,
-      flex_length=0.25,
-      flex_color="darkgrey",
-      flex_style="-",
-      flex_arrowsize=15
+F.plot(
+    inf_flex=0,
+    flex_width=4,
+    flex_length=0.25,
+    flex_color="darkgrey",
+    flex_style="-",
+    flex_arrowsize=15
 )
 ```
 
