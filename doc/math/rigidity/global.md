@@ -35,14 +35,14 @@ Let $G$ be a $6$-connected {prf:ref}`2-rigid <def-gen-rigid>` graph. Then $G$ is
 Let $G$ be a graph, if $\Omega$ is an {prf:ref}`equilibrium stress matrix <def-stress-matrix>`, 
 its kernel is called _stress kernel_;we denote it by $K(\Omega)$ and its dimension by $k(\Omega)$.
 We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges over all 
-{prf:ref}`equilibrium stress matrices <def-stress-matrix>` of all generic 
-{prf:ref}`frameworks <def-gen-realization>` in $C^d(G)$, the space of frameworks.
+{prf:ref}`equilibrium stress matrices <def-stress-matrix>` of all 
+{prf:ref}`generic frameworks <def-gen-realization>` of $G$.
 
 {{references}} {cite:p}`Gortler2010`
 :::
 
 :::{prf:lemma}
-:label: lem-k-min
+:label: lem-k-min-stress-matrix
 
 For {prf:ref}`frameworks <def-framework>` of a graph $G$ with at least $d+1$ vertices, 
 it holds $k_{min}(G,d) \geq d+1$.
@@ -60,10 +60,10 @@ if $k_{min}(G,d) = d+1$.
 :::
 
 :::{prf:theorem}
-:label: thm-k-min
+:label: thm-k-min-stress-matrix
 
 If a graph $G$ with $d+2$ or more vertices has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\mathbb{R}^d$, then all generic {prf:ref}`frameworks <def-gen-realization>` $p\in C^d(G)$ are globally rigid.
+in $\mathbb{R}^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $p$ of $G$ are globally rigid.
 
 {{references}} {cite:p}`Gortler2010`
 :::
@@ -71,10 +71,10 @@ in $\mathbb{R}^d$, then all generic {prf:ref}`frameworks <def-gen-realization>` 
 The converse of this theorem is the following one:
 
 :::{prf:theorem}
-:label: thm-inverse-k-min
+:label: thm-inverse-k-min-stress-matrix
 
 If a graph $G$ with $d+2$ or more vertices does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\mathbb{R}^d$, then any generic {prf:ref}`framework <def-gen-realization>` $p\in C^d(G)$ is not globally rigid.
+in $\mathbb{R}^d$, then any {prf:ref}`generic framework <def-gen-realization>` $p$ of $G$ is not globally rigid.
 
 {{references}} {cite:p}`Gortler2010`
 :::
@@ -82,14 +82,14 @@ The method {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid` uses the follow
 
 Set $dim =$ dimension of the graph, $v =$ number of verteces, $e =$ number of edges, 
 $t = v\cdot dim - \binom{dim+1}{2}$ and $N = 2\cdot v\cdot \binom{v}{2} +2$.
-To check if a graph with at least $d + 2$ vertices is generically globally rigid in Ed, 
-proceed as follows. First, if the number of edges, $e$, is less than $t$, output 'False' 
+To check if a graph with at least $d + 2$ vertices is generically globally rigid in $RR^d$, 
+proceed as follows. First, if $e < t$, output 'False' 
 (as the graph cannot even be generically locally rigid with so few edges), otherwise continue.
-Next pick a framework with integer coordinates randomly chosen from 1 to $N$.
+Next, pick a framework with integer coordinates randomly chosen from 1 to $N$.
 The next step is to pick one equilibrium stress vector in a suitably random
-way.(If e = t, there will be no stresses, so we consider the zero vector.) 
+way.(If $e = t$, there are no stresses, so we consider the zero vector.) 
 Then consider the corresponding equilibrium stress matrix and compute its rank. 
-If the rank is $v-dim-1$, output the answer 'True', otherwise output the answer 'False' .
+If the rank is $v-dim-1$, return 'True', otherwise return 'False' .
 
 :::{prf:theorem}
 :label: thm-globally-randomize-algorithm
