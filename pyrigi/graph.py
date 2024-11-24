@@ -10,14 +10,18 @@ from typing import List, Union, Iterable
 
 import networkx as nx
 import matplotlib.pyplot as plt
+
 from sympy import Matrix, oo
+import numpy as np
 import math
 import distinctipy
 
-from pyrigi.data_type import Vertex, Edge, Point, Inf
+from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence, Coordinate
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
+
+__doctest_requires__ = {('Graph.number_of_realizations', ): ['lnumber']}
 
 
 class Graph(nx.Graph):
@@ -1054,7 +1058,7 @@ class Graph(nx.Graph):
             raise ImportError(
                 "For counting the number of realizations, "
                 "the optional package 'lnumber' is used, "
-                "run `pip install pyrigi[lnumber]`."
+                "run `pip install pyrigi[realization-counting]`."
             )
 
     @doc_category("Generic rigidity")
@@ -2331,6 +2335,7 @@ class Graph(nx.Graph):
     def plot(
         self,
         placement: dict[Vertex, Point] = None,
+        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
         layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4169E1",
@@ -2339,6 +2344,11 @@ class Graph(nx.Graph):
         edge_width: float = 2.5,
         edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
         edge_style: str = "solid",
+        flex_width: float = 2.5,
+        flex_length: float = 0.15,
+        flex_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "limegreen",
+        flex_style: str = "solid",
+        flex_arrowsize: int = 20,
         font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
@@ -2355,6 +2365,10 @@ class Graph(nx.Graph):
         placement:
             If ``placement`` is not specified,
             then it is generated depending on parameter ``layout``.
+        inf_flex:
+            It is possible to plot an infinitesimal flex alongside the
+            realization of your graph. It is specified as a ``dict`` of
+            flexes.
         layout:
             The possibilities are ``spring`` (default), ``circular``,
             ``random`` or ``planar``, see also :meth:`~Graph.layout`.
@@ -2380,6 +2394,18 @@ class Graph(nx.Graph):
         edge_style:
             Edge line style: ``-``/``solid``, ``--``/``dashed``,
             ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        flex_width:
+            The width of the infinitesimal flex's arrow tail.
+        flex_color:
+            The color of the infinitesimal flex is by default 'limegreen'.
+        flex_style:
+            Line Style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        flex_length:
+            Length of the displayed flex relative to the total canvas
+            diagonal in percent. By default 15%.
+        flex_arrowsize:
+            Size of the arrowhead's length and width.
         font_size:
             The size of the font used for the labels.
         font_color:
@@ -2418,6 +2444,70 @@ class Graph(nx.Graph):
             style=edge_style,
             **kwargs,
         )
+
+        if inf_flex is not None:
+            magnidutes = []
+            for flex_key in inf_flex.keys():
+                if flex_key not in self.vertex_list():
+                    raise KeyError(
+                        "A key in inf_flex does not exist as a vertex in the graph!"
+                    )
+                if len(inf_flex[flex_key]) != 2:
+                    raise ValueError(
+                        "The infinitesimal flex needs to be in dimension 2."
+                    )
+                magnidutes.append(
+                    math.sqrt(sum(flex**2 for flex in inf_flex[flex_key]))
+                )
+
+            # normalize the edge lengths by the Euclidean norm of the longest one
+            flex_mag = max(magnidutes)
+            for flex_key in inf_flex.keys():
+                if not all(entry == 0 for entry in inf_flex[flex_key]):
+                    inf_flex[flex_key] = tuple(
+                        flex / flex_mag for flex in inf_flex[flex_key]
+                    )
+            # Delete the edges with zero length
+            inf_flex = {
+                flex_key: np.array(inf_flex[flex_key], dtype=float)
+                for flex_key in inf_flex.keys()
+                if not all(entry == 0 for entry in inf_flex[flex_key])
+            }
+            x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
+            y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
+            arrow_length = (
+                math.sqrt(x_canvas_width**2 + y_canvas_width**2) * flex_length
+            )
+            H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex.keys()])
+            H_placement = {
+                str(v)
+                + "_flex": np.array(
+                    [
+                        placement[v][0] + arrow_length * inf_flex[v][0],
+                        placement[v][1] + arrow_length * inf_flex[v][1],
+                    ],
+                    dtype=float,
+                )
+                for v in inf_flex.keys()
+            }
+            H_placement.update(
+                {v: np.array(placement[v], dtype=float) for v in inf_flex.keys()}
+            )
+
+            nx.draw(
+                H,
+                pos=H_placement,
+                ax=ax,
+                arrows=True,
+                arrowsize=flex_arrowsize,
+                node_size=0,
+                node_color="white",
+                width=flex_width,
+                edge_color=flex_color,
+                style=flex_style,
+                **kwargs,
+            )
+
         plt.show()
 
 
