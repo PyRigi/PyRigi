@@ -152,9 +152,9 @@ If you do not want to run doctests, run
 pytest -p no:doctestplus
 ```
 Functionalities requiring optional packages are tested by default;
-if you want to skip some specific optional feature, run
+if you want to skip some specific optional feature(s), run
 ```
-pytest -m "not optional_feature_name"
+pytest -m "not optional_feature1_name and not optional_feature2_name"
 ```
 See the file `pyproject.toml` for the markers that specify groups of tests relying on optional packages.
 
