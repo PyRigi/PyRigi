@@ -29,17 +29,17 @@ We start by creating a `Graph` and a `Framework`.
 
 
 ```{code-cell} ipython3
-G = Graph([(0,1), (1,2), (2,3), (0,3)])
-F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, '1/2 * sqrt(5)'], 3: [1/2, '4/3']})
 F.plot()
 ```
 
-The method {meth}`.Framework.generate_stl_bars` generates bars 
+The method {meth}`.Framework.generate_stl_bars` generates bars
 in the working directory in STL format.
 The naming scheme consists of the prefix `bar_` and the two indexes
-of the vertices of an edge. 
+of the vertices of an edge.
 
-Sometimes we wish to alter the design of the bars, especially scale them up or down, 
+Sometimes we wish to alter the design of the bars, especially scale them up or down,
 and change the file names or output directory (relative to working directory).
 
 ```{code-cell} ipython3
@@ -50,7 +50,7 @@ The other parameters that can be passed to the method {meth}`.Framework.generate
 the design of the bars. The default values are:
 
 - `width_of_bars = 8` mm
-- `height_of_bars = 3` mm 
+- `height_of_bars = 3` mm
 - `holes_diameter = 4.3` mm
 
 The 3D printed bars can be assembled as shown in the figure below. For the dimensions above,
