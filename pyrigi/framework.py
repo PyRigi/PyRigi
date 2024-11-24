@@ -477,26 +477,89 @@ class Framework(object):
         if return_matrix:
             return projection_matrix
 
-    @doc_category("Other")
-    def plot(
+
+@doc_category("Other")
+    def plot3D(  # noqa: C901
         self,
+        coordinates: Union[tuple, list] = None,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        projection_matrix: Matrix = None,
+        return_matrix: bool = False,
+        random_seed: int = None,
+        animation: bool = False,
         **kwargs,
-    ) -> None:
+    ) -> Optional[Matrix]:
         """
-        Plot the framework.
+        Plot this framework in 2D.
 
-        If the dimension of the framework is greater than 2, ``ValueError`` is raised,
-        use :meth:`.Framework.plot2D` instead.
+        If this framework is in dimensions higher than 2 and projection_matrix
+        with coordinates are None a random projection matrix
+        containing two orthonormal vectors is generated and used for projection into 2D.
+        This matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
+        Only coordinates or projection_matrix parameter can be used, not both!
 
+        Parameters
+        ----------
+        projection_matrix:
+            The matrix used for projecting the placement of vertices
+            only when they are in dimension higher than 2.
+            The matrix must have dimensions (2, dim),
+            where dim is the dimension of the currect placements of vertices.
+            If None, a random projection matrix is generated.
+        random_seed:
+            The random seed used for generating the projection matrix.
+            When the same value is provided, the framework will plot exactly same.
+        coordinates:
+            Indexes of three coordinates that will be used as the placement in 3D.
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+        return_matrix:
+            If True the matrix used for projection into 2D is returned.
+        animation:
+            If you want a rotating figure
 
         TODO
-        ----
-        Implement plotting in dimension 3 and
-        better plotting for dimension 1 using ``connectionstyle``
+        -----
+        project the inf-flex as well in `_plot_using_projection_matrix`.
         """
+        inf_flex_pointwise = None
+        if inf_flex is not None:
+            if isinstance(inf_flex, int) and inf_flex >= 0:
+                inf_flex_basis = self.nontrivial_inf_flexes()
+                if inf_flex >= len(inf_flex_basis):
+                    raise IndexError(
+                        "The value of inf_flex exceeds "
+                        + "the dimension of the space "
+                        + "of infinitesimal flexes."
+                    )
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
+                    inf_flex_basis[inf_flex]
+                )
+            elif isinstance(inf_flex, Matrix):
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
+            elif isinstance(inf_flex, dict) and all(
+                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+            ):
+                inf_flex_pointwise = inf_flex
+            else:
+                raise TypeError("inf_flex does not have the correct Type.")
 
-        if self._dim == 3:
+            if not self.is_dict_inf_flex(inf_flex_pointwise):
+                raise ValueError(
+                    "The provided `inf_flex` is not an infinitesimal flex."
+                )
+
+        if self._dim == 1 or self._dim == 2:
+            return self.plot2D(**kwargs)
+        
+        if self._dim == 3 and not animation:
             # Create a figure for the rapresentation of the framework
             fig = plt.figure(figsize=(10, 10))
             ax = fig.add_subplot(111, projection="3d")
@@ -522,7 +585,136 @@ class Framework(object):
             ax.set_ylabel("Y")
             ax.set_zlabel("Z")
             plt.show()
+            return  
+            
+        elif self._dim == 3 and animation:
+            # Creation of the figure
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection="3d")
+
+            # Limits of the axes
+            abs_list = [list(abs(i)) for i in self._realization.values()]
+            abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
+            b = float(max(abs_list) * 1.2)
+            ax.set_xlim(-b, b)
+            ax.set_ylim(-b, b)
+            ax.set_zlim(-b, b)
+
+            vertices = np.array(
+                [
+                    list(list(self.realization().values())[i])
+                    for i in range(self._graph.number_of_nodes())
+                ]
+            )
+
+            # Initializing points (vertices) and lines (edges) for display
+            (vertices_plot,) = ax.plot([], [], [], "bo", markersize=10)
+            lines = [ax.plot([], [], [], "k-")[0] for _ in range(len(self._graph.edges))]
+
+            # Animation initialization function.
+            def init():
+                vertices_plot.set_data([], [])  # Initial coordinates of vertices
+                vertices_plot.set_3d_properties([])  # Initial 3D properties of the vertices
+                for line in lines:
+                    line.set_data([], [])
+                    line.set_3d_properties([])
+                return [vertices_plot] + lines
+
+            # Function to update data at each frame
+            def update(frame):
+                angle = frame * np.pi / 50
+                # Rotation of vertices around the z-axis
+                rotation_matrix = np.array(
+                    [
+                        [np.cos(angle), -np.sin(angle), 0],
+                        [np.sin(angle), np.cos(angle), 0],
+                        [0, 0, 1],
+                    ]
+                )
+
+                rotated_vertices = vertices.dot(rotation_matrix.T)
+
+                # Update vertices positions
+                vertices_plot.set_data(rotated_vertices[:, 0], rotated_vertices[:, 1])
+                vertices_plot.set_3d_properties(rotated_vertices[:, 2])
+
+                # Update the edges
+                for i, (start, end) in enumerate(self._graph.edges):
+                    line = lines[i]
+                    line.set_data(
+                        [rotated_vertices[start, 0], rotated_vertices[end, 0]],
+                        [rotated_vertices[start, 1], rotated_vertices[end, 1]],
+                    )
+                    line.set_3d_properties(
+                        [rotated_vertices[start, 2], rotated_vertices[end, 2]]
+                    )
+
+                return [vertices_plot] + lines
+
+            # Creating the animation
+            ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
+            plt.show()
             return
+
+        #############
+        # dim > 3 -> use projection to 3D TODO
+        if coordinates is not None:
+            if (
+                not isinstance(coordinates, tuple)
+                and not isinstance(coordinates, list)
+                or len(coordinates) != 3
+            ):
+                raise ValueError(
+                    "coordinates must have length 3!"
+                    + " Exactly Three coordinates are necessary for plotting in 3D."
+                )
+            if np.max(coordinates) >= self._dim:
+                raise ValueError(
+                    f"Index {np.max(coordinates)} out of range"
+                    + f" with placement in dim: {self._dim}."
+                )
+            projection_matrix = np.zeros((3, self._dim))
+            projection_matrix[0, coordinates[0]] = 1
+            projection_matrix[1, coordinates[1]] = 1
+            projection_matrix[2, coordinates[2]] = 1
+
+        if projection_matrix is not None:
+            projection_matrix = np.array(projection_matrix)
+            if projection_matrix.shape != (3, self._dim):
+                raise ValueError(
+                    f"The projection matrix has wrong dimensions! \
+                    {projection_matrix.shape} instead of (3, {self._dim})."
+                )
+        if projection_matrix is None:
+            projection_matrix = generate_three_orthonormal_vectors(
+                self._dim, random_seed=random_seed
+            )
+            projection_matrix = projection_matrix.T
+        self._plot_using_projection_matrix(projection_matrix, **kwargs)
+        if return_matrix:
+            return projection_matrix
+            
+
+    @doc_category("Other")
+    def plot(
+        self,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the framework.
+
+        If the dimension of the framework is greater than 2, ``ValueError`` is raised,
+        use :meth:`.Framework.plot2D` instead.
+        For various formatting options, see :meth:`.Graph.plot`.
+
+
+        TODO
+        ----
+        Better plotting for dimension 1 using ``connectionstyle``
+        """
+
+        if self._dim == 3:
+            self.plot3D(**kwargs)
         elif self._dim > 3:
             raise ValueError(
                 "This framework is in higher dimension than 3!"
