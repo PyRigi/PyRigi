@@ -69,7 +69,8 @@ pythonpath = [
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "serial",
-    "realization_counting: marks tests using extra realization-counting"
+    "realization_counting: marks tests using extra realization-counting",
+    "meshing: marks tests using extra meshing"
 ]
 
 [tool.jupytext]
