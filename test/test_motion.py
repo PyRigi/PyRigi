@@ -1,5 +1,4 @@
 from pyrigi.motion import ParametricMotion
-from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
 import sympy as sp
 import pytest
@@ -47,9 +46,9 @@ def test_check_edge_lengths():
         ),
     }
     with pytest.raises(ValueError):
-        mot = ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
+        ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
 
-    a, b, c, d = 1, 3, 4, 2
+    a, b, d = 1, 3, 2
     t = sp.Symbol("t")
     sqrt_x = sp.sqrt(b**2 - a**2 * sp.sin(t) ** 2)
     sqrt_y = sp.sqrt(d**2 - a**2 * sp.cos(t) ** 2)
@@ -129,7 +128,7 @@ def test_parmot_init():
         ),
     }
     with pytest.raises(ValueError):
-        tmp = ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
+        ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
 
     mot = {
         7: ("0", "0"),
@@ -141,7 +140,7 @@ def test_parmot_init():
         ),
     }
     with pytest.raises(KeyError):
-        mot = ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
+        ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
 
     t = 0
     mot = {
@@ -154,4 +153,4 @@ def test_parmot_init():
         ),
     }
     with pytest.raises(ValueError):
-        tmp = ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
+        ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
