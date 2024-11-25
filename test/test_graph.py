@@ -269,137 +269,107 @@ def read_random_from_graph6(filename):
     else:
         return Graph(file_)
 
-
-# Examples of globally rigid graphs taken from:
-# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
-# Zenodo. https://doi.org/10.5281/zenodo.7473052
-@pytest.mark.parametrize(
-    "graph",
-    [
-        graphs.Complete(2),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V4.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V5.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V6.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V7.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD3/GloballyRigidGraphsD3V8.g6"
-        ),
-    ],
-)
-def test_globally_rigid_in_d3(graph):
-    assert graph.is_globally_rigid(dim=3)
+def read_globally(d_v_):
+    return read_random_from_graph6("test/input_graphs/globally_rigid/" + d_v_ + ".g6")
 
 
 # Examples of globally rigid graphs taken from:
 # Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
 # Zenodo. https://doi.org/10.5281/zenodo.7473052
 @pytest.mark.parametrize(
-    "graph",
+    "graph, gdim",
     [
-        graphs.Complete(2),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V5.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V6.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V7.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V8.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD4/GloballyRigidGraphsD4V9.g6"
-        ),
+        [read_globally("D3V4"), 3],
+        [read_globally("D3V5"), 3],
+        [read_globally("D3V6"), 3],
+        [read_globally("D3V7"), 3],
+        [read_globally("D3V8"), 3],
+        [read_globally("D4V5"), 4],
+        [read_globally("D4V6"), 4],
+        [read_globally("D4V7"), 4],
+        [read_globally("D4V8"), 4],
+        [read_globally("D4V9"), 4],
+        [read_globally("D6V7"), 6],
+        [read_globally("D6V8"), 6],
+        [read_globally("D6V9"), 6],
+        [read_globally("D6V10"), 6],
+        [read_globally("D10V11"), 10],
+        [read_globally("D10V12"), 10],
+        [read_globally("D10V13"), 10],
+        [read_globally("D10V14"), 10],
+        [read_globally("D19V20"), 19],
+        [read_globally("D19V21"), 19],
+        [read_globally("D19V22"), 19],
+        [read_globally("D19V23"), 19],
     ],
 )
-def test_globally_rigid_in_d4(graph):
-    assert graph.is_globally_rigid(dim=4)
+def test_globally_rigid_in_d(graph, gdim):
+    assert graph.is_globally_rigid(dim=gdim)
+    
 
-
-# Examples of globally rigid graphs taken from:
-# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
-# Zenodo. https://doi.org/10.5281/zenodo.7473052
 @pytest.mark.parametrize(
-    "graph",
+    "graph, gdim",
     [
-        graphs.Complete(2),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD6/GloballyRigidGraphsD6V7.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD6/GloballyRigidGraphsD6V8.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD6/GloballyRigidGraphsD6V9.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD6/GloballyRigidGraphsD6V10.g6"
-        ),
+        [graphs.Diamond(), 3],
+        [graphs.Path(3), 3],
+        [graphs.Path(4), 3],
+        [graphs.ThreePrism(), 3],
+        [graphs.Cycle(4), 3],
+        [graphs.Cycle(5), 3],
+        [graphs.CompleteMinusOne(4), 3],  
+        [graphs.CompleteMinusOne(5), 3],  
+        [graphs.CompleteBipartite(1, 3), 3], 
+        [graphs.CompleteBipartite(2, 3), 3], 
+        [graphs.CompleteBipartite(3, 3), 3],
+        [graphs.Diamond(), 4],
+        [graphs.Path(3), 4],
+        [graphs.Path(4), 4],
+        [graphs.ThreePrism(), 4],
+        [graphs.Cycle(4), 4],
+        [graphs.Cycle(5), 4],
+        [graphs.CompleteMinusOne(4), 4],  
+        [graphs.CompleteMinusOne(5), 4],  
+        [graphs.CompleteBipartite(1, 3), 4], 
+        [graphs.CompleteBipartite(2, 3), 4], 
+        [graphs.CompleteBipartite(3, 3), 4],  
+        [graphs.Diamond(), 6],
+        [graphs.Path(3), 6],
+        [graphs.Path(4), 6],
+        [graphs.ThreePrism(), 6],
+        [graphs.Cycle(4), 6],
+        [graphs.Cycle(5), 6],
+        [graphs.CompleteMinusOne(4), 6],  
+        [graphs.CompleteMinusOne(5), 6],  
+        [graphs.CompleteBipartite(1, 3), 6], 
+        [graphs.CompleteBipartite(2, 3), 6], 
+        [graphs.CompleteBipartite(3, 3), 6],  
+        [graphs.Diamond(), 10],
+        [graphs.Path(3), 10],
+        [graphs.Path(4), 10],
+        [graphs.ThreePrism(), 10],
+        [graphs.Cycle(4), 10],
+        [graphs.Cycle(5), 10],
+        [graphs.CompleteMinusOne(4), 10],  
+        [graphs.CompleteMinusOne(5), 10],  
+        [graphs.CompleteBipartite(1, 3), 10], 
+        [graphs.CompleteBipartite(2, 3), 10], 
+        [graphs.CompleteBipartite(3, 3), 10],   
+        [graphs.Diamond(), 19],
+        [graphs.Path(3), 19],
+        [graphs.Path(4), 19],
+        [graphs.ThreePrism(), 19],
+        [graphs.Cycle(4), 19],
+        [graphs.Cycle(5), 19],
+        [graphs.CompleteMinusOne(4), 19],  
+        [graphs.CompleteMinusOne(5), 19],  
+        [graphs.CompleteBipartite(1, 3), 19], 
+        [graphs.CompleteBipartite(2, 3), 19], 
+        [graphs.CompleteBipartite(3, 3), 19], 
     ],
 )
-def test_globally_rigid_in_d6(graph):
-    assert graph.is_globally_rigid(dim=6)
-
-
-# Examples of globally rigid graphs taken from:
-# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
-# Zenodo. https://doi.org/10.5281/zenodo.7473052
-@pytest.mark.parametrize(
-    "graph",
-    [
-        graphs.Complete(3),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD10/GloballyRigidGraphsD10V11.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD10/GloballyRigidGraphsD10V12.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD10/GloballyRigidGraphsD10V13.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD10/GloballyRigidGraphsD10V14.g6"
-        ),
-    ],
-)
-def test_globally_rigid_in_d10(graph):
-    assert graph.is_globally_rigid(dim=10)
-
-
-# Examples of globally rigid graphs taken from:
-# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
-# Zenodo. https://doi.org/10.5281/zenodo.7473052
-@pytest.mark.parametrize(
-    "graph",
-    [
-        graphs.Complete(2),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD19/GloballyRigidGraphsD19V20.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD19/GloballyRigidGraphsD19V21.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD19/GloballyRigidGraphsD19V22.g6"
-        ),
-        read_random_from_graph6(
-            "test/input_graphs/GloballyRigidGraphsD19/GloballyRigidGraphsD19V23.g6"
-        ),
-    ],
-)
-def test_globally_rigid_in_d19(graph):
-    assert graph.is_globally_rigid(dim=19)
-
+def test_not_globally_rigid_in_d(graph, gdim):
+    assert not graph.is_globally_rigid(dim=gdim)
+    
 
 @pytest.mark.parametrize(
     "graph",
