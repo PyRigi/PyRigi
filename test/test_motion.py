@@ -49,6 +49,24 @@ def test_check_edge_lengths():
     with pytest.raises(ValueError):
         mot = ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
 
+    a, b, c, d = 1, 3, 4, 2
+    t = sp.Symbol("t")
+    sqrt_x = sp.sqrt(b**2 - a**2 * sp.sin(t) ** 2)
+    sqrt_y = sp.sqrt(d**2 - a**2 * sp.cos(t) ** 2)
+    p = {
+        0: [a * sp.cos(t) + sqrt_x, a * sp.sin(t) + sqrt_y],
+        1: [-a * sp.cos(t) - sqrt_x, a * sp.sin(t) + sqrt_y],
+        2: [-a * sp.cos(t) - sqrt_x, -a * sp.sin(t) - sqrt_y],
+        3: [a * sp.cos(t) + sqrt_x, -a * sp.sin(t) - sqrt_y],
+        4: [-a * sp.cos(t) + sqrt_x, -a * sp.sin(t) + sqrt_y],
+        5: [a * sp.cos(t) - sqrt_x, -a * sp.sin(t) + sqrt_y],
+        6: [a * sp.cos(t) - sqrt_x, a * sp.sin(t) - sqrt_y],
+        7: [-a * sp.cos(t) + sqrt_x, a * sp.sin(t) - sqrt_y],
+    }
+
+    mot = ParametricMotion(graphs.CompleteBipartite(4, 4), p, [-sp.pi, sp.pi])
+    assert mot.check_edge_lengths()
+
 
 def test_realization():
     mot = ParametricMotion(
@@ -81,8 +99,26 @@ def test_realization():
     assert tmp[0] == 1
     assert tmp[1] == 0
 
+    R = mot.realization("2/3", numeric=False)
+    tmp = R[2]
+    assert tmp[0] == sp.sympify("-7/5")
+    assert tmp[1] == sp.sympify("9/5")
 
-def test_parmotion_init():
+    tmp = R[3]
+    assert tmp[0] == sp.sympify("-16/65")
+    assert tmp[1] == sp.sympify("-63/65")
+
+    R = mot.realization(2 / 3, numeric=True)
+    tmp = R[2]
+    assert abs(tmp[0] - (-7 / 5)) < 1e-9
+    assert abs(tmp[1] - 9 / 5) < 1e-9
+
+    tmp = R[3]
+    assert abs(tmp[0] - (-16 / 65)) < 1e-9
+    assert abs(tmp[1] - (-63 / 65)) < 1e-9
+
+
+def test_parmot_init():
     mot = {
         0: ("k", "0"),
         1: ("1", "0"),
