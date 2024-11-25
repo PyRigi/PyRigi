@@ -74,10 +74,6 @@ class ParametricMotion(Motion):
         """
         Check whether the saved motion preserves edge lengths.
 
-        TODO
-        ----
-        Tests
-
         """
 
         for u, v in self._graph.edges:
@@ -91,10 +87,6 @@ class ParametricMotion(Motion):
     def realization(self, value, numeric: bool = False) -> dict[Vertex:Point]:
         """
         Return specific realization for the given value of the parameter.
-
-        TODO
-        ----
-        Tests
 
         """
 
