@@ -84,7 +84,7 @@ def test_realization():
     R = mot.realization(0, numeric=False)
     tmp = R[0]
     assert tmp[0] == 0
-    assert tmp[0] == 0
+    assert tmp[1] == 0
 
     tmp = R[1]
     assert tmp[0] == 1
