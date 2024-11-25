@@ -270,6 +270,9 @@ def read_random_from_graph6(filename):
         return Graph(file_)
 
 
+# Examples of globally rigid graphs taken from:
+# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
+# Zenodo. https://doi.org/10.5281/zenodo.7473052
 @pytest.mark.parametrize(
     "graph",
     [
@@ -295,6 +298,9 @@ def test_globally_rigid_in_d3(graph):
     assert graph.is_globally_rigid(dim=3)
 
 
+# Examples of globally rigid graphs taken from:
+# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
+# Zenodo. https://doi.org/10.5281/zenodo.7473052
 @pytest.mark.parametrize(
     "graph",
     [
@@ -320,6 +326,9 @@ def test_globally_rigid_in_d4(graph):
     assert graph.is_globally_rigid(dim=4)
 
 
+# Examples of globally rigid graphs taken from:
+# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
+# Zenodo. https://doi.org/10.5281/zenodo.7473052
 @pytest.mark.parametrize(
     "graph",
     [
@@ -342,6 +351,9 @@ def test_globally_rigid_in_d6(graph):
     assert graph.is_globally_rigid(dim=6)
 
 
+# Examples of globally rigid graphs taken from:
+# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
+# Zenodo. https://doi.org/10.5281/zenodo.7473052
 @pytest.mark.parametrize(
     "graph",
     [
@@ -364,6 +376,9 @@ def test_globally_rigid_in_d10(graph):
     assert graph.is_globally_rigid(dim=10)
 
 
+# Examples of globally rigid graphs taken from:
+# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
+# Zenodo. https://doi.org/10.5281/zenodo.7473052
 @pytest.mark.parametrize(
     "graph",
     [
