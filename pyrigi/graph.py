@@ -1641,6 +1641,10 @@ class Graph(nx.Graph):
         dim: dimension d for which we test whether the graph is globally $d$-rigid
         prob: probability of getting a wrong `False` answer
 
+        Definitions
+        -----
+        :prf:ref:`Globally d-rigid graph <def-globally-rigid-graph>`
+
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,0)])
@@ -1667,15 +1671,17 @@ class Graph(nx.Graph):
         -----
          * dim=1: 2-connectivity
          * dim=2: redundantly rigid+3-connected
+         :prf:ref:`Theorem globally 2-rigid graph <thm-globally-redundant-3connected>`
          * dim>=3: Randomized Rigidity Matrix => Stress (symbolic maybe?)
+         :prf:ref:`Theorem randomize algorithm <thm-globally-randomize-algorithm>`
+
         By default, the graph is in dimension 2.
         A complete graph is automatically globally rigid
 
         Since the deterministic algorithm is not very efficient, in the code we use a
         polynomial-time randomize algorithm, which will answer "False" all the time if
-        the graph is not generically globally rigid in $\mathbb{R}^d$, and it will
-        give a wrong answer "False" with probability less than `prob`, which is 0.0001
-        by default.
+        the graph is not generically globally d-rigid, and it will give a wrong answer
+        "False" with probability less than `prob`, which is 0.0001 by default.
         """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
