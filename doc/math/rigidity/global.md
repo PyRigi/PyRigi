@@ -82,7 +82,7 @@ The method {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid` uses the follow
 
 Let $d$ be the dimension for which we want to test whether the graph is globally $d$-rigid, 
 $v$ be the number of vertices, $e$ be the number of edges, 
-$t = v\cdot d - \binom{d+1}{2}$ and $N = 10000\cdot v\cdot \binom{v}{2} +2$.
+$t = v\cdot d - \binom{d+1}{2}$ and $N = A\cdot v\cdot \binom{v}{2} +2$, where $A$ is a constant.
 To check if a graph with at least $d + 2$ vertices is generically globally rigid in $\RR^d$, 
 proceed as follows:
 * If $e < t$, output `False` (as the graph cannot even be generically locally rigid with so few edges), otherwise continue.
@@ -94,11 +94,11 @@ proceed as follows:
 :::{prf:theorem}
 :label: thm-globally-randomize-algorithm
 
-The randomized algorithm for checking global rigidity never returns a false "True" answer, 
-and returns a false "False" answer with probability bounded above by $ve/N$, where $v$ is the
+The randomized algorithm for checking global rigidity never returns a false `True` answer, 
+and returns a false `False` answer with probability bounded above by $ve/N$, where $v$ is the
 number of vertices, $e$ is the number of edges and $N$ is an arbitrarily large integer. 
-In this case, we chose $N = 2\cdot ve + 2$ so that the probability of getting a false "False"
-is less than 0.5.
+In this case, we chose $N \geq A\cdot ve + 2$ so that the probability of getting a false `False`
+is less than $1/A$.
 In particular, checking for generic global rigidity in $\mathbb{R}^d$ is in $RP$, i.e., 
 the class of randomized polynomial time algorithms.
 
