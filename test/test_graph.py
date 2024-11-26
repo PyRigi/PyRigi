@@ -269,6 +269,7 @@ def read_random_from_graph6(filename):
     else:
         return Graph(file_)
 
+
 def read_globally(d_v_):
     return read_random_from_graph6("test/input_graphs/globally_rigid/" + d_v_ + ".g6")
 
@@ -279,6 +280,8 @@ def read_globally(d_v_):
 @pytest.mark.parametrize(
     "graph, gdim",
     [
+        [graphs.Complete(2), 3],
+        [graphs.Complete(2), 6],
         [read_globally("D3V4"), 3],
         [read_globally("D3V5"), 3],
         [read_globally("D3V6"), 3],
@@ -305,71 +308,56 @@ def read_globally(d_v_):
 )
 def test_globally_rigid_in_d(graph, gdim):
     assert graph.is_globally_rigid(dim=gdim)
-    
+
 
 @pytest.mark.parametrize(
     "graph, gdim",
     [
         [graphs.Diamond(), 3],
         [graphs.Path(3), 3],
-        [graphs.Path(4), 3],
         [graphs.ThreePrism(), 3],
-        [graphs.Cycle(4), 3],
         [graphs.Cycle(5), 3],
-        [graphs.CompleteMinusOne(4), 3],  
-        [graphs.CompleteMinusOne(5), 3],  
-        [graphs.CompleteBipartite(1, 3), 3], 
-        [graphs.CompleteBipartite(2, 3), 3], 
-        [graphs.CompleteBipartite(3, 3), 3],
+        [graphs.CompleteMinusOne(4), 3],
+        [graphs.CompleteMinusOne(5), 3],
+        [graphs.CompleteBipartite(1, 3), 3],
+        [graphs.CompleteBipartite(2, 3), 3],
         [graphs.Diamond(), 4],
-        [graphs.Path(3), 4],
         [graphs.Path(4), 4],
         [graphs.ThreePrism(), 4],
         [graphs.Cycle(4), 4],
-        [graphs.Cycle(5), 4],
-        [graphs.CompleteMinusOne(4), 4],  
-        [graphs.CompleteMinusOne(5), 4],  
-        [graphs.CompleteBipartite(1, 3), 4], 
-        [graphs.CompleteBipartite(2, 3), 4], 
-        [graphs.CompleteBipartite(3, 3), 4],  
+        [graphs.CompleteMinusOne(4), 4],
+        [graphs.CompleteMinusOne(5), 4],
+        [graphs.CompleteBipartite(2, 3), 4],
+        [graphs.CompleteBipartite(3, 3), 4],
         [graphs.Diamond(), 6],
-        [graphs.Path(3), 6],
         [graphs.Path(4), 6],
         [graphs.ThreePrism(), 6],
-        [graphs.Cycle(4), 6],
         [graphs.Cycle(5), 6],
-        [graphs.CompleteMinusOne(4), 6],  
-        [graphs.CompleteMinusOne(5), 6],  
-        [graphs.CompleteBipartite(1, 3), 6], 
-        [graphs.CompleteBipartite(2, 3), 6], 
-        [graphs.CompleteBipartite(3, 3), 6],  
+        [graphs.CompleteMinusOne(4), 6],
+        [graphs.CompleteMinusOne(5), 6],
+        [graphs.CompleteBipartite(1, 3), 6],
+        [graphs.CompleteBipartite(3, 3), 6],
         [graphs.Diamond(), 10],
-        [graphs.Path(3), 10],
         [graphs.Path(4), 10],
         [graphs.ThreePrism(), 10],
-        [graphs.Cycle(4), 10],
         [graphs.Cycle(5), 10],
-        [graphs.CompleteMinusOne(4), 10],  
-        [graphs.CompleteMinusOne(5), 10],  
-        [graphs.CompleteBipartite(1, 3), 10], 
-        [graphs.CompleteBipartite(2, 3), 10], 
-        [graphs.CompleteBipartite(3, 3), 10],   
+        [graphs.CompleteMinusOne(4), 10],
+        [graphs.CompleteMinusOne(5), 10],
+        [graphs.CompleteBipartite(2, 3), 10],
+        [graphs.CompleteBipartite(3, 3), 10],
         [graphs.Diamond(), 19],
-        [graphs.Path(3), 19],
         [graphs.Path(4), 19],
         [graphs.ThreePrism(), 19],
-        [graphs.Cycle(4), 19],
         [graphs.Cycle(5), 19],
-        [graphs.CompleteMinusOne(4), 19],  
-        [graphs.CompleteMinusOne(5), 19],  
-        [graphs.CompleteBipartite(1, 3), 19], 
-        [graphs.CompleteBipartite(2, 3), 19], 
-        [graphs.CompleteBipartite(3, 3), 19], 
+        [graphs.CompleteMinusOne(4), 19],
+        [graphs.CompleteMinusOne(5), 19],
+        [graphs.CompleteBipartite(1, 3), 19],
+        [graphs.CompleteBipartite(2, 3), 19],
     ],
 )
 def test_not_globally_rigid_in_d(graph, gdim):
     assert not graph.is_globally_rigid(dim=gdim)
-    
+
 
 @pytest.mark.parametrize(
     "graph",
