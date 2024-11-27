@@ -2195,7 +2195,7 @@ class Graph(nx.Graph):
         default_styles: bool = True,
     ) -> str:
         r"""
-        Create a tikz code for the graph.
+        Create a TikZ code for the graph.
 
         For using it in ``LaTeX`` you need to use the ``tikz`` package.
 

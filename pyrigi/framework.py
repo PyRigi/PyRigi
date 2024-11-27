@@ -448,7 +448,8 @@ class Framework(object):
         default_styles: bool = True,
     ) -> str:
         r"""
-        Create a tikz code for the framework.
+        Create a TikZ code for the framework.
+        Works for dimension 2 only.
 
         For using it in ``LaTeX`` you need to use the ``tikz`` package.
 
