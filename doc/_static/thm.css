@@ -1,0 +1,69 @@
+/*********************************************
+* Variables *
+*********************************************/
+:root {
+  --thm-title-color: rgba(102,153,204,.1);
+  --thm-border-color: #6699CC;
+  --lem-title-color: rgba(153,187,221,.1);
+  --lem-border-color: #99BBDD;
+  --def-title-color: rgba(17,119,51,.1);
+  --def-border-color: #117733;
+}
+
+/*********************************************
+* Main body *
+*********************************************/
+
+/* Remove content box */
+div.proof p.admonition-title::before {
+	content: none;
+}
+
+/*********************************************
+* Theorem *
+*********************************************/
+div.theorem {
+	border-color: var(--thm-border-color);
+	background-color: var(--thm-title-color);
+}
+
+div.theorem p.admonition-title {
+	background-color: var(--thm-title-color);
+}
+
+/*********************************************
+* Lemma *
+*********************************************/
+div.lemma {
+	border-color: var(--lem-border-color);
+	background-color: var(--lem-title-color);
+}
+
+div.lemma p.admonition-title {
+	background-color: var(--lem-title-color);
+}
+
+/*********************************************
+* Definition *
+*********************************************/
+div.definition {
+	border-color: var(--def-border-color);
+	background-color: var(--def-title-color);
+}
+
+div.definition p.admonition-title {
+	background-color: var(--def-title-color);
+}
+
+/*********************************************
+* Corollary *
+*********************************************/
+div.corollary {
+	border-color: var(--lem-border-color);
+	background-color: var(--lem-title-color);
+}
+
+div.corollary p.admonition-title {
+	background-color: var(--lem-title-color);
+}
+
