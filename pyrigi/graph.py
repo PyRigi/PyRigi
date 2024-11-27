@@ -1510,6 +1510,8 @@ class Graph(nx.Graph):
         ----------
         dim: dimension
         combinatorial: bool to determine whethere a combinatinatorial algorithm shall be used
+            If combinatorial is true, a pebble game algorithm is used.
+            Otherwise a probabilistic check is used that may give false negatives  (see :prf:ref:`<thm-probabilistic-rigidity-check>`).
         prob: bound on the probability of a randomized algorithm to yield false negatives
 
         Examples
@@ -1590,6 +1592,8 @@ class Graph(nx.Graph):
         ----------
         dim: dimension
         combinatorial: bool to determine whethere a combinatinatorial algorithm shall be used
+            If combinatorial is true, a pebble game algorithm is used.
+            Otherwise a probabilistic check is used that may give false negatives (see :prf:ref:`<thm-probabilistic-rigidity-check>`).
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2`` and ``combinatorial=True``.
             If ``True``, the pebble digraph present in the cache is used.

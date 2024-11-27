@@ -44,3 +44,13 @@ Let $G = (V, E)$ be a minimally (generically) $d$-rigid graph. Then $G$ is {prf:
 
 {{references}} {cite:p}`Whiteley1996`
 :::
+
+:::{prf:theorem}
+:label: thm-probabilistic-rigidity-check
+
+Let $G = (V, E)$ be a graph and let $F=(G,p)$ be a framework with a random parametrization $p$ with coordinates between 1 and some $N$.
+If $F$ is (minimally) infinitesimally $d$-rigid, then $G$ is (minimally) $d$-rigid.
+If $F$ is not (minimally) infinitesimally $d$-rigid, then $G$ is not (minimally) $d$-rigid with probability $1-(dn-\binom{d+1}{2})/N$.
+In other words the probability of a false negative is $(dn-\binom{d+1}{2})/N$.
+{{references}} {cite:p}`GortlerHealyThurston2010`
+:::
