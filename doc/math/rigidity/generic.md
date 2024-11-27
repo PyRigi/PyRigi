@@ -37,4 +37,10 @@ A graph $G = (V, E)$ is minimally (generically) $2$-rigid if and only if $G$ is 
 {cite:p}`Laman1970`
 :::
 
+:::{prf:theorem}
+:label: thm-gen-rigidity-tight
 
+Let $G = (V, E)$ be a minimally (generically) $d$-rigid graph. Then $G$ is {prf:ref}`(d,\binom{d+1}{2})-tight <def-kl-sparse-tight>`.
+
+{{references}} {cite:p}`Whiteley1996`
+:::
