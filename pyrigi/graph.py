@@ -1502,9 +1502,15 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Generic rigidity")
-    def is_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_rigid(self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001) -> bool:
         """
         Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
+
+        Parameters
+        ----------
+        dim: dimension
+        combinatorial: bool to determine whethere a combinatinatorial algorithm shall be used
+        prob: bound on the probability of a randomized algorithm to yield false negatives
 
         Examples
         --------
@@ -1538,7 +1544,11 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        elif dim == 1:
+        # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
+        if self.number_of_edges() < dim * self.number_of_nodes() - math.comb(dim + 1, 2):
+            return False
+
+        elif dim == 1 and combinatorial:
             return nx.is_connected(self)
         elif dim == 2 and combinatorial:
             deficiency = -(2 * self.number_of_nodes() - 3) + self.number_of_edges()
@@ -1551,9 +1561,12 @@ class Graph(nx.Graph):
                     == 2 * self.number_of_nodes() - 3
                 )
         elif not combinatorial:
+            n = self.number_of_nodes()
+            N = int((n * dim - math.comb(dim + 1, 2)) / prob)
+            if N < 1:
+                raise ValueError("The parameter prob is too large.")
             from pyrigi.framework import Framework
-
-            F = Framework.Random(self, dim)
+            F = Framework.Random(self, dim, rand_range = [1,N])
             return F.is_inf_rigid()
         else:
             raise ValueError(
@@ -1567,6 +1580,7 @@ class Graph(nx.Graph):
         dim: int = 2,
         combinatorial: bool = True,
         use_precomputed_pebble_digraph: bool = False,
+        prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
@@ -1574,12 +1588,15 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
+        dim: dimension
+        combinatorial: bool to determine whethere a combinatinatorial algorithm shall be used
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2`` and ``combinatorial=True``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
+        prob: bound on the probability of a randomized algorithm to yield false negatives
 
         Examples
         --------
@@ -1608,6 +1625,10 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
+        if self.number_of_edges() != dim * self.number_of_nodes() - math.comb(dim + 1, 2):
+            return False
+
         elif dim == 1 and combinatorial:
             return nx.is_tree(self)
         elif dim == 2 and combinatorial:
@@ -1618,9 +1639,12 @@ class Graph(nx.Graph):
                 use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
             )
         elif not combinatorial:
+            n = self.number_of_nodes()
+            N = int((n * dim - math.comb(dim + 1, 2)) / prob)
+            if N < 1:
+                raise ValueError("The parameter prob is too large.")
             from pyrigi.framework import Framework
-
-            F = Framework.Random(self, dim)
+            F = Framework.Random(self, dim, rand_range = [1,N])
             return F.is_min_inf_rigid()
         else:
             raise ValueError(
