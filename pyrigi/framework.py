@@ -503,6 +503,10 @@ class Framework(object):
         For more examples on formatting options, see also :meth:`.Graph.to_tikz`.
         """  # noqa: E501
 
+        # check dimension
+        if self.dimension() != 2:
+            raise ValueError("TikZ code is only generated for frameworks in dimension 2.")
+
         # strings for tikz styles
         if vertex_out_labels and default_styles:
             lstyle_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
