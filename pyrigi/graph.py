@@ -1609,10 +1609,9 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
-        if self.number_of_edges() < dim * self.number_of_nodes() - math.comb(
-            dim + 1, 2
-        ):
+        if self.number_of_edges() < dim * n - math.comb(dim + 1, 2):
             return False
 
         elif dim == 1 and combinatorial:
@@ -1628,7 +1627,6 @@ class Graph(nx.Graph):
                     == 2 * self.number_of_nodes() - 3
                 )
         elif not combinatorial:
-            n = self.number_of_nodes()
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
                 raise ValueError("The parameter prob is too large.")
@@ -1699,10 +1697,9 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
-        if self.number_of_edges() != dim * self.number_of_nodes() - math.comb(
-            dim + 1, 2
-        ):
+        if self.number_of_edges() != dim * n - math.comb(dim + 1, 2):
             return False
 
         elif dim == 1 and combinatorial:
@@ -1715,7 +1712,6 @@ class Graph(nx.Graph):
                 use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
             )
         elif not combinatorial:
-            n = self.number_of_nodes()
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
                 raise ValueError("The parameter prob is too large.")
