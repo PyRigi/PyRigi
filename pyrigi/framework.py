@@ -47,7 +47,7 @@ from pyrigi.misc import (
 from typing import Optional
 
 __doctest_requires__ = {
-    ('Framework.generate_stl_bars', ): ['trimesh', 'manifold3d', 'pathlib']
+    ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
 }
 
 
@@ -548,7 +548,7 @@ class Framework(object):
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            b = 10 ** 4 * graph.number_of_nodes() ** 2 * dim
+            b = 10**4 * graph.number_of_nodes() ** 2 * dim
             a = -b
         if isinstance(rand_range, list):
             if not len(rand_range) == 2:

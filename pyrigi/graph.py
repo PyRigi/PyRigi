@@ -21,7 +21,7 @@ from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
 
-__doctest_requires__ = {('Graph.number_of_realizations', ): ['lnumber']}
+__doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
 
 class Graph(nx.Graph):
@@ -1322,7 +1322,9 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Generic rigidity")
-    def is_redundantly_rigid(self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001) -> bool:
+    def is_redundantly_rigid(
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
@@ -1557,7 +1559,9 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Generic rigidity")
-    def is_rigid(self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001) -> bool:
+    def is_rigid(
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
 
@@ -1568,7 +1572,8 @@ class Graph(nx.Graph):
         combinatorial:
             determines whethere a combinatinatorial algorithm shall be used
             If combinatorial is true, a pebble game algorithm is used.
-            Otherwise a probabilistic check is used that may give false negatives  (see :prf:ref:`thm-probabilistic-rigidity-check`).
+            Otherwise a probabilistic check is used that may give false negatives
+            (see :prf:ref:`thm-probabilistic-rigidity-check`).
         prob:
             bound on the probability of a randomized algorithm to yield false negatives
 
@@ -1605,7 +1610,9 @@ class Graph(nx.Graph):
             raise LoopError()
 
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
-        if self.number_of_edges() < dim * self.number_of_nodes() - math.comb(dim + 1, 2):
+        if self.number_of_edges() < dim * self.number_of_nodes() - math.comb(
+            dim + 1, 2
+        ):
             return False
 
         elif dim == 1 and combinatorial:
@@ -1626,7 +1633,8 @@ class Graph(nx.Graph):
             if N < 1:
                 raise ValueError("The parameter prob is too large.")
             from pyrigi.framework import Framework
-            F = Framework.Random(self, dim, rand_range = [1,N])
+
+            F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
         else:
             raise ValueError(
@@ -1640,7 +1648,7 @@ class Graph(nx.Graph):
         dim: int = 2,
         combinatorial: bool = True,
         use_precomputed_pebble_digraph: bool = False,
-        prob: float = 0.0001
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
@@ -1653,7 +1661,8 @@ class Graph(nx.Graph):
         combinatorial:
             determines whethere a combinatinatorial algorithm shall be used
             If combinatorial is true, a pebble game algorithm is used.
-            Otherwise a probabilistic check is used that may give false negatives (see :prf:ref:`thm-probabilistic-rigidity-check`).
+            Otherwise a probabilistic check is used that may give false negatives
+            (see :prf:ref:`thm-probabilistic-rigidity-check`).
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2`` and ``combinatorial=True``.
             If ``True``, the pebble digraph present in the cache is used.
@@ -1691,7 +1700,9 @@ class Graph(nx.Graph):
             raise LoopError()
 
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
-        if self.number_of_edges() != dim * self.number_of_nodes() - math.comb(dim + 1, 2):
+        if self.number_of_edges() != dim * self.number_of_nodes() - math.comb(
+            dim + 1, 2
+        ):
             return False
 
         elif dim == 1 and combinatorial:
@@ -1709,7 +1720,8 @@ class Graph(nx.Graph):
             if N < 1:
                 raise ValueError("The parameter prob is too large.")
             from pyrigi.framework import Framework
-            F = Framework.Random(self, dim, rand_range = [1,N])
+
+            F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_min_inf_rigid()
         else:
             raise ValueError(
