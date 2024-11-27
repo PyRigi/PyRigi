@@ -2378,7 +2378,7 @@ class Graph(nx.Graph):
                     + vstyle
                     + (
                         ("," if vertex_style != "" else "")
-                        + f"label={{[labelsty]right:${v}$}}"
+                        + f"label={{[{label_style}]right:${v}$}}"
                         if vertex_out_labels
                         else ""
                     )
