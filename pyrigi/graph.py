@@ -1095,6 +1095,20 @@ class Graph(nx.Graph):
         :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
         ... are used
 
+        Parameters
+        ----------
+        k:
+            level of redundancy
+        dim:
+            dimension
+        combinatorial:
+            determines whethere a combinatinatorial algorithm shall be used in rigidity checking.
+            Otherwise a probabilistic check is used that may give false results.
+            See :meth:`~.Graph.is_rigid` for details.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
+
         Examples
         --------
         >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
@@ -1206,6 +1220,19 @@ class Graph(nx.Graph):
         :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound-dim1`
         are used.
 
+        Parameters
+        ----------
+        k:
+            level of redundancy
+        dim:
+            dimension
+        combinatorial:
+            determines whethere a combinatinatorial algorithm shall be used in rigidity checking.
+            Otherwise a probabilistic check is used that may give false results.
+            See :meth:`~.Graph.is_rigid` for details.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
 
         Examples
         --------
@@ -1321,6 +1348,20 @@ class Graph(nx.Graph):
         :prf:ref:`thm-globally-mindeg6-dim2`.
         are used
 
+        Parameters
+        ----------
+        k:
+            level of redundancy
+        dim:
+            dimension
+        combinatorial:
+            determines whethere a combinatinatorial algorithm shall be used in rigidity checking.
+            Otherwise a probabilistic check is used that may give false results.
+            See :meth:`~.Graph.is_rigid` for details.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
+
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 5], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
@@ -1426,6 +1467,20 @@ class Graph(nx.Graph):
         :prf:ref:`thm-minimal-1-edge-redundant-upper-edge-bound-dim2`
         are used.
 
+        Parameters
+        ----------
+        k:
+            level of redundancy
+        dim:
+            dimension
+        combinatorial:
+            determines whethere a combinatinatorial algorithm shall be used in rigidity checking.
+            Otherwise a probabilistic check is used that may give false results.
+            See :meth:`~.Graph.is_rigid` for details.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
+
 
         Examples
         --------
@@ -1508,11 +1563,14 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
-        dim: dimension
-        combinatorial: bool to determine whethere a combinatinatorial algorithm shall be used
+        dim:
+            dimension
+        combinatorial:
+            determines whethere a combinatinatorial algorithm shall be used
             If combinatorial is true, a pebble game algorithm is used.
-            Otherwise a probabilistic check is used that may give false negatives  (see :prf:ref:`<thm-probabilistic-rigidity-check>`).
-        prob: bound on the probability of a randomized algorithm to yield false negatives
+            Otherwise a probabilistic check is used that may give false negatives  (see :prf:ref:`thm-probabilistic-rigidity-check`).
+        prob:
+            bound on the probability of a randomized algorithm to yield false negatives
 
         Examples
         --------
@@ -1590,17 +1648,20 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
-        dim: dimension
-        combinatorial: bool to determine whethere a combinatinatorial algorithm shall be used
+        dim:
+            dimension
+        combinatorial:
+            determines whethere a combinatinatorial algorithm shall be used
             If combinatorial is true, a pebble game algorithm is used.
-            Otherwise a probabilistic check is used that may give false negatives (see :prf:ref:`<thm-probabilistic-rigidity-check>`).
+            Otherwise a probabilistic check is used that may give false negatives (see :prf:ref:`thm-probabilistic-rigidity-check`).
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2`` and ``combinatorial=True``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
-        prob: bound on the probability of a randomized algorithm to yield false negatives
+        prob:
+            bound on the probability of a randomized algorithm to yield false negatives
 
         Examples
         --------
