@@ -1063,7 +1063,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
@@ -1075,11 +1075,11 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial)
+        return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True
+        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
@@ -1167,7 +1167,7 @@ class Graph(nx.Graph):
         for vertex_set in combinations(self.nodes, k):
             adj = [[v, list(G.neighbors(v))] for v in vertex_set]
             G.delete_vertices(vertex_set)
-            if not G.is_rigid(dim, combinatorial):
+            if not G.is_rigid(dim, combinatorial, prob):
                 return False
             # add vertices and edges back
             G.add_vertices(vertex_set)
@@ -1178,7 +1178,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_min_vertex_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is
@@ -1191,11 +1191,11 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_min_k_vertex_redundantly_rigid(1, dim, combinatorial)
+        return self.is_min_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_min_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True
+        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally k-vertex redundantly (generically) dim-rigid
@@ -1241,7 +1241,7 @@ class Graph(nx.Graph):
             if n >= 3 * (k + 1) - 1 and m > (k + 1) * n - (k + 1) * (k + 1):
                 return False
 
-        if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
+        if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
             return False
 
         # for the following we need to know that the graph is k-vertex-redundantly rigid
@@ -1289,24 +1289,24 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for edge in self.edge_list():
             G.delete_edges([edge])
-            if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
+            if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
                 return False
             G.add_edges([edge])
         return True
 
     @doc_category("Generic rigidity")
-    def is_redundantly_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_redundantly_rigid(self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
 
         See :meth:`.is_k_redundantly_rigid` (using k = 1) for details.
         """
-        return self.is_k_redundantly_rigid(1, dim, combinatorial)
+        return self.is_k_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_k_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True
+        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
@@ -1393,14 +1393,14 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
             G.delete_edges(edge_set)
-            if not G.is_rigid(dim, combinatorial):
+            if not G.is_rigid(dim, combinatorial, prob):
                 return False
             G.add_edges(edge_set)
         return True
 
     @doc_category("Generic rigidity")
     def is_min_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally redundantly (generically) dim-rigid
@@ -1412,11 +1412,11 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_min_k_redundantly_rigid(1, dim, combinatorial)
+        return self.is_min_k_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_min_k_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True
+        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally k-redundantly (generically) dim-rigid
@@ -1459,7 +1459,7 @@ class Graph(nx.Graph):
                 if n >= 7 and m > 3 * n - 9:
                     return False
 
-        if not self.is_k_redundantly_rigid(k, dim, combinatorial):
+        if not self.is_k_redundantly_rigid(k, dim, combinatorial, prob):
             return False
 
         # for the following we need to know that the graph is k-redundantly rigid
@@ -1496,7 +1496,7 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for edge in self.edge_list():
             G.delete_edges([edge])
-            if G.is_k_redundantly_rigid(k, dim, combinatorial):
+            if G.is_k_redundantly_rigid(k, dim, combinatorial, prob):
                 return False
             G.add_edges([edge])
         return True
