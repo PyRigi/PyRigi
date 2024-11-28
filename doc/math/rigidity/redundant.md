@@ -53,7 +53,68 @@ Note, that the word generically is often omitted when talking about graphs.
 {meth}`~.Graph.is_min_k_vertex_redundantly_rigid`
 :::
 
+## (Edge) Redundancy
+:::{prf:theorem}
+:label: thm-k-edge-redundant-edge-bound-dim2
 
+Let $G = (V, E)$ be a {prf:ref}`k-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 6 (k + 1) + 23$ and let $k \geq 3$. Then
+\begin{equation*}
+  |E| \geq \left\lceil \frac{k + 2}{2} |V| \right\rceil \,.
+\end{equation*}
+
+{{references}} {cite:p}`Jordan2021{Thm 6}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-1-edge-redundant-edge-bound-dim2
+
+Let $G = (V, E)$ be a {prf:ref}`1-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 5$. Then
+\begin{equation*}
+  |E| \geq 2 |V| \,.
+\end{equation*}
+
+{{references}} {cite:p}`Jordan2021{Thm 7}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-2-edge-redundant-edge-bound-dim3
+
+Let $G = (V, E)$ be a {prf:ref}`2-redundantly 3-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 14$. Then
+\begin{equation*}
+  |E| \geq 3 |V| - 4 \,.
+\end{equation*}
+
+{{references}} {cite:p}`Jordan2022{Thm 4.5}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-k-edge-redundant-edge-bound-dim3
+
+Let $G = (V, E)$ be a {prf:ref}`k-redundantly 3-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 12 (k + 1) + 10$ where $|V|$ is even and $k \geq 4$. Then
+\begin{equation*}
+  |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
+\end{equation*}
+
+{{references}} {cite:p}`Jordan2022{Thm 4.9}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-minimal-1-edge-redundant-upper-edge-bound-dim2
+
+Let $G = (V, E)$ be a {prf:ref}`minimally 1-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V| \geq 7$. Then
+\begin{equation*}
+  |E| \leq 3 |V| - 9 \,.
+\end{equation*}
+
+{{references}} {cite:p}`Jordan2016`
+:::
+
+
+## Vertex Redundancy
 :::{prf:theorem}
 :label: thm-k-vertex-redundant-edge-bound-general
 
@@ -140,54 +201,6 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly 3-rigid <def-redundantly-ri
 
 
 :::{prf:theorem}
-:label: thm-k-edge-redundant-edge-bound-dim2
-
-Let $G = (V, E)$ be a {prf:ref}`k-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 6 (k + 1) + 23$ and let $k \geq 3$. Then
-\begin{equation*}
-  |E| \geq \left\lceil \frac{k + 2}{2} |V| \right\rceil \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2021{Thm 6}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-1-edge-redundant-edge-bound-dim2
-
-Let $G = (V, E)$ be a {prf:ref}`1-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 5$. Then
-\begin{equation*}
-  |E| \geq 2 |V| \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2021{Thm 7}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-2-edge-redundant-edge-bound-dim3
-
-Let $G = (V, E)$ be a {prf:ref}`2-redundantly 3-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 14$. Then
-\begin{equation*}
-  |E| \geq 3 |V| - 4 \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2022{Thm 4.5}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-k-edge-redundant-edge-bound-dim3
-
-Let $G = (V, E)$ be a {prf:ref}`k-redundantly 3-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 12 (k + 1) + 10$ where $|V|$ is even and $k \geq 4$. Then
-\begin{equation*}
-  |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2022{Thm 4.9}`
-:::
-
-
-:::{prf:theorem}
 :label: thm-minimal-k-vertex-redundant-upper-edge-bound
 
 Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly d-rigid <def-redundantly-rigid-graph>` graph. Then
@@ -208,17 +221,5 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly 1-rigid <def-redu
 \end{equation*}
 
 {{references}} {cite:p}`Kaszanitzky2015{Thm 8}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-minimal-1-edge-redundant-upper-edge-bound-dim2
-
-Let $G = (V, E)$ be a {prf:ref}`minimally 1-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V| \geq 7$. Then
-\begin{equation*}
-  |E| \leq 3 |V| - 9 \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2016`
 :::
 
