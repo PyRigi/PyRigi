@@ -47,7 +47,7 @@ from pyrigi.misc import (
 from typing import Optional
 
 __doctest_requires__ = {
-    ('Framework.generate_stl_bars', ): ['trimesh', 'manifold3d', 'pathlib']
+    ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
 }
 
 
