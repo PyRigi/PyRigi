@@ -50,7 +50,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
 
 __doctest_requires__ = {
-    ('Framework.generate_stl_bars', ): ['trimesh', 'manifold3d', 'pathlib']
+    ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
 }
 
 

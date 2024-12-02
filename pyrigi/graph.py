@@ -11,17 +11,19 @@ from typing import List, Union, Iterable
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from sympy import Matrix, oo
+from sympy import Matrix, oo, zeros
 import numpy as np
+
 import math
 import distinctipy
+from random import randint
 
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence, Coordinate
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
 
-__doctest_requires__ = {('Graph.number_of_realizations', ): ['lnumber']}
+__doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
 
 class Graph(nx.Graph):
@@ -1629,29 +1631,56 @@ class Graph(nx.Graph):
             )
 
     @doc_category("Generic rigidity")
-    def is_globally_rigid(self, dim: int = 2) -> bool:
+    def is_globally_rigid(self, dim: int = 2, prob: float = 0.0001) -> bool:
         """
         Check whether the graph is :prf:ref:`globally dim-rigid
         <def-globally-rigid-graph>`.
 
-        TODO
-        ----
-        implementation for dim>=3
+        Parameters
+        ----------
+        dim: dimension d for which we test whether the graph is globally $d$-rigid
+        prob: probability of getting a wrong `False` answer
+
+        Definitions
+        -----
+        :prf:ref:`Globally d-rigid graph <def-globally-rigid-graph>`
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,0)])
         >>> G.is_globally_rigid()
         True
+        >>> import pyrigi.graphDB as graphs
+        >>> J = graphs.ThreePrism()
+        >>> J.is_globally_rigid(dim=3)
+        False
+        >>> J.is_globally_rigid()
+        False
+        >>> K = graphs.Complete(6)
+        >>> K.is_globally_rigid()
+        True
+        >>> K.is_globally_rigid(dim=3)
+        True
+        >>> C = graphs.CompleteMinusOne(5)
+        >>> C.is_globally_rigid()
+        True
+        >>> C.is_globally_rigid(dim=3)
+        False
 
         Notes
         -----
          * dim=1: 2-connectivity
-         * dim=2: redundantly rigid+3-connected
-         * dim>=3: Randomized Rigidity Matrix => Stress (symbolic maybe?)
+         * dim=2: :prf:ref:`Theorem globally 2-rigid graph <thm-globally-redundant-3connected>`
+         * dim>=3: :prf:ref:`Theorem randomize algorithm <thm-globally-randomize-algorithm>`
+
         By default, the graph is in dimension 2.
         A complete graph is automatically globally rigid
-        """
+
+        Since the deterministic algorithm is not very efficient, in the code we use a
+        polynomial-time randomize algorithm, which will answer `False` all the time if
+        the graph is not generically globally d-rigid, and it will give a wrong answer
+        `False` with probability less than `prob`, which is 0.0001 by default.
+        """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
@@ -1674,9 +1703,31 @@ class Graph(nx.Graph):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
-            # Random sampling from [1,N] for N depending quadratically on number
-            # of vertices.
-            raise NotImplementedError()
+            v = self.number_of_nodes()
+            e = self.number_of_edges()
+            t = v * dim - math.comb(dim + 1, 2)  # rank of the rigidity matrix
+            N = int(1 / prob) * v * math.comb(v, 2) + 2
+            if v < dim + 2:
+                return self.is_isomorphic(nx.complete_graph(v))
+            elif self.is_isomorphic(nx.complete_graph(v)):
+                return True
+            if e < t:
+                return False
+            # take a random framework with integer coordinates
+            from pyrigi.framework import Framework
+
+            F = Framework.Random(self, dim=dim, rand_range=[1, N])
+            w = F.stresses()
+            if e == t:
+                omega = zeros(F.rigidity_matrix().rows, 1)
+                return F.stress_matrix(omega).rank() == v - dim - 1
+            elif w:
+                omega = sum([randint(1, N) * u for u in w], w[0])
+                return F.stress_matrix(omega).rank() == v - dim - 1
+            else:
+                raise ValueError(
+                    "There must be at least one stress but none was found."
+                )
 
     @doc_category("Partially implemented")
     def is_Rd_dependent(
