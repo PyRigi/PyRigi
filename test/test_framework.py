@@ -518,8 +518,8 @@ def test_is_congruent():
 @pytest.mark.parametrize(
     "realization",
     [
-        {0: [0, 0, 0], 1: [1, 1, 1]},
-        {0: [0, 0, 1], 1: [1, 1, 1]},
+        {0: [0, 0, 0, 0], 1: [1, 1, 1, 1]},
+        {0: [0, 0, 1, 0], 1: [1, 1, 1, 1]},
         {0: [0, 0, 0, 0], 1: [0, 0, 0, 0]},
     ],
 )
@@ -540,6 +540,19 @@ def test_plot2D_error():
 
     with pytest.raises(ValueError):
         F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0]})
+
+
+def test_plot3D_error():
+    F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1], [0, 0, 0]])
+
+    F = Framework(graphs.Complete(2), {0: [0, 0, 0, 0], 1: [1, 0, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1]])
+
+    with pytest.raises(ValueError):
+        F.plot3D(inf_flex={0: [-1, 0, 0, 0], 1: [1, 0, 0, 0]})
 
 
 def test_rigidity_matrix_rank():
