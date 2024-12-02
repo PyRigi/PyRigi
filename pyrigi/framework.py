@@ -732,12 +732,12 @@ class Framework(object):
         x_nodes = [pos[node][0] for node in self._graph.nodes]
         y_nodes = [pos[node][1] for node in self._graph.nodes]
         z_nodes = [pos[node][2] for node in self._graph.nodes]
-        ax.scatter(x_nodes, y_nodes, z_nodes, c="#ff8c00", s=200)
+        ax.scatter(x_nodes, y_nodes, z_nodes, c=vertex_color, s=200)
         for edge in self._graph.edges():
             x = [pos[edge[0]][0], pos[edge[1]][0]]
             y = [pos[edge[0]][1], pos[edge[1]][1]]
             z = [pos[edge[0]][2], pos[edge[1]][2]]
-            ax.plot(x, y, z, c="k", lw=1.5)
+            ax.plot(x, y, z, c="k", lw=edge_width)
         for node in self._graph.nodes:
             x, y, z, *others = pos[node]
             # To show the name of the vertex
