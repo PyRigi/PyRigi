@@ -86,6 +86,44 @@ def generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matri
     return matrix
 
 
+def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
+    """
+    Generate three random numeric orthonormal vectors in the given dimension.
+
+    The vectors are in the columns of the returned matrix.
+
+    Parameters
+    ----------
+    dim:
+        The dimension in which the vectors are generated.
+    random_seed:
+        Seed for generating random vectors.
+        When the same value is provided, the same vectors are generated.
+    """
+
+    if random_seed is not None:
+        np.random.seed(random_seed)
+
+    matrix = np.random.randn(dim, 3)
+
+    # for numerical stability regenerate some elements
+    tmp = np.random.randint(0, dim - 1)
+    while abs(matrix[tmp, 1]) < 1e-6:
+        matrix[tmp, 1] = np.random.randn(1, 1)
+
+    while abs(matrix[-1, 0]) < 1e-6:
+        matrix[-1, 0] = np.random.randn(1, 1)
+
+    tmp = np.dot(matrix[:-1, 0], matrix[:-1, 1]) * -1
+    matrix[-1, 1] = tmp / matrix[-1, 0]
+
+    # normalize
+    matrix[:, 0] = matrix[:, 0] / np.linalg.norm(matrix[:, 0])
+    matrix[:, 1] = matrix[:, 1] / np.linalg.norm(matrix[:, 1])
+    matrix[:, 2] = matrix[:, 2] / np.linalg.norm(matrix[:, 2])
+    return matrix
+
+
 def check_integrality_and_range(
     n: int, name: str = "number n", min_n: int = 0, max_n: int = math.inf
 ) -> None:

@@ -42,6 +42,7 @@ from pyrigi.misc import (
     check_integrality_and_range,
     is_zero_vector,
     generate_two_orthonormal_vectors,
+    generate_three_orthonormal_vectors,
 )
 
 from typing import Optional
@@ -477,8 +478,7 @@ class Framework(object):
         if return_matrix:
             return projection_matrix
 
-
-@doc_category("Other")
+    @doc_category("Other")
     def plot3D(  # noqa: C901
         self,
         coordinates: Union[tuple, list] = None,
@@ -490,11 +490,11 @@ class Framework(object):
         **kwargs,
     ) -> Optional[Matrix]:
         """
-        Plot this framework in 2D.
+        Plot this framework in 3D.
 
-        If this framework is in dimensions higher than 2 and projection_matrix
+        If this framework is in dimensions higher than 3 and projection_matrix
         with coordinates are None a random projection matrix
-        containing two orthonormal vectors is generated and used for projection into 2D.
+        containing three orthonormal vectors is generated and used for projection into 3D.
         This matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
         Only coordinates or projection_matrix parameter can be used, not both!
@@ -503,8 +503,8 @@ class Framework(object):
         ----------
         projection_matrix:
             The matrix used for projecting the placement of vertices
-            only when they are in dimension higher than 2.
-            The matrix must have dimensions (2, dim),
+            only when they are in dimension higher than 3.
+            The matrix must have dimensions (3, dim),
             where dim is the dimension of the currect placements of vertices.
             If None, a random projection matrix is generated.
         random_seed:
@@ -521,14 +521,14 @@ class Framework(object):
             Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
-            If True the matrix used for projection into 2D is returned.
+            If True the matrix used for projection into 3D is returned.
         animation:
             If you want a rotating figure
 
         TODO
         -----
-        project the inf-flex as well in `_plot_using_projection_matrix`.
-        """
+        project the inf-flex as well in `_plot_using_projection_matrix_3D`.
+        """  # noqa: E501
         inf_flex_pointwise = None
         if inf_flex is not None:
             if isinstance(inf_flex, int) and inf_flex >= 0:
@@ -558,35 +558,14 @@ class Framework(object):
 
         if self._dim == 1 or self._dim == 2:
             return self.plot2D(**kwargs)
-        
-        if self._dim == 3 and not animation:
-            # Create a figure for the rapresentation of the framework
-            fig = plt.figure(figsize=(10, 10))
-            ax = fig.add_subplot(111, projection="3d")
 
-            pos = self.realization(as_points=True, numerical=True)
-            # Draw the vertices as points in the 3D enviroment
-            x_nodes = [pos[node][0] for node in self._graph.nodes]
-            y_nodes = [pos[node][1] for node in self._graph.nodes]
-            z_nodes = [pos[node][2] for node in self._graph.nodes]
-            ax.scatter(x_nodes, y_nodes, z_nodes, c="#ff8c00", s=200)
-            for edge in self._graph.edges():
-                x = [pos[edge[0]][0], pos[edge[1]][0]]
-                y = [pos[edge[0]][1], pos[edge[1]][1]]
-                z = [pos[edge[0]][2], pos[edge[1]][2]]
-                ax.plot(x, y, z, c="k", lw=1.5)
-            for node in self._graph.nodes:
-                x, y, z = pos[node]
-                # To show the name of the vertex
-                ax.text(
-                    x, y, z, str(node), color="w", fontsize=10, ha="center", va="center"
-                )
-            ax.set_xlabel("X")
-            ax.set_ylabel("Y")
-            ax.set_zlabel("Z")
-            plt.show()
-            return  
-            
+        if self._dim == 3 and not animation:
+            placement = self.realization(as_points=True, numerical=True)
+            self._plot_with_3D_realization(
+                placement, inf_flex=inf_flex_pointwise, **kwargs
+            )
+            return
+
         elif self._dim == 3 and animation:
             # Creation of the figure
             fig = plt.figure()
@@ -608,13 +587,15 @@ class Framework(object):
             )
 
             # Initializing points (vertices) and lines (edges) for display
-            (vertices_plot,) = ax.plot([], [], [], "bo", markersize=10)
-            lines = [ax.plot([], [], [], "k-")[0] for _ in range(len(self._graph.edges))]
+            (vertices_plot,) = ax.plot([], [], [], "o", color="#ff8c00", markersize=10)
+            lines = [
+                ax.plot([], [], [], "k-")[0] for _ in range(len(self._graph.edges))
+            ]
 
             # Animation initialization function.
             def init():
                 vertices_plot.set_data([], [])  # Initial coordinates of vertices
-                vertices_plot.set_3d_properties([])  # Initial 3D properties of the vertices
+                vertices_plot.set_3d_properties([])  # Initial 3D properties of vertices
                 for line in lines:
                     line.set_data([], [])
                     line.set_3d_properties([])
@@ -656,8 +637,7 @@ class Framework(object):
             plt.show()
             return
 
-        #############
-        # dim > 3 -> use projection to 3D TODO
+        # dim > 3 -> use projection to 3D
         if coordinates is not None:
             if (
                 not isinstance(coordinates, tuple)
@@ -690,10 +670,84 @@ class Framework(object):
                 self._dim, random_seed=random_seed
             )
             projection_matrix = projection_matrix.T
-        self._plot_using_projection_matrix(projection_matrix, **kwargs)
+        self._plot_using_projection_matrix_3D(projection_matrix, **kwargs)
         if return_matrix:
             return projection_matrix
-            
+
+    @doc_category("Other")
+    def _plot_using_projection_matrix_3D(
+        self,
+        projection_matrix: Matrix,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the framework with the realization projected using the given matrix.
+
+        For description of other parameters see :meth:`.Framework.plot`.
+
+        Parameters
+        ----------
+        projection_matrix:
+            The matrix used for projection.
+            The matrix must have dimensions ``(3, dim)``,
+            where ``dim`` is the dimension of the framework.
+        """
+
+        placement = {}
+        for vertex, position in self.realization(
+            as_points=False, numerical=True
+        ).items():
+            placement[vertex] = np.dot(projection_matrix, np.array(position))
+
+        self._plot_with_3D_realization(placement, **kwargs)
+
+    @doc_category("Other")
+    def _plot_with_3D_realization(
+        self,
+        realization: dict[Vertex, Point],
+        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        vertex_color="#ff8c00",
+        edge_width=1.5,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the graph of the framework with the given realization in the plane.
+
+        For description of other parameters see :meth:`.Framework.plot`.
+
+        Parameters
+        ----------
+        realization:
+            The realization in the plane used for plotting.
+        inf_flex:
+            Optional parameter for plotting an infinitesimal flex. We expect
+            it to have the same format as `realization`: `dict[Vertex, Point]`.
+        """
+        # Create a figure for the rapresentation of the framework
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111, projection="3d")
+
+        pos = self.realization(as_points=True, numerical=True)
+        # Draw the vertices as points in the 3D enviroment
+        x_nodes = [pos[node][0] for node in self._graph.nodes]
+        y_nodes = [pos[node][1] for node in self._graph.nodes]
+        z_nodes = [pos[node][2] for node in self._graph.nodes]
+        ax.scatter(x_nodes, y_nodes, z_nodes, c="#ff8c00", s=200)
+        for edge in self._graph.edges():
+            x = [pos[edge[0]][0], pos[edge[1]][0]]
+            y = [pos[edge[0]][1], pos[edge[1]][1]]
+            z = [pos[edge[0]][2], pos[edge[1]][2]]
+            ax.plot(x, y, z, c="k", lw=1.5)
+        for node in self._graph.nodes:
+            x, y, z, *others = pos[node]
+            # To show the name of the vertex
+            ax.text(
+                x, y, z, str(node), color="w", fontsize=10, ha="center", va="center"
+            )
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_zlabel("Z")
+        plt.show()
 
     @doc_category("Other")
     def plot(
@@ -718,96 +772,11 @@ class Framework(object):
         elif self._dim > 3:
             raise ValueError(
                 "This framework is in higher dimension than 3!"
-                + " For projection into 2D use F.plot2D()"
+                + " For projection into 2D use F.plot2D(),"
+                + " for projection into 3D use F.plot3D()."
             )
         else:
             self.plot2D(**kwargs)
-
-    @doc_category("Other")
-    def plot3D_rotating(
-        self,
-        **kwargs,
-    ) -> None:
-        """
-        Plot the framework and makes it rotate.
-
-        If the dimension of the framework is different from 3, ``ValueError`` is raised,
-
-        TODO
-        ----
-        Implement plotting in dimension 2 and better plotting for dimension 1
-        """
-        if self._dim != 3:
-            raise ValueError(
-                "The graph is in dimension {self._dim}, it must be in dim 3."
-            )
-
-        # Creation of the figure
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection="3d")
-
-        # Limits of the axes
-        abs_list = [list(abs(i)) for i in self._realization.values()]
-        abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
-        b = float(max(abs_list) * 1.2)
-        ax.set_xlim(-b, b)
-        ax.set_ylim(-b, b)
-        ax.set_zlim(-b, b)
-
-        vertices = np.array(
-            [
-                list(list(self.realization().values())[i])
-                for i in range(self._graph.number_of_nodes())
-            ]
-        )
-
-        # Initializing points (vertices) and lines (edges) for display
-        (vertices_plot,) = ax.plot([], [], [], "bo", markersize=10)
-        lines = [ax.plot([], [], [], "k-")[0] for _ in range(len(self._graph.edges))]
-
-        # Animation initialization function.
-        def init():
-            vertices_plot.set_data([], [])  # Initial coordinates of vertices
-            vertices_plot.set_3d_properties([])  # Initial 3D properties of the vertices
-            for line in lines:
-                line.set_data([], [])
-                line.set_3d_properties([])
-            return [vertices_plot] + lines
-
-        # Function to update data at each frame
-        def update(frame):
-            angle = frame * np.pi / 50
-            # Rotation of vertices around the z-axis
-            rotation_matrix = np.array(
-                [
-                    [np.cos(angle), -np.sin(angle), 0],
-                    [np.sin(angle), np.cos(angle), 0],
-                    [0, 0, 1],
-                ]
-            )
-
-            rotated_vertices = vertices.dot(rotation_matrix.T)
-
-            # Update vertices positions
-            vertices_plot.set_data(rotated_vertices[:, 0], rotated_vertices[:, 1])
-            vertices_plot.set_3d_properties(rotated_vertices[:, 2])
-
-            # Update the edges
-            for i, (start, end) in enumerate(self._graph.edges):
-                line = lines[i]
-                line.set_data(
-                    [rotated_vertices[start, 0], rotated_vertices[end, 0]],
-                    [rotated_vertices[start, 1], rotated_vertices[end, 1]],
-                )
-                line.set_3d_properties(
-                    [rotated_vertices[start, 2], rotated_vertices[end, 2]]
-                )
-
-            return [vertices_plot] + lines
-
-        # Creating the animation
-        ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
-        plt.show()
 
     @classmethod
     @doc_category("Class methods")
