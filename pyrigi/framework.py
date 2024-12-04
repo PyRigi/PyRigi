@@ -926,7 +926,7 @@ class Framework(object):
 
         Notes
         -----
-        See `~Framework.set_vertex_pos`.
+        See :meth:`~Framework.set_vertex_pos`.
         """
         for v, pos in subset_of_realization.items():
             self.set_vertex_pos(v, pos)
@@ -947,11 +947,13 @@ class Framework(object):
         Parameters
         ----------
         vertex_order:
-            By listing vertices in the preferred order, the rigidity matrix
-            can be computed in a way the user expects.
-        edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+            A list of vertices, providing the ordering for the columns
+            of the rigidity matrix.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the rigidity matrix.
+            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
 
         TODO
         ----
@@ -1018,6 +1020,15 @@ class Framework(object):
         r"""
         Construct the rigidity matrix of the framework.
 
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the columns
+            of the rigidity matrix.
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the rigidity matrix.
+
         TODO
         ----
         definition of pinned rigidity matrix, tests
@@ -1040,7 +1051,7 @@ class Framework(object):
         if vertex_order is None:
             vertex_order = self._graph.vertex_list()
         if edge_order is None:
-            edge_order = self._graph.vertex_list()
+            edge_order = self._graph.edge_list()
 
         if pinned_vertices is None:
             freedom = self._dim * (self._dim + 1) // 2
@@ -1098,9 +1109,9 @@ class Framework(object):
         ----------
         stress:
             A stress of the framework.
-        edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the stress matrix.
 
         Examples
         --------
@@ -1151,13 +1162,19 @@ class Framework(object):
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
-    def trivial_inf_flexes(self) -> List[Matrix]:
+    def trivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
         r"""
         Return a basis of the vector subspace of trivial infinitesimal flexes.
 
         Definitions
         -----------
         * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
 
         TODO
         ----
@@ -1188,9 +1205,11 @@ class Framework(object):
         [-2],
         [ 0]])]
         """
+        if vertex_order is None:
+            vertex_order = self._graph.vertex_list()
         dim = self._dim
         translations = [
-            Matrix.vstack(*[A for _ in self._graph.nodes])
+            Matrix.vstack(*[A for _ in vertex_order])
             for A in Matrix.eye(dim).columnspace()
         ]
         basis_skew_symmetric = []
@@ -1201,7 +1220,7 @@ class Framework(object):
                 A[j, i] = -1
                 basis_skew_symmetric += [A]
         inf_rot = [
-            Matrix.vstack(*[A * self._realization[v] for v in self._graph.nodes])
+            Matrix.vstack(*[A * self._realization[v] for v in vertex_order])
             for A in basis_skew_symmetric
         ]
         matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
@@ -1210,6 +1229,8 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def nontrivial_inf_flexes(
         self,
+        vertex_order: List[Vertex] = None,
+        edge_order: List[Edge] = None,
     ) -> List[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
@@ -1217,6 +1238,13 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
+
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
         ----
@@ -1245,11 +1273,15 @@ class Framework(object):
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(include_trivial=False)
+        return self.inf_flexes(
+            vertex_order=vertex_order, edge_order=edge_order, include_trivial=False
+        )
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
         self,
+        vertex_order: List[Vertex] = None,
+        edge_order: List[Edge] = None,
         include_trivial: bool = False,
     ) -> List[Matrix]:
         r"""
@@ -1276,6 +1308,10 @@ class Framework(object):
         include_trivial:
             Boolean that decides, whether the trivial flexes should
             be included (``True``) or not (``False``)
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
         --------
@@ -1291,10 +1327,25 @@ class Framework(object):
         [0],
         [0],
         [0]])]
-        """
+        >>> F = Framework(Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]), {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]})
+        >>> F.inf_flexes()
+        [Matrix([
+        [0],
+        [0],
+        [0],
+        [0],
+        [0],
+        [1],
+        [0],
+        [0],
+        [0],
+        [0]])]
+        """  # noqa: E501
+        rigidity_matrix = self.rigidity_matrix(
+            vertex_order=vertex_order, edge_order=edge_order
+        )
         if include_trivial:
-            return self.rigidity_matrix().nullspace()
-        rigidity_matrix = self.rigidity_matrix()
+            return rigidity_matrix.nullspace()
         all_inf_flexes = rigidity_matrix.nullspace()
         trivial_inf_flexes = self.trivial_inf_flexes()
         s = len(trivial_inf_flexes)
@@ -1309,13 +1360,24 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self) -> List[Matrix]:
+    def stresses(
+        self,
+        vertex_order: List[Vertex] = None,
+        edge_order: List[Edge] = None,
+    ) -> List[Matrix]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
         Definitions
         -----------
         :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+
+        Parameters
+        ----------
+
+        edge_order:
+            A list of edges, providing the ordering for the entries of the stresses.
+            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
 
         Examples
         --------
@@ -1335,7 +1397,11 @@ class Framework(object):
         ----
         tests
         """
-        return self.rigidity_matrix().transpose().nullspace()
+        return (
+            self.rigidity_matrix(vertex_order=vertex_order, edge_order=edge_order)
+            .transpose()
+            .nullspace()
+        )
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
