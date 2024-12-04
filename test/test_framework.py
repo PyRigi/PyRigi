@@ -542,6 +542,24 @@ def test_plot2D_error():
         F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0]})
 
 
+def test_rigidity_matrix():
+    F = fws.Complete(2)
+    assert F.rigidity_matrix() == Matrix([-1, 0, 1, 0]).transpose()
+
+    F = fws.Path(3)
+    assert F.rigidity_matrix() == Matrix(
+        [[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]]
+    )
+
+    F = fws.Complete(3, d=1)
+    assert F.rigidity_matrix() == Matrix(
+        [[-1, 1, 0], [-2, 0, 2], [0, -1, 1]]
+    )
+
+    F = fws.Complete(4, d=3)
+    assert F.rigidity_matrix().shape == (6, 12)
+
+
 def test_rigidity_matrix_rank():
     K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
     assert K4.rigidity_matrix_rank() == 5
@@ -556,6 +574,20 @@ def test_rigidity_matrix_rank():
 
     F = fws.Frustum(3)  # has a single infinitesimal motion and stress
     assert F.rigidity_matrix_rank() == 8
+
+
+def test_stress_matrix():
+    F = fws.Complete(4)
+    assert F.stress_matrix([1, -1, 1, 1, -1, 1]) == Matrix(
+        [[1, -1, 1, -1], [-1, 1, -1, 1], [1, -1, 1, -1], [-1, 1, -1, 1]]
+    )
+
+    F = fws.Frustum(3)
+    assert F.stress_matrix([2, 2, 6, 2, 6, 6, -1, -1, -1]) == Matrix(
+        [[10, -2, -2, -6, 0, 0], [-2, 10, -2, 0, -6, 0],
+         [-2, -2, 10, 0, 0, -6], [-6, 0, 0, 4, 1, 1],
+         [0, -6, 0, 1, 4, 1], [0, 0, -6, 1, 1, 4]]
+    )
 
 
 def test_edge_lengths():

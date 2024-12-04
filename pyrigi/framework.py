@@ -953,10 +953,6 @@ class Framework(object):
             A Boolean indicating, whether the edges are assumed to be ordered (``True``),
             or whether they should be internally sorted (``False``).
 
-        TODO
-        ----
-        tests
-
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
@@ -1118,9 +1114,13 @@ class Framework(object):
         TODO
         ----
         Implement arbitrary ``vertex_order``.
-        Check that the input is indeed a stress.
-        Tests.
         """
+        if not Matrix(stress).transpose()*self.rigidity_matrix() == Matrix([
+            0 for _ in range((self.rigidity_matrix().shape)[1])
+        ]).transpose():
+            raise ValueError(
+                "The provided stress does not lie in the cokernel of the rigidity matrix!"
+            )
         if edge_order is None:
             edge_order = self._graph.edge_list()
         else:
@@ -1158,11 +1158,6 @@ class Framework(object):
         Definitions
         -----------
         * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
-
-        TODO
-        ----
-        more tests, in particular testing `trivial_inf_flexes`==
-        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Examples
         --------
@@ -1237,10 +1232,6 @@ class Framework(object):
         [         0],
         [         0]])]
 
-        TODO
-        ----
-        tests
-
         Notes
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
@@ -1261,11 +1252,6 @@ class Framework(object):
         Return a basis of the vector space of infinitesimal flexes
         if ``include_trivial=True``.
         Else, return the entire kernel.
-
-        TODO
-        ----
-        more tests, in particular testing `trivial_inf_flexes`==
-        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Definitions
         -----------
