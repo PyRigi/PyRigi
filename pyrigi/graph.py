@@ -1890,8 +1890,9 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        If the graph itself is rigid, it is clearly
-        maximal and is returned.
+        We only return nontrivial subgraphs, meaning that there need to be at
+        least ``2`` vertices present. If the graph itself is rigid, it is
+        clearly maximal and is returned.
 
         Examples
         --------

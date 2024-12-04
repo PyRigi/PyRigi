@@ -1068,8 +1068,7 @@ def test_integer_representation_fail():
         ["is_Rd_independent", []],
         ["is_Rd_circuit", []],
         ["is_Rd_closed", []],
-        ["max_rigid_subgraphs", []],
-        ["min_rigid_subgraphs", []],
+        ["rigid_components", []]
     ],
 )
 def test_loops(method, params):
