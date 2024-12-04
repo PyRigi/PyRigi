@@ -893,7 +893,20 @@ def test_not_min_k_redundantly_rigid_in_d3(graph, k):
     assert not graph.is_min_k_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
-def test_min_rigid_subgraphs():
+def test_rigid_components():
+    G = graphs.Path(6)
+    rigid_components = G.rigid_components(dim=1)
+    assert rigid_components[0] == [0, 1, 2, 3, 4, 5]
+    G.remove_edge(2, 3)
+    rigid_components = G.rigid_components(dim=1)
+    assert [set(H) for H in rigid_components] == [
+        set([0, 1, 2]),
+        set([3, 4, 5]),
+    ] or [set(H) for H in rigid_components] == [
+        set([3, 4, 5]),
+        set([0, 1, 2]),
+    ]
+
     G = Graph(
         [
             (0, 1),
@@ -910,69 +923,47 @@ def test_min_rigid_subgraphs():
             ("a", "b"),
         ]
     )
-    assert [set(H) for H in G.min_rigid_subgraphs()] == [
-        set([0, "a", "b"]),
-        set([0, 1, 5, 3, 2, 4]),
-    ] or [set(H) for H in G.min_rigid_subgraphs()] == [
-        set([0, 1, 5, 3, 2, 4]),
-        set([0, "a", "b"]),
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [
+        set([0, 'a', 'b']),
+        set([0, 1, 2, 3, 4, 5])
+    ] or [set(H) for H in rigid_components] == [
+        set([0, 1, 2, 3, 4, 5]),
+        set([0, 'a', 'b'])
     ]
 
     G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [
         set([0, 1, 2]),
         set([3, 4, 5]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
+    ] or [set(H) for H in rigid_components] == [
         set([3, 4, 5]),
         set([0, 1, 2]),
     ]
 
     G = graphs.ThreePrism()
-    min_subgraphs = G.min_rigid_subgraphs()
-    assert len(min_subgraphs) == 2 and (
-        min_subgraphs == [[0, 1, 2], [3, 4, 5]]
-        or min_subgraphs == [[3, 4, 5], [0, 1, 2]]
+    rigid_components = G.rigid_components()
+    assert len(rigid_components) == 1 and (
+        rigid_components == [[0, 1, 2, 3, 4, 5]]
     )
 
-
-def test_max_rigid_subgraphs():
-    G = Graph(
-        [
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 4),
-            (4, 5),
-            (5, 0),
-            (0, 3),
-            (1, 4),
-            (2, 5),
-            (0, "a"),
-            (0, "b"),
-            ("a", "b"),
-        ]
-    )
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, "a", "b"]),
-        set([0, 1, 5, 3, 2, 4]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, 1, 5, 3, 2, 4]),
-        set([0, "a", "b"]),
+    G = graphs.ThreeConnectedR3Circuit()
+    G.remove_node(0)
+    rigid_components = G.rigid_components()
+    assert sorted([sorted(H) for H in rigid_components]) == [
+        [1, 2, 3, 4], [1, 10, 11, 12], [4, 5, 6, 7], [7, 8, 9, 10]
     ]
 
-    G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, 1, 2]),
-        set([3, 4, 5]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([3, 4, 5]),
-        set([0, 1, 2]),
+    G = graphs.DoubleBanana()
+    rigid_components = G.rigid_components(dim=3)
+    assert [set(H) for H in rigid_components] == [
+        set([0, 1, 2, 3, 4]),
+        set([0, 1, 5, 6, 7]),
+    ] or [set(H) for H in rigid_components] == [
+        set([0, 1, 5, 6, 7]),
+        set([0, 1, 2, 3, 4]),
     ]
-
-    G = graphs.ThreePrism()
-    G.delete_edge([4, 5])
-    max_subgraphs = G.max_rigid_subgraphs()
-    assert len(max_subgraphs) == 1 and max_subgraphs[0] == [0, 1, 2]
 
 
 def test_str():
