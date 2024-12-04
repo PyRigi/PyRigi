@@ -1890,21 +1890,20 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        We only return nontrivial subgraphs, meaning that there need to be at
-        least ``dim+1`` vertices present. If the graph itself is rigid, it is clearly
+        If the graph itself is rigid, it is clearly
         maximal and is returned.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
         >>> G.rigid_components()
-        []
+        [[0, 1], [0, 3], [1, 2], [2, 3]]
 
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
         >>> G.is_rigid()
         False
         >>> G.rigid_components()
-        [[0, 1, 2], [3, 4, 5]]
+        [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1919,13 +1918,11 @@ class Graph(nx.Graph):
                 res += self.subgraph(comp).rigid_components(dim)
             return res
 
-        if self.number_of_nodes() <= dim:
-            return []
         if self.is_rigid(dim, combinatorial=(dim < 3)):
             return [list(self)]
         rigid_subgraphs = {
             tuple(vertex_subset): True
-            for r in range(dim + 1, self.number_of_nodes() - 1)
+            for r in range(2, self.number_of_nodes()-1)
             for vertex_subset in combinations(self.nodes, r)
             if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
         }

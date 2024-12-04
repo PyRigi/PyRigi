@@ -43,7 +43,7 @@ A graph $G = (V, E)$ is minimally (generically) $2$-rigid if and only if $G$ is 
 
 Let $G$ be a graph, let $d \in \NN$.
 The _rigid components_ of $G$ are the maximal vertex-induced subgraphs 
-of $G$ with at least $d+1$ vertices that are rigid.
+of $G$ with at least $2$ vertices that are rigid.
 
 {{pyrigi_crossref}} {meth}`~.Graph.rigid_components`
 :::

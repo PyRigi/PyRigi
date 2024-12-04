@@ -907,6 +907,12 @@ def test_rigid_components():
         set([0, 1, 2]),
     ]
 
+    G = graphs.Path(5)
+    rigid_components = G.rigid_components()
+    assert sorted([sorted(H) for H in rigid_components]) == [
+        [0, 1], [1, 2], [2, 3], [3, 4]
+    ]
+
     G = Graph(
         [
             (0, 1),
