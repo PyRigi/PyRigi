@@ -220,6 +220,26 @@ def test_inf_flexes():
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
     assert len(fws.Square().inf_flexes(include_trivial=False)) == 1
 
+    F = fws.ThreePrism(realization="flexible")
+    C = Framework(graphs.Complete(6), realization=F.realization())
+    QF = Matrix.hstack(*(F.nontrivial_inf_flexes()))
+    QC = Matrix.hstack(*(C.nontrivial_inf_flexes()))
+    assert QF.rank() == 1 and QC.rank() == 0
+    assert F.trivial_inf_flexes() == C.trivial_inf_flexes()
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
+    QC = Matrix.hstack(*(F.trivial_inf_flexes()))
+    assert Matrix.hstack(QF, QC).rank() == 4
+
+    F = fws.Path(4)
+    assert Matrix.hstack(*(F.nontrivial_inf_flexes())).rank() == 2
+
+    F = fws.Frustum(4)
+    QF = F.inf_flexes(include_trivial=True)
+    assert Matrix.hstack(*QF).rank() == 5
+
+    F = Framework.Random(graphs.DoubleBanana(), dim=3)
+    assert Matrix.hstack(*F.nontrivial_inf_flexes()).rank() == 1
+
 
 def test_is_injective():
     F1 = fws.Complete(4, 2)
