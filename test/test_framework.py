@@ -240,6 +240,10 @@ def test_inf_flexes():
     F = Framework.Random(graphs.DoubleBanana(), dim=3)
     assert Matrix.hstack(*F.nontrivial_inf_flexes()).rank() == 1
 
+    F = fws.Complete(5)
+    F_triv = F.trivial_inf_flexes()
+    F_all = F.inf_flexes(include_trivial=True)
+    assert Matrix.hstack(*F_triv).rank() == Matrix.hstack(*(F_all+F_triv)).rank()
 
 def test_is_injective():
     F1 = fws.Complete(4, 2)
