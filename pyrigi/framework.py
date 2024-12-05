@@ -1084,6 +1084,10 @@ class Framework(object):
         r"""
         Tests whether a stress lies in the cokernel of the rigidity matrix.
 
+        Definitions
+        -----------
+        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+
         Parameters
         ----------
         stress:
@@ -1105,15 +1109,8 @@ class Framework(object):
         False
         """
         return (
-            Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order)
-            == Matrix(
-                [
-                    0
-                    for _ in range(
-                        (self.rigidity_matrix(edge_order=edge_order).shape)[1]
-                    )
-                ]
-            ).transpose()
+            Matrix.hstack(*(self.stresses() + [Matrix(stress)])).rank()
+            == Matrix.hstack(*(self.stresses())).rank()
         )
 
     @doc_category("Infinitesimal rigidity")
