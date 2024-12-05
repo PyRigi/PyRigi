@@ -1106,7 +1106,14 @@ class Framework(object):
         """
         return (
             Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order)
-            == Matrix([0 for _ in range((self.rigidity_matrix(edge_order=edge_order).shape)[1])]).transpose()
+            == Matrix(
+                [
+                    0
+                    for _ in range(
+                        (self.rigidity_matrix(edge_order=edge_order).shape)[1]
+                    )
+                ]
+            ).transpose()
         )
 
     @doc_category("Infinitesimal rigidity")

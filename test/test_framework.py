@@ -590,11 +590,15 @@ def test_stress_matrix():
         ]
     )
 
+
 def test_stresses():
     Q1 = Matrix.hstack(*(fws.Complete(5).rigidity_matrix().transpose().nullspace()))
     Q2 = Matrix.hstack(*(fws.Complete(5).stresses()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
-    assert [fws.Complete(4).is_stress([entry for entry in s.transpose()]) for s in fws.Complete(4).stresses()]
+    assert [
+        fws.Complete(4).is_stress([entry for entry in s.transpose()])
+        for s in fws.Complete(4).stresses()
+    ]
 
 
 def test_edge_lengths():
