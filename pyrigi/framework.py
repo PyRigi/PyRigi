@@ -21,8 +21,9 @@ from random import randrange
 
 import networkx as nx
 import sympy as sp
-from sympy import Matrix, flatten, binomial
+from sympy import Matrix, flatten, binomial, simplify
 import numpy as np
+from math import isclose
 
 from pyrigi.data_type import (
     Vertex,
@@ -950,8 +951,7 @@ class Framework(object):
             By listing vertices in the preferred order, the rigidity matrix
             can be computed in a way the user expects.
         edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+            A list of edges determining the internal edge order.
 
         Examples
         --------
@@ -1077,9 +1077,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_stress(
-        self,
-        stress: Stress,
-        edge_order: List[Edge] = None,
+        self, stress: Stress, edge_order: List[Edge] = None, symbolic: bool = False
     ) -> bool:
         r"""
         Tests whether a stress lies in the cokernel of the rigidity matrix.
@@ -1093,8 +1091,10 @@ class Framework(object):
         stress:
             A stress of the framework.
         edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+            A list of edges determining the internal edge order.
+        symbolic:
+            A Boolean determining whether the evaluation of the product of the `stress`
+            and the rigidity matrix is symbolic or numerical.
 
         Examples
         --------
@@ -1108,9 +1108,20 @@ class Framework(object):
         >>> F.is_stress(omega1)
         False
         """
-        return (
-            Matrix.hstack(*(self.stresses() + [Matrix(stress)])).rank()
-            == Matrix.hstack(*(self.stresses())).rank()
+        if symbolic:
+            return all(
+                [
+                    simplify(ex).is_zero
+                    for ex in Matrix(stress).transpose()
+                    * self.rigidity_matrix(edge_order=edge_order)
+                ]
+            )
+        return all(
+            [
+                isclose(ex.evalf(100), 0, abs_tol=1e-15)
+                for ex in Matrix(stress).transpose()
+                * self.rigidity_matrix(edge_order=edge_order)
+            ]
         )
 
     @doc_category("Infinitesimal rigidity")
@@ -1133,8 +1144,7 @@ class Framework(object):
         stress:
             A stress of the framework.
         edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+            A list of edges determining the internal edge order.
 
         Examples
         --------
@@ -1195,6 +1205,10 @@ class Framework(object):
         -----------
         * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
 
+        TODO
+        --------
+        Vertex Order
+
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (2,0), (0,2)])
@@ -1249,6 +1263,10 @@ class Framework(object):
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
 
+        TODO
+        --------
+        Vertex Order
+
         Examples
         ----
         >>> import pyrigi.graphDB as graphs
@@ -1299,6 +1317,10 @@ class Framework(object):
             Boolean that decides, whether the trivial flexes should
             be included (``True``) or not (``False``)
 
+        TODO
+        --------
+        Vertex Order
+
         Examples
         --------
         >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
@@ -1331,7 +1353,7 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self) -> List[Matrix]:
+    def stresses(self, edge_order: List[Edge] = None) -> List[Matrix]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
@@ -1357,7 +1379,7 @@ class Framework(object):
         ----
         tests
         """
-        return self.rigidity_matrix().transpose().nullspace()
+        return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
