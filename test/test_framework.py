@@ -547,14 +547,10 @@ def test_rigidity_matrix():
     assert F.rigidity_matrix() == Matrix([-1, 0, 1, 0]).transpose()
 
     F = fws.Path(3)
-    assert F.rigidity_matrix() == Matrix(
-        [[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]]
-    )
+    assert F.rigidity_matrix() == Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])
 
     F = fws.Complete(3, d=1)
-    assert F.rigidity_matrix() == Matrix(
-        [[-1, 1, 0], [-2, 0, 2], [0, -1, 1]]
-    )
+    assert F.rigidity_matrix() == Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])
 
     F = fws.Complete(4, d=3)
     assert F.rigidity_matrix().shape == (6, 12)
@@ -584,10 +580,21 @@ def test_stress_matrix():
 
     F = fws.Frustum(3)
     assert F.stress_matrix([2, 2, 6, 2, 6, 6, -1, -1, -1]) == Matrix(
-        [[10, -2, -2, -6, 0, 0], [-2, 10, -2, 0, -6, 0],
-         [-2, -2, 10, 0, 0, -6], [-6, 0, 0, 4, 1, 1],
-         [0, -6, 0, 1, 4, 1], [0, 0, -6, 1, 1, 4]]
+        [
+            [10, -2, -2, -6, 0, 0],
+            [-2, 10, -2, 0, -6, 0],
+            [-2, -2, 10, 0, 0, -6],
+            [-6, 0, 0, 4, 1, 1],
+            [0, -6, 0, 1, 4, 1],
+            [0, 0, -6, 1, 1, 4],
+        ]
     )
+
+def test_stresses():
+    Q1 = Matrix.hstack(*(fws.Complete(5).rigidity_matrix().transpose().nullspace()))
+    Q2 = Matrix.hstack(*(fws.Complete(5).stresses()))
+    assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
+    assert [fws.Complete(4).is_stress([entry for entry in s.transpose()]) for s in fws.Complete(4).stresses()]
 
 
 def test_edge_lengths():

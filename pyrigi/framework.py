@@ -974,8 +974,8 @@ class Framework(object):
             edge_order = self._graph.edge_list()
         else:
             if not (
-                set([set(e) for e in self._graph.edges])
-                == set([set(e) for e in edge_order])
+                sorted([sorted(list(e)) for e in self._graph.edges])
+                == sorted([sorted(list(e)) for e in edge_order])
                 and len(edge_order) == self._graph.number_of_edges()
             ):
                 raise ValueError(
@@ -1076,6 +1076,40 @@ class Framework(object):
         return pinned_rigidity_matrix
 
     @doc_category("Infinitesimal rigidity")
+    def is_stress(
+        self,
+        stress: Stress,
+        edge_order: List[Edge] = None,
+    ) -> bool:
+        r"""
+        Tests whether a stress lies in the cokernel of the rigidity matrix.
+
+        Parameters
+        ----------
+        stress:
+            A stress of the framework.
+        edges_ordered:
+            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
+            or whether they should be internally sorted (``False``).
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
+        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
+        >>> F = Framework(G, pos)
+        >>> omega1 = [-8, -4, -4, 2, 2, 1]
+        >>> F.is_stress(omega1)
+        True
+        >>> omega1[0] = 0
+        >>> F.is_stress(omega1)
+        False
+        """
+        return (
+            Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order)
+            == Matrix([0 for _ in range((self.rigidity_matrix(edge_order=edge_order).shape)[1])]).transpose()
+        )
+
+    @doc_category("Infinitesimal rigidity")
     def stress_matrix(
         self,
         stress: Stress,
@@ -1115,18 +1149,16 @@ class Framework(object):
         ----
         Implement arbitrary ``vertex_order``.
         """
-        if not Matrix(stress).transpose()*self.rigidity_matrix() == Matrix([
-            0 for _ in range((self.rigidity_matrix().shape)[1])
-        ]).transpose():
+        if edge_order is None:
+            edge_order = self._graph.edge_list()
+        if not self.is_stress(stress, edge_order=edge_order):
             raise ValueError(
                 "The provided stress does not lie in the cokernel of the rigidity matrix!"
             )
-        if edge_order is None:
-            edge_order = self._graph.edge_list()
         else:
             if not (
-                set([set(e) for e in self._graph.edges])
-                == set([set(e) for e in edge_order])
+                sorted([sorted(list(e)) for e in self._graph.edges])
+                == sorted([sorted(list(e)) for e in edge_order])
                 and len(edge_order) == self._graph.number_of_edges()
             ):
                 raise ValueError(
