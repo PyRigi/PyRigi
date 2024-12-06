@@ -285,8 +285,8 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_2D_realization(
         self,
-        realization: dict[Vertex, Point],
-        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        realization: Dict[Vertex, Point],
+        inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -344,7 +344,7 @@ class Framework(object):
     def plot2D(  # noqa: C901
         self,
         coordinates: Union[tuple, list] = None,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        inf_flex: Matrix | int | Dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -1686,13 +1686,43 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self, numerical: bool = False) -> dict[tuple[Edge, Edge], float]:
+    def evaluate_realization(self) -> Dict[Vertex, Point]:
+        """
+        Evaluate a given symbolic realization to floating point coordinates.
+
+        Notes
+        -----
+        The cutoff accuracy is fixed to 16 digits, which is roughly equal to
+        the machine precision in a 64-bit machine.
+
+        To set the evaluated realization as the new realization for the framework,
+        run `Framework.set_realization(Framework.evaluate_realization())`.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Complete(4)
+        >>> F.realization(as_points=True)
+        {0: [1, 0], 1: [0, 1], 2: [-1, 0], 3: [0, -1]}
+        >>> points = F.evaluate_realization(); points
+        {0: [1.0, 0.0], 1: [0.0, 1.0], 2: [-1.0, 0.0], 3: [0.0, -1.0]}
+        >>> F.set_realization(points)
+        >>> F.realization(as_points=True, numerical=True)
+        {0: [1.0, 0.0], 1: [0.0, 1.0], 2: [-1.0, 0.0], 3: [0.0, -1.0]}
+        """
+        return {
+            v: [float(entry.evalf(16)) for entry in pt]
+            for v, pt in self.realization(as_points=True).items()
+        }
+
+    @doc_category("Other")
+    def edge_lengths(self, numerical: bool = False) -> Dict[tuple[Edge, Edge], float]:
         """
         Return the edges and their lengths (numerically) of the framework.
 
         The ordering is given by graph().edge_list() method.
 
-        Returns
+        Parameters
         -------
         lengths
             Dict of edges and their lengths in the framework.
@@ -1705,30 +1735,19 @@ class Framework(object):
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
         >>> F.edge_lengths(numerical=False)
         {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
-        """
-        points = self.realization(as_points=True)
+        >>> F.edge_lengths(numerical=True)
+        {(0, 1): 1.00000000000000, (0, 3): 1.42400062421959, (1, 2): 1.11803398874989, (2, 3): 0.544383879057837}
+        """  # noqa: E501
         if numerical:
-            from numpy import array as nparray
-            from numpy.linalg import norm as npnorm
-
-            lengths = {
-                tuple(pair): npnorm(
-                    nparray(points[pair[0]], dtype="float64")
-                    - nparray(points[pair[1]], dtype="float64")
-                )
-                for pair in self._graph.edges
-            }
+            points = self.evaluate_realization()
         else:
-            lengths = {
-                tuple(pair): sp.sqrt(
-                    sum(
-                        [(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])]
-                    )
-                )
-                for pair in self._graph.edges
-            }
-
-        return lengths
+            points = self.realization(as_points=True)
+        return {
+            tuple(pair): sp.sqrt(
+                sum([(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])])
+            )
+            for pair in self._graph.edges
+        }
 
     @staticmethod
     def _generate_stl_bar(
@@ -1894,7 +1913,7 @@ class Framework(object):
     @doc_category("Other")
     def _transform_inf_flex_to_pointwise(  # noqa: C901
         self, flex: Matrix, vertex_order: List[Vertex] = None
-    ) -> dict[Vertex, Sequence[Coordinate]]:
+    ) -> Dict[Vertex, Sequence[Coordinate]]:
         r"""
         Transform the natural data type of a flex (Matrix) to a
         dictionary that maps a vertex to a Sequence of coordinates
@@ -1958,7 +1977,7 @@ class Framework(object):
         return self.is_dict_inf_flex(vect_as_dict)
 
     def is_dict_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]]
+        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]]
     ) -> bool:
         """
         Return whether a dictionary specifies an infinitesimal flex of the framework.
