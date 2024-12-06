@@ -1686,36 +1686,50 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self) -> dict[tuple[Edge, Edge], float]:
+    def edge_lengths(self, numerical: bool = False) -> dict[tuple[Edge, Edge], float]:
         """
         Return the edges and their lengths (numerically) of the framework.
 
         The ordering is given by graph().edge_list() method.
 
-        TODO symbolic version of this method
-
         Returns
         -------
         lengths
             Dict of edges and their lengths in the framework.
+        numerical:
+            If ``True``, the vertex positions are converted to floats.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
-        >>> l_dict = F.edge_lengths()
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
+        >>> F.edge_lengths(numerical=False)
+        {(0, 1): 1,
+        (0, 3): sqrt(73)/6,
+        (1, 2): sqrt(5)/2,
+        (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
         """
-        from numpy import array as nparray
-        from numpy.linalg import norm as npnorm
-
         points = self.realization(as_points=True)
-        lengths = {
-            tuple(pair): npnorm(
-                nparray(points[pair[0]], dtype="float64")
-                - nparray(points[pair[1]], dtype="float64")
-            )
-            for pair in self._graph.edges
-        }
+        if numerical:
+            from numpy import array as nparray
+            from numpy.linalg import norm as npnorm
+
+            lengths = {
+                tuple(pair): npnorm(
+                    nparray(points[pair[0]], dtype="float64")
+                    - nparray(points[pair[1]], dtype="float64")
+                )
+                for pair in self._graph.edges
+            }
+        else:
+            lengths = {
+                tuple(pair): sp.sqrt(
+                    sum(
+                        [(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])]
+                    )
+                )
+                for pair in self._graph.edges
+            }
 
         return lengths
 
