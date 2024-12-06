@@ -1151,12 +1151,12 @@ class Framework(object):
             )
         # creation of a zero |V|x|V| matrix
         stress_matr = sp.zeros(len(self._graph))
-        for v in self._graph.nodes:
+        for v in vertex_order:
             i = vertex_order.index(v)
             for edge in edge_order:
                 if v in edge:
                     stress_matr[i, i] += stress[edge_order.index(edge)]
-        for v, w in combinations(self._graph.nodes, 2):
+        for v, w in combinations(vertex_order, 2):
             i, j = vertex_order.index(v), vertex_order.index(w)
             if [v, w] in edge_order or (v, w) in edge_order:
                 stress_matr[i, j] = -stress[edge_order.index([v, w])]
