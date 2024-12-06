@@ -1704,10 +1704,7 @@ class Framework(object):
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
         >>> F.edge_lengths(numerical=False)
-        {(0, 1): 1,
-        (0, 3): sqrt(73)/6,
-        (1, 2): sqrt(5)/2,
-        (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
+        {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
         """
         points = self.realization(as_points=True)
         if numerical:
