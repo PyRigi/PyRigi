@@ -1741,16 +1741,25 @@ class Framework(object):
         if numerical:
             points = self.evaluate_realization()
             return {
-                tuple(pair): float(np.sqrt(
-                    sum([(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])])
-                ))
+                tuple(pair): float(
+                    np.sqrt(
+                        sum(
+                            [
+                                (v - w) ** 2
+                                for v, w in zip(points[pair[0]], points[pair[1]])
+                            ]
+                        )
+                    )
+                )
                 for pair in self._graph.edges
             }
         else:
             points = self.realization(as_points=True)
             return {
                 tuple(pair): sp.sqrt(
-                    sum([(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])])
+                    sum(
+                        [(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])]
+                    )
                 )
                 for pair in self._graph.edges
             }
