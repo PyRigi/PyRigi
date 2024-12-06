@@ -1718,14 +1718,12 @@ class Framework(object):
     @doc_category("Other")
     def edge_lengths(self, numerical: bool = False) -> Dict[tuple[Edge, Edge], float]:
         """
-        Return the edges and their lengths (numerically) of the framework.
+        Return a ``dict`` of the framework's edges and their corresponding lengths.
 
-        The ordering is given by graph().edge_list() method.
+        The ordering is given by the internal order from ``Framework.graph().edge_list()``.
 
         Parameters
         -------
-        lengths
-            Dict of edges and their lengths in the framework.
         numerical:
             If ``True``, the vertex positions are converted to floats.
 
