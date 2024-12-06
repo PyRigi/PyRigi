@@ -1696,7 +1696,7 @@ class Framework(object):
         the machine precision in a 64-bit machine.
 
         To set the evaluated realization as the new realization for the framework,
-        run `Framework.set_realization(Framework.evaluate_realization())`.
+        run ``Framework.set_realization(Framework.evaluate_realization())``.
 
         Examples
         --------
