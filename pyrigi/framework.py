@@ -1736,18 +1736,24 @@ class Framework(object):
         >>> F.edge_lengths(numerical=False)
         {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
         >>> F.edge_lengths(numerical=True)
-        {(0, 1): 1.00000000000000, (0, 3): 1.42400062421959, (1, 2): 1.11803398874989, (2, 3): 0.544383879057837}
+        {(0, 1): 1.0, (0, 3): 1.4240006242195884, (1, 2): 1.118033988749895, (2, 3): 0.5443838790578374}
         """  # noqa: E501
         if numerical:
             points = self.evaluate_realization()
+            return {
+                tuple(pair): float(np.sqrt(
+                    sum([(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])])
+                ))
+                for pair in self._graph.edges
+            }
         else:
             points = self.realization(as_points=True)
-        return {
-            tuple(pair): sp.sqrt(
-                sum([(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])])
-            )
-            for pair in self._graph.edges
-        }
+            return {
+                tuple(pair): sp.sqrt(
+                    sum([(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])])
+                )
+                for pair in self._graph.edges
+            }
 
     @staticmethod
     def _generate_stl_bar(
