@@ -1226,10 +1226,7 @@ class Framework(object):
         return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
-    def nontrivial_inf_flexes(
-        self,
-        vertex_order: List[Vertex] = None
-    ) -> List[Matrix]:
+    def nontrivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
 
@@ -1270,9 +1267,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
-        self,
-        include_trivial: bool = False,
-        vertex_order: List[Vertex] = None
+        self, include_trivial: bool = False, vertex_order: List[Vertex] = None
     ) -> List[Matrix]:
         r"""
         Return a basis of the space of infinitesimal flexes.
@@ -1978,7 +1973,9 @@ class Framework(object):
 
     @doc_category("Framework properties")
     def is_dict_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], vertex_order: List[Vertex] = None
+        self,
+        vert_to_flex: dict[Vertex, Sequence[Coordinate]],
+        vertex_order: List[Vertex] = None,
     ) -> bool:
         """
         Return whether a dictionary specifies an infinitesimal flex of the framework.
@@ -2023,11 +2020,12 @@ class Framework(object):
             )[0, 0] != 0:
                 return False
         return True
-    
+
     @doc_category("Other")
-    def check_vertex_order(self, vertex_order = List[Vertex]) -> List[Vertex]:
+    def check_vertex_order(self, vertex_order=List[Vertex]) -> List[Vertex]:
         """
-        Checks whether the provided `vertex_order` contains the same elements as the graph's vertex set.
+        Checks whether the provided `vertex_order` contains the same elements
+        as the graph's vertex set.
 
         Parameters
         ----------
@@ -2048,11 +2046,12 @@ class Framework(object):
                     + "exactly the same vertices as the graph!"
                 )
             return vertex_order
-        
+
     @doc_category("Other")
-    def check_edge_order(self, edge_order = List[Vertex]) -> List[Vertex]:
+    def check_edge_order(self, edge_order=List[Vertex]) -> List[Edge]:
         """
-        Checks whether the provided `edge_order` contains the same elements as the graph's edge set.
+        Checks whether the provided `edge_order` contains the same elements
+        as the graph's edge set.
 
         Parameters
         ----------
@@ -2072,7 +2071,6 @@ class Framework(object):
                     "edge_order must contain exactly the same edges as the graph!"
                 )
             return edge_order
-
 
 
 Framework.__doc__ = Framework.__doc__.replace(
