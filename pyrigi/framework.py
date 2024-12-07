@@ -511,6 +511,12 @@ class Framework(object):
         is taken to be ``[0,...,len(points)-1]``.
         The underlying graph has no edges.
 
+        Parameters
+        ----------
+        points:
+            The realization of the framework that this method outputs
+            is provided as a list of points.
+
         Examples
         --------
         >>> F = Framework.from_points([(1,2), (2,3)])
@@ -526,10 +532,19 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
+        cls, graph: Graph, dim: int = 2, rand_range: int | List[int] = None
     ) -> Framework:
         """
         Return a framework with random realization.
+
+        Parameters
+        ----------
+        graph:
+            Graph on which the random realization should be constructed.
+        rand_range:
+            Sets the range of random numbers from which the realization is
+            sampled. The format is either an interval ``(a,b)`` or a single
+            integer ``a``, which produces the range ``(-a,a)``.
 
         Examples
         --------
@@ -538,6 +553,10 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(122, 57), 1:(27, 144), 2:(50, 98)}
+
+        Notes
+        -----
+        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``. 
 
         TODO
         ----
@@ -572,6 +591,11 @@ class Framework(object):
         """
         Return the framework with a regular unit circle realization in the plane.
 
+        Parameters
+        ----------
+        graph:
+            Underlying graph on which the framework is constructed.
+
         Examples
         ----
         >>> import pyrigi.graphDB as graphs
@@ -595,6 +619,11 @@ class Framework(object):
     def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
+
+        Parameters
+        ----------
+        graph:
+            Underlying graph on which the framework is constructed.
 
         Examples
         --------
@@ -621,6 +650,8 @@ class Framework(object):
 
         Parameters
         ----------
+        graph:
+            Underlying graph on which the framework is constructed.
         d:
             The dimension ``d`` has to be at least the number of vertices
             of the ``graph`` minus one.
@@ -686,9 +717,9 @@ class Framework(object):
 
         Parameters
         ----------
-        dim:
-            a natural number that determines the dimension
-            in which the framework is realized
+        points:
+            The realization of the framework that this method outputs
+            is provided as a list of points.            
 
         Examples
         --------
