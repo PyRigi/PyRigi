@@ -302,7 +302,7 @@ class Framework(object):
             The realization in the plane used for plotting.
         inf_flex:
             Optional parameter for plotting an infinitesimal flex. We expect
-            it to have the same format as `realization`: `dict[Vertex, Point]`.
+            it to have the same format as `realization`: `Dict[Vertex, Point]`.
         """
 
         self._graph.plot(
@@ -343,7 +343,7 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(  # noqa: C901
         self,
-        coordinates: Union[tuple, list] = None,
+        coordinates: Union[tuple, List] = None,
         inf_flex: Matrix | int | Dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
@@ -377,9 +377,9 @@ class Framework(object):
             Optional parameter for plotting a given infinitesimal flex. It is
             important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
-            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
@@ -1749,7 +1749,7 @@ class Framework(object):
     @doc_category("Other")
     def edge_lengths(self, numerical: bool = False) -> Dict[tuple[Edge, Edge], float]:
         """
-        Return a ``dict`` of the framework's edges and their corresponding lengths.
+        Return a ``Dict`` of the framework's edges and their corresponding lengths.
 
         The ordering is given by the internal order from ``Framework.graph().edge_list()``.
 
