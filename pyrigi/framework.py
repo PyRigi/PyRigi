@@ -556,7 +556,7 @@ class Framework(object):
 
         Notes
         -----
-        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``. 
+        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``.
 
         TODO
         ----
@@ -719,7 +719,7 @@ class Framework(object):
         ----------
         points:
             The realization of the framework that this method outputs
-            is provided as a list of points.            
+            is provided as a list of points.
 
         Examples
         --------
