@@ -53,6 +53,9 @@ class ParametricMotion(Motion):
             if v not in motion:
                 raise KeyError(f"Vertex {v} is not a key of the given realization!")
 
+        if not interval[0] < interval[1]:
+            raise ValueError("The given interval is not a valid interval!")
+
         self._parametrization = {i: point_to_vector(v) for i, v in motion.items()}
 
         symbols = set()
@@ -185,7 +188,8 @@ class ParametricMotion(Motion):
         #         raise ValueError("Motion is not in 2D!")
         #     break
 
-        if self._interval[0] == -sp.oo:  # !!!
+        lower, upper = self._interval
+        if lower == -np.inf or upper == np.inf:
             mot = self._parametrization
             for v, placement in mot.items():
                 tan_placement = []
