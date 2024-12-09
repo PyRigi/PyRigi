@@ -1476,7 +1476,7 @@ class Framework(object):
         If there is only one stress, denote a basis of the infinitesimal flex
         space by $(q^{(k)})_{k=1}^s$. We proceed to check whether all coefficients
         of the monomials $({a_k}^2 \,:\, k=1,\dots,s)$ in the quadratic polynomial
-        $\sum_{k=1}^{s}\sum_{ij\in E} \omega_{ij}\cdot ||a_k\cdot(q^{(k)}(i)-q^{(k)}(j))||^2$
+        $\sum_{k=1}^s\sum_{ij\in E}\omega_{ij}\cdot ||a_k\cdot(q^{(k)}(i)-q^{(k)}(j))||^2$
         have the same sign. A simple result about sum of squares polynomials then shows
         the positivity of the stress energy.
 
