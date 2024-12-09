@@ -1459,13 +1459,26 @@ class Framework(object):
 
         Definitions
         ----------
-        :prf:ref:`Prestress-stability <def-prestress-stable>`.
+        :prf:ref:`Prestress stability <def-prestress-stability>`.
 
         Notes
         -----
         Checking prestress stability is generally computationally hard. In the case where
-        there is a single stress or infinitesimal motion, the problem becomes easier, so we
-        restrict ourselves to that case.
+        there is a single stress or infinitesimal motion, the problem becomes easier, so
+        we restrict ourselves to that case.
+
+        If there is only one infinitesimal flex $q$, we check for a basis
+        $(\omega^{(k)})_{i=1}^m$ of the stress space that the stress energy
+        $\sum_{ij\in E} \omega^{(k)}_{ij}\cdot ||q(i)-q(j)||^2$
+        is always non-zero by verifying that not all of these energies
+        become simultaneously 0 for all $k=1,\dots,m$.
+
+        If there is only one stress, denote a basis of the infinitesimal flex
+        space by $(q^{(k)})_{k=1}^s$. We proceed to check whether all coefficients
+        of the monomials $({a_k}^2 \,:\, k=1,\dots,s)$ in the quadratic polynomial
+        $\sum_{k=1}^{s}\sum_{ij\in E} \omega_{ij}\cdot ||a_k\cdot(q^{(k)}(i)-q^{(k)}(j))||^2$
+        have the same sign. A simple result about sum of squares polynomials then shows
+        the positivity of the stress energy.
 
         Examples
         --------
@@ -1478,27 +1491,99 @@ class Framework(object):
         inf_flexes = self.inf_flexes()
         if self.is_inf_rigid():
             return True
-        if len(inf_flexes)==0 or len(stresses)==0:
+        if len(inf_flexes) == 0 or len(stresses) == 0:
             return False
-        if len(stresses)>1 and len(inf_flexes)>1:
-            raise ValueError("In this implementation, there must either only be 1 infinitesimal motion or 1 stress!")
-        if len(inf_flexes)==1:
-            a = sp.symbols('a0:%s' %len(stresses))
-            Q = []
+        if len(stresses) > 1 and len(inf_flexes) > 1:
+            raise ValueError(
+                "In this implementation, there must either only be 1 infinitesimal "
+                + "motion or 1 stress!"
+            )
+        if len(inf_flexes) == 1:
+            flex = self._transform_inf_flex_to_pointwise(inf_flexes[0])
+            edges = self._graph.edge_list()
+            stress_energy_list = []
             for j in range(len(stresses)):
                 stress = stresses[j].transpose().tolist()[0]
-                Q.append(sum([sum(v for v in [stress[i]*((v-w))**2 for v,w in zip(flex[edges[i][0]], flex[edges[i][1]])]) for i in range(self._graph.number_of_edges())]))
-            return all([sp.sympify(Qi).is_zero for Qi in Q])
-        if len(stresses)==1:
-            a = sp.symbols('a0:%s' %len(inf_flexes))
+                stress_energy_list.append(
+                    sum(
+                        [
+                            sum(
+                                v
+                                for v in [
+                                    stress[i] * ((v - w)) ** 2
+                                    for v, w in zip(
+                                        flex[edges[i][0]], flex[edges[i][1]]
+                                    )
+                                ]
+                            )
+                            for i in range(self._graph.number_of_edges())
+                        ]
+                    )
+                )
+            return not all([sp.sympify(Q).is_zero for Q in stress_energy_list])
+        if len(stresses) == 1:
+            a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
             stress = stresses[0].transpose().tolist()[0]
             edges = self._graph.edge_list()
-            Q = 0
+            stress_energy = 0
             for j in range(len(inf_flexes)):
-                flex =  self._transform_inf_flex_to_pointwise(inf_flexes[j])
-                Q += sum([sum(v for v in [stress[i]*(a[j]*(v-w))**2 for v,w in zip(flex[edges[i][0]], flex[edges[i][1]])]) for i in range(self._graph.number_of_edges())])
-            sols = [[complex(_.subs({a[i]:1 for i in range(len(a))})) for _ in sol] for sol in sp.solve(sp.Poly(Q),a)]
-            return not any([all([_.imag==0 for _ in sol]) and any([not _.real==0 for _ in sol]) for sol in sols])
+                flex = self._transform_inf_flex_to_pointwise(inf_flexes[j])
+                stress_energy += sum(
+                    [
+                        sum(
+                            v
+                            for v in [
+                                stress[i] * (a[j] * (v - w)) ** 2
+                                for v, w in zip(flex[edges[i][0]], flex[edges[i][1]])
+                            ]
+                        )
+                        for i in range(self._graph.number_of_edges())
+                    ]
+                )
+            coefficients = sp.Poly(stress_energy.simplify()).coeffs()
+            return not sp.sign(coefficients[0]) == 0 and all(
+                [
+                    sp.sign(coefficients[i]) == sp.sign(coefficients[0])
+                    for i in range(len(coefficients))
+                ]
+            )
+
+    @doc_category("Other")
+    def is_second_order_rigid(self) -> bool:
+        """
+        Check whether the framework is second-order rigid.
+
+        Definitions
+        ----------
+        :prf:ref:`Second-order Rigidity <def-second-order-rigid>`.
+
+        Notes
+        -----
+        Checking second-order-rigidity for a general framework is computationally hard.
+        If there is only one stress or only one infinitesimal flex, second-order rigidity
+        is identical to :prf:ref:`prestress stability <def-prestress-stability>`,
+        so we can apply :meth:`.Framework.is_prestress_stable`. See also
+        :prf:ref:`Theorem 23 <thm-second-order-implies-prestress-stability>`.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Frustum(3)
+        >>> F.is_second_order_rigid()
+        True
+        """
+        stresses = self.stresses()
+        inf_flexes = self.inf_flexes()
+        if self.is_inf_rigid():
+            return True
+        if len(inf_flexes) == 0 or len(stresses) == 0:
+            return False
+        if len(stresses) > 1 and len(inf_flexes) > 1:
+            raise ValueError(
+                "In this implementation, there must either only be 1 infinitesimal "
+                + "motion or 1 stress!"
+            )
+        return self.is_prestress_stable()
 
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
