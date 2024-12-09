@@ -1469,9 +1469,15 @@ class Framework(object):
         """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
+        if self.is_inf_rigid():
+            return True
+        if len(inf_flexes)==0 or len(stresses)==0:
+            return False
         if len(stresses)>1 and len(inf_flexes)>1:
             raise ValueError("In this implementation, there must either only be 1 infinitesimal motion or 1 stress!")
-        
+        if len(stresses)==1:
+            stress = {self._graph.edge_list()[i]:(stresses[0])[i*self._dim:(i+1)*self._dim] for i in range(self._graph.number_of_edges())}
+            self.dim()
 
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
