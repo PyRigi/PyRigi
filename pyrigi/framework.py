@@ -1466,6 +1466,13 @@ class Framework(object):
         Checking prestress stability is generally computationally hard. In the case where
         there is a single stress or infinitesimal motion, the problem becomes easier, so we
         restrict ourselves to that case.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Frustum(3)
+        >>> F.is_prestress_stable()
+        True
         """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
@@ -1475,9 +1482,23 @@ class Framework(object):
             return False
         if len(stresses)>1 and len(inf_flexes)>1:
             raise ValueError("In this implementation, there must either only be 1 infinitesimal motion or 1 stress!")
+        if len(inf_flexes)==1:
+            a = sp.symbols('a0:%s' %len(stresses))
+            Q = []
+            for j in range(len(stresses)):
+                stress = stresses[j].transpose().tolist()[0]
+                Q.append(sum([sum(v for v in [stress[i]*((v-w))**2 for v,w in zip(flex[edges[i][0]], flex[edges[i][1]])]) for i in range(self._graph.number_of_edges())]))
+            return all([sp.sympify(Qi).is_zero for Qi in Q])
         if len(stresses)==1:
-            stress = {self._graph.edge_list()[i]:(stresses[0])[i*self._dim:(i+1)*self._dim] for i in range(self._graph.number_of_edges())}
-            self.dim()
+            a = sp.symbols('a0:%s' %len(inf_flexes))
+            stress = stresses[0].transpose().tolist()[0]
+            edges = self._graph.edge_list()
+            Q = 0
+            for j in range(len(inf_flexes)):
+                flex =  self._transform_inf_flex_to_pointwise(inf_flexes[j])
+                Q += sum([sum(v for v in [stress[i]*(a[j]*(v-w))**2 for v,w in zip(flex[edges[i][0]], flex[edges[i][1]])]) for i in range(self._graph.number_of_edges())])
+            sols = [[complex(_.subs({a[i]:1 for i in range(len(a))})) for _ in sol] for sol in sp.solve(sp.Poly(Q),a)]
+            return not any([all([_.imag==0 for _ in sol]) and any([not _.real==0 for _ in sol]) for sol in sols])
 
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
