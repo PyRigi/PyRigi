@@ -1452,9 +1452,26 @@ class Framework(object):
         """
         return not self.is_independent()
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Other")
     def is_prestress_stable(self) -> bool:
-        raise NotImplementedError()
+        """
+        Check whether the framework is prestress stable.
+
+        Definitions
+        ----------
+        :prf:ref:`Prestress-stability <def-prestress-stable>`.
+
+        Notes
+        -----
+        Checking prestress stability is generally computationally hard. In the case where
+        there is a single stress or infinitesimal motion, the problem becomes easier, so we
+        restrict ourselves to that case.
+        """
+        stresses = self.stresses()
+        inf_flexes = self.inf_flexes()
+        if len(stresses)>1 and len(inf_flexes)>1:
+            raise ValueError("In this implementation, there must either only be 1 infinitesimal motion or 1 stress!")
+        
 
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
