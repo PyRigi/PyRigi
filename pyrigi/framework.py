@@ -1717,46 +1717,14 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def evaluate_realization(self) -> Dict[Vertex, Point]:
-        """
-        Evaluate a given symbolic realization to floating point coordinates.
-
-        Notes
-        -----
-        The cutoff accuracy is fixed to 16 digits, which is roughly equal to
-        the machine precision in a 64-bit machine.
-
-        To set the evaluated realization as the new realization for the framework,
-        run ``Framework.set_realization(Framework.evaluate_realization())``.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB as fws
-        >>> F = fws.Complete(4)
-        >>> F.realization(as_points=True)
-        {0: [1, 0], 1: [0, 1], 2: [-1, 0], 3: [0, -1]}
-        >>> points = F.evaluate_realization(); points
-        {0: [1.0, 0.0], 1: [0.0, 1.0], 2: [-1.0, 0.0], 3: [0.0, -1.0]}
-        >>> F.set_realization(points)
-        >>> F.realization(as_points=True, numerical=True)
-        {0: [1.0, 0.0], 1: [0.0, 1.0], 2: [-1.0, 0.0], 3: [0.0, -1.0]}
-        """
-        return {
-            v: [float(entry.evalf(16)) for entry in pt]
-            for v, pt in self.realization(as_points=True).items()
-        }
-
-    @doc_category("Other")
-    def edge_lengths(self, numerical: bool = False) -> Dict[tuple[Edge, Edge], float]:
+    def edge_lengths(self, numerical: bool = False) -> Dict[Edge, Coordinate]:
         """
         Return a ``Dict`` of the framework's edges and their corresponding lengths.
-
-        The ordering is given by the internal order from ``Framework.graph().edge_list()``.
 
         Parameters
         -------
         numerical:
-            If ``True``, the vertex positions are converted to floats.
+            If ``True``, numerical positions are used for the computation of the edge lengths.
 
         Examples
         --------
@@ -1768,7 +1736,7 @@ class Framework(object):
         {(0, 1): 1.0, (0, 3): 1.4240006242195884, (1, 2): 1.118033988749895, (2, 3): 0.5443838790578374}
         """  # noqa: E501
         if numerical:
-            points = self.evaluate_realization()
+            points = self.realization(as_points=True, numerical=True)
             return {
                 tuple(pair): float(
                     np.sqrt(
