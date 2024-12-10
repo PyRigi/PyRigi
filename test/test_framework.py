@@ -555,6 +555,18 @@ def test_rigidity_matrix():
     F = fws.Complete(4, d=3)
     assert F.rigidity_matrix().shape == (6, 12)
 
+    G = Graph([(0, "a"), ("b", "a"), ("b", 1.9), (1.9, 0)])
+    F = Framework(G, {0: (0, 0), "a": (1, 0), "b": (1, 1), 1.9: (0, 1)})
+    vertex_order = ["a", 1.9, "b", 0]
+    assert F.rigidity_matrix(vertex_order=vertex_order) == Matrix(
+        [
+            [1, 0, 0, 0, 0, 0, -1, 0],
+            [0, 0, 0, 1, 0, 0, 0, -1],
+            [0, -1, 0, 0, 0, 1, 0, 0],
+            [0, 0, -1, 0, 1, 0, 0, 0],
+        ]
+    )
+
 
 def test_rigidity_matrix_rank():
     K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
@@ -588,6 +600,14 @@ def test_stress_matrix():
             [0, -6, 0, 1, 4, 1],
             [0, 0, -6, 1, 1, 4],
         ]
+    )
+
+    G = Graph([(0, "a"), ("b", "a"), ("b", 1.9), (1.9, 0), ("b", 0), ("a", 1.9)])
+    F = Framework(G, {0: (0, 0), "a": (1, 0), "b": (1, 1), 1.9: (0, 1)})
+    edge_order = [("a", 0), (1.9, "b"), (1.9, 0), ("a", "b"), ("a", 1.9), (0, "b")]
+    stress = F.stresses(edge_order=edge_order)[0].transpose().tolist()[0]
+    assert F.stress_matrix(stress, edge_order=edge_order) == Matrix(
+        [[-1, 1, -1, 1], [1, -1, 1, -1], [-1, 1, -1, 1], [1, -1, 1, -1]]
     )
 
 

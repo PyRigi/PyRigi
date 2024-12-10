@@ -962,8 +962,8 @@ class Framework(object):
         [-1, -3, 0,  0,  1, 3],
         [ 0,  0, 1, -3, -1, 3]])
         """
-        vertex_order = self.check_vertex_order(vertex_order)
-        edge_order = self.check_edge_order(edge_order)
+        vertex_order = self._check_vertex_order(vertex_order)
+        edge_order = self._check_edge_order(edge_order)
 
         # ``delta`` is responsible for distinguishing the edges (i,j) and (j,i)
         def delta(e, w):
@@ -1012,8 +1012,8 @@ class Framework(object):
         [ 0,  1, 0, 0, 0, 0],
         [ 0,  0, 1, 0, 0, 0]])
         """
-        vertex_order = self.check_vertex_order(vertex_order)
-        edge_order = self.check_edge_order(edge_order)
+        vertex_order = self._check_vertex_order(vertex_order)
+        edge_order = self._check_edge_order(edge_order)
         rigidity_matrix = self.rigidity_matrix(
             vertex_order=vertex_order, edge_order=edge_order
         )
@@ -1057,7 +1057,12 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_stress(
-        self, stress: Stress, edge_order: List[Edge] = None, symbolic: bool = False
+        self,
+        stress: Stress,
+        edge_order: List[Edge] = None,
+        numerical: bool = False,
+        numerical_digits=35,
+        numerical_atol=1e-10,
     ) -> bool:
         r"""
         Tests whether a stress lies in the cokernel of the rigidity matrix.
@@ -1072,9 +1077,13 @@ class Framework(object):
             A stress of the framework.
         edge_order:
             A list of edges determining the internal edge order.
-        symbolic:
+        numerical:
             A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
+        numerical_digits:
+            Number of digits to which accuracy the numerical expression is evaluated.
+        numerical_atol:
+            Absolute tolerance that is the threshold for acceptable numerical stresses.
 
         Examples
         --------
@@ -1088,7 +1097,7 @@ class Framework(object):
         >>> F.is_stress(omega1)
         False
         """
-        if symbolic:
+        if not numerical:
             return all(
                 [
                     sp.simplify(ex).is_zero
@@ -1098,7 +1107,7 @@ class Framework(object):
             )
         return all(
             [
-                isclose(ex.evalf(100), 0, abs_tol=1e-15)
+                isclose(ex.evalf(numerical_digits), 0, abs_tol=numerical_atol)
                 for ex in Matrix(stress).transpose()
                 * self.rigidity_matrix(edge_order=edge_order)
             ]
@@ -1143,9 +1152,9 @@ class Framework(object):
         [  4, -2, -1, -1],
         [  4, -2, -1, -1]])
         """
-        vertex_order = self.check_vertex_order(vertex_order)
-        edge_order = self.check_edge_order(edge_order)
-        if not self.is_stress(stress, edge_order=edge_order):
+        vertex_order = self._check_vertex_order(vertex_order)
+        edge_order = self._check_edge_order(edge_order)
+        if not self.is_stress(stress, edge_order=edge_order, numerical=True):
             raise ValueError(
                 "The provided stress does not lie in the cokernel of the rigidity matrix!"
             )
@@ -1159,11 +1168,17 @@ class Framework(object):
         for v, w in combinations(vertex_order, 2):
             i, j = vertex_order.index(v), vertex_order.index(w)
             if [v, w] in edge_order or (v, w) in edge_order:
-                stress_matr[i, j] = -stress[edge_order.index([v, w])]
-                stress_matr[j, i] = -stress[edge_order.index([v, w])]
+                stressval = -stress[
+                    edge_order.index([v, w] if [v, w] in edge_order else (v, w))
+                ]
+                stress_matr[i, j] = stressval
+                stress_matr[j, i] = stressval
             elif [w, v] in edge_order or (w, v) in edge_order:
-                stress_matr[i, j] = -stress[edge_order.index([w, v])]
-                stress_matr[j, i] = -stress[edge_order.index([w, v])]
+                stressval = -stress[
+                    edge_order.index([w, v] if [w, v] in edge_order else (w, v))
+                ]
+                stress_matr[i, j] = stressval
+                stress_matr[j, i] = stressval
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
@@ -1205,7 +1220,7 @@ class Framework(object):
         [-2],
         [ 0]])]
         """
-        vertex_order = self.check_vertex_order(vertex_order)
+        vertex_order = self._check_vertex_order(vertex_order)
         dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in vertex_order])
@@ -1307,7 +1322,7 @@ class Framework(object):
         [0],
         [0]])]
         """
-        vertex_order = self.check_vertex_order(vertex_order)
+        vertex_order = self._check_vertex_order(vertex_order)
         if include_trivial:
             return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
         rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
@@ -1934,7 +1949,7 @@ class Framework(object):
         {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
         """
-        vertex_order = self.check_vertex_order(vertex_order)
+        vertex_order = self._check_vertex_order(vertex_order)
         return {
             vertex_order[i]: [inf_flex[i * self.dim() + j] for j in range(self.dim())]
             for i in range(len(vertex_order))
@@ -1969,13 +1984,11 @@ class Framework(object):
         vect_as_dict = self._transform_inf_flex_to_pointwise(
             inf_flex_vect, vertex_order=vertex_order
         )
-        return self.is_dict_inf_flex(vect_as_dict, vertex_order=vertex_order)
+        return self.is_dict_inf_flex(vect_as_dict)
 
     @doc_category("Framework properties")
     def is_dict_inf_flex(
-        self,
-        vert_to_flex: dict[Vertex, Sequence[Coordinate]],
-        vertex_order: List[Vertex] = None,
+        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]]
     ) -> bool:
         """
         Return whether a dictionary specifies an infinitesimal flex of the framework.
@@ -1989,9 +2002,6 @@ class Framework(object):
         vert_to_flex:
             Dictionary that maps the vertex labels to
             vectors of the same dimension as the framework is.
-        vertex_order:
-            By listing vertices in the preferred order, the rigidity matrix
-            can be computed in a way the user expects.
 
         Examples
         --------
@@ -2001,9 +2011,8 @@ class Framework(object):
         >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
         True
         """
-        vertex_order = self.check_vertex_order(vertex_order)
         vert_to_matrix = {}
-        for v in vertex_order:
+        for v in self._graph.vertex_list():
             if v not in vert_to_flex:
                 raise ValueError(
                     f"Vertex {v} must be in the dictionary `vert_to_flex`."
@@ -2022,7 +2031,7 @@ class Framework(object):
         return True
 
     @doc_category("Other")
-    def check_vertex_order(self, vertex_order=List[Vertex]) -> List[Vertex]:
+    def _check_vertex_order(self, vertex_order=List[Vertex]) -> List[Vertex]:
         """
         Checks whether the provided `vertex_order` contains the same elements
         as the graph's vertex set.
@@ -2040,7 +2049,7 @@ class Framework(object):
         if vertex_order is None:
             return self._graph.vertex_list()
         else:
-            if not sorted(self._graph.vertex_list()) == sorted(vertex_order):
+            if not set(self._graph.vertex_list()) == set(vertex_order):
                 raise ValueError(
                     "vertex_order must contain "
                     + "exactly the same vertices as the graph!"
@@ -2048,7 +2057,7 @@ class Framework(object):
             return vertex_order
 
     @doc_category("Other")
-    def check_edge_order(self, edge_order=List[Vertex]) -> List[Edge]:
+    def _check_edge_order(self, edge_order=List[Vertex]) -> List[Edge]:
         """
         Checks whether the provided `edge_order` contains the same elements
         as the graph's edge set.
@@ -2066,7 +2075,12 @@ class Framework(object):
         if edge_order is None:
             return self._graph.edge_list()
         else:
-            if not sorted(self._graph.edge_list()) == sorted(edge_order):
+            if not self._graph.number_of_edges() == len(edge_order) or not all(
+                [
+                    set(e) in [set(e) for e in self._graph.edge_list()]
+                    for e in edge_order
+                ]
+            ):
                 raise ValueError(
                     "edge_order must contain exactly the same edges as the graph!"
                 )
