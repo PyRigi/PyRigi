@@ -71,5 +71,5 @@ Let $F=(G,p)$ denote a $d$-dimensional {prf:ref}`second-order rigid <def-second-
 of {prf:ref}`equilibrium stresses <def-equilibrium-stress>`. Then $F$ is 
 {prf:ref}`prestress stable <def-prestress-stability>`.
 
-{{references}} {cite:p}`Connelly1996{Prop 5.3.1}`
+{{references}} {cite:p}`Connelly1996`
 :::

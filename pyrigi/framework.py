@@ -1547,6 +1547,8 @@ class Framework(object):
                     for i in range(len(coefficients))
                 ]
             )
+        
+        
 
     @doc_category("Other")
     def is_second_order_rigid(self) -> bool:
@@ -1563,7 +1565,19 @@ class Framework(object):
         If there is only one stress or only one infinitesimal flex, second-order rigidity
         is identical to :prf:ref:`prestress stability <def-prestress-stability>`,
         so we can apply :meth:`.Framework.is_prestress_stable`. See also
-        :prf:ref:`Theorem 23 <thm-second-order-implies-prestress-stability>`.
+        :prf:ref:`this theorem <thm-second-order-implies-prestress-stability>`.
+
+        In the case where there is more than one infinitesimal flex and stress, we need
+        to solve a semi-definite program (SDP). This is done by parametrizing the space
+        of infinitesimal flexes by variables ``a`` and the space of stresses by variables
+        ``b``. This turns the stress energy into a cubic polynomial that is homogeneous
+        and quadratic in ``a`` and homogeneously linear in ``b``. If the polynomial system
+        in the variables ``a`` described by the coefficients of the linear monomials 
+        ``b[i]**1`` has only non-real nontrivial solutions, then the framework is
+        second-order rigid. Otherwise, there would be a infinitesimal flex such that for
+        any equilibrium stress it holds that the stress energy is zero. This is 
+        exactly the negation of the
+        :prf:ref:`equivalent second-order rigidity criterion <thm-second-order-rigid>`.
 
         Examples
         --------
@@ -1578,12 +1592,41 @@ class Framework(object):
             return True
         if len(inf_flexes) == 0 or len(stresses) == 0:
             return False
-        if len(stresses) > 1 and len(inf_flexes) > 1:
-            raise ValueError(
-                "In this implementation, there must either only be 1 infinitesimal "
-                + "motion or 1 stress!"
-            )
-        return self.is_prestress_stable()
+        if len(stresses) == 1 or len(inf_flexes) == 1:
+            return self.is_prestress_stable()
+
+        edges = self._graph.edge_list()
+        a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
+        b = sp.symbols("b0:%s" % len(stresses), real=True)
+        energy_poly = 0
+        for i in range(len(stresses)):
+            Q = 0
+            stress = stresses[i].transpose().tolist()[0]
+            for j in range(len(inf_flexes)):
+                flex = self._transform_inf_flex_to_pointwise(inf_flexes[j])
+                Q += sum(
+                    [
+                        sum(
+                            v
+                            for v in [
+                                stress[i] * (a[j] * (v - w)) ** 2
+                                for v, w in zip(flex[edges[k][0]], flex[edges[k][1]])
+                            ]
+                        )
+                        for k in range(self._graph.number_of_edges())
+                    ]
+                )
+            energy_poly = energy_poly + b[i] * Q.simplify()
+        energy_poly = sp.Poly(energy_poly.simplify(), b)
+        poly_sys_in_a = [energy_poly.coeff_monomial(b[i] ** 1) for i in range(len(b))]
+        a_sols = sp.solve(poly_sys_in_a, a)
+        real_a_sol_part = [[s[t].coeff(sp.I, 0) for t in range(len(s))] for s in a_sols]
+        imag_a_sol_part = [[s[t].coeff(sp.I, 1) for t in range(len(s))] for s in a_sols]
+        imag_a_sols = [sp.solve(sol) for sol in imag_a_sol_part]
+        for i in range(len(real_a_sol_part)):
+            if not all([s.subs(imag_a_sols[i]).is_zero for s in real_a_sol_part[i]]):
+                return False
+        return True
 
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
