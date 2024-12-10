@@ -1009,12 +1009,15 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def number_of_realizations(
-        self, spherical_realizations: bool = False, check_min_rigid: bool = True
+        self, spherical_realizations: bool = False, check_min_rigid: bool = True, count_reflection: bool = False
     ) -> int:
         """
         Count the number of planar or spherical realizations of a minimally 2-rigid graph.
+        Algorithms of :cite:p:`CapcoGalletGraseggerEtAl2018` and :cite:p:`GalletGraseggerSchicho2020` are used.
+        Note, however, that here the count from these algorithms by default is devided by two.
+        This behaviour accounts better for global rigidity, but it can be changed using the parameter ``count_reflection``.
 
-        Note that by default, the method checks if the input graph is minimally 2-rigid.
+        Note that by default, the method checks if the input graph is indeed minimally 2-rigid.
 
         Parameters
         ----------
@@ -1026,14 +1029,19 @@ class Graph(nx.Graph):
             If ``True``, the number of spherical realizations of the graph is returned.
             If ``False`` (default), the number of planar realizations is returned.
 
+        realization_count:
+            If ``True``, the number of realizations is computed modulo direct isometries, but counting reflection
+                as used in :cite:p:`CapcoGalletGraseggerEtAl2018` and :cite:p:`GalletGraseggerSchicho2020`.
+            If ``False`` (default), reflection is not counted.
+
         Examples
         --------
         >>> from pyrigi import Graph
         >>> G = Graph([(0,1),(1,2),(2,0)])
         >>> G.number_of_realizations() # number of planar realizations
-        2
+        1
         >>> G.number_of_realizations(spherical_realizations=True)
-        2
+        1
 
         TODO
         ----
@@ -1052,10 +1060,14 @@ class Graph(nx.Graph):
                 return 1
 
             n = self.to_int()
-            if spherical_realizations:
-                return lnumber.lnumbers(n)
+            if count_reflection:
+                fac = 1
             else:
-                return lnumber.lnumber(n)
+                fac = 2
+            if spherical_realizations:
+                return lnumber.lnumbers(n)//fac
+            else:
+                return lnumber.lnumber(n)//fac
         except ImportError:
             raise ImportError(
                 "For counting the number of realizations, "
