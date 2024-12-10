@@ -1390,7 +1390,7 @@ def test_is_k_l_tight():
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations(graph, n):
+def test_number_of_realizations_cf(graph, n):
     assert graph.number_of_realizations(count_reflection=True) == n
 
 
@@ -1435,8 +1435,11 @@ def test_number_of_realizations_sphere(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere(graph, n):
-    assert graph.number_of_realizations(spherical_realizations=True, count_reflection=True) == n
+def test_number_of_realizations_sphere_cf(graph, n):
+    assert (
+        graph.number_of_realizations(spherical_realizations=True, count_reflection=True)
+        == n
+    )
 
 
 @pytest.mark.parametrize(

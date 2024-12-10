@@ -1009,17 +1009,26 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def number_of_realizations(
-        self, spherical_realizations: bool = False, check_min_rigid: bool = True, count_reflection: bool = False
+        self,
+        spherical_realizations: bool = False,
+        check_min_rigid: bool = True,
+        count_reflection: bool = False,
     ) -> int:
         """
-        Count the number of complex planar or spherical realizations of a minimally 2-rigid graph.
-        Algorithms of :cite:p:`CapcoGalletGraseggerEtAl2018` and :cite:p:`GalletGraseggerSchicho2020` are used.
-        Note, however, that here the count from these algorithms by default is devided by two.
-        This behaviour accounts better for global rigidity, but it can be changed using the parameter ``count_reflection``.
-        See :prf:ref:`def-number-of-realizations` for a detailed definition of the number of realizations in the complex plane
+        Count the number of complex planar or spherical realizations
+        of a minimally 2-rigid graph.
+        Algorithms of :cite:p:`CapcoGalletGraseggerEtAl2018` and
+        :cite:p:`GalletGraseggerSchicho2020` are used.
+        Note, however, that here the result from these algorithms
+        is by default divided by two.
+        This behaviour accounts better for global rigidity,
+        but it can be changed using the parameter ``count_reflection``.
+        See :prf:ref:`def-number-of-realizations` for a detailed definition
+        of the number of realizations in the complex plane
         and :prf:ref:`def-number-of-spherical-realizations` for the spherical case.
 
-        Note that by default, the method checks if the input graph is indeed minimally 2-rigid.
+        Note that by default,
+        the method checks if the input graph is indeed minimally 2-rigid.
 
         Parameters
         ----------
@@ -1032,7 +1041,10 @@ class Graph(nx.Graph):
             If ``False`` (default), the number of planar realizations is returned.
 
         count_reflection:
-            If ``True``, the number of realizations is computed modulo direct isometries, but counting reflection as used in :cite:p:`CapcoGalletGraseggerEtAl2018` and :cite:p:`GalletGraseggerSchicho2020`.
+            If ``True``, the number of realizations is computed modulo direct isometries,
+            but counting reflection as used in
+            :cite:p:`CapcoGalletGraseggerEtAl2018` and
+            :cite:p:`GalletGraseggerSchicho2020`.
             If ``False`` (default), reflection is not counted.
 
         Examples
@@ -1067,9 +1079,9 @@ class Graph(nx.Graph):
             else:
                 fac = 2
             if spherical_realizations:
-                return lnumber.lnumbers(n)//fac
+                return lnumber.lnumbers(n) // fac
             else:
-                return lnumber.lnumber(n)//fac
+                return lnumber.lnumber(n) // fac
         except ImportError:
             raise ImportError(
                 "For counting the number of realizations, "

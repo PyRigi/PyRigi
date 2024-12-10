@@ -570,7 +570,9 @@ class Framework(object):
 
         # check dimension
         if self.dimension() != 2:
-            raise ValueError("TikZ code is only generated for frameworks in dimension 2.")
+            raise ValueError(
+                "TikZ code is only generated for frameworks in dimension 2."
+            )
 
         # strings for tikz styles
         if vertex_out_labels and default_styles:
