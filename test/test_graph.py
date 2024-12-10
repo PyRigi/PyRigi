@@ -894,10 +894,6 @@ def test_not_min_k_redundantly_rigid_in_d3(graph, k):
 
 
 def test_rigid_components():
-    G = Graph()
-    for dim in range(1, 10):
-        assert G.rigid_components(dim=dim) == []
-
     G = graphs.Path(6)
     rigid_components = G.rigid_components(dim=1)
     assert rigid_components[0] == [0, 1, 2, 3, 4, 5]

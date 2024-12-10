@@ -1539,7 +1539,7 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        if self.number_of_nodes() <= 1:
+        if self.number_of_nodes() == 1:
             return True
 
         elif dim == 1:
@@ -1915,8 +1915,6 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        if self.number_of_nodes() == 0:
-            return []
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
