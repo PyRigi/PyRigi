@@ -1539,6 +1539,8 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+        if self.number_of_nodes() <= 1:
+            return True
 
         elif dim == 1:
             return nx.is_connected(self)
@@ -1921,7 +1923,7 @@ class Graph(nx.Graph):
                 res += self.subgraph(comp).rigid_components(dim)
             return res
 
-        if self.is_rigid(dim, combinatorial=(dim < 3)) or self.number_of_nodes() == 1:
+        if self.is_rigid(dim, combinatorial=(dim < 3)):
             return [list(self)]
         rigid_subgraphs = {
             tuple(vertex_subset): True
