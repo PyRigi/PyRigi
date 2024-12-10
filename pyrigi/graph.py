@@ -1104,7 +1104,7 @@ class Graph(nx.Graph):
         dim:
             dimension
         combinatorial:
-            determines whethere a combinatinatorial algorithm shall be used in rigidity checking.
+            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
             Otherwise a probabilistic check is used that may give false results.
             See :meth:`~.Graph.is_rigid` for details.
         prob:
@@ -1229,7 +1229,7 @@ class Graph(nx.Graph):
         dim:
             dimension
         combinatorial:
-            determines whethere a combinatinatorial algorithm shall be used in rigidity checking.
+            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
             Otherwise a probabilistic check is used that may give false results.
             See :meth:`~.Graph.is_rigid` for details.
         prob:
@@ -1359,7 +1359,7 @@ class Graph(nx.Graph):
         dim:
             dimension
         combinatorial:
-            determines whethere a combinatinatorial algorithm shall be used in rigidity checking.
+            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
             Otherwise a probabilistic check is used that may give false results.
             See :meth:`~.Graph.is_rigid` for details.
         prob:
@@ -1478,7 +1478,7 @@ class Graph(nx.Graph):
         dim:
             dimension
         combinatorial:
-            determines whethere a combinatinatorial algorithm shall be used in rigidity checking.
+            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
             Otherwise a probabilistic check is used that may give false results.
             See :meth:`~.Graph.is_rigid` for details.
         prob:
@@ -1572,7 +1572,7 @@ class Graph(nx.Graph):
         dim:
             dimension
         combinatorial:
-            determines whethere a combinatinatorial algorithm shall be used
+            determines whether a combinatinatorial algorithm shall be used
             If combinatorial is true, a pebble game algorithm is used.
             Otherwise a probabilistic check is used that may give false negatives
             (see :prf:ref:`thm-probabilistic-rigidity-check`).
@@ -1662,7 +1662,7 @@ class Graph(nx.Graph):
         dim:
             dimension
         combinatorial:
-            determines whethere a combinatinatorial algorithm shall be used
+            determines whether a combinatinatorial algorithm shall be used
             If combinatorial is true, a pebble game algorithm is used.
             Otherwise a probabilistic check is used that may give false negatives
             (see :prf:ref:`thm-probabilistic-rigidity-check`).
