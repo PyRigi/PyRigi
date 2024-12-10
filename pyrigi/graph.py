@@ -1539,12 +1539,13 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        if self.number_of_nodes() == 1:
-            return True
 
         elif dim == 1:
             return nx.is_connected(self)
         elif dim == 2 and combinatorial:
+            if self.number_of_nodes() == 1:
+                return True
+
             deficiency = -(2 * self.number_of_nodes() - 3) + self.number_of_edges()
             if deficiency < 0:
                 return False

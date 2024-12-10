@@ -106,6 +106,14 @@ def test_not_rigid_in_d1(graph):
 
 
 @pytest.mark.parametrize(
+    "graph, dim",
+    [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
+)
+def test_is_rigid(graph, dim):
+    assert graph.is_rigid(dim, combinatorial=(dim < 3))
+
+
+@pytest.mark.parametrize(
     "graph",
     [
         graphs.CompleteBipartite(1, 3),
