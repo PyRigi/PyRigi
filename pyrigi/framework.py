@@ -1464,8 +1464,7 @@ class Framework(object):
         Notes
         -----
         Checking prestress stability is generally computationally hard. In the case where
-        there is a single stress or infinitesimal motion, the problem becomes easier, so
-        we restrict ourselves to that case.
+        there is a single stress or infinitesimal motion, the problem becomes easier:
 
         If there is only one infinitesimal flex $q$, we check for a basis
         $(\omega^{(k)})_{i=1}^m$ of the stress space that the stress energy
@@ -1480,6 +1479,14 @@ class Framework(object):
         have the same sign. A simple result about sum of squares polynomials then shows
         the positivity of the stress energy.
 
+        In the general case, we use the stress matrix criterion from
+        {{references}}{cite:p}`Connelly1996{Prop 3.4.2}` stating that prestress
+        stability is equivalent to the positive semidefiniteness of the stress matrix
+        associated with the framework on the space of nontrivial infinitesimal motions.
+        In this method, we investigate the contraposition: if this stress matrix is
+        globally negative definite or at least nonpositive, then the framework cannot
+        be prestress stable.
+
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -1489,18 +1496,14 @@ class Framework(object):
         """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
+        edges = self._graph.edge_list()
         if self.is_inf_rigid():
             return True
         if len(inf_flexes) == 0 or len(stresses) == 0:
             return False
-        if len(stresses) > 1 and len(inf_flexes) > 1:
-            raise ValueError(
-                "In this implementation, there must either only be 1 infinitesimal "
-                + "motion or 1 stress!"
-            )
+
         if len(inf_flexes) == 1:
             flex = self._transform_inf_flex_to_pointwise(inf_flexes[0])
-            edges = self._graph.edge_list()
             stress_energy_list = []
             for j in range(len(stresses)):
                 stress = stresses[j].transpose().tolist()[0]
@@ -1521,10 +1524,10 @@ class Framework(object):
                     )
                 )
             return not all([sp.sympify(Q).is_zero for Q in stress_energy_list])
+
         if len(stresses) == 1:
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
             stress = stresses[0].transpose().tolist()[0]
-            edges = self._graph.edge_list()
             stress_energy = 0
             for j in range(len(inf_flexes)):
                 flex = self._transform_inf_flex_to_pointwise(inf_flexes[j])
@@ -1547,8 +1550,71 @@ class Framework(object):
                     for i in range(len(coefficients))
                 ]
             )
-        
-        
+
+        a = sp.symbols("a0:%s" % len(stresses), real=True)
+        stress_matrices = [
+            sp.zeros(len(inf_flexes), len(inf_flexes)) for _ in range(len(stresses))
+        ]
+        for i in range(len(stresses)):
+            stress = stresses[i].transpose().tolist()[0]
+            for j1 in range(len(inf_flexes)):
+                for j2 in range(len(inf_flexes)):
+                    flex1 = self._transform_inf_flex_to_pointwise(inf_flexes[j1])
+                    flex2 = self._transform_inf_flex_to_pointwise(inf_flexes[j2])
+                    stress_matrices[i][j1, j2] = a[i] * sum(
+                        [
+                            sum(
+                                v
+                                for v in (
+                                    stress[k]
+                                    * Matrix(
+                                        [
+                                            v - w
+                                            for v, w in zip(
+                                                flex1[edges[k][0]], flex1[edges[k][1]]
+                                            )
+                                        ]
+                                    ).transpose()
+                                    * Matrix(
+                                        [
+                                            v - w
+                                            for v, w in zip(
+                                                flex2[edges[k][0]], flex2[edges[k][1]]
+                                            )
+                                        ]
+                                    )
+                                )
+                            )
+                            for k in range(self._graph.number_of_edges())
+                        ]
+                    )
+        sum_of_stress_matrices = sp.zeros(len(inf_flexes), len(inf_flexes))
+        for j in range(len(inf_flexes)):
+            for k in range(len(inf_flexes)):
+                sum_of_stress_matrices[j, k] = sum(
+                    stress_matrices[i][j, k] for i in range(len(inf_flexes))
+                )
+        char_poly = sp.Poly(sp.det(sum_of_stress_matrices))
+        interior_coeffs = {
+            (i, j): abs(char_poly.coeff_monomial(a[i] * a[j]))
+            for i in range(len(a))
+            for j in range(i + 1, len(a))
+        }
+        circuit_criterion = [
+            interior_coeffs[key]
+            <= 2
+            * sp.sqrt(
+                char_poly.coeff_monomial(a[key[0]] ** 2)
+                * char_poly.coeff_monomial(a[key[1]] ** 2)
+            )
+            for key in interior_coeffs.keys()
+        ]
+        negativity_criterion = [
+            sp.sign(char_poly.coeff_monomial(a[i] ** 2)) <= 0 for i in range(len(a))
+        ]
+        if all(circuit_criterion) and all(negativity_criterion):
+            return False
+        return True
 
     @doc_category("Other")
     def is_second_order_rigid(self) -> bool:
@@ -1572,10 +1638,10 @@ class Framework(object):
         of infinitesimal flexes by variables ``a`` and the space of stresses by variables
         ``b``. This turns the stress energy into a cubic polynomial that is homogeneous
         and quadratic in ``a`` and homogeneously linear in ``b``. If the polynomial system
-        in the variables ``a`` described by the coefficients of the linear monomials 
+        in the variables ``a`` described by the coefficients of the linear monomials
         ``b[i]**1`` has only non-real nontrivial solutions, then the framework is
         second-order rigid. Otherwise, there would be a infinitesimal flex such that for
-        any equilibrium stress it holds that the stress energy is zero. This is 
+        any equilibrium stress it holds that the stress energy is zero. This is
         exactly the negation of the
         :prf:ref:`equivalent second-order rigidity criterion <thm-second-order-rigid>`.
 
@@ -1609,7 +1675,7 @@ class Framework(object):
                         sum(
                             v
                             for v in [
-                                stress[i] * (a[j] * (v - w)) ** 2
+                                stress[k] * (a[j] * (v - w)) ** 2
                                 for v, w in zip(flex[edges[k][0]], flex[edges[k][1]])
                             ]
                         )
