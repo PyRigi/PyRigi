@@ -1913,20 +1913,22 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        if nx.is_empty(self):
+            return([])
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
                 res += self.subgraph(comp).rigid_components(dim)
             return res
 
-        if self.is_rigid(dim, combinatorial=(dim < 3)):
+        if self.is_rigid(dim, combinatorial=(dim < 3)) or self.number_of_nodes() == 1:
             return [list(self)]
         rigid_subgraphs = {
             tuple(vertex_subset): True
-            for r in range(2, self.number_of_nodes()-1)
+            for r in range(2, self.number_of_nodes() - 1)
             for vertex_subset in combinations(self.nodes, r)
             if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
-        } | {tuple([v]): True for v in self.nodes}
+        }
 
         sorted_rigid_subgraphs = sorted(
             rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True

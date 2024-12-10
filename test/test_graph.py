@@ -910,7 +910,10 @@ def test_rigid_components():
     G = graphs.Path(5)
     rigid_components = G.rigid_components()
     assert sorted([sorted(H) for H in rigid_components]) == [
-        [0, 1], [1, 2], [2, 3], [3, 4]
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
     ]
 
     G = Graph(
@@ -931,11 +934,11 @@ def test_rigid_components():
     )
     rigid_components = G.rigid_components()
     assert [set(H) for H in rigid_components] == [
-        set([0, 'a', 'b']),
-        set([0, 1, 2, 3, 4, 5])
+        set([0, "a", "b"]),
+        set([0, 1, 2, 3, 4, 5]),
     ] or [set(H) for H in rigid_components] == [
         set([0, 1, 2, 3, 4, 5]),
-        set([0, 'a', 'b'])
+        set([0, "a", "b"]),
     ]
 
     G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
@@ -951,25 +954,22 @@ def test_rigid_components():
     G = graphs.Complete(3)
     G.add_vertex(3)
     rigid_components = G.rigid_components()
-    assert [set(H) for H in rigid_components] == [
-        set([0, 1, 2]),
-        set([3])
-    ] or [set(H) for H in rigid_components] == [
-        set([3]),
-        set([0, 1, 2])
-    ]
+    assert [set(H) for H in rigid_components] == [set([0, 1, 2]), set([3])] or [
+        set(H) for H in rigid_components
+    ] == [set([3]), set([0, 1, 2])]
 
     G = graphs.ThreePrism()
     rigid_components = G.rigid_components()
-    assert len(rigid_components) == 1 and (
-        rigid_components == [[0, 1, 2, 3, 4, 5]]
-    )
+    assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
 
     G = graphs.ThreeConnectedR3Circuit()
     G.remove_node(0)
     rigid_components = G.rigid_components()
     assert sorted([sorted(H) for H in rigid_components]) == [
-        [1, 2, 3, 4], [1, 10, 11, 12], [4, 5, 6, 7], [7, 8, 9, 10]
+        [1, 2, 3, 4],
+        [1, 10, 11, 12],
+        [4, 5, 6, 7],
+        [7, 8, 9, 10],
     ]
 
     G = graphs.DoubleBanana()
@@ -1079,7 +1079,7 @@ def test_integer_representation_fail():
         ["is_Rd_independent", []],
         ["is_Rd_circuit", []],
         ["is_Rd_closed", []],
-        ["rigid_components", []]
+        ["rigid_components", []],
     ],
 )
 def test_loops(method, params):
