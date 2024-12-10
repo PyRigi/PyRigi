@@ -1029,9 +1029,8 @@ class Graph(nx.Graph):
             If ``True``, the number of spherical realizations of the graph is returned.
             If ``False`` (default), the number of planar realizations is returned.
 
-        realization_count:
-            If ``True``, the number of realizations is computed modulo direct isometries, but counting reflection
-                as used in :cite:p:`CapcoGalletGraseggerEtAl2018` and :cite:p:`GalletGraseggerSchicho2020`.
+        count_reflection:
+            If ``True``, the number of realizations is computed modulo direct isometries, but counting reflection as used in :cite:p:`CapcoGalletGraseggerEtAl2018` and :cite:p:`GalletGraseggerSchicho2020`.
             If ``False`` (default), reflection is not counted.
 
         Examples
