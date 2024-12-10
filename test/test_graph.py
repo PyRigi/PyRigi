@@ -948,6 +948,17 @@ def test_rigid_components():
         set([0, 1, 2]),
     ]
 
+    G = graphs.Complete(3)
+    G.add_vertex(3)
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [
+        set([0, 1, 2]),
+        set([3])
+    ] or [set(H) for H in rigid_components] == [
+        set([3]),
+        set([0, 1, 2])
+    ]
+
     G = graphs.ThreePrism()
     rigid_components = G.rigid_components()
     assert len(rigid_components) == 1 and (

@@ -1890,9 +1890,9 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        We only return nontrivial subgraphs, meaning that there need to be at
-        least ``2`` vertices present. If the graph itself is rigid, it is
-        clearly maximal and is returned.
+        If the graph itself is rigid, it is clearly maximal and is returned.
+        Every edge is part of a rigid component. Isolated vertices form
+        additional rigid components.
 
         Examples
         --------
@@ -1926,7 +1926,7 @@ class Graph(nx.Graph):
             for r in range(2, self.number_of_nodes()-1)
             for vertex_subset in combinations(self.nodes, r)
             if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
-        }
+        } | {tuple([v]): True for v in self.nodes}
 
         sorted_rigid_subgraphs = sorted(
             rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True
