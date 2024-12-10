@@ -67,14 +67,14 @@ Let $G = (V, E)$ be a {prf:ref}`k-redundantly 2-rigid <def-redundantly-rigid-gra
 
 
 :::{prf:theorem}
-:label: thm-1-edge-redundant-edge-bound-dim2
+:label: thm-2-edge-redundant-edge-bound-dim2
 
-Let $G = (V, E)$ be a {prf:ref}`1-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 5$. Then
+Let $G = (V, E)$ be a {prf:ref}`2-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 5$. Then
 \begin{equation*}
   |E| \geq 2 |V| \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2021{Thm 7}`
+{{references}} compare  {cite:p}`Jordan2021{Thm 7}`
 :::
 
 
@@ -184,7 +184,7 @@ Let $G = (V, E)$ be a {prf:ref}`3-vertex-redundantly 3-rigid <def-redundantly-ri
   |E| \geq 3 |V| + 5 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Lemma 2.12}`
+{{references}} {cite:p}`Jordan2022{Lem 2.12}`
 :::
 
 
