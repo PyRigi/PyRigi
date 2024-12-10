@@ -1914,7 +1914,7 @@ class Graph(nx.Graph):
             raise LoopError()
 
         if nx.is_empty(self):
-            return([])
+            return []
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
