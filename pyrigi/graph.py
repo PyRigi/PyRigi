@@ -1543,6 +1543,9 @@ class Graph(nx.Graph):
         elif dim == 1:
             return nx.is_connected(self)
         elif dim == 2 and combinatorial:
+            if self.number_of_nodes() == 1:
+                return True
+
             deficiency = -(2 * self.number_of_nodes() - 3) + self.number_of_edges()
             if deficiency < 0:
                 return False
@@ -1880,35 +1883,31 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     @doc_category("Generic rigidity")
-    def max_rigid_subgraphs(self, dim: int = 2) -> List[Graph]:
+    def rigid_components(self, dim: int = 2) -> List[List[Vertex]]:
         """
         List the vertex sets inducing vertex-maximal rigid subgraphs.
 
         Definitions
         -----
-        :prf:ref:`Maximal rigid subgraph <def-maximal-rigid-subgraph>`
-
-        TODO
-        ----
-        missing definition, tests
+        :prf:ref:`Rigid components <def-rigid-components>`
 
         Notes
         -----
-        We only return nontrivial subgraphs, meaning that there need to be at
-        least ``dim+1`` vertices present. If the graph itself is rigid, it is clearly
-        maximal and is returned.
+        If the graph itself is rigid, it is clearly maximal and is returned.
+        Every edge is part of a rigid component. Isolated vertices form
+        additional rigid components.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.max_rigid_subgraphs()
-        []
+        >>> G.rigid_components()
+        [[0, 1], [0, 3], [1, 2], [2, 3]]
 
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
         >>> G.is_rigid()
         False
-        >>> G.max_rigid_subgraphs()
-        [[0, 1, 2], [3, 4, 5]]
+        >>> G.rigid_components()
+        [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1920,18 +1919,16 @@ class Graph(nx.Graph):
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
-                res += self.subgraph(comp).max_rigid_subgraphs(dim)
+                res += self.subgraph(comp).rigid_components(dim)
             return res
 
-        if self.number_of_nodes() <= dim:
-            return []
-        if self.is_rigid(dim):
-            return [self]
+        if self.is_rigid(dim, combinatorial=(dim < 3)):
+            return [list(self)]
         rigid_subgraphs = {
             tuple(vertex_subset): True
-            for r in range(dim + 1, self.number_of_nodes() - 1)
+            for r in range(2, self.number_of_nodes() - 1)
             for vertex_subset in combinations(self.nodes, r)
-            if self.subgraph(vertex_subset).is_rigid(dim)
+            if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
         }
 
         sorted_rigid_subgraphs = sorted(
@@ -1943,68 +1940,6 @@ class Graph(nx.Graph):
                     if set(H2).issubset(set(H1)):
                         rigid_subgraphs[H2] = False
         return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
-
-    @doc_category("Generic rigidity")
-    def min_rigid_subgraphs(self, dim: int = 2) -> List[Graph]:
-        """
-        List the vertex sets inducing vertex-minimal non-trivial rigid subgraphs.
-
-        Definitions
-        -----
-        :prf:ref:`Minimal rigid subgraph <def-minimal-rigid-subgraph>`
-
-        TODO
-        ----
-        missing definition, tests
-
-        Notes
-        -----
-        We only return nontrivial subgraphs, meaning that there need to be at
-        least ``dim+1`` vertices present.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.CompleteBipartite(3, 3)
-        >>> G.is_rigid()
-        True
-        >>> G.min_rigid_subgraphs()
-        [[0, 1, 2, 3, 4, 5]]
-        >>> G = graphs.ThreePrism()
-        >>> G.is_rigid()
-        True
-        >>> G.min_rigid_subgraphs()
-        [[0, 1, 2], [3, 4, 5]]
-        """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
-
-        if not nx.is_connected(self):
-            res = []
-            for comp in nx.connected_components(self):
-                res += self.subgraph(comp).min_rigid_subgraphs(dim)
-            return res
-
-        if self.number_of_nodes() <= dim:
-            return []
-        rigid_subgraphs = {
-            tuple(vertex_subset): True
-            for r in range(dim + 1, self.number_of_nodes() + 1)
-            for vertex_subset in combinations(self.nodes, r)
-            if self.subgraph(vertex_subset).is_rigid(dim)
-        }
-
-        sorted_rigid_subgraphs = sorted(rigid_subgraphs.keys(), key=lambda t: len(t))
-        for i, H1 in enumerate(sorted_rigid_subgraphs):
-            if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
-                for H2 in sorted_rigid_subgraphs[i + 1 :]:
-                    if set(H1).issubset(set(H2)):
-                        rigid_subgraphs[H2] = False
-        return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
 
     @doc_category("Generic rigidity")
     def max_rigid_dimension(self) -> int | Inf:
