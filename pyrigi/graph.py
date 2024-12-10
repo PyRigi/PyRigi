@@ -1615,13 +1615,13 @@ class Graph(nx.Graph):
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
         if self.number_of_edges() < dim * n - math.comb(dim + 1, 2):
             return False
+        # small graphs are rigid iff complete :pref:ref:`thm-gen-rigidity-small-complete`
+        elif n <= dim + 1:
+            return self.number_of_edges() == math.comb(n, 2)
 
         elif dim == 1 and combinatorial:
             return nx.is_connected(self)
         elif dim == 2 and combinatorial:
-            if self.number_of_nodes() == 1:
-                return True
-
             deficiency = -(2 * n - 3) + self.number_of_edges()
             if deficiency < 0:
                 return False
@@ -1706,6 +1706,10 @@ class Graph(nx.Graph):
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
         if self.number_of_edges() != dim * n - math.comb(dim + 1, 2):
             return False
+        # small graphs are minimally rigid iff complete
+        # :pref:ref:`thm-gen-rigidity-small-complete`
+        elif n <= dim + 1:
+            return self.number_of_edges() == math.comb(n, 2)
 
         elif dim == 1 and combinatorial:
             return nx.is_tree(self)
