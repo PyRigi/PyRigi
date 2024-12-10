@@ -54,3 +54,13 @@ If $F$ is not (minimally) infinitesimally $d$-rigid, then $G$ is not (minimally)
 In other words the probability of a false negative is $(dn-\binom{d+1}{2})/N$.
 {{references}} {cite:p}`Gortler2010`
 :::
+
+:::{prf:definition} Rigid components in $\RR^d$
+:label: def-rigid-components
+
+Let $G$ be a graph, let $d \in \NN$.
+The _d-rigid components_ of $G$ are the maximal vertex-induced subgraphs 
+of $G$ that are {prf:ref}`d-rigid <def-gen-rigid>`.
+
+{{pyrigi_crossref}} {meth}`~.Graph.rigid_components`
+:::
