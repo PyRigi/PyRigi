@@ -2234,6 +2234,223 @@ class Graph(nx.Graph):
 
         return Framework.Random(self, dim, rand_range)
 
+    @doc_category("Other")
+    def to_tikz(
+        self,
+        layout_type: str = "spring",
+        placement: dict[Vertex, Point] = None,
+        vertex_style: Union(str, dict[str : list[Vertex]]) = "gvertex",
+        edge_style: Union(str, dict[str : list[Edge]]) = "edge",
+        label_style: str = "labelsty",
+        figure_opts: str = "",
+        vertex_in_labels: bool = False,
+        vertex_out_labels: bool = False,
+        default_styles: bool = True,
+    ) -> str:
+        r"""
+        Create a TikZ code for the graph.
+
+        For using it in ``LaTeX`` you need to use the ``tikz`` package.
+
+        Parameters
+        ----------
+        placement:
+            If ``placement`` is not specified,
+            then it is generated depending on parameter ``layout``.
+        layout:
+            The possibilities are ``spring`` (default), ``circular``,
+            ``random`` or ``planar``, see also :meth:`~Graph.layout`.
+        vertex_style:
+            If a single style is given as a string,
+            then all vertices get this style.
+            If a dictionary from styles to a list of vertices is given,
+            vertices are put in style accordingly.
+            The vertices missing in the dictionary do not get a style.
+        edge_style:
+            If a single style is given as a string,
+            then all edges get this style.
+            If a dictionary from styles to a list of edges is given,
+            edges are put in style accordingly.
+            The edges missing in the dictionary do not get a style.
+        label_style:
+            The style for labels that are placed next to vertices.
+        figure_opts:
+            Options for the tikzpicture environment.
+        vertex_in_labels
+            A bool on whether vertex names should be put as labels on the vertices.
+        vertex_out_labels
+            A bool on whether vertex names should be put next to vertices.
+        default_styles
+            A bool on whether default style definitions should be put to the options.
+
+        Examples
+        ----------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> print(G.to_tikz()) # doctest: +SKIP
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (-0.98794, -0.61705) {};
+            \node[gvertex] (1) at (0.62772, -1.0) {};
+            \node[gvertex] (2) at (0.98514, 0.62151) {};
+            \node[gvertex] (3) at (-0.62492, 0.99554) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular")) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (1.0, 0.0) {};
+            \node[gvertex] (1) at (-0.0, 1.0) {};
+            \node[gvertex] (2) at (-1.0, -0.0) {};
+            \node[gvertex] (3) at (0.0, -1.0) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(placement = [[0, 0], [1, 1], [2, 2], [3, 3]])) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (0, 0) {};
+            \node[gvertex] (1) at (1, 1) {};
+            \node[gvertex] (2) at (2, 2) {};
+            \node[gvertex] (3) at (3, 3) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_out_labels = True)) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white},labelsty/.style={font=\scriptsize,black!70!white}]
+            \node[gvertex,label={[labelsty]right:$0$}] (0) at (1.0, 0.0) {};
+            \node[gvertex,label={[labelsty]right:$1$}] (1) at (-0.0, 1.0) {};
+            \node[gvertex,label={[labelsty]right:$2$}] (2) at (-1.0, -0.0) {};
+            \node[gvertex,label={[labelsty]right:$3$}] (3) at (0.0, -1.0) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_in_labels = True)) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (1.0, 0.0) {$0$};
+            \node[gvertex] (1) at (-0.0, 1.0) {$1$};
+            \node[gvertex] (2) at (-1.0, -0.0) {$2$};
+            \node[gvertex] (3) at (0.0, -1.0) {$3$};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_style = "myvertex", edge_style = "myedge")) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[]
+            \node[myvertex] (0) at (1.0, 0.0) {};
+            \node[myvertex] (1) at (-0.0, 1.0) {};
+            \node[myvertex] (2) at (-1.0, -0.0) {};
+            \node[myvertex] (3) at (0.0, -1.0) {};
+            \draw[myedge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", edge_style = {"red edge": [[1, 2]], "green edge": [[2, 3], [0, 1]]}, vertex_style = {"red vertex": [0], "blue vertex": [2, 3]})) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[]
+            \node[red vertex] (0) at (1.0, 0.0) {};
+            \node[blue vertex] (2) at (-1.0, -0.0) {};
+            \node[blue vertex] (3) at (0.0, -1.0) {};
+            \node[] (1) at (-0.0, 1.0) {};
+            \draw[red edge] (1) to (2);
+            \draw[green edge] (2) to (3) (0) to (1);
+            \draw[] (3) to (0);
+        \end{tikzpicture}
+        """  # noqa: E501
+
+        # strings for tikz styles
+        if vertex_out_labels and default_styles:
+            lstyle_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
+        else:
+            lstyle_str = ""
+
+        if vertex_style == "gvertex" and default_styles:
+            if vertex_in_labels:
+                vstyle_str = (
+                    "gvertex/.style={white,fill=black,draw=black,circle,"
+                    r"inner sep=1pt,font=\scriptsize}"
+                )
+            else:
+                vstyle_str = (
+                    "gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,"
+                    "minimum size=4pt}"
+                )
+        else:
+            vstyle_str = ""
+        if edge_style == "edge" and default_styles:
+            estyle_str = "edge/.style={line width=1.5pt,black!60!white}"
+        else:
+            estyle_str = ""
+
+        figure_str = [figure_opts, vstyle_str, estyle_str, lstyle_str]
+        figure_str = [fs for fs in figure_str if fs != ""]
+        figure_str = ",".join(figure_str)
+
+        # tikz for edges
+        edge_style_dict = {}
+        if type(edge_style) is str:
+            edge_style_dict[edge_style] = self.edge_list()
+        else:
+            dict_edges = []
+            for estyle, elist in edge_style.items():
+                cdict_edges = [ee for ee in elist if self.has_edge(*ee)]
+                edge_style_dict[estyle] = cdict_edges
+                dict_edges += cdict_edges
+            remaining_edges = [
+                ee
+                for ee in self.edge_list()
+                if not ((ee in dict_edges) or (ee.reverse() in dict_edges))
+            ]
+            edge_style_dict[""] = remaining_edges
+
+        edges_str = ""
+        for estyle, elist in edge_style_dict.items():
+            edges_str += (
+                f"\t\\draw[{estyle}] "
+                + " ".join([" to ".join([f"({v})" for v in e]) for e in elist])
+                + ";\n"
+            )
+
+        # tikz for vertices
+        if placement is None:
+            placement = self.layout(layout_type)
+
+        vertex_style_dict = {}
+        if type(vertex_style) is str:
+            vertex_style_dict[vertex_style] = self.vertex_list()
+        else:
+            dict_vertices = []
+            for style, vlist in vertex_style.items():
+                cdict_vertices = [vv for vv in vlist if (vv in self.vertex_list())]
+                vertex_style_dict[style] = cdict_vertices
+                dict_vertices += cdict_vertices
+            remaining_vertices = [
+                vv for vv in self.vertex_list() if not (vv in dict_vertices)
+            ]
+            vertex_style_dict[""] = remaining_vertices
+
+        vertices_str = ""
+        for vstyle, vlist in vertex_style_dict.items():
+            vertices_str += "".join(
+                [
+                    "\t\\node["
+                    + vstyle
+                    + (
+                        ("," if vertex_style != "" else "")
+                        + f"label={{[{label_style}]right:${v}$}}"
+                        if vertex_out_labels
+                        else ""
+                    )
+                    + f"] ({v}) at "
+                    + f"({round(placement[v][0], 5)}, {round(placement[v][1], 5)}) {{"
+                    + (f"${v}$" if vertex_in_labels else "")
+                    + "};\n"
+                    for v in vlist
+                ]
+            )
+        return (
+            "\\begin{tikzpicture}["
+            + figure_str
+            + "]\n"
+            + vertices_str
+            + edges_str
+            + "\\end{tikzpicture}"
+        )
+
     def _resolve_edge_colors(
         self, edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]])
     ) -> tuple[list, list]:
