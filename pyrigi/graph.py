@@ -1913,7 +1913,7 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        if nx.is_empty(self):
+        if self.number_of_nodes() == 0:
             return []
         if not nx.is_connected(self):
             res = []
