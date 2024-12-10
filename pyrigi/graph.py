@@ -1316,7 +1316,7 @@ class Graph(nx.Graph):
 
         Preliminary checks from
         :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`,
+        :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`,
         :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`,
         :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`,
         :prf:ref:`thm-globally-redundant-3connected` and
@@ -1364,7 +1364,7 @@ class Graph(nx.Graph):
                 # basic edge bound
                 (k == 1 and m < 2 * n - 2)
                 or
-                # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
+                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`
                 (k == 2 and n >= 5 and m < 2 * n)
                 or
                 # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
@@ -1471,7 +1471,7 @@ class Graph(nx.Graph):
                 # basic edge bound
                 (k == 1 and m == 2 * n - 2)
                 or
-                # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
+                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`
                 (k == 2 and n >= 5 and m == 2 * n)
                 or
                 # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
