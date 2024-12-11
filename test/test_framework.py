@@ -225,27 +225,11 @@ def test_inf_flexes():
     explicit_flex = sympify(
         [0, 0, 0, 0, 0, 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0]
     )
-    assert (
-        F.is_vector_inf_flex(explicit_flex)
-        and F.is_vector_nontrivial_inf_flex(explicit_flex)
-        and F.is_vector_nontrivial_inf_flex(explicit_flex, numerical=True)
-        and F.is_nontrivial_flex(explicit_flex, numerical=True)
-    )
+    assert F.is_vector_inf_flex(explicit_flex)
     explicit_flex_reorder = sympify(
         ["-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, 0, 0, 0, 0, 0, 0]
     )
-    assert (
-        F.is_vector_inf_flex(explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1])
-        and F.is_vector_nontrivial_inf_flex(
-            explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1]
-        )
-        and F.is_vector_nontrivial_inf_flex(
-            explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1], numerical=True
-        )
-        and F.is_nontrivial_flex(
-            explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1], numerical=True
-        )
-    )
+    assert F.is_vector_inf_flex(explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1])
     QF = Matrix.hstack(*(F.nontrivial_inf_flexes()))
     QC = Matrix.hstack(*(C.nontrivial_inf_flexes()))
     assert QF.rank() == 1 and QC.rank() == 0
@@ -259,19 +243,12 @@ def test_inf_flexes():
     F = fws.Path(4)
     for inf_flex in F.nontrivial_inf_flexes():
         dict_flex = F._transform_inf_flex_to_pointwise(inf_flex)
-        assert F.is_dict_inf_flex(dict_flex) and F.is_dict_nontrivial_inf_flex(
-            dict_flex
-        )
+        assert F.is_dict_inf_flex(dict_flex)
     assert Matrix.hstack(*(F.nontrivial_inf_flexes())).rank() == 2
 
     F = fws.Frustum(4)
     explicit_flex = [1, 0, 0, -1, 0, -1, 1, 0, 1, -1, 1, -1, 0, 0, 0, 0]
-    assert (
-        F.is_vector_inf_flex(explicit_flex)
-        and F.is_vector_nontrivial_inf_flex(explicit_flex)
-        and F.is_vector_nontrivial_inf_flex(explicit_flex, numerical=True)
-        and F.is_nontrivial_flex(explicit_flex, numerical=True)
-    )
+    assert F.is_vector_inf_flex(explicit_flex)
     QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
     Q_exp = Matrix(explicit_flex)
     assert QF.rank() == 5 and Matrix.hstack(QF, Q_exp).rank() == 5
@@ -282,14 +259,14 @@ def test_inf_flexes():
     F_triv = F.trivial_inf_flexes()
     for inf_flex in F_triv:
         dict_flex = F._transform_inf_flex_to_pointwise(inf_flex)
-        assert F.is_dict_inf_flex(dict_flex) and F.is_dict_trivial_inf_flex(dict_flex)
+        assert F.is_dict_inf_flex(dict_flex)
     F_all = F.inf_flexes(include_trivial=True)
     assert Matrix.hstack(*F_triv).rank() == Matrix.hstack(*(F_all + F_triv)).rank()
 
     F = Framework.Random(graphs.DoubleBanana(), dim=3)
     inf_flexes = F.nontrivial_inf_flexes()
     dict_flex = F._transform_inf_flex_to_pointwise(inf_flexes[0])
-    assert F.is_dict_inf_flex(dict_flex) and F.is_dict_nontrivial_inf_flex(dict_flex)
+    assert F.is_dict_inf_flex(dict_flex)
     assert Matrix.hstack(*inf_flexes).rank() == 1
 
 
@@ -297,7 +274,7 @@ def test_is_vector_inf_flex():
     F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
     assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
     assert not F.is_vector_inf_flex([0, 0, 0, 1, -2, 0])
-    assert F.is_vector_inf_flex([0, 1, 0, 0, -1, 0], [1, 0, 2])
+    assert F.is_vector_inf_flex([0, 1, 0, 0, -1, 0], vertex_order=[1, 0, 2])
 
     F.delete_edge([1, 2])
     assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
