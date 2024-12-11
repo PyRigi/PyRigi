@@ -1627,10 +1627,7 @@ class Graph(nx.Graph):
                 return False
             else:
                 self._build_pebble_digraph(2, 3)
-                return (
-                    self._pebble_digraph.number_of_edges()
-                    == 2 * n - 3
-                )
+                return self._pebble_digraph.number_of_edges() == 2 * n - 3
         elif not combinatorial:
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
