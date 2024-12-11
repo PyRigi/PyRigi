@@ -49,14 +49,19 @@ class ParametricMotion(Motion):
                 "The realization does not contain the correct amount of vertices!"
             )
 
+        self._parametrization = {i: point_to_vector(v) for i, v in motion.items()}
+        self._dim = len(list(self._parametrization.values())[0])
         for v in self._graph.nodes:
             if v not in motion:
                 raise KeyError(f"Vertex {v} is not a key of the given realization!")
+            if len(self._parametrization[v]) != self._dim:
+                raise ValueError(
+                    f"The point {self._parametrization[v]} in the parametrization corresponding to "
+                    f"vertex {v} does not have the right dimension."
+                )
 
         if not interval[0] < interval[1]:
             raise ValueError("The given interval is not a valid interval!")
-
-        self._parametrization = {i: point_to_vector(v) for i, v in motion.items()}
 
         symbols = set()
         for vertex, position in self._parametrization.items():
@@ -161,6 +166,9 @@ class ParametricMotion(Motion):
         height: int = 500,
         filename: str = None,
         sampling: int = 50,
+        show_labels: bool = True,
+        vertex_size: int = 5,
+        length: int = 8,
     ) -> None:
         """
         Animation of the parametric motion for parameter
@@ -181,12 +189,16 @@ class ParametricMotion(Motion):
             but may lead to a less precise or jerky animation. This parameter controls
             the resolution of the animation's movement by setting the density of
             sampled data points between keyframes or time steps.
+        show_labels:
+            If true, vertices will have a number label.
+        vertex_size:
+            Size of vertices in the animation.
+        length:
+            The length of one period of the animation in seconds.
         """
 
-        # for v, pos in self._parametrization.items():
-        #     if len(pos) != 2:
-        #         raise ValueError("Motion is not in 2D!")
-        #     break
+        if self._dim != 2:
+            raise ValueError("This motion is not in dimension 2!")
 
         lower, upper = self._interval
         if lower == -np.inf or upper == np.inf:
@@ -199,8 +211,7 @@ class ParametricMotion(Motion):
                     )
                 mot[v] = tan_placement
             mot = ParametricMotion(self._graph, mot, (-np.pi / 2, np.pi / 2))
-            mot.animate(width, height, filename)
-            return
+            return mot.animate(width, height, filename)
 
         realizations = self._realization_sampling(sampling)
         realizations = self._normalize_realizations(realizations, width, height, 15)
@@ -213,14 +224,12 @@ class ParametricMotion(Motion):
         for i, v in enumerate(self._graph.nodes):
             v_to_int[v] = i
             tmp = f"""<defs>
-    <marker id="vertex{i}" viewBox="0 0 30 30" refX="15" refY="15" markerWidth="5" markerHeight="5">
+    <marker id="vertex{i}" viewBox="0 0 30 30" refX="15" refY="15" markerWidth="{vertex_size}" markerHeight="{vertex_size}">
     <circle cx="15" cy="15" r="13.5" fill="white" stroke="black" stroke-width="2"/>
     <text x="15" y="22" font-size="22.5" text-anchor="middle" fill="black">
         {i}
-    </text>
-    </marker>
-</defs>
-"""
+    </text>"""
+            tmp +="""\t</marker>\n</defs>\n"""
             svg = svg + "\n" + tmp
 
         inital_realization = realizations[0]
@@ -237,7 +246,7 @@ class ParametricMotion(Motion):
                 ru = r[u]
                 rv = r[v]
                 positions_str += f" M {ru[0]} {ru[1]} L {rv[0]} {rv[1]};"
-            animation = f"""<animate href="#edge{v_to_int[u]}-{v_to_int[v]}" attributeName="d" dur="8s" repeatCount="indefinite" calcMode="linear" values="{positions_str}"/>"""
+            animation = f"""<animate href="#edge{v_to_int[u]}-{v_to_int[v]}" attributeName="d" dur="{length}s" repeatCount="indefinite" calcMode="linear" values="{positions_str}"/>"""
             svg = svg + "\n" + animation
         svg = svg + "\n</svg>"
 
