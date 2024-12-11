@@ -2339,11 +2339,26 @@ class Framework(object):
         )
 
     @doc_category("Infinitesimal rigidity")
-    def is_nontrivial_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
+    def is_nontrivial_flex(
+        self, inf_flex: List[Coordinate] | Dict[Vertex, Sequence[Coordinate]], **kwargs
+    ) -> bool:
         """
-        Alias for :meth:`Framework.is_vector_nontrivial_inf_flex`.
+        Alias for :meth:`Framework.is_vector_nontrivial_inf_flex` and
+        :meth:`Framework.is_dict_nontrivial_inf_flex`.
+
+        Notes
+        -----
+        We distinguish between instaces of `list` and instances of `dict` to
+        call one of the alias methods.
         """
-        return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
+        if isinstance(inf_flex, list):
+            return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
+        elif isinstance(inf_flex, dict):
+            return self.is_dict_nontrivial_inf_flex(inf_flex, **kwargs)
+        else:
+            raise TypeError(
+                "The `inf_flex` must be specified either by a vector or a dictionary!"
+            )
 
     @doc_category("Infinitesimal rigidity")
     def is_vector_trivial_inf_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
@@ -2427,11 +2442,26 @@ class Framework(object):
         )
 
     @doc_category("Infinitesimal rigidity")
-    def is_trivial_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
+    def is_trivial_flex(
+        self, inf_flex: List[Coordinate] | Dict[Vertex, Sequence[Coordinate]], **kwargs
+    ) -> bool:
         """
-        Alias for :meth:`Framework.is_vector_trivial_inf_flex`.
+        Alias for :meth:`Framework.is_vector_trivial_inf_flex` and
+        :meth:`Framework.is_dict_trivial_inf_flex`.
+
+        Notes
+        -----
+        We distinguish between instaces of `list` and instances of `dict` to
+        call one of the alias methods.
         """
-        return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
+        if isinstance(inf_flex, list):
+            return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
+        elif isinstance(inf_flex, dict):
+            return self.is_dict_trivial_inf_flex(inf_flex, **kwargs)
+        else:
+            raise TypeError(
+                "The `inf_flex` must be specified either by a vector or a dictionary!"
+            )
 
 
 Framework.__doc__ = Framework.__doc__.replace(
