@@ -1719,7 +1719,7 @@ class Framework(object):
     @doc_category("Other")
     def edge_lengths(self, numerical: bool = False) -> Dict[Edge, Coordinate]:
         """
-        Return a ``Dict`` of the framework's edges and their corresponding lengths.
+        Return the dictionary of the edge lengths.
 
         Parameters
         -------
