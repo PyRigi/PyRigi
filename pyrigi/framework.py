@@ -22,8 +22,9 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 from sympy import Matrix, flatten, binomial
+from math import isclose
 
-from pyrigi.data_type import Vertex, Edge, Point, Stress, point_to_vector
+from pyrigi.data_type import Vertex, Edge, Point, Stress, point_to_vector, Coordinate
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -1154,6 +1155,127 @@ class Framework(object):
                 extend_basis_matrix = Matrix.hstack(extend_basis_matrix, v)
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
+    
+    @doc_category("Infinitesimal rigidity")
+    def is_inf_flex(
+        self,
+        inf_flex: List[Coordinate],
+        vertex_order: List[Vertex] = None,
+        numerical: bool = False,
+        numerical_digits: int = 35,
+        numerical_atol: float = 1e-10
+    ) -> bool:
+        r"""
+        Tests whether an infinitesimal flex lies in the kernel of the rigidity matrix.
+
+        Definitions
+        -----------
+        :prf:ref:`Infinitesimal Flex <def-inf-flex>`
+        :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex of the framework.
+        vertex_order:
+            A list of vertices determining the internal vertex order.
+        numerical:
+            A Boolean determining whether the evaluation of the product of the `stress`
+            and the rigidity matrix is symbolic or numerical.
+        numerical_digits:
+            Number of digits to which accuracy the numerical expression is evaluated.
+        numerical_atol:
+            Absolute tolerance that is the threshold for acceptable numerical flexes.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Square()
+        >>> q = [0,0,0,0,-2,0,-2,0]
+        >>> F.is_inf_flex(q)
+        True
+        >>> q[0] = 1
+        >>> F.is_inf_flex(q)
+        False
+        """
+        if not numerical:
+            return all(
+                [
+                    sp.simplify(ex).is_zero
+                    for ex in self.rigidity_matrix(vertex_order=vertex_order) *
+                    Matrix(inf_flex)
+                ]
+            )
+        return all(
+            [
+                isclose(ex.evalf(numerical_digits), 0, abs_tol=numerical_atol)
+                for ex in self.rigidity_matrix(vertex_order=vertex_order) *
+                Matrix(inf_flex)
+            ]
+        )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
+        """
+        Alias for :meth:`Framework.is_inf_flex`.
+        """
+        return self.is_inf_flex(inf_flex, **kwargs)
+    
+    @doc_category("Infinitesimal rigidity")
+    def is_nontrivial_inf_flex(
+        self,
+        inf_flex: List[Coordinate],
+        vertex_order: List[Vertex] = None,
+        numerical: bool = False,
+        numerical_digits: int = 35,
+        numerical_atol: float = 1e-10
+    ) -> bool:
+        r"""
+        Tests whether an infinitesimal flex is nontrivial.
+
+        Definitions
+        -----------
+        :prf:ref:`Nontrivial infinitesimal Flex <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex of the framework.
+        vertex_order:
+            A list of vertices determining the internal vertex order.
+        numerical:
+            A Boolean determining whether the evaluation of the product of the `stress`
+            and the rigidity matrix is symbolic or numerical.
+        numerical_digits:
+            Number of digits to which accuracy the numerical expression is evaluated.
+        numerical_atol:
+            Absolute tolerance that is the threshold for acceptable numerical flexes.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Square()
+        >>> q = [0,0,0,0,-2,0,-2,0]
+        >>> F.is_nontrivial_inf_flex(q)
+        True
+        >>> q = [1,-1,1,1,-1,1,-1,-1]
+        >>> F.is_inf_flex(q)
+        True
+        >>> F.is_nontrivial_inf_flex(q)
+        False
+        """
+        if not self.is_inf_flex(inf_flex, vertex_order=vertex_order,numerical=numerical, numerical_digits=numerical_digits, numerical_atol=numerical_atol):
+            return False
+        Q_trivial = Matrix.hstack(*(self.trivial_inf_flexes()))
+        Q_flex = Matrix(inf_flex)
+        return Matrix.hstack(Q_trivial, Q_flex).rank() == Q_trivial.rank() + 1
+
+    @doc_category("Infinitesimal rigidity")
+    def is_nontrivial_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
+        """
+        Alias for :meth:`Framework.is_nontrivial_inf_flex`.
+        """
+        return self.is_nontrivial_inf_flex(inf_flex, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
     def stresses(

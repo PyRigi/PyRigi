@@ -8,7 +8,7 @@ from pyrigi.data_type import point_to_vector
 from copy import deepcopy
 
 import pytest
-from sympy import Matrix, pi, sqrt
+from sympy import Matrix, pi, sqrt, sympify
 
 
 @pytest.mark.parametrize(
@@ -222,20 +222,27 @@ def test_inf_flexes():
 
     F = fws.ThreePrism(realization="flexible")
     C = Framework(graphs.Complete(6), realization=F.realization())
+    explicit_flex = sympify([0,0,0,0,0,0,"-sqrt(2)*pi",0,"-sqrt(2)*pi",0,"-sqrt(2)*pi",0])
+    assert F.is_inf_flex(explicit_flex)
     QF = Matrix.hstack(*(F.nontrivial_inf_flexes()))
     QC = Matrix.hstack(*(C.nontrivial_inf_flexes()))
     assert QF.rank() == 1 and QC.rank() == 0
     assert F.trivial_inf_flexes() == C.trivial_inf_flexes()
     QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
     QC = Matrix.hstack(*(F.trivial_inf_flexes()))
+    Q_exp = Matrix(explicit_flex)
     assert Matrix.hstack(QF, QC).rank() == 4
+    assert Matrix.hstack(QF, Q_exp).rank() == 4
 
     F = fws.Path(4)
     assert Matrix.hstack(*(F.nontrivial_inf_flexes())).rank() == 2
 
     F = fws.Frustum(4)
-    QF = F.inf_flexes(include_trivial=True)
-    assert Matrix.hstack(*QF).rank() == 5
+    explicit_flex = [1, 0, 0, -1, 0, -1, 1, 0, 1, -1, 1, -1, 0, 0, 0, 0]
+    assert F.is_flex(explicit_flex)
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
+    Q_exp = Matrix(explicit_flex)
+    assert QF.rank() == 5 and Matrix.hstack(QF, Q_exp).rank() == 5
 
     F = fws.Complete(5)
     F_triv = F.trivial_inf_flexes()
