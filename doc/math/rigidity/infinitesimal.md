@@ -116,7 +116,8 @@ An _equilibrium stress_ of $(G,p)$ is a map $\omega\colon E\rightarrow \RR$ such
 \end{equation*}
 Equivalently, interpreting $\omega$ as a row vector, $\omega$ is an equilibrium stress if and only if $\omega \cdot R(G,p) = 0$.
 
-{{pyrigi_crossref}} {meth}`~.Framework.stresses`
+{{pyrigi_crossref}} {meth}`~.Framework.stresses` 
+{meth}`~.Framework.is_stress`
 :::
 
 :::{prf:definition} Stress Matrix 
