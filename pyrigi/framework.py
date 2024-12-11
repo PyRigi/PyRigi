@@ -1739,13 +1739,8 @@ class Framework(object):
             points = self.realization(as_points=True, numerical=True)
             return {
                 tuple(pair): float(
-                    np.sqrt(
-                        sum(
-                            [
-                                (v - w) ** 2
-                                for v, w in zip(points[pair[0]], points[pair[1]])
-                            ]
-                        )
+                    np.linalg.norm(
+                        np.array(points[pair[0]]) - np.array(points[pair[1]])
                     )
                 )
                 for pair in self._graph.edges
