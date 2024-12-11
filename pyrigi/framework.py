@@ -287,8 +287,8 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_2D_realization(
         self,
-        realization: dict[Vertex, Point],
-        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        realization: Dict[Vertex, Point],
+        inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -304,7 +304,7 @@ class Framework(object):
             The realization in the plane used for plotting.
         inf_flex:
             Optional parameter for plotting an infinitesimal flex. We expect
-            it to have the same format as `realization`: `dict[Vertex, Point]`.
+            it to have the same format as `realization`: `Dict[Vertex, Point]`.
         """
 
         self._graph.plot(
@@ -345,8 +345,8 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(  # noqa: C901
         self,
-        coordinates: Union[tuple, list] = None,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        coordinates: Union[tuple, List] = None,
+        inf_flex: Matrix | int | Dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -379,9 +379,9 @@ class Framework(object):
             Optional parameter for plotting a given infinitesimal flex. It is
             important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
-            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
@@ -626,6 +626,12 @@ class Framework(object):
         is taken to be ``[0,...,len(points)-1]``.
         The underlying graph has no edges.
 
+        Parameters
+        ----------
+        points:
+            The realization of the framework that this method outputs
+            is provided as a list of points.
+
         Examples
         --------
         >>> F = Framework.from_points([(1,2), (2,3)])
@@ -641,10 +647,19 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
+        cls, graph: Graph, dim: int = 2, rand_range: int | List[int] = None
     ) -> Framework:
         """
         Return a framework with random realization.
+
+        Parameters
+        ----------
+        graph:
+            Graph on which the random realization should be constructed.
+        rand_range:
+            Sets the range of random numbers from which the realization is
+            sampled. The format is either an interval ``(a,b)`` or a single
+            integer ``a``, which produces the range ``(-a,a)``.
 
         Examples
         --------
@@ -653,6 +668,10 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(122, 57), 1:(27, 144), 2:(50, 98)}
+
+        Notes
+        -----
+        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``.
 
         TODO
         ----
@@ -687,6 +706,11 @@ class Framework(object):
         """
         Return the framework with a regular unit circle realization in the plane.
 
+        Parameters
+        ----------
+        graph:
+            Underlying graph on which the framework is constructed.
+
         Examples
         ----
         >>> import pyrigi.graphDB as graphs
@@ -710,6 +734,11 @@ class Framework(object):
     def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
+
+        Parameters
+        ----------
+        graph:
+            Underlying graph on which the framework is constructed.
 
         Examples
         --------
@@ -736,6 +765,8 @@ class Framework(object):
 
         Parameters
         ----------
+        graph:
+            Underlying graph on which the framework is constructed.
         d:
             The dimension ``d`` has to be at least the number of vertices
             of the ``graph`` minus one.
@@ -801,9 +832,9 @@ class Framework(object):
 
         Parameters
         ----------
-        dim:
-            a natural number that determines the dimension
-            in which the framework is realized
+        points:
+            The realization of the framework that this method outputs
+            is provided as a list of points.
 
         Examples
         --------
@@ -1867,38 +1898,44 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self) -> dict[tuple[Edge, Edge], float]:
+    def edge_lengths(self, numerical: bool = False) -> Dict[Edge, Coordinate]:
         """
-        Return the edges and their lengths (numerically) of the framework.
+        Return the dictionary of the edge lengths.
 
-        The ordering is given by graph().edge_list() method.
-
-        TODO symbolic version of this method
-
-        Returns
+        Parameters
         -------
-        lengths
-            Dict of edges and their lengths in the framework.
+        numerical:
+            If ``True``, numerical positions are used for the computation of the edge lengths.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
-        >>> l_dict = F.edge_lengths()
-        """
-        from numpy import array as nparray
-        from numpy.linalg import norm as npnorm
-
-        points = self.realization(as_points=True)
-        lengths = {
-            tuple(pair): npnorm(
-                nparray(points[pair[0]], dtype="float64")
-                - nparray(points[pair[1]], dtype="float64")
-            )
-            for pair in self._graph.edges
-        }
-
-        return lengths
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
+        >>> F.edge_lengths(numerical=False)
+        {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
+        >>> F.edge_lengths(numerical=True)
+        {(0, 1): 1.0, (0, 3): 1.4240006242195884, (1, 2): 1.118033988749895, (2, 3): 0.5443838790578374}
+        """  # noqa: E501
+        if numerical:
+            points = self.realization(as_points=True, numerical=True)
+            return {
+                tuple(pair): float(
+                    np.linalg.norm(
+                        np.array(points[pair[0]]) - np.array(points[pair[1]])
+                    )
+                )
+                for pair in self._graph.edges
+            }
+        else:
+            points = self.realization(as_points=True)
+            return {
+                tuple(pair): sp.sqrt(
+                    sum(
+                        [(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])]
+                    )
+                )
+                for pair in self._graph.edges
+            }
 
     @staticmethod
     def _generate_stl_bar(
@@ -2064,7 +2101,7 @@ class Framework(object):
     @doc_category("Other")
     def _transform_inf_flex_to_pointwise(  # noqa: C901
         self, flex: Matrix, vertex_order: List[Vertex] = None
-    ) -> dict[Vertex, Sequence[Coordinate]]:
+    ) -> Dict[Vertex, Sequence[Coordinate]]:
         r"""
         Transform the natural data type of a flex (Matrix) to a
         dictionary that maps a vertex to a Sequence of coordinates
