@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from typing import List, Union, Iterable
+from typing import List, Dict, Union, Iterable
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -387,7 +387,7 @@ class Graph(nx.Graph):
         return nx.node_connectivity(self)
 
     @doc_category("General graph theoretical properties")
-    def degree_sequence(self, vertex_order: List[Vertex] = None) -> list[int]:
+    def degree_sequence(self, vertex_order: List[Vertex] = None) -> List[int]:
         """
         Return a list of degrees of the vertices of the graph.
 
@@ -2488,8 +2488,8 @@ class Graph(nx.Graph):
         )
 
     def _resolve_edge_colors(
-        self, edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]])
-    ) -> tuple[list, list]:
+        self, edge_color: str | List[List[Edge]] | Dict[str : List[Edge]]
+    ) -> tuple[List, List]:
         """
         Return the lists of colors and edges in the format for plotting.
         """
@@ -2608,7 +2608,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Other")
-    def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
+    def layout(self, layout_type: str = "spring") -> Dict[Vertex, Point]:
         """
         Generate a placement of the vertices.
 
@@ -2638,19 +2638,19 @@ class Graph(nx.Graph):
     @doc_category("Other")
     def plot(
         self,
-        placement: dict[Vertex, Point] = None,
-        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        placement: Dict[Vertex, Point] = None,
+        inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
         layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4169E1",
         vertex_shape: str = "o",
         vertex_labels: bool = True,
         edge_width: float = 2.5,
-        edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
+        edge_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "black",
         edge_style: str = "solid",
         flex_width: float = 2.5,
         flex_length: float = 0.15,
-        flex_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "limegreen",
+        flex_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "limegreen",
         flex_style: str = "solid",
         flex_arrowsize: int = 20,
         font_color: str = "whitesmoke",
@@ -2671,7 +2671,7 @@ class Graph(nx.Graph):
             then it is generated depending on parameter ``layout``.
         inf_flex:
             It is possible to plot an infinitesimal flex alongside the
-            realization of your graph. It is specified as a ``dict`` of
+            realization of your graph. It is specified as a ``Dict`` of
             flexes.
         layout:
             The possibilities are ``spring`` (default), ``circular``,
@@ -2720,7 +2720,6 @@ class Graph(nx.Graph):
             The height of the canvas in inches.
         aspect_ratio:
             The ratio of y-unit to x-unit. By default 1.0.
-
         """
 
         fig, ax = plt.subplots()
