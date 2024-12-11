@@ -659,7 +659,7 @@ class Framework(object):
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            b = 10 * graph.number_of_nodes() ** 2 * dim
+            b = 10**4 * graph.number_of_nodes() ** 2 * dim
             a = -b
         if isinstance(rand_range, list):
             if not len(rand_range) == 2:
