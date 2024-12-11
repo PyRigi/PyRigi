@@ -225,7 +225,11 @@ def test_inf_flexes():
     explicit_flex = sympify(
         [0, 0, 0, 0, 0, 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0]
     )
-    assert F.is_inf_flex(explicit_flex)
+    assert (
+        F.is_inf_flex(explicit_flex)
+        and F.is_nontrivial_flex(explicit_flex)
+        and F.is_nontrivial_flex(explicit_flex, numerical=True)
+    )
     QF = Matrix.hstack(*(F.nontrivial_inf_flexes()))
     QC = Matrix.hstack(*(C.nontrivial_inf_flexes()))
     assert QF.rank() == 1 and QC.rank() == 0
@@ -241,10 +245,16 @@ def test_inf_flexes():
 
     F = fws.Frustum(4)
     explicit_flex = [1, 0, 0, -1, 0, -1, 1, 0, 1, -1, 1, -1, 0, 0, 0, 0]
-    assert F.is_flex(explicit_flex)
+    assert (
+        F.is_flex(explicit_flex)
+        and F.is_nontrivial_flex(explicit_flex)
+        and F.is_nontrivial_flex(explicit_flex, numerical=True)
+    )
     QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
     Q_exp = Matrix(explicit_flex)
     assert QF.rank() == 5 and Matrix.hstack(QF, Q_exp).rank() == 5
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=False)))
+    assert QF.rank() == 2 and Matrix.hstack(QF, Q_exp).rank() == 2
 
     F = fws.Complete(5)
     F_triv = F.trivial_inf_flexes()

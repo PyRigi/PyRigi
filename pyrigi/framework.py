@@ -21,6 +21,7 @@ from random import randrange
 
 import networkx as nx
 import sympy as sp
+import numpy as np
 from sympy import Matrix, flatten, binomial
 from math import isclose
 
@@ -1251,6 +1252,19 @@ class Framework(object):
         numerical_atol:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
 
+        Notes
+        -----
+        This is done by solving a linear system composed of a matrix `A` whose columns
+        are given by a basis of the trivial flexes and the vector `b` given by the
+        input flex. `b` is trivial if and only if there is a linear combination of
+        the columns in `A` producing `b`. In other words, when there is a solution to
+        `Ax=b`, then `b` is a trivial infinitesimal motion. Otherwise, `b` is
+        nontrivial.
+
+        In the `numerical=True` case we compute a least squares solution `x` of the
+        overdetermined linear system and compare the values in `Ax` to the values
+        in `b`.
+
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -1272,9 +1286,31 @@ class Framework(object):
             numerical_atol=numerical_atol,
         ):
             return False
-        Q_trivial = Matrix.hstack(*(self.trivial_inf_flexes()))
-        Q_flex = Matrix(inf_flex)
-        return Matrix.hstack(Q_trivial, Q_flex).rank() == Q_trivial.rank() + 1
+
+        if not numerical:
+            Q_trivial = Matrix.hstack(*(self.trivial_inf_flexes()))
+            system = Q_trivial, Matrix(inf_flex)
+            return sp.linsolve(system) == sp.EmptySet
+        else:
+            Q_trivial = np.array(
+                [
+                    [
+                        float(f.evalf(numerical_digits))
+                        for f in flex.transpose().tolist()[0]
+                    ]
+                    for flex in (self.trivial_inf_flexes())
+                ]
+            ).transpose()
+            b = np.array(
+                [[float(f.evalf(numerical_digits)) for f in sp.sympify(inf_flex)]]
+            ).transpose()
+            x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
+            return not all(
+                [
+                    isclose(np.dot(Q_trivial, x)[i, 0], b[i, 0], abs_tol=numerical_atol)
+                    for i in range(b.shape[0])
+                ]
+            )
 
     @doc_category("Infinitesimal rigidity")
     def is_nontrivial_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
@@ -1282,6 +1318,74 @@ class Framework(object):
         Alias for :meth:`Framework.is_nontrivial_inf_flex`.
         """
         return self.is_nontrivial_inf_flex(inf_flex, **kwargs)
+
+    @doc_category("Infinitesimal rigidity")
+    def is_trivial_inf_flex(
+        self,
+        inf_flex: List[Coordinate],
+        vertex_order: List[Vertex] = None,
+        numerical: bool = False,
+        numerical_digits: int = 35,
+        numerical_atol: float = 1e-10,
+    ) -> bool:
+        r"""
+        Tests whether an infinitesimal flex is trivial.
+
+        Definitions
+        -----------
+        :prf:ref:`Trivial infinitesimal Flex <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex of the framework.
+        vertex_order:
+            A list of vertices determining the internal vertex order.
+        numerical:
+            A Boolean determining whether the evaluation of the product of the `stress`
+            and the rigidity matrix is symbolic or numerical.
+        numerical_digits:
+            Number of digits to which accuracy the numerical expression is evaluated.
+        numerical_atol:
+            Absolute tolerance that is the threshold for acceptable numerical flexes.
+
+        Notes
+        -----
+        See :meth:`Framework.is_nontrivial_inf_flex` for details.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Square()
+        >>> q = [0,0,0,0,-2,0,-2,0]
+        >>> F.is_trivial_inf_flex(q)
+        False
+        >>> q = [1,-1,1,1,-1,1,-1,-1]
+        >>> F.is_trivial_inf_flex(q)
+        True
+        """
+        if not self.is_inf_flex(
+            inf_flex,
+            vertex_order=vertex_order,
+            numerical=numerical,
+            numerical_digits=numerical_digits,
+            numerical_atol=numerical_atol,
+        ):
+            return False
+        return not self.is_nontrivial_inf_flex(
+            inf_flex,
+            vertex_order=vertex_order,
+            numerical=numerical,
+            numerical_digits=numerical_digits,
+            numerical_atol=numerical_atol,
+        )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_trivial_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
+        """
+        Alias for :meth:`Framework.is_trivial_inf_flex`.
+        """
+        return self.is_trivial_inf_flex(inf_flex, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
     def stresses(
