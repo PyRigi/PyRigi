@@ -196,9 +196,8 @@ class GraphDrawer(object):
             self._vertexmove_on = event["ctrlKey"]
         elif event["event"] == "keyup":
             self._vertexmove_on = event["ctrlKey"]
-
-        x, y = event["relativeX"], event["relativeY"]
-        if event["event"] == "dblclick":
+        elif event["event"] == "dblclick":
+            x, y = event["relativeX"], event["relativeY"]
             self._handle_dblclick(x, y)
 
     def _assign_pos(self, x, y, place):

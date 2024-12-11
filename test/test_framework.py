@@ -265,6 +265,38 @@ def test_inf_flexes():
     assert Matrix.hstack(*F.nontrivial_inf_flexes()).rank() == 1
 
 
+def test_is_vector_inf_flex():
+    F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
+    assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
+    assert not F.is_vector_inf_flex([0, 0, 0, 1, -2, 0])
+    assert F.is_vector_inf_flex([0, 1, 0, 0, -1, 0], [1, 0, 2])
+
+    F.delete_edge([1, 2])
+    assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
+    assert F.is_vector_inf_flex([0, 0, 0, -1, -2, 0])
+    assert not F.is_vector_inf_flex([0, 0, 2, 1, -2, 1])
+
+    F = fws.ThreePrism(realization="flexible")
+    for inf_flex in F.inf_flexes(include_trivial=True):
+        assert F.is_vector_inf_flex(inf_flex)
+
+
+def test_is_dict_inf_flex():
+    F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, 1], 2: [-1, 0]})
+    assert not F.is_dict_inf_flex({0: [0, 0], 1: [0, -1], 2: [-2, 0]})
+
+    F.delete_edge([1, 2])
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, 1], 2: [-1, 0]})
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, -1], 2: [-2, 0]})
+    assert not F.is_dict_inf_flex({0: [0, 0], 1: [2, 1], 2: [-2, 1]})
+
+    F = fws.ThreePrism(realization="flexible")
+    assert F.is_dict_inf_flex(
+        {0: [0, 0], 1: [0, 0], 2: [0, 0], 3: [1, 0], 4: [1, 0], 5: [1, 0]}
+    )
+
+
 def test_is_injective():
     F1 = fws.Complete(4, 2)
     assert F1.is_injective()
@@ -527,6 +559,33 @@ def test_is_congruent():
     assert F4.is_congruent_realization(R1, numerical=True)
 
 
+@pytest.mark.parametrize(
+    "realization",
+    [
+        {0: [0, 0, 0], 1: [1, 1, 1]},
+        {0: [0, 0, 1], 1: [1, 1, 1]},
+        {0: [0, 0, 0, 0], 1: [0, 0, 0, 0]},
+    ],
+)
+def test_plot_error(realization):
+    F = Framework(graphs.Complete(2), realization)
+    with pytest.raises(ValueError):
+        F.plot()
+
+
+def test_plot2D_error():
+    F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot2D(projection_matrix=[[1, 0], [0, 1], [0, 0]])
+
+    F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot2D(projection_matrix=[[1, 0], [0, 1]])
+
+    with pytest.raises(ValueError):
+        F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0]})
+
+
 def test_rigidity_matrix_rank():
     K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
     assert K4.rigidity_matrix_rank() == 5
@@ -541,3 +600,45 @@ def test_rigidity_matrix_rank():
 
     F = fws.Frustum(3)  # has a single infinitesimal motion and stress
     assert F.rigidity_matrix_rank() == 8
+
+
+def test_edge_lengths():
+    G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]})
+    l_dict = F.edge_lengths()
+
+    expected_result = {
+        (0, 1): 1.0,
+        (0, 3): 1.4240006242195884,
+        (1, 2): 1.118033988749895,
+        (2, 3): 0.5443838790578374,
+    }
+
+    for edge, length in l_dict.items():
+        assert abs(length - expected_result[edge]) < 1e-9
+
+
+@pytest.mark.meshing
+def test__generate_stl_bar():
+    mesh = Framework._generate_stl_bar(30, 4, 10, 5)
+    assert mesh is not None
+
+    with pytest.raises(ValueError):
+        # negative values are not allowed
+        Framework._generate_stl_bar(30, 4, 10, -5)
+    with pytest.raises(ValueError):
+        # width must be greater than diameter
+        Framework._generate_stl_bar(30, 4, 3, 5)
+    with pytest.raises(ValueError):
+        # holes_distance <= 2 * holes_diameter
+        Framework._generate_stl_bar(6, 4, 10, 5)
+
+
+@pytest.mark.meshing
+def test_generate_stl_bars():
+    gr = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+    fr = Framework(
+        gr, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]}
+    )
+    n = fr.generate_stl_bars(scale=20, filename_prefix="mybar")
+    assert n is None

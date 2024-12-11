@@ -4,6 +4,9 @@ from pyrigi.exception import LoopError
 
 import pytest
 from sympy import Matrix
+import math
+import networkx as nx
+from random import randint
 
 
 def test_add():
@@ -100,6 +103,14 @@ def test_rigid_in_d1(graph):
 def test_not_rigid_in_d1(graph):
     assert not graph.is_rigid(dim=1, combinatorial=True)
     assert not graph.is_rigid(dim=1, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
+)
+def test_is_rigid(graph, dim):
+    assert graph.is_rigid(dim, combinatorial=(dim < 3))
 
 
 @pytest.mark.parametrize(
@@ -257,6 +268,103 @@ def test_not_min_rigid_in_d2(graph):
 )
 def test_globally_rigid_in_d2(graph):
     assert graph.is_globally_rigid(dim=2)
+
+
+def read_random_from_graph6(filename):
+    file_ = nx.read_graph6(filename)
+    if isinstance(file_, list):
+        return Graph(file_[randint(0, len(file_) - 1)])
+    else:
+        return Graph(file_)
+
+
+def read_globally(d_v_):
+    return read_random_from_graph6("test/input_graphs/globally_rigid/" + d_v_ + ".g6")
+
+
+# Examples of globally rigid graphs taken from:
+# Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
+# Zenodo. https://doi.org/10.5281/zenodo.7473052
+@pytest.mark.parametrize(
+    "graph, gdim",
+    [
+        [graphs.Complete(2), 3],
+        [graphs.Complete(2), 6],
+        [read_globally("D3V4"), 3],
+        [read_globally("D3V5"), 3],
+        [read_globally("D3V6"), 3],
+        [read_globally("D3V7"), 3],
+        [read_globally("D3V8"), 3],
+        [read_globally("D4V5"), 4],
+        [read_globally("D4V6"), 4],
+        [read_globally("D4V7"), 4],
+        [read_globally("D4V8"), 4],
+        [read_globally("D4V9"), 4],
+        [read_globally("D6V7"), 6],
+        [read_globally("D6V8"), 6],
+        [read_globally("D6V9"), 6],
+        [read_globally("D6V10"), 6],
+        [read_globally("D10V11"), 10],
+        [read_globally("D10V12"), 10],
+        [read_globally("D10V13"), 10],
+        [read_globally("D10V14"), 10],
+        [read_globally("D19V20"), 19],
+        [read_globally("D19V21"), 19],
+        [read_globally("D19V22"), 19],
+        [read_globally("D19V23"), 19],
+    ],
+)
+def test_globally_rigid_in_d(graph, gdim):
+    assert graph.is_globally_rigid(dim=gdim)
+
+
+@pytest.mark.parametrize(
+    "graph, gdim",
+    [
+        [graphs.Diamond(), 3],
+        [graphs.Path(3), 3],
+        [graphs.ThreePrism(), 3],
+        [graphs.Cycle(5), 3],
+        [graphs.CompleteMinusOne(4), 3],
+        [graphs.CompleteMinusOne(5), 3],
+        [graphs.CompleteBipartite(1, 3), 3],
+        [graphs.CompleteBipartite(2, 3), 3],
+        [graphs.Diamond(), 4],
+        [graphs.Path(4), 4],
+        [graphs.ThreePrism(), 4],
+        [graphs.Cycle(4), 4],
+        [graphs.CompleteMinusOne(4), 4],
+        [graphs.CompleteMinusOne(5), 4],
+        [graphs.CompleteBipartite(2, 3), 4],
+        [graphs.CompleteBipartite(3, 3), 4],
+        [graphs.Diamond(), 6],
+        [graphs.Path(4), 6],
+        [graphs.ThreePrism(), 6],
+        [graphs.Cycle(5), 6],
+        [graphs.CompleteMinusOne(4), 6],
+        [graphs.CompleteMinusOne(5), 6],
+        [graphs.CompleteBipartite(1, 3), 6],
+        [graphs.CompleteBipartite(3, 3), 6],
+        [graphs.Diamond(), 10],
+        [graphs.Path(4), 10],
+        [graphs.ThreePrism(), 10],
+        [graphs.Cycle(5), 10],
+        [graphs.CompleteMinusOne(4), 10],
+        [graphs.CompleteMinusOne(5), 10],
+        [graphs.CompleteBipartite(2, 3), 10],
+        [graphs.CompleteBipartite(3, 3), 10],
+        [graphs.Diamond(), 19],
+        [graphs.Path(4), 19],
+        [graphs.ThreePrism(), 19],
+        [graphs.Cycle(5), 19],
+        [graphs.CompleteMinusOne(4), 19],
+        [graphs.CompleteMinusOne(5), 19],
+        [graphs.CompleteBipartite(1, 3), 19],
+        [graphs.CompleteBipartite(2, 3), 19],
+    ],
+)
+def test_not_globally_rigid_in_d(graph, gdim):
+    assert not graph.is_globally_rigid(dim=gdim)
 
 
 @pytest.mark.parametrize(
@@ -793,7 +901,29 @@ def test_not_min_k_redundantly_rigid_in_d3(graph, k):
     assert not graph.is_min_k_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
-def test_min_rigid_subgraphs():
+def test_rigid_components():
+    G = graphs.Path(6)
+    rigid_components = G.rigid_components(dim=1)
+    assert rigid_components[0] == [0, 1, 2, 3, 4, 5]
+    G.remove_edge(2, 3)
+    rigid_components = G.rigid_components(dim=1)
+    assert [set(H) for H in rigid_components] == [
+        set([0, 1, 2]),
+        set([3, 4, 5]),
+    ] or [set(H) for H in rigid_components] == [
+        set([3, 4, 5]),
+        set([0, 1, 2]),
+    ]
+
+    G = graphs.Path(5)
+    rigid_components = G.rigid_components()
+    assert sorted([sorted(H) for H in rigid_components]) == [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
+    ]
+
     G = Graph(
         [
             (0, 1),
@@ -810,69 +940,55 @@ def test_min_rigid_subgraphs():
             ("a", "b"),
         ]
     )
-    assert [set(H) for H in G.min_rigid_subgraphs()] == [
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [
         set([0, "a", "b"]),
-        set([0, 1, 5, 3, 2, 4]),
-    ] or [set(H) for H in G.min_rigid_subgraphs()] == [
-        set([0, 1, 5, 3, 2, 4]),
-        set([0, "a", "b"]),
-    ]
-
-    G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, 1, 2]),
-        set([3, 4, 5]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([3, 4, 5]),
-        set([0, 1, 2]),
-    ]
-
-    G = graphs.ThreePrism()
-    min_subgraphs = G.min_rigid_subgraphs()
-    assert len(min_subgraphs) == 2 and (
-        min_subgraphs == [[0, 1, 2], [3, 4, 5]]
-        or min_subgraphs == [[3, 4, 5], [0, 1, 2]]
-    )
-
-
-def test_max_rigid_subgraphs():
-    G = Graph(
-        [
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 4),
-            (4, 5),
-            (5, 0),
-            (0, 3),
-            (1, 4),
-            (2, 5),
-            (0, "a"),
-            (0, "b"),
-            ("a", "b"),
-        ]
-    )
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, "a", "b"]),
-        set([0, 1, 5, 3, 2, 4]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, 1, 5, 3, 2, 4]),
+        set([0, 1, 2, 3, 4, 5]),
+    ] or [set(H) for H in rigid_components] == [
+        set([0, 1, 2, 3, 4, 5]),
         set([0, "a", "b"]),
     ]
 
     G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [
         set([0, 1, 2]),
         set([3, 4, 5]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
+    ] or [set(H) for H in rigid_components] == [
         set([3, 4, 5]),
         set([0, 1, 2]),
     ]
 
+    G = graphs.Complete(3)
+    G.add_vertex(3)
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [set([0, 1, 2]), set([3])] or [
+        set(H) for H in rigid_components
+    ] == [set([3]), set([0, 1, 2])]
+
     G = graphs.ThreePrism()
-    G.delete_edge([4, 5])
-    max_subgraphs = G.max_rigid_subgraphs()
-    assert len(max_subgraphs) == 1 and max_subgraphs[0] == [0, 1, 2]
+    rigid_components = G.rigid_components()
+    assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
+
+    G = graphs.ThreeConnectedR3Circuit()
+    G.remove_node(0)
+    rigid_components = G.rigid_components()
+    assert sorted([sorted(H) for H in rigid_components]) == [
+        [1, 2, 3, 4],
+        [1, 10, 11, 12],
+        [4, 5, 6, 7],
+        [7, 8, 9, 10],
+    ]
+
+    G = graphs.DoubleBanana()
+    rigid_components = G.rigid_components(dim=3)
+    assert [set(H) for H in rigid_components] == [
+        set([0, 1, 2, 3, 4]),
+        set([0, 1, 5, 6, 7]),
+    ] or [set(H) for H in rigid_components] == [
+        set([0, 1, 5, 6, 7]),
+        set([0, 1, 2, 3, 4]),
+    ]
 
 
 def test_str():
@@ -971,8 +1087,7 @@ def test_integer_representation_fail():
         ["is_Rd_independent", []],
         ["is_Rd_circuit", []],
         ["is_Rd_closed", []],
-        ["max_rigid_subgraphs", []],
-        ["min_rigid_subgraphs", []],
+        ["rigid_components", []],
     ],
 )
 def test_loops(method, params):
@@ -1277,3 +1392,123 @@ def test_is_k_l_tight():
     assert G.is_tight(2, 2)
     G = graphs.CompleteBipartite(4, 4)
     assert not G.is_tight(3, 6)
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 16],
+        [graphs.Diamond(), 4],
+        [graphs.ThreePrism(), 24],
+    ],
+)
+@pytest.mark.realization_counting
+def test_number_of_realizations(graph, n):
+    assert graph.number_of_realizations() == n
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 16],
+        [graphs.Diamond(), 4],
+        [graphs.ThreePrism(), 32],
+    ],
+)
+@pytest.mark.realization_counting
+def test_number_of_realizations_sphere(graph, n):
+    assert graph.number_of_realizations(spherical_realizations=True) == n
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.K33plusEdge(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Path(3),
+    ],
+)
+@pytest.mark.realization_counting
+def test_number_of_realizations_error(graph):
+    with pytest.raises(ValueError):
+        graph.number_of_realizations()
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [graphs.Cycle(n) for n in range(3, 7)],
+)
+def test_Rd_circuit_d1(graph):
+    assert graph.is_Rd_circuit(dim=1)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Diamond(),
+        graphs.K33plusEdge(),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Path(3),
+    ],
+)
+def test_not_Rd_circuit_d1(graph):
+    assert not graph.is_Rd_circuit(dim=1)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.ThreePrismPlusEdge(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_Rd_circuit_d2(graph):
+    assert graph.is_Rd_circuit(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Complete(5),
+        graphs.Diamond(),
+        graphs.ThreePrism(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.Path(3),
+        graphs.Cycle(4),
+    ],
+)
+def test_not_Rd_circuit_d2(graph):
+    assert not graph.is_Rd_circuit(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 1],
+        [graphs.Diamond(), 2],
+        [graphs.Complete(4), math.inf],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), math.inf],
+        [graphs.Frustum(3), 2],
+        [graphs.ThreePrism(), 2],
+        [graphs.DoubleBanana(), 2],
+        [graphs.CompleteMinusOne(5), 3],
+        [graphs.Octahedral(), 3],
+    ],
+)
+def test_max_rigid_dimension(graph, k):
+    assert graph.max_rigid_dimension() == k
