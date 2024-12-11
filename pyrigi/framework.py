@@ -23,7 +23,7 @@ import networkx as nx
 import sympy as sp
 import numpy as np
 from sympy import Matrix, flatten, binomial
-from math import isclose
+from math import isclose, log10
 
 from pyrigi.data_type import (
     Vertex,
@@ -1373,11 +1373,7 @@ class Framework(object):
         return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
-    def nontrivial_inf_flexes(
-        self,
-        vertex_order: List[Vertex] = None,
-        edge_order: List[Edge] = None,
-    ) -> List[Matrix]:
+    def nontrivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
 
@@ -1419,15 +1415,12 @@ class Framework(object):
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(
-            vertex_order=vertex_order, edge_order=edge_order, include_trivial=False
-        )
+        return self.inf_flexes(vertex_order=vertex_order, include_trivial=False)
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
         self,
         vertex_order: List[Vertex] = None,
-        edge_order: List[Edge] = None,
         include_trivial: bool = False,
     ) -> List[Matrix]:
         r"""
@@ -1487,9 +1480,7 @@ class Framework(object):
         [0],
         [0]])]
         """  # noqa: E501
-        rigidity_matrix = self.rigidity_matrix(
-            vertex_order=vertex_order, edge_order=edge_order
-        )
+        rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
         if include_trivial:
             return rigidity_matrix.nullspace()
         all_inf_flexes = rigidity_matrix.nullspace()
@@ -1508,7 +1499,6 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def stresses(
         self,
-        vertex_order: List[Vertex] = None,
         edge_order: List[Edge] = None,
     ) -> List[Matrix]:
         r"""
@@ -1543,11 +1533,7 @@ class Framework(object):
         ----
         tests
         """
-        return (
-            self.rigidity_matrix(vertex_order=vertex_order, edge_order=edge_order)
-            .transpose()
-            .nullspace()
-        )
+        return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
@@ -2140,11 +2126,10 @@ class Framework(object):
         inf_flex: List[Coordinate],
         vertex_order: List[Vertex] = None,
         numerical: bool = False,
-        numerical_digits: int = 35,
         numerical_atol: float = 1e-10,
     ) -> bool:
         r"""
-        Tests whether an infinitesimal flex lies in the kernel of the rigidity matrix.
+        Return whether a vector is an infinitesimal flex of the framework.
 
         Definitions
         -----------
@@ -2160,10 +2145,10 @@ class Framework(object):
         numerical:
             A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
-        numerical_digits:
-            Number of digits to which accuracy the numerical expression is evaluated.
         numerical_atol:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
+            This parameter is used to determine the number of digits, to which
+            accuracy the symbolic expressions are evaluated.
 
         Examples
         --------
@@ -2189,7 +2174,11 @@ class Framework(object):
             )
         return all(
             [
-                isclose(ex.evalf(numerical_digits), 0, abs_tol=numerical_atol)
+                isclose(
+                    ex.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1)))),
+                    0,
+                    abs_tol=numerical_atol,
+                )
                 for ex in self.rigidity_matrix(vertex_order=vertex_order)
                 * Matrix(inf_flex)
             ]
@@ -2244,7 +2233,6 @@ class Framework(object):
         inf_flex: List[Coordinate],
         vertex_order: List[Vertex] = None,
         numerical: bool = False,
-        numerical_digits: int = 35,
         numerical_atol: float = 1e-10,
     ) -> bool:
         r"""
@@ -2263,10 +2251,10 @@ class Framework(object):
         numerical:
             A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
-        numerical_digits:
-            Number of digits to which accuracy the numerical expression is evaluated.
         numerical_atol:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
+            This parameter is used to determine the number of digits, to which
+            accuracy the symbolic expressions are evaluated.
 
         Notes
         -----
@@ -2298,7 +2286,6 @@ class Framework(object):
             inf_flex,
             vertex_order=vertex_order,
             numerical=numerical,
-            numerical_digits=numerical_digits,
             numerical_atol=numerical_atol,
         ):
             return False
@@ -2311,14 +2298,23 @@ class Framework(object):
             Q_trivial = np.array(
                 [
                     [
-                        float(f.evalf(numerical_digits))
+                        float(
+                            f.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1))))
+                        )
                         for f in flex.transpose().tolist()[0]
                     ]
                     for flex in (self.trivial_inf_flexes())
                 ]
             ).transpose()
             b = np.array(
-                [[float(f.evalf(numerical_digits)) for f in sp.sympify(inf_flex)]]
+                [
+                    [
+                        float(
+                            f.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1))))
+                        )
+                        for f in sp.sympify(inf_flex)
+                    ]
+                ]
             ).transpose()
             x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
             return not all(
