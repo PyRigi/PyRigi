@@ -173,8 +173,7 @@ def test_is_independent(framework):
         [fws.Frustum(3), True],
         [fws.Frustum(4), True],
         [fws.Square(), False],
-        [fws.ThreePrism(realization="flexible"), False],
-        [fws.ConnellyExampleSecondOrderRigidity(), False],
+        [fws.ThreePrism(realization="flexible"), False]
     ],
 )
 def test_is_prestress_stable(framework, bool_res):
@@ -189,7 +188,7 @@ def test_is_prestress_stable(framework, bool_res):
         [fws.Frustum(4), True],
         [fws.Square(), False],
         [fws.ThreePrism(realization="flexible"), False],
-        [fws.ConnellyExampleSecondOrderRigidity(), True],
+        [fws.ConnellyExampleSecondOrderRigidity(), True]
     ],
 )
 def test_is_second_order_rigid(framework, bool_res):

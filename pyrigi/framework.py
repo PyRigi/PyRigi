@@ -1594,27 +1594,12 @@ class Framework(object):
                 sum_of_stress_matrices[j, k] = sum(
                     stress_matrices[i][j, k] for i in range(len(inf_flexes))
                 )
-        char_poly = sp.Poly(sp.det(sum_of_stress_matrices))
-        interior_coeffs = {
-            (i, j): abs(char_poly.coeff_monomial(a[i] * a[j]))
-            for i in range(len(a))
-            for j in range(i + 1, len(a))
-        }
-        circuit_criterion = [
-            interior_coeffs[key]
-            <= 2
-            * sp.sqrt(
-                char_poly.coeff_monomial(a[key[0]] ** 2)
-                * char_poly.coeff_monomial(a[key[1]] ** 2)
-            )
-            for key in interior_coeffs.keys()
-        ]
-        negativity_criterion = [
-            sp.sign(char_poly.coeff_monomial(a[i] ** 2)) <= 0 for i in range(len(a))
-        ]
-        if all(circuit_criterion) and all(negativity_criterion):
-            return False
-        return True
+        """
+        stress_matrix_eigenvals = list(sum_of_stress_matrices.eigenvals().keys())
+        What remains is to find a single configuration of eigenvalues that
+        consists only of positive entries.
+        """
+        raise NotImplementedError("Currently, the method is only implemented for one flex or one stress.")
 
     @doc_category("Other")
     def is_second_order_rigid(self) -> bool:
@@ -1686,8 +1671,8 @@ class Framework(object):
         energy_poly = sp.Poly(energy_poly.simplify(), b)
         poly_sys_in_a = [energy_poly.coeff_monomial(b[i] ** 1) for i in range(len(b))]
         a_sols = sp.solve(poly_sys_in_a, a)
-        real_a_sol_part = [[s[t].coeff(sp.I, 0) for t in range(len(s))] for s in a_sols]
-        imag_a_sol_part = [[s[t].coeff(sp.I, 1) for t in range(len(s))] for s in a_sols]
+        real_a_sol_part = [[sp.re(s[t]) for t in range(len(s))] for s in a_sols]
+        imag_a_sol_part = [[sp.im(s[t]) for t in range(len(s))] for s in a_sols]
         imag_a_sols = [sp.solve(sol) for sol in imag_a_sol_part]
         for i in range(len(real_a_sol_part)):
             if not all([s.subs(imag_a_sols[i]).is_zero for s in real_a_sol_part[i]]):
