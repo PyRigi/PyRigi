@@ -1524,7 +1524,7 @@ class Framework(object):
                     )
                 )
             return not all([sp.sympify(Q).is_zero for Q in stress_energy_list])
-
+        
         if len(stresses) == 1:
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
             stress = stresses[0].transpose().tolist()[0]
@@ -1592,14 +1592,29 @@ class Framework(object):
         for j in range(len(inf_flexes)):
             for k in range(len(inf_flexes)):
                 sum_of_stress_matrices[j, k] = sum(
-                    stress_matrices[i][j, k] for i in range(len(inf_flexes))
+                    stress_matrices[i][j, k] for i in range(len(stresses))
                 )
-        """
-        stress_matrix_eigenvals = list(sum_of_stress_matrices.eigenvals().keys())
-        What remains is to find a single configuration of eigenvalues that
-        consists only of positive entries.
-        """
-        raise NotImplementedError("Currently, the method is only implemented for one flex or one stress.")
+        polysys_pos_def = []
+        b = sp.symbols("b0:%s" % sum_of_stress_matrices.shape[0], real=True)
+        for i in range(sum_of_stress_matrices.shape[0]):
+            polysys_pos_def += [sp.det(sum_of_stress_matrices[0:i+1, 0:i+1]) - b[i]**2]
+        polysys_sols = sp.solve(polysys_pos_def)
+        if not polysys_sols:
+            return False
+        polysys_sols_b_eval = []
+        for sol in polysys_sols:
+            b_sols = sp.solve([sp.im(s) for s in sol.values()])
+            b_sols_no_imag = sum([sp.solve([sp.im(entry) for entry in b_sol.values()]) for b_sol in b_sols], [])
+            for entry in b_sols_no_imag:
+                polysys_sols_b_eval += [{key: value.subs(entry) for key,value in b_sol.items()} | entry for b_sol in b_sols]
+
+        def filter_zeros(entry):
+            return all([not sp.sympify(t).is_zero for t in entry.values()])
+        filtered_list = list(filter(filter_zeros, polysys_sols_b_eval))
+        if not filtered_list:
+            return False
+        else:
+            return True
 
     @doc_category("Other")
     def is_second_order_rigid(self) -> bool:
