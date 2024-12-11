@@ -1155,7 +1155,7 @@ class Framework(object):
                 extend_basis_matrix = Matrix.hstack(extend_basis_matrix, v)
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
-    
+
     @doc_category("Infinitesimal rigidity")
     def is_inf_flex(
         self,
@@ -1163,7 +1163,7 @@ class Framework(object):
         vertex_order: List[Vertex] = None,
         numerical: bool = False,
         numerical_digits: int = 35,
-        numerical_atol: float = 1e-10
+        numerical_atol: float = 1e-10,
     ) -> bool:
         r"""
         Tests whether an infinitesimal flex lies in the kernel of the rigidity matrix.
@@ -1202,15 +1202,15 @@ class Framework(object):
             return all(
                 [
                     sp.simplify(ex).is_zero
-                    for ex in self.rigidity_matrix(vertex_order=vertex_order) *
-                    Matrix(inf_flex)
+                    for ex in self.rigidity_matrix(vertex_order=vertex_order)
+                    * Matrix(inf_flex)
                 ]
             )
         return all(
             [
                 isclose(ex.evalf(numerical_digits), 0, abs_tol=numerical_atol)
-                for ex in self.rigidity_matrix(vertex_order=vertex_order) *
-                Matrix(inf_flex)
+                for ex in self.rigidity_matrix(vertex_order=vertex_order)
+                * Matrix(inf_flex)
             ]
         )
 
@@ -1220,7 +1220,7 @@ class Framework(object):
         Alias for :meth:`Framework.is_inf_flex`.
         """
         return self.is_inf_flex(inf_flex, **kwargs)
-    
+
     @doc_category("Infinitesimal rigidity")
     def is_nontrivial_inf_flex(
         self,
@@ -1228,7 +1228,7 @@ class Framework(object):
         vertex_order: List[Vertex] = None,
         numerical: bool = False,
         numerical_digits: int = 35,
-        numerical_atol: float = 1e-10
+        numerical_atol: float = 1e-10,
     ) -> bool:
         r"""
         Tests whether an infinitesimal flex is nontrivial.
@@ -1264,7 +1264,13 @@ class Framework(object):
         >>> F.is_nontrivial_inf_flex(q)
         False
         """
-        if not self.is_inf_flex(inf_flex, vertex_order=vertex_order,numerical=numerical, numerical_digits=numerical_digits, numerical_atol=numerical_atol):
+        if not self.is_inf_flex(
+            inf_flex,
+            vertex_order=vertex_order,
+            numerical=numerical,
+            numerical_digits=numerical_digits,
+            numerical_atol=numerical_atol,
+        ):
             return False
         Q_trivial = Matrix.hstack(*(self.trivial_inf_flexes()))
         Q_flex = Matrix(inf_flex)

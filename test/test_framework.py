@@ -222,7 +222,9 @@ def test_inf_flexes():
 
     F = fws.ThreePrism(realization="flexible")
     C = Framework(graphs.Complete(6), realization=F.realization())
-    explicit_flex = sympify([0,0,0,0,0,0,"-sqrt(2)*pi",0,"-sqrt(2)*pi",0,"-sqrt(2)*pi",0])
+    explicit_flex = sympify(
+        [0, 0, 0, 0, 0, 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0]
+    )
     assert F.is_inf_flex(explicit_flex)
     QF = Matrix.hstack(*(F.nontrivial_inf_flexes()))
     QC = Matrix.hstack(*(C.nontrivial_inf_flexes()))
@@ -247,7 +249,7 @@ def test_inf_flexes():
     F = fws.Complete(5)
     F_triv = F.trivial_inf_flexes()
     F_all = F.inf_flexes(include_trivial=True)
-    assert Matrix.hstack(*F_triv).rank() == Matrix.hstack(*(F_all+F_triv)).rank()
+    assert Matrix.hstack(*F_triv).rank() == Matrix.hstack(*(F_all + F_triv)).rank()
 
     F = Framework.Random(graphs.DoubleBanana(), dim=3)
     assert Matrix.hstack(*F.nontrivial_inf_flexes()).rank() == 1
