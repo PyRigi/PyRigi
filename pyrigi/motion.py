@@ -9,6 +9,7 @@ from pyrigi.misc import point_to_vector
 import numpy as np
 import sympy as sp
 from IPython.display import SVG
+from copy import deepcopy
 
 
 class Motion(object):
@@ -56,8 +57,8 @@ class ParametricMotion(Motion):
                 raise KeyError(f"Vertex {v} is not a key of the given realization!")
             if len(self._parametrization[v]) != self._dim:
                 raise ValueError(
-                    f"The point {self._parametrization[v]} in the parametrization corresponding to "
-                    f"vertex {v} does not have the right dimension."
+                    f"The point {self._parametrization[v]} in the parametrization"
+                    f" corresponding to vertex {v} does not have the right dimension."
                 )
 
         if not interval[0] < interval[1]:
@@ -118,7 +119,9 @@ class ParametricMotion(Motion):
         return res
 
     def _realization_sampling(self, n: int) -> list[dict[Vertex, Point]]:
-        """ """
+        """
+        Return n realizations for parameters evenly spaced in the range self._interval.
+        """
 
         realizations = []
         for i in np.linspace(self._interval[0], self._interval[1], n):
@@ -202,7 +205,7 @@ class ParametricMotion(Motion):
 
         lower, upper = self._interval
         if lower == -np.inf or upper == np.inf:
-            mot = self._parametrization
+            mot = deepcopy(self._parametrization)
             for v, placement in mot.items():
                 tan_placement = []
                 for coord in placement:
@@ -210,33 +213,43 @@ class ParametricMotion(Motion):
                         coord.replace(self._parameter, sp.sympify("tan(t)"))
                     )
                 mot[v] = tan_placement
-            mot = ParametricMotion(self._graph, mot, (-np.pi / 2, np.pi / 2))
-            return mot.animate(width, height, filename)
+            mot = ParametricMotion(deepcopy(self._graph), mot, (-np.pi / 2, np.pi / 2))
+            return mot.animate(
+                width, height, filename, sampling, show_labels, vertex_size, length
+            )
 
         realizations = self._realization_sampling(sampling)
         realizations = self._normalize_realizations(realizations, width, height, 15)
 
-        svg = f"""<svg width="{width}" height="{height}" version="1.1" baseProfile="full" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<rect width="100%" height="100%" fill="white"/>
-"""
+        svg = f"""<svg width="{width}" height="{height}" version="1.1" """
+        svg += """baseProfile="full" xmlns="http://www.w3.org/2000/svg" """
+        svg += """xmlns:xlink="http://www.w3.org/1999/xlink">\n"""
+        svg += """<rect width="100%" height="100%" fill="white"/>\n"""
 
         v_to_int = {}
         for i, v in enumerate(self._graph.nodes):
             v_to_int[v] = i
-            tmp = f"""<defs>
-    <marker id="vertex{i}" viewBox="0 0 30 30" refX="15" refY="15" markerWidth="{vertex_size}" markerHeight="{vertex_size}">
-    <circle cx="15" cy="15" r="13.5" fill="white" stroke="black" stroke-width="2"/>
-    <text x="15" y="22" font-size="22.5" text-anchor="middle" fill="black">
-        {i}
-    </text>"""
-            tmp +="""\t</marker>\n</defs>\n"""
+            tmp = """<defs>\n"""
+
+            tmp += f"""\t<marker id="vertex{i}" viewBox="0 0 30 30" """
+            tmp += f"""refX="15" refY="15" markerWidth="{vertex_size}" """
+            tmp += f"""markerHeight="{vertex_size}">\n"""
+            tmp += """\t<circle cx="15" cy="15" r="13.5" fill="white" """
+            tmp += """stroke="black" stroke-width="2"/>\n"""
+            if show_labels:
+                tmp += """\t<text x="15" y="22" font-size="22.5" """
+                tmp += f"""text-anchor="middle" fill="black">\n\t\t{i}\n\t</text>\n"""
+            tmp += """\t</marker>\n</defs>\n"""
             svg = svg + "\n" + tmp
 
         inital_realization = realizations[0]
         for u, v in self._graph.edges:
             ru = inital_realization[u]
             rv = inital_realization[v]
-            path = f"""<path fill="transparent" stroke="grey" stroke-width="5px" id="edge{v_to_int[u]}-{v_to_int[v]}" d="M {ru[0]} {ru[1]} L {rv[0]} {ru[1]}" marker-start="url(#vertex{v_to_int[u]})"   marker-end="url(#vertex{v_to_int[v]})" />"""
+            path = """<path fill="transparent" stroke="grey" stroke-width="5px" """
+            path += f"""id="edge{v_to_int[u]}-{v_to_int[v]}" d="M {ru[0]} {ru[1]} """
+            path += f"""L {rv[0]} {ru[1]}" marker-start="url(#vertex{v_to_int[u]})" """
+            path += f"""marker-end="url(#vertex{v_to_int[v]})" />"""
             svg = svg + "\n" + path
         svg = svg + "\n"
 
@@ -246,7 +259,10 @@ class ParametricMotion(Motion):
                 ru = r[u]
                 rv = r[v]
                 positions_str += f" M {ru[0]} {ru[1]} L {rv[0]} {rv[1]};"
-            animation = f"""<animate href="#edge{v_to_int[u]}-{v_to_int[v]}" attributeName="d" dur="{length}s" repeatCount="indefinite" calcMode="linear" values="{positions_str}"/>"""
+            animation = f"""<animate href="#edge{v_to_int[u]}-{v_to_int[v]}" """
+            animation += f"""attributeName="d" dur="{length}s" """
+            animation += """repeatCount="indefinite" calcMode="linear" """
+            animation += f"""values="{positions_str}"/>"""
             svg = svg + "\n" + animation
         svg = svg + "\n</svg>"
 
