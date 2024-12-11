@@ -2049,7 +2049,9 @@ class Framework(object):
         if vertex_order is None:
             return self._graph.vertex_list()
         else:
-            if not set(self._graph.vertex_list()) == set(vertex_order):
+            if not self._graph.number_of_nodes() == len(vertex_order) or not set(
+                self._graph.vertex_list()
+            ) == set(vertex_order):
                 raise ValueError(
                     "vertex_order must contain "
                     + "exactly the same vertices as the graph!"
@@ -2077,8 +2079,8 @@ class Framework(object):
         else:
             if not self._graph.number_of_edges() == len(edge_order) or not all(
                 [
-                    set(e) in [set(e) for e in self._graph.edge_list()]
-                    for e in edge_order
+                    set(e) in [set(e) for e in edge_order]
+                    for e in self._graph.edge_list()
                 ]
             ):
                 raise ValueError(
