@@ -221,35 +221,35 @@ class ParametricMotion(Motion):
         realizations = self._realization_sampling(sampling)
         realizations = self._normalize_realizations(realizations, width, height, 15)
 
-        svg = f"""<svg width="{width}" height="{height}" version="1.1" """
-        svg += """baseProfile="full" xmlns="http://www.w3.org/2000/svg" """
-        svg += """xmlns:xlink="http://www.w3.org/1999/xlink">\n"""
-        svg += """<rect width="100%" height="100%" fill="white"/>\n"""
+        svg = f'<svg width="{width}" height="{height}" version="1.1" '
+        svg += 'baseProfile="full" xmlns="http://www.w3.org/2000/svg" '
+        svg += 'xmlns:xlink="http://www.w3.org/1999/xlink">\n'
+        svg += '<rect width="100%" height="100%" fill="white"/>\n'
 
         v_to_int = {}
         for i, v in enumerate(self._graph.nodes):
             v_to_int[v] = i
             tmp = """<defs>\n"""
 
-            tmp += f"""\t<marker id="vertex{i}" viewBox="0 0 30 30" """
-            tmp += f"""refX="15" refY="15" markerWidth="{vertex_size}" """
-            tmp += f"""markerHeight="{vertex_size}">\n"""
-            tmp += """\t<circle cx="15" cy="15" r="13.5" fill="white" """
-            tmp += """stroke="black" stroke-width="2"/>\n"""
+            tmp += f'\t<marker id="vertex{i}" viewBox="0 0 30 30" '
+            tmp += f'refX="15" refY="15" markerWidth="{vertex_size}" '
+            tmp += f'markerHeight="{vertex_size}">\n'
+            tmp += '\t<circle cx="15" cy="15" r="13.5" fill="white" '
+            tmp += 'stroke="black" stroke-width="2"/>\n'
             if show_labels:
-                tmp += """\t<text x="15" y="22" font-size="22.5" """
-                tmp += f"""text-anchor="middle" fill="black">\n\t\t{i}\n\t</text>\n"""
-            tmp += """\t</marker>\n</defs>\n"""
+                tmp += '\t<text x="15" y="22" font-size="22.5" '
+                tmp += f'text-anchor="middle" fill="black">\n\t\t{i}\n\t</text>\n'
+            tmp += "\t</marker>\n</defs>\n"
             svg = svg + "\n" + tmp
 
         inital_realization = realizations[0]
         for u, v in self._graph.edges:
             ru = inital_realization[u]
             rv = inital_realization[v]
-            path = """<path fill="transparent" stroke="grey" stroke-width="5px" """
-            path += f"""id="edge{v_to_int[u]}-{v_to_int[v]}" d="M {ru[0]} {ru[1]} """
-            path += f"""L {rv[0]} {ru[1]}" marker-start="url(#vertex{v_to_int[u]})" """
-            path += f"""marker-end="url(#vertex{v_to_int[v]})" />"""
+            path = '<path fill="transparent" stroke="grey" stroke-width="5px" '
+            path += f'id="edge{v_to_int[u]}-{v_to_int[v]}" d="M {ru[0]} {ru[1]} '
+            path += f'L {rv[0]} {ru[1]}" marker-start="url(#vertex{v_to_int[u]})" '
+            path += f'marker-end="url(#vertex{v_to_int[v]})" />'
             svg = svg + "\n" + path
         svg = svg + "\n"
 
@@ -259,10 +259,10 @@ class ParametricMotion(Motion):
                 ru = r[u]
                 rv = r[v]
                 positions_str += f" M {ru[0]} {ru[1]} L {rv[0]} {rv[1]};"
-            animation = f"""<animate href="#edge{v_to_int[u]}-{v_to_int[v]}" """
-            animation += f"""attributeName="d" dur="{length}s" """
-            animation += """repeatCount="indefinite" calcMode="linear" """
-            animation += f"""values="{positions_str}"/>"""
+            animation = f'<animate href="#edge{v_to_int[u]}-{v_to_int[v]}" '
+            animation += f'attributeName="d" dur="{length}s" '
+            animation += 'repeatCount="indefinite" calcMode="linear" '
+            animation += f'values="{positions_str}"/>'
             svg = svg + "\n" + animation
         svg = svg + "\n</svg>"
 
