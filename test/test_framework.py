@@ -8,7 +8,7 @@ from pyrigi.data_type import point_to_vector
 from copy import deepcopy
 
 import pytest
-from sympy import Matrix, pi, sqrt
+from sympy import Matrix, pi, sqrt, sympify
 
 
 @pytest.mark.parametrize(
@@ -591,8 +591,8 @@ def test_rigidity_matrix_rank():
 
 def test_edge_lengths():
     G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
-    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]})
-    l_dict = F.edge_lengths()
+    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: ["1/2", "4/3"]})
+    l_dict = F.edge_lengths(numerical=True)
 
     expected_result = {
         (0, 1): 1.0,
@@ -602,7 +602,22 @@ def test_edge_lengths():
     }
 
     for edge, length in l_dict.items():
-        assert abs(length - expected_result[edge]) < 1e-9
+        assert abs(length - expected_result[edge]) < 1e-10
+
+    l_dict = F.edge_lengths(numerical=False)
+
+    expected_result = {
+        (0, 1): 1,
+        (0, 3): "sqrt(1/4 + 16/9)",
+        (1, 2): "1/2 * sqrt(5)",
+        (2, 3): "sqrt(1/4 + (1/2 * sqrt(5) - 4/3)**2)",
+    }
+
+    for edge, length in l_dict.items():
+        assert (sympify(expected_result[edge]) - length).is_zero
+
+    F = fws.Cycle(6)
+    assert all([(v - 1).is_zero for v in F.edge_lengths(numerical=False).values()])
 
 
 @pytest.mark.meshing

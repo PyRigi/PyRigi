@@ -285,8 +285,8 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_2D_realization(
         self,
-        realization: dict[Vertex, Point],
-        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        realization: Dict[Vertex, Point],
+        inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -302,7 +302,7 @@ class Framework(object):
             The realization in the plane used for plotting.
         inf_flex:
             Optional parameter for plotting an infinitesimal flex. We expect
-            it to have the same format as `realization`: `dict[Vertex, Point]`.
+            it to have the same format as `realization`: `Dict[Vertex, Point]`.
         """
 
         self._graph.plot(
@@ -343,8 +343,8 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(  # noqa: C901
         self,
-        coordinates: Union[tuple, list] = None,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        coordinates: Union[tuple, List] = None,
+        inf_flex: Matrix | int | Dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -377,9 +377,9 @@ class Framework(object):
             Optional parameter for plotting a given infinitesimal flex. It is
             important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
-            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
@@ -501,6 +501,117 @@ class Framework(object):
 
         self.plot2D(**kwargs)
 
+    @doc_category("Other")
+    def to_tikz(
+        self,
+        vertex_style: Union(str, dict[str : list[Vertex]]) = "fvertex",
+        edge_style: Union(str, dict[str : list[Edge]]) = "edge",
+        label_style: str = "labelsty",
+        figure_opts: str = "",
+        vertex_in_labels: bool = False,
+        vertex_out_labels: bool = False,
+        default_styles: bool = True,
+    ) -> str:
+        r"""
+        Create a TikZ code for the framework.
+        Works for dimension 2 only.
+
+        For using it in ``LaTeX`` you need to use the ``tikz`` package.
+
+        Parameters
+        ----------
+        vertex_style:
+            If a single style is given as a string,
+            then all vertices get this style.
+            If a dictionary from styles to a list of vertices is given,
+            vertices are put in style accordingly.
+            The vertices missing in the dictionary do not get a style.
+        edge_style:
+            If a single style is given as a string,
+            then all edges get this style.
+            If a dictionary from styles to a list of edges is given,
+            edges are put in style accordingly.
+            The edges missing in the dictionary do not get a style.
+        label_style:
+            The style for labels that are placed next to vertices.
+        figure_opts:
+            Options for the tikzpicture environment.
+        vertex_in_labels
+            A bool on whether vertex names should be put as labels on the vertices.
+        vertex_out_labels
+            A bool on whether vertex names should be put next to vertices.
+        default_styles
+            A bool on whether default style definitions should be put to the options.
+
+        Examples
+        ----------
+        >>> G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+        >>> F=Framework(G,{0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
+        >>> print(F.to_tikz()) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt},edge/.style={line width=1.5pt,black!60!white}]
+           \node[fvertex] (0) at (0, 0) {};
+           \node[fvertex] (1) at (1, 0) {};
+           \node[fvertex] (2) at (1, 1) {};
+           \node[fvertex] (3) at (0, 1) {};
+           \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(F.to_tikz(vertex_in_labels=True)) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[fvertex/.style={circle,inner sep=1pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
+           \node[fvertex] (0) at (0, 0) {$0$};
+           \node[fvertex] (1) at (1, 0) {$1$};
+           \node[fvertex] (2) at (1, 1) {$2$};
+           \node[fvertex] (3) at (0, 1) {$3$};
+           \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        For more examples on formatting options, see also :meth:`.Graph.to_tikz`.
+        """  # noqa: E501
+
+        # check dimension
+        if self.dimension() != 2:
+            raise ValueError("TikZ code is only generated for frameworks in dimension 2.")
+
+        # strings for tikz styles
+        if vertex_out_labels and default_styles:
+            lstyle_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
+        else:
+            lstyle_str = ""
+
+        if vertex_style == "fvertex" and default_styles:
+            if vertex_in_labels:
+                vstyle_str = (
+                    "fvertex/.style={circle,inner sep=1pt,minimum size=3pt,"
+                    "fill=white,draw=black,double=white,double distance=0.25pt,"
+                    r"outer sep=1pt,font=\scriptsize}"
+                )
+            else:
+                vstyle_str = (
+                    "fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,"
+                    "draw=black,double=white,double distance=0.25pt,outer sep=1pt}"
+                )
+        else:
+            vstyle_str = ""
+        if edge_style == "edge" and default_styles:
+            estyle_str = "edge/.style={line width=1.5pt,black!60!white}"
+        else:
+            estyle_str = ""
+
+        figure_str = [figure_opts, vstyle_str, estyle_str, lstyle_str]
+        figure_str = [fs for fs in figure_str if fs != ""]
+        figure_str = ",".join(figure_str)
+
+        return self.graph().to_tikz(
+            placement=self.realization(),
+            figure_opts=figure_str,
+            vertex_style=vertex_style,
+            edge_style=edge_style,
+            label_style=label_style,
+            vertex_in_labels=vertex_in_labels,
+            vertex_out_labels=vertex_out_labels,
+            default_styles=False,
+        )
+
     @classmethod
     @doc_category("Class methods")
     def from_points(cls, points: List[Point]) -> Framework:
@@ -510,6 +621,12 @@ class Framework(object):
         The list of vertices of the underlying graph
         is taken to be ``[0,...,len(points)-1]``.
         The underlying graph has no edges.
+
+        Parameters
+        ----------
+        points:
+            The realization of the framework that this method outputs
+            is provided as a list of points.
 
         Examples
         --------
@@ -526,10 +643,19 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
+        cls, graph: Graph, dim: int = 2, rand_range: int | List[int] = None
     ) -> Framework:
         """
         Return a framework with random realization.
+
+        Parameters
+        ----------
+        graph:
+            Graph on which the random realization should be constructed.
+        rand_range:
+            Sets the range of random numbers from which the realization is
+            sampled. The format is either an interval ``(a,b)`` or a single
+            integer ``a``, which produces the range ``(-a,a)``.
 
         Examples
         --------
@@ -538,6 +664,10 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(122, 57), 1:(27, 144), 2:(50, 98)}
+
+        Notes
+        -----
+        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``.
 
         TODO
         ----
@@ -548,7 +678,7 @@ class Framework(object):
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            b = 10 * graph.number_of_nodes() ** 2 * dim
+            b = 10**4 * graph.number_of_nodes() ** 2 * dim
             a = -b
         if isinstance(rand_range, list):
             if not len(rand_range) == 2:
@@ -571,6 +701,11 @@ class Framework(object):
     def Circular(cls, graph: Graph) -> Framework:
         """
         Return the framework with a regular unit circle realization in the plane.
+
+        Parameters
+        ----------
+        graph:
+            Underlying graph on which the framework is constructed.
 
         Examples
         ----
@@ -595,6 +730,11 @@ class Framework(object):
     def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
+
+        Parameters
+        ----------
+        graph:
+            Underlying graph on which the framework is constructed.
 
         Examples
         --------
@@ -621,6 +761,8 @@ class Framework(object):
 
         Parameters
         ----------
+        graph:
+            Underlying graph on which the framework is constructed.
         d:
             The dimension ``d`` has to be at least the number of vertices
             of the ``graph`` minus one.
@@ -686,9 +828,9 @@ class Framework(object):
 
         Parameters
         ----------
-        dim:
-            a natural number that determines the dimension
-            in which the framework is realized
+        points:
+            The realization of the framework that this method outputs
+            is provided as a list of points.
 
         Examples
         --------
@@ -1998,38 +2140,44 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self) -> dict[tuple[Edge, Edge], float]:
+    def edge_lengths(self, numerical: bool = False) -> Dict[Edge, Coordinate]:
         """
-        Return the edges and their lengths (numerically) of the framework.
+        Return the dictionary of the edge lengths.
 
-        The ordering is given by graph().edge_list() method.
-
-        TODO symbolic version of this method
-
-        Returns
+        Parameters
         -------
-        lengths
-            Dict of edges and their lengths in the framework.
+        numerical:
+            If ``True``, numerical positions are used for the computation of the edge lengths.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
-        >>> l_dict = F.edge_lengths()
-        """
-        from numpy import array as nparray
-        from numpy.linalg import norm as npnorm
-
-        points = self.realization(as_points=True)
-        lengths = {
-            tuple(pair): npnorm(
-                nparray(points[pair[0]], dtype="float64")
-                - nparray(points[pair[1]], dtype="float64")
-            )
-            for pair in self._graph.edges
-        }
-
-        return lengths
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
+        >>> F.edge_lengths(numerical=False)
+        {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
+        >>> F.edge_lengths(numerical=True)
+        {(0, 1): 1.0, (0, 3): 1.4240006242195884, (1, 2): 1.118033988749895, (2, 3): 0.5443838790578374}
+        """  # noqa: E501
+        if numerical:
+            points = self.realization(as_points=True, numerical=True)
+            return {
+                tuple(pair): float(
+                    np.linalg.norm(
+                        np.array(points[pair[0]]) - np.array(points[pair[1]])
+                    )
+                )
+                for pair in self._graph.edges
+            }
+        else:
+            points = self.realization(as_points=True)
+            return {
+                tuple(pair): sp.sqrt(
+                    sum(
+                        [(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])]
+                    )
+                )
+                for pair in self._graph.edges
+            }
 
     @staticmethod
     def _generate_stl_bar(
@@ -2195,7 +2343,7 @@ class Framework(object):
     @doc_category("Other")
     def _transform_inf_flex_to_pointwise(  # noqa: C901
         self, flex: Matrix, vertex_order: List[Vertex] = None
-    ) -> dict[Vertex, Sequence[Coordinate]]:
+    ) -> Dict[Vertex, Sequence[Coordinate]]:
         r"""
         Transform the natural data type of a flex (Matrix) to a
         dictionary that maps a vertex to a Sequence of coordinates
@@ -2259,7 +2407,7 @@ class Framework(object):
         return self.is_dict_inf_flex(vect_as_dict)
 
     def is_dict_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]]
+        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]]
     ) -> bool:
         """
         Return whether a dictionary specifies an infinitesimal flex of the framework.
