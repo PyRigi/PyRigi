@@ -1453,13 +1453,20 @@ class Framework(object):
         return not self.is_independent()
 
     @doc_category("Other")
-    def is_prestress_stable(self) -> bool:
+    def is_prestress_stable(self, _bypass_one_dimensional: bool = False) -> bool:
         """
         Check whether the framework is prestress stable.
 
         Definitions
         ----------
         :prf:ref:`Prestress stability <def-prestress-stability>`.
+
+        Parameters
+        ---------
+        _bypass_one_dimensional:
+            Private parameter solely used for testing. This bypasses the case of
+            a one-dimensional space of stresses or infinitesimal flexes to test
+            the general criterion.
 
         Notes
         -----
@@ -1502,7 +1509,7 @@ class Framework(object):
         if len(inf_flexes) == 0 or len(stresses) == 0:
             return False
 
-        if len(inf_flexes) == 1:
+        if len(inf_flexes) == 1 and not _bypass_one_dimensional:
             flex = self._transform_inf_flex_to_pointwise(inf_flexes[0])
             stress_energy_list = []
             for j in range(len(stresses)):
@@ -1524,8 +1531,8 @@ class Framework(object):
                     )
                 )
             return not all([sp.sympify(Q).is_zero for Q in stress_energy_list])
-        
-        if len(stresses) == 1:
+
+        if len(stresses) == 1 and not _bypass_one_dimensional:
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
             stress = stresses[0].transpose().tolist()[0]
             stress_energy = 0
@@ -1551,10 +1558,18 @@ class Framework(object):
                 ]
             )
 
+        """
+        Otherwise we utilize the stress matrix criterion by Connelly.
+        """
         a = sp.symbols("a0:%s" % len(stresses), real=True)
         stress_matrices = [
             sp.zeros(len(inf_flexes), len(inf_flexes)) for _ in range(len(stresses))
         ]
+        """
+        We start by parametrizing the space of all stress matrices with linear
+        factors `a`. The positive definiteness criterion turns the linear forms
+        into polynomials in `a`.
+        """
         for i in range(len(stresses)):
             stress = stresses[i].transpose().tolist()[0]
             for j1 in range(len(inf_flexes)):
@@ -1588,42 +1603,84 @@ class Framework(object):
                             for k in range(self._graph.number_of_edges())
                         ]
                     )
-        sum_of_stress_matrices = sp.zeros(len(inf_flexes), len(inf_flexes))
-        for j in range(len(inf_flexes)):
-            for k in range(len(inf_flexes)):
-                sum_of_stress_matrices[j, k] = sum(
-                    stress_matrices[i][j, k] for i in range(len(stresses))
-                )
-        polysys_pos_def = []
-        b = sp.symbols("b0:%s" % sum_of_stress_matrices.shape[0], real=True)
-        for i in range(sum_of_stress_matrices.shape[0]):
-            polysys_pos_def += [sp.det(sum_of_stress_matrices[0:i+1, 0:i+1]) - b[i]**2]
-        polysys_sols = sp.solve(polysys_pos_def)
+        stress_matrix_sum = sum(
+            stress_matrices, sp.zeros(len(inf_flexes), len(inf_flexes))
+        )
+        """
+        To check the positive definiteness of stress_matrix_sum, we use Sylvester's
+        criterion on `stress_matrix_sum`, stating that all upper-left minors have a
+        positive determinant. To certify nonnegativity in the resulting system
+        of equations, we introduce variables `b` so that $eq\geq 0$ if and only if
+        $eq = {b_i}^2$ for $b_i\in \mathbb{R}$. We proceed to calculate the zeros
+        of this homogeneous polynomial system of equations.
+        """
+        b = sp.symbols("b0:%s" % stress_matrix_sum.shape[0], real=True)
+        polysys_sols = sp.solve(
+            [
+                sp.det(stress_matrix_sum[0 : i + 1, 0 : i + 1]) - b[i] ** 2
+                for i in range(stress_matrix_sum.shape[0])
+            ]
+        )
         if not polysys_sols:
             return False
         polysys_sols_b_eval = []
         for sol in polysys_sols:
+            """
+            If this system has a real, nontrivial zero, then we have
+            already found a positive definite stress matrix by construction
+            through the insertion of the solution into `stress_matrix_sum`.
+            """
+            if all([sp.im(s).is_zero for s in sol.values()]) and any(
+                [not sp.re(s).is_zero for s in sol.values()]
+            ):
+                return True
+            """
+            Else, we check whether we can let the imaginary part vanish through
+            the selection of the values of `b`.
+            """
             b_sols = sp.solve([sp.im(s) for s in sol.values()])
-            b_sols_no_imag = sum([sp.solve([sp.im(entry) for entry in b_sol.values()]) for b_sol in b_sols], [])
+            b_sols_no_imag = sum(
+                [
+                    sp.solve([sp.im(entry) for entry in b_sol.values()])
+                    for b_sol in b_sols
+                ],
+                [],
+            )
             for entry in b_sols_no_imag:
-                polysys_sols_b_eval += [{key: value.subs(entry) for key,value in b_sol.items()} | entry for b_sol in b_sols]
+                polysys_sols_b_eval += [
+                    {key: value.subs(entry) for key, value in b_sol.items()} | entry
+                    for b_sol in b_sols
+                ]
 
         def filter_zeros(entry):
             return all([not sp.sympify(t).is_zero for t in entry.values()])
+
         filtered_list = list(filter(filter_zeros, polysys_sols_b_eval))
+        """
+        If all solutions obtained by letting the imaginary part vanish are trivial
+        -- in a homogeneous system, the origin is always a solution -- then there
+        exists no positive definite stress matrix for this system.
+        """
         if not filtered_list:
             return False
         else:
             return True
 
     @doc_category("Other")
-    def is_second_order_rigid(self) -> bool:
+    def is_second_order_rigid(self, _bypass_one_dimensional: bool = False) -> bool:
         """
         Check whether the framework is second-order rigid.
 
         Definitions
         ----------
         :prf:ref:`Second-order Rigidity <def-second-order-rigid>`.
+
+        Parameters
+        ---------
+        _bypass_one_dimensional:
+            Private parameter solely used for testing. This bypasses the case of
+            a one-dimensional space of stresses or infinitesimal flexes to test
+            the general criterion.
 
         Notes
         -----
@@ -1635,14 +1692,15 @@ class Framework(object):
 
         In the case where there is more than one infinitesimal flex and stress, we need
         to solve a semi-definite program (SDP). This is done by parametrizing the space
-        of infinitesimal flexes by variables ``a`` and the space of stresses by variables
-        ``b``. This turns the stress energy into a cubic polynomial that is homogeneous
-        and quadratic in ``a`` and homogeneously linear in ``b``. If the polynomial system
-        in the variables ``a`` described by the coefficients of the linear monomials
-        ``b[i]**1`` has only non-real nontrivial solutions, then the framework is
-        second-order rigid. Otherwise, there would be a infinitesimal flex such that for
-        any equilibrium stress it holds that the stress energy is zero. This is
-        exactly the negation of the
+        of infinitesimal flexes by variables $a_{i=1,\dots,r}$ and the space of stresses by variables
+        $b_{j=1,\dots,s}$. This turns the stress energy into a cubic polynomial that is homogeneous
+        and quadratic in $a_i$ and homogeneously linear in $b_j$:
+        $$\sum_{k=1}^s \sum_{m=1}^r \sum_{ij\in E} b_k\cdot\omega^{(k)}_{ij}\cdot ||a_m\cdot ( q^{(m)}(i)-q^{(m)}(j) )||^2 $$
+        If the polynomial system in the variables ``a`` described by the coefficients
+        of the linear monomials $b_i$ has only non-real nontrivial solutions, then the
+        framework is second-order rigid. Otherwise, there would be a infinitesimal
+        flex such that for any equilibrium stress it holds that the stress energy
+        is zero. This is exactly the negation of the
         :prf:ref:`equivalent second-order rigidity criterion <thm-second-order-rigid>`.
 
         Examples
@@ -1651,20 +1709,25 @@ class Framework(object):
         >>> F = fws.Frustum(3)
         >>> F.is_second_order_rigid()
         True
-        """
+        """  # noqa: E501
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
+        edges = self._graph.edge_list()
         if self.is_inf_rigid():
             return True
         if len(inf_flexes) == 0 or len(stresses) == 0:
             return False
-        if len(stresses) == 1 or len(inf_flexes) == 1:
+        if (len(stresses) == 1 or len(inf_flexes) == 1) and not _bypass_one_dimensional:
             return self.is_prestress_stable()
 
-        edges = self._graph.edge_list()
+        """
+        When there are more than one stress and flex, we use the polynomial system
+        described by the stress energy to test the second-order rigidity of the
+        framework.
+        """
         a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
         b = sp.symbols("b0:%s" % len(stresses), real=True)
-        energy_poly = 0
+        stress_energy = 0
         for i in range(len(stresses)):
             Q = 0
             stress = stresses[i].transpose().tolist()[0]
@@ -1682,10 +1745,21 @@ class Framework(object):
                         for k in range(self._graph.number_of_edges())
                     ]
                 )
-            energy_poly = energy_poly + b[i] * Q.simplify()
-        energy_poly = sp.Poly(energy_poly.simplify(), b)
-        poly_sys_in_a = [energy_poly.coeff_monomial(b[i] ** 1) for i in range(len(b))]
+            stress_energy = stress_energy + b[i] * Q.simplify()
+        stress_energy = sp.Poly(stress_energy.simplify(), b)
+        """
+        From the `stress_energy`, we extract the coefficients of the variable `b[i]`
+        for each `i`. If the resulting polynomial system has no solution in `sympy`,
+        then the corresponding vanishing ideal is either equal to $<0>$ or $<1>$. We
+        test against the latter case, as it would imply that there is no solution,
+        while the former case implies that everything is a solution.
+        """
+        poly_sys_in_a = [stress_energy.coeff_monomial(b[i] ** 1) for i in range(len(b))]
+        if all([poly.is_zero for poly in poly_sys_in_a]):
+            return False
         a_sols = sp.solve(poly_sys_in_a, a)
+        if not a_sols:
+            return True
         real_a_sol_part = [[sp.re(s[t]) for t in range(len(s))] for s in a_sols]
         imag_a_sol_part = [[sp.im(s[t]) for t in range(len(s))] for s in a_sols]
         imag_a_sols = [sp.solve(sol) for sol in imag_a_sol_part]
