@@ -8,7 +8,7 @@ from pyrigi.data_type import point_to_vector
 from copy import deepcopy
 
 import pytest
-from sympy import Matrix, pi, sqrt
+from sympy import Matrix, pi, sqrt, sympify
 
 
 @pytest.mark.parametrize(
@@ -220,12 +220,69 @@ def test_inf_flexes():
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
     assert len(fws.Square().inf_flexes(include_trivial=False)) == 1
 
+    F = fws.ThreePrism(realization="flexible")
+    explicit_flex = sympify(
+        [0, 0, 0, 0, 0, 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0]
+    )
+    assert F.is_vector_inf_flex(explicit_flex)
+    explicit_flex_reorder = sympify(
+        ["-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, 0, 0, 0, 0, 0, 0]
+    )
+    assert F.is_vector_inf_flex(explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1])
+
+    F_vert_reordered = Framework(
+        Graph([(4, 3), (0, 1), (3, 5), (0, 2), (0, 3), (1, 2), (1, 4), (2, 5), (4, 5)]),
+        F.realization(),
+    )
+    explicit_flex = sympify([0, 0, 0, 0, 0, 0, -1, 0, -1, 0, -1, 0])
+    assert F_vert_reordered.is_vector_inf_flex(explicit_flex)
+
+    C = Framework(graphs.Complete(6), realization=F.realization())
+    QF = Matrix.hstack(*(F.nontrivial_inf_flexes()))
+    QC = Matrix.hstack(*(C.nontrivial_inf_flexes()))
+    assert QF.rank() == 1 and QC.rank() == 0
+    assert F.trivial_inf_flexes() == C.trivial_inf_flexes()
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
+    QC = Matrix.hstack(*(F.trivial_inf_flexes()))
+    Q_exp = Matrix(explicit_flex)
+    assert Matrix.hstack(QF, QC).rank() == 4
+    assert Matrix.hstack(QF, Q_exp).rank() == 4
+
+    F = fws.Path(4)
+    for inf_flex in F.nontrivial_inf_flexes():
+        dict_flex = F._transform_inf_flex_to_pointwise(inf_flex)
+        assert F.is_dict_inf_flex(dict_flex)
+    assert Matrix.hstack(*(F.nontrivial_inf_flexes())).rank() == 2
+
+    F = fws.Frustum(4)
+    explicit_flex = [1, 0, 0, -1, 0, -1, 1, 0, 1, -1, 1, -1, 0, 0, 0, 0]
+    assert F.is_vector_inf_flex(explicit_flex)
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
+    Q_exp = Matrix(explicit_flex)
+    assert QF.rank() == 5 and Matrix.hstack(QF, Q_exp).rank() == 5
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=False)))
+    assert QF.rank() == 2 and Matrix.hstack(QF, Q_exp).rank() == 2
+
+    F = fws.Complete(5)
+    F_triv = F.trivial_inf_flexes()
+    for inf_flex in F_triv:
+        dict_flex = F._transform_inf_flex_to_pointwise(inf_flex)
+        assert F.is_dict_inf_flex(dict_flex)
+    F_all = F.inf_flexes(include_trivial=True)
+    assert Matrix.hstack(*F_triv).rank() == Matrix.hstack(*(F_all + F_triv)).rank()
+
+    F = Framework.Random(graphs.DoubleBanana(), dim=3)
+    inf_flexes = F.nontrivial_inf_flexes()
+    dict_flex = F._transform_inf_flex_to_pointwise(inf_flexes[0])
+    assert F.is_dict_inf_flex(dict_flex)
+    assert Matrix.hstack(*inf_flexes).rank() == 1
+
 
 def test_is_vector_inf_flex():
     F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
     assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
     assert not F.is_vector_inf_flex([0, 0, 0, 1, -2, 0])
-    assert F.is_vector_inf_flex([0, 1, 0, 0, -1, 0], [1, 0, 2])
+    assert F.is_vector_inf_flex([0, 1, 0, 0, -1, 0], vertex_order=[1, 0, 2])
 
     F.delete_edge([1, 2])
     assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
@@ -560,8 +617,8 @@ def test_rigidity_matrix_rank():
 
 def test_edge_lengths():
     G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
-    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]})
-    l_dict = F.edge_lengths()
+    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: ["1/2", "4/3"]})
+    l_dict = F.edge_lengths(numerical=True)
 
     expected_result = {
         (0, 1): 1.0,
@@ -571,7 +628,22 @@ def test_edge_lengths():
     }
 
     for edge, length in l_dict.items():
-        assert abs(length - expected_result[edge]) < 1e-9
+        assert abs(length - expected_result[edge]) < 1e-10
+
+    l_dict = F.edge_lengths(numerical=False)
+
+    expected_result = {
+        (0, 1): 1,
+        (0, 3): "sqrt(1/4 + 16/9)",
+        (1, 2): "1/2 * sqrt(5)",
+        (2, 3): "sqrt(1/4 + (1/2 * sqrt(5) - 4/3)**2)",
+    }
+
+    for edge, length in l_dict.items():
+        assert (sympify(expected_result[edge]) - length).is_zero
+
+    F = fws.Cycle(6)
+    assert all([(v - 1).is_zero for v in F.edge_lengths(numerical=False).values()])
 
 
 @pytest.mark.meshing
