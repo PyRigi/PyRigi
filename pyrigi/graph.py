@@ -1017,15 +1017,13 @@ class Graph(nx.Graph):
         """
         Count the number of complex planar or spherical realizations
         of a minimally 2-rigid graph.
+
         Algorithms of :cite:p:`CapcoGalletGraseggerEtAl2018` and
         :cite:p:`GalletGraseggerSchicho2020` are used.
         Note, however, that here the result from these algorithms
         is by default divided by two.
         This behaviour accounts better for global rigidity,
         but it can be changed using the parameter ``count_reflection``.
-        See :prf:ref:`def-number-of-realizations` for a detailed definition
-        of the number of realizations in the complex plane
-        and :prf:ref:`def-number-of-spherical-realizations` for the spherical case.
 
         Note that by default,
         the method checks if the input graph is indeed minimally 2-rigid.
@@ -1033,6 +1031,13 @@ class Graph(nx.Graph):
         Caution: Currently the method only works if the python package ``lnumber``
         is installed :cite:p:`Capco2024`.
         See :ref:`installation-guide` for details on installing.
+
+        Definitions
+        -----------
+        :prf:ref:`Number of complex realizations<def-number-of-realizations>`
+
+        :prf:ref:`Number of complex spherical realizations<def-number-of-spherical-realizations>`
+
 
         Parameters
         ----------

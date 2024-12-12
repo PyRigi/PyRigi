@@ -1,4 +1,4 @@
-# Complex Realization Counting
+# Realization Counting
 
 ## Complex Space
 
