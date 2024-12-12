@@ -2126,7 +2126,7 @@ class Framework(object):
         inf_flex: List[Coordinate],
         vertex_order: List[Vertex] = None,
         numerical: bool = False,
-        tolerance: float = 1e-9,
+        numerical_atol: float = 1e-10,
     ) -> bool:
         r"""
         Return whether a vector is an infinitesimal flex of the framework.
@@ -2143,9 +2143,9 @@ class Framework(object):
         vertex_order:
             A list of vertices determining the internal vertex order.
         numerical:
-            A Boolean determining whether the evaluation of the product of the `inf_flex`
+            A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
-        tolerance:
+        numerical_atol:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
             This parameter is used to determine the number of digits, to which
             accuracy the symbolic expressions are evaluated.
@@ -2175,9 +2175,9 @@ class Framework(object):
         return all(
             [
                 isclose(
-                    ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))),
+                    ex.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1)))),
                     0,
-                    abs_tol=tolerance,
+                    abs_tol=numerical_atol,
                 )
                 for ex in self.rigidity_matrix(vertex_order=vertex_order)
                 * Matrix(inf_flex)
@@ -2226,6 +2226,275 @@ class Framework(object):
         return self.is_vector_inf_flex(
             dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs
         )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_vector_nontrivial_inf_flex(
+        self,
+        inf_flex: List[Coordinate],
+        vertex_order: List[Vertex] = None,
+        numerical: bool = False,
+        numerical_atol: float = 1e-10,
+    ) -> bool:
+        r"""
+        Tests whether an infinitesimal flex is nontrivial.
+
+        Definitions
+        -----------
+        :prf:ref:`Nontrivial infinitesimal Flex <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex of the framework.
+        vertex_order:
+            A list of vertices determining the internal vertex order.
+        numerical:
+            A Boolean determining whether the evaluation of the product of the `stress`
+            and the rigidity matrix is symbolic or numerical.
+        numerical_atol:
+            Absolute tolerance that is the threshold for acceptable numerical flexes.
+            This parameter is used to determine the number of digits, to which
+            accuracy the symbolic expressions are evaluated.
+
+        Notes
+        -----
+        This is done by solving a linear system composed of a matrix `A` whose columns
+        are given by a basis of the trivial flexes and the vector `b` given by the
+        input flex. `b` is trivial if and only if there is a linear combination of
+        the columns in `A` producing `b`. In other words, when there is a solution to
+        `Ax=b`, then `b` is a trivial infinitesimal motion. Otherwise, `b` is
+        nontrivial.
+
+        In the `numerical=True` case we compute a least squares solution `x` of the
+        overdetermined linear system and compare the values in `Ax` to the values
+        in `b`.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Square()
+        >>> q = [0,0,0,0,-2,0,-2,0]
+        >>> F.is_vector_nontrivial_inf_flex(q)
+        True
+        >>> q = [1,-1,1,1,-1,1,-1,-1]
+        >>> F.is_vector_inf_flex(q)
+        True
+        >>> F.is_vector_nontrivial_inf_flex(q)
+        False
+        """
+        if not self.is_vector_inf_flex(
+            inf_flex,
+            vertex_order=vertex_order,
+            numerical=numerical,
+            numerical_atol=numerical_atol,
+        ):
+            return False
+
+        if not numerical:
+            Q_trivial = Matrix.hstack(*(self.trivial_inf_flexes()))
+            system = Q_trivial, Matrix(inf_flex)
+            return sp.linsolve(system) == sp.EmptySet
+        else:
+            Q_trivial = np.array(
+                [
+                    [
+                        float(
+                            f.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1))))
+                        )
+                        for f in flex.transpose().tolist()[0]
+                    ]
+                    for flex in (self.trivial_inf_flexes())
+                ]
+            ).transpose()
+            b = np.array(
+                [
+                    [
+                        float(
+                            f.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1))))
+                        )
+                        for f in sp.sympify(inf_flex)
+                    ]
+                ]
+            ).transpose()
+            x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
+            return not all(
+                [
+                    isclose(np.dot(Q_trivial, x)[i, 0], b[i, 0], abs_tol=numerical_atol)
+                    for i in range(b.shape[0])
+                ]
+            )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_dict_nontrivial_inf_flex(
+        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+    ) -> bool:
+        r"""
+        Tests whether a dictionary specifies an infinitesimal flex which is nontrivial.
+
+        Definitions
+        -----------
+        :prf:ref:`Nontrivial infinitesimal Flex <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex of the framework in the form of a dictionary.
+
+        Notes
+        -----
+        See :meth:`Framework.is_vector_nontrivial_inf_flex` for details,
+        particularly concerning the possible parameters.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Square()
+        >>> q = {0:[0,0], 1: [0,0], 2:[-2,0], 3:[-2,0]}
+        >>> F.is_dict_nontrivial_inf_flex(q)
+        True
+        >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
+        >>> F.is_dict_nontrivial_inf_flex(q)
+        False
+        """
+        if len(vert_to_flex) != self._graph.number_of_nodes():
+            raise ValueError("The keys in `vert_to_flex` have to match the vertex set.")
+        dict_to_list = []
+
+        for v in self._graph.vertex_list():
+            if v not in vert_to_flex:
+                raise ValueError(
+                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
+                )
+            dict_to_list += list(vert_to_flex[v])
+
+        return self.is_vector_nontrivial_inf_flex(
+            dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs
+        )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_nontrivial_flex(
+        self, inf_flex: List[Coordinate] | Dict[Vertex, Sequence[Coordinate]], **kwargs
+    ) -> bool:
+        """
+        Alias for :meth:`Framework.is_vector_nontrivial_inf_flex` and
+        :meth:`Framework.is_dict_nontrivial_inf_flex`.
+
+        Notes
+        -----
+        We distinguish between instaces of `list` and instances of `dict` to
+        call one of the alias methods.
+        """
+        if isinstance(inf_flex, list):
+            return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
+        elif isinstance(inf_flex, dict):
+            return self.is_dict_nontrivial_inf_flex(inf_flex, **kwargs)
+        else:
+            raise TypeError(
+                "The `inf_flex` must be specified either by a vector or a dictionary!"
+            )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_vector_trivial_inf_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
+        r"""
+        Tests whether an infinitesimal flex is trivial.
+
+        Definitions
+        -----------
+        :prf:ref:`Trivial infinitesimal Flex <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex of the framework.
+
+        Notes
+        -----
+        See :meth:`Framework.is_nontrivial_vector_inf_flex` for details,
+        particularly concerning the possible parameters.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Square()
+        >>> q = [0,0,0,0,-2,0,-2,0]
+        >>> F.is_vector_trivial_inf_flex(q)
+        False
+        >>> q = [1,-1,1,1,-1,1,-1,-1]
+        >>> F.is_vector_trivial_inf_flex(q)
+        True
+        """
+        if not self.is_vector_inf_flex(inf_flex, **kwargs):
+            return False
+        return not self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
+
+    @doc_category("Infinitesimal rigidity")
+    def is_dict_trivial_inf_flex(
+        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+    ) -> bool:
+        r"""
+        Tests whether a dictionary specifies an infinitesimal flex which is trivial.
+
+        Definitions
+        -----------
+        :prf:ref:`Trivial infinitesimal Flex <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex of the framework in the form of a dictionary.
+
+        Notes
+        -----
+        See :meth:`Framework.is_vector_trivial_inf_flex` for details,
+        particularly concerning the possible parameters.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Square()
+        >>> q = {0:[0,0], 1: [0,0], 2:[-2,0], 3:[-2,0]}
+        >>> F.is_dict_trivial_inf_flex(q)
+        False
+        >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
+        >>> F.is_dict_trivial_inf_flex(q)
+        True
+        """
+        if len(vert_to_flex) != self._graph.number_of_nodes():
+            raise ValueError("The keys in `vert_to_flex` have to match the vertex set.")
+        dict_to_list = []
+
+        for v in self._graph.vertex_list():
+            if v not in vert_to_flex:
+                raise ValueError(
+                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
+                )
+            dict_to_list += list(vert_to_flex[v])
+
+        return self.is_vector_trivial_inf_flex(
+            dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs
+        )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_trivial_flex(
+        self, inf_flex: List[Coordinate] | Dict[Vertex, Sequence[Coordinate]], **kwargs
+    ) -> bool:
+        """
+        Alias for :meth:`Framework.is_vector_trivial_inf_flex` and
+        :meth:`Framework.is_dict_trivial_inf_flex`.
+
+        Notes
+        -----
+        We distinguish between instaces of `list` and instances of `dict` to
+        call one of the alias methods.
+        """
+        if isinstance(inf_flex, list):
+            return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
+        elif isinstance(inf_flex, dict):
+            return self.is_dict_trivial_inf_flex(inf_flex, **kwargs)
+        else:
+            raise TypeError(
+                "The `inf_flex` must be specified either by a vector or a dictionary!"
+            )
 
 
 Framework.__doc__ = Framework.__doc__.replace(
