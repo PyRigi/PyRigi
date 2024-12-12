@@ -221,7 +221,6 @@ def test_inf_flexes():
     assert len(fws.Square().inf_flexes(include_trivial=False)) == 1
 
     F = fws.ThreePrism(realization="flexible")
-    C = Framework(graphs.Complete(6), realization=F.realization())
     explicit_flex = sympify(
         [0, 0, 0, 0, 0, 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0]
     )
@@ -230,6 +229,15 @@ def test_inf_flexes():
         ["-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, 0, 0, 0, 0, 0, 0]
     )
     assert F.is_vector_inf_flex(explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1])
+
+    F_vert_reordered = Framework(
+        Graph([(4, 3), (0, 1), (3, 5), (0, 2), (0, 3), (1, 2), (1, 4), (2, 5), (4, 5)]),
+        F.realization(),
+    )
+    explicit_flex = sympify([0, 0, 0, 0, 0, 0, -1, 0, -1, 0, -1, 0])
+    assert F_vert_reordered.is_vector_inf_flex(explicit_flex)
+
+    C = Framework(graphs.Complete(6), realization=F.realization())
     QF = Matrix.hstack(*(F.nontrivial_inf_flexes()))
     QC = Matrix.hstack(*(C.nontrivial_inf_flexes()))
     assert QF.rank() == 1 and QC.rank() == 0
