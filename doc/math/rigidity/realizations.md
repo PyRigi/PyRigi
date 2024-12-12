@@ -5,15 +5,15 @@
 :::{prf:definition} Complex Realization
 :label: def-complex-realization
 
-Let $G=(V,E)$ be a simple graph (i.e. no multi edges and no loops) and $d\in\NN$.
+Let $G=(V,E)$ be a simple graph and $d\in\NN$.
 A $d$-dimensional _complex realization_ of $G$ is a map $p\colon V\rightarrow \CC^d$.
-For convenience, for $v \in V$ we may denote $p(v)$ by $p_v$.
+We denote $p(v)$ also by $p_v$.
 :::
 
 :::{prf:definition} Congruent Complex Realizations
 :label: def-complex-congruent
 
-Two complex realizations $p,q\in(\CC^d)^V$ are _congruent_ if $p_v = A q_v + b$ for all $v\in V$, where $A$ is $d\times d$ matrix over $\CC$ with $AA^T=A^TA=I$ and $b\in\CC^d$.
+Two complex realizations $p,q\in(\CC^d)^V$ are _congruent_ if $p_v = A q_v + b$ for all $v\in V$, where $A$ is a $d\times d$ matrix over $\CC$ with $AA^T=A^TA=I$ and $b\in\CC^d$.
 :::
 
 :::{prf:definition} Complex Rigidity Map
@@ -46,21 +46,22 @@ We define the _number of complex realizations_ by $c_d(G)$, where
 {{pyrigi_crossref}} {meth}`~.Graph.number_of_realizations()`
 :::
 
-A combinatorial algorithm for computing $2\cdot c_2(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`CapcoGalletGraseggerEtAl2018`.
+The implemented combinatorial algorithm for computing $2\cdot c_2(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`CapcoGalletGraseggerEtAl2018`.
+Note that this algorithm does count reflections to be different realizations, while here we do not.
 
 ## Complex Sphere
 
 :::{prf:definition} Complex Spherical Realization
 :label: def-complex-spherical-realization
 
-Let $G=(V,E)$ be a simple graph (i.e. no multi edges and no loops) and $d\in\NN$.
+Let $G=(V,E)$ be a simple graph and $d\in\NN$.
 A $d$-dimensional _complex spherical realization_ of $G$ is a map $p\colon V\rightarrow \mathbb{S}_{\CC}^d := \{x\in\CC^{d+1}\colon ||x||^2 = 1\}$.
 :::
 
 :::{prf:definition} Congruent Complex Spherical Realizations
 :label: def-complex-spherical-congruent
 
-Two complex spherical realizations $p,q\in(\mathbb{S}_{\CC}^d)^V$ are _congruent_ if $p_v = A q_v$ for all $v\in V$, where $A$ is $d\times d$ matrix over $\CC$ with $AA^T=A^TA=I$.
+Two complex spherical realizations $p,q\in(\mathbb{S}_{\CC}^d)^V$ are _congruent_ if $p_v = A q_v$ for all $v\in V$, where $A$ is a $d\times d$ matrix over $\CC$ with $AA^T=A^TA=I$.
 :::
 
 :::{prf:definition} Complex Spherical Rigidity Map
@@ -93,4 +94,5 @@ We define the _number of complex spherical realizations_ by $c_d^{\circ}(G)$, wh
 {{pyrigi_crossref}} {meth}`~.Graph.number_of_realizations()`
 :::
 
-A combinatorial algorithm for computing $2\cdot c_2^{\circ}(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`GalletGraseggerSchicho2020`.
+The implemented combinatorial algorithm for computing $2\cdot c_2^{\circ}(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`GalletGraseggerSchicho2020`.
+Note that this algorithm does count reflections to be different realizations, while here we do not.

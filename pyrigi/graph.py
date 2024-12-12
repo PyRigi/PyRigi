@@ -1030,6 +1030,10 @@ class Graph(nx.Graph):
         Note that by default,
         the method checks if the input graph is indeed minimally 2-rigid.
 
+        Caution: Currently the method only works if the python package ``lnumber``
+        is installed :cite:p:`Capco2024`.
+        See :ref:`installation-guide` for details on installing.
+
         Parameters
         ----------
         check_min_rigid:
@@ -1041,8 +1045,8 @@ class Graph(nx.Graph):
             If ``False`` (default), the number of planar realizations is returned.
 
         count_reflection:
-            If ``True``, the number of realizations is computed modulo direct isometries,
-            but counting reflection as used in
+            If ``True``, the number of realizations is computed modulo direct isometries.
+            But reflection is counted to be non-congruent as used in
             :cite:p:`CapcoGalletGraseggerEtAl2018` and
             :cite:p:`GalletGraseggerSchicho2020`.
             If ``False`` (default), reflection is not counted.
