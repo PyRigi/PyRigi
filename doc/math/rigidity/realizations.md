@@ -1,5 +1,8 @@
 # Realization Counting
 
+
+Here by $||x||^2$ we denote the extension of the squared Euclidean norm to $\CC^d$ by defining $||x||^2:= \sum_{i=1}^d x_i^2$, where $x_i$ is the $i$-th coordinate of $x$.
+
 ## Complex Space
 
 :::{prf:definition} Complex Realization
@@ -20,7 +23,7 @@ Two complex realizations $p,q\in(\CC^d)^V$ are _congruent_ if $p_v = A q_v + b$ 
 :label: def-complex-rigidity-map
 
 Let $G=(V,E)$ be a rigid graph.
-We define $f_{G,d}\colon (\CC^d)^V \rightarrow \CC^E$ by $p\mapsto \left(\frac{1}{2}||p_v-p_w||\right)_{vw\in E}$ to be the _complex rigidity map_.
+We define $f_{G,d}\colon (\CC^d)^V \rightarrow \CC^E$ by $p\mapsto \left(\frac{1}{2}||p_v-p_w||^2\right)_{vw\in E}$ to be the _complex rigidity map_.
 :::
 
 :::{prf:definition} Realization Space
@@ -68,7 +71,7 @@ Two complex spherical realizations $p,q\in(\mathbb{S}_{\CC}^d)^V$ are _congruent
 :label: def-complex-spherical-rigidity-map
 
 Let $G=(V,E)$ be a rigid graph.
-We define $s_{G,d}\colon (\mathbb{S}_{\CC}^d)^V \rightarrow \CC^E$ by $p\mapsto \left(\frac{1}{2}||p_v-p_w||\right)_{vw\in E}$ to be the _complex spherical rigidity map_.
+We define $s_{G,d}\colon (\mathbb{S}_{\CC}^d)^V \rightarrow \CC^E$ by $p\mapsto \left(\frac{1}{2}||p_v-p_w||^2\right)_{vw\in E}$ to be the _complex spherical rigidity map_.
 :::
 
 :::{prf:definition} Spherical Realization Space
