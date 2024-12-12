@@ -1219,8 +1219,7 @@ class Framework(object):
         stress: Stress,
         edge_order: List[Edge] = None,
         numerical: bool = False,
-        numerical_digits=35,
-        numerical_atol=1e-10,
+        tolerance=1e-9
     ) -> bool:
         r"""
         Tests whether a stress lies in the cokernel of the rigidity matrix.
@@ -1238,10 +1237,10 @@ class Framework(object):
         numerical:
             A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
-        numerical_digits:
-            Number of digits to which accuracy the numerical expression is evaluated.
-        numerical_atol:
-            Absolute tolerance that is the threshold for acceptable numerical stresses.
+        tolerance:
+            Absolute tolerance that is the threshold for acceptable equilibrium 
+            stresses. This parameter is used to determine the number of digits, 
+            to which accuracy the symbolic expressions are evaluated.
 
         Examples
         --------
@@ -1265,7 +1264,7 @@ class Framework(object):
             )
         return all(
             [
-                isclose(ex.evalf(numerical_digits), 0, abs_tol=numerical_atol)
+                isclose(ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))), 0, abs_tol=tolerance)
                 for ex in Matrix(stress).transpose()
                 * self.rigidity_matrix(edge_order=edge_order)
             ]
@@ -1711,7 +1710,7 @@ class Framework(object):
         self,
         other_realization: Dict[Vertex, Point],
         numerical: bool = False,
-        tolerance: float = 10e-9,
+        tolerance: float = 1e-9,
     ) -> bool:
         """
         Return whether the given realization is congruent to self.
@@ -1725,10 +1724,7 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        if sorted(self._graph.vertex_list()) != sorted(other_realization.keys()):
-            raise ValueError(
-                "Not all vertices have a realization in the given dictionary."
-            )
+        self._check_vertex_order(list(other_realization.keys()))
 
         for u, v in combinations(self._graph.nodes, 2):
             edge_vec = (self._realization[u]) - self._realization[v]
@@ -1752,7 +1748,7 @@ class Framework(object):
         self,
         other_framework: Framework,
         numerical: bool = False,
-        tolerance: float = 10e-9,
+        tolerance: float = 1e-9,
     ) -> bool:
         """
         Return whether the given framework is congruent to self.
@@ -1779,7 +1775,7 @@ class Framework(object):
         self,
         other_realization: Dict[Vertex, Point],
         numerical: bool = False,
-        tolerance: float = 10e-9,
+        tolerance: float = 1e-9,
     ) -> bool:
         """
         Return whether the given realization is equivalent to self.
@@ -1821,7 +1817,7 @@ class Framework(object):
         self,
         other_framework: Framework,
         numerical: bool = False,
-        tolerance: float = 10e-9,
+        tolerance: float = 1e-9,
     ) -> bool:
         """
         Return whether the given framework is equivalent to self.
@@ -2202,7 +2198,7 @@ class Framework(object):
             ]
         )
 
-    @doc_category("Framework properties")
+    @doc_category("Infinitesimal rigidity")
     def is_dict_inf_flex(
         self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
@@ -2269,8 +2265,8 @@ class Framework(object):
                 self._graph.vertex_list()
             ) == set(vertex_order):
                 raise ValueError(
-                    "vertex_order must contain "
-                    + "exactly the same vertices as the graph!"
+                    "New vertex set must contain exactly "
+                    + "the same vertices as the underlying graph!"
                 )
             return vertex_order
 

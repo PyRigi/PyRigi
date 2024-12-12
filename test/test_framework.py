@@ -687,10 +687,11 @@ def test_stresses():
     )
     Q2 = Matrix.hstack(*(fws.CompleteBipartite(4, 4).stresses()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
+    F = fws.Complete(5)
     assert all(
         [
-            fws.Complete(5).is_stress([entry for entry in s.transpose()])
-            for s in fws.Complete(5).stresses()
+            F.is_stress([entry for entry in s.transpose()], numerical=True)
+            for s in F.stresses()
         ]
     )
 
