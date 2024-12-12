@@ -1036,7 +1036,8 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`Number of complex realizations<def-number-of-realizations>`
 
-        :prf:ref:`Number of complex spherical realizations<def-number-of-spherical-realizations>`
+        :prf:ref:`Number of complex spherical realizations
+        <def-number-of-spherical-realizations>`
 
 
         Parameters
