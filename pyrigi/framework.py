@@ -2126,7 +2126,7 @@ class Framework(object):
         inf_flex: List[Coordinate],
         vertex_order: List[Vertex] = None,
         numerical: bool = False,
-        numerical_atol: float = 1e-10,
+        tolerance: float = 1e-9,
     ) -> bool:
         r"""
         Return whether a vector is an infinitesimal flex of the framework.
@@ -2145,7 +2145,7 @@ class Framework(object):
         numerical:
             A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
-        numerical_atol:
+        tolerance:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
             This parameter is used to determine the number of digits, to which
             accuracy the symbolic expressions are evaluated.
@@ -2175,9 +2175,9 @@ class Framework(object):
         return all(
             [
                 isclose(
-                    ex.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1)))),
+                    ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))),
                     0,
-                    abs_tol=numerical_atol,
+                    abs_tol=tolerance,
                 )
                 for ex in self.rigidity_matrix(vertex_order=vertex_order)
                 * Matrix(inf_flex)
