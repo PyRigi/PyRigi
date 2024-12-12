@@ -1219,7 +1219,7 @@ class Framework(object):
         stress: Stress,
         edge_order: List[Edge] = None,
         numerical: bool = False,
-        tolerance=1e-9
+        tolerance=1e-9,
     ) -> bool:
         r"""
         Tests whether a stress lies in the cokernel of the rigidity matrix.
@@ -1238,8 +1238,8 @@ class Framework(object):
             A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
         tolerance:
-            Absolute tolerance that is the threshold for acceptable equilibrium 
-            stresses. This parameter is used to determine the number of digits, 
+            Absolute tolerance that is the threshold for acceptable equilibrium
+            stresses. This parameter is used to determine the number of digits,
             to which accuracy the symbolic expressions are evaluated.
 
         Examples
@@ -1264,7 +1264,11 @@ class Framework(object):
             )
         return all(
             [
-                isclose(ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))), 0, abs_tol=tolerance)
+                isclose(
+                    ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))),
+                    0,
+                    abs_tol=tolerance,
+                )
                 for ex in Matrix(stress).transpose()
                 * self.rigidity_matrix(edge_order=edge_order)
             ]
