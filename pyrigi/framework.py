@@ -2143,7 +2143,7 @@ class Framework(object):
         vertex_order:
             A list of vertices determining the internal vertex order.
         numerical:
-            A Boolean determining whether the evaluation of the product of the `stress`
+            A Boolean determining whether the evaluation of the product of the `inf_flex`
             and the rigidity matrix is symbolic or numerical.
         tolerance:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
