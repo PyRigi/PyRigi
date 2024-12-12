@@ -937,6 +937,15 @@ class Framework(object):
         """
         Return whether the realization is :prf:ref:`quasi-injective <def-realization>`.
 
+        Parameters
+        ----------
+        numerical:
+            Whether the check is symbolic (default) or numerical.
+        tolerance:
+            Used tolerance when checking numerically.
+
+        Notes
+        -----
         For comparing whether two vectors are the same,
         :func:`.misc.is_zero_vector` is used.
         See its documentation for the description of the parameters.
@@ -953,6 +962,15 @@ class Framework(object):
         """
         Return whether the realization is injective.
 
+        Parameters
+        ----------
+        numerical
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
+
+        Notes
+        -----
         For comparing whether two vectors are the same,
         :func:`.misc.is_zero_vector` is used.
         See its documentation for the description of the parameters.
@@ -1691,7 +1709,7 @@ class Framework(object):
         self,
         other_realization: Dict[Vertex, Point],
         numerical: bool = False,
-        tolerance: float = 10e-9,
+        tolerance: float = 1e-9,
     ) -> bool:
         """
         Return whether the given realization is congruent to self.
@@ -1733,7 +1751,7 @@ class Framework(object):
         self,
         other_framework: Framework,
         numerical: bool = False,
-        tolerance: float = 10e-9,
+        tolerance: float = 1e-9,
     ) -> bool:
         """
         Return whether the given framework is congruent to self.
@@ -1760,7 +1778,7 @@ class Framework(object):
         self,
         other_realization: Dict[Vertex, Point],
         numerical: bool = False,
-        tolerance: float = 10e-9,
+        tolerance: float = 1e-9,
     ) -> bool:
         """
         Return whether the given realization is equivalent to self.
@@ -1802,7 +1820,7 @@ class Framework(object):
         self,
         other_framework: Framework,
         numerical: bool = False,
-        tolerance: float = 10e-9,
+        tolerance: float = 1e-9,
     ) -> bool:
         """
         Return whether the given framework is equivalent to self.
@@ -2126,7 +2144,7 @@ class Framework(object):
         inf_flex: List[Coordinate],
         vertex_order: List[Vertex] = None,
         numerical: bool = False,
-        numerical_atol: float = 1e-10,
+        tolerance: float = 1e-9,
     ) -> bool:
         r"""
         Return whether a vector is an infinitesimal flex of the framework.
@@ -2145,7 +2163,7 @@ class Framework(object):
         numerical:
             A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
-        numerical_atol:
+        tolerance:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
             This parameter is used to determine the number of digits, to which
             accuracy the symbolic expressions are evaluated.
@@ -2175,9 +2193,9 @@ class Framework(object):
         return all(
             [
                 isclose(
-                    ex.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1)))),
+                    ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))),
                     0,
-                    abs_tol=numerical_atol,
+                    abs_tol=tolerance,
                 )
                 for ex in self.rigidity_matrix(vertex_order=vertex_order)
                 * Matrix(inf_flex)
@@ -2233,7 +2251,7 @@ class Framework(object):
         inf_flex: List[Coordinate],
         vertex_order: List[Vertex] = None,
         numerical: bool = False,
-        numerical_atol: float = 1e-10,
+        tolerance: float = 1e-9,
     ) -> bool:
         r"""
         Tests whether an infinitesimal flex is nontrivial.
@@ -2251,7 +2269,7 @@ class Framework(object):
         numerical:
             A Boolean determining whether the evaluation of the product of the `stress`
             and the rigidity matrix is symbolic or numerical.
-        numerical_atol:
+        tolerance:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
             This parameter is used to determine the number of digits, to which
             accuracy the symbolic expressions are evaluated.
@@ -2286,7 +2304,7 @@ class Framework(object):
             inf_flex,
             vertex_order=vertex_order,
             numerical=numerical,
-            numerical_atol=numerical_atol,
+            tolerance=tolerance,
         ):
             return False
 
@@ -2299,7 +2317,7 @@ class Framework(object):
                 [
                     [
                         float(
-                            f.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1))))
+                            f.evalf(int(round(3 * log10(tolerance ** (-1) + 1))))
                         )
                         for f in flex.transpose().tolist()[0]
                     ]
@@ -2310,7 +2328,7 @@ class Framework(object):
                 [
                     [
                         float(
-                            f.evalf(int(round(3 * log10(numerical_atol ** (-1) + 1))))
+                            f.evalf(int(round(3 * log10(tolerance ** (-1) + 1))))
                         )
                         for f in sp.sympify(inf_flex)
                     ]
@@ -2319,7 +2337,7 @@ class Framework(object):
             x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
             return not all(
                 [
-                    isclose(np.dot(Q_trivial, x)[i, 0], b[i, 0], abs_tol=numerical_atol)
+                    isclose(np.dot(Q_trivial, x)[i, 0], b[i, 0], abs_tol=tolerance)
                     for i in range(b.shape[0])
                 ]
             )
