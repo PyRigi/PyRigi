@@ -24,7 +24,6 @@ import sympy as sp
 import numpy as np
 
 from sympy import Matrix, flatten, binomial
-from math import isclose, log10
 
 from pyrigi.data_type import (
     Vertex,
@@ -1254,24 +1253,10 @@ class Framework(object):
         >>> F.is_stress(omega1)
         False
         """
-        if not numerical:
-            return all(
-                [
-                    sp.simplify(ex).is_zero
-                    for ex in Matrix(stress).transpose()
-                    * self.rigidity_matrix(edge_order=edge_order)
-                ]
-            )
-        return all(
-            [
-                isclose(
-                    ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))),
-                    0,
-                    abs_tol=tolerance,
-                )
-                for ex in Matrix(stress).transpose()
-                * self.rigidity_matrix(edge_order=edge_order)
-            ]
+        return is_zero_vector(
+            Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order),
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
     @doc_category("Infinitesimal rigidity")
@@ -1322,25 +1307,17 @@ class Framework(object):
             )
         # creation of a zero |V|x|V| matrix
         stress_matr = sp.zeros(len(self._graph))
-        for v in vertex_order:
-            i = vertex_order.index(v)
-            for edge in edge_order:
-                if v in edge:
-                    stress_matr[i, i] += stress[edge_order.index(edge)]
-        for v, w in combinations(vertex_order, 2):
-            i, j = vertex_order.index(v), vertex_order.index(w)
-            if [v, w] in edge_order or (v, w) in edge_order:
-                stressval = -stress[
-                    edge_order.index([v, w] if [v, w] in edge_order else (v, w))
-                ]
-                stress_matr[i, j] = stressval
-                stress_matr[j, i] = stressval
-            elif [w, v] in edge_order or (w, v) in edge_order:
-                stressval = -stress[
-                    edge_order.index([w, v] if [w, v] in edge_order else (w, v))
-                ]
-                stress_matr[i, j] = stressval
-                stress_matr[j, i] = stressval
+        v_to_i = {v: i for i, v in enumerate(vertex_order)}
+
+        for edge, edge_stress in zip(edge_order, stress):
+            for v in edge:
+                stress_matr[v_to_i[v], v_to_i[v]] += edge_stress
+
+        for e, stressval in zip(edge_order, stress):
+            i, j = v_to_i[e[0]], v_to_i[e[1]]
+            stress_matr[i, j] = -stressval
+            stress_matr[j, i] = -stressval
+
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
@@ -2182,24 +2159,10 @@ class Framework(object):
         >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
         True
         """
-        if not numerical:
-            return all(
-                [
-                    sp.simplify(ex).is_zero
-                    for ex in self.rigidity_matrix(vertex_order=vertex_order)
-                    * Matrix(inf_flex)
-                ]
-            )
-        return all(
-            [
-                isclose(
-                    ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))),
-                    0,
-                    abs_tol=tolerance,
-                )
-                for ex in self.rigidity_matrix(vertex_order=vertex_order)
-                * Matrix(inf_flex)
-            ]
+        return is_zero_vector(
+            self.rigidity_matrix(vertex_order=vertex_order) * Matrix(inf_flex),
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
     @doc_category("Infinitesimal rigidity")
