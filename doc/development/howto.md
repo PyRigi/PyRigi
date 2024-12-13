@@ -158,6 +158,25 @@ pytest -m "not optional_feature1_name and not optional_feature2_name"
 ```
 See the file `pyproject.toml` for the markers that specify groups of tests relying on optional packages.
 
+We mark tests that take longer time according to the following table:
+
+| marker               | per test | total time | execution
+| -------------------- | -------- | ---------- | -------------------
+| standard (no marker) | < 0.5s   | < 2 min    | on merge/PR to `dev`
+| `slow_main`            | < 10s    | < 15 min   | on merge/PR to `main`
+| `long_local`           | > 10s    | hours      | locally when needed
+
+The column `total time` indicates how much time is needed to run all tests with the given marker.
+The time limits per tests are approximate: it is better to have a longer standard tests than none.
+Also most of the standard tests should be much faster then the indicated limit.
+
+The command `pytest` executes only standard tests.
+To include also the tests marked `slow_main`, run
+```
+pytest -m 'not slow_main or slow_main'
+```
+
+
 ## Documentation
 
 We aim to have the package well-documented.
