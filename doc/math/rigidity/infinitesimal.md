@@ -63,6 +63,7 @@ If $|V| \geq d+1$, the framework $(G, p)$ is infinitesimally rigid if and only i
 If $|V| \leq d+1$, the framework $(G, p)$ is infinitesimally rigid if and only if $G$ is complete, $p$ is injective and the set $\{ p_v \, : \, v \in V\}$ is affinely independent.
 
 {{pyrigi_crossref}} {meth}`~.Framework.is_inf_rigid`
+{meth}`~.Framework.is_inf_flexible`
 :::
 
 
@@ -86,13 +87,16 @@ A $d$-dimensional {prf:ref}`framework <def-framework>` $(G, p)$ with $G = (V, E)
 is called _independent_ if $\mathrm{rk} \, R(G, p) = |E|$,
 otherwise it is dependent.
 
-{{pyrigi_crossref}} {meth}`~.Framework.is_independent` {meth}`~.Framework.is_dependent`
+{{pyrigi_crossref}} {meth}`~.Framework.is_independent` 
+{meth}`~.Framework.is_dependent`
 :::
 
 :::{prf:definition} Isostatic frameworks
 :label: def-isostatic-frameworks
 
 A {prf:ref}`framework <def-framework>` $(G, p)$ is called _isostatic_ if it is {prf:ref}`infinitesimally rigid <def-inf-rigid-framework>` and {prf:ref}`independent <def-independent-framework>`.
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_isostatic`
 :::
 
 
