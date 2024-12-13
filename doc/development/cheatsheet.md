@@ -79,7 +79,7 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 
 
 ### Cross-references to pages
-For creating a label on a page use ``(label)=`` at the beginnin of the file.
+For creating a label on a page use ``(label)=`` before a section title.
 This label is used together with ``ref`` for internal references, see below.
 
 For references to ``networkx`` we use ``doc`` instead provided by the setting ``intersphinx_mapping``
