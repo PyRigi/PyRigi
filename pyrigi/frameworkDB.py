@@ -131,6 +131,10 @@ def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
             {i: [0, (i + 1) * (-1) ** i] for i in range(m)}
             | {i: [(i - m + 1) * (-1) ** i, 0] for i in range(m, m + n)},
         )
+    elif realization == "collinear":
+        return Framework(
+            graphs.CompleteBipartite(m, n), {i: [i, 0] for i in range(m + n)}
+        )
     return Framework(
         graphs.CompleteBipartite(m, n),
         {
