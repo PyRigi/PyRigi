@@ -1906,8 +1906,10 @@ class Framework(object):
         imag_a_sol_part = [[sp.im(s[t]) for t in range(len(s))] for s in a_sols]
         imag_a_sols = [sp.solve(sol) for sol in imag_a_sol_part]
         for i in range(len(real_a_sol_part)):
-            if not all([s.subs(imag_a_sols[i]).is_zero for s in real_a_sol_part[i]]):
-                return False
+            local_imag_a_sols = [imag_a_sols[i]] if isinstance(imag_a_sols[i], dict) else imag_a_sols[i]
+            for j in range(len(local_imag_a_sols)):
+                if not all([sp.sympify(s).subs(local_imag_a_sols[j]).is_zero for s in real_a_sol_part[i]]):
+                    return False
         return True
 
     @doc_category("Infinitesimal rigidity")

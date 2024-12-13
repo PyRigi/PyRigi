@@ -193,7 +193,7 @@ def test_is_prestress_stable(framework, bool_res):
         [fws.Square(), False],
         [fws.K33plusEdge(), True],
         [fws.ThreePrism(realization="flexible"), False],
-        [fws.CompleteBipartite(2, 3, realization="collinear"), True],
+        [fws.CompleteBipartite(3, 3, realization="collinear"), True],
         [fws.ConnellyExampleSecondOrderRigidity(), True],
     ],
 )
