@@ -567,7 +567,7 @@ def test_min_k_vertex_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [Graph.from_int(16383), 2],
-        pytest.param(Graph.from_int(1048575), 3, marks=pytest.mark.medium),
+        pytest.param(Graph.from_int(1048575), 3, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
@@ -579,7 +579,7 @@ def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
     "graph, k",
     [
         [Graph.from_int(507903), 1],
-        pytest.param(Graph.from_int(1048575), 2, marks=pytest.mark.medium),
+        pytest.param(Graph.from_int(1048575), 2, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d3(graph, k):
@@ -692,9 +692,9 @@ def test_k_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [graphs.Complete(5), 2],
-        pytest.param(graphs.Octahedral(), 2, marks=pytest.mark.medium),
-        pytest.param(graphs.Complete(6), 2, marks=pytest.mark.medium),
-        pytest.param(graphs.Complete(6), 3, marks=pytest.mark.medium),
+        pytest.param(graphs.Octahedral(), 2, marks=pytest.mark.slow_main),
+        pytest.param(graphs.Complete(6), 2, marks=pytest.mark.slow_main),
+        pytest.param(graphs.Complete(6), 3, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048059), 3],
         # [Graph.from_int(2097151), 3],
     ],
@@ -835,7 +835,7 @@ def test_min_k_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [Graph.from_int(16350), 2],
-        pytest.param(Graph.from_int(507851), 2, marks=pytest.mark.medium),
+        pytest.param(Graph.from_int(507851), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048059), 3],
     ],
 )
@@ -849,7 +849,7 @@ def test_min_k_redundantly_rigid_in_d2(graph, k):
     [
         [graphs.Complete(5), 1],
         [Graph.from_int(16351), 1],
-        pytest.param(Graph.from_int(32767), 2, marks=pytest.mark.medium),
+        pytest.param(Graph.from_int(32767), 2, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_redundantly_rigid_in_d3(graph, k):
@@ -877,7 +877,7 @@ def test_not_min_k_redundantly_rigid_in_d1(graph, k):
     [
         [graphs.ThreePrism(), 1],
         [Graph.from_int(8191), 1],
-        pytest.param(Graph.from_int(16351), 2, marks=pytest.mark.medium),
+        pytest.param(Graph.from_int(16351), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048063), 3],
     ],
 )
@@ -892,7 +892,7 @@ def test_not_min_k_redundantly_rigid_in_d2(graph, k):
         [Graph.from_int(7679), 1],
         [Graph.from_int(16383), 1],
         [Graph.from_int(16351), 2],
-        pytest.param(Graph.from_int(1048063), 2, marks=pytest.mark.medium),
+        pytest.param(Graph.from_int(1048063), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048575), 3],
         # [Graph.from_int(134201311), 3],
     ],

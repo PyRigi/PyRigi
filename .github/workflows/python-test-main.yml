@@ -33,5 +33,5 @@ jobs:
         poetry run flake8 . --count --show-source --statistics
     - name: Test with pytest
       run: |
-        poetry run pytest --doctest-modules -m 'not medium or medium'
+        poetry run pytest --doctest-modules -m 'not slow_main or slow_main'
         # --doctes-modules overrides the default --doctest-plus
