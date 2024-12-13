@@ -1221,7 +1221,7 @@ class Framework(object):
         tolerance=1e-9,
     ) -> bool:
         r"""
-        Tests whether a stress lies in the cokernel of the rigidity matrix.
+        Return whether a vector is a stress.
 
         Definitions
         -----------
@@ -1230,11 +1230,12 @@ class Framework(object):
         Parameters
         ----------
         stress:
-            A stress of the framework.
+            A vector to be checked whether it is a stress of the framework.
         edge_order:
-            A list of edges determining the internal edge order.
+            A list of edges, providing the ordering for the entries of the ``stress``.
+            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
         numerical:
-            A Boolean determining whether the evaluation of the product of the `stress`
+            A Boolean determining whether the evaluation of the product of the ``stress``
             and the rigidity matrix is symbolic or numerical.
         tolerance:
             Absolute tolerance that is the threshold for acceptable equilibrium
