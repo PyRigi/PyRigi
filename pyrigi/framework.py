@@ -21,10 +21,20 @@ from random import randrange
 
 import networkx as nx
 import sympy as sp
-from sympy import Matrix, flatten, binomial
 import numpy as np
+from sympy import Matrix, flatten, binomial
+from math import isclose, log10
 
-from pyrigi.data_type import Vertex, Edge, Point, Stress, point_to_vector
+from pyrigi.data_type import (
+    Vertex,
+    Edge,
+    Point,
+    Stress,
+    point_to_vector,
+    Sequence,
+    Coordinate,
+)
+
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
@@ -37,6 +47,10 @@ from pyrigi.misc import (
 )
 
 from typing import Optional
+
+__doctest_requires__ = {
+    ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
+}
 
 
 class Framework(object):
@@ -273,7 +287,8 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_2D_realization(
         self,
-        realization: dict[Vertex, Point],
+        realization: Dict[Vertex, Point],
+        inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -287,12 +302,16 @@ class Framework(object):
         ----------
         realization:
             The realization in the plane used for plotting.
+        inf_flex:
+            Optional parameter for plotting an infinitesimal flex. We expect
+            it to have the same format as `realization`: `Dict[Vertex, Point]`.
         """
 
         self._graph.plot(
             placement=realization,
             vertex_color=vertex_color,
             edge_width=edge_width,
+            inf_flex=inf_flex,
             **kwargs,
         )
 
@@ -324,9 +343,10 @@ class Framework(object):
         self._plot_with_2D_realization(placement, **kwargs)
 
     @doc_category("Other")
-    def plot2D(
+    def plot2D(  # noqa: C901
         self,
-        coordinates: Union[tuple, list] = None,
+        coordinates: Union[tuple, List] = None,
+        inf_flex: Matrix | int | Dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -355,9 +375,47 @@ class Framework(object):
             When the same value is provided, the framework will plot exactly same.
         coordinates:
             Indexes of two coordinates that will be used as the placement in 2D.
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
+
+        TODO
+        -----
+        project the inf-flex as well in `_plot_using_projection_matrix`.
         """
+        inf_flex_pointwise = None
+        if inf_flex is not None:
+            if isinstance(inf_flex, int) and inf_flex >= 0:
+                inf_flex_basis = self.nontrivial_inf_flexes()
+                if inf_flex >= len(inf_flex_basis):
+                    raise IndexError(
+                        "The value of inf_flex exceeds "
+                        + "the dimension of the space "
+                        + "of infinitesimal flexes."
+                    )
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
+                    inf_flex_basis[inf_flex]
+                )
+            elif isinstance(inf_flex, Matrix):
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
+            elif isinstance(inf_flex, dict) and all(
+                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+            ):
+                inf_flex_pointwise = inf_flex
+            else:
+                raise TypeError("inf_flex does not have the correct Type.")
+
+            if not self.is_dict_inf_flex(inf_flex_pointwise):
+                raise ValueError(
+                    "The provided `inf_flex` is not an infinitesimal flex."
+                )
 
         if self._dim == 1:
             placement = {}
@@ -366,12 +424,20 @@ class Framework(object):
             ).items():
                 placement[vertex] = np.append(np.array(position), 0)
 
-            self._plot_with_2D_realization(placement, **kwargs)
+            if inf_flex_pointwise is not None:
+                inf_flex_pointwise = {
+                    v: (flex_v[0], 0) for v, flex_v in inf_flex_pointwise.items()
+                }
+            self._plot_with_2D_realization(
+                placement, inf_flex=inf_flex_pointwise, **kwargs
+            )
             return
 
         if self._dim == 2:
             placement = self.realization(as_points=True, numerical=True)
-            self._plot_with_2D_realization(placement, **kwargs)
+            self._plot_with_2D_realization(
+                placement, inf_flex=inf_flex_pointwise, **kwargs
+            )
             return
 
         # dim > 2 -> use projection to 2D
@@ -425,7 +491,8 @@ class Framework(object):
 
         TODO
         ----
-        Implement plotting in dimension 3 and better plotting for dimension 1
+        Implement plotting in dimension 3 and
+        better plotting for dimension 1 using ``connectionstyle``
         """
 
         if self._dim > 2:
@@ -436,6 +503,119 @@ class Framework(object):
 
         self.plot2D(**kwargs)
 
+    @doc_category("Other")
+    def to_tikz(
+        self,
+        vertex_style: Union(str, dict[str : list[Vertex]]) = "fvertex",
+        edge_style: Union(str, dict[str : list[Edge]]) = "edge",
+        label_style: str = "labelsty",
+        figure_opts: str = "",
+        vertex_in_labels: bool = False,
+        vertex_out_labels: bool = False,
+        default_styles: bool = True,
+    ) -> str:
+        r"""
+        Create a TikZ code for the framework.
+        Works for dimension 2 only.
+
+        For using it in ``LaTeX`` you need to use the ``tikz`` package.
+
+        Parameters
+        ----------
+        vertex_style:
+            If a single style is given as a string,
+            then all vertices get this style.
+            If a dictionary from styles to a list of vertices is given,
+            vertices are put in style accordingly.
+            The vertices missing in the dictionary do not get a style.
+        edge_style:
+            If a single style is given as a string,
+            then all edges get this style.
+            If a dictionary from styles to a list of edges is given,
+            edges are put in style accordingly.
+            The edges missing in the dictionary do not get a style.
+        label_style:
+            The style for labels that are placed next to vertices.
+        figure_opts:
+            Options for the tikzpicture environment.
+        vertex_in_labels
+            A bool on whether vertex names should be put as labels on the vertices.
+        vertex_out_labels
+            A bool on whether vertex names should be put next to vertices.
+        default_styles
+            A bool on whether default style definitions should be put to the options.
+
+        Examples
+        ----------
+        >>> G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+        >>> F=Framework(G,{0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
+        >>> print(F.to_tikz()) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt},edge/.style={line width=1.5pt,black!60!white}]
+           \node[fvertex] (0) at (0, 0) {};
+           \node[fvertex] (1) at (1, 0) {};
+           \node[fvertex] (2) at (1, 1) {};
+           \node[fvertex] (3) at (0, 1) {};
+           \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(F.to_tikz(vertex_in_labels=True)) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[fvertex/.style={circle,inner sep=1pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
+           \node[fvertex] (0) at (0, 0) {$0$};
+           \node[fvertex] (1) at (1, 0) {$1$};
+           \node[fvertex] (2) at (1, 1) {$2$};
+           \node[fvertex] (3) at (0, 1) {$3$};
+           \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        For more examples on formatting options, see also :meth:`.Graph.to_tikz`.
+        """  # noqa: E501
+
+        # check dimension
+        if self.dimension() != 2:
+            raise ValueError(
+                "TikZ code is only generated for frameworks in dimension 2."
+            )
+
+        # strings for tikz styles
+        if vertex_out_labels and default_styles:
+            lstyle_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
+        else:
+            lstyle_str = ""
+
+        if vertex_style == "fvertex" and default_styles:
+            if vertex_in_labels:
+                vstyle_str = (
+                    "fvertex/.style={circle,inner sep=1pt,minimum size=3pt,"
+                    "fill=white,draw=black,double=white,double distance=0.25pt,"
+                    r"outer sep=1pt,font=\scriptsize}"
+                )
+            else:
+                vstyle_str = (
+                    "fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,"
+                    "draw=black,double=white,double distance=0.25pt,outer sep=1pt}"
+                )
+        else:
+            vstyle_str = ""
+        if edge_style == "edge" and default_styles:
+            estyle_str = "edge/.style={line width=1.5pt,black!60!white}"
+        else:
+            estyle_str = ""
+
+        figure_str = [figure_opts, vstyle_str, estyle_str, lstyle_str]
+        figure_str = [fs for fs in figure_str if fs != ""]
+        figure_str = ",".join(figure_str)
+
+        return self.graph().to_tikz(
+            placement=self.realization(),
+            figure_opts=figure_str,
+            vertex_style=vertex_style,
+            edge_style=edge_style,
+            label_style=label_style,
+            vertex_in_labels=vertex_in_labels,
+            vertex_out_labels=vertex_out_labels,
+            default_styles=False,
+        )
+
     @classmethod
     @doc_category("Class methods")
     def from_points(cls, points: List[Point]) -> Framework:
@@ -445,6 +625,12 @@ class Framework(object):
         The list of vertices of the underlying graph
         is taken to be ``[0,...,len(points)-1]``.
         The underlying graph has no edges.
+
+        Parameters
+        ----------
+        points:
+            The realization of the framework that this method outputs
+            is provided as a list of points.
 
         Examples
         --------
@@ -461,10 +647,19 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, dim: int = 2, rand_range: Union(int, List[int]) = None
+        cls, graph: Graph, dim: int = 2, rand_range: int | List[int] = None
     ) -> Framework:
         """
         Return a framework with random realization.
+
+        Parameters
+        ----------
+        graph:
+            Graph on which the random realization should be constructed.
+        rand_range:
+            Sets the range of random numbers from which the realization is
+            sampled. The format is either an interval ``(a,b)`` or a single
+            integer ``a``, which produces the range ``(-a,a)``.
 
         Examples
         --------
@@ -473,6 +668,10 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(122, 57), 1:(27, 144), 2:(50, 98)}
+
+        Notes
+        -----
+        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``.
 
         TODO
         ----
@@ -483,7 +682,7 @@ class Framework(object):
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            b = 10 * graph.number_of_nodes() ** 2 * dim
+            b = 10**4 * graph.number_of_nodes() ** 2 * dim
             a = -b
         if isinstance(rand_range, list):
             if not len(rand_range) == 2:
@@ -506,6 +705,11 @@ class Framework(object):
     def Circular(cls, graph: Graph) -> Framework:
         """
         Return the framework with a regular unit circle realization in the plane.
+
+        Parameters
+        ----------
+        graph:
+            Underlying graph on which the framework is constructed.
 
         Examples
         ----
@@ -530,6 +734,11 @@ class Framework(object):
     def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
+
+        Parameters
+        ----------
+        graph:
+            Underlying graph on which the framework is constructed.
 
         Examples
         --------
@@ -556,6 +765,8 @@ class Framework(object):
 
         Parameters
         ----------
+        graph:
+            Underlying graph on which the framework is constructed.
         d:
             The dimension ``d`` has to be at least the number of vertices
             of the ``graph`` minus one.
@@ -621,9 +832,9 @@ class Framework(object):
 
         Parameters
         ----------
-        dim:
-            a natural number that determines the dimension
-            in which the framework is realized
+        points:
+            The realization of the framework that this method outputs
+            is provided as a list of points.
 
         Examples
         --------
@@ -861,7 +1072,7 @@ class Framework(object):
 
         Notes
         -----
-        See `~Framework.set_vertex_pos`.
+        See :meth:`~Framework.set_vertex_pos`.
         """
         for v, pos in subset_of_realization.items():
             self.set_vertex_pos(v, pos)
@@ -882,11 +1093,13 @@ class Framework(object):
         Parameters
         ----------
         vertex_order:
-            By listing vertices in the preferred order, the rigidity matrix
-            can be computed in a way the user expects.
-        edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+            A list of vertices, providing the ordering for the columns
+            of the rigidity matrix.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the rigidity matrix.
+            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
 
         TODO
         ----
@@ -953,6 +1166,15 @@ class Framework(object):
         r"""
         Construct the rigidity matrix of the framework.
 
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the columns
+            of the rigidity matrix.
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the rigidity matrix.
+
         TODO
         ----
         definition of pinned rigidity matrix, tests
@@ -975,7 +1197,7 @@ class Framework(object):
         if vertex_order is None:
             vertex_order = self._graph.vertex_list()
         if edge_order is None:
-            edge_order = self._graph.vertex_list()
+            edge_order = self._graph.edge_list()
 
         if pinned_vertices is None:
             freedom = self._dim * (self._dim + 1) // 2
@@ -1033,9 +1255,9 @@ class Framework(object):
         ----------
         stress:
             A stress of the framework.
-        edges_ordered:
-            A Boolean indicating, whether the edges are assumed to be ordered (``True``),
-            or whether they should be internally sorted (``False``).
+        edge_order:
+            A list of edges, providing the ordering for the rows
+            of the stress matrix.
 
         Examples
         --------
@@ -1086,13 +1308,19 @@ class Framework(object):
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
-    def trivial_inf_flexes(self) -> List[Matrix]:
+    def trivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
         r"""
         Return a basis of the vector subspace of trivial infinitesimal flexes.
 
         Definitions
         -----------
         * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
 
         TODO
         ----
@@ -1123,9 +1351,11 @@ class Framework(object):
         [-2],
         [ 0]])]
         """
+        if vertex_order is None:
+            vertex_order = self._graph.vertex_list()
         dim = self._dim
         translations = [
-            Matrix.vstack(*[A for _ in self._graph.nodes])
+            Matrix.vstack(*[A for _ in vertex_order])
             for A in Matrix.eye(dim).columnspace()
         ]
         basis_skew_symmetric = []
@@ -1136,22 +1366,27 @@ class Framework(object):
                 A[j, i] = -1
                 basis_skew_symmetric += [A]
         inf_rot = [
-            Matrix.vstack(*[A * self._realization[v] for v in self._graph.nodes])
+            Matrix.vstack(*[A * self._realization[v] for v in vertex_order])
             for A in basis_skew_symmetric
         ]
         matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
         return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
-    def nontrivial_inf_flexes(
-        self,
-    ) -> List[Matrix]:
+    def nontrivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
 
         Definitions
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
+
+        Parameters
+        ----------
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
         ----
@@ -1180,11 +1415,12 @@ class Framework(object):
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(include_trivial=False)
+        return self.inf_flexes(vertex_order=vertex_order, include_trivial=False)
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
         self,
+        vertex_order: List[Vertex] = None,
         include_trivial: bool = False,
     ) -> List[Matrix]:
         r"""
@@ -1209,8 +1445,12 @@ class Framework(object):
         Parameters
         ----------
         include_trivial:
-            Boolean that decides, whether the trivial motions should
+            Boolean that decides, whether the trivial flexes should
             be included (``True``) or not (``False``)
+        vertex_order:
+            A list of vertices, providing the ordering for the entries
+            of the infinitesimal flexes.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
         --------
@@ -1226,10 +1466,23 @@ class Framework(object):
         [0],
         [0],
         [0]])]
-        """
+        >>> F = Framework(Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]), {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]})
+        >>> F.inf_flexes()
+        [Matrix([
+        [0],
+        [0],
+        [0],
+        [0],
+        [0],
+        [1],
+        [0],
+        [0],
+        [0],
+        [0]])]
+        """  # noqa: E501
+        rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
         if include_trivial:
-            return self.rigidity_matrix().nullspace()
-        rigidity_matrix = self.rigidity_matrix()
+            return rigidity_matrix.nullspace()
         all_inf_flexes = rigidity_matrix.nullspace()
         trivial_inf_flexes = self.trivial_inf_flexes()
         s = len(trivial_inf_flexes)
@@ -1244,13 +1497,23 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self) -> List[Matrix]:
+    def stresses(
+        self,
+        edge_order: List[Edge] = None,
+    ) -> List[Matrix]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
         Definitions
         -----------
         :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+
+        Parameters
+        ----------
+
+        edge_order:
+            A list of edges, providing the ordering for the entries of the stresses.
+            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
 
         Examples
         --------
@@ -1270,7 +1533,7 @@ class Framework(object):
         ----
         tests
         """
-        return self.rigidity_matrix().transpose().nullspace()
+        return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
@@ -1621,86 +1884,348 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self) -> dict[tuple[Edge, Edge], float]:
+    def edge_lengths(self, numerical: bool = False) -> Dict[Edge, Coordinate]:
         """
-        Return the edges and their lengths (numerically) of the framework.
+        Return the dictionary of the edge lengths.
 
-        The ordering is given by graph().edge_list() method.
-
-        TODO symbolic version of this method
-
-        Returns
+        Parameters
         -------
-        lengths
-            Dict of edges and their lengths in the framework.
+        numerical:
+            If ``True``, numerical positions are used for the computation of the edge lengths.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
-        >>> l_dict = F.edge_lengths()
+        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
+        >>> F.edge_lengths(numerical=False)
+        {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
+        >>> F.edge_lengths(numerical=True)
+        {(0, 1): 1.0, (0, 3): 1.4240006242195884, (1, 2): 1.118033988749895, (2, 3): 0.5443838790578374}
+        """  # noqa: E501
+        if numerical:
+            points = self.realization(as_points=True, numerical=True)
+            return {
+                tuple(pair): float(
+                    np.linalg.norm(
+                        np.array(points[pair[0]]) - np.array(points[pair[1]])
+                    )
+                )
+                for pair in self._graph.edges
+            }
+        else:
+            points = self.realization(as_points=True)
+            return {
+                tuple(pair): sp.sqrt(
+                    sum(
+                        [(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])]
+                    )
+                )
+                for pair in self._graph.edges
+            }
+
+    @staticmethod
+    def _generate_stl_bar(
+        holes_distance: float,
+        holes_diameter: float,
+        bar_width: float,
+        bar_height: float,
+        filename="bar.stl",
+    ):
         """
-        from numpy import array as nparray
-        from numpy.linalg import norm as npnorm
+        Generate an STL file for a bar.
 
-        points = self.realization(as_points=True)
-        lengths = {
-            tuple(pair): npnorm(
-                nparray(points[pair[0]], dtype="float64")
-                - nparray(points[pair[1]], dtype="float64")
+        The method uses Trimesh and Manifold3d packages to create a model of a bar
+        with two holes at the ends. The bar is saved as an STL file.
+
+        Parameters
+        ----------
+        holes_distance : float
+            Distance between the centers of the holes.
+        holes_diameter : float
+            Diameter of the holes.
+        bar_width : float
+            Width of the bar.
+        bar_height : float
+            Height of the bar.
+        filename : str
+            Name of the output STL file.
+
+        Returns
+        -------
+        bar_mesh : trimesh.base.Trimesh
+            The bar as a Trimesh object.
+        """
+        try:
+            from trimesh.creation import box as trimesh_box
+            from trimesh.creation import cylinder as trimesh_cylinder
+        except ImportError:
+            raise ImportError(
+                "To create meshes of bars that can be exported as STL files, "
+                "the packages 'trimesh' and 'manifold3d' are required. "
+                "To install PyRigi including trimesh and manifold3d, "
+                "run 'pip install pyrigi[meshing]'"
             )
-            for pair in self._graph.edges
-        }
 
-        return lengths
+        if (
+            holes_distance <= 0
+            or holes_diameter <= 0
+            or bar_width <= 0
+            or bar_height <= 0
+        ):
+            raise ValueError("Use only positive values for the parameters.")
+
+        if bar_width <= holes_diameter:
+            raise ValueError("The bar width must be greater than the holes diameter.")
+
+        if holes_distance <= 2 * holes_diameter:
+            raise ValueError(
+                "The distance between the holes must be greater "
+                "than twice the holes diameter."
+            )
+
+        # Create the main bar as a box
+        bar = trimesh_box(extents=[holes_distance, bar_width, bar_height])
+
+        # Define the positions of the holes (relative to the center of the bar)
+        hole_position_1 = [-holes_distance / 2, 0, 0]
+        hole_position_2 = [holes_distance / 2, 0, 0]
+
+        # Create cylindrical shapes at the ends of the bar
+        rounding_1 = trimesh_cylinder(radius=bar_width / 2, height=bar_height)
+        rounding_1.apply_translation(hole_position_1)
+        rounding_2 = trimesh_cylinder(radius=bar_width / 2, height=bar_height)
+        rounding_2.apply_translation(hole_position_2)
+
+        # Use boolean union to combine the bar and the roundings
+        bar = bar.union([rounding_1, rounding_2])
+
+        # Create cylindrical holes
+        hole_1 = trimesh_cylinder(radius=holes_diameter / 2, height=bar_height)
+        hole_1.apply_translation(hole_position_1)
+        hole_2 = trimesh_cylinder(radius=holes_diameter / 2, height=bar_height)
+        hole_2.apply_translation(hole_position_2)
+
+        # Use boolean subtraction to create holes in the bar
+        bar_mesh = bar.difference([hole_1, hole_2])
+
+        # Export to STL
+        bar_mesh.export(filename)
+        return bar_mesh
 
     @doc_category("Other")
-    def generate_onshape_parameters_for_3d_print(
-        self, scale: float = 1.0, roundings: int = 3
-    ) -> tuple:
+    def generate_stl_bars(
+        self,
+        scale: float = 1.0,
+        width_of_bars: float = 8.0,
+        height_of_bars: float = 3.0,
+        holes_diameter: float = 4.3,
+        filename_prefix: str = "bar_",
+        output_dir: str = "stl_output",
+    ) -> None:
         """
-        Generate OnShape CAD details for models.
+        Generate STL files for the bars of the framework.
 
-        Prints the output in the console.
+        Generates STL files for the bars of the framework. The files are generated
+        in the working folder. The naming convention for the files is ``bar_i-j.stl``,
+        where i and j are the vertices of an edge.
 
         Parameters
         ----------
         scale
-            Scale factor for the lengths of the edges.
-        roundings
-            Number of decimal places for the lengths of the edges.
-
-        Returns
-        -------
-        onshape_bars_gen_url
-            String URL to the OnShape model.
-        readable_form
-            List of scaled and rounded lengths of the edges in the framework.
+            Scale factor for the lengths of the edges, default is 1.0.
+        width_of_bars
+            Width of the bars, default is 8.0 mm.
+        height_of_bars
+            Height of the bars, default is 3.0 mm.
+        holes_diameter
+            Diameter of the holes at the ends of the bars, default is 4.3 mm.
+        filename_prefix
+            Prefix for the filenames of the generated STL files, default is ``bar_``.
+        output_dir
+            Name or path of the folder where the STL files are saved,
+            default is ``stl_output``. Relative to the working directory.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
-        >>> url, l = F.generate_onshape_parameters_for_3d_print(scale=10, roundings=2)
-        >>> print(url)
-        https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2
-        >>> print(l)
-        [10.0, 14.24, 11.18, 5.44]
+        >>> F.generate_stl_bars(scale=20)
+        STL files for the bars have been generated in the chosen folder.
 
         """
-        onshape_bars_gen_url = (
-            "https://cad.onshape.com/documents/6b5c6a508178ccdc56722495/w/"
-            "5477a320ec050694840763d5/e/4246fa25bf9c77c9dd0d0fe2"
+        from pathlib import Path as plPath
+
+        # Create the folder if it does not exist
+        folder_path = plPath(output_dir)
+        if not folder_path.exists():
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+        edges_with_lengths = self.edge_lengths()
+
+        for edge, length in edges_with_lengths.items():
+            scaled_length = length * scale
+            f_name = (
+                output_dir
+                + "/"
+                + filename_prefix
+                + str(edge[0])
+                + "-"
+                + str(edge[1])
+                + ".stl"
+            )
+
+            self._generate_stl_bar(
+                holes_distance=scaled_length,
+                holes_diameter=holes_diameter,
+                bar_width=width_of_bars,
+                bar_height=height_of_bars,
+                filename=f_name,
+            )
+
+        print("STL files for the bars have been generated in the chosen folder.")
+
+    @doc_category("Other")
+    def _transform_inf_flex_to_pointwise(  # noqa: C901
+        self, flex: Matrix, vertex_order: List[Vertex] = None
+    ) -> Dict[Vertex, Sequence[Coordinate]]:
+        r"""
+        Transform the natural data type of a flex (Matrix) to a
+        dictionary that maps a vertex to a Sequence of coordinates
+        (i.e. a vector).
+
+        Notes
+        ----
+        For example, this method can be used for generating an
+        infinitesimal flex for plotting purposes.
+
+        Examples
+        ----
+        >>> F = Framework.from_points([(0,0), (1,0), (0,1)])
+        >>> F.add_edges([(0,1),(0,2)])
+        >>> flex = F.nontrivial_inf_flexes()[0]
+        >>> F._transform_inf_flex_to_pointwise(flex)
+        {0: [1, 0], 1: [1, 0], 2: [0, 0]}
+
+        """
+        if vertex_order is None:
+            vertex_order = self._graph.vertex_list()
+        else:
+            if not set(self._graph.nodes) == set(vertex_order):
+                raise ValueError(
+                    "vertex_order must contain "
+                    + "exactly the same vertices as the graph!"
+                )
+        return {
+            vertex_order[i]: [flex[i * self.dim() + j] for j in range(self.dim())]
+            for i in range(len(vertex_order))
+        }
+
+    @doc_category("Infinitesimal rigidity")
+    def is_vector_inf_flex(
+        self,
+        inf_flex: List[Coordinate],
+        vertex_order: List[Vertex] = None,
+        numerical: bool = False,
+        tolerance: float = 1e-9,
+    ) -> bool:
+        r"""
+        Return whether a vector is an infinitesimal flex of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Infinitesimal Flex <def-inf-flex>`
+        :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex of the framework specified by a vector.
+        vertex_order:
+            A list of vertices determining the internal vertex order.
+        numerical:
+            A Boolean determining whether the evaluation of the product of the `inf_flex`
+            and the rigidity matrix is symbolic or numerical.
+        tolerance:
+            Absolute tolerance that is the threshold for acceptable numerical flexes.
+            This parameter is used to determine the number of digits, to which
+            accuracy the symbolic expressions are evaluated.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Square()
+        >>> q = [0,0,0,0,-2,0,-2,0]
+        >>> F.is_vector_inf_flex(q)
+        True
+        >>> q[0] = 1
+        >>> F.is_vector_inf_flex(q)
+        False
+        >>> F = Framework.Complete([[0,0], [1,1]])
+        >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
+        True
+        """
+        if not numerical:
+            return all(
+                [
+                    sp.simplify(ex).is_zero
+                    for ex in self.rigidity_matrix(vertex_order=vertex_order)
+                    * Matrix(inf_flex)
+                ]
+            )
+        return all(
+            [
+                isclose(
+                    ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))),
+                    0,
+                    abs_tol=tolerance,
+                )
+                for ex in self.rigidity_matrix(vertex_order=vertex_order)
+                * Matrix(inf_flex)
+            ]
         )
 
-        edges_lengths = list(self.edge_lengths().values())
+    def is_dict_inf_flex(
+        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+    ) -> bool:
+        """
+        Return whether a dictionary specifies an infinitesimal flex of the framework.
 
-        # round and scale the lengths of the edges
-        readable_form = [
-            float(round(scale * length, roundings)) for length in edges_lengths
-        ]
+        Definitions
+        -----------
+        :prf:ref:`Infinitesimal flex <def-inf-flex>`
 
-        return onshape_bars_gen_url, readable_form
+        Parameters
+        ----------
+        vert_to_flex:
+            Dictionary that maps the vertex labels to
+            vectors of the same dimension as the framework is.
+
+        Notes
+        -----
+        See :meth:`.Framework.is_vector_inf_flex`.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,1]])
+        >>> F.is_dict_inf_flex({0:[0,0], 1:[-1,1]})
+        True
+        >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
+        True
+        """
+        if len(vert_to_flex) != self._graph.number_of_nodes():
+            raise ValueError("The keys in `vert_to_flex` have to match the vertex set.")
+        dict_to_list = []
+
+        for v in self._graph.vertex_list():
+            if v not in vert_to_flex:
+                raise ValueError(
+                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
+                )
+            dict_to_list += list(vert_to_flex[v])
+
+        return self.is_vector_inf_flex(
+            dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs
+        )
 
 
 Framework.__doc__ = Framework.__doc__.replace(

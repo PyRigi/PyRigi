@@ -25,9 +25,22 @@ In this tutorial, we assume a clean Windows without Python installed. In case th
 (optional-packages)=
 ## Optional packages
 
+Here we list the groups of optional packages that may be used to increase the functionalities of PyRigi.
+
+### Realization counting
+
 For counting the number of realizations of a minimally rigid graph,
 the package `lnumber` is necessary. To install `PyRigi` including `lnumber`, run
 ```
 pip install pyrigi[realization-counting]
 ```
 Before installing this package, please read the [Python instructions of the package](https://github.com/jcapco/lnumber).
+
+### Creation of meshes
+
+To create meshes of bars that can be exported as STL files,
+the packages [`trimesh`](https://trimesh.org/) and [`manifold3d`](https://github.com/elalish/manifold) are necessary.
+To install `PyRigi` including `trimesh` and `manifold3d`, run
+```
+pip install pyrigi[meshing]
+```

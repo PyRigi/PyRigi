@@ -1408,6 +1408,42 @@ files = [
 ]
 
 [[package]]
+name = "manifold3d"
+version = "2.5.1"
+description = "Library for geometric robustness"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "manifold3d-2.5.1-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:c29477424a41ad36e06bfd7286611b30ad594ec3a0bdfae9fb3a627ec7eeaa48"},
+    {file = "manifold3d-2.5.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:a92c9b4f011437dde0277029af7855968d687746443aeece871f687620a6c4ee"},
+    {file = "manifold3d-2.5.1-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:f26baa9746aeadb124c648182c1d2fe923cc8b42f5bd460d91e20094fe272488"},
+    {file = "manifold3d-2.5.1-cp310-cp310-win_amd64.whl", hash = "sha256:7b68549a6a7b00d4b597fe9616d679da6bb67909df58a1069fa94db3e7ce9e39"},
+    {file = "manifold3d-2.5.1-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:f2fe9092e6d334c02537c9bfb838150874a441eaf4c569e040a87085483550bb"},
+    {file = "manifold3d-2.5.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:0630464c56ff2834643ada75f2279ac009cb03078459886cd9c7f087de9aa3e2"},
+    {file = "manifold3d-2.5.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ab06ca6da0344af203696715bb19f044e494101403c91cc0f4718eff9d67fee2"},
+    {file = "manifold3d-2.5.1-cp311-cp311-win_amd64.whl", hash = "sha256:a58dbf4f038e5fbcbff0a3d24d089e914fc100ede5a7b47ed0924487c449fdcb"},
+    {file = "manifold3d-2.5.1-cp312-cp312-macosx_10_14_x86_64.whl", hash = "sha256:61ade91dd996703a88e93df888a7a72c78c88cbecca4abb4b24488f5aa522bdc"},
+    {file = "manifold3d-2.5.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:54fdecc76aca747631b004bf537172063ccb1c7c892fb30cb5395b57734d4124"},
+    {file = "manifold3d-2.5.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ec2bbd3fb713bb6f8c2c5a6d717ac226b00c05f6a05fac710b572b0363204772"},
+    {file = "manifold3d-2.5.1-cp312-cp312-win_amd64.whl", hash = "sha256:6a898769b7dd9facc0fbe293bf1a5d4f6a109bca4ce03adf6085e658241b664d"},
+    {file = "manifold3d-2.5.1-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:e1df40879179d75f36ebd607b99b05d15475d0acdb1dd1f97c4117ab26bbb6cf"},
+    {file = "manifold3d-2.5.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:b56681d20d801b97430b2f5280b7b43536d7d14150cb79e889a49b78b57a11ab"},
+    {file = "manifold3d-2.5.1-cp38-cp38-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1cde674bd201b4e00325699b5eaf4a090958b6c4f14740cb090a6f468af124cc"},
+    {file = "manifold3d-2.5.1-cp38-cp38-win_amd64.whl", hash = "sha256:673487cc94548231a7554e95c0248429a8abde5916d645269262224159c3d560"},
+    {file = "manifold3d-2.5.1-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:cf02dc3806caa6ac5639f389f2780e4ac6891225b073f6a0fc09717599e712f0"},
+    {file = "manifold3d-2.5.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:c715a6f9075fc56f0956e27d4a8af62a9adbf211755fcbba5852542a491689a0"},
+    {file = "manifold3d-2.5.1-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9799229ac265f19c1876753361f5a83e77ded605e9a19af0883a438c7151b7f8"},
+    {file = "manifold3d-2.5.1-cp39-cp39-win_amd64.whl", hash = "sha256:edd006541d622e661a0c0ade7192c62117ae3923f83e711c0a94a136bd7e62e8"},
+    {file = "manifold3d-2.5.1.tar.gz", hash = "sha256:e7c505267cd93116f59158116e839319a9ef49a7b96dad22f968d38abe39b9bf"},
+]
+
+[package.dependencies]
+numpy = [
+    {version = "*", markers = "python_version < \"3.12\""},
+    {version = ">=1.26.0b1", markers = "python_version >= \"3.12\""},
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "3.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
@@ -3249,6 +3285,28 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<8.2)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
+name = "trimesh"
+version = "4.5.2"
+description = "Import, export, process, analyze and view triangular meshes."
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "trimesh-4.5.2-py3-none-any.whl", hash = "sha256:2e50f3a7fd135c3045da887a1b9f91230528f3ce11d2ec1ba44750d82d6b4f73"},
+    {file = "trimesh-4.5.2.tar.gz", hash = "sha256:165b12f2898c3e8dec99a2ed05ec5c83eafa2fc8150ba8c30f8b3a62f693433f"},
+]
+
+[package.dependencies]
+numpy = ">=1.20"
+
+[package.extras]
+all = ["trimesh[deprecated,easy,recommend,test,test-more]"]
+deprecated = ["gmsh (==4.12.2)"]
+easy = ["chardet", "colorlog", "embreex", "httpx", "jsonschema", "lxml", "manifold3d (>=2.3.0)", "mapbox-earcut (>=1.0.2)", "networkx", "pillow", "pycollada", "rtree", "scipy", "setuptools", "shapely", "svg.path", "vhacdx", "xatlas", "xxhash"]
+recommend = ["cascadio", "fast-simplification", "meshio", "openctm", "psutil", "pyglet (<2)", "scikit-image", "sympy"]
+test = ["pyinstrument", "pytest", "pytest-cov", "ruff"]
+test-more = ["coveralls", "ezdxf", "matplotlib", "pymeshlab", "pyright", "pytest-beartype", "triangle"]
+
+[[package]]
 name = "typing-extensions"
 version = "4.12.2"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -3547,9 +3605,10 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 type = ["pytest-mypy"]
 
 [extras]
+meshing = ["manifold3d", "trimesh"]
 realization-counting = ["lnumber"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9182f35f0160aa0640a83cd5d3d9aa6f96ccaaef38405ddc27bfc88e056f693e"
+content-hash = "5027b7b5784ab771591c93f0c54cb76e4ac7825c45f0dfbfaadc854334f2f420"
