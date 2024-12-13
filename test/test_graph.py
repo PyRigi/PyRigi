@@ -1405,8 +1405,38 @@ def test_is_k_l_tight():
     ],
 )
 @pytest.mark.realization_counting
+def test_number_of_realizations_cf(graph, n):
+    assert graph.number_of_realizations(count_reflection=True) == n
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 1],
+        [graphs.CompleteBipartite(3, 3), 8],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 12],
+    ],
+)
+@pytest.mark.realization_counting
 def test_number_of_realizations(graph, n):
     assert graph.number_of_realizations() == n
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 1],
+        [graphs.CompleteBipartite(3, 3), 8],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 16],
+    ],
+)
+@pytest.mark.realization_counting
+def test_number_of_realizations_sphere(graph, n):
+    assert graph.number_of_realizations(spherical_realizations=True) == n
 
 
 @pytest.mark.parametrize(
@@ -1420,8 +1450,11 @@ def test_number_of_realizations(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere(graph, n):
-    assert graph.number_of_realizations(spherical_realizations=True) == n
+def test_number_of_realizations_sphere_cf(graph, n):
+    assert (
+        graph.number_of_realizations(spherical_realizations=True, count_reflection=True)
+        == n
+    )
 
 
 @pytest.mark.parametrize(
