@@ -2160,7 +2160,8 @@ class Framework(object):
         inf_flex:
             An infinitesimal flex of the framework specified by a vector.
         vertex_order:
-            A list of vertices determining the internal vertex order.
+            A list of vertices specifying the order in which ``inf_flex`` is given.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
         numerical:
             A Boolean determining whether the evaluation of the product of the `inf_flex`
             and the rigidity matrix is symbolic or numerical.
@@ -2242,7 +2243,7 @@ class Framework(object):
         tolerance: float = 1e-9,
     ) -> bool:
         r"""
-        Tests whether an infinitesimal flex is nontrivial.
+        Return whether an infinitesimal flex is nontrivial.
 
         Definitions
         -----------
@@ -2253,7 +2254,8 @@ class Framework(object):
         inf_flex:
             An infinitesimal flex of the framework.
         vertex_order:
-            A list of vertices determining the internal vertex order.
+            A list of vertices specifying the order in which ``inf_flex`` is given.
+            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
         numerical:
             A Boolean determining whether the evaluation of the product of the `inf_flex`
             and the rigidity matrix is symbolic or numerical.
@@ -2321,7 +2323,7 @@ class Framework(object):
         self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
         r"""
-        Tests whether a dictionary specifies an infinitesimal flex which is nontrivial.
+        Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
 
         Definitions
         -----------
@@ -2372,7 +2374,7 @@ class Framework(object):
 
         Notes
         -----
-        We distinguish between instaces of `list` and instances of `dict` to
+        We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
         if isinstance(inf_flex, list):
@@ -2387,7 +2389,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_trivial_inf_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
         r"""
-        Tests whether an infinitesimal flex is trivial.
+        Return whether an infinitesimal flex is trivial.
 
         Definitions
         -----------
@@ -2423,11 +2425,11 @@ class Framework(object):
         self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
         r"""
-        Tests whether a dictionary specifies an infinitesimal flex which is trivial.
+        Return whether an infinitesimal flex specified by a dictionary is trivial.
 
         Definitions
         -----------
-        :prf:ref:`Trivial infinitesimal Flex <def-trivial-inf-flex>`
+        :prf:ref:`Trivial infinitesimal flex <def-trivial-inf-flex>`
 
         Parameters
         ----------
@@ -2474,7 +2476,7 @@ class Framework(object):
 
         Notes
         -----
-        We distinguish between instaces of `list` and instances of `dict` to
+        We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
         if isinstance(inf_flex, list):
