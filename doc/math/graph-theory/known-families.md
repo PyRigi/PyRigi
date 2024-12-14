@@ -15,8 +15,8 @@ typically realized as two regular $n$-sided polygons on circles
 centered in the origin of the Euclidean plane with radii $r_1<r_2$. 
 It has a {prf:ref}`nontrivial infinitesimal flex <def-trivial-inf-flex>` 
 given by the rotation of the outer polygon while the inner polygon remains 
-fixed. This motion does not extend to a 
-{prf:ref}`continuous flex <def-flex>`.
+fixed. This infinitesimal flex does not extend to a 
+{prf:ref}`continuous flex <def-motion>`.
 
 {{pyrigi_crossref}} {func}`.graphDB.Frustum`
 {func}`.frameworkDB.Frustum`

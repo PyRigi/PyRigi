@@ -1646,6 +1646,14 @@ class Framework(object):
         """
         return not self.is_independent()
 
+    @doc_category("Infinitesimal rigidity")
+    def is_isostatic(self) -> bool:
+        """
+        Check whether the framework is :prf:ref:`independent <def-independent-framework>`
+        and :prf:ref:`infinitesimally rigid <def-inf-rigid-framework>`.
+        """
+        return self.is_independent() and self.is_inf_rigid()
+
     @doc_category("Waiting for implementation")
     def is_prestress_stable(self) -> bool:
         """
