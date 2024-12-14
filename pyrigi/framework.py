@@ -44,6 +44,7 @@ from pyrigi.misc import (
     check_integrality_and_range,
     is_zero_vector,
     generate_two_orthonormal_vectors,
+    eval_sympy_vector,
 )
 
 from typing import Optional
@@ -2306,31 +2307,14 @@ class Framework(object):
         else:
             Q_trivial = np.array(
                 [
-                    [
-                        float(
-                            f.evalf(int(round(3 * log10(tolerance ** (-1) + 1))))
-                        )
-                        for f in flex.transpose().tolist()[0]
-                    ]
-                    for flex in (self.trivial_inf_flexes())
+                    eval_sympy_vector(flex, tolerance=tolerance)
+                    for flex in self.trivial_inf_flexes()
                 ]
             ).transpose()
-            b = np.array(
-                [
-                    [
-                        float(
-                            f.evalf(int(round(3 * log10(tolerance ** (-1) + 1))))
-                        )
-                        for f in sp.sympify(inf_flex)
-                    ]
-                ]
-            ).transpose()
+            b = np.array(eval_sympy_vector(inf_flex, tolerance=tolerance)).transpose()
             x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
-            return not all(
-                [
-                    isclose(np.dot(Q_trivial, x)[i, 0], b[i, 0], abs_tol=tolerance)
-                    for i in range(b.shape[0])
-                ]
+            return not is_zero_vector(
+                np.dot(Q_trivial, x) - b, numerical=True, tolerance=tolerance
             )
 
     @doc_category("Infinitesimal rigidity")
