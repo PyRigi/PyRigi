@@ -22,8 +22,8 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 import numpy as np
+
 from sympy import Matrix, flatten, binomial
-from math import isclose, log10
 
 from pyrigi.data_type import (
     Vertex,
@@ -1119,10 +1119,6 @@ class Framework(object):
             of the rigidity matrix.
             If none is provided, the list from :meth:`~Graph.edge_list` is taken.
 
-        TODO
-        ----
-        tests
-
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
@@ -1132,25 +1128,8 @@ class Framework(object):
         [-1, -3, 0,  0,  1, 3],
         [ 0,  0, 1, -3, -1, 3]])
         """
-        if vertex_order is None:
-            vertex_order = self._graph.vertex_list()
-        else:
-            if not set(self._graph.nodes) == set(vertex_order):
-                raise ValueError(
-                    "vertex_order must contain "
-                    "exactly the same vertices as the graph!"
-                )
-        if edge_order is None:
-            edge_order = self._graph.edge_list()
-        else:
-            if not (
-                set([set(e) for e in self._graph.edges])
-                == set([set(e) for e in edge_order])
-                and len(edge_order) == self._graph.number_of_edges()
-            ):
-                raise ValueError(
-                    "edge_order must contain exactly the same edges as the graph!"
-                )
+        vertex_order = self._check_vertex_order(vertex_order)
+        edge_order = self._check_edge_order(edge_order)
 
         # ``delta`` is responsible for distinguishing the edges (i,j) and (j,i)
         def delta(e, w):
@@ -1208,14 +1187,11 @@ class Framework(object):
         [ 0,  1, 0, 0, 0, 0],
         [ 0,  0, 1, 0, 0, 0]])
         """
+        vertex_order = self._check_vertex_order(vertex_order)
+        edge_order = self._check_edge_order(edge_order)
         rigidity_matrix = self.rigidity_matrix(
             vertex_order=vertex_order, edge_order=edge_order
         )
-
-        if vertex_order is None:
-            vertex_order = self._graph.vertex_list()
-        if edge_order is None:
-            edge_order = self._graph.edge_list()
 
         if pinned_vertices is None:
             freedom = self._dim * (self._dim + 1) // 2
@@ -1255,10 +1231,59 @@ class Framework(object):
         return pinned_rigidity_matrix
 
     @doc_category("Infinitesimal rigidity")
+    def is_stress(
+        self,
+        stress: Stress,
+        edge_order: List[Edge] = None,
+        numerical: bool = False,
+        tolerance=1e-9,
+    ) -> bool:
+        r"""
+        Return whether a vector is a stress.
+
+        Definitions
+        -----------
+        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+
+        Parameters
+        ----------
+        stress:
+            A vector to be checked whether it is a stress of the framework.
+        edge_order:
+            A list of edges, providing the ordering for the entries of the ``stress``.
+            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
+        numerical:
+            A Boolean determining whether the evaluation of the product of the ``stress``
+            and the rigidity matrix is symbolic or numerical.
+        tolerance:
+            Absolute tolerance that is the threshold for acceptable equilibrium
+            stresses. This parameter is used to determine the number of digits,
+            to which accuracy the symbolic expressions are evaluated.
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
+        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
+        >>> F = Framework(G, pos)
+        >>> omega1 = [-8, -4, -4, 2, 2, 1]
+        >>> F.is_stress(omega1)
+        True
+        >>> omega1[0] = 0
+        >>> F.is_stress(omega1)
+        False
+        """
+        return is_zero_vector(
+            Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order),
+            numerical=numerical,
+            tolerance=tolerance,
+        )
+
+    @doc_category("Infinitesimal rigidity")
     def stress_matrix(
         self,
         stress: Stress,
         edge_order: List[Edge] = None,
+        vertex_order: List[Vertex] = None,
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
@@ -1276,6 +1301,9 @@ class Framework(object):
         edge_order:
             A list of edges, providing the ordering for the rows
             of the stress matrix.
+        vertex_order:
+            By listing vertices in the preferred order, the rigidity matrix
+            can be computed in a way the user expects.
 
         Examples
         --------
@@ -1289,40 +1317,26 @@ class Framework(object):
         [  8, -4, -2, -2],
         [  4, -2, -1, -1],
         [  4, -2, -1, -1]])
-
-        TODO
-        ----
-        Implement arbitrary ``vertex_order``.
-        Check that the input is indeed a stress.
-        Tests.
         """
-        if edge_order is None:
-            edge_order = self._graph.edge_list()
-        else:
-            if not (
-                set([set(e) for e in self._graph.edges])
-                == set([set(e) for e in edge_order])
-                and len(edge_order) == self._graph.number_of_edges()
-            ):
-                raise ValueError(
-                    "edge_order must contain exactly the same edges as the graph!"
-                )
+        vertex_order = self._check_vertex_order(vertex_order)
+        edge_order = self._check_edge_order(edge_order)
+        if not self.is_stress(stress, edge_order=edge_order, numerical=True):
+            raise ValueError(
+                "The provided stress does not lie in the cokernel of the rigidity matrix!"
+            )
         # creation of a zero |V|x|V| matrix
         stress_matr = sp.zeros(len(self._graph))
-        vertex_list = self._graph.vertex_list()
-        for v in self._graph.nodes:
-            i = vertex_list.index(v)
-            for edge in edge_order:
-                if v in edge:
-                    stress_matr[i, i] += stress[edge_order.index(edge)]
-        for v, w in combinations(self._graph.nodes, 2):
-            i, j = vertex_list.index(v), vertex_list.index(w)
-            if [v, w] in edge_order or (v, w) in edge_order:
-                stress_matr[i, j] = -stress[edge_order.index([v, w])]
-                stress_matr[j, i] = -stress[edge_order.index([v, w])]
-            elif [w, v] in edge_order or (w, v) in edge_order:
-                stress_matr[i, j] = -stress[edge_order.index([w, v])]
-                stress_matr[j, i] = -stress[edge_order.index([w, v])]
+        v_to_i = {v: i for i, v in enumerate(vertex_order)}
+
+        for edge, edge_stress in zip(edge_order, stress):
+            for v in edge:
+                stress_matr[v_to_i[v], v_to_i[v]] += edge_stress
+
+        for e, stressval in zip(edge_order, stress):
+            i, j = v_to_i[e[0]], v_to_i[e[1]]
+            stress_matr[i, j] = -stressval
+            stress_matr[j, i] = -stressval
+
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
@@ -1339,11 +1353,6 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-
-        TODO
-        ----
-        more tests, in particular testing `trivial_inf_flexes`==
-        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Examples
         --------
@@ -1369,8 +1378,8 @@ class Framework(object):
         [-2],
         [ 0]])]
         """
-        if vertex_order is None:
-            vertex_order = self._graph.vertex_list()
+        vertex_order = self._check_vertex_order(vertex_order)
+
         dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in vertex_order])
@@ -1407,7 +1416,7 @@ class Framework(object):
             If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
-        ----
+        --------
         >>> import pyrigi.graphDB as graphs
         >>> F = Framework.Circular(graphs.CompleteBipartite(3, 3))
         >>> F.nontrivial_inf_flexes()
@@ -1425,21 +1434,15 @@ class Framework(object):
         [         0],
         [         0]])]
 
-        TODO
-        ----
-        tests
-
         Notes
         -----
         See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(vertex_order=vertex_order, include_trivial=False)
+        return self.inf_flexes(include_trivial=False, vertex_order=vertex_order)
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
-        self,
-        vertex_order: List[Vertex] = None,
-        include_trivial: bool = False,
+        self, include_trivial: bool = False, vertex_order: List[Vertex] = None
     ) -> List[Matrix]:
         r"""
         Return a basis of the space of infinitesimal flexes.
@@ -1450,11 +1453,6 @@ class Framework(object):
         Return a basis of the vector space of infinitesimal flexes
         if ``include_trivial=True``.
         Else, return the entire kernel.
-
-        TODO
-        ----
-        more tests, in particular testing `trivial_inf_flexes`==
-        `inf_flexes(include_trivial=True)` for a rigid framework
 
         Definitions
         -----------
@@ -1498,9 +1496,11 @@ class Framework(object):
         [0],
         [0]])]
         """  # noqa: E501
-        rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
+        vertex_order = self._check_vertex_order(vertex_order)
         if include_trivial:
-            return rigidity_matrix.nullspace()
+            return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
+        rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
+
         all_inf_flexes = rigidity_matrix.nullspace()
         trivial_inf_flexes = self.trivial_inf_flexes()
         s = len(trivial_inf_flexes)
@@ -1515,10 +1515,7 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(
-        self,
-        edge_order: List[Edge] = None,
-    ) -> List[Matrix]:
+    def stresses(self, edge_order: List[Edge] = None) -> List[Matrix]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
@@ -1528,7 +1525,6 @@ class Framework(object):
 
         Parameters
         ----------
-
         edge_order:
             A list of edges, providing the ordering for the entries of the stresses.
             If none is provided, the list from :meth:`~Graph.edge_list` is taken.
@@ -1668,8 +1664,21 @@ class Framework(object):
         """
         return not self.is_independent()
 
+    @doc_category("Infinitesimal rigidity")
+    def is_isostatic(self) -> bool:
+        """
+        Check whether the framework is :prf:ref:`independent <def-independent-framework>`
+        and :prf:ref:`infinitesimally rigid <def-inf-rigid-framework>`.
+        """
+        return self.is_independent() and self.is_inf_rigid()
+
     @doc_category("Waiting for implementation")
     def is_prestress_stable(self) -> bool:
+        """
+        TODO
+        ----
+        Implement
+        """
         raise NotImplementedError()
 
     @doc_category("Infinitesimal rigidity")
@@ -1723,11 +1732,7 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-
-        if set(self._graph.nodes) != set(other_realization.keys()):
-            raise ValueError(
-                "Not all vertices have a realization in the given dictionary."
-            )
+        self._check_vertex_order(list(other_realization.keys()))
 
         for u, v in combinations(self._graph.nodes, 2):
             edge_vec = (self._realization[u]) - self._realization[v]
@@ -1854,7 +1859,6 @@ class Framework(object):
             If True (default), then this framework is translated.
             Otherwise, a new translated framework is returned.
         """
-
         vector = point_to_vector(vector)
 
         if inplace:
@@ -2069,7 +2073,6 @@ class Framework(object):
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
         >>> F.generate_stl_bars(scale=20)
         STL files for the bars have been generated in the chosen folder.
-
         """
         from pathlib import Path as plPath
 
@@ -2104,12 +2107,20 @@ class Framework(object):
 
     @doc_category("Other")
     def _transform_inf_flex_to_pointwise(  # noqa: C901
-        self, flex: Matrix, vertex_order: List[Vertex] = None
+        self, inf_flex: Matrix, vertex_order: List[Vertex] = None
     ) -> Dict[Vertex, Sequence[Coordinate]]:
         r"""
         Transform the natural data type of a flex (Matrix) to a
         dictionary that maps a vertex to a Sequence of coordinates
         (i.e. a vector).
+
+        Parameters
+        ----------
+        inf_flex:
+            An infinitesimal flex in the form of a `Matrix`.
+        vertex_order:
+            If ``None``, the :meth:`.Graph.vertex_list`
+            is taken as the vertex order.
 
         Notes
         ----
@@ -2125,16 +2136,9 @@ class Framework(object):
         {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
         """
-        if vertex_order is None:
-            vertex_order = self._graph.vertex_list()
-        else:
-            if not set(self._graph.nodes) == set(vertex_order):
-                raise ValueError(
-                    "vertex_order must contain "
-                    + "exactly the same vertices as the graph!"
-                )
+        vertex_order = self._check_vertex_order(vertex_order)
         return {
-            vertex_order[i]: [flex[i * self.dim() + j] for j in range(self.dim())]
+            vertex_order[i]: [inf_flex[i * self.dim() + j] for j in range(self.dim())]
             for i in range(len(vertex_order))
         }
 
@@ -2182,26 +2186,13 @@ class Framework(object):
         >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
         True
         """
-        if not numerical:
-            return all(
-                [
-                    sp.simplify(ex).is_zero
-                    for ex in self.rigidity_matrix(vertex_order=vertex_order)
-                    * Matrix(inf_flex)
-                ]
-            )
-        return all(
-            [
-                isclose(
-                    ex.evalf(int(round(3 * log10(tolerance ** (-1) + 1)))),
-                    0,
-                    abs_tol=tolerance,
-                )
-                for ex in self.rigidity_matrix(vertex_order=vertex_order)
-                * Matrix(inf_flex)
-            ]
+        return is_zero_vector(
+            self.rigidity_matrix(vertex_order=vertex_order) * Matrix(inf_flex),
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
+    @doc_category("Infinitesimal rigidity")
     def is_dict_inf_flex(
         self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
@@ -2513,6 +2504,64 @@ class Framework(object):
             raise TypeError(
                 "The `inf_flex` must be specified either by a vector or a dictionary!"
             )
+
+    @doc_category("Other")
+    def _check_vertex_order(self, vertex_order=List[Vertex]) -> List[Vertex]:
+        """
+        Checks whether the provided `vertex_order` contains the same elements
+        as the graph's vertex set.
+
+        Parameters
+        ----------
+        vertex_order:
+            List of vertices in the preferred order
+
+        Notes
+        -----
+        Throws an error if the vertices in `vertex_order` do not agree with the
+        underlying graphs's vertices.
+        """
+        if vertex_order is None:
+            return self._graph.vertex_list()
+        else:
+            if not self._graph.number_of_nodes() == len(vertex_order) or not set(
+                self._graph.vertex_list()
+            ) == set(vertex_order):
+                raise ValueError(
+                    "New vertex set must contain exactly "
+                    + "the same vertices as the underlying graph!"
+                )
+            return vertex_order
+
+    @doc_category("Other")
+    def _check_edge_order(self, edge_order=List[Vertex]) -> List[Edge]:
+        """
+        Checks whether the provided `edge_order` contains the same elements
+        as the graph's edge set.
+
+        Parameters
+        ----------
+        edge_order:
+            List of edges in the preferred order
+
+        Notes
+        -----
+        Throws an error if the edges in `edge_order` do not agree with the
+        underlying graphs's edges.
+        """
+        if edge_order is None:
+            return self._graph.edge_list()
+        else:
+            if not self._graph.number_of_edges() == len(edge_order) or not all(
+                [
+                    set(e) in [set(e) for e in edge_order]
+                    for e in self._graph.edge_list()
+                ]
+            ):
+                raise ValueError(
+                    "edge_order must contain exactly the same edges as the graph!"
+                )
+            return edge_order
 
 
 Framework.__doc__ = Framework.__doc__.replace(

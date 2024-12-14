@@ -567,7 +567,7 @@ def test_min_k_vertex_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [Graph.from_int(16383), 2],
-        [Graph.from_int(1048575), 3],
+        pytest.param(Graph.from_int(1048575), 3, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
@@ -579,7 +579,7 @@ def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
     "graph, k",
     [
         [Graph.from_int(507903), 1],
-        [Graph.from_int(1048575), 2],
+        pytest.param(Graph.from_int(1048575), 2, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d3(graph, k):
@@ -692,9 +692,9 @@ def test_k_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [graphs.Complete(5), 2],
-        [graphs.Octahedral(), 2],
-        [graphs.Complete(6), 2],
-        [graphs.Complete(6), 3],
+        pytest.param(graphs.Octahedral(), 2, marks=pytest.mark.slow_main),
+        pytest.param(graphs.Complete(6), 2, marks=pytest.mark.slow_main),
+        pytest.param(graphs.Complete(6), 3, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048059), 3],
         # [Graph.from_int(2097151), 3],
     ],
@@ -835,7 +835,7 @@ def test_min_k_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [Graph.from_int(16350), 2],
-        [Graph.from_int(507851), 2],
+        pytest.param(Graph.from_int(507851), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048059), 3],
     ],
 )
@@ -849,7 +849,7 @@ def test_min_k_redundantly_rigid_in_d2(graph, k):
     [
         [graphs.Complete(5), 1],
         [Graph.from_int(16351), 1],
-        [Graph.from_int(32767), 2],
+        pytest.param(Graph.from_int(32767), 2, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_redundantly_rigid_in_d3(graph, k):
@@ -877,7 +877,7 @@ def test_not_min_k_redundantly_rigid_in_d1(graph, k):
     [
         [graphs.ThreePrism(), 1],
         [Graph.from_int(8191), 1],
-        [Graph.from_int(16351), 2],
+        pytest.param(Graph.from_int(16351), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048063), 3],
     ],
 )
@@ -892,7 +892,7 @@ def test_not_min_k_redundantly_rigid_in_d2(graph, k):
         [Graph.from_int(7679), 1],
         [Graph.from_int(16383), 1],
         [Graph.from_int(16351), 2],
-        [Graph.from_int(1048063), 2],
+        pytest.param(Graph.from_int(1048063), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048575), 3],
         # [Graph.from_int(134201311), 3],
     ],
@@ -1405,8 +1405,38 @@ def test_is_k_l_tight():
     ],
 )
 @pytest.mark.realization_counting
+def test_number_of_realizations_cf(graph, n):
+    assert graph.number_of_realizations(count_reflection=True) == n
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 1],
+        [graphs.CompleteBipartite(3, 3), 8],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 12],
+    ],
+)
+@pytest.mark.realization_counting
 def test_number_of_realizations(graph, n):
     assert graph.number_of_realizations() == n
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 1],
+        [graphs.CompleteBipartite(3, 3), 8],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 16],
+    ],
+)
+@pytest.mark.realization_counting
+def test_number_of_realizations_sphere(graph, n):
+    assert graph.number_of_realizations(spherical_realizations=True) == n
 
 
 @pytest.mark.parametrize(
@@ -1420,8 +1450,11 @@ def test_number_of_realizations(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere(graph, n):
-    assert graph.number_of_realizations(spherical_realizations=True) == n
+def test_number_of_realizations_sphere_cf(graph, n):
+    assert (
+        graph.number_of_realizations(spherical_realizations=True, count_reflection=True)
+        == n
+    )
 
 
 @pytest.mark.parametrize(

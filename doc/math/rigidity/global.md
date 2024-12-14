@@ -9,6 +9,8 @@ all $d$-dimensional frameworks $(G,p')$ {prf:ref}`equivalent <def-equivalent-fra
 are {prf:ref}`congruent <def-equivalent-framework>` to $(G,p)$.
 
 {{references}} {cite:p}`Jackson2005`
+
+{meth}`~.Graph.is_globally_rigid`
 :::
 
 

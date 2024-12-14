@@ -4,8 +4,9 @@ Module for miscellaneous functions.
 
 import math
 from pyrigi.data_type import Point, point_to_vector
-from sympy import Matrix, simplify, Abs
+from sympy import Matrix, simplify
 import numpy as np
+from math import isclose, log10
 
 
 def doc_category(category):
@@ -113,20 +114,21 @@ def is_zero_vector(
     tolerance:
         The tolerance that is used in the numerical check coordinate-wise.
     """
-
     if not isinstance(vector, Matrix):
         vector = point_to_vector(vector)
+    if not (vector.shape[0] == 1 or vector.shape[1] == 1):
+        raise TypeError("The input is not a vector!")
 
     if not numerical:
-        for coord in vector:
-            if not simplify(coord).is_zero:
-                break
-        else:
-            return True
+        return all([simplify(coord).is_zero for coord in vector])
     else:
-        for coord in vector:
-            if Abs(coord) > tolerance:
-                break
-        else:
-            return True
-    return False
+        return all(
+            [
+                isclose(
+                    coord.evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))),
+                    0,
+                    abs_tol=tolerance,
+                )
+                for coord in vector
+            ]
+        )
