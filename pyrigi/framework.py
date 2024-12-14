@@ -1273,6 +1273,7 @@ class Framework(object):
         >>> F.is_stress(omega1)
         False
         """
+        edge_order = self._check_edge_order(edge_order=edge_order)
         return is_zero_vector(
             Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order),
             numerical=numerical,
@@ -1797,11 +1798,7 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-
-        if set(self._graph.nodes) != set(other_realization.keys()):
-            raise ValueError(
-                "Not all vertices have a realization in the given dictionary."
-            )
+        self._check_vertex_order(list(other_realization.keys()))
 
         for u, v in self._graph.edges:
             edge_vec = self._realization[u] - self._realization[v]
@@ -2222,8 +2219,7 @@ class Framework(object):
         >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
         True
         """
-        if len(vert_to_flex) != self._graph.number_of_nodes():
-            raise ValueError("The keys in `vert_to_flex` have to match the vertex set.")
+        self._check_vertex_order(list(vert_to_flex.keys()))
         dict_to_list = []
 
         for v in self._graph.vertex_list():
@@ -2352,8 +2348,7 @@ class Framework(object):
         >>> F.is_dict_nontrivial_inf_flex(q)
         False
         """
-        if len(vert_to_flex) != self._graph.number_of_nodes():
-            raise ValueError("The keys in `vert_to_flex` have to match the vertex set.")
+        self._check_vertex_order(list(vert_to_flex.keys()))
         dict_to_list = []
 
         for v in self._graph.vertex_list():
@@ -2455,8 +2450,7 @@ class Framework(object):
         >>> F.is_dict_trivial_inf_flex(q)
         True
         """
-        if len(vert_to_flex) != self._graph.number_of_nodes():
-            raise ValueError("The keys in `vert_to_flex` have to match the vertex set.")
+        self._check_vertex_order(list(vert_to_flex.keys()))
         dict_to_list = []
 
         for v in self._graph.vertex_list():
