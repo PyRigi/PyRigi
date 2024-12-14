@@ -1380,7 +1380,6 @@ class Framework(object):
         [ 0]])]
         """
         vertex_order = self._check_vertex_order(vertex_order)
-
         dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in vertex_order])
@@ -1503,7 +1502,7 @@ class Framework(object):
         rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
 
         all_inf_flexes = rigidity_matrix.nullspace()
-        trivial_inf_flexes = self.trivial_inf_flexes()
+        trivial_inf_flexes = self.trivial_inf_flexes(vertex_order=vertex_order)
         s = len(trivial_inf_flexes)
         extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
         tmp_matrix = Matrix.hstack(*trivial_inf_flexes)
@@ -2187,6 +2186,7 @@ class Framework(object):
         >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
         True
         """
+        vertex_order = self._check_vertex_order(vertex_order)
         return is_zero_vector(
             self.rigidity_matrix(vertex_order=vertex_order) * Matrix(inf_flex),
             numerical=numerical,
@@ -2292,6 +2292,7 @@ class Framework(object):
         >>> F.is_vector_nontrivial_inf_flex(q)
         False
         """
+        vertex_order = self._check_vertex_order(vertex_order)
         if not self.is_vector_inf_flex(
             inf_flex,
             vertex_order=vertex_order,
@@ -2301,14 +2302,16 @@ class Framework(object):
             return False
 
         if not numerical:
-            Q_trivial = Matrix.hstack(*(self.trivial_inf_flexes()))
+            Q_trivial = Matrix.hstack(
+                *(self.trivial_inf_flexes(vertex_order=vertex_order))
+            )
             system = Q_trivial, Matrix(inf_flex)
             return sp.linsolve(system) == sp.EmptySet
         else:
             Q_trivial = np.array(
                 [
                     eval_sympy_vector(flex, tolerance=tolerance)
-                    for flex in self.trivial_inf_flexes()
+                    for flex in self.trivial_inf_flexes(vertex_order=vertex_order)
                 ]
             ).transpose()
             b = np.array(eval_sympy_vector(inf_flex, tolerance=tolerance)).transpose()
