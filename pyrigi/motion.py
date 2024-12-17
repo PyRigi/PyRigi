@@ -118,14 +118,25 @@ class ParametricMotion(Motion):
             res = res + "\n" + str(vertex) + ": " + str(param)
         return res
 
-    def _realization_sampling(self, n: int) -> list[dict[Vertex, Point]]:
+    def _realization_sampling(
+        self, n: int, use_tan: bool = False
+    ) -> list[dict[Vertex, Point]]:
         """
         Return n realizations for parameters evenly spaced in the range self._interval.
         """
 
         realizations = []
-        for i in np.linspace(self._interval[0], self._interval[1], n):
-            realizations.append(self.realization(i, numeric=True))
+        if not use_tan:
+            for i in np.linspace(self._interval[0], self._interval[1], n):
+                realizations.append(self.realization(i, numeric=True))
+            return realizations
+
+        newinterval = [
+            sp.atan(self._interval[0]).evalf(),
+            sp.atan(self._interval[1]).evalf(),
+        ]
+        for i in np.linspace(newinterval[0], newinterval[1], n):
+            realizations.append(self.realization(f"tan({i})", numeric=True))
         return realizations
 
     @staticmethod
@@ -171,7 +182,7 @@ class ParametricMotion(Motion):
         sampling: int = 50,
         show_labels: bool = True,
         vertex_size: int = 5,
-        length: int = 8,
+        duration: int = 8,
     ) -> None:
         """
         Animation of the parametric motion for parameter
@@ -196,8 +207,8 @@ class ParametricMotion(Motion):
             If true, vertices will have a number label.
         vertex_size:
             Size of vertices in the animation.
-        length:
-            The length of one period of the animation in seconds.
+        duration:
+            The duration of one period of the animation in seconds.
         """
 
         if self._dim != 2:
@@ -205,20 +216,10 @@ class ParametricMotion(Motion):
 
         lower, upper = self._interval
         if lower == -np.inf or upper == np.inf:
-            mot = deepcopy(self._parametrization)
-            for v, placement in mot.items():
-                tan_placement = []
-                for coord in placement:
-                    tan_placement.append(
-                        coord.replace(self._parameter, sp.sympify("tan(t)"))
-                    )
-                mot[v] = tan_placement
-            mot = ParametricMotion(deepcopy(self._graph), mot, (-np.pi / 2, np.pi / 2))
-            return mot.animate(
-                width, height, filename, sampling, show_labels, vertex_size, length
-            )
+            realizations = self._realization_sampling(sampling, use_tan=True)
+        else:
+            realizations = self._realization_sampling(sampling)
 
-        realizations = self._realization_sampling(sampling)
         realizations = self._normalize_realizations(realizations, width, height, 15)
 
         svg = f'<svg width="{width}" height="{height}" version="1.1" '
@@ -260,13 +261,15 @@ class ParametricMotion(Motion):
                 rv = r[v]
                 positions_str += f" M {ru[0]} {ru[1]} L {rv[0]} {rv[1]};"
             animation = f'<animate href="#edge{v_to_int[u]}-{v_to_int[v]}" '
-            animation += f'attributeName="d" dur="{length}s" '
+            animation += f'attributeName="d" dur="{duration}s" '
             animation += 'repeatCount="indefinite" calcMode="linear" '
             animation += f'values="{positions_str}"/>'
             svg = svg + "\n" + animation
         svg = svg + "\n</svg>"
 
         if filename is not None:
+            if not filename.endswith(".svg"):
+                filename = filename + ".svg"
             with open(filename, "wt") as file:
                 file.write(svg)
         return SVG(data=svg)
