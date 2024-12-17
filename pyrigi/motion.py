@@ -33,6 +33,20 @@ class Motion(object):
 class ParametricMotion(Motion):
     """
     Class representing a parametric motion.
+    
+    Definitions
+    -----------
+    :prf:ref:`Continuous flex (motion)<def-motion>`
+    
+    Parameters
+    ----------
+    graph:
+    motion:
+        A parametrization of a continuous flex using SymPy expressions,
+        or strings that can be parsed by SymPy.
+    interval:
+        The interval in which the parameter is considered.
+    
 
     Examples
     --------
