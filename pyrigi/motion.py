@@ -1,5 +1,5 @@
 """
-This file contains functionality related to finite flexes.
+This file contains functionality related to motions (continuous flexes).
 """
 
 from pyrigi.graph import Graph
@@ -13,7 +13,7 @@ from IPython.display import SVG
 
 class Motion(object):
     """
-    Class representing a finite flex of a framework.
+    An abstract class representing a continuous flex of a framework.
     """
 
     def __init__(self, graph: Graph) -> None:
