@@ -121,7 +121,7 @@ class ParametricMotion(Motion):
         self, n: int, use_tan: bool = False
     ) -> list[dict[Vertex, Point]]:
         """
-        Return n realizations for parameters evenly spaced in the range self._interval.
+        Return n realizations for sampled values of the parameter.
         """
 
         realizations = []
@@ -143,8 +143,8 @@ class ParametricMotion(Motion):
         realizations: list[dict[Vertex, Point]], width: int, height: int, spacing: int
     ) -> list[dict[Vertex, Point]]:
         """
-        Normalize given list of realizations
-        so they fit exaxtly to the window with the given dimensions.
+        Normalize a given list of realizations
+        so they fit exactly to the window with the given dimensions.
         """
 
         xmin = np.inf
@@ -184,28 +184,27 @@ class ParametricMotion(Motion):
         duration: int = 8,
     ) -> None:
         """
-        Animation of the parametric motion for parameter
-        in the range specified in the constructor.
+        Animate the parametric motion.
 
         Parameters
         ----------
         width:
-            Width of the window in the svg file.
+            The width of the window in the svg file.
         height:
-            Height of the window in the svg file.
+            The height of the window in the svg file.
         filename:
-            where to store the svg. If None the svg is not saved.
+            A name used to store the svg. If ``None```, the svg is not saved.
         sampling:
-            Number of discrete points or frames used to approximate the motion in the
+            The number of discrete points or frames used to approximate the motion in the
             animation. A higher value results in a smoother and more accurate
             representation of the motion, while a lower value can speed up rendering
             but may lead to a less precise or jerky animation. This parameter controls
             the resolution of the animation's movement by setting the density of
             sampled data points between keyframes or time steps.
         show_labels:
-            If true, vertices will have a number label.
+            If ``True``, the vertices will have a number label.
         vertex_size:
-            Size of vertices in the animation.
+            The size of vertices in the animation.
         duration:
             The duration of one period of the animation in seconds.
         """
