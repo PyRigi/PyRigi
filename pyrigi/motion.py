@@ -9,7 +9,6 @@ from pyrigi.misc import point_to_vector
 import numpy as np
 import sympy as sp
 from IPython.display import SVG
-from copy import deepcopy
 
 
 class Motion(object):
