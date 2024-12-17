@@ -33,11 +33,11 @@ class Motion(object):
 class ParametricMotion(Motion):
     """
     Class representing a parametric motion.
-    
+
     Definitions
     -----------
     :prf:ref:`Continuous flex (motion)<def-motion>`
-    
+
     Parameters
     ----------
     graph:
@@ -46,7 +46,7 @@ class ParametricMotion(Motion):
         or strings that can be parsed by SymPy.
     interval:
         The interval in which the parameter is considered.
-    
+
 
     Examples
     --------
@@ -73,7 +73,7 @@ class ParametricMotion(Motion):
     1: Matrix([[1], [0]])
     2: Matrix([[(4*t**2 - 8)/(t**2 + 4)], [12*t/(t**2 + 4)]])
     3: Matrix([[(t**4 - 13*t**2 + 4)/(t**4 + 5*t**2 + 4)], [(6*t**3 - 12*t)/(t**4 + 5*t**2 + 4)]])
-    """
+    """  # noqa: E501
 
     def __init__(
         self, graph: Graph, motion: dict[Vertex, Point], interval: tuple
