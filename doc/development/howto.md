@@ -63,7 +63,7 @@ The release numbers follow this scheme:
 * MINOR version: new functionality in a backward compatible manner (x.y+1.z)
 * PATCH version: backward compatible bug fixes (x.y.z+1).
 
-Before creating a release, the following commits should be done:
+To create a new version, the following steps should be taken:
 
 1. Create a release branch.
 2. Update the version and release in `doc/conf.py` and the version in `pyproject.toml`.
