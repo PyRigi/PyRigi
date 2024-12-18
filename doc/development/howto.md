@@ -54,6 +54,8 @@ We propose a few categories for contributing branches:
 * _testing_: branches to add tests; their name should start by `test-`
 * _refactoring_: branches to refactor the code; their name should start by `refactor-`
 
+### Version Release
+
 Once in a while, the maintainers merge the branch `dev` into `main` and create a new release.
 The release numbers follow this scheme:
 
@@ -61,6 +63,15 @@ The release numbers follow this scheme:
 * MINOR version: new functionality in a backward compatible manner (x.y+1.z)
 * PATCH version: backward compatible bug fixes (x.y.z+1).
 
+Before creating a release, the following commits should be done:
+
+1. Create a release branch.
+2. Update the version and release in `doc/conf.py` and the version in `pyproject.toml`.
+3. Update the `contributors.md` (this step can be skipped for patch releases).
+4. Merge the branch into `dev`.
+5. Continue on the release branch and remove the files that are not supposed to be in the release.
+6. Merge the branch into `main`.
+7. Add a new release tag in Github and generate the corresponding release notes.
 
 ## Code
 
