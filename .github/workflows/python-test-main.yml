@@ -35,3 +35,4 @@ jobs:
       run: |
         poetry run pytest --doctest-modules -m 'not slow_main or slow_main'
         # --doctes-modules overrides the default --doctest-plus
+
