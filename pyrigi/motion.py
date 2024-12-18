@@ -144,11 +144,15 @@ class ParametricMotion(Motion):
         realization = {}
         for v in self._graph.nodes:
             if numeric:
-                placement = self._parametrization[v].subs({self._parameter: float(value)}).evalf()
+                placement = (
+                    self._parametrization[v]
+                    .subs({self._parameter: float(value)})
+                    .evalf()
+                )
             else:
                 placement = simplify(
                     self._parametrization[v].subs({self._parameter: value})
-            )
+                )
             realization[v] = placement
         return realization
 
