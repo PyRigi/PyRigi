@@ -1,5 +1,5 @@
 """
-This file contains functionality related to motions (continuous flexes).
+This module contains functionality related to motions (continuous flexes).
 """
 
 from pyrigi.graph import Graph
