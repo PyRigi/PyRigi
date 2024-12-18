@@ -65,6 +65,8 @@ A _motion (continuous flex)_ is a continuous map $\alpha \colon [0, 1] \rightarr
 * $(G, p)$ and $(G, \alpha(t))$ are equivalent for every $t \in [0,1]$.
 
 A motion is called _trivial_ if $(G, p)$ and $(G, \alpha(t))$ are congruent for every $t \in [0,1]$.
+
+{{pyrigi_crossref}} {class}`~.ParametricMotion`
 :::
 
 

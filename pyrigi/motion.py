@@ -1,5 +1,5 @@
 """
-This file contains functionality related to finite flexes.
+This module contains functionality related to motions (continuous flexes).
 """
 
 from pyrigi.graph import Graph
@@ -13,7 +13,7 @@ from IPython.display import SVG
 
 class Motion(object):
     """
-    Class representing a finite flex of a framework.
+    An abstract class representing a continuous flex of a framework.
     """
 
     def __init__(self, graph: Graph) -> None:
@@ -33,7 +33,47 @@ class Motion(object):
 class ParametricMotion(Motion):
     """
     Class representing a parametric motion.
-    """
+
+    Definitions
+    -----------
+    :prf:ref:`Continuous flex (motion)<def-motion>`
+
+    Parameters
+    ----------
+    graph:
+    motion:
+        A parametrization of a continuous flex using SymPy expressions,
+        or strings that can be parsed by SymPy.
+    interval:
+        The interval in which the parameter is considered.
+
+
+    Examples
+    --------
+
+    >>> from pyrigi.motion import ParametricMotion
+    >>> import sympy as sp
+    >>> from pyrigi import graphDB as graphs
+    >>> motion = ParametricMotion(
+    ...     graphs.Cycle(4),
+    ...     {
+    ...         0: ("0", "0"),
+    ...         1: ("1", "0"),
+    ...         2: ("4 * (t**2 - 2) / (t**2 + 4)", "12 * t / (t**2 + 4)"),
+    ...         3: (
+    ...             "(t**4 - 13 * t**2 + 4) / (t**4 + 5 * t**2 + 4)",
+    ...             "6 * (t**3 - 2 * t) / (t**4 + 5 * t**2 + 4)",
+    ...         ),
+    ...     },
+    ...     [-sp.oo, sp.oo],
+    ... )
+    >>> motion
+    ParametricMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with motion defined for every vertex:
+    0: Matrix([[0], [0]])
+    1: Matrix([[1], [0]])
+    2: Matrix([[(4*t**2 - 8)/(t**2 + 4)], [12*t/(t**2 + 4)]])
+    3: Matrix([[(t**4 - 13*t**2 + 4)/(t**4 + 5*t**2 + 4)], [(6*t**3 - 12*t)/(t**4 + 5*t**2 + 4)]])
+    """  # noqa: E501
 
     def __init__(
         self, graph: Graph, motion: dict[Vertex, Point], interval: tuple
@@ -103,11 +143,16 @@ class ParametricMotion(Motion):
 
         realization = {}
         for v in self._graph.nodes:
-            placement = simplify(
-                self._parametrization[v].subs({self._parameter: value})
-            )
             if numeric:
-                placement = placement.evalf()
+                placement = (
+                    self._parametrization[v]
+                    .subs({self._parameter: float(value)})
+                    .evalf()
+                )
+            else:
+                placement = simplify(
+                    self._parametrization[v].subs({self._parameter: value})
+                )
             realization[v] = placement
         return realization
 
