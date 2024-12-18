@@ -72,6 +72,7 @@ Before creating a release, the following commits should be done:
 5. Continue on the release branch and remove the files that are not supposed to be in the release.
 6. Merge the branch into `main`.
 7. Add a new release tag in Github and generate the corresponding release notes.
+8. Afterwards, run `poetry update` to update the dependencies on `dev`.
 
 ## Code
 
