@@ -8,7 +8,7 @@ from pyrigi.data_type import point_to_vector
 from copy import deepcopy
 
 import pytest
-from sympy import Matrix, pi, sqrt
+from sympy import Matrix, pi, sqrt, sympify
 
 
 @pytest.mark.parametrize(
@@ -44,6 +44,19 @@ def test_inf_rigid(framework):
     assert framework.is_inf_rigid()
 
 
+def test_check_vertex_and_edge_order():
+    F = Framework.Random(Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]))
+    vertex_order = ["a", "#", 0, 1.8]
+    edge_order = [(0, "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
+    assert F._check_vertex_order(vertex_order) and F._check_edge_order(edge_order)
+    vertex_order = ["a", "#", 0, "s"]
+    edge_order = [("#", "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
+    with pytest.raises(ValueError):
+        F._check_vertex_order(vertex_order)
+    with pytest.raises(ValueError):
+        F._check_edge_order(edge_order)
+
+
 @pytest.mark.parametrize(
     "framework",
     [
@@ -61,6 +74,7 @@ def test_inf_rigid(framework):
         fws.Cycle(4, d=3),
         fws.Path(3, d=3),
         fws.Path(4, d=3),
+        fws.Frustum(3),
     ]
     + [fws.Cycle(n - 1, d=n) for n in range(5, 10)]
     + [fws.Cycle(n, d=n) for n in range(4, 10)]
@@ -129,6 +143,65 @@ def test_not_min_inf_rigid(framework):
     assert not framework.is_min_inf_rigid()
 
 
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Complete(2, d=1),
+        fws.Complete(2, d=2),
+        fws.Complete(3, d=2),
+        fws.Complete(3, d=3),
+        fws.Complete(4, d=3),
+        fws.CompleteBipartite(3, 3),
+        fws.CompleteBipartite(1, 3),
+        fws.CompleteBipartite(2, 3),
+        fws.Diamond(),
+        fws.ThreePrism(),
+        Framework.from_points([[i] for i in range(4)]),
+        fws.Cycle(4, d=2),
+        fws.Cycle(5, d=2),
+        fws.Cycle(4, d=2),
+        fws.Path(3, d=1),
+        fws.Path(3, d=2),
+        fws.Path(4, d=2),
+        fws.Path(3, d=3),
+        fws.Path(4, d=3),
+    ]
+    + [fws.Complete(2, d=n) for n in range(1, 7)]
+    + [fws.Complete(3, d=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
+    + [fws.Complete(n, d=n) for n in range(1, 7)]
+    + [fws.Complete(n + 1, d=n) for n in range(1, 7)]
+    + [fws.Cycle(n - 1, d=n) for n in range(5, 7)]
+    + [fws.Cycle(n, d=n) for n in range(4, 7)]
+    + [fws.Cycle(n + 1, d=n) for n in range(3, 7)],
+)
+def test_is_independent(framework):
+    assert framework.is_independent()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.K33plusEdge(),
+        fws.ThreePrismPlusEdge(),
+        Framework.Collinear(graphs.Complete(3), d=2),
+        fws.Complete(3, d=1),
+        fws.Complete(4, d=1),
+        fws.Complete(4, d=2),
+        fws.CompleteBipartite(3, 3, "dixonI"),
+        fws.CompleteBipartite(3, 4),
+        fws.CompleteBipartite(4, 4),
+        fws.ThreePrism("flexible"),
+        fws.ThreePrism("parallel"),
+        fws.Cycle(4, d=1),
+        fws.Cycle(5, d=1),
+    ]
+    + [Framework.Random(graphs.Complete(n), dim=n - 2) for n in range(3, 8)],
+)
+def test_is_dependent(framework):
+    assert framework.is_dependent()
+
+
 def test_dimension():
     assert fws.Complete(2, 2).dim() == fws.Complete(2, 2).dimension()
     assert fws.Complete(2, 2).dim() == 2
@@ -159,6 +232,110 @@ def test_inf_flexes():
     Q2 = Matrix.hstack(*(fws.Complete(2, 2).trivial_inf_flexes()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
     assert len(fws.Square().inf_flexes(include_trivial=False)) == 1
+
+    F = fws.ThreePrism(realization="flexible")
+    C = Framework(graphs.Complete(6), realization=F.realization())
+    explicit_flex = sympify(
+        [0, 0, 0, 0, 0, 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0]
+    )
+    assert (
+        F.is_vector_inf_flex(explicit_flex)
+        and F.is_vector_nontrivial_inf_flex(explicit_flex)
+        and F.is_vector_nontrivial_inf_flex(explicit_flex, numerical=True)
+        and F.is_nontrivial_flex(explicit_flex, numerical=True)
+    )
+    explicit_flex_reorder = sympify(
+        ["-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, 0, 0, 0, 0, 0, 0]
+    )
+    assert (
+        F.is_vector_inf_flex(explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1])
+        and F.is_vector_nontrivial_inf_flex(
+            explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1]
+        )
+        and F.is_vector_nontrivial_inf_flex(
+            explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1], numerical=True
+        )
+        and F.is_nontrivial_flex(
+            explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1], numerical=True
+        )
+    )
+    QF = Matrix.hstack(*(F.nontrivial_inf_flexes()))
+    QC = Matrix.hstack(*(C.nontrivial_inf_flexes()))
+    assert QF.rank() == 1 and QC.rank() == 0
+    assert F.trivial_inf_flexes() == C.trivial_inf_flexes()
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
+    QC = Matrix.hstack(*(F.trivial_inf_flexes()))
+    Q_exp = Matrix(explicit_flex)
+    assert Matrix.hstack(QF, QC).rank() == 4
+    assert Matrix.hstack(QF, Q_exp).rank() == 4
+
+    F = fws.Path(4)
+    for inf_flex in F.nontrivial_inf_flexes():
+        dict_flex = F._transform_inf_flex_to_pointwise(inf_flex)
+        assert F.is_dict_inf_flex(dict_flex) and F.is_dict_nontrivial_inf_flex(
+            dict_flex
+        )
+    assert Matrix.hstack(*(F.nontrivial_inf_flexes())).rank() == 2
+
+    F = fws.Frustum(4)
+    explicit_flex = [1, 0, 0, -1, 0, -1, 1, 0, 1, -1, 1, -1, 0, 0, 0, 0]
+    assert (
+        F.is_vector_inf_flex(explicit_flex)
+        and F.is_vector_nontrivial_inf_flex(explicit_flex)
+        and F.is_vector_nontrivial_inf_flex(explicit_flex, numerical=True)
+        and F.is_nontrivial_flex(explicit_flex, numerical=True)
+    )
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=True)))
+    Q_exp = Matrix(explicit_flex)
+    assert QF.rank() == 5 and Matrix.hstack(QF, Q_exp).rank() == 5
+    QF = Matrix.hstack(*(F.inf_flexes(include_trivial=False)))
+    assert QF.rank() == 2 and Matrix.hstack(QF, Q_exp).rank() == 2
+
+    F = fws.Complete(5)
+    F_triv = F.trivial_inf_flexes()
+    for inf_flex in F_triv:
+        dict_flex = F._transform_inf_flex_to_pointwise(inf_flex)
+        assert F.is_dict_inf_flex(dict_flex) and F.is_dict_trivial_inf_flex(dict_flex)
+    F_all = F.inf_flexes(include_trivial=True)
+    assert Matrix.hstack(*F_triv).rank() == Matrix.hstack(*(F_all + F_triv)).rank()
+
+    F = Framework.Random(graphs.DoubleBanana(), dim=3)
+    inf_flexes = F.nontrivial_inf_flexes()
+    dict_flex = F._transform_inf_flex_to_pointwise(inf_flexes[0])
+    assert F.is_dict_inf_flex(dict_flex) and F.is_dict_nontrivial_inf_flex(dict_flex)
+    assert Matrix.hstack(*inf_flexes).rank() == 1
+
+
+def test_is_vector_inf_flex():
+    F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
+    assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
+    assert not F.is_vector_inf_flex([0, 0, 0, 1, -2, 0])
+    assert F.is_vector_inf_flex([0, 1, 0, 0, -1, 0], [1, 0, 2])
+
+    F.delete_edge([1, 2])
+    assert F.is_vector_inf_flex([0, 0, 0, 1, -1, 0])
+    assert F.is_vector_inf_flex([0, 0, 0, -1, -2, 0])
+    assert not F.is_vector_inf_flex([0, 0, 2, 1, -2, 1])
+
+    F = fws.ThreePrism(realization="flexible")
+    for inf_flex in F.inf_flexes(include_trivial=True):
+        assert F.is_vector_inf_flex(inf_flex)
+
+
+def test_is_dict_inf_flex():
+    F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, 1], 2: [-1, 0]})
+    assert not F.is_dict_inf_flex({0: [0, 0], 1: [0, -1], 2: [-2, 0]})
+
+    F.delete_edge([1, 2])
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, 1], 2: [-1, 0]})
+    assert F.is_dict_inf_flex({0: [0, 0], 1: [0, -1], 2: [-2, 0]})
+    assert not F.is_dict_inf_flex({0: [0, 0], 1: [2, 1], 2: [-2, 1]})
+
+    F = fws.ThreePrism(realization="flexible")
+    assert F.is_dict_inf_flex(
+        {0: [0, 0], 1: [0, 0], 2: [0, 0], 3: [1, 0], 4: [1, 0], 5: [1, 0]}
+    )
 
 
 def test_is_injective():
@@ -421,3 +598,171 @@ def test_is_congruent():
 
     assert not F4.is_congruent_realization(R1)
     assert F4.is_congruent_realization(R1, numerical=True)
+
+
+@pytest.mark.parametrize(
+    "realization",
+    [
+        {0: [0, 0, 0], 1: [1, 1, 1]},
+        {0: [0, 0, 1], 1: [1, 1, 1]},
+        {0: [0, 0, 0, 0], 1: [0, 0, 0, 0]},
+    ],
+)
+def test_plot_error(realization):
+    F = Framework(graphs.Complete(2), realization)
+    with pytest.raises(ValueError):
+        F.plot()
+
+
+def test_plot2D_error():
+    F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot2D(projection_matrix=[[1, 0], [0, 1], [0, 0]])
+
+    F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot2D(projection_matrix=[[1, 0], [0, 1]])
+
+    with pytest.raises(ValueError):
+        F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0]})
+
+
+def test_rigidity_matrix():
+    F = fws.Complete(2)
+    assert F.rigidity_matrix() == Matrix([-1, 0, 1, 0]).transpose()
+
+    F = fws.Path(3)
+    assert F.rigidity_matrix() == Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])
+
+    F = fws.Complete(3, d=1)
+    assert F.rigidity_matrix() == Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])
+
+    F = fws.Complete(4, d=3)
+    assert F.rigidity_matrix().shape == (6, 12)
+
+    G = Graph([(0, "a"), ("b", "a"), ("b", 1.9), (1.9, 0)])
+    F = Framework(G, {0: (0, 0), "a": (1, 0), "b": (1, 1), 1.9: (0, 1)})
+    vertex_order = ["a", 1.9, "b", 0]
+    assert F.rigidity_matrix(vertex_order=vertex_order) == Matrix(
+        [
+            [1, 0, 0, 0, 0, 0, -1, 0],
+            [0, 0, 0, 1, 0, 0, 0, -1],
+            [0, -1, 0, 0, 0, 1, 0, 0],
+            [0, 0, -1, 0, 1, 0, 0, 0],
+        ]
+    )
+
+
+def test_rigidity_matrix_rank():
+    K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
+    assert K4.rigidity_matrix_rank() == 5
+
+    # Deleting one edge does not change the rank of the rigidity matrix ...
+    K4.delete_edge([0, 1])
+    assert K4.rigidity_matrix_rank() == 5
+
+    # ... whereas deleting two edges does
+    K4.delete_edge([2, 3])
+    assert K4.rigidity_matrix_rank() == 4
+
+    F = fws.Frustum(3)  # has a single infinitesimal motion and stress
+    assert F.rigidity_matrix_rank() == 8
+
+
+def test_stress_matrix():
+    F = fws.Complete(4)
+    assert F.stress_matrix([1, -1, 1, 1, -1, 1]) == Matrix(
+        [[1, -1, 1, -1], [-1, 1, -1, 1], [1, -1, 1, -1], [-1, 1, -1, 1]]
+    )
+
+    F = fws.Frustum(3)
+    assert F.stress_matrix([2, 2, 6, 2, 6, 6, -1, -1, -1]) == Matrix(
+        [
+            [10, -2, -2, -6, 0, 0],
+            [-2, 10, -2, 0, -6, 0],
+            [-2, -2, 10, 0, 0, -6],
+            [-6, 0, 0, 4, 1, 1],
+            [0, -6, 0, 1, 4, 1],
+            [0, 0, -6, 1, 1, 4],
+        ]
+    )
+
+    G = Graph([(0, "a"), ("b", "a"), ("b", 1.9), (1.9, 0), ("b", 0), ("a", 1.9)])
+    F = Framework(G, {0: (0, 0), "a": (1, 0), "b": (1, 1), 1.9: (0, 1)})
+    edge_order = [("a", 0), (1.9, "b"), (1.9, 0), ("a", "b"), ("a", 1.9), (0, "b")]
+    stress = F.stresses(edge_order=edge_order)[0].transpose().tolist()[0]
+    assert F.stress_matrix(stress, edge_order=edge_order) == Matrix(
+        [[-1, 1, -1, 1], [1, -1, 1, -1], [-1, 1, -1, 1], [1, -1, 1, -1]]
+    )
+
+
+def test_stresses():
+    Q1 = Matrix.hstack(
+        *(fws.CompleteBipartite(4, 4).rigidity_matrix().transpose().nullspace())
+    )
+    Q2 = Matrix.hstack(*(fws.CompleteBipartite(4, 4).stresses()))
+    assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
+    F = fws.Complete(5)
+    assert all(
+        [
+            F.is_stress([entry for entry in s.transpose()], numerical=True)
+            for s in F.stresses()
+        ]
+    )
+
+
+def test_edge_lengths():
+    G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: ["1/2", "4/3"]})
+    l_dict = F.edge_lengths(numerical=True)
+
+    expected_result = {
+        (0, 1): 1.0,
+        (0, 3): 1.4240006242195884,
+        (1, 2): 1.118033988749895,
+        (2, 3): 0.5443838790578374,
+    }
+
+    for edge, length in l_dict.items():
+        assert abs(length - expected_result[edge]) < 1e-10
+
+    l_dict = F.edge_lengths(numerical=False)
+
+    expected_result = {
+        (0, 1): 1,
+        (0, 3): "sqrt(1/4 + 16/9)",
+        (1, 2): "1/2 * sqrt(5)",
+        (2, 3): "sqrt(1/4 + (1/2 * sqrt(5) - 4/3)**2)",
+    }
+
+    for edge, length in l_dict.items():
+        assert (sympify(expected_result[edge]) - length).is_zero
+
+    F = fws.Cycle(6)
+    assert all([(v - 1).is_zero for v in F.edge_lengths(numerical=False).values()])
+
+
+@pytest.mark.meshing
+def test__generate_stl_bar():
+    mesh = Framework._generate_stl_bar(30, 4, 10, 5)
+    assert mesh is not None
+
+    with pytest.raises(ValueError):
+        # negative values are not allowed
+        Framework._generate_stl_bar(30, 4, 10, -5)
+    with pytest.raises(ValueError):
+        # width must be greater than diameter
+        Framework._generate_stl_bar(30, 4, 3, 5)
+    with pytest.raises(ValueError):
+        # holes_distance <= 2 * holes_diameter
+        Framework._generate_stl_bar(6, 4, 10, 5)
+
+
+@pytest.mark.meshing
+def test_generate_stl_bars():
+    gr = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+    fr = Framework(
+        gr, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]}
+    )
+    n = fr.generate_stl_bars(scale=20, filename_prefix="mybar")
+    assert n is None

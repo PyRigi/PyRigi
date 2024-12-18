@@ -1,6 +1,37 @@
 # Contributors to PyRigi
 
 (M) indicates maintainers
+<!-- start-input -->
+
+## Version 0.4.0 (December 18, 2024)
+
+This version is related to the PyRigi Marathon (November 7, 2024, Linz, Austria).
+
+* Jose Capco
+* Mafalda Dal Cin
+* Matteo Gallet (M)
+* Georg Grasegger (M)
+* Hakan Güler
+* Matthias Himmelmann (M)
+* Daniel Huczala
+* Jan Legerský (M)
+* Jan Rubeš
+* Johannes Siegele
+
+Contributions by comments, testing, definitions and examples:
+  * Sean Dewar
+  * Rebecca Monks
+  * Anthony Nixon
+  * Alison La Porta
+
+## Version 0.3.0 (November 5, 2024)
+
+* Matteo Gallet (M)
+* Georg Grasegger (M)
+* Hakan Güler
+* Matthias Himmelmann (M)
+* Jan Legerský (M)
+* András Mihálykó
 
 ## Version 0.3.0 (November 5, 2024)
 

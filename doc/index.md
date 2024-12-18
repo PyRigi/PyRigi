@@ -12,6 +12,7 @@
 :maxdepth: 2
 :caption: User guide
 userguide/getting_started
+userguide/installation_guide
 userguide/tutorial
 userguide/api
 :::
@@ -21,6 +22,7 @@ userguide/api
 :caption: Math
 math/rigidity
 math/graph_theory
+math/matroid_theory
 math/references
 :::
 
@@ -29,6 +31,7 @@ math/references
 :caption: Development guide
 development/howto
 development/cheatsheet
+development/contributors
 :::
 
 

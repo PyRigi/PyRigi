@@ -1,6 +1,7 @@
 [tool.poetry]
 name = "pyrigi"
-version = "0.3.0"
+version = "0.4.0"
+
 description = "Python package concerning the rigidity and flexibility of bar-and-joint frameworks."
 authors = ["The PyRigi Developers"]
 license = "MIT"
@@ -27,6 +28,9 @@ ipyevents = "^2.0.2"
 ipywidgets = "^8.1.5"
 ipython = "^8.29.0"
 numpy = "^2.1.2"
+trimesh = {version = "^4.5.0", optional = true}
+manifold3d = {version = "^2.5.0", optional = true}
+lnumber = {version = "^0.13", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
@@ -34,6 +38,7 @@ flake8 = "^7.0.0"
 pre-commit = "^3.7.1"
 pytest = "^8.2.1"
 sphinx = "^7.3.7"
+pytest-doctestplus = "^1.2.1"
 
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.5.6"
@@ -41,7 +46,7 @@ myst-nb = "^1.1.0"
 sphinx-copybutton = "^0.5.2"
 sphinx-design = "^0.5.0"
 sphinx-math-dollar = "^1.2.1"
-sphinx-proof = "^0.1.3"
+sphinx-proof = "^0.2.0"
 sphinx-tippy = "^0.4.3"
 sphinxcontrib-bibtex = "^2.6.2"
 sphinxcontrib-napoleon = "^0.7"
@@ -49,18 +54,26 @@ sphinx-autobuild = "^2024.4.16"
 setuptools = "^70.0.0"
 jupytext = "^1.16.4"
 
+[tool.poetry.extras]
+realization-counting = ["lnumber"]
+meshing = ["trimesh", "manifold3d"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-
 [tool.pytest.ini_options]
+doctest_plus = "enabled"
 pythonpath = [
   "."
 ]
+addopts = "-m 'not slow_main'" # deselect large tests by default
+# you can run all tests with -m 'not slow_main or slow_main'
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "serial",
+    "slow_main: marks slower tests run at merge to main",
+    "long_local: marks long tests run locally",
+    "realization_counting: marks tests using extra realization-counting",
+    "meshing: marks tests using extra meshing"
 ]
 
 [tool.jupytext]

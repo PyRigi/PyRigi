@@ -3,8 +3,11 @@ Module for miscellaneous functions.
 """
 
 import math
-from pyrigi.data_type import Point, point_to_vector
-from sympy import Matrix, simplify, Abs
+from pyrigi.data_type import Coordinate, point_to_vector
+from typing import List, Sequence
+from sympy import Matrix
+import numpy as np
+from math import isclose, log10
 
 
 def doc_category(category):
@@ -48,6 +51,43 @@ def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
     return ("\n" + indent).join(res.splitlines())
 
 
+def generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
+    """
+    Generate two random numeric orthonormal vectors in the given dimension.
+
+    The vectors are in the columns of the returned matrix.
+
+    Parameters
+    ----------
+    dim:
+        The dimension in which the vectors are generated.
+    random_seed:
+        Seed for generating random vectors.
+        When the same value is provided, the same vectors are generated.
+    """
+
+    if random_seed is not None:
+        np.random.seed(random_seed)
+
+    matrix = np.random.randn(dim, 2)
+
+    # for numerical stability regenerate some elements
+    tmp = np.random.randint(0, dim - 1)
+    while abs(matrix[tmp, 1]) < 1e-6:
+        matrix[tmp, 1] = np.random.randn(1, 1)
+
+    while abs(matrix[-1, 0]) < 1e-6:
+        matrix[-1, 0] = np.random.randn(1, 1)
+
+    tmp = np.dot(matrix[:-1, 0], matrix[:-1, 1]) * -1
+    matrix[-1, 1] = tmp / matrix[-1, 0]
+
+    # normalize
+    matrix[:, 0] = matrix[:, 0] / np.linalg.norm(matrix[:, 0])
+    matrix[:, 1] = matrix[:, 1] / np.linalg.norm(matrix[:, 1])
+    return matrix
+
+
 def check_integrality_and_range(
     n: int, name: str = "number n", min_n: int = 0, max_n: int = math.inf
 ) -> None:
@@ -60,7 +100,7 @@ def check_integrality_and_range(
 
 
 def is_zero_vector(
-    vector: Point, numerical: bool = False, tolerance: float = 1e-9
+    vector: Sequence[Coordinate], numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
     """
     Check if the given vector is zero.
@@ -75,20 +115,43 @@ def is_zero_vector(
     tolerance:
         The tolerance that is used in the numerical check coordinate-wise.
     """
-
     if not isinstance(vector, Matrix):
         vector = point_to_vector(vector)
 
     if not numerical:
-        for coord in vector:
-            if not simplify(coord).is_zero:
-                break
-        else:
-            return True
+        return all([coord.is_zero for coord in vector])
     else:
-        for coord in vector:
-            if Abs(coord) > tolerance:
-                break
-        else:
-            return True
-    return False
+        return all(
+            [
+                isclose(
+                    coord,
+                    0,
+                    abs_tol=tolerance,
+                )
+                for coord in eval_sympy_vector(vector, tolerance=tolerance)
+            ]
+        )
+
+
+def eval_sympy_vector(
+    vector: Sequence[Coordinate], tolerance: float = 1e-9
+) -> List[float]:
+    """
+    Converts a sympy vector to a (numerical) list of floats.
+
+    Parameters
+    ----------
+    vector:
+        The sympy vector.
+    tolerance:
+        Intended level of numerical accuracy.
+
+    Notes
+    -----
+    The method :func:`.data_type.point_to_vector` is used to ensure that
+    the input is consistent with the sympy format.
+    """
+    return [
+        float(coord.evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))))
+        for coord in point_to_vector(vector)
+    ]
