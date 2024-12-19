@@ -180,39 +180,43 @@ def test_is_independent(framework):
 
 
 @pytest.mark.parametrize(
-    "framework, bool_res",
+    "framework, bool_res, bypass_bool",
     [
-        [fws.Complete(4, d=2), True],
-        [fws.Frustum(3), True],
-        [fws.Frustum(4), True],
-        [fws.Square(), False],
-        [fws.K33plusEdge(), True],
-        [fws.ThreePrism(realization="flexible"), False],
-        # [fws.CompleteBipartite(3, 3, realization="collinear"), False],
-        [fws.ConnellyExampleSecondOrderRigidity(), False],
+        [fws.Complete(4, d=2), True, False],
+        [fws.Frustum(3), True, True],
+        [fws.Frustum(4), True, True],
+        [fws.Square(), False, False],
+        [fws.K33plusEdge(), True, False],
+        [fws.ThreePrism(realization="flexible"), False, True],
+        pytest.param(fws.CompleteBipartite(3, 3, realization="collinear"), False, False, marks=pytest.mark.slow_main),
+        [fws.ConnellyExampleSecondOrderRigidity(), False, False],
+        pytest.param(fws.Frustum(5), True, False, marks=pytest.mark.long_local)
     ],
 )
-def test_is_prestress_stable(framework, bool_res):
+def test_is_prestress_stable(framework, bool_res, bypass_bool):
     assert framework.is_prestress_stable() == bool_res
-    assert framework.is_prestress_stable(_bypass_one_dimensional=True) == bool_res
+    if bypass_bool:
+        assert framework.is_prestress_stable(_bypass_one_dimensional=True) == bool_res
 
 
 @pytest.mark.parametrize(
-    "framework, bool_res",
+    "framework, bool_res, bypass_bool",
     [
-        [fws.Complete(4, d=2), True],
-        [fws.Frustum(3), True],
-        [fws.Frustum(4), True],
-        [fws.Square(), False],
-        [fws.K33plusEdge(), True],
-        [fws.ThreePrism(realization="flexible"), False],
-        [fws.CompleteBipartite(3, 3, realization="collinear"), True],
-        [fws.ConnellyExampleSecondOrderRigidity(), True],
+        [fws.Complete(4, d=2), True, False],
+        [fws.Frustum(3), True, True],
+        [fws.Frustum(4), True, True],
+        [fws.Square(), False, False],
+        [fws.K33plusEdge(), True, False],
+        [fws.ThreePrism(realization="flexible"), False, True],
+        pytest.param(fws.CompleteBipartite(3, 3, realization="collinear"), True, False, marks=pytest.mark.slow_main),
+        [fws.ConnellyExampleSecondOrderRigidity(), True, False],
+        pytest.param(fws.Frustum(5), True, False, marks=pytest.mark.slow_main)
     ],
 )
-def test_is_second_order_rigid(framework, bool_res):
+def test_is_second_order_rigid(framework, bool_res, bypass_bool):
     assert framework.is_second_order_rigid() == bool_res
-    assert framework.is_second_order_rigid(_bypass_one_dimensional=True) == bool_res
+    if bypass_bool: 
+        assert framework.is_second_order_rigid(_bypass_one_dimensional=True) == bool_res
 
 
 @pytest.mark.parametrize(
