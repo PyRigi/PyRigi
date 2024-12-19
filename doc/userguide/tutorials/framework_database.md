@@ -68,17 +68,17 @@ except ValueError as e:
 {func}`~.frameworkDB.CompleteBipartite` returns 2-dimensional complete bipartite frameworks.
 
 ```{code-cell} ipython3
-K34 = frameworks.CompleteBipartite(3, 3)
-K34.plot()
-K34.is_inf_rigid()
+K33 = frameworks.CompleteBipartite(3, 3)
+K33.plot()
+K33.is_inf_rigid()
 ```
 
 The first construction of a flexible realization by Dixon places one part on the $x$-axis and the other part on the $y$-axis.
 
 ```{code-cell} ipython3
-K34_dixonI = frameworks.CompleteBipartite(3, 3, 'dixonI')
-K34_dixonI.plot()
-K34_dixonI.is_inf_flexible()
+K33_dixonI = frameworks.CompleteBipartite(3, 3, 'dixonI')
+K33_dixonI.plot()
+K33_dixonI.is_inf_flexible()
 ```
 
 ## Cycle frameworks

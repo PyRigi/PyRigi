@@ -3,9 +3,11 @@ Module for miscellaneous functions.
 """
 
 import math
-from pyrigi.data_type import Point, point_to_vector
-from sympy import Matrix, simplify, Abs
+from pyrigi.data_type import Coordinate, point_to_vector
+from typing import List, Sequence
+from sympy import Matrix
 import numpy as np
+from math import isclose, log10
 
 
 def doc_category(category):
@@ -98,7 +100,7 @@ def check_integrality_and_range(
 
 
 def is_zero_vector(
-    vector: Point, numerical: bool = False, tolerance: float = 1e-9
+    vector: Sequence[Coordinate], numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
     """
     Check if the given vector is zero.
@@ -113,20 +115,43 @@ def is_zero_vector(
     tolerance:
         The tolerance that is used in the numerical check coordinate-wise.
     """
-
     if not isinstance(vector, Matrix):
         vector = point_to_vector(vector)
 
     if not numerical:
-        for coord in vector:
-            if not simplify(coord).is_zero:
-                break
-        else:
-            return True
+        return all([coord.is_zero for coord in vector])
     else:
-        for coord in vector:
-            if Abs(coord) > tolerance:
-                break
-        else:
-            return True
-    return False
+        return all(
+            [
+                isclose(
+                    coord,
+                    0,
+                    abs_tol=tolerance,
+                )
+                for coord in eval_sympy_vector(vector, tolerance=tolerance)
+            ]
+        )
+
+
+def eval_sympy_vector(
+    vector: Sequence[Coordinate], tolerance: float = 1e-9
+) -> List[float]:
+    """
+    Converts a sympy vector to a (numerical) list of floats.
+
+    Parameters
+    ----------
+    vector:
+        The sympy vector.
+    tolerance:
+        Intended level of numerical accuracy.
+
+    Notes
+    -----
+    The method :func:`.data_type.point_to_vector` is used to ensure that
+    the input is consistent with the sympy format.
+    """
+    return [
+        float(coord.evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))))
+        for coord in point_to_vector(vector)
+    ]

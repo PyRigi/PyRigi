@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyrigi"
-version = "0.3.0"
+version = "0.4.0"
 description = "Python package concerning the rigidity and flexibility of bar-and-joint frameworks."
 authors = ["The PyRigi Developers"]
 license = "MIT"
@@ -66,9 +66,11 @@ doctest_plus = "enabled"
 pythonpath = [
   "."
 ]
+addopts = "-m 'not slow_main'" # deselect large tests by default
+# you can run all tests with -m 'not slow_main or slow_main'
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "serial",
+    "slow_main: marks slower tests run at merge to main",
+    "long_local: marks long tests run locally",
     "realization_counting: marks tests using extra realization-counting",
     "meshing: marks tests using extra meshing"
 ]
