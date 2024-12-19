@@ -122,6 +122,8 @@ myst_substitutions = {
 myst_heading_anchors = 3
 
 nb_execution_mode = "cache"
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
 
 tippy_enable_mathjax = True
 tippy_props = {
