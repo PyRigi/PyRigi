@@ -131,6 +131,10 @@ def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
             {i: [0, (i + 1) * (-1) ** i] for i in range(m)}
             | {i: [(i - m + 1) * (-1) ** i, 0] for i in range(m, m + n)},
         )
+    elif realization == "collinear":
+        return Framework(
+            graphs.CompleteBipartite(m, n), {i: [i, 0] for i in range(m + n)}
+        )
     return Framework(
         graphs.CompleteBipartite(m, n),
         {
@@ -250,3 +254,35 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
         }
         | {2 * n: (0, 0)},
     )
+
+
+def ConnellyExampleSecondOrderRigidity() -> Framework:
+    """
+    This is an example of a (non-injective) 3-dimensional framework with a
+    two-dimensional space of flexes and stresses. It appears in
+    {{references}} {cite:p}`Connelly1996`. This framework is
+    second-order rigid but not prestress stable.
+    """
+    F = Framework.from_points(
+        [(0, 0, 0), (0, 1, 0), (0, 0, 1), (1, 0, 0), (1, 1, 0), (0, 1, 0), (1, 0, 0)]
+    )
+    F.add_edges(
+        [
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (0, 5),
+            (0, 6),
+            (1, 2),
+            (1, 4),
+            (1, 6),
+            (2, 3),
+            (2, 4),
+            (3, 4),
+            (3, 5),
+            (4, 5),
+            (4, 6),
+            (5, 6),
+        ]
+    )
+    return F

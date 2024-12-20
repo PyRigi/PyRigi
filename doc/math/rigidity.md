@@ -86,5 +86,6 @@ rigidity/infinitesimal
 rigidity/generic
 rigidity/global
 rigidity/redundant
+rigidity/second-order
 rigidity/realizations
 :::
