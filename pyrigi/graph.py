@@ -2781,22 +2781,49 @@ class Graph(nx.Graph):
         if placement is None:
             placement = self.layout(layout)
 
-        nx.draw(
-            self,
-            pos=placement,
-            ax=ax,
-            node_size=vertex_size,
-            node_color=vertex_color,
-            node_shape=vertex_shape,
-            with_labels=vertex_labels,
-            width=edge_width,
-            edge_color=edge_color_array,
-            font_color=font_color,
-            font_size=fontsize,
-            edgelist=edge_list_ref,
-            style=edge_style,
-            **kwargs,
-        )
+        if not all([t[1] == 0 for _, t in placement.items()]):
+            nx.draw(
+                self,
+                pos=placement,
+                ax=ax,
+                node_size=vertex_size,
+                node_color=vertex_color,
+                node_shape=vertex_shape,
+                with_labels=vertex_labels,
+                width=edge_width,
+                edge_color=edge_color_array,
+                font_color=font_color,
+                font_size=fontsize,
+                edgelist=edge_list_ref,
+                style=edge_style,
+                **kwargs,
+            )
+        else:
+            newGraph = nx.MultiDiGraph()
+            for e in self.edge_list():
+                newGraph.add_edge(e[0], e[1], rad=0.2)
+            nx.draw_networkx_nodes(
+                newGraph,
+                placement,
+                ax=ax,
+                node_size=vertex_size,
+                node_color=vertex_color,
+                node_shape=vertex_shape,
+            )
+            nx.draw_networkx_labels(
+                newGraph, placement, ax=ax, font_color=font_color, font_size=fontsize
+            )
+            for edge in newGraph.edges(data=True):
+                nx.draw_networkx_edges(
+                    newGraph,
+                    placement,
+                    ax=ax,
+                    width=edge_width,
+                    arrows=True,
+                    arrowstyle="-",
+                    edgelist=[(edge[0], edge[1])],
+                    connectionstyle=f'arc3, rad = {edge[2]["rad"]}',
+                )
 
         if inf_flex is not None:
             magnidutes = []
@@ -2870,15 +2897,16 @@ class Graph(nx.Graph):
                 **kwargs,
             )
 
-        nx.draw_networkx_edge_labels(
-            self,
-            pos=placement,
-            edge_labels=stress,
-            font_color=stress_color,
-            font_size=stress_fontsize,
-            label_pos=stress_label_pos,
-            rotate=stress_rotate_labels,
-        )
+        if stress is not None:
+            nx.draw_networkx_edge_labels(
+                self,
+                pos=placement,
+                edge_labels=stress,
+                font_color=stress_color,
+                font_size=stress_fontsize,
+                label_pos=stress_label_pos,
+                rotate=stress_rotate_labels,
+            )
 
         plt.show()
 

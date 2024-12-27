@@ -536,7 +536,6 @@ class Framework(object):
         TODO
         ----
         Implement plotting in dimension 3 and
-        better plotting for dimension 1 using ``connectionstyle``
         """
 
         if self._dim > 2:
