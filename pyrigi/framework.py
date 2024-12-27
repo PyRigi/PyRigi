@@ -1769,7 +1769,11 @@ class Framework(object):
                         for i in range(self._graph.number_of_edges())
                     ]
                 )
+            """
+            TODO Doesn't work for `Frustum(5)` currently
+            """
             coefficients = sp.Poly(stress_energy.simplify()).coeffs()
+            print(coefficients)
             return not sp.sign(coefficients[0]) == 0 and all(
                 [
                     sp.sign(coefficients[i]) == sp.sign(coefficients[0])
