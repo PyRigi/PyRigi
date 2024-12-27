@@ -2673,19 +2673,25 @@ class Graph(nx.Graph):
         self,
         placement: Dict[Vertex, Point] = None,
         inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
+        stress: Dict[Edge, Coordinate] = None,
         layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4169E1",
         vertex_shape: str = "o",
         vertex_labels: bool = True,
         edge_width: float = 2.5,
-        edge_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "black",
+        edge_color: str | List[str] | Dict[str : List[Edge]] = "black",
         edge_style: str = "solid",
         flex_width: float = 2.5,
         flex_length: float = 0.15,
-        flex_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "limegreen",
+        flex_color: str | List[str] = "limegreen",
         flex_style: str = "solid",
         flex_arrowsize: int = 20,
+        stress_color: str = "orangered",
+        stress_fontsize: int = 10,
+        stress_label_pos: float = 1,
+        stress_rotate_labels: bool = True,
+        fontsize: int = 12,
         font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
@@ -2743,6 +2749,16 @@ class Graph(nx.Graph):
             diagonal in percent. By default 15%.
         flex_arrowsize:
             Size of the arrowhead's length and width.
+        stress_color:
+            Color of the font used to label the edges with stresses.
+        stress_fontsize:
+            Fontsize of the stress labels.
+        stress_label_pos:
+            Position of the stress label along the edge. `float` numbers
+            from the interval `[0,1]` are allowed. `0` represents the head
+            of the edge, `0.5` the center and `1` the edge's tail.
+        stress_rotate_labels:
+            A boolean indicating whether the stress label should be rotated.
         font_size:
             The size of the font used for the labels.
         font_color:
@@ -2776,6 +2792,7 @@ class Graph(nx.Graph):
             width=edge_width,
             edge_color=edge_color_array,
             font_color=font_color,
+            font_size=fontsize,
             edgelist=edge_list_ref,
             style=edge_style,
             **kwargs,
@@ -2829,7 +2846,16 @@ class Graph(nx.Graph):
             H_placement.update(
                 {v: np.array(placement[v], dtype=float) for v in inf_flex.keys()}
             )
-
+            if (
+                not isinstance(flex_color, str | list)
+                or isinstance(flex_color, list)
+                and not len(flex_color) == len(inf_flex)
+            ):
+                raise TypeError(
+                    "`flex_color` must either be a `str` specifying"
+                    + "a color or a list of strings with the same"
+                    + "number as the nonzero flexes."
+                )
             nx.draw(
                 H,
                 pos=H_placement,
@@ -2843,6 +2869,16 @@ class Graph(nx.Graph):
                 style=flex_style,
                 **kwargs,
             )
+
+        nx.draw_networkx_edge_labels(
+            self,
+            pos=placement,
+            edge_labels=stress,
+            font_color=stress_color,
+            font_size=stress_fontsize,
+            label_pos=stress_label_pos,
+            rotate=stress_rotate_labels,
+        )
 
         plt.show()
 

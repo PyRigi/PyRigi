@@ -185,7 +185,7 @@ F.plot(
 )
 ```
 
-## Infinitesimal Flexes
+### Infinitesimal Flexes
 
 It is possible to include infinitesimal flexes in the plot. With the keyword
 `inf_flex=n`, we can pick the `n`-th nontrivial infinitesimal flex from
@@ -217,10 +217,33 @@ F.plot(inf_flex=flex)
 
 It is important to use the same order of the vertices of `F` as {meth}`.Graph.vertex_list` when
 providing the infinitesimal flex as a `Matrix`. To circumvent that,
-we also support adding an infinitesimal flex as a `dict[Vertex, Vector]`:
+we also support adding an infinitesimal flex as a `Dict[Vertex, Sequence[Coordinate]]`.
+In both of the cases where the user provides an infinitesimal flex, it is
+internally checked whether the provided vector lies in the kernel of the rigidity matrix.
 
 ```{code-cell} ipython3
 F = frameworks.Square()
 flex = {0: (1, -1), 1: (1, 1), 2: (-1, 1), 3: (-1, -1)}
 F.plot(inf_flex=flex)
+```
+
+### Equilibrium Stresses
+
+We can also plot stresses. Contrary to flexes, stresses exist as edge labels. 
+Analogous to the way that infinitesimal flexes can be visualized (see the previous
+section), a `stress` can be provided either as the `n`-th equilibrium stress, as a
+specific `stress` given by a `Matrix` or alternatively as a `Dict[Edge, Coordinate]`. 
+It is internally checked, whether the provided stress lies in the cokernel of the
+rigidity matrix. 
+
+```{code-cell} ipython3
+F = frameworks.Frustum(3)
+F.plot(
+    inf_flex=0,
+    stress=0,
+    stress_color = "orangered",
+    stress_fontsize = 11,
+    stress_label_pos = 0.45,
+    stress_rotate_labels = False
+)
 ```
