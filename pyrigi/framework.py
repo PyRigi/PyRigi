@@ -1295,9 +1295,9 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([[0,0], [1,0], ['1/2',0]])
-        >>> F.is_dict_stress({0:1, 1:'-1/2', 2:1})
+        >>> F.is_dict_stress({(0,1):'-1/2', (0,2):1, (1,2):1})
         True
-        >>> F.is_dict_stress({0:0, 1:1, 2:0})
+        >>> F.is_dict_stress({(0,1):1, (1,2):'-1/2', (0,2):1})
         False
         """
         stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
