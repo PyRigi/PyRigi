@@ -26,9 +26,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "0.3"
+version = "0.4"
 # The full version, including alpha/beta/rc tags
-release = "0.3.0"
+release = "0.4.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -122,6 +122,8 @@ myst_substitutions = {
 myst_heading_anchors = 3
 
 nb_execution_mode = "cache"
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
 
 tippy_enable_mathjax = True
 tippy_props = {
@@ -230,7 +232,7 @@ html_title = "PyRigi"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-html_css_files = ["tippy.css"]
+html_css_files = ["tippy.css", "thm.css"]
 
 
 # Custom sidebar templates, must be a dictionary that maps document names

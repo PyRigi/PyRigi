@@ -48,18 +48,25 @@ Two $d$-dimensional {prf:ref}`frameworks <def-framework>` $(G, p)$ and $(G, p')$
  \left\| p_u - p_v \right\| = \left\| p'_u - p'_v \right\|
  \quad \text{ for all } u, v \in V \,.
 \end{equation*}
+
+{{pyrigi_crossref}} {meth}`~.Framework.is_equivalent`
+{meth}`~.Framework.is_equivalent_realization`
+{meth}`~.Framework.is_congruent`
+{meth}`~.Framework.is_congruent_realization`
 :::
 
 :::{prf:definition} Continuous flexes
-:label: def-flex
+:label: def-motion
 
 Let $(G, p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` with $G = (V, E)$.
-A _continuous flex_ is a continuous map $\alpha \colon [0, 1] \rightarrow (\RR^{d})^V$ such that
+A _motion (continuous flex)_ is a continuous map $\alpha \colon [0, 1] \rightarrow (\RR^{d})^V$ such that
 
 * $\alpha(0) = p$;
 * $(G, p)$ and $(G, \alpha(t))$ are equivalent for every $t \in [0,1]$.
 
-A continuous flex is called _trivial_ if $(G, p)$ and $(G, \alpha(t))$ are congruent for every $t \in [0,1]$.
+A motion is called _trivial_ if $(G, p)$ and $(G, \alpha(t))$ are congruent for every $t \in [0,1]$.
+
+{{pyrigi_crossref}} {class}`~.ParametricMotion`
 :::
 
 
@@ -79,4 +86,5 @@ rigidity/infinitesimal
 rigidity/generic
 rigidity/global
 rigidity/redundant
+rigidity/realizations
 :::

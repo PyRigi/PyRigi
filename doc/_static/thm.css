@@ -1,0 +1,91 @@
+/*********************************************
+* Variables *
+*********************************************/
+:root {
+  --thm-title-color: rgba(102,153,204,.1);
+  --thm-border-color: #6699CC;
+  --lem-title-color: var(--thm-title-color);
+  --lem-border-color: var(--thm-border-color);
+  --cor-title-color: var(--thm-title-color);
+  --cor-border-color: var(--thm-border-color);
+  --def-title-color: rgba(17,119,51,.1);
+  --def-border-color: #117733;
+  --alg-title-color: rgba(221,221,221,.2);
+  --alg-border-color: #BBBBBB;
+}
+
+/*********************************************
+* Main body *
+*********************************************/
+
+/* Remove content box */
+div.proof p.admonition-title::before {
+	content: none;
+}
+
+/*********************************************
+* Theorem *
+*********************************************/
+div.theorem {
+	border-color: var(--thm-border-color);
+	background-color: var(--thm-title-color);
+}
+
+div.theorem p.admonition-title {
+	background-color: var(--thm-title-color);
+}
+
+/*********************************************
+* Lemma *
+*********************************************/
+div.lemma {
+	border-color: var(--lem-border-color);
+	background-color: var(--lem-title-color);
+}
+
+div.lemma p.admonition-title {
+	background-color: var(--lem-title-color);
+}
+
+/*********************************************
+* Definition *
+*********************************************/
+div.definition {
+	border-color: var(--def-border-color);
+	background-color: var(--def-title-color);
+}
+
+div.definition p.admonition-title {
+	background-color: var(--def-title-color);
+}
+
+/*********************************************
+* Corollary *
+*********************************************/
+div.corollary {
+	border-color: var(--cor-border-color);
+	background-color: var(--cor-title-color);
+}
+
+div.corollary p.admonition-title {
+	background-color: var(--cor-title-color);
+}
+
+/*********************************************
+* Algorithm *
+*********************************************/
+div.algorithm {
+	border: none;
+	background-color: var(--alg-title-color);
+}
+
+div.algorithm p.admonition-title {
+	background-color: var(--alg-title-color);
+	border-top: .15rem solid var(--alg-border-color);
+	border-bottom: .15rem solid var(--alg-border-color);
+}
+
+div.algorithm div.section {
+	font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
+	font-size: .85rem;
+}

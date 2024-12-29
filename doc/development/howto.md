@@ -54,6 +54,8 @@ We propose a few categories for contributing branches:
 * _testing_: branches to add tests; their name should start by `test-`
 * _refactoring_: branches to refactor the code; their name should start by `refactor-`
 
+### Version Release
+
 Once in a while, the maintainers merge the branch `dev` into `main` and create a new release.
 The release numbers follow this scheme:
 
@@ -61,6 +63,16 @@ The release numbers follow this scheme:
 * MINOR version: new functionality in a backward compatible manner (x.y+1.z)
 * PATCH version: backward compatible bug fixes (x.y.z+1).
 
+To create a new version, the following steps should be taken by the maintainers:
+
+1. Create a release branch.
+2. Update the `version` and `release` in `doc/conf.py` and the `version` in `pyproject.toml`.
+3. Update the `contributors.md` (this step can be skipped for patch releases).
+4. Merge the branch into `dev`.
+5. Continue on the release branch and remove the files that are not supposed to be in the release (e.g. `poetry.lock`).
+6. Merge the branch into `main`.
+7. Add a new release tag in Github and generate the corresponding release notes.
+8. Afterwards, run `poetry update` and commit `poetry.lock` to update the dependencies on `dev` .
 
 ## Code
 
@@ -157,6 +169,25 @@ if you want to skip some specific optional feature(s), run
 pytest -m "not optional_feature1_name and not optional_feature2_name"
 ```
 See the file `pyproject.toml` for the markers that specify groups of tests relying on optional packages.
+
+We mark tests that take longer time according to the following table:
+
+| marker               | per test | total time | execution
+| -------------------- | -------- | ---------- | -------------------
+| standard (no marker) | < 0.5s   | < 2 min    | on merge/PR to `dev`
+| `slow_main`            | < 10s    | < 15 min   | on merge/PR to `main`
+| `long_local`           | > 10s    | hours      | locally when needed
+
+The column `total time` indicates how much time is needed to run all tests with the given marker.
+The time limits per tests are approximate: it is better to have a longer standard tests than none.
+Also most of the standard tests should be much faster then the indicated limit.
+
+The command `pytest` executes only standard tests.
+To include also the tests marked `slow_main`, run
+```
+pytest -m 'not slow_main or slow_main'
+```
+
 
 ## Documentation
 

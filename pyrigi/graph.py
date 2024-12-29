@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from typing import List, Union, Iterable
+from typing import List, Dict, Union, Iterable
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -387,7 +387,7 @@ class Graph(nx.Graph):
         return nx.node_connectivity(self)
 
     @doc_category("General graph theoretical properties")
-    def degree_sequence(self, vertex_order: List[Vertex] = None) -> list[int]:
+    def degree_sequence(self, vertex_order: List[Vertex] = None) -> List[int]:
         """
         Return a list of degrees of the vertices of the graph.
 
@@ -1009,12 +1009,36 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def number_of_realizations(
-        self, spherical_realizations: bool = False, check_min_rigid: bool = True
+        self,
+        spherical_realizations: bool = False,
+        check_min_rigid: bool = True,
+        count_reflection: bool = False,
     ) -> int:
         """
-        Count the number of planar or spherical realizations of a minimally 2-rigid graph.
+        Count the number of complex planar or spherical realizations
+        of a minimally 2-rigid graph.
 
-        Note that by default, the method checks if the input graph is minimally 2-rigid.
+        Algorithms of :cite:p:`CapcoGalletGraseggerEtAl2018` and
+        :cite:p:`GalletGraseggerSchicho2020` are used.
+        Note, however, that here the result from these algorithms
+        is by default divided by two.
+        This behaviour accounts better for global rigidity,
+        but it can be changed using the parameter ``count_reflection``.
+
+        Note that by default,
+        the method checks if the input graph is indeed minimally 2-rigid.
+
+        Caution: Currently the method only works if the python package ``lnumber``
+        is installed :cite:p:`Capco2024`.
+        See :ref:`installation-guide` for details on installing.
+
+        Definitions
+        -----------
+        :prf:ref:`Number of complex realizations<def-number-of-realizations>`
+
+        :prf:ref:`Number of complex spherical realizations
+        <def-number-of-spherical-realizations>`
+
 
         Parameters
         ----------
@@ -1026,18 +1050,26 @@ class Graph(nx.Graph):
             If ``True``, the number of spherical realizations of the graph is returned.
             If ``False`` (default), the number of planar realizations is returned.
 
+        count_reflection:
+            If ``True``, the number of realizations is computed modulo direct isometries.
+            But reflection is counted to be non-congruent as used in
+            :cite:p:`CapcoGalletGraseggerEtAl2018` and
+            :cite:p:`GalletGraseggerSchicho2020`.
+            If ``False`` (default), reflection is not counted.
+
         Examples
         --------
         >>> from pyrigi import Graph
+        >>> import pyrigi.graphDB as graphs
         >>> G = Graph([(0,1),(1,2),(2,0)])
         >>> G.number_of_realizations() # number of planar realizations
-        2
+        1
         >>> G.number_of_realizations(spherical_realizations=True)
-        2
+        1
+        >>> G = graphs.ThreePrism()
+        >>> G.number_of_realizations() # number of planar realizations
+        12
 
-        TODO
-        ----
-        Definition of the number of realizations.
         """
         try:
             import lnumber
@@ -1052,10 +1084,14 @@ class Graph(nx.Graph):
                 return 1
 
             n = self.to_int()
-            if spherical_realizations:
-                return lnumber.lnumbers(n)
+            if count_reflection:
+                fac = 1
             else:
-                return lnumber.lnumber(n)
+                fac = 2
+            if spherical_realizations:
+                return lnumber.lnumbers(n) // fac
+            else:
+                return lnumber.lnumber(n) // fac
         except ImportError:
             raise ImportError(
                 "For counting the number of realizations, "
@@ -1065,7 +1101,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
@@ -1077,11 +1113,11 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial)
+        return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True
+        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
@@ -1096,6 +1132,20 @@ class Graph(nx.Graph):
         :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`,
         :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
         ... are used
+
+        Parameters
+        ----------
+        k:
+            level of redundancy
+        dim:
+            dimension
+        combinatorial:
+            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
+            Otherwise a probabilistic check is used that may give false results.
+            See :meth:`~.Graph.is_rigid` for details.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
 
         Examples
         --------
@@ -1169,7 +1219,7 @@ class Graph(nx.Graph):
         for vertex_set in combinations(self.nodes, k):
             adj = [[v, list(G.neighbors(v))] for v in vertex_set]
             G.delete_vertices(vertex_set)
-            if not G.is_rigid(dim, combinatorial):
+            if not G.is_rigid(dim, combinatorial, prob):
                 return False
             # add vertices and edges back
             G.add_vertices(vertex_set)
@@ -1180,7 +1230,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_min_vertex_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is
@@ -1193,11 +1243,11 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_min_k_vertex_redundantly_rigid(1, dim, combinatorial)
+        return self.is_min_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_min_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True
+        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally k-vertex redundantly (generically) dim-rigid
@@ -1208,6 +1258,19 @@ class Graph(nx.Graph):
         :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound-dim1`
         are used.
 
+        Parameters
+        ----------
+        k:
+            level of redundancy
+        dim:
+            dimension
+        combinatorial:
+            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
+            Otherwise a probabilistic check is used that may give false results.
+            See :meth:`~.Graph.is_rigid` for details.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
 
         Examples
         --------
@@ -1243,7 +1306,7 @@ class Graph(nx.Graph):
             if n >= 3 * (k + 1) - 1 and m > (k + 1) * n - (k + 1) * (k + 1):
                 return False
 
-        if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
+        if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
             return False
 
         # for the following we need to know that the graph is k-vertex-redundantly rigid
@@ -1291,24 +1354,26 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for edge in self.edge_list():
             G.delete_edges([edge])
-            if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial):
+            if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
                 return False
             G.add_edges([edge])
         return True
 
     @doc_category("Generic rigidity")
-    def is_redundantly_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_redundantly_rigid(
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
         <def-redundantly-rigid-graph>`.
 
         See :meth:`.is_k_redundantly_rigid` (using k = 1) for details.
         """
-        return self.is_k_redundantly_rigid(1, dim, combinatorial)
+        return self.is_k_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_k_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True
+        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
@@ -1316,12 +1381,26 @@ class Graph(nx.Graph):
 
         Preliminary checks from
         :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`,
+        :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`,
         :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`,
         :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`,
         :prf:ref:`thm-globally-redundant-3connected` and
         :prf:ref:`thm-globally-mindeg6-dim2`.
         are used
+
+        Parameters
+        ----------
+        k:
+            level of redundancy
+        dim:
+            dimension
+        combinatorial:
+            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
+            Otherwise a probabilistic check is used that may give false results.
+            See :meth:`~.Graph.is_rigid` for details.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
 
         Examples
         --------
@@ -1364,7 +1443,7 @@ class Graph(nx.Graph):
                 # basic edge bound
                 (k == 1 and m < 2 * n - 2)
                 or
-                # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
+                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`
                 (k == 2 and n >= 5 and m < 2 * n)
                 or
                 # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
@@ -1395,14 +1474,14 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
             G.delete_edges(edge_set)
-            if not G.is_rigid(dim, combinatorial):
+            if not G.is_rigid(dim, combinatorial, prob):
                 return False
             G.add_edges(edge_set)
         return True
 
     @doc_category("Generic rigidity")
     def is_min_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally redundantly (generically) dim-rigid
@@ -1414,11 +1493,11 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
-        return self.is_min_k_redundantly_rigid(1, dim, combinatorial)
+        return self.is_min_k_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_min_k_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True
+        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally k-redundantly (generically) dim-rigid
@@ -1427,6 +1506,20 @@ class Graph(nx.Graph):
         Preliminary checks from
         :prf:ref:`thm-minimal-1-edge-redundant-upper-edge-bound-dim2`
         are used.
+
+        Parameters
+        ----------
+        k:
+            level of redundancy
+        dim:
+            dimension
+        combinatorial:
+            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
+            Otherwise a probabilistic check is used that may give false results.
+            See :meth:`~.Graph.is_rigid` for details.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
 
 
         Examples
@@ -1461,7 +1554,7 @@ class Graph(nx.Graph):
                 if n >= 7 and m > 3 * n - 9:
                     return False
 
-        if not self.is_k_redundantly_rigid(k, dim, combinatorial):
+        if not self.is_k_redundantly_rigid(k, dim, combinatorial, prob):
             return False
 
         # for the following we need to know that the graph is k-redundantly rigid
@@ -1471,7 +1564,7 @@ class Graph(nx.Graph):
                 # basic edge bound
                 (k == 1 and m == 2 * n - 2)
                 or
-                # edge bound from :prf:ref:`thm-1-edge-redundant-edge-bound-dim2`
+                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`
                 (k == 2 and n >= 5 and m == 2 * n)
                 or
                 # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
@@ -1498,15 +1591,29 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for edge in self.edge_list():
             G.delete_edges([edge])
-            if G.is_k_redundantly_rigid(k, dim, combinatorial):
+            if G.is_k_redundantly_rigid(k, dim, combinatorial, prob):
                 return False
             G.add_edges([edge])
         return True
 
     @doc_category("Generic rigidity")
-    def is_rigid(self, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_rigid(
+        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+    ) -> bool:
         """
         Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
+
+        Parameters
+        ----------
+        dim:
+            dimension
+        combinatorial:
+            determines whether a combinatinatorial algorithm shall be used
+            If combinatorial is true, a pebble game algorithm is used.
+            Otherwise a probabilistic check is used that may give false negatives
+            (see :prf:ref:`thm-probabilistic-rigidity-check`).
+        prob:
+            bound on the probability of a randomized algorithm to yield false negatives
 
         Examples
         --------
@@ -1540,22 +1647,30 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        elif dim == 1:
+        n = self.number_of_nodes()
+        # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
+        if self.number_of_edges() < dim * n - math.comb(dim + 1, 2):
+            return False
+        # small graphs are rigid iff complete :pref:ref:`thm-gen-rigidity-small-complete`
+        elif n <= dim + 1:
+            return self.number_of_edges() == math.comb(n, 2)
+
+        elif dim == 1 and combinatorial:
             return nx.is_connected(self)
         elif dim == 2 and combinatorial:
-            deficiency = -(2 * self.number_of_nodes() - 3) + self.number_of_edges()
+            deficiency = -(2 * n - 3) + self.number_of_edges()
             if deficiency < 0:
                 return False
             else:
                 self._build_pebble_digraph(2, 3)
-                return (
-                    self._pebble_digraph.number_of_edges()
-                    == 2 * self.number_of_nodes() - 3
-                )
+                return self._pebble_digraph.number_of_edges() == 2 * n - 3
         elif not combinatorial:
+            N = int((n * dim - math.comb(dim + 1, 2)) / prob)
+            if N < 1:
+                raise ValueError("The parameter prob is too large.")
             from pyrigi.framework import Framework
 
-            F = Framework.Random(self, dim)
+            F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
         else:
             raise ValueError(
@@ -1569,6 +1684,7 @@ class Graph(nx.Graph):
         dim: int = 2,
         combinatorial: bool = True,
         use_precomputed_pebble_digraph: bool = False,
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
@@ -1576,12 +1692,21 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
+        dim:
+            dimension
+        combinatorial:
+            determines whether a combinatinatorial algorithm shall be used
+            If combinatorial is true, a pebble game algorithm is used.
+            Otherwise a probabilistic check is used that may give false negatives
+            (see :prf:ref:`thm-probabilistic-rigidity-check`).
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2`` and ``combinatorial=True``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
+        prob:
+            bound on the probability of a randomized algorithm to yield false negatives
 
         Examples
         --------
@@ -1610,6 +1735,15 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        n = self.number_of_nodes()
+        # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
+        if self.number_of_edges() != dim * n - math.comb(dim + 1, 2):
+            return False
+        # small graphs are minimally rigid iff complete
+        # :pref:ref:`thm-gen-rigidity-small-complete`
+        elif n <= dim + 1:
+            return self.number_of_edges() == math.comb(n, 2)
+
         elif dim == 1 and combinatorial:
             return nx.is_tree(self)
         elif dim == 2 and combinatorial:
@@ -1620,9 +1754,12 @@ class Graph(nx.Graph):
                 use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
             )
         elif not combinatorial:
+            N = int((n * dim - math.comb(dim + 1, 2)) / prob)
+            if N < 1:
+                raise ValueError("The parameter prob is too large.")
             from pyrigi.framework import Framework
 
-            F = Framework.Random(self, dim)
+            F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_min_inf_rigid()
         else:
             raise ValueError(
@@ -1880,35 +2017,31 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     @doc_category("Generic rigidity")
-    def max_rigid_subgraphs(self, dim: int = 2) -> List[Graph]:
+    def rigid_components(self, dim: int = 2) -> List[List[Vertex]]:
         """
         List the vertex sets inducing vertex-maximal rigid subgraphs.
 
         Definitions
         -----
-        :prf:ref:`Maximal rigid subgraph <def-maximal-rigid-subgraph>`
-
-        TODO
-        ----
-        missing definition, tests
+        :prf:ref:`Rigid components <def-rigid-components>`
 
         Notes
         -----
-        We only return nontrivial subgraphs, meaning that there need to be at
-        least ``dim+1`` vertices present. If the graph itself is rigid, it is clearly
-        maximal and is returned.
+        If the graph itself is rigid, it is clearly maximal and is returned.
+        Every edge is part of a rigid component. Isolated vertices form
+        additional rigid components.
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.max_rigid_subgraphs()
-        []
+        >>> G.rigid_components()
+        [[0, 1], [0, 3], [1, 2], [2, 3]]
 
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
         >>> G.is_rigid()
         False
-        >>> G.max_rigid_subgraphs()
-        [[0, 1, 2], [3, 4, 5]]
+        >>> G.rigid_components()
+        [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1920,18 +2053,16 @@ class Graph(nx.Graph):
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
-                res += self.subgraph(comp).max_rigid_subgraphs(dim)
+                res += self.subgraph(comp).rigid_components(dim)
             return res
 
-        if self.number_of_nodes() <= dim:
-            return []
-        if self.is_rigid(dim):
-            return [self]
+        if self.is_rigid(dim, combinatorial=(dim < 3)):
+            return [list(self)]
         rigid_subgraphs = {
             tuple(vertex_subset): True
-            for r in range(dim + 1, self.number_of_nodes() - 1)
+            for r in range(2, self.number_of_nodes() - 1)
             for vertex_subset in combinations(self.nodes, r)
-            if self.subgraph(vertex_subset).is_rigid(dim)
+            if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
         }
 
         sorted_rigid_subgraphs = sorted(
@@ -1943,68 +2074,6 @@ class Graph(nx.Graph):
                     if set(H2).issubset(set(H1)):
                         rigid_subgraphs[H2] = False
         return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
-
-    @doc_category("Generic rigidity")
-    def min_rigid_subgraphs(self, dim: int = 2) -> List[Graph]:
-        """
-        List the vertex sets inducing vertex-minimal non-trivial rigid subgraphs.
-
-        Definitions
-        -----
-        :prf:ref:`Minimal rigid subgraph <def-minimal-rigid-subgraph>`
-
-        TODO
-        ----
-        missing definition, tests
-
-        Notes
-        -----
-        We only return nontrivial subgraphs, meaning that there need to be at
-        least ``dim+1`` vertices present.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.CompleteBipartite(3, 3)
-        >>> G.is_rigid()
-        True
-        >>> G.min_rigid_subgraphs()
-        [[0, 1, 2, 3, 4, 5]]
-        >>> G = graphs.ThreePrism()
-        >>> G.is_rigid()
-        True
-        >>> G.min_rigid_subgraphs()
-        [[0, 1, 2], [3, 4, 5]]
-        """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
-
-        if not nx.is_connected(self):
-            res = []
-            for comp in nx.connected_components(self):
-                res += self.subgraph(comp).min_rigid_subgraphs(dim)
-            return res
-
-        if self.number_of_nodes() <= dim:
-            return []
-        rigid_subgraphs = {
-            tuple(vertex_subset): True
-            for r in range(dim + 1, self.number_of_nodes() + 1)
-            for vertex_subset in combinations(self.nodes, r)
-            if self.subgraph(vertex_subset).is_rigid(dim)
-        }
-
-        sorted_rigid_subgraphs = sorted(rigid_subgraphs.keys(), key=lambda t: len(t))
-        for i, H1 in enumerate(sorted_rigid_subgraphs):
-            if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
-                for H2 in sorted_rigid_subgraphs[i + 1 :]:
-                    if set(H1).issubset(set(H2)):
-                        rigid_subgraphs[H2] = False
-        return [list(H) for H, is_min in rigid_subgraphs.items() if is_min]
 
     @doc_category("Generic rigidity")
     def max_rigid_dimension(self) -> int | Inf:
@@ -2234,9 +2303,226 @@ class Graph(nx.Graph):
 
         return Framework.Random(self, dim, rand_range)
 
+    @doc_category("Other")
+    def to_tikz(
+        self,
+        layout_type: str = "spring",
+        placement: dict[Vertex, Point] = None,
+        vertex_style: Union(str, dict[str : list[Vertex]]) = "gvertex",
+        edge_style: Union(str, dict[str : list[Edge]]) = "edge",
+        label_style: str = "labelsty",
+        figure_opts: str = "",
+        vertex_in_labels: bool = False,
+        vertex_out_labels: bool = False,
+        default_styles: bool = True,
+    ) -> str:
+        r"""
+        Create a TikZ code for the graph.
+
+        For using it in ``LaTeX`` you need to use the ``tikz`` package.
+
+        Parameters
+        ----------
+        placement:
+            If ``placement`` is not specified,
+            then it is generated depending on parameter ``layout``.
+        layout:
+            The possibilities are ``spring`` (default), ``circular``,
+            ``random`` or ``planar``, see also :meth:`~Graph.layout`.
+        vertex_style:
+            If a single style is given as a string,
+            then all vertices get this style.
+            If a dictionary from styles to a list of vertices is given,
+            vertices are put in style accordingly.
+            The vertices missing in the dictionary do not get a style.
+        edge_style:
+            If a single style is given as a string,
+            then all edges get this style.
+            If a dictionary from styles to a list of edges is given,
+            edges are put in style accordingly.
+            The edges missing in the dictionary do not get a style.
+        label_style:
+            The style for labels that are placed next to vertices.
+        figure_opts:
+            Options for the tikzpicture environment.
+        vertex_in_labels
+            A bool on whether vertex names should be put as labels on the vertices.
+        vertex_out_labels
+            A bool on whether vertex names should be put next to vertices.
+        default_styles
+            A bool on whether default style definitions should be put to the options.
+
+        Examples
+        ----------
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
+        >>> print(G.to_tikz()) # doctest: +SKIP
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (-0.98794, -0.61705) {};
+            \node[gvertex] (1) at (0.62772, -1.0) {};
+            \node[gvertex] (2) at (0.98514, 0.62151) {};
+            \node[gvertex] (3) at (-0.62492, 0.99554) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular")) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (1.0, 0.0) {};
+            \node[gvertex] (1) at (-0.0, 1.0) {};
+            \node[gvertex] (2) at (-1.0, -0.0) {};
+            \node[gvertex] (3) at (0.0, -1.0) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(placement = [[0, 0], [1, 1], [2, 2], [3, 3]])) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (0, 0) {};
+            \node[gvertex] (1) at (1, 1) {};
+            \node[gvertex] (2) at (2, 2) {};
+            \node[gvertex] (3) at (3, 3) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_out_labels = True)) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white},labelsty/.style={font=\scriptsize,black!70!white}]
+            \node[gvertex,label={[labelsty]right:$0$}] (0) at (1.0, 0.0) {};
+            \node[gvertex,label={[labelsty]right:$1$}] (1) at (-0.0, 1.0) {};
+            \node[gvertex,label={[labelsty]right:$2$}] (2) at (-1.0, -0.0) {};
+            \node[gvertex,label={[labelsty]right:$3$}] (3) at (0.0, -1.0) {};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_in_labels = True)) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
+            \node[gvertex] (0) at (1.0, 0.0) {$0$};
+            \node[gvertex] (1) at (-0.0, 1.0) {$1$};
+            \node[gvertex] (2) at (-1.0, -0.0) {$2$};
+            \node[gvertex] (3) at (0.0, -1.0) {$3$};
+            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", vertex_style = "myvertex", edge_style = "myedge")) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[]
+            \node[myvertex] (0) at (1.0, 0.0) {};
+            \node[myvertex] (1) at (-0.0, 1.0) {};
+            \node[myvertex] (2) at (-1.0, -0.0) {};
+            \node[myvertex] (3) at (0.0, -1.0) {};
+            \draw[myedge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
+        \end{tikzpicture}
+
+        >>> print(G.to_tikz(layout_type = "circular", edge_style = {"red edge": [[1, 2]], "green edge": [[2, 3], [0, 1]]}, vertex_style = {"red vertex": [0], "blue vertex": [2, 3]})) # doctest: +NORMALIZE_WHITESPACE
+        \begin{tikzpicture}[]
+            \node[red vertex] (0) at (1.0, 0.0) {};
+            \node[blue vertex] (2) at (-1.0, -0.0) {};
+            \node[blue vertex] (3) at (0.0, -1.0) {};
+            \node[] (1) at (-0.0, 1.0) {};
+            \draw[red edge] (1) to (2);
+            \draw[green edge] (2) to (3) (0) to (1);
+            \draw[] (3) to (0);
+        \end{tikzpicture}
+        """  # noqa: E501
+
+        # strings for tikz styles
+        if vertex_out_labels and default_styles:
+            lstyle_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
+        else:
+            lstyle_str = ""
+
+        if vertex_style == "gvertex" and default_styles:
+            if vertex_in_labels:
+                vstyle_str = (
+                    "gvertex/.style={white,fill=black,draw=black,circle,"
+                    r"inner sep=1pt,font=\scriptsize}"
+                )
+            else:
+                vstyle_str = (
+                    "gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,"
+                    "minimum size=4pt}"
+                )
+        else:
+            vstyle_str = ""
+        if edge_style == "edge" and default_styles:
+            estyle_str = "edge/.style={line width=1.5pt,black!60!white}"
+        else:
+            estyle_str = ""
+
+        figure_str = [figure_opts, vstyle_str, estyle_str, lstyle_str]
+        figure_str = [fs for fs in figure_str if fs != ""]
+        figure_str = ",".join(figure_str)
+
+        # tikz for edges
+        edge_style_dict = {}
+        if type(edge_style) is str:
+            edge_style_dict[edge_style] = self.edge_list()
+        else:
+            dict_edges = []
+            for estyle, elist in edge_style.items():
+                cdict_edges = [ee for ee in elist if self.has_edge(*ee)]
+                edge_style_dict[estyle] = cdict_edges
+                dict_edges += cdict_edges
+            remaining_edges = [
+                ee
+                for ee in self.edge_list()
+                if not ((ee in dict_edges) or (ee.reverse() in dict_edges))
+            ]
+            edge_style_dict[""] = remaining_edges
+
+        edges_str = ""
+        for estyle, elist in edge_style_dict.items():
+            edges_str += (
+                f"\t\\draw[{estyle}] "
+                + " ".join([" to ".join([f"({v})" for v in e]) for e in elist])
+                + ";\n"
+            )
+
+        # tikz for vertices
+        if placement is None:
+            placement = self.layout(layout_type)
+
+        vertex_style_dict = {}
+        if type(vertex_style) is str:
+            vertex_style_dict[vertex_style] = self.vertex_list()
+        else:
+            dict_vertices = []
+            for style, vlist in vertex_style.items():
+                cdict_vertices = [vv for vv in vlist if (vv in self.vertex_list())]
+                vertex_style_dict[style] = cdict_vertices
+                dict_vertices += cdict_vertices
+            remaining_vertices = [
+                vv for vv in self.vertex_list() if not (vv in dict_vertices)
+            ]
+            vertex_style_dict[""] = remaining_vertices
+
+        vertices_str = ""
+        for vstyle, vlist in vertex_style_dict.items():
+            vertices_str += "".join(
+                [
+                    "\t\\node["
+                    + vstyle
+                    + (
+                        ("," if vertex_style != "" else "")
+                        + f"label={{[{label_style}]right:${v}$}}"
+                        if vertex_out_labels
+                        else ""
+                    )
+                    + f"] ({v}) at "
+                    + f"({round(placement[v][0], 5)}, {round(placement[v][1], 5)}) {{"
+                    + (f"${v}$" if vertex_in_labels else "")
+                    + "};\n"
+                    for v in vlist
+                ]
+            )
+        return (
+            "\\begin{tikzpicture}["
+            + figure_str
+            + "]\n"
+            + vertices_str
+            + edges_str
+            + "\\end{tikzpicture}"
+        )
+
     def _resolve_edge_colors(
-        self, edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]])
-    ) -> tuple[list, list]:
+        self, edge_color: str | List[List[Edge]] | Dict[str : List[Edge]]
+    ) -> tuple[List, List]:
         """
         Return the lists of colors and edges in the format for plotting.
         """
@@ -2355,7 +2641,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Other")
-    def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
+    def layout(self, layout_type: str = "spring") -> Dict[Vertex, Point]:
         """
         Generate a placement of the vertices.
 
@@ -2385,19 +2671,19 @@ class Graph(nx.Graph):
     @doc_category("Other")
     def plot(
         self,
-        placement: dict[Vertex, Point] = None,
-        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        placement: Dict[Vertex, Point] = None,
+        inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
         layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4169E1",
         vertex_shape: str = "o",
         vertex_labels: bool = True,
         edge_width: float = 2.5,
-        edge_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "black",
+        edge_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "black",
         edge_style: str = "solid",
         flex_width: float = 2.5,
         flex_length: float = 0.15,
-        flex_color: Union(str, list[list[Edge]], dict[str : list[Edge]]) = "limegreen",
+        flex_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "limegreen",
         flex_style: str = "solid",
         flex_arrowsize: int = 20,
         font_color: str = "whitesmoke",
@@ -2418,7 +2704,7 @@ class Graph(nx.Graph):
             then it is generated depending on parameter ``layout``.
         inf_flex:
             It is possible to plot an infinitesimal flex alongside the
-            realization of your graph. It is specified as a ``dict`` of
+            realization of your graph. It is specified as a ``Dict`` of
             flexes.
         layout:
             The possibilities are ``spring`` (default), ``circular``,
@@ -2467,7 +2753,6 @@ class Graph(nx.Graph):
             The height of the canvas in inches.
         aspect_ratio:
             The ratio of y-unit to x-unit. By default 1.0.
-
         """
 
         fig, ax = plt.subplots()

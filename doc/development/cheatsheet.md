@@ -57,7 +57,6 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 `` {meth}`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` {meth}`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
 `` {func}`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
-`` {doc}`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::
 
@@ -72,6 +71,38 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 `` :meth:`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` :meth:`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
 `` :func:`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
+:::
+::::
+
+:::::
+
+
+
+### Cross-references to pages
+For creating a label on a page use ``(label)=`` before a section title.
+This label is used together with ``ref`` for internal references, see below.
+
+For references to ``networkx`` we use ``doc`` instead provided by the setting ``intersphinx_mapping``
+in ``conf.py``. This is also available for references to ``python`` and ``sympy``.
+
+:::::{tab-set}
+
+::::{tab-item} MyST (`.md` files)
+:sync: myst
+
+:::{csv-table}
+`` {ref}`installation-guide` ``, {ref}`installation-guide`
+`` {ref}`Link to Instalation Guide<installation-guide>` ``, {ref}`Link to Instalation Guide<installation-guide>`
+`` {doc}`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
+:::
+::::
+
+::::{tab-item} reST  (docstrings)
+:sync: rest
+
+:::{csv-table}
+`` :ref:`installation-guide` ``, {ref}`installation-guide`
+`` :ref:`Link to Instalation Guide<installation-guide>` ``, {ref}`Link to Instalation Guide<installation-guide>`
 `` :doc:`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::

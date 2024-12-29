@@ -106,6 +106,14 @@ def test_not_rigid_in_d1(graph):
 
 
 @pytest.mark.parametrize(
+    "graph, dim",
+    [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
+)
+def test_is_rigid(graph, dim):
+    assert graph.is_rigid(dim, combinatorial=(dim < 3))
+
+
+@pytest.mark.parametrize(
     "graph",
     [
         graphs.CompleteBipartite(1, 3),
@@ -559,7 +567,7 @@ def test_min_k_vertex_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [Graph.from_int(16383), 2],
-        [Graph.from_int(1048575), 3],
+        pytest.param(Graph.from_int(1048575), 3, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
@@ -571,7 +579,7 @@ def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
     "graph, k",
     [
         [Graph.from_int(507903), 1],
-        [Graph.from_int(1048575), 2],
+        pytest.param(Graph.from_int(1048575), 2, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d3(graph, k):
@@ -684,9 +692,9 @@ def test_k_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [graphs.Complete(5), 2],
-        [graphs.Octahedral(), 2],
-        [graphs.Complete(6), 2],
-        [graphs.Complete(6), 3],
+        pytest.param(graphs.Octahedral(), 2, marks=pytest.mark.slow_main),
+        pytest.param(graphs.Complete(6), 2, marks=pytest.mark.slow_main),
+        pytest.param(graphs.Complete(6), 3, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048059), 3],
         # [Graph.from_int(2097151), 3],
     ],
@@ -827,7 +835,7 @@ def test_min_k_redundantly_rigid_in_d1(graph, k):
             1,
         ],
         [Graph.from_int(16350), 2],
-        [Graph.from_int(507851), 2],
+        pytest.param(Graph.from_int(507851), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048059), 3],
     ],
 )
@@ -841,7 +849,7 @@ def test_min_k_redundantly_rigid_in_d2(graph, k):
     [
         [graphs.Complete(5), 1],
         [Graph.from_int(16351), 1],
-        [Graph.from_int(32767), 2],
+        pytest.param(Graph.from_int(32767), 2, marks=pytest.mark.slow_main),
     ],
 )
 def test_min_k_redundantly_rigid_in_d3(graph, k):
@@ -869,7 +877,7 @@ def test_not_min_k_redundantly_rigid_in_d1(graph, k):
     [
         [graphs.ThreePrism(), 1],
         [Graph.from_int(8191), 1],
-        [Graph.from_int(16351), 2],
+        pytest.param(Graph.from_int(16351), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048063), 3],
     ],
 )
@@ -884,7 +892,7 @@ def test_not_min_k_redundantly_rigid_in_d2(graph, k):
         [Graph.from_int(7679), 1],
         [Graph.from_int(16383), 1],
         [Graph.from_int(16351), 2],
-        [Graph.from_int(1048063), 2],
+        pytest.param(Graph.from_int(1048063), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048575), 3],
         # [Graph.from_int(134201311), 3],
     ],
@@ -893,7 +901,29 @@ def test_not_min_k_redundantly_rigid_in_d3(graph, k):
     assert not graph.is_min_k_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
-def test_min_rigid_subgraphs():
+def test_rigid_components():
+    G = graphs.Path(6)
+    rigid_components = G.rigid_components(dim=1)
+    assert rigid_components[0] == [0, 1, 2, 3, 4, 5]
+    G.remove_edge(2, 3)
+    rigid_components = G.rigid_components(dim=1)
+    assert [set(H) for H in rigid_components] == [
+        set([0, 1, 2]),
+        set([3, 4, 5]),
+    ] or [set(H) for H in rigid_components] == [
+        set([3, 4, 5]),
+        set([0, 1, 2]),
+    ]
+
+    G = graphs.Path(5)
+    rigid_components = G.rigid_components()
+    assert sorted([sorted(H) for H in rigid_components]) == [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
+    ]
+
     G = Graph(
         [
             (0, 1),
@@ -910,69 +940,55 @@ def test_min_rigid_subgraphs():
             ("a", "b"),
         ]
     )
-    assert [set(H) for H in G.min_rigid_subgraphs()] == [
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [
         set([0, "a", "b"]),
-        set([0, 1, 5, 3, 2, 4]),
-    ] or [set(H) for H in G.min_rigid_subgraphs()] == [
-        set([0, 1, 5, 3, 2, 4]),
-        set([0, "a", "b"]),
-    ]
-
-    G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, 1, 2]),
-        set([3, 4, 5]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([3, 4, 5]),
-        set([0, 1, 2]),
-    ]
-
-    G = graphs.ThreePrism()
-    min_subgraphs = G.min_rigid_subgraphs()
-    assert len(min_subgraphs) == 2 and (
-        min_subgraphs == [[0, 1, 2], [3, 4, 5]]
-        or min_subgraphs == [[3, 4, 5], [0, 1, 2]]
-    )
-
-
-def test_max_rigid_subgraphs():
-    G = Graph(
-        [
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 4),
-            (4, 5),
-            (5, 0),
-            (0, 3),
-            (1, 4),
-            (2, 5),
-            (0, "a"),
-            (0, "b"),
-            ("a", "b"),
-        ]
-    )
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, "a", "b"]),
-        set([0, 1, 5, 3, 2, 4]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
-        set([0, 1, 5, 3, 2, 4]),
+        set([0, 1, 2, 3, 4, 5]),
+    ] or [set(H) for H in rigid_components] == [
+        set([0, 1, 2, 3, 4, 5]),
         set([0, "a", "b"]),
     ]
 
     G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    assert [set(H) for H in G.max_rigid_subgraphs()] == [
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [
         set([0, 1, 2]),
         set([3, 4, 5]),
-    ] or [set(H) for H in G.max_rigid_subgraphs()] == [
+    ] or [set(H) for H in rigid_components] == [
         set([3, 4, 5]),
         set([0, 1, 2]),
     ]
 
+    G = graphs.Complete(3)
+    G.add_vertex(3)
+    rigid_components = G.rigid_components()
+    assert [set(H) for H in rigid_components] == [set([0, 1, 2]), set([3])] or [
+        set(H) for H in rigid_components
+    ] == [set([3]), set([0, 1, 2])]
+
     G = graphs.ThreePrism()
-    G.delete_edge([4, 5])
-    max_subgraphs = G.max_rigid_subgraphs()
-    assert len(max_subgraphs) == 1 and max_subgraphs[0] == [0, 1, 2]
+    rigid_components = G.rigid_components()
+    assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
+
+    G = graphs.ThreeConnectedR3Circuit()
+    G.remove_node(0)
+    rigid_components = G.rigid_components()
+    assert sorted([sorted(H) for H in rigid_components]) == [
+        [1, 2, 3, 4],
+        [1, 10, 11, 12],
+        [4, 5, 6, 7],
+        [7, 8, 9, 10],
+    ]
+
+    G = graphs.DoubleBanana()
+    rigid_components = G.rigid_components(dim=3)
+    assert [set(H) for H in rigid_components] == [
+        set([0, 1, 2, 3, 4]),
+        set([0, 1, 5, 6, 7]),
+    ] or [set(H) for H in rigid_components] == [
+        set([0, 1, 5, 6, 7]),
+        set([0, 1, 2, 3, 4]),
+    ]
 
 
 def test_str():
@@ -1071,8 +1087,7 @@ def test_integer_representation_fail():
         ["is_Rd_independent", []],
         ["is_Rd_circuit", []],
         ["is_Rd_closed", []],
-        ["max_rigid_subgraphs", []],
-        ["min_rigid_subgraphs", []],
+        ["rigid_components", []],
     ],
 )
 def test_loops(method, params):
@@ -1390,8 +1405,38 @@ def test_is_k_l_tight():
     ],
 )
 @pytest.mark.realization_counting
+def test_number_of_realizations_cf(graph, n):
+    assert graph.number_of_realizations(count_reflection=True) == n
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 1],
+        [graphs.CompleteBipartite(3, 3), 8],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 12],
+    ],
+)
+@pytest.mark.realization_counting
 def test_number_of_realizations(graph, n):
     assert graph.number_of_realizations() == n
+
+
+@pytest.mark.parametrize(
+    "graph, n",
+    [
+        [graphs.Complete(2), 1],
+        [graphs.Complete(3), 1],
+        [graphs.CompleteBipartite(3, 3), 8],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 16],
+    ],
+)
+@pytest.mark.realization_counting
+def test_number_of_realizations_sphere(graph, n):
+    assert graph.number_of_realizations(spherical_realizations=True) == n
 
 
 @pytest.mark.parametrize(
@@ -1405,8 +1450,11 @@ def test_number_of_realizations(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere(graph, n):
-    assert graph.number_of_realizations(spherical_realizations=True) == n
+def test_number_of_realizations_sphere_cf(graph, n):
+    assert (
+        graph.number_of_realizations(spherical_realizations=True, count_reflection=True)
+        == n
+    )
 
 
 @pytest.mark.parametrize(
