@@ -2663,6 +2663,44 @@ class Graph(nx.Graph):
             [v for v in self.nodes if v in G2.nodes],
             [e for e in self.edges if e in G2.edges],
         )
+    
+    @doc_category("Generic rigidity")
+    def is_separating_pair(self, u: Vertex, v: Vertex):
+        """
+        Check if a pair of vertices is a separating (or separation) pair for G.
+        
+        Parameters
+        ----------
+        u: Vertex
+        v: Vertex
+        
+        Definitions
+        -----
+        :prf:ref:`separating-pair <def-separating-pair>` TODO
+
+        Examples
+        --------
+        >>> G = Graph([[0,1],[1,2],[2,0],[2,3],[3,0]])
+        >>> G.is_separating_pair(1,3)
+        False
+        >>> G = graphs.Cycle(5)
+        >>> G.is_separating_pair(1,3)
+        True
+        """
+        G_ = deepcopy(self)
+        G_.delete_vertices([u,v])
+        # G_ must not be connected...
+        if nx.is_k_edge_connected(G_, 1):
+            return False
+        # ...there are:
+        # neither exactly two components resulting one of which consists of a single edge
+        elif len(nx.k_components(G_)[1])==2 and (len(nx.k_components(G_)[1][0])==2 or len(nx.k_components(G_)[1][1])==2):
+            return False
+        # nor exactly three components resulting each of which consists of a single edge
+        elif len(nx.k_components(G_)[1])==3 and G_.is_isomorphic(Graph([[1,2],[3,4],[5,6]])):
+            return False
+        else:
+            return True
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> Dict[Vertex, Point]:
