@@ -188,11 +188,11 @@ F.plot(
 ### Collinear Configurations
 
 For collinear configurations and frameworks in $\RR$, we can visualize the edges as arcs
-using the keyword ``connection_style``. This parameter can be specified as a ``float``
-if the same pitch for every arc is desired and a ``list[float]`` or a ``dict[Edge, float]``
-if the pitch is supposed to be provided for each arc individually.
+in $\RR^2$ using the keyword ``connection_style``. This parameter can be specified in
+radians as a ``float`` if the same pitch for every arc is desired and a ``list[float]`` or a
+``dict[Edge, float]`` if the pitch is supposed to be provided for each arc individually.
 
-```
+```{code-cell} ipython3
 F = Framework.Complete([[1],[3],[0],[2]])
 F.plot(connection_style={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
 ```
@@ -203,7 +203,7 @@ collinear configurations, but of course, it can also be applied to arbitrary fra
 It is possible fewer edges in the ``dict``; the remaining edges are than padded with
 zeros. 
 
-```
+```{code-cell} ipython3
 F = frameworks.CnSymmetricFourRegular(n=8)
 F.plot(curved_edges=True, connection_style={(i,i+1): 0.15 for i in range(7)} | {(0,7):-0.15})
 ```

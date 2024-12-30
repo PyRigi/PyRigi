@@ -2691,7 +2691,7 @@ class Graph(nx.Graph):
         stress_fontsize: int = 10,
         stress_label_pos: float = 1,
         stress_rotate_labels: bool = True,
-        fontsize: int = 12,
+        font_size: int = 12,
         font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
@@ -2807,7 +2807,7 @@ class Graph(nx.Graph):
                 width=edge_width,
                 edge_color=edge_color_array,
                 font_color=font_color,
-                font_size=fontsize,
+                font_size=font_size,
                 edgelist=edge_list_ref,
                 style=edge_style,
                 **kwargs,
@@ -2834,7 +2834,7 @@ class Graph(nx.Graph):
                         [
                             isinstance(e, tuple)
                             and len(e) == 2
-                            and isinstance(v, float)
+                            and isinstance(v, float | int)
                             for e, v in connection_style.items()
                         ]
                     )
@@ -2880,7 +2880,7 @@ class Graph(nx.Graph):
                 node_shape=vertex_shape,
             )
             nx.draw_networkx_labels(
-                newGraph, placement, ax=ax, font_color=font_color, font_size=fontsize
+                newGraph, placement, ax=ax, font_color=font_color, font_size=font_size
             )
             for edge in newGraph.edges(data=True):
                 nx.draw_networkx_edges(
