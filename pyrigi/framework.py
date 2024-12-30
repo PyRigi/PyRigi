@@ -50,7 +50,6 @@ from pyrigi.misc import (
 
 from typing import Optional
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
 
 __doctest_requires__ = {
@@ -637,8 +636,17 @@ class Framework(object):
 
             # Creating the animation
             ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
-            plt.show()
-            return
+
+            # Checking if we are running from the terminal or from a notebook
+            import sys
+
+            if "ipykernel" in sys.modules:
+                from IPython.display import HTML
+
+                return HTML(ani.to_jshtml())
+            else:
+                plt.show()
+                return
 
         # dim > 3 -> use projection to 3D
         if coordinates is not None:
