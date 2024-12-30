@@ -2669,7 +2669,7 @@ class Graph(nx.Graph):
             raise ValueError(f"layout_type {layout_type} is not supported.")
 
     @doc_category("Other")
-    def plot(
+    def plot(  # noqa: C901
         self,
         placement: Dict[Vertex, Point] = None,
         inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
@@ -2696,6 +2696,8 @@ class Graph(nx.Graph):
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
         aspect_ratio: float = 1.0,
+        curved_edges: bool = False,
+        connection_style: float | List[float] | Dict[Edge, float] = math.pi / 6,
         **kwargs,
     ) -> None:
         """
@@ -2769,6 +2771,18 @@ class Graph(nx.Graph):
             The height of the canvas in inches.
         aspect_ratio:
             The ratio of y-unit to x-unit. By default 1.0.
+        curved_edges:
+            If the edges are too close to each other, we can decide to
+            visualize them as arcs.
+        connection_style:
+            In case of curvilinear plotting (``curved_edges=True``), the edges
+            are displayed as arcs. With this parameter, we can set the
+            pitch of these arcs and it is in radians. It can either be
+            specified for each arc (``connection_style=0.5``) or individually
+            as a ``list`` and ``dict``
+            (``connection_style={(0,1):0.5, (1,2):-0.5}``). It is possible to
+            provide fewer edges when the input is a ``dict``; the remaining
+            edges are padded with zeros in that case.
         """
 
         fig, ax = plt.subplots()
@@ -2781,7 +2795,7 @@ class Graph(nx.Graph):
         if placement is None:
             placement = self.layout(layout)
 
-        if not all([t[1] == 0 for _, t in placement.items()]):
+        if not curved_edges:
             nx.draw(
                 self,
                 pos=placement,
@@ -2800,8 +2814,63 @@ class Graph(nx.Graph):
             )
         else:
             newGraph = nx.MultiDiGraph()
-            for e in self.edge_list():
-                newGraph.add_edge(e[0], e[1], rad=0.2)
+            if isinstance(connection_style, float):
+                connection_style = {
+                    tuple(e): connection_style for e in self.edge_list()
+                }
+            elif isinstance(connection_style, list):
+                if not self.number_of_edges() == len(connection_style):
+                    raise AttributeError(
+                        "The provided `connection_style` doesn't have the correct length."
+                    )
+                connection_style = {
+                    tuple(self.edge_list()[i]): connection_style[i]
+                    for i in range(self.number_of_edges())
+                }
+            elif isinstance(connection_style, dict):
+                edge_array = [tuple(e) for e in self.edge_list()]
+                if (
+                    not all(
+                        [
+                            isinstance(e, tuple)
+                            and len(e) == 2
+                            and isinstance(v, float)
+                            for e, v in connection_style.items()
+                        ]
+                    )
+                    or not all(
+                        [
+                            set(key) in [set([e[0], e[1]]) for e in edge_array]
+                            for key in connection_style.keys()
+                        ]
+                    )
+                    or any(
+                        [set(key) for key in connection_style.keys()].count(e) > 1
+                        for e in [set(key) for key in connection_style.keys()]
+                    )
+                ):
+                    raise AttributeError(
+                        "The provided `connection_style` contains different edges "
+                        + "than the underlying graph or has an incorrect format."
+                    )
+                connection_style = {
+                    e: 0
+                    for e in edge_array
+                    if not (
+                        e in connection_style.keys()
+                        or tuple([e[1], e[0]]) in connection_style.keys()
+                    )
+                } | {
+                    (tuple(e) if e in edge_array else tuple([e[1], e[0]])): v
+                    for e, v in connection_style.items()
+                }
+            else:
+                raise TypeError(
+                    "The provided `connection_style` does not have the appropriate type."
+                )
+
+            for e, v in connection_style.items():
+                newGraph.add_edge(e[0], e[1], weight=v)
             nx.draw_networkx_nodes(
                 newGraph,
                 placement,
@@ -2819,10 +2888,11 @@ class Graph(nx.Graph):
                     placement,
                     ax=ax,
                     width=edge_width,
+                    edge_color=edge_color_array,
                     arrows=True,
                     arrowstyle="-",
                     edgelist=[(edge[0], edge[1])],
-                    connectionstyle=f'arc3, rad = {edge[2]["rad"]}',
+                    connectionstyle=f"Arc3, rad = {edge[2]['weight']}",
                 )
 
         if inf_flex is not None:

@@ -185,6 +185,29 @@ F.plot(
 )
 ```
 
+### Collinear Configurations
+
+For collinear configurations and frameworks in $\RR$, we can visualize the edges as arcs
+using the keyword ``connection_style``. This parameter can be specified as a ``float``
+if the same pitch for every arc is desired and a ``list[float]`` or a ``dict[Edge, float]``
+if the pitch is supposed to be provided for each arc individually.
+
+```
+F = Framework.Complete([[1],[3],[0],[2]])
+F.plot(connection_style={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
+```
+
+We can also enhance the visualization of other configurations using the
+parameter ``curved_edges``. This is particularly useful for almost or piecewise
+collinear configurations, but of course, it can also be applied to arbitrary frameworks.
+It is possible fewer edges in the ``dict``; the remaining edges are than padded with
+zeros. 
+
+```
+F = frameworks.CnSymmetricFourRegular(n=8)
+F.plot(curved_edges=True, connection_style={(i,i+1): 0.15 for i in range(7)} | {(0,7):-0.15})
+```
+
 ### Infinitesimal Flexes
 
 It is possible to include infinitesimal flexes in the plot. With the keyword

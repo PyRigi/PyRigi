@@ -293,6 +293,7 @@ class Framework(object):
         stress: Dict[Edge, Coordinate] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
+        curved_edges=False,
         **kwargs,
     ) -> None:
         """
@@ -314,10 +315,11 @@ class Framework(object):
 
         self._graph.plot(
             placement=realization,
-            vertex_color=vertex_color,
-            edge_width=edge_width,
             inf_flex=inf_flex,
             stress=stress,
+            vertex_color=vertex_color,
+            edge_width=edge_width,
+            curved_edges=curved_edges,
             **kwargs,
         )
 
@@ -357,6 +359,7 @@ class Framework(object):
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
+        curved_edges: bool = False,
         **kwargs,
     ) -> Optional[Matrix]:
         """
@@ -406,6 +409,9 @@ class Framework(object):
             (i.e. coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
+        curved_edges:
+            If the points are collinear (or close to collinear), then we can set this
+            ``bool`` to ``True``. The result is that the edges are plotted as arcs.
 
         TODO
         -----
@@ -473,14 +479,22 @@ class Framework(object):
                     v: (flex_v[0], 0) for v, flex_v in inf_flex_pointwise.items()
                 }
             self._plot_with_2D_realization(
-                placement, inf_flex=inf_flex_pointwise, stress=stress_edgewise, **kwargs
+                placement,
+                inf_flex=inf_flex_pointwise,
+                stress=stress_edgewise,
+                curved_edges=True,
+                **kwargs,
             )
             return
 
         if self._dim == 2:
             placement = self.realization(as_points=True, numerical=True)
             self._plot_with_2D_realization(
-                placement, inf_flex=inf_flex_pointwise, stress=stress_edgewise, **kwargs
+                placement,
+                inf_flex=inf_flex_pointwise,
+                stress=stress_edgewise,
+                curved_edges=curved_edges,
+                **kwargs,
             )
             return
 
