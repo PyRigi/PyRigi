@@ -1999,14 +1999,13 @@ class Graph(nx.Graph):
 
         raise NotImplementedError()
 
-    @doc_category("Waiting for implementation")
+    @doc_category("Rigidity Matroid")
     def is_Rd_closed(self, dim: int = 2) -> bool:
         """
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim=2: ??
-         * dim>=1: Adding any edge does not increase the rigidity matrix rank
+         * dim>=2: Adding any edge does not increase the rigidity matrix rank
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -2014,7 +2013,19 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        raise NotImplementedError()
+        if dim == 1:
+            return nx.is_connected(self)
+
+        F = self.random_framework(dim=dim)
+        edge_list = [set(edge) for edge in self.edge_list()]
+        for edge in combinations(self.vertex_list(), 2):
+            if not set(edge) in edge_list:
+                G = deepcopy(self)
+                G.add_edge(*edge)
+                _F = G.random_framework(dim=dim)
+                if not F.rigidity_matrix_rank() == _F.rigidity_matrix_rank():
+                    return False
+        return True
 
     @doc_category("Generic rigidity")
     def rigid_components(self, dim: int = 2) -> List[List[Vertex]]:
