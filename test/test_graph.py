@@ -1529,6 +1529,28 @@ def test_not_Rd_circuit_d2(graph):
 
 
 @pytest.mark.parametrize(
+    "graph",
+    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
+)
+def test_Rd_circuit_d3(graph):
+    assert graph.is_Rd_circuit(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(5),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.ThreePrism(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_not_Rd_circuit_d3(graph):
+    assert not graph.is_Rd_circuit(dim=3)
+
+
+@pytest.mark.parametrize(
     "graph, k",
     [
         [graphs.Cycle(4), 1],

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from itertools import combinations
-from typing import List, Dict, Union, Iterable
+from typing import List, Dict, Iterable
 
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -927,7 +927,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def extension_sequence(
         self, dim: int = 2, return_solution: bool = False
-    ) -> Union[List[Graph], bool]:
+    ) -> List[Graph] | bool:
         """
         Check the existence of a sequence of
         :prf:ref:`0 and 1-extensions <def-k-extension>`.
@@ -1866,7 +1866,7 @@ class Graph(nx.Graph):
                     "There must be at least one stress but none was found."
                 )
 
-    @doc_category("Partially implemented")
+    @doc_category("Rigidity Matroid")
     def is_Rd_dependent(
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
@@ -1892,7 +1892,7 @@ class Graph(nx.Graph):
             dim, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
         )
 
-    @doc_category("Partially implemented")
+    @doc_category("Rigidity Matroid")
     def is_Rd_independent(
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
@@ -1901,7 +1901,10 @@ class Graph(nx.Graph):
         -----
          * dim=1: Graphic Matroid
          * dim=2: (2,3)-sparse
-         * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+         * dim>=3: A set of edges forms an independent set in the
+         rigidity matroid if and only if it has no self-stress, as this
+         means that there are no linear relations between the rows of
+         the rigidity matrix.
 
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2``.
@@ -1928,9 +1931,10 @@ class Graph(nx.Graph):
                 2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
 
-        raise NotImplementedError()
+        F = self.random_framework(dim=dim)
+        return len(F.stresses()) == 0
 
-    @doc_category("Partially implemented")
+    @doc_category("Rigidity Matroid")
     def is_Rd_circuit(
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
@@ -1941,7 +1945,7 @@ class Graph(nx.Graph):
          * dim=2: It is not sparse, but remove any edge and it becomes sparse
                   Fundamental circuit is the whole graph
          * Not combinatorially:
-         * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
+         * dim>=3: Dependent + Remove every edge and compute the rigidity matrix' rank
 
          use_precomputed_pebble_digraph:
             Only relevant if ``dim=2``.
@@ -1949,11 +1953,6 @@ class Graph(nx.Graph):
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
-
-        TODO
-        -----
-         Add unit tests,
-         make computation of ``remaining_edge`` more robust
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1982,22 +1981,39 @@ class Graph(nx.Graph):
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
                 return False
 
-            remaining_edge = list(set(self.edges()) - set(max_sparse_subgraph.edges()))
-            if len(remaining_edge) != 1:
+            max_sparse_subgraph_edges = [
+                tuple(edge) for edge in max_sparse_subgraph.edges()
+            ]
+            remaining_edges = [
+                edge
+                for edge in self.edges()
+                if not (
+                    tuple(edge) in max_sparse_subgraph_edges
+                    or tuple([edge[1], edge[0]]) in max_sparse_subgraph_edges
+                )
+            ]
+            if len(remaining_edges) != 1:
                 # this should not happen
                 raise RuntimeError
 
             return (
                 len(
                     self._pebble_digraph.fundamental_circuit(
-                        u=remaining_edge[0][0],
-                        v=remaining_edge[0][1],
+                        u=remaining_edges[0][0],
+                        v=remaining_edges[0][1],
                     )
                 )
                 == self.number_of_nodes()
             )
 
-        raise NotImplementedError()
+        if not self.is_Rd_dependent(dim=dim):
+            return False
+        for edge in self.edge_list():
+            G = deepcopy(self)
+            G.remove_edge(*edge)
+            if not G.is_Rd_independent(dim=dim):
+                return False
+        return True
 
     @doc_category("Waiting for implementation")
     def is_Rd_closed(self, dim: int = 2) -> bool:
@@ -2292,7 +2308,7 @@ class Graph(nx.Graph):
         return Matrix(row_list)
 
     @doc_category("Other")
-    def random_framework(self, dim: int = 2, rand_range: Union(int, List[int]) = None):
+    def random_framework(self, dim: int = 2, rand_range: int | List[int] = None):
         # the return type is intentionally omitted to avoid circular import
         """
         Return framework with random realization.
@@ -2307,9 +2323,9 @@ class Graph(nx.Graph):
     def to_tikz(
         self,
         layout_type: str = "spring",
-        placement: dict[Vertex, Point] = None,
-        vertex_style: Union(str, dict[str : list[Vertex]]) = "gvertex",
-        edge_style: Union(str, dict[str : list[Edge]]) = "edge",
+        placement: Dict[Vertex, Point] = None,
+        vertex_style: str | Dict[str : List[Vertex]] = "gvertex",
+        edge_style: str | Dict[str : List[Edge]] = "edge",
         label_style: str = "labelsty",
         figure_opts: str = "",
         vertex_in_labels: bool = False,
@@ -2859,6 +2875,7 @@ Graph.__doc__ = Graph.__doc__.replace(
             "General graph theoretical properties",
             "Generic rigidity",
             "Sparseness",
+            "Rigidity Matroid",
             "Other",
             "Waiting for implementation",
         ],
