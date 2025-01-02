@@ -22,6 +22,7 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 import numpy as np
+import types
 
 from sympy import Matrix, flatten, binomial
 
@@ -488,7 +489,8 @@ class Framework(object):
         vertex_size: int = 10,
         edge_color: str = "k",
         edge_width: float = 1.5,
-        edge_style: str = "solid",  #
+        edge_style: str = "solid",
+        rotation_matrix=None,
         **kwargs,
     ):
         """
@@ -531,8 +533,7 @@ class Framework(object):
                 line.set_3d_properties([])
             return [vertices_plot] + lines
 
-        # Function to update data at each frame
-        def update(frame):
+        def _rotation_matrix(frame):
             angle = frame * np.pi / 50
             # Rotation of vertices around the z-axis
             rotation_matrix = np.array(
@@ -542,8 +543,21 @@ class Framework(object):
                     [0, 0, 1],
                 ]
             )
+            return rotation_matrix
 
-            rotated_vertices = vertices.dot(rotation_matrix.T)
+        if rotation_matrix is None:
+            rotation_matrix = _rotation_matrix
+
+        elif not isinstance(rotation_matrix, types.FunctionType):
+            raise ValueError(
+                "The rotation matrix must be of one of the following "
+                + "types: FunctionType or NoneType."
+            )
+
+        # Function to update data at each frame
+        def update(frame):
+            one_rotation_matrix = rotation_matrix(frame)
+            rotated_vertices = vertices.dot(one_rotation_matrix.T)
 
             # Update vertices positions
             vertices_plot.set_data(rotated_vertices[:, 0], rotated_vertices[:, 1])
