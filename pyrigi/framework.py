@@ -531,41 +531,12 @@ class Framework(object):
         -----
         project the inf-flex as well in `_plot_using_projection_matrix_3D`.
         """  # noqa: E501
-        inf_flex_pointwise = None
-        if inf_flex is not None:
-            if isinstance(inf_flex, int) and inf_flex >= 0:
-                inf_flex_basis = self.nontrivial_inf_flexes()
-                if inf_flex >= len(inf_flex_basis):
-                    raise IndexError(
-                        "The value of inf_flex exceeds "
-                        + "the dimension of the space "
-                        + "of infinitesimal flexes."
-                    )
-                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
-                    inf_flex_basis[inf_flex]
-                )
-            elif isinstance(inf_flex, Matrix):
-                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
-            elif isinstance(inf_flex, dict) and all(
-                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
-            ):
-                inf_flex_pointwise = inf_flex
-            else:
-                raise TypeError("inf_flex does not have the correct Type.")
-
-            if not self.is_dict_inf_flex(inf_flex_pointwise):
-                raise ValueError(
-                    "The provided `inf_flex` is not an infinitesimal flex."
-                )
-
+        
         if self._dim == 1 or self._dim == 2:
             return self.plot2D(**kwargs)
 
         if self._dim == 3 and not animation:
-            placement = self.realization(as_points=True, numerical=True)
-            self._plot_with_3D_realization(
-                placement, inf_flex=inf_flex_pointwise, **kwargs
-            )
+            self._plot_with_3D_realization(**kwargs)
             return
 
         elif self._dim == 3 and animation:
@@ -676,47 +647,19 @@ class Framework(object):
                     f"The projection matrix has wrong dimensions! \
                     {projection_matrix.shape} instead of (3, {self._dim})."
                 )
-        if projection_matrix is None:
+        else:
             projection_matrix = generate_three_orthonormal_vectors(
                 self._dim, random_seed=random_seed
             )
             projection_matrix = projection_matrix.T
-        self._plot_using_projection_matrix_3D(projection_matrix, **kwargs)
+        self._plot_with_3D_realization(projection_matrix = projection_matrix, **kwargs)
         if return_matrix:
             return projection_matrix
 
     @doc_category("Other")
-    def _plot_using_projection_matrix_3D(
-        self,
-        projection_matrix: Matrix,
-        **kwargs,
-    ) -> None:
-        """
-        Plot the framework with the realization projected using the given matrix.
-
-        For description of other parameters see :meth:`.Framework.plot`.
-
-        Parameters
-        ----------
-        projection_matrix:
-            The matrix used for projection.
-            The matrix must have dimensions ``(3, dim)``,
-            where ``dim`` is the dimension of the framework.
-        """
-
-        placement = {}
-        for vertex, position in self.realization(
-            as_points=False, numerical=True
-        ).items():
-            placement[vertex] = np.dot(projection_matrix, np.array(position))
-
-        self._plot_with_3D_realization(placement, **kwargs)
-
-    @doc_category("Other")
     def _plot_with_3D_realization(
         self,
-        realization: dict[Vertex, Point],
-        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        projection_matrix: Matrix = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -728,17 +671,24 @@ class Framework(object):
 
         Parameters
         ----------
-        realization:
-            The realization in the plane used for plotting.
-        inf_flex:
-            Optional parameter for plotting an infinitesimal flex. We expect
-            it to have the same format as `realization`: `dict[Vertex, Point]`.
+        projection_matrix: 
+            The matrix used for projection.
+            The matrix must have dimensions ``(3, dim)``,
+            where ``dim`` is the dimension of the framework.
         """
         # Create a figure for the rapresentation of the framework
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111, projection="3d")
+        
+        if projection_matrix is None:
+            pos = self.realization(as_points=True, numerical=True)
+        else:
+            pos = {}
+            for vertex, position in self.realization(
+                as_points=False, numerical=True
+            ).items():
+                pos[vertex] = np.dot(projection_matrix, np.array(position))
 
-        pos = self.realization(as_points=True, numerical=True)
         # Draw the vertices as points in the 3D enviroment
         x_nodes = [pos[node][0] for node in self._graph.nodes]
         y_nodes = [pos[node][1] for node in self._graph.nodes]
