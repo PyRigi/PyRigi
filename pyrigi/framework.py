@@ -481,6 +481,102 @@ class Framework(object):
             return projection_matrix
 
     @doc_category("Other")
+    def _animate_rotation_around_z_axis(
+        self,
+        vertex_color: str = "#ff8c00",
+        vertex_shape: str = "o",
+        vertex_size: int = 10,
+        edge_color: str = "k",
+        edge_width: float = 1.5,
+        edge_style: str = "solid",  #
+        **kwargs,
+    ):
+        """
+        Plot this framework in 3D and makes it rotating around the z axis.
+        """
+        # Creation of the figure
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+
+        # Limits of the axes
+        abs_list = [list(abs(i)) for i in self._realization.values()]
+        abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
+        b = float(max(abs_list) * 1.2)
+        ax.set_xlim(-b, b)
+        ax.set_ylim(-b, b)
+        ax.set_zlim(-b, b)
+
+        vertices = np.array(
+            [
+                list(list(self.realization().values())[i])
+                for i in range(self._graph.number_of_nodes())
+            ]
+        )
+
+        # Initializing points (vertices) and lines (edges) for display
+        (vertices_plot,) = ax.plot(
+            [], [], [], vertex_shape, color=vertex_color, markersize=vertex_size
+        )
+        lines = [
+            ax.plot([], [], [], c=edge_color, lw=edge_width, linestyle=edge_style)[0]
+            for _ in range(len(self._graph.edges))
+        ]
+
+        # Animation initialization function.
+        def init():
+            vertices_plot.set_data([], [])  # Initial coordinates of vertices
+            vertices_plot.set_3d_properties([])  # Initial 3D properties of vertices
+            for line in lines:
+                line.set_data([], [])
+                line.set_3d_properties([])
+            return [vertices_plot] + lines
+
+        # Function to update data at each frame
+        def update(frame):
+            angle = frame * np.pi / 50
+            # Rotation of vertices around the z-axis
+            rotation_matrix = np.array(
+                [
+                    [np.cos(angle), -np.sin(angle), 0],
+                    [np.sin(angle), np.cos(angle), 0],
+                    [0, 0, 1],
+                ]
+            )
+
+            rotated_vertices = vertices.dot(rotation_matrix.T)
+
+            # Update vertices positions
+            vertices_plot.set_data(rotated_vertices[:, 0], rotated_vertices[:, 1])
+            vertices_plot.set_3d_properties(rotated_vertices[:, 2])
+
+            # Update the edges
+            for i, (start, end) in enumerate(self._graph.edges):
+                line = lines[i]
+                line.set_data(
+                    [rotated_vertices[start, 0], rotated_vertices[end, 0]],
+                    [rotated_vertices[start, 1], rotated_vertices[end, 1]],
+                )
+                line.set_3d_properties(
+                    [rotated_vertices[start, 2], rotated_vertices[end, 2]]
+                )
+
+            return [vertices_plot] + lines
+
+        # Creating the animation
+        ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
+
+        # Checking if we are running from the terminal or from a notebook
+        import sys
+
+        if "ipykernel" in sys.modules:
+            from IPython.display import HTML
+
+            return HTML(ani.to_jshtml())
+        else:
+            plt.show()
+            return
+
+    @doc_category("Other")
     def plot3D(  # noqa: C901
         self,
         coordinates: Union[tuple, list] = None,
@@ -531,7 +627,7 @@ class Framework(object):
         -----
         project the inf-flex as well in `_plot_using_projection_matrix_3D`.
         """  # noqa: E501
-        
+
         if self._dim == 1 or self._dim == 2:
             return self.plot2D(**kwargs)
 
@@ -540,84 +636,7 @@ class Framework(object):
             return
 
         elif self._dim == 3 and animation:
-            # Creation of the figure
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection="3d")
-
-            # Limits of the axes
-            abs_list = [list(abs(i)) for i in self._realization.values()]
-            abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
-            b = float(max(abs_list) * 1.2)
-            ax.set_xlim(-b, b)
-            ax.set_ylim(-b, b)
-            ax.set_zlim(-b, b)
-
-            vertices = np.array(
-                [
-                    list(list(self.realization().values())[i])
-                    for i in range(self._graph.number_of_nodes())
-                ]
-            )
-
-            # Initializing points (vertices) and lines (edges) for display
-            (vertices_plot,) = ax.plot([], [], [], "o", color="#ff8c00", markersize=10)
-            lines = [
-                ax.plot([], [], [], "k-")[0] for _ in range(len(self._graph.edges))
-            ]
-
-            # Animation initialization function.
-            def init():
-                vertices_plot.set_data([], [])  # Initial coordinates of vertices
-                vertices_plot.set_3d_properties([])  # Initial 3D properties of vertices
-                for line in lines:
-                    line.set_data([], [])
-                    line.set_3d_properties([])
-                return [vertices_plot] + lines
-
-            # Function to update data at each frame
-            def update(frame):
-                angle = frame * np.pi / 50
-                # Rotation of vertices around the z-axis
-                rotation_matrix = np.array(
-                    [
-                        [np.cos(angle), -np.sin(angle), 0],
-                        [np.sin(angle), np.cos(angle), 0],
-                        [0, 0, 1],
-                    ]
-                )
-
-                rotated_vertices = vertices.dot(rotation_matrix.T)
-
-                # Update vertices positions
-                vertices_plot.set_data(rotated_vertices[:, 0], rotated_vertices[:, 1])
-                vertices_plot.set_3d_properties(rotated_vertices[:, 2])
-
-                # Update the edges
-                for i, (start, end) in enumerate(self._graph.edges):
-                    line = lines[i]
-                    line.set_data(
-                        [rotated_vertices[start, 0], rotated_vertices[end, 0]],
-                        [rotated_vertices[start, 1], rotated_vertices[end, 1]],
-                    )
-                    line.set_3d_properties(
-                        [rotated_vertices[start, 2], rotated_vertices[end, 2]]
-                    )
-
-                return [vertices_plot] + lines
-
-            # Creating the animation
-            ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
-
-            # Checking if we are running from the terminal or from a notebook
-            import sys
-
-            if "ipykernel" in sys.modules:
-                from IPython.display import HTML
-
-                return HTML(ani.to_jshtml())
-            else:
-                plt.show()
-                return
+            return self._animate_rotation_around_z_axis(**kwargs)
 
         # dim > 3 -> use projection to 3D
         if coordinates is not None:
@@ -652,7 +671,7 @@ class Framework(object):
                 self._dim, random_seed=random_seed
             )
             projection_matrix = projection_matrix.T
-        self._plot_with_3D_realization(projection_matrix = projection_matrix, **kwargs)
+        self._plot_with_3D_realization(projection_matrix=projection_matrix, **kwargs)
         if return_matrix:
             return projection_matrix
 
@@ -660,8 +679,13 @@ class Framework(object):
     def _plot_with_3D_realization(
         self,
         projection_matrix: Matrix = None,
-        vertex_color="#ff8c00",
-        edge_width=1.5,
+        vertex_color: str = "#ff8c00",
+        vertex_size: int = 200,
+        font_color: str = "whitesmoke",
+        edge_color: str = "k",
+        edge_width: float = 1.5,
+        edge_style: str = "solid",
+        vertex_shape: str = "o",
         **kwargs,
     ) -> None:
         """
@@ -671,7 +695,7 @@ class Framework(object):
 
         Parameters
         ----------
-        projection_matrix: 
+        projection_matrix:
             The matrix used for projection.
             The matrix must have dimensions ``(3, dim)``,
             where ``dim`` is the dimension of the framework.
@@ -679,7 +703,7 @@ class Framework(object):
         # Create a figure for the rapresentation of the framework
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111, projection="3d")
-        
+
         if projection_matrix is None:
             pos = self.realization(as_points=True, numerical=True)
         else:
@@ -693,17 +717,31 @@ class Framework(object):
         x_nodes = [pos[node][0] for node in self._graph.nodes]
         y_nodes = [pos[node][1] for node in self._graph.nodes]
         z_nodes = [pos[node][2] for node in self._graph.nodes]
-        ax.scatter(x_nodes, y_nodes, z_nodes, c=vertex_color, s=200)
+        ax.scatter(
+            x_nodes,
+            y_nodes,
+            z_nodes,
+            c=vertex_color,
+            s=vertex_size,
+            marker=vertex_shape,
+        )
         for edge in self._graph.edges():
             x = [pos[edge[0]][0], pos[edge[1]][0]]
             y = [pos[edge[0]][1], pos[edge[1]][1]]
             z = [pos[edge[0]][2], pos[edge[1]][2]]
-            ax.plot(x, y, z, c="k", lw=edge_width)
+            ax.plot(x, y, z, c=edge_color, lw=edge_width, linestyle=edge_style)
         for node in self._graph.nodes:
             x, y, z, *others = pos[node]
             # To show the name of the vertex
             ax.text(
-                x, y, z, str(node), color="w", fontsize=10, ha="center", va="center"
+                x,
+                y,
+                z,
+                str(node),
+                color=font_color,
+                fontsize=10,
+                ha="center",
+                va="center",
             )
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
