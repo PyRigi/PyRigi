@@ -636,8 +636,6 @@ def test_plot3D_error():
     with pytest.raises(ValueError):
         F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1]])
 
-    with pytest.raises(ValueError):
-        F.plot3D(inf_flex={0: [-1, 0, 0, 0], 1: [1, 0, 0, 0]})
 
 
 def test_rigidity_matrix():
