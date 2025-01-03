@@ -51,6 +51,7 @@ from pyrigi.misc import (
 
 from typing import Optional
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 from matplotlib.animation import FuncAnimation
 
 __doctest_requires__ = {
@@ -308,8 +309,13 @@ class Framework(object):
         realization:
             The realization in the plane used for plotting.
         inf_flex:
-            Optional parameter for plotting an infinitesimal flex. We expect
-            it to have the same format as `realization`: `Dict[Vertex, Point]`.
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         """
 
         self._graph.plot(
@@ -594,7 +600,6 @@ class Framework(object):
     def plot3D(  # noqa: C901
         self,
         coordinates: Union[tuple, list] = None,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -624,22 +629,14 @@ class Framework(object):
             When the same value is provided, the framework will plot exactly same.
         coordinates:
             Indexes of three coordinates that will be used as the placement in 3D.
-        inf_flex:
-            Optional parameter for plotting a given infinitesimal flex. It is
-            important to use the same vertex order as the one
-            from :meth:`.Graph.vertex_list`.
-            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
-            nontrivial infinitesimal flex for plotting.
-            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
-            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 3D is returned.
         animation:
             If you want a rotating figure
 
-        TODO
+        Notes
         -----
-        project the inf-flex as well in `_plot_using_projection_matrix_3D`.
+        See :meth:`.Framework._plot_using_projection_matrix_3D` for a full list of parameters.
         """  # noqa: E501
 
         if self._dim == 1 or self._dim == 2:
@@ -692,15 +689,18 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_3D_realization(
         self,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         vertex_color: str = "#ff8c00",
         vertex_size: int = 200,
-        font_color: str = "whitesmoke",
-        edge_color: str = "k",
-        edge_width: float = 1.5,
-        edge_style: str = "solid",
         vertex_shape: str = "o",
-        **kwargs,
+        vertex_labels: bool = True,
+        font_color: str = "whitesmoke",
+        fontsize: int = 10,
+        edge_width: float = 2.5,
+        edge_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "black",
+        edge_style: str = "solid",
+        **kwargs
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -709,10 +709,49 @@ class Framework(object):
 
         Parameters
         ----------
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         projection_matrix:
             The matrix used for projection.
             The matrix must have dimensions ``(3, dim)``,
             where ``dim`` is the dimension of the framework.
+        vertex_color:
+            The color of the vertices. The color can be a string or an rgb (or rgba)
+            tuple of floats from 0-1.
+        vertex_size:
+            The size of the vertices.
+        vertex_shape:
+            The shape of the vertices specified as as matplotlib.scatter
+            marker, one of ``so^>v<dph8``.
+        vertex_labels:
+            If ``True`` (default), vertex labels are displayed.
+        fontsize:
+            The size of the font used for the labels.
+        font_color:
+            The color of the font used for the labels.
+        edge_width:
+        edge_color:
+            If a single color is given as a string or rgb (or rgba) tuple
+            of floats from 0-1, then all edges get this color.
+            If a (possibly incomplete) partition of the edges is given,
+            then each part gets a different color.
+            If a dictionary from colors to a list of edge is given,
+            edges are colored accordingly.
+            The edges missing in the partition/dictionary, are colored black.
+        edge_style:
+            Edge line style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+
+        Notes
+        -----
+        The parameters for `inf_flex`-plotting are listed in
+        :meth:`.Framework._plot_inf_flex`.
         """
         # Create a figure for the rapresentation of the framework
         fig = plt.figure(figsize=(10, 10))
@@ -747,20 +786,151 @@ class Framework(object):
         for node in self._graph.nodes:
             x, y, z, *others = pos[node]
             # To show the name of the vertex
-            ax.text(
-                x,
-                y,
-                z,
-                str(node),
-                color=font_color,
-                fontsize=10,
-                ha="center",
-                va="center",
-            )
+            if vertex_labels:
+                ax.text(
+                    x,
+                    y,
+                    z,
+                    str(node),
+                    color=font_color,
+                    fontsize=fontsize,
+                    ha="center",
+                    va="center",
+                )
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
+
+        self._plot_inf_flex(ax, inf_flex, **kwargs)
         plt.show()
+
+    @doc_category("Other")
+    def _plot_inf_flex(self,
+                         ax: Axes,
+                         inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
+                         points: dict[Vertex, Point] = None,
+                         flex_width: float = 2.5,
+                         flex_length: float = 0.25,
+                         flex_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "limegreen",
+                         flex_style: str = "solid"
+                    ) -> None:
+        """
+        Adds infinitesimal flexes as vectors to the axis `ax`.
+
+        Parameters
+        ----------
+        ax:
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+        flex_width:
+            Width of the infinitesimal flex's arrowtail.
+        flex_length:
+            Length of the displayed flex relative to the total canvas
+            diagonal in percent. By default 15%.
+        flex_color:
+            The color of the infinitesimal flex is by default 'limegreen'.
+        flex_style:
+            Line Style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        """
+        if inf_flex is not None:
+            inf_flex_pointwise = None
+            if isinstance(inf_flex, int) and inf_flex >= 0:
+                inf_flex_basis = self.nontrivial_inf_flexes()
+                if inf_flex >= len(inf_flex_basis):
+                    raise IndexError(
+                        "The value of inf_flex exceeds "
+                        + "the dimension of the space "
+                        + "of infinitesimal flexes."
+                    )
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
+                    inf_flex_basis[inf_flex]
+                )
+            elif isinstance(inf_flex, Matrix):
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
+            elif isinstance(inf_flex, dict) and all(
+                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+            ):
+                inf_flex_pointwise = inf_flex
+            else:
+                raise TypeError("inf_flex does not have the correct Type.")
+
+            if not self.is_dict_inf_flex(inf_flex_pointwise):
+                raise ValueError(
+                    "The provided `inf_flex` is not an infinitesimal flex."
+                )
+
+            if points is None:
+                points = self.realization(as_points=True, numerical=True)
+            elif not isinstance(points, dict):
+                raise TypeError("Realization has the wrong type!")
+            elif not all([len(points[v])==len(points[points.keys()[0]]) and len(points[v]) in [2,3] for v in self._graph.nodes]):
+                raise ValueError("Not all values in the realization have the same length and the dimension needs to be 2 or 3.")
+
+            magnidutes = []
+            for flex_key in inf_flex_pointwise.keys():
+                if flex_key not in self._graph.vertex_list():
+                    raise KeyError(
+                        "A key in `inf_flex` does not exist as a vertex in the graph!"
+                    )
+                if len(inf_flex_pointwise[flex_key]) != len(points[list(points.keys())[0]]):
+                    raise ValueError(
+                        f"The infinitesimal flex needs to be in dimension {len(points[list(points.keys())[0]])}."
+                    )
+                inf_flex = [float(x) for x in inf_flex_pointwise[flex_key]]
+                magnidutes.append(
+                    np.linalg.norm(inf_flex)
+                )
+
+            # normalize the edge lengths by the Euclidean norm of the longest one
+            flex_mag = max(magnidutes)
+            for flex_key in inf_flex_pointwise.keys():
+                if not all(entry == 0 for entry in inf_flex_pointwise[flex_key]):
+                    inf_flex_pointwise[flex_key] = tuple(
+                        flex / flex_mag for flex in inf_flex_pointwise[flex_key]
+                    )
+            # Delete the edges with zero length
+            inf_flex_pointwise = {
+                flex_key: np.array(inf_flex_pointwise[flex_key], dtype=float)
+                for flex_key in inf_flex_pointwise.keys()
+                if not all(entry == 0 for entry in inf_flex_pointwise[flex_key])
+            }
+
+            for v in inf_flex_pointwise.keys():
+                if len(points[v]) == 2:
+                    ax.quiver(
+                        points[v][0],
+                        points[v][1],
+                        inf_flex_pointwise[v][0],
+                        inf_flex_pointwise[v][1],
+                        color=flex_color,
+                        lw=flex_width,
+                        linestyle=flex_style,
+                        length=flex_length,
+                        normalize=True,
+                        arrow_length_ratio=0.3,
+                    )
+
+                elif self._dim == 3:
+                    ax.quiver(
+                        points[v][0],
+                        points[v][1],
+                        points[v][2],  # <-- starting point of vector
+                        inf_flex_pointwise[v][0],
+                        inf_flex_pointwise[v][1],
+                        inf_flex_pointwise[v][2],  # <-- directions of vector
+                        color=flex_color,
+                        lw=flex_width,
+                        linestyle=flex_style,
+                        length=flex_length,
+                        arrow_length_ratio=0.3,
+                    )
 
     @doc_category("Other")
     def plot(
