@@ -490,11 +490,20 @@ class Framework(object):
         edge_color: str = "k",
         edge_width: float = 1.5,
         edge_style: str = "solid",
+        total_frames: int = 50,
+        delay: int = 75,
         rotation_matrix=None,
-        **kwargs,
     ):
         """
         Plot this framework in 3D and makes it rotating around the z axis.
+
+        Parameters
+        ---------
+        total_frames:
+            Number of frames used for the animation. The higher this number,
+            the smoother the resulting animation.
+        delay:
+            Delay between frames in milliseconds.
         """
         # Creation of the figure
         fig = plt.figure()
@@ -534,7 +543,7 @@ class Framework(object):
             return [vertices_plot] + lines
 
         def _rotation_matrix(frame):
-            angle = frame * np.pi / 50
+            angle = frame * np.pi / total_frames
             # Rotation of vertices around the z-axis
             rotation_matrix = np.array(
                 [
@@ -577,7 +586,14 @@ class Framework(object):
             return [vertices_plot] + lines
 
         # Creating the animation
-        ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
+        ani = FuncAnimation(
+            fig,
+            update,
+            frames=total_frames * 2,
+            interval=delay,
+            init_func=init,
+            blit=True,
+        )
 
         # Checking if we are running from the terminal or from a notebook
         import sys
@@ -591,7 +607,7 @@ class Framework(object):
             return
 
     @doc_category("Other")
-    def plot3D(  # noqa: C901
+    def plot3D(
         self,
         coordinates: Union[tuple, list] = None,
         projection_matrix: Matrix = None,
@@ -627,7 +643,7 @@ class Framework(object):
             If True the matrix used for projection into 3D is returned.
         animation:
             If you want a rotating figure
-        """  # noqa: E501
+        """
 
         if self._dim == 1 or self._dim == 2:
             return self.plot2D(**kwargs)
