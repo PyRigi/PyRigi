@@ -700,7 +700,7 @@ class Framework(object):
         edge_width: float = 2.5,
         edge_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "black",
         edge_style: str = "solid",
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -805,15 +805,16 @@ class Framework(object):
         plt.show()
 
     @doc_category("Other")
-    def _plot_inf_flex(self,
-                         ax: Axes,
-                         inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
-                         points: dict[Vertex, Point] = None,
-                         flex_width: float = 2.5,
-                         flex_length: float = 0.25,
-                         flex_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "limegreen",
-                         flex_style: str = "solid"
-                    ) -> None:
+    def _plot_inf_flex(  # noqa: C901
+        self,
+        ax: Axes,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
+        points: dict[Vertex, Point] = None,
+        flex_width: float = 2.5,
+        flex_length: float = 0.25,
+        flex_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "limegreen",
+        flex_style: str = "solid",
+    ) -> None:
         """
         Adds infinitesimal flexes as vectors to the axis `ax`.
 
@@ -870,23 +871,29 @@ class Framework(object):
                 points = self.realization(as_points=True, numerical=True)
             elif not isinstance(points, dict):
                 raise TypeError("Realization has the wrong type!")
-            elif not all([len(points[v])==len(points[points.keys()[0]]) and len(points[v]) in [2,3] for v in self._graph.nodes]):
-                raise ValueError("Not all values in the realization have the same length and the dimension needs to be 2 or 3.")
+            elif not all(
+                [
+                    len(points[v]) == len(points[points.keys()[0]])
+                    and len(points[v]) in [2, 3]
+                    for v in self._graph.nodes
+                ]
+            ):
+                raise ValueError(
+                    "Not all values in the realization have the same"
+                    + "length and the dimension needs to be 2 or 3."
+                )
 
             magnidutes = []
             for flex_key in inf_flex_pointwise.keys():
-                if flex_key not in self._graph.vertex_list():
-                    raise KeyError(
-                        "A key in `inf_flex` does not exist as a vertex in the graph!"
-                    )
-                if len(inf_flex_pointwise[flex_key]) != len(points[list(points.keys())[0]]):
+                if len(inf_flex_pointwise[flex_key]) != len(
+                    points[list(points.keys())[0]]
+                ):
                     raise ValueError(
-                        f"The infinitesimal flex needs to be in dimension {len(points[list(points.keys())[0]])}."
+                        "The infinitesimal flex needs to be "
+                        + f"in dimension {len(points[list(points.keys())[0]])}."
                     )
                 inf_flex = [float(x) for x in inf_flex_pointwise[flex_key]]
-                magnidutes.append(
-                    np.linalg.norm(inf_flex)
-                )
+                magnidutes.append(np.linalg.norm(inf_flex))
 
             # normalize the edge lengths by the Euclidean norm of the longest one
             flex_mag = max(magnidutes)
