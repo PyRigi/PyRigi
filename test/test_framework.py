@@ -637,7 +637,6 @@ def test_plot3D_error():
         F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1]])
 
 
-
 def test_rigidity_matrix():
     F = fws.Complete(2)
     assert F.rigidity_matrix() == Matrix([-1, 0, 1, 0]).transpose()
