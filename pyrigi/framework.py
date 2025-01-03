@@ -594,7 +594,6 @@ class Framework(object):
     def plot3D(  # noqa: C901
         self,
         coordinates: Union[tuple, list] = None,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -624,22 +623,10 @@ class Framework(object):
             When the same value is provided, the framework will plot exactly same.
         coordinates:
             Indexes of three coordinates that will be used as the placement in 3D.
-        inf_flex:
-            Optional parameter for plotting a given infinitesimal flex. It is
-            important to use the same vertex order as the one
-            from :meth:`.Graph.vertex_list`.
-            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
-            nontrivial infinitesimal flex for plotting.
-            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
-            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 3D is returned.
         animation:
             If you want a rotating figure
-
-        TODO
-        -----
-        project the inf-flex as well in `_plot_using_projection_matrix_3D`.
         """  # noqa: E501
 
         if self._dim == 1 or self._dim == 2:
