@@ -114,6 +114,7 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     Q, R = np.linalg.qr(matrix)
     return Q @ np.diag(np.sign(np.diag(R)))
 
+
 def check_integrality_and_range(
     n: int, name: str = "number n", min_n: int = 0, max_n: int = math.inf
 ) -> None:
