@@ -498,7 +498,7 @@ class Framework(object):
         """
         Plot this framework in 3D and makes it rotating around the an axis,
         the z axis by default value.
-        
+
         Parameters
         ----------
         vertex_color, vertex_shape, vertex_size, edge_color, edge_width, edge_style:
@@ -507,8 +507,8 @@ class Framework(object):
             the user can input a rotation matrix. By default, a rotation around the
             z axis is provided.
         rotation_axis:
-            the user can input a rotation axis or vector in general. By default, 
-            a rotation around the z axis is provided.   
+            the user can input a rotation axis or vector in general. By default,
+            a rotation around the z axis is provided.
         """
         # Creation of the figure
         fig = plt.figure()
