@@ -23,6 +23,7 @@ import networkx as nx
 import sympy as sp
 import numpy as np
 import types
+import functools
 
 from sympy import Matrix, flatten, binomial
 
@@ -491,10 +492,23 @@ class Framework(object):
         edge_width: float = 1.5,
         edge_style: str = "solid",
         rotation_matrix=None,
+        rotation_axis=None,
         **kwargs,
     ):
         """
-        Plot this framework in 3D and makes it rotating around the z axis.
+        Plot this framework in 3D and makes it rotating around the an axis,
+        the z axis by default value.
+        
+        Parameters
+        ----------
+        vertex_color, vertex_shape, vertex_size, edge_color, edge_width, edge_style:
+           the user can choose differen colors etc. both for edges and vertices.
+        rotation_matrix:
+            the user can input a rotation matrix. By default, a rotation around the
+            z axis is provided.
+        rotation_axis:
+            the user can input a rotation axis or vector in general. By default, 
+            a rotation around the z axis is provided.   
         """
         # Creation of the figure
         fig = plt.figure()
@@ -534,8 +548,8 @@ class Framework(object):
             return [vertices_plot] + lines
 
         def _rotation_matrix(frame):
-            angle = frame * np.pi / 50
             # Rotation of vertices around the z-axis
+            angle = frame * np.pi / 50
             rotation_matrix = np.array(
                 [
                     [np.cos(angle), -np.sin(angle), 0],
@@ -545,8 +559,41 @@ class Framework(object):
             )
             return rotation_matrix
 
+        def _rotation_matrix2(v, frame):
+            # Compute the rotation matrix Q
+            v = np.array(v)
+            v = v / np.linalg.norm(v)
+            angle = frame * np.pi / 50
+            cos_angle = np.cos(angle)
+            sin_angle = np.sin(angle)
+
+            # Rodrigues' rotation matrix
+            K = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+            Q = np.eye(3) * cos_angle + K * sin_angle + np.outer(v, v) * (1 - cos_angle)
+            return Q
+
         if rotation_matrix is None:
-            rotation_matrix = _rotation_matrix
+            if rotation_axis is None or rotation_axis == "z" or rotation_axis == "Z":
+                rotation_matrix = _rotation_matrix
+            elif rotation_axis == "x" or rotation_axis == "X":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix2, np.array([1, 0, 0])
+                )
+            elif rotation_axis == "y" or rotation_axis == "Y":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix2, np.array([0, 1, 0])
+                )
+            elif isinstance(rotation_axis, (np.ndarray, list, tuple)):
+                if len(rotation_axis) != 3:
+                    raise ValueError("The rotation_axis must have length 3.")
+                rotation_matrix = functools.partial(
+                    _rotation_matrix2, np.array(rotation_axis)
+                )
+            else:
+                raise ValueError(
+                    "The rotation_axis must be of one of the following "
+                    + "types: np.ndarray, list, tuple."
+                )
 
         elif not isinstance(rotation_matrix, types.FunctionType):
             raise ValueError(
@@ -633,9 +680,9 @@ class Framework(object):
             Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
-            If True the matrix used for projection into 3D is returned.
+            If `True` the matrix used for projection into 3D is returned.
         animation:
-            If you want a rotating figure
+            If `True` the plot is a rotating figure.
 
         TODO
         -----
