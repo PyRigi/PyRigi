@@ -92,7 +92,11 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     """
     Generate three random numeric orthonormal vectors in the given dimension.
 
-    The vectors are in the columns of the returned matrix.
+    Notes
+    -----
+    The vectors are in the columns of the returned matrix. To ensure that the
+    vectors are uniformly distributed over the Stiefel manifold, we need to
+    ensure that the triangular matrix `R` has positive diagonal elements.
 
     Parameters
     ----------
@@ -108,7 +112,7 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
 
     matrix = np.random.randn(dim, 3)
     Q, R = np.linalg.qr(matrix)
-    return Q
+    return Q @ np.diag(np.sign(np.diag(R)))
 
 
 def check_integrality_and_range(

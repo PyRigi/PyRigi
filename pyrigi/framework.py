@@ -491,18 +491,25 @@ class Framework(object):
         edge_color: str = "k",
         edge_width: float = 1.5,
         edge_style: str = "solid",
+        total_frames: int = 50,
+        delay: int = 75,
         rotation_matrix=None,
         rotation_axis=None,
         **kwargs,
     ):
         """
-        Plot this framework in 3D and makes it rotating around the an axis,
+        Plot this framework in 3D and makes it rotating around an axis,
         the z axis by default value.
 
         Parameters
         ----------
         vertex_color, vertex_shape, vertex_size, edge_color, edge_width, edge_style:
            the user can choose differen colors etc. both for edges and vertices.
+        total_frames:
+            Number of frames used for the animation. The higher this number,
+            the smoother the resulting animation.
+        delay:
+            Delay between frames in milliseconds.
         rotation_matrix:
             the user can input a rotation matrix. By default, a rotation around the
             z axis is provided.
@@ -549,7 +556,7 @@ class Framework(object):
 
         def _rotation_matrix(frame):
             # Rotation of vertices around the z-axis
-            angle = frame * np.pi / 50
+            angle = frame * np.pi / total_frames
             rotation_matrix = np.array(
                 [
                     [np.cos(angle), -np.sin(angle), 0],
@@ -563,7 +570,7 @@ class Framework(object):
             # Compute the rotation matrix Q
             v = np.array(v)
             v = v / np.linalg.norm(v)
-            angle = frame * np.pi / 50
+            angle = frame * np.pi / total_frames
             cos_angle = np.cos(angle)
             sin_angle = np.sin(angle)
 
@@ -624,7 +631,14 @@ class Framework(object):
             return [vertices_plot] + lines
 
         # Creating the animation
-        ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
+        ani = FuncAnimation(
+            fig,
+            update,
+            frames=total_frames * 2,
+            interval=delay,
+            init_func=init,
+            blit=True,
+        )
 
         # Checking if we are running from the terminal or from a notebook
         import sys
@@ -638,10 +652,9 @@ class Framework(object):
             return
 
     @doc_category("Other")
-    def plot3D(  # noqa: C901
+    def plot3D(
         self,
         coordinates: Union[tuple, list] = None,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -671,14 +684,6 @@ class Framework(object):
             When the same value is provided, the framework will plot exactly same.
         coordinates:
             Indexes of three coordinates that will be used as the placement in 3D.
-        inf_flex:
-            Optional parameter for plotting a given infinitesimal flex. It is
-            important to use the same vertex order as the one
-            from :meth:`.Graph.vertex_list`.
-            Alternatively, an `int` can be specified to choose the 0,1,2,...-th
-            nontrivial infinitesimal flex for plotting.
-            Lastly, a `dict[Vertex, Sequence[Coordinate]]` can be provided, which
-            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If `True` the matrix used for projection into 3D is returned.
         animation:
