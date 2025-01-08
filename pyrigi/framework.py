@@ -13,7 +13,7 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
 
 from copy import deepcopy
 from itertools import combinations
@@ -482,7 +482,7 @@ class Framework(object):
             return projection_matrix
 
     @doc_category("Other")
-    def _animate_rotation_around_z_axis(
+    def _animate_rotation_around_axis(
         self,
         vertex_color: str = "#ff8c00",
         vertex_shape: str = "o",
@@ -492,13 +492,10 @@ class Framework(object):
         edge_style: str = "solid",
         total_frames: int = 50,
         delay: int = 75,
-        rotation_matrix=None,
-        rotation_axis=None,
-        **kwargs,
-    ):
+        rotation_axis: str | Sequence[Coordinate] = None,
+    ) -> Any:
         """
-        Plot this framework in 3D and makes it rotating around an axis,
-        the z axis by default value.
+        Plot this framework in 3D and animate a rotation around an axis.
 
         Parameters
         ----------
@@ -509,12 +506,10 @@ class Framework(object):
             the smoother the resulting animation.
         delay:
             Delay between frames in milliseconds.
-        rotation_matrix:
-            the user can input a rotation matrix. By default, a rotation around the
-            z axis is provided.
         rotation_axis:
-            the user can input a rotation axis or vector in general. By default,
-            a rotation around the z axis is provided.
+            The user can input a rotation axis or vector. By default, a rotation around
+            the z-axis is performed. This can either be done in the form of a char
+            ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
         """
         # Creation of the figure
         fig = plt.figure()
@@ -566,23 +561,25 @@ class Framework(object):
             Q = np.eye(3) * cos_angle + K * sin_angle + np.outer(v, v) * (1 - cos_angle)
             return Q
 
-        if rotation_axis is None or rotation_axis == "z" or rotation_axis == "Z":
-            rotation_matrix = functools.partial(_rotation_matrix, np.array([0, 0, 1]))
-        elif rotation_axis == "x" or rotation_axis == "X":
-            rotation_matrix = functools.partial(_rotation_matrix, np.array([1, 0, 0]))
-        elif rotation_axis == "y" or rotation_axis == "Y":
-            rotation_matrix = functools.partial(_rotation_matrix, np.array([0, 1, 0]))
-        elif isinstance(rotation_axis, (np.ndarray, list, tuple)):
-            if len(rotation_axis) != 3:
-                raise ValueError("The rotation_axis must have length 3.")
-            rotation_matrix = functools.partial(
-                _rotation_matrix, np.array(rotation_axis)
-            )
-        else:
-            raise ValueError(
-                "The rotation_axis must be of one of the following "
-                + "types: np.ndarray, list, tuple."
-            )
+        match rotation_axis:
+            case None | "z" | "Z":
+                rotation_matrix = functools.partial(_rotation_matrix, np.array([0, 0, 1]))
+            case "x" | "X":
+                rotation_matrix = functools.partial(_rotation_matrix, np.array([1, 0, 0]))
+            case  "y" | "Y":
+                rotation_matrix = functools.partial(_rotation_matrix, np.array([0, 1, 0]))
+            case _:  # Rotation around a custom axis
+                if isinstance(rotation_axis, (np.ndarray, list, tuple)):
+                    if len(rotation_axis) != 3:
+                        raise ValueError("The rotation_axis must have length 3.")
+                    rotation_matrix = functools.partial(
+                        _rotation_matrix, np.array(rotation_axis)
+                    )
+                else:
+                    raise ValueError(
+                        "The rotation_axis must be of one of the following "
+                        + "types: np.ndarray, list, tuple."
+                    )
 
         # Function to update data at each frame
         def update(frame):
@@ -621,7 +618,6 @@ class Framework(object):
 
         if "ipykernel" in sys.modules:
             from IPython.display import HTML
-
             return HTML(ani.to_jshtml())
         else:
             plt.show()
@@ -630,7 +626,7 @@ class Framework(object):
     @doc_category("Other")
     def plot3D(
         self,
-        coordinates: Union[tuple, list] = None,
+        coordinates: Sequence[int] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -638,14 +634,17 @@ class Framework(object):
         **kwargs,
     ) -> Optional[Matrix]:
         """
-        Plot this framework in 3D.
+        Plot the provided framework in 3D.
 
+        Notes
+        -----
         If this framework is in dimensions higher than 3 and projection_matrix
         with coordinates are None a random projection matrix
         containing three orthonormal vectors is generated and used for projection into 3D.
-        This matrix is then returned.
+        This particular matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
-        Only coordinates or projection_matrix parameter can be used, not both!
+        Only the parameter `coordinates` or `projection_matrix` can be used,
+        not both at the same time!
 
         Parameters
         ----------
@@ -678,7 +677,7 @@ class Framework(object):
             return
 
         elif self._dim == 3 and animation:
-            return self._animate_rotation_around_z_axis(**kwargs)
+            return self._animate_rotation_around_axis(**kwargs)
 
         # dim > 3 -> use projection to 3D
         if coordinates is not None:
@@ -723,12 +722,12 @@ class Framework(object):
         projection_matrix: Matrix = None,
         vertex_color: str = "#ff8c00",
         vertex_size: int = 200,
+        vertex_shape: str = "o",
+        font_size: int = 10,
         font_color: str = "whitesmoke",
         edge_color: str = "k",
         edge_width: float = 1.5,
-        edge_style: str = "solid",
-        vertex_shape: str = "o",
-        **kwargs,
+        edge_style: str = "solid"
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -741,6 +740,32 @@ class Framework(object):
             The matrix used for projection.
             The matrix must have dimensions ``(3, dim)``,
             where ``dim`` is the dimension of the framework.
+        vertex_color:
+            The color of the vertices. The color can be a string or an rgb (or rgba)
+            tuple of floats from 0-1.
+        vertex_size:
+            The size of the vertices.
+        vertex_shape:
+            The shape of the vertices specified as as matplotlib.scatter
+            marker, one of ``so^>v<dph8``.
+        vertex_labels:
+            If ``True`` (default), vertex labels are displayed.
+        font_size:
+            The size of the font used for the labels.
+        font_color:
+            The color of the font used for the labels.
+        edge_width:
+        edge_color:
+            If a single color is given as a string or rgb (or rgba) tuple
+            of floats from 0-1, then all edges get this color.
+            If a (possibly incomplete) partition of the edges is given,
+            then each part gets a different color.
+            If a dictionary from colors to a list of edge is given,
+            edges are colored accordingly.
+            The edges missing in the partition/dictionary, are colored black.
+        edge_style:
+            Edge line style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
         """
         # Create a figure for the rapresentation of the framework
         fig = plt.figure(figsize=(10, 10))
@@ -781,7 +806,7 @@ class Framework(object):
                 z,
                 str(node),
                 color=font_color,
-                fontsize=10,
+                fontsize=font_size,
                 ha="center",
                 va="center",
             )
@@ -798,10 +823,11 @@ class Framework(object):
         """
         Plot the framework.
 
-        If the dimension of the framework is greater than 2, ``ValueError`` is raised,
-        use :meth:`.Framework.plot2D` instead.
+        Notes
+        -----
+        If the dimension of the framework is greater than 3, ``ValueError`` is raised,
+        use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
         For various formatting options, see :meth:`.Graph.plot`.
-
 
         TODO
         ----
