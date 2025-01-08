@@ -22,7 +22,6 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 import numpy as np
-import types
 import functools
 
 from sympy import Matrix, flatten, binomial
@@ -568,17 +567,11 @@ class Framework(object):
             return Q
 
         if rotation_axis is None or rotation_axis == "z" or rotation_axis == "Z":
-            rotation_matrix = functools.partial(
-                _rotation_matrix, np.array([0, 0, 1])
-            )
+            rotation_matrix = functools.partial(_rotation_matrix, np.array([0, 0, 1]))
         elif rotation_axis == "x" or rotation_axis == "X":
-            rotation_matrix = functools.partial(
-                _rotation_matrix, np.array([1, 0, 0])
-            )
+            rotation_matrix = functools.partial(_rotation_matrix, np.array([1, 0, 0]))
         elif rotation_axis == "y" or rotation_axis == "Y":
-            rotation_matrix = functools.partial(
-                _rotation_matrix, np.array([0, 1, 0])
-            )
+            rotation_matrix = functools.partial(_rotation_matrix, np.array([0, 1, 0]))
         elif isinstance(rotation_axis, (np.ndarray, list, tuple)):
             if len(rotation_axis) != 3:
                 raise ValueError("The rotation_axis must have length 3.")
@@ -590,7 +583,6 @@ class Framework(object):
                 "The rotation_axis must be of one of the following "
                 + "types: np.ndarray, list, tuple."
             )
-
 
         # Function to update data at each frame
         def update(frame):
