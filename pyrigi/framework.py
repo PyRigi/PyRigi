@@ -554,19 +554,7 @@ class Framework(object):
                 line.set_3d_properties([])
             return [vertices_plot] + lines
 
-        def _rotation_matrix(frame):
-            # Rotation of vertices around the z-axis
-            angle = frame * np.pi / total_frames
-            rotation_matrix = np.array(
-                [
-                    [np.cos(angle), -np.sin(angle), 0],
-                    [np.sin(angle), np.cos(angle), 0],
-                    [0, 0, 1],
-                ]
-            )
-            return rotation_matrix
-
-        def _rotation_matrix2(v, frame):
+        def _rotation_matrix(v, frame):
             # Compute the rotation matrix Q
             v = np.array(v)
             v = v / np.linalg.norm(v)
@@ -579,34 +567,30 @@ class Framework(object):
             Q = np.eye(3) * cos_angle + K * sin_angle + np.outer(v, v) * (1 - cos_angle)
             return Q
 
-        if rotation_matrix is None:
-            if rotation_axis is None or rotation_axis == "z" or rotation_axis == "Z":
-                rotation_matrix = _rotation_matrix
-            elif rotation_axis == "x" or rotation_axis == "X":
-                rotation_matrix = functools.partial(
-                    _rotation_matrix2, np.array([1, 0, 0])
-                )
-            elif rotation_axis == "y" or rotation_axis == "Y":
-                rotation_matrix = functools.partial(
-                    _rotation_matrix2, np.array([0, 1, 0])
-                )
-            elif isinstance(rotation_axis, (np.ndarray, list, tuple)):
-                if len(rotation_axis) != 3:
-                    raise ValueError("The rotation_axis must have length 3.")
-                rotation_matrix = functools.partial(
-                    _rotation_matrix2, np.array(rotation_axis)
-                )
-            else:
-                raise ValueError(
-                    "The rotation_axis must be of one of the following "
-                    + "types: np.ndarray, list, tuple."
-                )
-
-        elif not isinstance(rotation_matrix, types.FunctionType):
-            raise ValueError(
-                "The rotation matrix must be of one of the following "
-                + "types: FunctionType or NoneType."
+        if rotation_axis is None or rotation_axis == "z" or rotation_axis == "Z":
+            rotation_matrix = functools.partial(
+                _rotation_matrix, np.array([0, 0, 1])
             )
+        elif rotation_axis == "x" or rotation_axis == "X":
+            rotation_matrix = functools.partial(
+                _rotation_matrix, np.array([1, 0, 0])
+            )
+        elif rotation_axis == "y" or rotation_axis == "Y":
+            rotation_matrix = functools.partial(
+                _rotation_matrix, np.array([0, 1, 0])
+            )
+        elif isinstance(rotation_axis, (np.ndarray, list, tuple)):
+            if len(rotation_axis) != 3:
+                raise ValueError("The rotation_axis must have length 3.")
+            rotation_matrix = functools.partial(
+                _rotation_matrix, np.array(rotation_axis)
+            )
+        else:
+            raise ValueError(
+                "The rotation_axis must be of one of the following "
+                + "types: np.ndarray, list, tuple."
+            )
+
 
         # Function to update data at each frame
         def update(frame):
@@ -692,7 +676,7 @@ class Framework(object):
         TODO
         -----
         project the inf-flex as well in `_plot_using_projection_matrix_3D`.
-        """  # noqa: E501
+        """
 
         if self._dim == 1 or self._dim == 2:
             return self.plot2D(**kwargs)
@@ -818,7 +802,7 @@ class Framework(object):
     def plot(
         self,
         **kwargs,
-    ) -> None:
+    ) -> Optional[Matrix]:
         """
         Plot the framework.
 
@@ -833,7 +817,7 @@ class Framework(object):
         """
 
         if self._dim == 3:
-            self.plot3D(**kwargs)
+            return self.plot3D(**kwargs)
         elif self._dim > 3:
             raise ValueError(
                 "This framework is in higher dimension than 3!"
@@ -841,7 +825,7 @@ class Framework(object):
                 + " for projection into 3D use F.plot3D()."
             )
         else:
-            self.plot2D(**kwargs)
+            return self.plot2D(**kwargs)
 
     @doc_category("Other")
     def to_tikz(
