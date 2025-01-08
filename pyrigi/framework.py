@@ -512,7 +512,7 @@ class Framework(object):
             ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
         """
         # Creation of the figure
-        fig = plt.figure()
+        fig = plt.figure(figsize=(7, 7))
         ax = fig.add_subplot(111, projection="3d")
 
         # Limits of the axes
@@ -768,7 +768,7 @@ class Framework(object):
             ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
         """
         # Create a figure for the rapresentation of the framework
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(7, 7))
         ax = fig.add_subplot(111, projection="3d")
 
         if projection_matrix is None:
