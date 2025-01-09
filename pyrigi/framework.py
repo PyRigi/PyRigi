@@ -486,9 +486,9 @@ class Framework(object):
         self,
         vertex_color: str = "#ff8c00",
         vertex_shape: str = "o",
-        vertex_size: int = 10,
+        vertex_size: int = 13.5,
         edge_color: str = "k",
-        edge_width: float = 1.5,
+        edge_width: float = 1.1,
         edge_style: str = "solid",
         total_frames: int = 50,
         delay: int = 75,
@@ -512,20 +512,19 @@ class Framework(object):
             ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
         """
         # Creation of the figure
-        fig = plt.figure(figsize=(7, 7))
+        fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
+        ax.grid(False)
+        ax.set_axis_off()
+        plt.tight_layout()
 
         # Limits of the axes
         abs_list = [list(abs(i)) for i in self._realization.values()]
         abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
-        b = float(max(abs_list) * 1.2)
-        ax.set_xlim(-b, b)
-        ax.set_ylim(-b, b)
-        ax.set_zlim(-b, b)
 
         vertices = np.array(
             [
-                list(list(self.realization().values())[i])
+                list(list(self.realization(numerical=True).values())[i])
                 for i in range(self._graph.number_of_nodes())
             ]
         )
@@ -563,11 +562,17 @@ class Framework(object):
 
         match rotation_axis:
             case None | "z" | "Z":
-                rotation_matrix = functools.partial(_rotation_matrix, np.array([0, 0, 1]))
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([0, 0, 1])
+                )
             case "x" | "X":
-                rotation_matrix = functools.partial(_rotation_matrix, np.array([1, 0, 0]))
-            case  "y" | "Y":
-                rotation_matrix = functools.partial(_rotation_matrix, np.array([0, 1, 0]))
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([1, 0, 0])
+                )
+            case "y" | "Y":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([0, 1, 0])
+                )
             case _:  # Rotation around a custom axis
                 if isinstance(rotation_axis, (np.ndarray, list, tuple)):
                     if len(rotation_axis) != 3:
@@ -580,6 +585,26 @@ class Framework(object):
                         "The rotation_axis must be of one of the following "
                         + "types: np.ndarray, list, tuple."
                     )
+
+        rot_vertices = sum(
+            [
+                vertices.dot(rotation_matrix(frame).T).tolist()
+                for frame in range(2 * total_frames)
+            ],
+            [],
+        )
+        ax.set_zlim(
+            min([pt[2] for pt in rot_vertices]) - 0.01,
+            max([pt[2] for pt in rot_vertices]) + 0.01,
+        )
+        ax.set_ylim(
+            min([pt[1] for pt in rot_vertices]) - 0.01,
+            max([pt[1] for pt in rot_vertices]) + 0.01,
+        )
+        ax.set_xlim(
+            min([pt[0] for pt in rot_vertices]) - 0.01,
+            max([pt[0] for pt in rot_vertices]) + 0.01,
+        )
 
         # Function to update data at each frame
         def update(frame):
@@ -618,6 +643,7 @@ class Framework(object):
 
         if "ipykernel" in sys.modules:
             from IPython.display import HTML
+
             return HTML(ani.to_jshtml())
         else:
             plt.show()
@@ -727,7 +753,7 @@ class Framework(object):
         font_color: str = "whitesmoke",
         edge_color: str = "k",
         edge_width: float = 1.5,
-        edge_style: str = "solid"
+        edge_style: str = "solid",
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -768,8 +794,11 @@ class Framework(object):
             ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
         """
         # Create a figure for the rapresentation of the framework
-        fig = plt.figure(figsize=(7, 7))
+        fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
+        ax.grid(False)
+        ax.set_axis_off()
+        plt.tight_layout()
 
         if projection_matrix is None:
             pos = self.realization(as_points=True, numerical=True)
@@ -792,6 +821,10 @@ class Framework(object):
             s=vertex_size,
             marker=vertex_shape,
         )
+        ax.set_zlim(min(z_nodes) - 0.01, max(z_nodes) + 0.01)
+        ax.set_ylim(min(y_nodes) - 0.01, max(y_nodes) + 0.01)
+        ax.set_xlim(min(x_nodes) - 0.01, max(x_nodes) + 0.01)
+
         for edge in self._graph.edges():
             x = [pos[edge[0]][0], pos[edge[1]][0]]
             y = [pos[edge[0]][1], pos[edge[1]][1]]
@@ -810,9 +843,6 @@ class Framework(object):
                 ha="center",
                 va="center",
             )
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
-        ax.set_zlabel("Z")
         plt.show()
 
     @doc_category("Other")
