@@ -57,8 +57,8 @@ def test_KL_values_are_not_correct():
     ],
 )
 def test_rigid_in_d2(graph):
-    assert graph.is_rigid(dim=2, combinatorial=True)
-    assert graph.is_rigid(dim=2, combinatorial=False)
+    assert graph.is_rigid(d=2, combinatorial=True)
+    assert graph.is_rigid(d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -73,8 +73,8 @@ def test_rigid_in_d2(graph):
     ],
 )
 def test_not_rigid_in_d2(graph):
-    assert not graph.is_rigid(dim=2, combinatorial=True)
-    assert not graph.is_rigid(dim=2, combinatorial=False)
+    assert not graph.is_rigid(d=2, combinatorial=True)
+    assert not graph.is_rigid(d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -92,8 +92,8 @@ def test_not_rigid_in_d2(graph):
     ],
 )
 def test_rigid_in_d1(graph):
-    assert graph.is_rigid(dim=1, combinatorial=True)
-    assert graph.is_rigid(dim=1, combinatorial=False)
+    assert graph.is_rigid(d=1, combinatorial=True)
+    assert graph.is_rigid(d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -101,8 +101,8 @@ def test_rigid_in_d1(graph):
     [Graph.from_vertices(range(3)), Graph([[0, 1], [2, 3]])],
 )
 def test_not_rigid_in_d1(graph):
-    assert not graph.is_rigid(dim=1, combinatorial=True)
-    assert not graph.is_rigid(dim=1, combinatorial=False)
+    assert not graph.is_rigid(d=1, combinatorial=True)
+    assert not graph.is_rigid(d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -195,8 +195,8 @@ def test_not_2_3_tight(graph):
     ],
 )
 def test_min_rigid_in_d1(graph):
-    assert graph.is_min_rigid(dim=1, combinatorial=True)
-    assert graph.is_min_rigid(dim=1, combinatorial=False)
+    assert graph.is_min_rigid(d=1, combinatorial=True)
+    assert graph.is_min_rigid(d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -214,8 +214,8 @@ def test_min_rigid_in_d1(graph):
     ],
 )
 def test_not_min_rigid_in_d1(graph):
-    assert not graph.is_min_rigid(dim=1, combinatorial=True)
-    assert not graph.is_min_rigid(dim=1, combinatorial=False)
+    assert not graph.is_min_rigid(d=1, combinatorial=True)
+    assert not graph.is_min_rigid(d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -229,8 +229,8 @@ def test_not_min_rigid_in_d1(graph):
     ],
 )
 def test_min_rigid_in_d2(graph):
-    assert graph.is_min_rigid(dim=2, combinatorial=True)
-    assert graph.is_min_rigid(dim=2, combinatorial=False)
+    assert graph.is_min_rigid(d=2, combinatorial=True)
+    assert graph.is_min_rigid(d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -250,8 +250,8 @@ def test_min_rigid_in_d2(graph):
     ],
 )
 def test_not_min_rigid_in_d2(graph):
-    assert not graph.is_min_rigid(dim=2, combinatorial=True)
-    assert not graph.is_min_rigid(dim=2, combinatorial=False)
+    assert not graph.is_min_rigid(d=2, combinatorial=True)
+    assert not graph.is_min_rigid(d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -267,7 +267,7 @@ def test_not_min_rigid_in_d2(graph):
     ],
 )
 def test_globally_rigid_in_d2(graph):
-    assert graph.is_globally_rigid(dim=2)
+    assert graph.is_globally_rigid(d=2)
 
 
 def read_random_from_graph6(filename):
@@ -315,7 +315,7 @@ def read_globally(d_v_):
     ],
 )
 def test_globally_rigid_in_d(graph, gdim):
-    assert graph.is_globally_rigid(dim=gdim)
+    assert graph.is_globally_rigid(d=gdim)
 
 
 @pytest.mark.parametrize(
@@ -364,7 +364,7 @@ def test_globally_rigid_in_d(graph, gdim):
     ],
 )
 def test_not_globally_rigid_in_d(graph, gdim):
-    assert not graph.is_globally_rigid(dim=gdim)
+    assert not graph.is_globally_rigid(d=gdim)
 
 
 @pytest.mark.parametrize(
@@ -382,7 +382,7 @@ def test_not_globally_rigid_in_d(graph, gdim):
     ],
 )
 def test_not_globally_in_d2(graph):
-    assert not graph.is_globally_rigid(dim=2)
+    assert not graph.is_globally_rigid(d=2)
 
 
 @pytest.mark.parametrize(
@@ -395,8 +395,8 @@ def test_not_globally_in_d2(graph):
     ],
 )
 def test_vertex_redundantly_rigid_in_d2(graph):
-    assert graph.is_vertex_redundantly_rigid(dim=2)
-    assert graph.is_vertex_redundantly_rigid(dim=2, combinatorial=False)
+    assert graph.is_vertex_redundantly_rigid(d=2)
+    assert graph.is_vertex_redundantly_rigid(d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -415,8 +415,8 @@ def test_vertex_redundantly_rigid_in_d2(graph):
     ],
 )
 def test_k_vertex_redundantly_rigid_in_d1(graph, k):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=1)
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=1, combinatorial=False)
+    assert graph.is_k_vertex_redundantly_rigid(k, d=1)
+    assert graph.is_k_vertex_redundantly_rigid(k, d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -436,8 +436,8 @@ def test_k_vertex_redundantly_rigid_in_d1(graph, k):
     ],
 )
 def test_k_vertex_redundantly_rigid_in_d2(graph, k):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=2)
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=2, combinatorial=False)
+    assert graph.is_k_vertex_redundantly_rigid(k, d=2)
+    assert graph.is_k_vertex_redundantly_rigid(k, d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -464,7 +464,7 @@ def test_k_vertex_redundantly_rigid_in_d2(graph, k):
     ],
 )
 def test_k_vertex_redundantly_rigid_in_d3(graph, k):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=3, combinatorial=False)
+    assert graph.is_k_vertex_redundantly_rigid(k, d=3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -477,8 +477,8 @@ def test_k_vertex_redundantly_rigid_in_d3(graph, k):
     ],
 )
 def test_not_vertex_redundantly_rigid_in_d2(graph):
-    assert not graph.is_vertex_redundantly_rigid(dim=2)
-    assert not graph.is_vertex_redundantly_rigid(dim=2, combinatorial=False)
+    assert not graph.is_vertex_redundantly_rigid(d=2)
+    assert not graph.is_vertex_redundantly_rigid(d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -491,8 +491,8 @@ def test_not_vertex_redundantly_rigid_in_d2(graph):
     ],
 )
 def test_not_k_vertex_redundantly_rigid_in_d1(graph, k):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=1)
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=1, combinatorial=False)
+    assert not graph.is_k_vertex_redundantly_rigid(k, d=1)
+    assert not graph.is_k_vertex_redundantly_rigid(k, d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -505,8 +505,8 @@ def test_not_k_vertex_redundantly_rigid_in_d1(graph, k):
     ],
 )
 def test_not_k_vertex_redundantly_rigid_in_d2(graph, k):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=2)
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=2, combinatorial=False)
+    assert not graph.is_k_vertex_redundantly_rigid(k, d=2)
+    assert not graph.is_k_vertex_redundantly_rigid(k, d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -532,7 +532,7 @@ def test_not_k_vertex_redundantly_rigid_in_d2(graph, k):
     ],
 )
 def test_not_k_vertex_redundantly_rigid_in_d3(graph, k):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=3, combinatorial=False)
+    assert not graph.is_k_vertex_redundantly_rigid(k, d=3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -551,8 +551,8 @@ def test_not_k_vertex_redundantly_rigid_in_d3(graph, k):
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d1(graph, k):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1)
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1, combinatorial=False)
+    assert graph.is_min_k_vertex_redundantly_rigid(k, d=1)
+    assert graph.is_min_k_vertex_redundantly_rigid(k, d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -571,8 +571,8 @@ def test_min_k_vertex_redundantly_rigid_in_d1(graph, k):
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2)
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2, combinatorial=False)
+    assert graph.is_min_k_vertex_redundantly_rigid(k, d=2)
+    assert graph.is_min_k_vertex_redundantly_rigid(k, d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -583,7 +583,7 @@ def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
     ],
 )
 def test_min_k_vertex_redundantly_rigid_in_d3(graph, k):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=3, combinatorial=False)
+    assert graph.is_min_k_vertex_redundantly_rigid(k, d=3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -596,8 +596,8 @@ def test_min_k_vertex_redundantly_rigid_in_d3(graph, k):
     ],
 )
 def test_not_min_k_vertex_redundantly_rigid_in_d1(graph, k):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1)
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1, combinatorial=False)
+    assert not graph.is_min_k_vertex_redundantly_rigid(k, d=1)
+    assert not graph.is_min_k_vertex_redundantly_rigid(k, d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -610,8 +610,8 @@ def test_not_min_k_vertex_redundantly_rigid_in_d1(graph, k):
     ],
 )
 def test_not_min_k_vertex_redundantly_rigid_in_d2(graph, k):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2)
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2, combinatorial=False)
+    assert not graph.is_min_k_vertex_redundantly_rigid(k, d=2)
+    assert not graph.is_min_k_vertex_redundantly_rigid(k, d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -639,7 +639,7 @@ def test_not_min_k_vertex_redundantly_rigid_in_d2(graph, k):
     ],
 )
 def test_not_min_k_vertex_redundantly_rigid_in_d3(graph, k):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=3, combinatorial=False)
+    assert not graph.is_min_k_vertex_redundantly_rigid(k, d=3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -655,8 +655,8 @@ def test_not_min_k_vertex_redundantly_rigid_in_d3(graph, k):
     ],
 )
 def test_redundantly_rigid_in_d2(graph):
-    assert graph.is_redundantly_rigid(dim=2)
-    assert graph.is_redundantly_rigid(dim=2, combinatorial=False)
+    assert graph.is_redundantly_rigid(d=2)
+    assert graph.is_redundantly_rigid(d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -677,8 +677,8 @@ def test_redundantly_rigid_in_d2(graph):
     ],
 )
 def test_k_redundantly_rigid_in_d1(graph, k):
-    assert graph.is_k_redundantly_rigid(k, dim=1)
-    assert graph.is_k_redundantly_rigid(k, dim=1, combinatorial=False)
+    assert graph.is_k_redundantly_rigid(k, d=1)
+    assert graph.is_k_redundantly_rigid(k, d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -700,8 +700,8 @@ def test_k_redundantly_rigid_in_d1(graph, k):
     ],
 )
 def test_k_redundantly_rigid_in_d2(graph, k):
-    assert graph.is_k_redundantly_rigid(k, dim=2)
-    assert graph.is_k_redundantly_rigid(k, dim=2, combinatorial=False)
+    assert graph.is_k_redundantly_rigid(k, d=2)
+    assert graph.is_k_redundantly_rigid(k, d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -729,7 +729,7 @@ def test_k_redundantly_rigid_in_d2(graph, k):
     ],
 )
 def test_k_redundantly_rigid_in_d3(graph, k):
-    assert graph.is_k_redundantly_rigid(k, dim=3, combinatorial=False)
+    assert graph.is_k_redundantly_rigid(k, d=3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -750,8 +750,8 @@ def test_k_redundantly_rigid_in_d3(graph, k):
     ],
 )
 def test_not_redundantly_rigid_in_d2(graph):
-    assert not graph.is_redundantly_rigid(dim=2)
-    assert not graph.is_redundantly_rigid(dim=2, combinatorial=False)
+    assert not graph.is_redundantly_rigid(d=2)
+    assert not graph.is_redundantly_rigid(d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -763,8 +763,8 @@ def test_not_redundantly_rigid_in_d2(graph):
     ],
 )
 def test_not_k_redundantly_rigid_in_d1(graph, k):
-    assert not graph.is_k_redundantly_rigid(k, dim=1)
-    assert not graph.is_k_redundantly_rigid(k, dim=1, combinatorial=False)
+    assert not graph.is_k_redundantly_rigid(k, d=1)
+    assert not graph.is_k_redundantly_rigid(k, d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -782,8 +782,8 @@ def test_not_k_redundantly_rigid_in_d1(graph, k):
     ],
 )
 def test_not_k_redundantly_rigid_in_d2(graph, k):
-    assert not graph.is_k_redundantly_rigid(k, dim=2)
-    assert not graph.is_k_redundantly_rigid(k, dim=2, combinatorial=False)
+    assert not graph.is_k_redundantly_rigid(k, d=2)
+    assert not graph.is_k_redundantly_rigid(k, d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -801,7 +801,7 @@ def test_not_k_redundantly_rigid_in_d2(graph, k):
     ],
 )
 def test_not_k_redundantly_rigid_in_d3(graph, k):
-    assert not graph.is_k_redundantly_rigid(k, dim=3, combinatorial=False)
+    assert not graph.is_k_redundantly_rigid(k, d=3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -820,8 +820,8 @@ def test_not_k_redundantly_rigid_in_d3(graph, k):
     ],
 )
 def test_min_k_redundantly_rigid_in_d1(graph, k):
-    assert graph.is_min_k_redundantly_rigid(k, dim=1)
-    assert graph.is_min_k_redundantly_rigid(k, dim=1, combinatorial=False)
+    assert graph.is_min_k_redundantly_rigid(k, d=1)
+    assert graph.is_min_k_redundantly_rigid(k, d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -840,8 +840,8 @@ def test_min_k_redundantly_rigid_in_d1(graph, k):
     ],
 )
 def test_min_k_redundantly_rigid_in_d2(graph, k):
-    assert graph.is_min_k_redundantly_rigid(k, dim=2)
-    assert graph.is_min_k_redundantly_rigid(k, dim=2, combinatorial=False)
+    assert graph.is_min_k_redundantly_rigid(k, d=2)
+    assert graph.is_min_k_redundantly_rigid(k, d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -853,7 +853,7 @@ def test_min_k_redundantly_rigid_in_d2(graph, k):
     ],
 )
 def test_min_k_redundantly_rigid_in_d3(graph, k):
-    assert graph.is_min_k_redundantly_rigid(k, dim=3, combinatorial=False)
+    assert graph.is_min_k_redundantly_rigid(k, d=3, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -868,8 +868,8 @@ def test_min_k_redundantly_rigid_in_d3(graph, k):
     ],
 )
 def test_not_min_k_redundantly_rigid_in_d1(graph, k):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=1)
-    assert not graph.is_min_k_redundantly_rigid(k, dim=1, combinatorial=False)
+    assert not graph.is_min_k_redundantly_rigid(k, d=1)
+    assert not graph.is_min_k_redundantly_rigid(k, d=1, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -882,8 +882,8 @@ def test_not_min_k_redundantly_rigid_in_d1(graph, k):
     ],
 )
 def test_not_min_k_redundantly_rigid_in_d2(graph, k):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=2)
-    assert not graph.is_min_k_redundantly_rigid(k, dim=2, combinatorial=False)
+    assert not graph.is_min_k_redundantly_rigid(k, d=2)
+    assert not graph.is_min_k_redundantly_rigid(k, d=2, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -898,15 +898,15 @@ def test_not_min_k_redundantly_rigid_in_d2(graph, k):
     ],
 )
 def test_not_min_k_redundantly_rigid_in_d3(graph, k):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=3, combinatorial=False)
+    assert not graph.is_min_k_redundantly_rigid(k, d=3, combinatorial=False)
 
 
 def test_rigid_components():
     G = graphs.Path(6)
-    rigid_components = G.rigid_components(dim=1)
+    rigid_components = G.rigid_components(d=1)
     assert rigid_components[0] == [0, 1, 2, 3, 4, 5]
     G.remove_edge(2, 3)
-    rigid_components = G.rigid_components(dim=1)
+    rigid_components = G.rigid_components(d=1)
     assert [set(H) for H in rigid_components] == [
         set([0, 1, 2]),
         set([3, 4, 5]),
@@ -981,7 +981,7 @@ def test_rigid_components():
     ]
 
     G = graphs.DoubleBanana()
-    rigid_components = G.rigid_components(dim=3)
+    rigid_components = G.rigid_components(d=3)
     assert [set(H) for H in rigid_components] == [
         set([0, 1, 2, 3, 4]),
         set([0, 1, 5, 6, 7]),
@@ -1099,12 +1099,12 @@ def test_loops(method, params):
 
 def test_k_extension():
     assert str(graphs.Complete(2).zero_extension([0, 1])) == str(graphs.Complete(3))
-    assert str(graphs.Complete(2).zero_extension([1], dim=1)) == str(graphs.Path(3))
+    assert str(graphs.Complete(2).zero_extension([1], d=1)) == str(graphs.Path(3))
     assert str(graphs.Complete(4).one_extension([0, 1, 2], (0, 1))) == str(
         Graph([(0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4)])
     )
     assert str(
-        graphs.CompleteBipartite(3, 2).one_extension([0, 1, 2, 3, 4], (0, 3), dim=4)
+        graphs.CompleteBipartite(3, 2).one_extension([0, 1, 2, 3, 4], (0, 3), d=4)
     ) == str(
         Graph(
             [
@@ -1123,7 +1123,7 @@ def test_k_extension():
     )
     assert str(
         graphs.CompleteBipartite(3, 2).k_extension(
-            2, [0, 1, 3], [(0, 3), (1, 3)], dim=1
+            2, [0, 1, 3], [(0, 3), (1, 3)], d=1
         )
     ) == str(Graph([(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5)]))
     assert str(
@@ -1131,7 +1131,7 @@ def test_k_extension():
     ) == str(Graph([(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5), (4, 5)]))
     assert str(
         graphs.Cycle(6).k_extension(
-            4, [0, 1, 2, 3, 4], [(0, 1), (1, 2), (2, 3), (3, 4)], dim=1
+            4, [0, 1, 2, 3, 4], [(0, 1), (1, 2), (2, 3), (3, 4)], d=1
         )
     ) == str(Graph([(0, 5), (0, 6), (1, 6), (2, 6), (3, 6), (4, 5), (4, 6)]))
 
@@ -1179,14 +1179,14 @@ def test_all_k_extensions():
 
 def test_k_extension_fail():
     with pytest.raises(TypeError):
-        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1], [0, 2]], dim=-1)
+        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1], [0, 2]], d=-1)
     with pytest.raises(ValueError):
-        graphs.Complete(6).k_extension(2, [0, 1, 6], [[0, 1], [0, 6]], dim=1)
+        graphs.Complete(6).k_extension(2, [0, 1, 6], [[0, 1], [0, 6]], d=1)
     with pytest.raises(ValueError):
-        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1]], dim=1)
+        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1]], d=1)
     with pytest.raises(ValueError):
         graphs.CompleteBipartite(2, 3).k_extension(
-            2, [0, 1, 2], [[0, 1], [0, 2]], dim=1
+            2, [0, 1, 2], [[0, 1], [0, 2]], d=1
         )
     with pytest.raises(ValueError):
         list(Graph.from_vertices([0, 1, 2]).all_k_extensions(1, 1))
@@ -1269,7 +1269,7 @@ def test_extension_sequence_solution():
     for i in range(len(result)):
         assert str(result[i]) == str(G)
         if i < len(solution_ext):
-            G.k_extension(*solution_ext[i], dim=2, inplace=True)
+            G.k_extension(*solution_ext[i], d=2, inplace=True)
 
     result = graphs.Diamond().extension_sequence(return_solution=True)
     solution = [
@@ -1302,7 +1302,7 @@ def test_extension_sequence_solution():
     for i in range(len(result)):
         assert str(result[i]) == str(G)
         if i < len(solution_ext):
-            G.k_extension(*solution_ext[i], dim=2, inplace=True)
+            G.k_extension(*solution_ext[i], d=2, inplace=True)
 
 
 def test_CompleteOnVertices():
@@ -1479,7 +1479,7 @@ def test_number_of_realizations_error(graph):
     [graphs.Cycle(n) for n in range(3, 7)],
 )
 def test_Rd_circuit_d1(graph):
-    assert graph.is_Rd_circuit(dim=1)
+    assert graph.is_Rd_circuit(d=1)
 
 
 @pytest.mark.parametrize(
@@ -1496,7 +1496,7 @@ def test_Rd_circuit_d1(graph):
     ],
 )
 def test_not_Rd_circuit_d1(graph):
-    assert not graph.is_Rd_circuit(dim=1)
+    assert not graph.is_Rd_circuit(d=1)
 
 
 @pytest.mark.parametrize(
@@ -1508,7 +1508,7 @@ def test_not_Rd_circuit_d1(graph):
     ],
 )
 def test_Rd_circuit_d2(graph):
-    assert graph.is_Rd_circuit(dim=2)
+    assert graph.is_Rd_circuit(d=2)
 
 
 @pytest.mark.parametrize(
@@ -1525,7 +1525,7 @@ def test_Rd_circuit_d2(graph):
     ],
 )
 def test_not_Rd_circuit_d2(graph):
-    assert not graph.is_Rd_circuit(dim=2)
+    assert not graph.is_Rd_circuit(d=2)
 
 
 @pytest.mark.parametrize(

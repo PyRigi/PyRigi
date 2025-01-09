@@ -665,23 +665,23 @@ class Graph(nx.Graph):
         self,
         vertices: Sequence[Vertex],
         new_vertex: Vertex = None,
-        dim: int = 2,
+        d: int = 2,
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a :prf:ref:`dim-dimensional 0-extension <def-k-extension>`.
+        Return a :prf:ref:`d-dimensional 0-extension <def-k-extension>`.
 
         Parameters
         ----------
         vertices:
             A new vertex will be connected to these vertices.
             All the vertices must be contained in the graph
-            and there must be ``dim`` of them.
+            and there must be ``d`` of them.
         new_vertex:
             Newly added vertex will be named according to this parameter.
             If None, the name will be set as the lowest possible integer value
             greater or equal than the number of nodes.
-        dim:
+        d:
             The dimension in which the k-extension is created.
         inplace:
             If True, the graph will be modified,
@@ -700,12 +700,12 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [2, 5]]
         >>> G
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.zero_extension([0, 1, 2], 5, dim=3, inplace=True);
+        >>> G.zero_extension([0, 1, 2], 5, d=3, inplace=True);
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
         >>> G
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
         """  # noqa: E501
-        return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
+        return self.k_extension(0, vertices, [], new_vertex, d, inplace)
 
     @doc_category("Graph manipulation")
     def one_extension(
@@ -713,18 +713,18 @@ class Graph(nx.Graph):
         vertices: Sequence[Vertex],
         edge: Edge,
         new_vertex: Vertex = None,
-        dim: int = 2,
+        d: int = 2,
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a :prf:ref:`dim-dimensional 1-extension <def-k-extension>`.
+        Return a :prf:ref:`d-dimensional 1-extension <def-k-extension>`.
 
         Parameters
         ----------
         vertices:
             A new vertex will be connected to these vertices.
             All the vertices must be contained in the graph
-            and there must be ``dim + 1`` of them.
+            and there must be ``d + 1`` of them.
         edge:
             An edge with endvertices from the list ``vertices`` that will be deleted.
             The edge must be contained in the graph.
@@ -732,7 +732,7 @@ class Graph(nx.Graph):
             Newly added vertex will be named according to this parameter.
             If None, the name will be set as the lowest possible integer value
             greater or equal than the number of nodes.
-        dim:
+        d:
             The dimension in which the k-extension is created.
         inplace:
             If True, the graph will be modified,
@@ -752,17 +752,17 @@ class Graph(nx.Graph):
         >>> G = graphs.ThreePrism()
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-        >>> G.one_extension([0, 1], [0, 1], dim=1)
+        >>> G.one_extension([0, 1], [0, 1], d=1)
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 2], [0, 3], [0, 6], [1, 2], [1, 4], [1, 6], [2, 5], [3, 4], [3, 5], [4, 5]]
         >>> G = graphs.CompleteBipartite(3, 2)
         >>> G
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]
-        >>> G.one_extension([0, 1, 2, 3, 4], [0, 3], dim=4, inplace = True)
+        >>> G.one_extension([0, 1, 2, 3, 4], [0, 3], d=4, inplace = True)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
         """  # noqa: E501
-        return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
+        return self.k_extension(1, vertices, [edge], new_vertex, d, inplace)
 
     @doc_category("Graph manipulation")
     def k_extension(
@@ -771,11 +771,11 @@ class Graph(nx.Graph):
         vertices: Sequence[Vertex],
         edges: Sequence[Edge],
         new_vertex: Vertex = None,
-        dim: int = 2,
+        d: int = 2,
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a :prf:ref:`dim-dimensional k-extension <def-k-extension>`.
+        Return a :prf:ref:`d-dimensional k-extension <def-k-extension>`.
 
         Parameters
         ----------
@@ -783,7 +783,7 @@ class Graph(nx.Graph):
         vertices:
             A new vertex will be connected to these vertices.
             All the vertices must be contained in the graph
-            and there must be ``dim + k`` of them.
+            and there must be ``d + k`` of them.
         edges:
             A list of edges that will be deleted.
             The endvertices of all the edges must be contained
@@ -793,7 +793,7 @@ class Graph(nx.Graph):
             Newly added vertex will be named according to this parameter.
             If None, the name will be set as the lowest possible integer value
             greater or equal than the number of nodes.
-        dim:
+        d:
             The dimension in which the k-extension is created.
         inplace:
             If True, the graph will be modified,
@@ -817,27 +817,25 @@ class Graph(nx.Graph):
         >>> G = graphs.Complete(5)
         >>> G
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> G.k_extension(2, [0, 1, 2, 3, 4], [[0, 1], [0,2]], dim = 3)
+        >>> G.k_extension(2, [0, 1, 2, 3, 4], [[0, 1], [0,2]], d=3)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
         >>> G = graphs.Path(6)
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]]
-        >>> G.k_extension(2, [0, 1, 2], [[0, 1], [1,2]], dim = 1, inplace = True)
+        >>> G.k_extension(2, [0, 1, 2], [[0, 1], [1,2]], d=1, inplace = True)
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         for vertex in vertices:
             if vertex not in self.nodes:
                 raise ValueError(f"Vertex {vertex} is not contained in the graph")
-        if len(set(vertices)) != dim + k:
-            raise ValueError(
-                f"List of vertices must contain {dim + k} distinct vertices"
-            )
+        if len(set(vertices)) != d + k:
+            raise ValueError(f"List of vertices must contain {d + k} distinct vertices")
         self._check_edge_list(edges, vertices)
         if len(edges) != k:
             raise ValueError(f"List of edges must contain {k} distinct edges")
@@ -860,17 +858,17 @@ class Graph(nx.Graph):
     def all_k_extensions(
         self,
         k: int,
-        dim: int = 2,
+        d: int = 2,
         only_non_isomorphic: bool = False,
     ) -> Iterable[Graph]:
         """
         Return an iterator over all possible
-        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`.
+        :prf:ref:`d-dimensional k-extensions <def-k-extension>`.
 
         Parameters
         ----------
         k
-        dim
+        d
         only_non_isomorphic:
             If True, only one graph per isomorphism class is included.
 
@@ -888,14 +886,14 @@ class Graph(nx.Graph):
         >>> len(list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)))
         2
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
-        if self.number_of_nodes() < (dim + k):
+        if self.number_of_nodes() < (d + k):
             raise ValueError(
                 f"The number of nodes in the graph needs to be "
-                f"greater or equal than {dim + k}!"
+                f"greater or equal than {d + k}!"
             )
         if self.number_of_edges() < k:
             raise ValueError(
@@ -910,11 +908,11 @@ class Graph(nx.Graph):
                 s.discard(edge[1])
                 w.add(edge[0])
                 w.add(edge[1])
-            if len(w) > (dim + k):
+            if len(w) > (d + k):
                 break
             w = list(w)
-            for vertices in combinations(s, dim + k - len(w)):
-                current = self.k_extension(k, list(vertices) + w, edges, dim=dim)
+            for vertices in combinations(s, d + k - len(w)):
+                current = self.k_extension(k, list(vertices) + w, edges, d=d)
                 if only_non_isomorphic:
                     for other in solutions:
                         if current.is_isomorphic(other):
@@ -927,7 +925,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def extension_sequence(
-        self, dim: int = 2, return_solution: bool = False
+        self, d: int = 2, return_solution: bool = False
     ) -> list[Graph] | bool | None:
         """
         Check the existence of a sequence of
@@ -938,9 +936,9 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
-        dim:
+        d:
             The dimension in which the extensions are created.
-            Currently implemented only for ``dim==2``.
+            Currently implemented only for ``d==2``.
         return_solution:
             If False, a boolean value indicating if the graph can be
             created by a sequence of extensions is returned.
@@ -971,11 +969,11 @@ class Graph(nx.Graph):
         >>> G.extension_sequence(return_solution=True)
         [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
-        if not dim == 2:
+        if not d == 2:
             raise NotImplementedError()
         if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
             return None if return_solution else False
@@ -987,7 +985,7 @@ class Graph(nx.Graph):
         if degrees[0][1] == 2:
             G = deepcopy(self)
             G.remove_node(degrees[0][0])
-            branch = G.extension_sequence(dim, return_solution)
+            branch = G.extension_sequence(d, return_solution)
             if return_solution:
                 if branch is not None:
                     return branch + [self]
@@ -1000,7 +998,7 @@ class Graph(nx.Graph):
             for i, j in [[0, 1], [0, 2], [1, 2]]:
                 if not G.has_edge(neighbors[i], neighbors[j]):
                     G.add_edge(neighbors[i], neighbors[j])
-                    branch = G.extension_sequence(dim, return_solution)
+                    branch = G.extension_sequence(d, return_solution)
                     if return_solution and branch is not None:
                         return branch + [self]
                     elif branch:
@@ -1102,26 +1100,26 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
+        Check whether the graph is :prf:ref:`vertex redundantly (generically) d-rigid
         <def-redundantly-rigid-graph>`.
 
         See :meth:`.is_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
-        return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
+        return self.is_k_vertex_redundantly_rigid(1, d, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, k: int, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
+        Check whether the graph is :prf:ref:`k-vertex redundantly (generically) d-rigid
         <def-redundantly-rigid-graph>`.
 
         Preliminary checks from
@@ -1138,7 +1136,7 @@ class Graph(nx.Graph):
         ----------
         k:
             level of redundancy
-        dim:
+        d:
             dimension
         combinatorial:
             determines whether a combinatinatorial algorithm shall be used in rigidity checking.
@@ -1160,9 +1158,9 @@ class Graph(nx.Graph):
         False
 
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
@@ -1171,12 +1169,12 @@ class Graph(nx.Graph):
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
-        if n >= dim + k + 1 and self.min_degree() < dim + k:
+        if n >= d + k + 1 and self.min_degree() < d + k:
             return False
-        if dim == 1:
+        if d == 1:
             return self.vertex_connectivity() >= k + 1
         if (
-            dim == 2
+            d == 2
             and (
                 # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
                 (k == 1 and n >= 5 and m < 2 * n - 1)
@@ -1188,7 +1186,7 @@ class Graph(nx.Graph):
                 (k >= 3 and n >= 6 * (k + 1) + 23 and m < ((k + 2) * n + 1) // 2)
             )
         ) or (
-            dim == 3
+            d == 3
             and (
                 # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
                 (k == 3 and n >= 15 and m < 3 * n + 5)
@@ -1206,13 +1204,12 @@ class Graph(nx.Graph):
         # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
         if (
             #
-            n >= dim * dim + dim + k + 1
-            and m
-            < dim * n - math.comb(dim + 1, 2) + k * dim + max(0, k - (dim + 1) // 2)
+            n >= d * d + d + k + 1
+            and m < d * n - math.comb(d + 1, 2) + k * d + max(0, k - (d + 1) // 2)
         ):
             return False
         # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
-        if k >= dim + 1 and n >= dim + k + 1 and m < ((dim + k) * n + 1) // 2:
+        if k >= d + 1 and n >= d + k + 1 and m < ((d + k) * n + 1) // 2:
             return False
 
         # in all other cases check by definition
@@ -1220,7 +1217,7 @@ class Graph(nx.Graph):
         for vertex_set in combinations(self.nodes, k):
             adj = [[v, list(G.neighbors(v))] for v in vertex_set]
             G.delete_vertices(vertex_set)
-            if not G.is_rigid(dim, combinatorial, prob):
+            if not G.is_rigid(d, combinatorial, prob):
                 return False
             # add vertices and edges back
             G.add_vertices(vertex_set)
@@ -1231,27 +1228,27 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_min_vertex_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is
-        :prf:ref:`minimally vertex redundantly (generically) dim-rigid
+        :prf:ref:`minimally vertex redundantly (generically) d-rigid
         <def-min-redundantly-rigid-graph>`.
 
         See :meth:`.is_min_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
-        return self.is_min_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
+        return self.is_min_k_vertex_redundantly_rigid(1, d, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_min_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, k: int, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`minimally k-vertex redundantly (generically) dim-rigid
+        Check whether the graph is :prf:ref:`minimally k-vertex redundantly (generically) d-rigid
         <def-redundantly-rigid-graph>`.
 
         Preliminary checks from
@@ -1263,7 +1260,7 @@ class Graph(nx.Graph):
         ----------
         k:
             level of redundancy
-        dim:
+        d:
             dimension
         combinatorial:
             determines whether a combinatinatorial algorithm shall be used in rigidity checking.
@@ -1288,9 +1285,9 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
@@ -1300,19 +1297,19 @@ class Graph(nx.Graph):
         n = self.number_of_nodes()
         m = self.number_of_edges()
         # edge bound from :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound`
-        if m > (dim + k) * n - math.comb(dim + k + 1, 2):
+        if m > (d + k) * n - math.comb(d + k + 1, 2):
             return False
         # edge bound from :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound-dim1`
-        if dim == 1:
+        if d == 1:
             if n >= 3 * (k + 1) - 1 and m > (k + 1) * n - (k + 1) * (k + 1):
                 return False
 
-        if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
+        if not self.is_k_vertex_redundantly_rigid(k, d, combinatorial, prob):
             return False
 
         # for the following we need to know that the graph is k-vertex-redundantly rigid
         if (
-            dim == 2
+            d == 2
             and (
                 # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
                 (k == 1 and n >= 5 and m == 2 * n - 1)
@@ -1324,7 +1321,7 @@ class Graph(nx.Graph):
                 (k >= 3 and n >= 6 * (k + 1) + 23 and m == ((k + 2) * n + 1) // 2)
             )
         ) or (
-            dim == 3
+            d == 3
             and (
                 # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
                 (k == 3 and n >= 15 and m == 3 * n + 5)
@@ -1342,42 +1339,41 @@ class Graph(nx.Graph):
         # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
         if (
             #
-            n >= dim * dim + dim + k + 1
-            and m
-            == dim * n - math.comb(dim + 1, 2) + k * dim + max(0, k - (dim + 1) // 2)
+            n >= d * d + d + k + 1
+            and m == d * n - math.comb(d + 1, 2) + k * d + max(0, k - (d + 1) // 2)
         ):
             return True
         # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
-        if k >= dim + 1 and n >= dim + k + 1 and m == ((dim + k) * n + 1) // 2:
+        if k >= d + 1 and n >= d + k + 1 and m == ((d + k) * n + 1) // 2:
             return True
 
         # in all other cases check by definition
         G = deepcopy(self)
         for edge in self.edge_list():
             G.delete_edges([edge])
-            if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
+            if G.is_k_vertex_redundantly_rigid(k, d, combinatorial, prob):
                 return False
             G.add_edges([edge])
         return True
 
     @doc_category("Generic rigidity")
     def is_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
+        Check whether the graph is :prf:ref:`redundantly (generically) d-rigid
         <def-redundantly-rigid-graph>`.
 
         See :meth:`.is_k_redundantly_rigid` (using k = 1) for details.
         """
-        return self.is_k_redundantly_rigid(1, dim, combinatorial, prob)
+        return self.is_k_redundantly_rigid(1, d, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_k_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, k: int, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
+        Check whether the graph is :prf:ref:`k-redundantly (generically) d-rigid
         <def-redundantly-rigid-graph>`.
 
         Preliminary checks from
@@ -1393,7 +1389,7 @@ class Graph(nx.Graph):
         ----------
         k:
             level of redundancy
-        dim:
+        d:
             dimension
         combinatorial:
             determines whether a combinatinatorial algorithm shall be used in rigidity checking.
@@ -1419,9 +1415,9 @@ class Graph(nx.Graph):
         ----
         Improve with pebble games.
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
@@ -1431,15 +1427,15 @@ class Graph(nx.Graph):
         n = self.number_of_nodes()
         m = self.number_of_edges()
 
-        if m < dim * n - math.comb(dim + 1, 2) + k:
+        if m < d * n - math.comb(d + 1, 2) + k:
             return False
-        if self.min_degree() < dim + k:
+        if self.min_degree() < d + k:
             return False
-        if dim == 1:
+        if d == 1:
             return nx.edge_connectivity(self) >= k + 1
         # edge bounds
         if (
-            dim == 2
+            d == 2
             and (
                 # basic edge bound
                 (k == 1 and m < 2 * n - 2)
@@ -1451,7 +1447,7 @@ class Graph(nx.Graph):
                 (k >= 3 and n >= 6 * (k + 1) + 23 and m < ((k + 2) * n + 1) // 2)
             )
         ) or (
-            dim == 3
+            d == 3
             and (
                 # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
                 (k == 2 and n >= 14 and m < 3 * n - 4)
@@ -1468,40 +1464,40 @@ class Graph(nx.Graph):
             return False
         # use global rigidity property of :prf:ref:`thm-globally-redundant-3connected`
         # and :prf:ref:`thm-globally-mindeg6-dim2`
-        if dim == 2 and k == 1 and self.vertex_connectivity() >= 6:
+        if d == 2 and k == 1 and self.vertex_connectivity() >= 6:
             return True
 
         # in all other cases check by definition
         G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
             G.delete_edges(edge_set)
-            if not G.is_rigid(dim, combinatorial, prob):
+            if not G.is_rigid(d, combinatorial, prob):
                 return False
             G.add_edges(edge_set)
         return True
 
     @doc_category("Generic rigidity")
     def is_min_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`minimally redundantly (generically) dim-rigid
+        Check whether the graph is :prf:ref:`minimally redundantly (generically) d-rigid
         <def-min-redundantly-rigid-graph>`.
 
         See :meth:`.is_min_k_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
-        return self.is_min_k_redundantly_rigid(1, dim, combinatorial, prob)
+        return self.is_min_k_redundantly_rigid(1, d, combinatorial, prob)
 
     @doc_category("Generic rigidity")
     def is_min_k_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, k: int, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`minimally k-redundantly (generically) dim-rigid
+        Check whether the graph is :prf:ref:`minimally k-redundantly (generically) d-rigid
         <def-redundantly-rigid-graph>`.
 
         Preliminary checks from
@@ -1512,7 +1508,7 @@ class Graph(nx.Graph):
         ----------
         k:
             level of redundancy
-        dim:
+        d:
             dimension
         combinatorial:
             determines whether a combinatinatorial algorithm shall be used in rigidity checking.
@@ -1538,9 +1534,9 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if not isinstance(k, int):
             raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
@@ -1550,17 +1546,17 @@ class Graph(nx.Graph):
         n = self.number_of_nodes()
         m = self.number_of_edges()
         # use bound from thm-minimal-1-edge-redundant-upper-edge-bound-dim2
-        if dim == 2:
+        if d == 2:
             if k == 1:
                 if n >= 7 and m > 3 * n - 9:
                     return False
 
-        if not self.is_k_redundantly_rigid(k, dim, combinatorial, prob):
+        if not self.is_k_redundantly_rigid(k, d, combinatorial, prob):
             return False
 
         # for the following we need to know that the graph is k-redundantly rigid
         if (
-            dim == 2
+            d == 2
             and (
                 # basic edge bound
                 (k == 1 and m == 2 * n - 2)
@@ -1572,7 +1568,7 @@ class Graph(nx.Graph):
                 (k >= 3 and n >= 6 * (k + 1) + 23 and m == ((k + 2) * n + 1) // 2)
             )
         ) or (
-            dim == 3
+            d == 3
             and (
                 # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
                 (k == 2 and n >= 14 and m == 3 * n - 4)
@@ -1592,21 +1588,21 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for edge in self.edge_list():
             G.delete_edges([edge])
-            if G.is_k_redundantly_rigid(k, dim, combinatorial, prob):
+            if G.is_k_redundantly_rigid(k, d, combinatorial, prob):
                 return False
             G.add_edges([edge])
         return True
 
     @doc_category("Generic rigidity")
     def is_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, d: int = 2, combinatorial: bool = True, prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
+        Check whether the graph is :prf:ref:`(generically) d-rigid <def-gen-rigid>`.
 
         Parameters
         ----------
-        dim:
+        d:
             dimension
         combinatorial:
             determines whether a combinatinatorial algorithm shall be used
@@ -1631,14 +1627,14 @@ class Graph(nx.Graph):
 
         Notes
         -----
-         * dim=1: Connectivity
-         * dim=2: Pebble-game/(2,3)-rigidity
-         * dim>=1: Rigidity Matrix if ``combinatorial==False``
+         * d=1: Connectivity
+         * d=2: Pebble-game/(2,3)-rigidity
+         * d>=1: Rigidity Matrix if ``combinatorial==False``
         By default, the graph is in dimension two and a combinatorial check is employed.
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if not isinstance(combinatorial, bool):
             raise TypeError(
@@ -1650,15 +1646,15 @@ class Graph(nx.Graph):
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
-        if self.number_of_edges() < dim * n - math.comb(dim + 1, 2):
+        if self.number_of_edges() < d * n - math.comb(d + 1, 2):
             return False
         # small graphs are rigid iff complete :pref:ref:`thm-gen-rigidity-small-complete`
-        elif n <= dim + 1:
+        elif n <= d + 1:
             return self.number_of_edges() == math.comb(n, 2)
 
-        elif dim == 1 and combinatorial:
+        elif d == 1 and combinatorial:
             return nx.is_connected(self)
-        elif dim == 2 and combinatorial:
+        elif d == 2 and combinatorial:
             deficiency = -(2 * n - 3) + self.number_of_edges()
             if deficiency < 0:
                 return False
@@ -1666,34 +1662,34 @@ class Graph(nx.Graph):
                 self._build_pebble_digraph(2, 3)
                 return self._pebble_digraph.number_of_edges() == 2 * n - 3
         elif not combinatorial:
-            N = int((n * dim - math.comb(dim + 1, 2)) / prob)
+            N = int((n * d - math.comb(d + 1, 2)) / prob)
             if N < 1:
                 raise ValueError("The parameter prob is too large.")
             from pyrigi.framework import Framework
 
-            F = Framework.Random(self, dim, rand_range=[1, N])
+            F = Framework.Random(self, d, rand_range=[1, N])
             return F.is_inf_rigid()
         else:
             raise ValueError(
                 f"The Dimension for combinatorial computation must be either 1 or 2, "
-                f"but is {dim}"
+                f"but is {d}"
             )
 
     @doc_category("Generic rigidity")
     def is_min_rigid(
         self,
-        dim: int = 2,
+        d: int = 2,
         combinatorial: bool = True,
         use_precomputed_pebble_digraph: bool = False,
         prob: float = 0.0001,
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
+        Check whether the graph is :prf:ref:`minimally (generically) d-rigid
         <def-min-rigid-graph>`.
 
         Parameters
         ----------
-        dim:
+        d:
             dimension
         combinatorial:
             determines whether a combinatinatorial algorithm shall be used
@@ -1701,7 +1697,7 @@ class Graph(nx.Graph):
             Otherwise a probabilistic check is used that may give false negatives
             (see :prf:ref:`thm-probabilistic-rigidity-check`).
         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2`` and ``combinatorial=True``.
+            Only relevant if ``d=2`` and ``combinatorial=True``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
@@ -1720,13 +1716,13 @@ class Graph(nx.Graph):
 
         Notes
         -----
-         * dim=1: Tree
-         * dim=2: Pebble-game/(2,3)-tight
-         * dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
+         * d=1: Tree
+         * d=2: Pebble-game/(2,3)-tight
+         * d>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if not isinstance(combinatorial, bool):
             raise TypeError(
@@ -1738,16 +1734,16 @@ class Graph(nx.Graph):
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
-        if self.number_of_edges() != dim * n - math.comb(dim + 1, 2):
+        if self.number_of_edges() != d * n - math.comb(d + 1, 2):
             return False
         # small graphs are minimally rigid iff complete
         # :pref:ref:`thm-gen-rigidity-small-complete`
-        elif n <= dim + 1:
+        elif n <= d + 1:
             return self.number_of_edges() == math.comb(n, 2)
 
-        elif dim == 1 and combinatorial:
+        elif d == 1 and combinatorial:
             return nx.is_tree(self)
-        elif dim == 2 and combinatorial:
+        elif d == 2 and combinatorial:
             return self.is_tight(
                 2,
                 3,
@@ -1755,28 +1751,28 @@ class Graph(nx.Graph):
                 use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
             )
         elif not combinatorial:
-            N = int((n * dim - math.comb(dim + 1, 2)) / prob)
+            N = int((n * d - math.comb(d + 1, 2)) / prob)
             if N < 1:
                 raise ValueError("The parameter prob is too large.")
             from pyrigi.framework import Framework
 
-            F = Framework.Random(self, dim, rand_range=[1, N])
+            F = Framework.Random(self, d, rand_range=[1, N])
             return F.is_min_inf_rigid()
         else:
             raise ValueError(
                 f"The dimension for combinatorial computation must be either 1 or 2, "
-                f"but is {dim}"
+                f"but is {d}"
             )
 
     @doc_category("Generic rigidity")
-    def is_globally_rigid(self, dim: int = 2, prob: float = 0.0001) -> bool:
+    def is_globally_rigid(self, d: int = 2, prob: float = 0.0001) -> bool:
         """
-        Check whether the graph is :prf:ref:`globally dim-rigid
+        Check whether the graph is :prf:ref:`globally d-rigid
         <def-globally-rigid-graph>`.
 
         Parameters
         ----------
-        dim: dimension d for which we test whether the graph is globally $d$-rigid
+        d: dimension d for which we test whether the graph is globally $d$-rigid
         prob: probability of getting a wrong `False` answer
 
         Definitions
@@ -1790,26 +1786,26 @@ class Graph(nx.Graph):
         True
         >>> import pyrigi.graphDB as graphs
         >>> J = graphs.ThreePrism()
-        >>> J.is_globally_rigid(dim=3)
+        >>> J.is_globally_rigid(d=3)
         False
         >>> J.is_globally_rigid()
         False
         >>> K = graphs.Complete(6)
         >>> K.is_globally_rigid()
         True
-        >>> K.is_globally_rigid(dim=3)
+        >>> K.is_globally_rigid(d=3)
         True
         >>> C = graphs.CompleteMinusOne(5)
         >>> C.is_globally_rigid()
         True
-        >>> C.is_globally_rigid(dim=3)
+        >>> C.is_globally_rigid(d=3)
         False
 
         Notes
         -----
-         * dim=1: 2-connectivity
-         * dim=2: :prf:ref:`Theorem globally 2-rigid graph <thm-globally-redundant-3connected>`
-         * dim>=3: :prf:ref:`Theorem randomize algorithm <thm-globally-randomize-algorithm>`
+         * d=1: 2-connectivity
+         * d=2: :prf:ref:`Theorem globally 2-rigid graph <thm-globally-redundant-3connected>`
+         * d>=3: :prf:ref:`Theorem randomize algorithm <thm-globally-randomize-algorithm>`
 
         By default, the graph is in dimension 2.
         A complete graph is automatically globally rigid
@@ -1819,20 +1815,20 @@ class Graph(nx.Graph):
         the graph is not generically globally d-rigid, and it will give a wrong answer
         `False` with probability less than `prob`, which is 0.0001 by default.
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        elif dim == 1:
+        elif d == 1:
             if (self.number_of_nodes() == 2 and self.number_of_edges() == 1) or (
                 self.number_of_nodes() == 1 or self.number_of_nodes() == 0
             ):
                 return True
             return self.vertex_connectivity() >= 2
-        elif dim == 2:
+        elif d == 2:
             if (
                 (self.number_of_nodes() == 3 and self.number_of_edges() == 3)
                 or (self.number_of_nodes() == 2 and self.number_of_edges() == 1)
@@ -1843,9 +1839,9 @@ class Graph(nx.Graph):
         else:
             v = self.number_of_nodes()
             e = self.number_of_edges()
-            t = v * dim - math.comb(dim + 1, 2)  # rank of the rigidity matrix
+            t = v * d - math.comb(d + 1, 2)  # rank of the rigidity matrix
             N = int(1 / prob) * v * math.comb(v, 2) + 2
-            if v < dim + 2:
+            if v < d + 2:
                 return self.is_isomorphic(nx.complete_graph(v))
             elif self.is_isomorphic(nx.complete_graph(v)):
                 return True
@@ -1854,14 +1850,14 @@ class Graph(nx.Graph):
             # take a random framework with integer coordinates
             from pyrigi.framework import Framework
 
-            F = Framework.Random(self, dim=dim, rand_range=[1, N])
+            F = Framework.Random(self, d=d, rand_range=[1, N])
             w = F.stresses()
             if e == t:
                 omega = zeros(F.rigidity_matrix().rows, 1)
-                return F.stress_matrix(omega).rank() == v - dim - 1
+                return F.stress_matrix(omega).rank() == v - d - 1
             elif w:
                 omega = sum([randint(1, N) * u for u in w], w[0])
-                return F.stress_matrix(omega).rank() == v - dim - 1
+                return F.stress_matrix(omega).rank() == v - d - 1
             else:
                 raise ValueError(
                     "There must be at least one stress but none was found."
@@ -1869,19 +1865,19 @@ class Graph(nx.Graph):
 
     @doc_category("Partially implemented")
     def is_Rd_dependent(
-        self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
+        self, d: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
         Checks whether the graph's edge set is dependent in the d-rigidity matroid.
 
         Notes
         -----
-         * dim=1: Graphic Matroid
-         * dim=2: not (2,3)-sparse
-         * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+         * d=1: Graphic Matroid
+         * d=2: not (2,3)-sparse
+         * d>=1: Compute the rank of the rigidity matrix and compare with edge count
 
         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2``.
+            Only relevant if ``d=2``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
@@ -1892,24 +1888,24 @@ class Graph(nx.Graph):
          Add unit tests
         """
         return not self.is_Rd_independent(
-            dim, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+            d, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
         )
 
     @doc_category("Partially implemented")
     def is_Rd_independent(
-        self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
+        self, d: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
         Checks whether the graph's edge set is independent in the d-rigidity matroid.
 
         Notes
         -----
-         * dim=1: Graphic Matroid
-         * dim=2: (2,3)-sparse
-         * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+         * d=1: Graphic Matroid
+         * d=2: (2,3)-sparse
+         * d>=1: Compute the rank of the rigidity matrix and compare with edge count
 
         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2``.
+            Only relevant if ``d=2``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
@@ -1919,16 +1915,16 @@ class Graph(nx.Graph):
         -----
          Add unit tests
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        if dim == 1:
+        if d == 1:
             return len(self.cycle_basis()) == 0
 
-        if dim == 2:
+        if d == 2:
             self.is_sparse(
                 2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
@@ -1937,21 +1933,21 @@ class Graph(nx.Graph):
 
     @doc_category("Partially implemented")
     def is_Rd_circuit(
-        self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
+        self, d: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
         Checks whether the graph's edge set is a circuit in the d-rigidity matroid.
 
         Notes
         -----
-         * dim=1: Graphic Matroid
-         * dim=2: It is not sparse, but remove any edge and it becomes sparse
+         * d=1: Graphic Matroid
+         * d=2: It is not sparse, but remove any edge and it becomes sparse
                   Fundamental circuit is the whole graph
          * Not combinatorially:
-         * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
+         * d>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
 
          use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2``.
+            Only relevant if ``d=2``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
@@ -1962,13 +1958,13 @@ class Graph(nx.Graph):
          Add unit tests,
          make computation of ``remaining_edge`` more robust
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        if dim == 1:
+        if d == 1:
             if not nx.is_connected(self):
                 return False
 
@@ -1978,7 +1974,7 @@ class Graph(nx.Graph):
                     return False
             return True
 
-        if dim == 2:
+        if d == 2:
             # get max sparse sugraph and check the fundamental circuit of
             # the one last edge
             if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
@@ -2007,26 +2003,26 @@ class Graph(nx.Graph):
         raise NotImplementedError()
 
     @doc_category("Waiting for implementation")
-    def is_Rd_closed(self, dim: int = 2) -> bool:
+    def is_Rd_closed(self, d: int = 2) -> bool:
         """
         Checks whether the graph's edge set is closed in the d-rigidity matroid.
 
         Notes
         -----
-         * dim=1: Graphic Matroid
-         * dim=2: ??
-         * dim>=1: Adding any edge does not increase the rigidity matrix rank
+         * d=1: Graphic Matroid
+         * d=2: ??
+         * d>=1: Adding any edge does not increase the rigidity matrix rank
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         raise NotImplementedError()
 
     @doc_category("Generic rigidity")
-    def rigid_components(self, dim: int = 2) -> Sequence[Sequence[Vertex]]:
+    def rigid_components(self, d: int = 2) -> Sequence[Sequence[Vertex]]:
         """
         List the vertex sets inducing vertex-maximal rigid subgraphs.
 
@@ -2052,9 +2048,9 @@ class Graph(nx.Graph):
         >>> G.rigid_components()
         [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
         """
-        if not isinstance(dim, int) or dim < 1:
+        if not isinstance(d, int) or d < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
+                f"The dimension needs to be a positive integer, but is {d}!"
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
@@ -2062,16 +2058,16 @@ class Graph(nx.Graph):
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
-                res += self.subgraph(comp).rigid_components(dim)
+                res += self.subgraph(comp).rigid_components(d)
             return res
 
-        if self.is_rigid(dim, combinatorial=(dim < 3)):
+        if self.is_rigid(d, combinatorial=(d < 3)):
             return [list(self)]
         rigid_subgraphs = {
             tuple(vertex_subset): True
             for r in range(2, self.number_of_nodes() - 1)
             for vertex_subset in combinations(self.nodes, r)
-            if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
+            if self.subgraph(vertex_subset).is_rigid(d, combinatorial=(d < 3))
         }
 
         sorted_rigid_subgraphs = sorted(
@@ -2301,7 +2297,7 @@ class Graph(nx.Graph):
         return Matrix(row_list)
 
     @doc_category("Other")
-    def random_framework(self, dim: int = 2, rand_range: int | Sequence[int] = None):
+    def random_framework(self, d: int = 2, rand_range: int | Sequence[int] = None):
         # the return type is intentionally omitted to avoid circular import
         """
         Return framework with random realization.
@@ -2310,7 +2306,7 @@ class Graph(nx.Graph):
         """
         from pyrigi.framework import Framework
 
-        return Framework.Random(self, dim, rand_range)
+        return Framework.Random(self, d, rand_range)
 
     @doc_category("Other")
     def to_tikz(
