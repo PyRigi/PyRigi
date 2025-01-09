@@ -500,7 +500,7 @@ class Framework(object):
         Parameters
         ----------
         vertex_color, vertex_shape, vertex_size, edge_color, edge_width, edge_style:
-           the user can choose differen colors etc. both for edges and vertices.
+            The user can choose differen colors etc. both for edges and vertices.
         total_frames:
             Number of frames used for the animation. The higher this number,
             the smoother the resulting animation.
