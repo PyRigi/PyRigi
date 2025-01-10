@@ -2002,10 +2002,17 @@ class Graph(nx.Graph):
     @doc_category("Rigidity Matroid")
     def is_Rd_closed(self, dim: int = 2) -> bool:
         """
+        Checks whether the graph is :prf:ref:`Rd-closed <def-rank-function-closure>`.
+
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim>=2: Adding any edge does not increase the rigidity matrix rank
+         * dim>=2: Adding any edge does not increase the rigidity matrix rank of a
+         generic framework.
+
+        TODO
+        ----
+        The check for dim>=2 uses a `random_framework`.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
