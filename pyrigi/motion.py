@@ -3,7 +3,7 @@ This module contains functionality related to motions (continuous flexes).
 """
 
 from pyrigi.graph import Graph
-from pyrigi.data_type import Vertex, Point
+from pyrigi.data_type import Vertex, Point, Sequence
 from sympy import simplify
 from pyrigi.misc import point_to_vector
 import numpy as np
@@ -104,7 +104,7 @@ class ParametricMotion(Motion):
             raise ValueError("The given interval is not a valid interval!")
 
         symbols = set()
-        for vertex, position in self._parametrization.items():
+        for _, position in self._parametrization.items():
             for coord in position:
                 for symbol in coord.free_symbols:
                     if symbol.is_Symbol:
@@ -185,7 +185,10 @@ class ParametricMotion(Motion):
 
     @staticmethod
     def _normalize_realizations(
-        realizations: list[dict[Vertex, Point]], width: int, height: int, spacing: int
+        realizations: Sequence[dict[Vertex, Point]],
+        width: int,
+        height: int,
+        spacing: int,
     ) -> list[dict[Vertex, Point]]:
         """
         Normalize a given list of realizations
