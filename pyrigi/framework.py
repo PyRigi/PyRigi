@@ -13,7 +13,6 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Dict, Union
 
 from copy import deepcopy
 from itertools import combinations
@@ -97,11 +96,11 @@ class Framework(object):
 
     Notes
     -----
-    Internally, the realization is represented as ``Dict[Vertex,Matrix]``.
-    However, :meth:`~Framework.realization` can also return ``Dict[Vertex,Point]``.
+    Internally, the realization is represented as ``dict[Vertex,Matrix]``.
+    However, :meth:`~Framework.realization` can also return ``dict[Vertex,Point]``.
     """
 
-    def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
+    def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
         if nx.number_of_selfloops(graph) > 0:
@@ -211,7 +210,9 @@ class Framework(object):
         self._graph.add_node(vertex)
 
     @doc_category("Framework manipulation")
-    def add_vertices(self, points: List[Point], vertices: List[Vertex] = []) -> None:
+    def add_vertices(
+        self, points: Sequence[Point], vertices: Sequence[Vertex] = []
+    ) -> None:
         r"""
         Add a list of vertices to the framework.
 
@@ -261,7 +262,7 @@ class Framework(object):
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
-    def add_edges(self, edges: List[Edge]) -> None:
+    def add_edges(self, edges: Sequence[Edge]) -> None:
         """
         Add a list of edges to the framework.
 
@@ -288,8 +289,8 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_2D_realization(
         self,
-        realization: Dict[Vertex, Point],
-        inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
+        realization: dict[Vertex, Point],
+        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         **kwargs,
@@ -305,7 +306,7 @@ class Framework(object):
             The realization in the plane used for plotting.
         inf_flex:
             Optional parameter for plotting an infinitesimal flex. We expect
-            it to have the same format as `realization`: `Dict[Vertex, Point]`.
+            it to have the same format as `realization`: `dict[Vertex, Point]`.
         """
 
         self._graph.plot(
@@ -346,8 +347,8 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(  # noqa: C901
         self,
-        coordinates: Union[tuple, List] = None,
-        inf_flex: Matrix | int | Dict[Vertex, Sequence[Coordinate]] = None,
+        coordinates: Sequence = None,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -382,7 +383,7 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
@@ -407,7 +408,7 @@ class Framework(object):
             elif isinstance(inf_flex, Matrix):
                 inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
             elif isinstance(inf_flex, dict) and all(
-                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+                isinstance(inf_flex[key], list | tuple) for key in inf_flex.keys()
             ):
                 inf_flex_pointwise = inf_flex
             else:
@@ -507,8 +508,8 @@ class Framework(object):
     @doc_category("Other")
     def to_tikz(
         self,
-        vertex_style: Union(str, dict[str : list[Vertex]]) = "fvertex",
-        edge_style: Union(str, dict[str : list[Edge]]) = "edge",
+        vertex_style: str | dict[str : Sequence[Vertex]] = "fvertex",
+        edge_style: str | dict[str : Sequence[Edge]] = "edge",
         label_style: str = "labelsty",
         figure_opts: str = "",
         vertex_in_labels: bool = False,
@@ -619,7 +620,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def from_points(cls, points: List[Point]) -> Framework:
+    def from_points(cls, points: Sequence[Point]) -> Framework:
         """
         Generate a framework from a list of points.
 
@@ -648,7 +649,7 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, dim: int = 2, rand_range: int | List[int] = None
+        cls, graph: Graph, dim: int = 2, rand_range: int | Sequence[int] = None
     ) -> Framework:
         """
         Return a framework with random realization.
@@ -685,7 +686,7 @@ class Framework(object):
         if rand_range is None:
             b = 10**4 * graph.number_of_nodes() ** 2 * dim
             a = -b
-        if isinstance(rand_range, list):
+        if isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
                 raise ValueError("If `rand_range` is a list, it must be of length 2.")
             a, b = rand_range
@@ -732,7 +733,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
+    def Collinear(cls, graph: Graph, dim: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
@@ -744,23 +745,23 @@ class Framework(object):
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
-        >>> Framework.Collinear(graphs.Complete(3), d=2)
+        >>> Framework.Collinear(graphs.Complete(3), dim=2)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
-        check_integrality_and_range(d, "dimension d", 1)
+        check_integrality_and_range(dim, "dimension d", 1)
         return Framework(
             graph,
             {
-                v: [i] + [0 for _ in range(d - 1)]
+                v: [i] + [0 for _ in range(dim - 1)]
                 for i, v in enumerate(graph.vertex_list())
             },
         )
 
     @classmethod
     @doc_category("Class methods")
-    def Simplicial(cls, graph: Graph, d: int = None) -> Framework:
+    def Simplicial(cls, graph: Graph, dim: int = None) -> Framework:
         """
         Return the framework with a realization on the d-simplex.
 
@@ -768,10 +769,10 @@ class Framework(object):
         ----------
         graph:
             Underlying graph on which the framework is constructed.
-        d:
-            The dimension ``d`` has to be at least the number of vertices
+        dim:
+            The dimension ``dim`` has to be at least the number of vertices
             of the ``graph`` minus one.
-            If ``d`` is not specified, then the least possible one is used.
+            If ``dim`` is not specified, then the least possible one is used.
 
         Examples
         ----
@@ -782,15 +783,15 @@ class Framework(object):
         >>> F.realization(as_points=True)
         {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
-        if d is None:
-            d = graph.number_of_nodes() - 1
+        if dim is None:
+            dim = graph.number_of_nodes() - 1
         check_integrality_and_range(
-            d, "dimension d", max([1, graph.number_of_nodes() - 1])
+            dim, "dimension d", max([1, graph.number_of_nodes() - 1])
         )
         return Framework(
             graph,
             {
-                v: [1 if j == i - 1 else 0 for j in range(d)]
+                v: [1 if j == i - 1 else 0 for j in range(dim)]
                 for i, v in enumerate(graph.vertex_list())
             },
         )
@@ -824,7 +825,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Complete(cls, points: List[Point]) -> Framework:
+    def Complete(cls, points: Sequence[Point]) -> Framework:
         """
         Generate a framework on the complete graph from a given list of points.
 
@@ -859,7 +860,7 @@ class Framework(object):
         del self._realization[vertex]
 
     @doc_category("Framework manipulation")
-    def delete_vertices(self, vertices: List[Vertex]) -> None:
+    def delete_vertices(self, vertices: Sequence[Vertex]) -> None:
         """
         Delete a list of vertices from the framework.
         """
@@ -874,7 +875,7 @@ class Framework(object):
         self._graph.delete_edge(edge)
 
     @doc_category("Framework manipulation")
-    def delete_edges(self, edges: List[Edge]) -> None:
+    def delete_edges(self, edges: Sequence[Edge]) -> None:
         """
         Delete a list of edges from the framework.
         """
@@ -883,7 +884,7 @@ class Framework(object):
     @doc_category("Attribute getters")
     def realization(
         self, as_points: bool = False, numerical: bool = False
-    ) -> Dict[Vertex, Point]:
+    ) -> dict[Vertex, Point]:
         """
         Return a copy of the realization.
 
@@ -984,7 +985,7 @@ class Framework(object):
         return True
 
     @doc_category("Framework manipulation")
-    def set_realization(self, realization: Dict[Vertex, Point]) -> None:
+    def set_realization(self, realization: dict[Vertex, Point]) -> None:
         r"""
         Change the realization of the framework.
 
@@ -1046,7 +1047,7 @@ class Framework(object):
 
     @doc_category("Framework manipulation")
     def set_vertex_positions_from_lists(
-        self, vertices: List[Vertex], points: List[Point]
+        self, vertices: Sequence[Vertex], points: Sequence[Point]
     ) -> None:
         """
         Change the coordinates of a given list of vertices.
@@ -1076,7 +1077,7 @@ class Framework(object):
         self.set_vertex_positions({v: pos for v, pos in zip(vertices, points)})
 
     @doc_category("Framework manipulation")
-    def set_vertex_positions(self, subset_of_realization: Dict[Vertex, Point]):
+    def set_vertex_positions(self, subset_of_realization: dict[Vertex, Point]):
         """
         Change the coordinates of vertices given by a dictionary.
 
@@ -1099,8 +1100,8 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix(
         self,
-        vertex_order: List[Vertex] = None,
-        edge_order: List[Edge] = None,
+        vertex_order: Sequence[Vertex] = None,
+        edge_order: Sequence[Edge] = None,
     ) -> Matrix:
         r"""
         Construct the rigidity matrix of the framework.
@@ -1157,9 +1158,9 @@ class Framework(object):
 
     def pinned_rigidity_matrix(
         self,
-        pinned_vertices: Dict[Vertex, List[int]] = None,
-        vertex_order: List[Vertex] = None,
-        edge_order: List[Edge] = None,
+        pinned_vertices: dict[Vertex, Sequence[int]] = None,
+        vertex_order: Sequence[Vertex] = None,
+        edge_order: Sequence[Edge] = None,
     ) -> Matrix:
         r"""
         Construct the rigidity matrix of the framework.
@@ -1235,7 +1236,7 @@ class Framework(object):
     def is_stress(
         self,
         stress: Stress,
-        edge_order: List[Edge] = None,
+        edge_order: Sequence[Edge] = None,
         numerical: bool = False,
         tolerance=1e-9,
     ) -> bool:
@@ -1284,8 +1285,8 @@ class Framework(object):
     def stress_matrix(
         self,
         stress: Stress,
-        edge_order: List[Edge] = None,
-        vertex_order: List[Vertex] = None,
+        edge_order: Sequence[Edge] = None,
+        vertex_order: Sequence[Vertex] = None,
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
@@ -1342,7 +1343,7 @@ class Framework(object):
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
-    def trivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
+    def trivial_inf_flexes(self, vertex_order: Sequence[Vertex] = None) -> list[Matrix]:
         r"""
         Return a basis of the vector subspace of trivial infinitesimal flexes.
 
@@ -1401,7 +1402,9 @@ class Framework(object):
         return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
-    def nontrivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
+    def nontrivial_inf_flexes(
+        self, vertex_order: Sequence[Vertex] = None
+    ) -> list[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
 
@@ -1443,8 +1446,8 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
-        self, include_trivial: bool = False, vertex_order: List[Vertex] = None
-    ) -> List[Matrix]:
+        self, include_trivial: bool = False, vertex_order: Sequence[Vertex] = None
+    ) -> list[Matrix]:
         r"""
         Return a basis of the space of infinitesimal flexes.
 
@@ -1516,7 +1519,7 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self, edge_order: List[Edge] = None) -> List[Matrix]:
+    def stresses(self, edge_order: Sequence[Edge] = None) -> list[Matrix]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
@@ -1586,7 +1589,7 @@ class Framework(object):
         >>> F1 = frameworkDB.CompleteBipartite(4,4)
         >>> F1.is_inf_rigid()
         True
-        >>> F2 = frameworkDB.Cycle(4,d=2)
+        >>> F2 = frameworkDB.Cycle(4,dim=2)
         >>> F2.is_inf_rigid()
         False
         """
@@ -1717,7 +1720,7 @@ class Framework(object):
     @doc_category("Framework properties")
     def is_congruent_realization(
         self,
-        other_realization: Dict[Vertex, Point],
+        other_realization: dict[Vertex, Point],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -1782,7 +1785,7 @@ class Framework(object):
     @doc_category("Framework properties")
     def is_equivalent_realization(
         self,
-        other_realization: Dict[Vertex, Point],
+        other_realization: dict[Vertex, Point],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -1844,7 +1847,7 @@ class Framework(object):
         )
 
     @doc_category("Framework manipulation")
-    def translate(self, vector: Point, inplace: bool = True) -> Union[None, Framework]:
+    def translate(self, vector: Point, inplace: bool = True) -> None | Framework:
         """
         Translate the framework.
 
@@ -1873,7 +1876,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Framework manipulation")
-    def rotate2D(self, angle: float, inplace: bool = True) -> Union[None, Framework]:
+    def rotate2D(self, angle: float, inplace: bool = True) -> None | Framework:
         """
         Rotate the planar framework counter clockwise.
 
@@ -1903,7 +1906,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self, numerical: bool = False) -> Dict[Edge, Coordinate]:
+    def edge_lengths(self, numerical: bool = False) -> dict[Edge, Coordinate]:
         """
         Return the dictionary of the edge lengths.
 
@@ -2100,12 +2103,14 @@ class Framework(object):
                 filename=f_name,
             )
 
-        print(f"STL files for the bars have been generated in the folder `{output_dir}`.")
+        print(
+            f"STL files for the bars have been generated in the folder `{output_dir}`."
+        )
 
     @doc_category("Other")
     def _transform_inf_flex_to_pointwise(  # noqa: C901
-        self, inf_flex: Matrix, vertex_order: List[Vertex] = None
-    ) -> Dict[Vertex, Sequence[Coordinate]]:
+        self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
+    ) -> dict[Vertex, list[Coordinate]]:
         r"""
         Transform the natural data type of a flex (Matrix) to a
         dictionary that maps a vertex to a Sequence of coordinates
@@ -2142,8 +2147,8 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_inf_flex(
         self,
-        inf_flex: List[Coordinate],
-        vertex_order: List[Vertex] = None,
+        inf_flex: Sequence[Coordinate],
+        vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2193,7 +2198,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_inf_flex(
-        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
         """
         Return whether a dictionary specifies an infinitesimal flex of the framework.
@@ -2237,8 +2242,8 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_nontrivial_inf_flex(
         self,
-        inf_flex: List[Coordinate],
-        vertex_order: List[Vertex] = None,
+        inf_flex: Sequence[Coordinate],
+        vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2320,7 +2325,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_nontrivial_inf_flex(
-        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
         r"""
         Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
@@ -2366,7 +2371,9 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_nontrivial_flex(
-        self, inf_flex: List[Coordinate] | Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self,
+        inf_flex: Sequence[Coordinate] | dict[Vertex, Sequence[Coordinate]],
+        **kwargs,
     ) -> bool:
         """
         Alias for :meth:`Framework.is_vector_nontrivial_inf_flex` and
@@ -2377,7 +2384,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list):
+        if isinstance(inf_flex, list | tuple):
             return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_nontrivial_inf_flex(inf_flex, **kwargs)
@@ -2387,7 +2394,9 @@ class Framework(object):
             )
 
     @doc_category("Infinitesimal rigidity")
-    def is_vector_trivial_inf_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
+    def is_vector_trivial_inf_flex(
+        self, inf_flex: Sequence[Coordinate], **kwargs
+    ) -> bool:
         r"""
         Return whether an infinitesimal flex is trivial.
 
@@ -2422,7 +2431,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_trivial_inf_flex(
-        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
         r"""
         Return whether an infinitesimal flex specified by a dictionary is trivial.
@@ -2468,7 +2477,9 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_trivial_flex(
-        self, inf_flex: List[Coordinate] | Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self,
+        inf_flex: Sequence[Coordinate] | dict[Vertex, Sequence[Coordinate]],
+        **kwargs,
     ) -> bool:
         """
         Alias for :meth:`Framework.is_vector_trivial_inf_flex` and
@@ -2479,7 +2490,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list):
+        if isinstance(inf_flex, list | tuple):
             return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_trivial_inf_flex(inf_flex, **kwargs)
@@ -2489,7 +2500,7 @@ class Framework(object):
             )
 
     @doc_category("Other")
-    def _check_vertex_order(self, vertex_order=List[Vertex]) -> List[Vertex]:
+    def _check_vertex_order(self, vertex_order=Sequence[Vertex]) -> list[Vertex]:
         """
         Checks whether the provided `vertex_order` contains the same elements
         as the graph's vertex set.
@@ -2514,10 +2525,10 @@ class Framework(object):
                     "New vertex set must contain exactly "
                     + "the same vertices as the underlying graph!"
                 )
-            return vertex_order
+            return list(vertex_order)
 
     @doc_category("Other")
-    def _check_edge_order(self, edge_order=List[Vertex]) -> List[Edge]:
+    def _check_edge_order(self, edge_order=Sequence[Edge]) -> list[Edge]:
         """
         Checks whether the provided `edge_order` contains the same elements
         as the graph's edge set.
@@ -2544,7 +2555,7 @@ class Framework(object):
                 raise ValueError(
                     "edge_order must contain exactly the same edges as the graph!"
                 )
-            return edge_order
+            return list(edge_order)
 
 
 Framework.__doc__ = Framework.__doc__.replace(

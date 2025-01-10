@@ -9,19 +9,19 @@ import pyrigi.misc as misc
 import sympy as sp
 
 
-def Cycle(n: int, d: int = 2) -> Framework:
+def Cycle(n: int, dim: int = 2) -> Framework:
     """Return d-dimensional framework of the n-cycle."""
     misc.check_integrality_and_range(n, "number of vertices n", 3)
-    misc.check_integrality_and_range(d, "dimension d", 1)
-    if n - 1 <= d:
-        return Framework.Simplicial(graphs.Cycle(n), d)
-    elif d == 1:
+    misc.check_integrality_and_range(dim, "dimension d", 1)
+    if n - 1 <= dim:
+        return Framework.Simplicial(graphs.Cycle(n), dim)
+    elif dim == 1:
         return Framework.Collinear(graphs.Cycle(n), 1)
-    elif d == 2:
+    elif dim == 2:
         return Framework.Circular(graphs.Cycle(n))
     raise ValueError(
         "The number of vertices n has to be at most d+1, or d must be 1 or 2 "
-        f"(now (d, n) = ({d}, {n})."
+        f"(now (d, n) = ({dim}, {n})."
     )
 
 
@@ -35,7 +35,7 @@ def Diamond() -> Framework:
     return Framework(graphs.Diamond(), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
 
 
-def Complete(n: int, d: int = 2) -> Framework:
+def Complete(n: int, dim: int = 2) -> Framework:
     """
     Return d-dimensional framework of the complete graph on n vertices.
 
@@ -44,32 +44,32 @@ def Complete(n: int, d: int = 2) -> Framework:
     Describe the generated realization.
     """
     misc.check_integrality_and_range(n, "number of vertices n", 1)
-    misc.check_integrality_and_range(d, "dimension d", 1)
-    if n - 1 <= d:
-        return Framework.Simplicial(graphs.Complete(n), d)
-    elif d == 1:
+    misc.check_integrality_and_range(dim, "dimension d", 1)
+    if n - 1 <= dim:
+        return Framework.Simplicial(graphs.Complete(n), dim)
+    elif dim == 1:
         return Framework.Collinear(graphs.Complete(n), 1)
-    elif d == 2:
+    elif dim == 2:
         return Framework.Circular(graphs.Complete(n))
     raise ValueError(
         "The number of vertices n has to be at most d+1, or d must be 1 or 2 "
-        f"(now (d, n) = ({d}, {n})."
+        f"(now (d, n) = ({dim}, {n})."
     )
 
 
-def Path(n: int, d: int = 2) -> Framework:
+def Path(n: int, dim: int = 2) -> Framework:
     """Return d-dimensional framework of the path graph on n vertices."""
     misc.check_integrality_and_range(n, "number of vertices n", 2)
-    misc.check_integrality_and_range(d, "dimension d", 1)
-    if n - 1 <= d:
-        return Framework.Simplicial(graphs.Path(n), d)
-    elif d == 1:
+    misc.check_integrality_and_range(dim, "dimension d", 1)
+    if n - 1 <= dim:
+        return Framework.Simplicial(graphs.Path(n), dim)
+    elif dim == 1:
         return Framework.Collinear(graphs.Path(n), 1)
-    elif d == 2:
+    elif dim == 2:
         return Framework.Circular(graphs.Path(n))
     raise ValueError(
         "The number of vertices n has to be at most d+1, or d must be 1 or 2 "
-        f"(now (d, n) = ({d}, {n})."
+        f"(now (d, n) = ({dim}, {n})."
     )
 
 
