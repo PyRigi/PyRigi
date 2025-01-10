@@ -2009,17 +2009,34 @@ class Graph(nx.Graph):
     @doc_category("Rigidity Matroid")
     def is_Rd_closed(self, dim: int = 2) -> bool:
         """
-        Checks whether the graph is :prf:ref:`Rd-closed <def-rank-function-closure>`.
+        Checks whether the graph is closed in the generic
+        d-rigidity matroid. 
+
+        Definitions
+        -----------
+        * :prf:ref:`Rd-closed <def-rank-function-closure>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
 
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim>=2: Adding any edge does not increase the rigidity matrix rank of a
-         generic framework.
+         * dim>=2: Collect all edges that do not increase the rigidity matrix rank 
+         of a generic framework.
 
         TODO
         ----
         The check for dim>=2 uses a `random_framework`.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1),(1,2),(0,2),(3,4)])
+        >>> G.is_Rd_closed(dim=1)
+        True
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -2028,18 +2045,24 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
-            return nx.is_connected(self)
+            if all([nx.subgraph(self,comp).is_isomorphic(nx.complete_graph(len(comp))) for comp in nx.connected_components(self)]):
+                return True
+            return False
 
         F = self.random_framework(dim=dim)
-        edge_list = [set(edge) for edge in self.edge_list()]
-        for edge in combinations(self.vertex_list(), 2):
-            if not set(edge) in edge_list:
-                G = deepcopy(self)
-                G.add_edge(*edge)
-                _F = G.random_framework(dim=dim)
-                if not F.rigidity_matrix_rank() == _F.rigidity_matrix_rank():
-                    return False
-        return True
+        edge_list = set()
+        G = deepcopy(self)
+        for e in combinations(self.vertex_list(), 2):
+            if G.has_edge(*e):
+                edge_list |= {e}
+                continue
+            G.add_edge(*e)
+            _F = G.random_framework(dim=dim)
+            if F.rigidity_matrix_rank() == _F.rigidity_matrix_rank():
+                edge_list |= {e}
+            G.remove_edge(*e)
+        print(edge_list)
+        return set(self.edges) == edge_list
 
     @doc_category("Generic rigidity")
     def rigid_components(self, dim: int = 2) -> Sequence[Sequence[Vertex]]:
