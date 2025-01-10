@@ -3,8 +3,7 @@ Module for miscellaneous functions.
 """
 
 import math
-from pyrigi.data_type import Coordinate, point_to_vector
-from typing import List, Sequence
+from pyrigi.data_type import Sequence, Coordinate, point_to_vector
 from sympy import Matrix
 import numpy as np
 from math import isclose, log10
@@ -135,7 +134,7 @@ def is_zero_vector(
 
 def eval_sympy_vector(
     vector: Sequence[Coordinate], tolerance: float = 1e-9
-) -> List[float]:
+) -> list[float]:
     """
     Converts a sympy vector to a (numerical) list of floats.
 
