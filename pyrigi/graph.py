@@ -2010,7 +2010,7 @@ class Graph(nx.Graph):
     def is_Rd_closed(self, dim: int = 2) -> bool:
         """
         Checks whether the graph is closed in the generic
-        d-rigidity matroid. 
+        d-rigidity matroid.
 
         Definitions
         -----------
@@ -2025,7 +2025,7 @@ class Graph(nx.Graph):
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim>=2: Collect all edges that do not increase the rigidity matrix rank 
+         * dim>=2: Collect all edges that do not increase the rigidity matrix rank
          of a generic framework.
 
         TODO
@@ -2045,7 +2045,21 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
-            if all([nx.subgraph(self,comp).is_isomorphic(nx.complete_graph(len(comp))) for comp in nx.connected_components(self)]):
+            if all(
+                [
+                    nx.subgraph(self, comp).is_isomorphic(nx.complete_graph(len(comp)))
+                    for comp in nx.connected_components(self)
+                ]
+            ):
+                return True
+            return False
+        if dim == 2:
+            if all(
+                [
+                    nx.subgraph(self, comp).is_isomorphic(nx.complete_graph(len(comp)))
+                    for comp in self.rigid_components()
+                ]
+            ):
                 return True
             return False
 
@@ -2057,11 +2071,10 @@ class Graph(nx.Graph):
                 edge_list |= {e}
                 continue
             G.add_edge(*e)
-            _F = G.random_framework(dim=dim)
-            if F.rigidity_matrix_rank() == _F.rigidity_matrix_rank():
-                edge_list |= {e}
+            F1 = G.random_framework(dim=dim)
+            if F.rigidity_matrix_rank() == F1.rigidity_matrix_rank():
+                return False
             G.remove_edge(*e)
-        print(edge_list)
         return set(self.edges) == edge_list
 
     @doc_category("Generic rigidity")
