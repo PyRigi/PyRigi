@@ -187,22 +187,24 @@ F.plot(
 
 ## Plotting in 3 Dimensions
 
-Plotting in 3 dimensions is also possible. 
+
+Plotting in 3 dimensions is also possible. The plot can be made interactive by using cell magic (`%matplotlib widget`).
 
 ```{code-cell} ipython3
 F = frameworks.Complete(4, d=3)
 F.plot3D()
 ```
 
-In addition, it is possible to animate a rotation sequence around a specified axis using cell magic:
+In addition, it is possible to animate a rotation sequence around a specified axis:
 
 ```{code-cell} ipython3
-%matplotlib notebook
 G = graphs.DoubleBanana()
 F = Framework(G, realization={0:(0,0,-0.25), 1:(0,0,1.25), 2:(1,0,0), 3:(1,0,1), 4:(1.5,0,0.5), 
                               5:(-1,0,0), 6:(-1,0,1), 7:(-1.5,0,0.5)})
 F.plot3D(animation=True, rotation_axis=[0,0,1])
 ```
+
+We can return to the usual inline mode using the command `%matplotlib inline`.
 
 ## Infinitesimal Flexes
 
@@ -212,7 +214,6 @@ a basis of the rigidity matrix's kernel. There are several keywords that allow
 us to alter the style of the drawn arrows.
 
 ```{code-cell} ipython3
-%matplotlib inline
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
 p = {0: [6, 8], 1: [6, -14], 2: [0, 0], 3: [-4, 4], 4: [-4, -4]}
 F = Framework(G, p)

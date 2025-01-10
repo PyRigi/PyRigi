@@ -699,8 +699,7 @@ class Framework(object):
             return self.plot2D(**kwargs)
 
         if self._dim == 3 and not animation:
-            self._plot_with_3D_realization(**kwargs)
-            return
+            return self._plot_with_3D_realization(**kwargs)
 
         elif self._dim == 3 and animation:
             return self._animate_rotation_around_axis(**kwargs)
