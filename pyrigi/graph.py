@@ -1084,15 +1084,15 @@ class Graph(nx.Graph):
             if self.number_of_nodes() == 2 and self.number_of_edges() == 1:
                 return 1
 
-            n = self.to_int()
+            graph_int = self.to_int()
             if count_reflection:
                 fac = 1
             else:
                 fac = 2
             if spherical_realizations:
-                return lnumber.lnumbers(n) // fac
+                return lnumber.lnumbers(graph_int) // fac
             else:
-                return lnumber.lnumber(n) // fac
+                return lnumber.lnumber(graph_int) // fac
         except ImportError:
             raise ImportError(
                 "For counting the number of realizations, "
@@ -1627,7 +1627,7 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        Pebble game algorithm for d=2.
+        Pebble game algorithm for dim=2.
 
         Notes
         -----
@@ -1841,27 +1841,27 @@ class Graph(nx.Graph):
                 return True
             return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
         else:
-            v = self.number_of_nodes()
-            e = self.number_of_edges()
-            t = v * dim - math.comb(dim + 1, 2)  # rank of the rigidity matrix
-            N = int(1 / prob) * v * math.comb(v, 2) + 2
-            if v < dim + 2:
-                return self.is_isomorphic(nx.complete_graph(v))
-            elif self.is_isomorphic(nx.complete_graph(v)):
+            n = self.number_of_nodes()
+            m = self.number_of_edges()
+            t = n * dim - math.comb(dim + 1, 2)  # rank of the rigidity matrix
+            N = int(1 / prob) * n * math.comb(n, 2) + 2
+            if n < dim + 2:
+                return self.is_isomorphic(nx.complete_graph(n))
+            elif self.is_isomorphic(nx.complete_graph(n)):
                 return True
-            if e < t:
+            if m < t:
                 return False
             # take a random framework with integer coordinates
             from pyrigi.framework import Framework
 
             F = Framework.Random(self, dim=dim, rand_range=[1, N])
-            w = F.stresses()
-            if e == t:
+            stresses = F.stresses()
+            if m == t:
                 omega = zeros(F.rigidity_matrix().rows, 1)
-                return F.stress_matrix(omega).rank() == v - dim - 1
-            elif w:
-                omega = sum([randint(1, N) * u for u in w], w[0])
-                return F.stress_matrix(omega).rank() == v - dim - 1
+                return F.stress_matrix(omega).rank() == n - dim - 1
+            elif stresses:
+                omega = sum([randint(1, N) * w for w in stresses], stresses[0])
+                return F.stress_matrix(omega).rank() == n - dim - 1
             else:
                 raise ValueError(
                     "There must be at least one stress but none was found."
@@ -2118,19 +2118,19 @@ class Graph(nx.Graph):
         if not nx.is_connected(self):
             return 0
 
-        V = self.number_of_nodes()
-        E = self.number_of_edges()
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
         # Only the complete graph is rigid in all dimensions
-        if E == V * (V - 1) / 2:
+        if m == n * (n - 1) / 2:
             return oo
-        # Find the largest d such that d*(d+1)/2 - d*V + E = 0
+        # Find the largest d such that d*(d+1)/2 - d*n + m = 0
         max_dim = int(
-            math.floor(0.5 * (2 * V + math.sqrt((1 - 2 * V) ** 2 - 8 * E) - 1))
+            math.floor(0.5 * (2 * n + math.sqrt((1 - 2 * n) ** 2 - 8 * m) - 1))
         )
 
-        for d in range(max_dim, 0, -1):
-            if self.is_rigid(d, combinatorial=False):
-                return d
+        for dim in range(max_dim, 0, -1):
+            if self.is_rigid(dim, combinatorial=False):
+                return dim
 
     @doc_category("General graph theoretical properties")
     def is_isomorphic(self, graph: Graph) -> bool:
@@ -2222,7 +2222,7 @@ class Graph(nx.Graph):
         L = "".join(["0" for _ in range(int(n * (n - 1) / 2) - len(L))]) + L
         for i in range(n):
             rows.append(
-                [0 for _ in range(i + 1)] + [int(k) for k in L[s : s + (n - i - 1)]]
+                [0 for _ in range(i + 1)] + [int(j) for j in L[s : s + (n - i - 1)]]
             )
             s += n - i - 1
         adjMatrix = Matrix(rows)
