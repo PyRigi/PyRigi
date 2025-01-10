@@ -2025,12 +2025,13 @@ class Graph(nx.Graph):
         Notes
         -----
          * dim=1: Graphic Matroid
-         * dim>=2: Collect all edges that do not increase the rigidity matrix rank
+         * dim=2: Rigid components
+         * dim>=3: Collect all edges that do not increase the rigidity matrix rank
          of a generic framework.
 
         TODO
         ----
-        The check for dim>=2 uses a `random_framework`.
+        The check for dim>=3 uses a `random_framework`.
 
         Examples
         --------
