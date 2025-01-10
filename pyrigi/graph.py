@@ -1353,11 +1353,11 @@ class Graph(nx.Graph):
 
         # in all other cases check by definition
         G = deepcopy(self)
-        for edge in self.edge_list():
-            G.delete_edges([edge])
+        for e in self.edges:
+            G.delete_edge(e)
             if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
                 return False
-            G.add_edges([edge])
+            G.add_edge(*e)
         return True
 
     @doc_category("Generic rigidity")
@@ -1590,11 +1590,11 @@ class Graph(nx.Graph):
 
         # in all other cases check by definition
         G = deepcopy(self)
-        for edge in self.edge_list():
-            G.delete_edges([edge])
+        for e in self.edge_list():
+            G.delete_edge(e)
             if G.is_k_redundantly_rigid(k, dim, combinatorial, prob):
                 return False
-            G.add_edges([edge])
+            G.add_edge(*e)
         return True
 
     @doc_category("Generic rigidity")
@@ -1872,14 +1872,18 @@ class Graph(nx.Graph):
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is dependent in the d-rigidity matroid.
+        Checks whether the graph's edge set is dependent in the generic
+        d-rigidity matroid.
 
-        Notes
-        -----
-         * dim=1: Graphic Matroid
-         * dim=2: not (2,3)-sparse
-         * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+        Definitions
+        ---------
+        * :prf:ref:`Dependence <def-matroid>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
 
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2``.
             If ``True``, the pebble digraph present in the cache is used.
@@ -1887,9 +1891,18 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
-        TODO
+        Notes
         -----
-         Add unit tests
+         * dim=1: Graphic Matroid
+         * dim=2: not (2,3)-sparse
+         * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+
+        Examples
+        --------
+        >>> from pyrigi import graphDB
+        >>> G = graphDB.K33plusEdge()
+        >>> G.is_Rd_dependent()
+        True
         """
         return not self.is_Rd_independent(
             dim, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
@@ -1900,7 +1913,24 @@ class Graph(nx.Graph):
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is independent in the d-rigidity matroid.
+        Checks whether the graph's edge set is independent in the generic
+        d-rigidity matroid.
+
+        Definitions
+        ---------
+        * :prf:ref:`Circuit <def-matroid>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
+        use_precomputed_pebble_digraph:
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         Notes
         -----
@@ -1909,18 +1939,17 @@ class Graph(nx.Graph):
          * dim>=3: A set of edges forms an independent set in the
          rigidity matroid if and only if it has no self-stress, as this
          means that there are no linear relations between the rows of
-         the rigidity matrix.
+         the rigidity matrix. This is tested on a random framework.
 
-        use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2``.
-            If ``True``, the pebble digraph present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
+        >>> G.is_Rd_independent()
+        True
 
         TODO
         -----
-         Add unit tests
+         This function uses a randomized algorithm
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1929,7 +1958,7 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
-            return len(self.cycle_basis()) == 0
+            return len(nx.cycle_basis(self)) == 0
 
         if dim == 2:
             self.is_sparse(
@@ -1944,7 +1973,24 @@ class Graph(nx.Graph):
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is a circuit in the d-rigidity matroid.
+        Checks whether the graph's edge set is a circuit in the generic
+        d-rigidity matroid.
+
+        Definitions
+        ---------
+        * :prf:ref:`Circuit <def-matroid>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
+        use_precomputed_pebble_digraph:
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         Notes
         -----
@@ -1954,12 +2000,15 @@ class Graph(nx.Graph):
          * Not combinatorially:
          * dim>=3: Dependent + Remove every edge and compute the rigidity matrix' rank
 
-         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2``.
-            If ``True``, the pebble digraph present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
+        Examples
+        --------
+        >>> from pyrigi import graphDB
+        >>> G = graphDB.K33plusEdge()
+        >>> G.is_Rd_circuit()
+        True
+        >>> G.add_edge(1,2)
+        >>> G.is_Rd_circuit()
+        False
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1988,16 +2037,8 @@ class Graph(nx.Graph):
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
                 return False
 
-            max_sparse_subgraph_edges = [
-                tuple(edge) for edge in max_sparse_subgraph.edges()
-            ]
             remaining_edges = [
-                edge
-                for edge in self.edges()
-                if not (
-                    tuple(edge) in max_sparse_subgraph_edges
-                    or tuple([edge[1], edge[0]]) in max_sparse_subgraph_edges
-                )
+                e for e in self.edges() if not max_sparse_subgraph.has_edge(*e)
             ]
             if len(remaining_edges) != 1:
                 # this should not happen
@@ -2015,11 +2056,13 @@ class Graph(nx.Graph):
 
         if not self.is_Rd_dependent(dim=dim):
             return False
-        for edge in self.edge_list():
-            G = deepcopy(self)
-            G.remove_edge(*edge)
+        G = deepcopy(self)
+        for e in G.edges:
+            G.delete_edge(e)
+            print(G.is_Rd_independent(dim=dim))
             if not G.is_Rd_independent(dim=dim):
                 return False
+            G.add_edge(*e)
         return True
 
     @doc_category("Waiting for implementation")
