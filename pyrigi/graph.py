@@ -11,7 +11,7 @@ from typing import Iterable
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from sympy import Matrix, oo, zeros
+from sympy import Matrix, oo, zeros, sympify
 import numpy as np
 
 import math
@@ -2702,7 +2702,7 @@ class Graph(nx.Graph):
         flex_arrowsize: int = 20,
         stress_color: str = "orangered",
         stress_fontsize: int = 10,
-        stress_label_pos: float = 1,
+        stress_label_pos: float = 0.35,
         stress_rotate_labels: bool = True,
         font_size: int = 12,
         font_color: str = "whitesmoke",
@@ -2837,8 +2837,8 @@ class Graph(nx.Graph):
                         "The provided `connection_style` doesn't have the correct length."
                     )
                 connection_style = {
-                    tuple(self.edge_list()[i]): connection_style[i]
-                    for i in range(self.number_of_edges())
+                    tuple(e): style
+                    for e, style in zip(self.edge_list(), connection_style)
                 }
             elif isinstance(connection_style, dict):
                 edge_array = [tuple(e) for e in self.edge_list()]
@@ -2874,16 +2874,16 @@ class Graph(nx.Graph):
                         or tuple([e[1], e[0]]) in connection_style.keys()
                     )
                 } | {
-                    (tuple(e) if e in edge_array else tuple([e[1], e[0]])): v
-                    for e, v in connection_style.items()
+                    (tuple(e) if e in edge_array else tuple([e[1], e[0]])): style
+                    for e, style in connection_style.items()
                 }
             else:
                 raise TypeError(
                     "The provided `connection_style` does not have the appropriate type."
                 )
 
-            for e, v in connection_style.items():
-                newGraph.add_edge(e[0], e[1], weight=v)
+            for e, style in connection_style.items():
+                newGraph.add_edge(e[0], e[1], weight=style)
             nx.draw_networkx_nodes(
                 newGraph,
                 placement,
@@ -2981,10 +2981,16 @@ class Graph(nx.Graph):
             )
 
         if stress is not None:
+            nonzero_stress = next(
+                (w for _, w in stress.items() if not sympify(w).evalf(10) == 0), None
+            )
+            if nonzero_stress is None:
+                raise ValueError("The provided stress only contains zeros.")
+            _stress = {k: w / nonzero_stress for k, w in stress.items()}
             nx.draw_networkx_edge_labels(
                 self,
                 pos=placement,
-                edge_labels=stress,
+                edge_labels=_stress,
                 font_color=stress_color,
                 font_size=stress_fontsize,
                 label_pos=stress_label_pos,

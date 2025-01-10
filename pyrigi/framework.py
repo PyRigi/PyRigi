@@ -356,7 +356,7 @@ class Framework(object):
         self,
         coordinates: Sequence = None,
         inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
-        stress: Matrix | int | Dict[Edge, Coordinate] = None,
+        stress: Matrix | int | dict[Edge, Coordinate] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -1289,7 +1289,7 @@ class Framework(object):
         return pinned_rigidity_matrix
 
     @doc_category("Infinitesimal rigidity")
-    def is_dict_stress(self, dict_stress: Dict[Edge, Coordinate], **kwargs) -> bool:
+    def is_dict_stress(self, dict_stress: dict[Edge, Coordinate], **kwargs) -> bool:
         """
         Return whether a dictionary specifies an equilibrium stress of the framework.
 
@@ -1320,9 +1320,13 @@ class Framework(object):
         dict_to_list = []
 
         for e in graph_edge_list:
-            if e not in stress_edge_list:
-                raise ValueError(f"Edge {e} must be in the dictionary `dict_stress`.")
-            dict_to_list += [dict_stress[e]]
+            dict_to_list += [
+                (
+                    dict_stress[e]
+                    if e in stress_edge_list
+                    else dict_stress[tuple([e[1], e[0]])]
+                )
+            ]
 
         return self.is_vector_stress(
             dict_to_list, edge_order=self._graph.edge_list(), **kwargs
@@ -1378,7 +1382,7 @@ class Framework(object):
         )
 
     @doc_category("Infinitesimal rigidity")
-    def is_stress(self, stress: Stress | Dict[Edge, Coordinate], **kwargs) -> bool:
+    def is_stress(self, stress: Stress | dict[Edge, Coordinate], **kwargs) -> bool:
         """
         Alias for :meth:`Framework.is_vector_stress` and
         :meth:`Framework.is_dict_stress`.
@@ -2263,8 +2267,8 @@ class Framework(object):
 
     @doc_category("Other")
     def _transform_stress_to_edgewise(
-        self, stress: Matrix, edge_order: List[Edge] = None
-    ) -> Dict[Edge, Coordinate]:
+        self, stress: Matrix, edge_order: Sequence[Edge] = None
+    ) -> dict[Edge, Coordinate]:
         r"""
         Transform the natural data type of a stress (Matrix) to a
         dictionary that maps an edge to a coordinate.
