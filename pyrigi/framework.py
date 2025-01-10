@@ -189,7 +189,7 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.Empty(d=2)
+        >>> F = Framework.Empty(dim=2)
         >>> F.add_vertex((1.5,2), 'a')
         >>> F.add_vertex((3,1))
         >>> F
@@ -229,7 +229,7 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.Empty(d=2)
+        >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1.5,2), (3,1)], ['a',0])
         >>> print(F)
         Framework in 2-dimensional space consisting of:
@@ -332,8 +332,8 @@ class Framework(object):
         ----------
         projection_matrix:
             The matrix used for projection.
-            The matrix must have dimensions ``(2, d)``,
-            where ``d`` is the dimension of the framework.
+            The matrix must have dimensions ``(2, dim)``,
+            where ``dim`` is the dimension of the framework.
         """
 
         placement = {}
@@ -369,8 +369,8 @@ class Framework(object):
         projection_matrix:
             The matrix used for projecting the placement of vertices
             only when they are in dimension higher than 2.
-            The matrix must have dimensions (2, d),
-            where ``d`` is the dimension of the currect placements of vertices.
+            The matrix must have dimensions (2, dim),
+            where dim is the dimension of the currect placements of vertices.
             If None, a random projection matrix is generated.
         random_seed:
             The random seed used for generating the projection matrix.
@@ -456,7 +456,7 @@ class Framework(object):
             if np.max(coordinates) >= self._dim:
                 raise ValueError(
                     f"Index {np.max(coordinates)} out of range"
-                    + f" with placement in dimension: {self._dim}."
+                    + f" with placement in dim: {self._dim}."
                 )
             projection_matrix = np.zeros((2, self._dim))
             projection_matrix[0, coordinates[0]] = 1
@@ -649,7 +649,7 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, d: int = 2, rand_range: int | Sequence[int] = None
+        cls, graph: Graph, dim: int = 2, rand_range: int | Sequence[int] = None
     ) -> Framework:
         """
         Return a framework with random realization.
@@ -679,25 +679,25 @@ class Framework(object):
         ----
         Set the correct default range value.
         """
-        if not isinstance(d, int) or d < 1:
+        if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {d}!"
+                f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            _b = 10**4 * graph.number_of_nodes() ** 2 * d
-            _a = -_b
+            b = 10**4 * graph.number_of_nodes() ** 2 * dim
+            a = -b
         if isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
                 raise ValueError("If `rand_range` is a list, it must be of length 2.")
-            _a, _b = rand_range
+            a, b = rand_range
         if isinstance(rand_range, int):
             if rand_range <= 0:
                 raise ValueError("If `rand_range` is an int, it must be positive")
-            _b = rand_range
-            _a = -_b
+            b = rand_range
+            a = -b
 
         realization = {
-            vertex: [randrange(_a, _b) for _ in range(d)] for vertex in graph.nodes
+            vertex: [randrange(a, b) for _ in range(dim)] for vertex in graph.nodes
         }
 
         return Framework(graph, realization)
@@ -733,7 +733,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
+    def Collinear(cls, graph: Graph, dim: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
@@ -745,23 +745,23 @@ class Framework(object):
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
-        >>> Framework.Collinear(graphs.Complete(3), d=2)
+        >>> Framework.Collinear(graphs.Complete(3), dim=2)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
-        check_integrality_and_range(d, "dimension d", 1)
+        check_integrality_and_range(dim, "dimension d", 1)
         return Framework(
             graph,
             {
-                v: [i] + [0 for _ in range(d - 1)]
+                v: [i] + [0 for _ in range(dim - 1)]
                 for i, v in enumerate(graph.vertex_list())
             },
         )
 
     @classmethod
     @doc_category("Class methods")
-    def Simplicial(cls, graph: Graph, d: int = None) -> Framework:
+    def Simplicial(cls, graph: Graph, dim: int = None) -> Framework:
         """
         Return the framework with a realization on the d-simplex.
 
@@ -769,10 +769,10 @@ class Framework(object):
         ----------
         graph:
             Underlying graph on which the framework is constructed.
-        d:
-            The dimension ``d`` has to be at least the number of vertices
+        dim:
+            The dimension ``dim`` has to be at least the number of vertices
             of the ``graph`` minus one.
-            If ``d`` is not specified, then the least possible one is used.
+            If ``dim`` is not specified, then the least possible one is used.
 
         Examples
         ----
@@ -783,44 +783,44 @@ class Framework(object):
         >>> F.realization(as_points=True)
         {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
-        if d is None:
-            d = graph.number_of_nodes() - 1
+        if dim is None:
+            dim = graph.number_of_nodes() - 1
         check_integrality_and_range(
-            d, "dimension d", max([1, graph.number_of_nodes() - 1])
+            dim, "dimension d", max([1, graph.number_of_nodes() - 1])
         )
         return Framework(
             graph,
             {
-                v: [1 if j == i - 1 else 0 for j in range(d)]
+                v: [1 if j == i - 1 else 0 for j in range(dim)]
                 for i, v in enumerate(graph.vertex_list())
             },
         )
 
     @classmethod
     @doc_category("Class methods")
-    def Empty(cls, d: int = 2) -> Framework:
+    def Empty(cls, dim: int = 2) -> Framework:
         """
         Generate an empty framework.
 
         Parameters
         ----------
-        d:
+        dim:
             a natural number that determines the dimension
             in which the framework is realized
 
         Examples
         ----
-        >>> F = Framework.Empty(d=1); F
+        >>> F = Framework.Empty(dim=1); F
         Framework in 1-dimensional space consisting of:
         Graph with vertices [] and edges []
         Realization {}
         """
-        if not isinstance(d, int) or d < 1:
+        if not isinstance(dim, int) or dim < 1:
             raise TypeError(
-                f"The dimension needs to be a positive integer, but is {d}!"
+                f"The dimension needs to be a positive integer, but is {dim}!"
             )
         F = Framework(graph=Graph(), realization={})
-        F._dim = d
+        F._dim = dim
         return F
 
     @classmethod
@@ -1382,15 +1382,15 @@ class Framework(object):
         [ 0]])]
         """
         vertex_order = self._check_vertex_order(vertex_order)
-        d = self._dim
+        dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in vertex_order])
-            for A in Matrix.eye(d).columnspace()
+            for A in Matrix.eye(dim).columnspace()
         ]
         basis_skew_symmetric = []
-        for i in range(1, d):
+        for i in range(1, dim):
             for j in range(i):
-                A = Matrix.zeros(d)
+                A = Matrix.zeros(dim)
                 A[i, j] = 1
                 A[j, i] = -1
                 basis_skew_symmetric += [A]
@@ -1589,7 +1589,7 @@ class Framework(object):
         >>> F1 = frameworkDB.CompleteBipartite(4,4)
         >>> F1.is_inf_rigid()
         True
-        >>> F2 = frameworkDB.Cycle(4,d=2)
+        >>> F2 = frameworkDB.Cycle(4,dim=2)
         >>> F2.is_inf_rigid()
         False
         """
@@ -1700,7 +1700,7 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.Empty(d=2)
+        >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
         >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
         >>> F.is_redundantly_rigid()
