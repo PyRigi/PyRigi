@@ -660,7 +660,7 @@ class Framework(object):
 
         if "ipykernel" in sys.modules:
             from IPython.display import HTML
-
+            plt.close()
             return HTML(ani.to_jshtml())
         else:
             plt.show()

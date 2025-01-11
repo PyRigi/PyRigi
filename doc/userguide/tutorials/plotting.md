@@ -190,10 +190,10 @@ F.plot(
 
 Plotting in 3 dimensions is also possible. The plot can be made interactive by using cell magic (`%matplotlib widget`).
 Using the keyword `equal_aspect_ratio`, we can decide whether we want to stretch the plot to fix the cubic box size (`False`)
-or whether deforming the framework should be avoided beyond affine transformations (`True`).
+or whether deforming the framework should be avoided beyond affine transformations (`True`). All the other parameters that can be used for `Framework.plot2D` can also be used here.
 
 ```{code-cell} ipython3
-F = frameworks.Complete(4, d=3)
+F = frameworks.Complete(4, dim=3)
 F.plot3D(equal_aspect_ratio=True)
 ```
 
@@ -203,7 +203,7 @@ In addition, it is possible to animate a rotation sequence around a specified ax
 G = graphs.DoubleBanana()
 F = Framework(G, realization={0:(0,0,-0.25), 1:(0,0,1.25), 2:(1,0,0), 3:(1,0,1), 4:(1.5,0,0.5), 
                               5:(-1,0,0), 6:(-1,0,1), 7:(-1.5,0,0.5)})
-F.plot3D(animation=True, rotation_axis=[0,0,1])
+F.plot3D(animation=True, rotation_axis=[0,0,1], equal_aspect_ratio=False)
 ```
 
 We can return to the usual inline mode using the command `%matplotlib inline`.
