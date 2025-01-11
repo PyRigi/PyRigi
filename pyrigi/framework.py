@@ -13,6 +13,7 @@ Classes:
 """
 
 from __future__ import annotations
+
 from copy import deepcopy
 from itertools import combinations
 from random import randrange
@@ -47,7 +48,7 @@ from pyrigi.misc import (
     eval_sympy_vector,
 )
 
-from typing import Optional
+from typing import Optional, Any
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
@@ -310,6 +311,10 @@ class Framework(object):
         inf_flex:
             Optional parameter for plotting an infinitesimal flex. We expect
             it to have the same format as `realization`: `dict[Vertex, Point]`.
+        
+        TODO
+        ----
+        Add the option `equal_aspect_ratio` to the parameters.
         """
 
         self._graph.plot(
@@ -490,6 +495,7 @@ class Framework(object):
         edge_color: str = "k",
         edge_width: float = 1.1,
         edge_style: str = "solid",
+        equal_aspect_ratio: bool = True,
         total_frames: int = 50,
         delay: int = 75,
         rotation_axis: str | Sequence[Coordinate] = None,
@@ -504,6 +510,10 @@ class Framework(object):
         total_frames:
             Number of frames used for the animation. The higher this number,
             the smoother the resulting animation.
+        equal_aspect_ratio:
+            Determines whether the aspect ratio of the plot is equal in all space
+            directions or whether it is adjusted depending on the framework's size
+            in `x`, `y` and `z`-direction individually.
         delay:
             Delay between frames in milliseconds.
         rotation_axis:
@@ -593,18 +603,25 @@ class Framework(object):
             ],
             [],
         )
-        ax.set_zlim(
-            min([pt[2] for pt in rot_vertices]) - 0.01,
-            max([pt[2] for pt in rot_vertices]) + 0.01,
-        )
-        ax.set_ylim(
-            min([pt[1] for pt in rot_vertices]) - 0.01,
-            max([pt[1] for pt in rot_vertices]) + 0.01,
-        )
-        ax.set_xlim(
-            min([pt[0] for pt in rot_vertices]) - 0.01,
-            max([pt[0] for pt in rot_vertices]) + 0.01,
-        )
+        if equal_aspect_ratio:
+            min_val = min([min(pt) for pt in rot_vertices]) - 0.01
+            max_val = max([max(pt) for pt in rot_vertices]) + 0.01
+            ax.set_zlim(min_val, max_val)
+            ax.set_ylim(min_val, max_val)
+            ax.set_xlim(min_val, max_val)
+        else:
+            ax.set_zlim(
+                min([pt[2] for pt in rot_vertices]) - 0.01,
+                max([pt[2] for pt in rot_vertices]) + 0.01,
+            )
+            ax.set_ylim(
+                min([pt[1] for pt in rot_vertices]) - 0.01,
+                max([pt[1] for pt in rot_vertices]) + 0.01,
+            )
+            ax.set_xlim(
+                min([pt[0] for pt in rot_vertices]) - 0.01,
+                max([pt[0] for pt in rot_vertices]) + 0.01,
+            )
 
         # Function to update data at each frame
         def update(frame):
@@ -753,6 +770,7 @@ class Framework(object):
         edge_color: str = "k",
         edge_width: float = 1.5,
         edge_style: str = "solid",
+        equal_aspect_ratio: bool = True
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -791,6 +809,10 @@ class Framework(object):
         edge_style:
             Edge line style: ``-``/``solid``, ``--``/``dashed``,
             ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        equal_aspect_ratio:
+            Determines whether the aspect ratio of the plot is equal in all space
+            directions or whether it is adjusted depending on the framework's size
+            in `x`, `y` and `z`-direction individually.
         """
         # Create a figure for the rapresentation of the framework
         fig = plt.figure()
@@ -820,9 +842,16 @@ class Framework(object):
             s=vertex_size,
             marker=vertex_shape,
         )
-        ax.set_zlim(min(z_nodes) - 0.01, max(z_nodes) + 0.01)
-        ax.set_ylim(min(y_nodes) - 0.01, max(y_nodes) + 0.01)
-        ax.set_xlim(min(x_nodes) - 0.01, max(x_nodes) + 0.01)
+        if equal_aspect_ratio:
+            min_val = min(x_nodes+y_nodes+z_nodes) - 0.01
+            max_val = max(x_nodes+y_nodes+z_nodes) + 0.01
+            ax.set_zlim(min_val, max_val)
+            ax.set_ylim(min_val, max_val)
+            ax.set_xlim(min_val, max_val)
+        else:
+            ax.set_zlim(min(z_nodes) - 0.01, max(z_nodes) + 0.01)
+            ax.set_ylim(min(y_nodes) - 0.01, max(y_nodes) + 0.01)
+            ax.set_xlim(min(x_nodes) - 0.01, max(x_nodes) + 0.01)
 
         for edge in self._graph.edges():
             x = [pos[edge[0]][0], pos[edge[1]][0]]
