@@ -311,7 +311,7 @@ class Framework(object):
         inf_flex:
             Optional parameter for plotting an infinitesimal flex. We expect
             it to have the same format as `realization`: `dict[Vertex, Point]`.
-        
+
         TODO
         ----
         Add the option `equal_aspect_ratio` to the parameters.
@@ -520,6 +520,12 @@ class Framework(object):
             The user can input a rotation axis or vector. By default, a rotation around
             the z-axis is performed. This can either be done in the form of a char
             ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F._animate_rotation_around_axis();
         """
         # Creation of the figure
         fig = plt.figure()
@@ -660,6 +666,7 @@ class Framework(object):
 
         if "ipykernel" in sys.modules:
             from IPython.display import HTML
+
             plt.close()
             return HTML(ani.to_jshtml())
         else:
@@ -710,6 +717,12 @@ class Framework(object):
         TODO
         -----
         project the inf-flex as well in `_plot_using_projection_matrix_3D`.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F.plot3D();
         """
 
         if self._dim == 1 or self._dim == 2:
@@ -770,7 +783,7 @@ class Framework(object):
         edge_color: str = "k",
         edge_width: float = 1.5,
         edge_style: str = "solid",
-        equal_aspect_ratio: bool = True
+        equal_aspect_ratio: bool = True,
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -813,6 +826,12 @@ class Framework(object):
             Determines whether the aspect ratio of the plot is equal in all space
             directions or whether it is adjusted depending on the framework's size
             in `x`, `y` and `z`-direction individually.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F._plot_with_3D_realization();
         """
         # Create a figure for the rapresentation of the framework
         fig = plt.figure()
@@ -843,8 +862,8 @@ class Framework(object):
             marker=vertex_shape,
         )
         if equal_aspect_ratio:
-            min_val = min(x_nodes+y_nodes+z_nodes) - 0.01
-            max_val = max(x_nodes+y_nodes+z_nodes) + 0.01
+            min_val = min(x_nodes + y_nodes + z_nodes) - 0.01
+            max_val = max(x_nodes + y_nodes + z_nodes) + 0.01
             ax.set_zlim(min_val, max_val)
             ax.set_ylim(min_val, max_val)
             ax.set_xlim(min_val, max_val)
