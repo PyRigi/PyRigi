@@ -600,7 +600,7 @@ class Framework(object):
     @doc_category("Other")
     def plot3D(  # noqa: C901
         self,
-        coordinates: Union[tuple, list] = None,
+        coordinates: Sequence[Coordinate] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -699,7 +699,9 @@ class Framework(object):
         font_color: str = "whitesmoke",
         fontsize: int = 10,
         edge_width: float = 2.5,
-        edge_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "black",
+        edge_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "black",
         edge_style: str = "solid",
         **kwargs,
     ) -> None:
@@ -813,7 +815,9 @@ class Framework(object):
         points: dict[Vertex, Point] = None,
         flex_width: float = 2.5,
         flex_length: float = 0.25,
-        flex_color: str | List[List[Edge]] | Dict[str : List[Edge]] = "limegreen",
+        flex_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "limegreen",
         flex_style: str = "solid",
     ) -> None:
         """
@@ -828,7 +832,7 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         flex_width:
             Width of the infinitesimal flex's arrowtail.
