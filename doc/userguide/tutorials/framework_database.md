@@ -39,15 +39,15 @@ frameworks.Complete(2)
 ```
 
 ```{code-cell} ipython3
-frameworks.Complete(3, d=1)
+frameworks.Complete(3, dim=1)
 ```
 
 ```{code-cell} ipython3
-frameworks.Complete(4, d=3)
+frameworks.Complete(4, dim=3)
 ```
 
 ```{code-cell} ipython3
-K4 = frameworks.Complete(4, d=2)
+K4 = frameworks.Complete(4, dim=2)
 print(K4)
 K4.plot()
 ```
@@ -56,7 +56,7 @@ Currently, for $d\geq 3$, the number of vertices must be at most $d+1$ so the gr
 
 ```{code-cell} ipython3
 try:
-    frameworks.Complete(5, d=3)
+    frameworks.Complete(5, dim=3)
 except ValueError as e:
     print(e)
 ```
@@ -95,11 +95,11 @@ C5.plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.Cycle(5, d=1)
+frameworks.Cycle(5, dim=1)
 ```
 
 ```{code-cell} ipython3
-frameworks.Cycle(5, d=4)
+frameworks.Cycle(5, dim=4)
 ```
 
 ## Path frameworks
@@ -116,11 +116,11 @@ P5.plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.Path(5, d=1)
+frameworks.Path(5, dim=1)
 ```
 
 ```{code-cell} ipython3
-frameworks.Path(5, d=4)
+frameworks.Path(5, dim=4)
 ```
 
 ## 3-prism

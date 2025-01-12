@@ -14,16 +14,16 @@ from sympy import Matrix, pi, sqrt, sympify
 @pytest.mark.parametrize(
     "framework",
     [
-        fws.Complete(2, d=1),
-        fws.Complete(3, d=1),
-        fws.Complete(4, d=1),
-        fws.Cycle(4, d=1),
-        fws.Cycle(5, d=1),
-        fws.Path(3, d=1),
-        fws.Path(4, d=1),
-        fws.Complete(2, d=2),
-        fws.Complete(3, d=2),
-        fws.Complete(4, d=2),
+        fws.Complete(2, dim=1),
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=1),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
+        fws.Path(3, dim=1),
+        fws.Path(4, dim=1),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
+        fws.Complete(4, dim=2),
         fws.CompleteBipartite(3, 3),
         fws.CompleteBipartite(3, 4),
         fws.CompleteBipartite(4, 4),
@@ -31,14 +31,14 @@ from sympy import Matrix, pi, sqrt, sympify
         fws.K33plusEdge(),
         fws.ThreePrism(),
         fws.ThreePrismPlusEdge(),
-        fws.Complete(3, d=3),
-        fws.Complete(4, d=3),
+        fws.Complete(3, dim=3),
+        fws.Complete(4, dim=3),
     ]
-    + [fws.Complete(2, d=n) for n in range(1, 10)]
-    + [fws.Complete(3, d=n) for n in range(1, 10)]
-    + [fws.Complete(n - 1, d=n) for n in range(2, 10)]
-    + [fws.Complete(n, d=n) for n in range(1, 10)]
-    + [fws.Complete(n + 1, d=n) for n in range(1, 10)],
+    + [fws.Complete(2, dim=n) for n in range(1, 10)]
+    + [fws.Complete(3, dim=n) for n in range(1, 10)]
+    + [fws.Complete(n - 1, dim=n) for n in range(2, 10)]
+    + [fws.Complete(n, dim=n) for n in range(1, 10)]
+    + [fws.Complete(n + 1, dim=n) for n in range(1, 10)],
 )
 def test_inf_rigid(framework):
     assert framework.is_inf_rigid()
@@ -61,24 +61,24 @@ def test_check_vertex_and_edge_order():
     "framework",
     [
         Framework.from_points([[i] for i in range(4)]),
-        Framework.Collinear(graphs.Complete(3), d=2),
+        Framework.Collinear(graphs.Complete(3), dim=2),
         fws.CompleteBipartite(1, 3),
         fws.CompleteBipartite(2, 3),
         fws.CompleteBipartite(3, 3, "dixonI"),
-        fws.Cycle(4, d=2),
-        fws.Cycle(5, d=2),
-        fws.Path(3, d=2),
-        fws.Path(4, d=2),
+        fws.Cycle(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
         fws.ThreePrism("flexible"),
         fws.ThreePrism("parallel"),
-        fws.Cycle(4, d=3),
-        fws.Path(3, d=3),
-        fws.Path(4, d=3),
+        fws.Cycle(4, dim=3),
+        fws.Path(3, dim=3),
+        fws.Path(4, dim=3),
         fws.Frustum(3),
     ]
-    + [fws.Cycle(n - 1, d=n) for n in range(5, 10)]
-    + [fws.Cycle(n, d=n) for n in range(4, 10)]
-    + [fws.Cycle(n + 1, d=n) for n in range(3, 10)],
+    + [fws.Cycle(n - 1, dim=n) for n in range(5, 10)]
+    + [fws.Cycle(n, dim=n) for n in range(4, 10)]
+    + [fws.Cycle(n + 1, dim=n) for n in range(3, 10)],
 )
 def test_not_inf_rigid(framework):
     assert not framework.is_inf_rigid()
@@ -87,22 +87,22 @@ def test_not_inf_rigid(framework):
 @pytest.mark.parametrize(
     "framework",
     [
-        fws.Complete(2, d=1),
-        fws.Path(3, d=1),
-        fws.Path(4, d=1),
-        fws.Complete(2, d=2),
-        fws.Complete(3, d=2),
+        fws.Complete(2, dim=1),
+        fws.Path(3, dim=1),
+        fws.Path(4, dim=1),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
         fws.CompleteBipartite(3, 3),
         fws.Diamond(),
         fws.ThreePrism(),
-        fws.Complete(3, d=3),
-        fws.Complete(4, d=3),
+        fws.Complete(3, dim=3),
+        fws.Complete(4, dim=3),
     ]
-    + [fws.Complete(2, d=n) for n in range(1, 7)]
-    + [fws.Complete(3, d=n) for n in range(2, 7)]
-    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
-    + [fws.Complete(n, d=n) for n in range(1, 7)]
-    + [fws.Complete(n + 1, d=n) for n in range(1, 7)],
+    + [fws.Complete(2, dim=n) for n in range(1, 7)]
+    + [fws.Complete(3, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n, dim=n) for n in range(1, 7)]
+    + [fws.Complete(n + 1, dim=n) for n in range(1, 7)],
 )
 def test_inf_min_rigid(framework):
     assert framework.is_min_inf_rigid()
@@ -114,30 +114,30 @@ def test_inf_min_rigid(framework):
         fws.K33plusEdge(),
         fws.ThreePrismPlusEdge(),
         Framework.from_points([[i] for i in range(4)]),
-        fws.Complete(3, d=1),
-        fws.Complete(4, d=1),
-        fws.Cycle(4, d=1),
-        fws.Cycle(5, d=1),
-        Framework.Collinear(graphs.Complete(3), d=2),
-        fws.Complete(4, d=2),
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=1),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
+        Framework.Collinear(graphs.Complete(3), dim=2),
+        fws.Complete(4, dim=2),
         fws.CompleteBipartite(1, 3),
         fws.CompleteBipartite(2, 3),
         fws.CompleteBipartite(3, 3, "dixonI"),
         fws.CompleteBipartite(3, 4),
         fws.CompleteBipartite(4, 4),
-        fws.Cycle(4, d=2),
-        fws.Cycle(5, d=2),
-        fws.Path(3, d=2),
-        fws.Path(4, d=2),
+        fws.Cycle(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
         fws.ThreePrism("flexible"),
         fws.ThreePrism("parallel"),
-        fws.Cycle(4, d=3),
-        fws.Path(3, d=3),
-        fws.Path(4, d=3),
+        fws.Cycle(4, dim=3),
+        fws.Path(3, dim=3),
+        fws.Path(4, dim=3),
     ]
-    + [fws.Cycle(n - 1, d=n) for n in range(5, 7)]
-    + [fws.Cycle(n, d=n) for n in range(4, 7)]
-    + [fws.Cycle(n + 1, d=n) for n in range(3, 7)],
+    + [fws.Cycle(n - 1, dim=n) for n in range(5, 7)]
+    + [fws.Cycle(n, dim=n) for n in range(4, 7)]
+    + [fws.Cycle(n + 1, dim=n) for n in range(3, 7)],
 )
 def test_not_min_inf_rigid(framework):
     assert not framework.is_min_inf_rigid()
@@ -146,34 +146,34 @@ def test_not_min_inf_rigid(framework):
 @pytest.mark.parametrize(
     "framework",
     [
-        fws.Complete(2, d=1),
-        fws.Complete(2, d=2),
-        fws.Complete(3, d=2),
-        fws.Complete(3, d=3),
-        fws.Complete(4, d=3),
+        fws.Complete(2, dim=1),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
+        fws.Complete(3, dim=3),
+        fws.Complete(4, dim=3),
         fws.CompleteBipartite(3, 3),
         fws.CompleteBipartite(1, 3),
         fws.CompleteBipartite(2, 3),
         fws.Diamond(),
         fws.ThreePrism(),
         Framework.from_points([[i] for i in range(4)]),
-        fws.Cycle(4, d=2),
-        fws.Cycle(5, d=2),
-        fws.Cycle(4, d=2),
-        fws.Path(3, d=1),
-        fws.Path(3, d=2),
-        fws.Path(4, d=2),
-        fws.Path(3, d=3),
-        fws.Path(4, d=3),
+        fws.Cycle(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Cycle(4, dim=2),
+        fws.Path(3, dim=1),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
+        fws.Path(3, dim=3),
+        fws.Path(4, dim=3),
     ]
-    + [fws.Complete(2, d=n) for n in range(1, 7)]
-    + [fws.Complete(3, d=n) for n in range(2, 7)]
-    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
-    + [fws.Complete(n, d=n) for n in range(1, 7)]
-    + [fws.Complete(n + 1, d=n) for n in range(1, 7)]
-    + [fws.Cycle(n - 1, d=n) for n in range(5, 7)]
-    + [fws.Cycle(n, d=n) for n in range(4, 7)]
-    + [fws.Cycle(n + 1, d=n) for n in range(3, 7)],
+    + [fws.Complete(2, dim=n) for n in range(1, 7)]
+    + [fws.Complete(3, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n, dim=n) for n in range(1, 7)]
+    + [fws.Complete(n + 1, dim=n) for n in range(1, 7)]
+    + [fws.Cycle(n - 1, dim=n) for n in range(5, 7)]
+    + [fws.Cycle(n, dim=n) for n in range(4, 7)]
+    + [fws.Cycle(n + 1, dim=n) for n in range(3, 7)],
 )
 def test_is_independent(framework):
     assert framework.is_independent()
@@ -184,17 +184,17 @@ def test_is_independent(framework):
     [
         fws.K33plusEdge(),
         fws.ThreePrismPlusEdge(),
-        Framework.Collinear(graphs.Complete(3), d=2),
-        fws.Complete(3, d=1),
-        fws.Complete(4, d=1),
-        fws.Complete(4, d=2),
+        Framework.Collinear(graphs.Complete(3), dim=2),
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=1),
+        fws.Complete(4, dim=2),
         fws.CompleteBipartite(3, 3, "dixonI"),
         fws.CompleteBipartite(3, 4),
         fws.CompleteBipartite(4, 4),
         fws.ThreePrism("flexible"),
         fws.ThreePrism("parallel"),
-        fws.Cycle(4, d=1),
-        fws.Cycle(5, d=1),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
     ]
     + [Framework.Random(graphs.Complete(n), dim=n - 2) for n in range(3, 8)],
 )
@@ -644,10 +644,10 @@ def test_rigidity_matrix():
     F = fws.Path(3)
     assert F.rigidity_matrix() == Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])
 
-    F = fws.Complete(3, d=1)
+    F = fws.Complete(3, dim=1)
     assert F.rigidity_matrix() == Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])
 
-    F = fws.Complete(4, d=3)
+    F = fws.Complete(4, dim=3)
     assert F.rigidity_matrix().shape == (6, 12)
 
     G = Graph([(0, "a"), ("b", "a"), ("b", 1.9), (1.9, 0)])
