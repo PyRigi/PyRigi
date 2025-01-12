@@ -2986,7 +2986,12 @@ class Graph(nx.Graph):
             )
             if nonzero_stress is None:
                 raise ValueError("The provided stress only contains zeros.")
-            _stress = {k: round(round(sympify(w / (1000*nonzero_stress)).evalf(10),5)*1000, 3) for k, w in stress.items()}
+            _stress = {
+                k: round(
+                    round(sympify(w / (1000 * nonzero_stress)).evalf(10), 5) * 1000, 3
+                )
+                for k, w in stress.items()
+            }
             nx.draw_networkx_edge_labels(
                 self,
                 pos=placement,
