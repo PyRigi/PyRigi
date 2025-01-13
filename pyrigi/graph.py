@@ -2065,7 +2065,6 @@ class Graph(nx.Graph):
     def is_Rd_closed(self, dim: int = 2) -> bool:
         """
         Return whether the edge set is closed in the generic dim-rigidity matroid.
-        d-rigidity matroid.
 
         Definitions
         -----------
@@ -2159,6 +2158,10 @@ class Graph(nx.Graph):
         False
         >>> G.rigid_components()
         [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
+
+        TODO
+        ----
+        Implement using pebble games for dim=2.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
