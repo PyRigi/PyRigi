@@ -18,7 +18,15 @@ import math
 import distinctipy
 from random import randint
 
-from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence, Coordinate
+from pyrigi.data_type import (
+    Vertex,
+    Edge,
+    Point,
+    Inf,
+    Sequence,
+    Coordinate,
+    DirectedEdge,
+)
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
@@ -310,9 +318,14 @@ class Graph(nx.Graph):
             return list(self.nodes)
 
     @doc_category("Attribute getters")
-    def edge_list(self) -> list[Edge]:
+    def edge_list(self, as_tuples: bool = False) -> list[Edge]:
         """
         Return the list of edges.
+
+        Parameters
+        ----------
+        as_tuples:
+            If `True`, all edges are returned as tuples.
 
         Notes
         -----
@@ -338,9 +351,15 @@ class Graph(nx.Graph):
         [('c', 1), (2, 'a')]
         """
         try:
-            return sorted([sorted(e) for e in self.edges])
+            if as_tuples:
+                return sorted([tuple(sorted(e)) for e in self.edges])
+            else:
+                return sorted([sorted(e) for e in self.edges])
         except BaseException:
-            return list(self.edges)
+            if as_tuples:
+                return [tuple(e) for e in self.edges]
+            else:
+                return list(self.edges)
 
     @doc_category("Graph manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -2702,7 +2721,7 @@ class Graph(nx.Graph):
         flex_arrowsize: int = 20,
         stress_color: str = "orangered",
         stress_fontsize: int = 10,
-        stress_label_pos: float = 0.35,
+        stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
         stress_rotate_labels: bool = True,
         stress_normalization: bool = False,
         font_size: int = 12,
@@ -2772,7 +2791,9 @@ class Graph(nx.Graph):
         stress_label_pos:
             Position of the stress label along the edge. `float` numbers
             from the interval `[0,1]` are allowed. `0` represents the head
-            of the edge, `0.5` the center and `1` the edge's tail.
+            of the edge, `0.5` the center and `1` the edge's tail. The position
+            can either be specified for all edges equally or as a
+            `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
         stress_rotate_labels:
             A boolean indicating whether the stress label should be rotated.
         stress_normalization:
@@ -2833,7 +2854,7 @@ class Graph(nx.Graph):
             newGraph = nx.MultiDiGraph()
             if isinstance(connection_style, float):
                 connection_style = {
-                    tuple(e): connection_style for e in self.edge_list()
+                    e: connection_style for e in self.edge_list(as_tuples=True)
                 }
             elif isinstance(connection_style, list):
                 if not self.number_of_edges() == len(connection_style):
@@ -2841,11 +2862,12 @@ class Graph(nx.Graph):
                         "The provided `connection_style` doesn't have the correct length."
                     )
                 connection_style = {
-                    tuple(e): style
-                    for e, style in zip(self.edge_list(), connection_style)
+                    e: style
+                    for e, style in zip(
+                        self.edge_list(as_tuples=True), connection_style
+                    )
                 }
             elif isinstance(connection_style, dict):
-                edge_array = [tuple(e) for e in self.edge_list()]
                 if (
                     not all(
                         [
@@ -2857,7 +2879,7 @@ class Graph(nx.Graph):
                     )
                     or not all(
                         [
-                            set(key) in [set([e[0], e[1]]) for e in edge_array]
+                            set(key) in [set([e[0], e[1]]) for e in self.edge_list()]
                             for key in connection_style.keys()
                         ]
                     )
@@ -2872,13 +2894,13 @@ class Graph(nx.Graph):
                     )
                 connection_style = {
                     e: 0
-                    for e in edge_array
+                    for e in self.edge_list(as_tuples=True)
                     if not (
                         e in connection_style.keys()
                         or tuple([e[1], e[0]]) in connection_style.keys()
                     )
                 } | {
-                    (tuple(e) if e in edge_array else tuple([e[1], e[0]])): style
+                    (tuple(e) if e in self.edge_list() else tuple([e[1], e[0]])): style
                     for e, style in connection_style.items()
                 }
             else:
@@ -2996,15 +3018,35 @@ class Graph(nx.Graph):
                 }
             else:
                 _stress = stress
-            nx.draw_networkx_edge_labels(
-                self,
-                pos=placement,
-                edge_labels=_stress,
-                font_color=stress_color,
-                font_size=stress_fontsize,
-                label_pos=stress_label_pos,
-                rotate=stress_rotate_labels,
-            )
+            if isinstance(stress_label_pos, dict):
+                if not all([self.has_edge(*e) for e in stress_label_pos.keys()]):
+                    raise ValueError(
+                        "The `stress_label_pos` dictionary must contain the same "
+                        + "edges as the stress dictionary."
+                    )
+                for edge in self.edge_list(as_tuples=True):
+                    stress_keys = [set(e) for e in stress_label_pos.keys()]
+                    if set(edge) not in stress_keys:
+                        stress_label_pos[edge] = 0.5
+            elif isinstance(stress_label_pos, float):
+                label_float = stress_label_pos
+                stress_label_pos = {}
+                for edge in self.edge_list(as_tuples=True):
+                    stress_label_pos[edge] = label_float
+            else:
+                raise TypeError(
+                    "`stress_label_pos` must be either a float or a dictionary."
+                )
+            for edge in self.edges:
+                nx.draw_networkx_edge_labels(
+                    self,
+                    pos=placement,
+                    edge_labels={edge: _stress[edge]},
+                    font_color=stress_color,
+                    font_size=stress_fontsize,
+                    label_pos=stress_label_pos[edge],
+                    rotate=stress_rotate_labels,
+                )
 
         plt.show()
 

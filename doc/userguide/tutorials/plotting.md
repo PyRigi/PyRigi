@@ -220,7 +220,8 @@ F.plot(curved_edges=True, connection_style={(i,i+1): 0.15 for i in range(7)} | {
 It is possible to include infinitesimal flexes in the plot. With the keyword
 `inf_flex=n`, we can pick the `n`-th nontrivial infinitesimal flex from
 a basis of the rigidity matrix's kernel. There are several keywords that allow
-us to alter the style of the drawn arrows.
+us to alter the style of the drawn arrows. A full list of the optional plotting
+parameters can be found in the API reference: {meth}`~.Graph.plot`.
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
@@ -264,7 +265,12 @@ Analogous to the way that infinitesimal flexes can be visualized (see the previo
 section), a `stress` can be provided either as the `n`-th equilibrium stress, as a
 specific `stress` given by a `Matrix` or alternatively as a `Dict[Edge, Coordinate]`. 
 It is internally checked, whether the provided stress lies in the cokernel of the
-rigidity matrix. 
+rigidity matrix. We can specify the positions of the stress labels using the keyword
+`stress_label_pos`, which can either be set for each edge as the same `float` from $[0,1]$
+or individually using a `dict[DirectedEdge, float]`. This `float` specifies the position on
+the line segment given by the edge. The missing edges labels are automatically
+centered on the edge. A full list of the optional plotting parameters can be found in
+the API reference: {meth}`~.Graph.plot`. 
 
 ```{code-cell} ipython3
 F = frameworks.Frustum(3)
@@ -273,7 +279,7 @@ F.plot(
     stress=0,
     stress_color = "orangered",
     stress_fontsize = 11,
-    stress_label_pos = 0.45,
+    stress_label_pos = {(3,5): 0.6, (3,4):0.4, (4,5):0.4},
     stress_rotate_labels = False
 )
 ```
