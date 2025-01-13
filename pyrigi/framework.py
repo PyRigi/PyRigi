@@ -21,7 +21,7 @@ from random import randrange
 import networkx as nx
 import sympy as sp
 import numpy as np
-import types
+import functools
 
 from sympy import Matrix, flatten, binomial
 
@@ -48,7 +48,7 @@ from pyrigi.misc import (
     eval_sympy_vector,
 )
 
-from typing import Optional
+from typing import Optional, Any
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.animation import FuncAnimation
@@ -489,35 +489,59 @@ class Framework(object):
             return projection_matrix
 
     @doc_category("Other")
-    def _animate_rotation_around_z_axis(
+    def _animate_rotation_around_axis(
         self,
         vertex_color: str = "#ff8c00",
         vertex_shape: str = "o",
-        vertex_size: int = 10,
+        vertex_size: int = 13.5,
         edge_color: str = "k",
-        edge_width: float = 1.5,
+        edge_width: float = 1.1,
         edge_style: str = "solid",
-        rotation_matrix=None,
-        **kwargs,
-    ):
+        equal_aspect_ratio: bool = True,
+        total_frames: int = 50,
+        delay: int = 75,
+        rotation_axis: str | Sequence[Coordinate] = None,
+    ) -> Any:
         """
-        Plot this framework in 3D and makes it rotating around the z axis.
+        Plot this framework in 3D and animate a rotation around an axis.
+
+        Parameters
+        ----------
+        vertex_color, vertex_shape, vertex_size, edge_color, edge_width, edge_style:
+            The user can choose differen colors etc. both for edges and vertices.
+        total_frames:
+            Number of frames used for the animation. The higher this number,
+            the smoother the resulting animation.
+        equal_aspect_ratio:
+            Determines whether the aspect ratio of the plot is equal in all space
+            directions or whether it is adjusted depending on the framework's size
+            in `x`, `y` and `z`-direction individually.
+        delay:
+            Delay between frames in milliseconds.
+        rotation_axis:
+            The user can input a rotation axis or vector. By default, a rotation around
+            the z-axis is performed. This can either be done in the form of a char
+            ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F._animate_rotation_around_axis();
         """
         # Creation of the figure
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
+        ax.grid(False)
+        ax.set_axis_off()
 
         # Limits of the axes
         abs_list = [list(abs(i)) for i in self._realization.values()]
         abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
-        b = float(max(abs_list) * 1.2)
-        ax.set_xlim(-b, b)
-        ax.set_ylim(-b, b)
-        ax.set_zlim(-b, b)
 
         vertices = np.array(
             [
-                list(list(self.realization().values())[i])
+                list(list(self.realization(numerical=True).values())[i])
                 for i in range(self._graph.number_of_nodes())
             ]
         )
@@ -540,25 +564,70 @@ class Framework(object):
                 line.set_3d_properties([])
             return [vertices_plot] + lines
 
-        def _rotation_matrix(frame):
-            angle = frame * np.pi / 50
-            # Rotation of vertices around the z-axis
-            rotation_matrix = np.array(
-                [
-                    [np.cos(angle), -np.sin(angle), 0],
-                    [np.sin(angle), np.cos(angle), 0],
-                    [0, 0, 1],
-                ]
+        def _rotation_matrix(v, frame):
+            # Compute the rotation matrix Q
+            v = np.array(v)
+            v = v / np.linalg.norm(v)
+            angle = frame * np.pi / total_frames
+            cos_angle = np.cos(angle)
+            sin_angle = np.sin(angle)
+
+            # Rodrigues' rotation matrix
+            K = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+            Q = np.eye(3) * cos_angle + K * sin_angle + np.outer(v, v) * (1 - cos_angle)
+            return Q
+
+        match rotation_axis:
+            case None | "z" | "Z":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([0, 0, 1])
+                )
+            case "x" | "X":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([1, 0, 0])
+                )
+            case "y" | "Y":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([0, 1, 0])
+                )
+            case _:  # Rotation around a custom axis
+                if isinstance(rotation_axis, (np.ndarray, list, tuple)):
+                    if len(rotation_axis) != 3:
+                        raise ValueError("The rotation_axis must have length 3.")
+                    rotation_matrix = functools.partial(
+                        _rotation_matrix, np.array(rotation_axis)
+                    )
+                else:
+                    raise ValueError(
+                        "The rotation_axis must be of one of the following "
+                        + "types: np.ndarray, list, tuple."
+                    )
+
+        rot_vertices = sum(
+            [
+                vertices.dot(rotation_matrix(frame).T).tolist()
+                for frame in range(2 * total_frames)
+            ],
+            [],
+        )
+        if equal_aspect_ratio:
+            min_val = min([min(pt) for pt in rot_vertices]) - 0.01
+            max_val = max([max(pt) for pt in rot_vertices]) + 0.01
+            ax.set_zlim(min_val, max_val)
+            ax.set_ylim(min_val, max_val)
+            ax.set_xlim(min_val, max_val)
+        else:
+            ax.set_zlim(
+                min([pt[2] for pt in rot_vertices]) - 0.01,
+                max([pt[2] for pt in rot_vertices]) + 0.01,
             )
-            return rotation_matrix
-
-        if rotation_matrix is None:
-            rotation_matrix = _rotation_matrix
-
-        elif not isinstance(rotation_matrix, types.FunctionType):
-            raise ValueError(
-                "The rotation matrix must be of one of the following "
-                + "types: FunctionType or NoneType."
+            ax.set_ylim(
+                min([pt[1] for pt in rot_vertices]) - 0.01,
+                max([pt[1] for pt in rot_vertices]) + 0.01,
+            )
+            ax.set_xlim(
+                min([pt[0] for pt in rot_vertices]) - 0.01,
+                max([pt[0] for pt in rot_vertices]) + 0.01,
             )
 
         # Function to update data at each frame
@@ -584,21 +653,30 @@ class Framework(object):
             return [vertices_plot] + lines
 
         # Creating the animation
-        ani = FuncAnimation(fig, update, frames=100, init_func=init, blit=True)
+        ani = FuncAnimation(
+            fig,
+            update,
+            frames=total_frames * 2,
+            interval=delay,
+            init_func=init,
+            blit=True,
+        )
 
+        plt.tight_layout()
         # Checking if we are running from the terminal or from a notebook
         import sys
 
         if "ipykernel" in sys.modules:
             from IPython.display import HTML
 
+            plt.close()
             return HTML(ani.to_jshtml())
         else:
             plt.show()
             return
 
     @doc_category("Other")
-    def plot3D(  # noqa: C901
+    def plot3D(
         self,
         coordinates: Sequence[Coordinate] = None,
         projection_matrix: Matrix = None,
@@ -608,14 +686,17 @@ class Framework(object):
         **kwargs,
     ) -> Optional[Matrix]:
         """
-        Plot this framework in 3D.
+        Plot the provided framework in 3D.
 
+        Notes
+        -----
         If this framework is in dimensions higher than 3 and projection_matrix
         with coordinates are None a random projection matrix
         containing three orthonormal vectors is generated and used for projection into 3D.
-        This matrix is then returned.
+        This particular matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
-        Only coordinates or projection_matrix parameter can be used, not both!
+        Only the parameter `coordinates` or `projection_matrix` can be used,
+        not both at the same time!
 
         Parameters
         ----------
@@ -631,24 +712,33 @@ class Framework(object):
         coordinates:
             Indexes of three coordinates that will be used as the placement in 3D.
         return_matrix:
-            If True the matrix used for projection into 3D is returned.
+            If `True` the matrix used for projection into 3D is returned.
         animation:
-            If you want a rotating figure
+            If `True` the plot is a rotating figure.
 
         Notes
         -----
         See :meth:`.Framework._plot_using_projection_matrix_3D` for a full list of parameters.
-        """  # noqa: E501
+
+        TODO
+        ----
+        Project the `inf_flex` as well.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F.plot3D();
+        """
 
         if self._dim == 1 or self._dim == 2:
             return self.plot2D(**kwargs)
 
         if self._dim == 3 and not animation:
-            self._plot_with_3D_realization(**kwargs)
-            return
+            return self._plot_with_3D_realization(**kwargs)
 
         elif self._dim == 3 and animation:
-            return self._animate_rotation_around_z_axis(**kwargs)
+            return self._animate_rotation_around_axis(**kwargs)
 
         # dim > 3 -> use projection to 3D
         if coordinates is not None:
@@ -703,7 +793,8 @@ class Framework(object):
             str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
         ) = "black",
         edge_style: str = "solid",
-        **kwargs,
+        equal_aspect_ratio: bool = True,
+        **kwargs
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -750,15 +841,27 @@ class Framework(object):
         edge_style:
             Edge line style: ``-``/``solid``, ``--``/``dashed``,
             ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        equal_aspect_ratio:
+            Determines whether the aspect ratio of the plot is equal in all space
+            directions or whether it is adjusted depending on the framework's size
+            in `x`, `y` and `z`-direction individually.
 
         Notes
         -----
         The parameters for `inf_flex`-plotting are listed in
         :meth:`.Framework._plot_inf_flex`.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F._plot_with_3D_realization();
         """
         # Create a figure for the rapresentation of the framework
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(dpi=150)
         ax = fig.add_subplot(111, projection="3d")
+        ax.grid(False)
+        ax.set_axis_off()
 
         if projection_matrix is None:
             pos = self.realization(as_points=True, numerical=True)
@@ -781,6 +884,17 @@ class Framework(object):
             s=vertex_size,
             marker=vertex_shape,
         )
+        if equal_aspect_ratio:
+            min_val = min(x_nodes + y_nodes + z_nodes) - 0.01
+            max_val = max(x_nodes + y_nodes + z_nodes) + 0.01
+            ax.set_zlim(min_val, max_val)
+            ax.set_ylim(min_val, max_val)
+            ax.set_xlim(min_val, max_val)
+        else:
+            ax.set_zlim(min(z_nodes) - 0.01, max(z_nodes) + 0.01)
+            ax.set_ylim(min(y_nodes) - 0.01, max(y_nodes) + 0.01)
+            ax.set_xlim(min(x_nodes) - 0.01, max(x_nodes) + 0.01)
+
         for edge in self._graph.edges():
             x = [pos[edge[0]][0], pos[edge[1]][0]]
             y = [pos[edge[0]][1], pos[edge[1]][1]]
@@ -800,11 +914,9 @@ class Framework(object):
                     ha="center",
                     va="center",
                 )
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
-        ax.set_zlabel("Z")
 
         self._plot_inf_flex(ax, inf_flex, **kwargs)
+        plt.tight_layout()
         plt.show()
 
     @doc_category("Other")
@@ -948,14 +1060,15 @@ class Framework(object):
     def plot(
         self,
         **kwargs,
-    ) -> None:
+    ) -> Optional[Matrix]:
         """
         Plot the framework.
 
-        If the dimension of the framework is greater than 2, ``ValueError`` is raised,
-        use :meth:`.Framework.plot2D` instead.
+        Notes
+        -----
+        If the dimension of the framework is greater than 3, ``ValueError`` is raised,
+        use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
         For various formatting options, see :meth:`.Graph.plot`.
-
 
         TODO
         ----
@@ -963,7 +1076,7 @@ class Framework(object):
         """
 
         if self._dim == 3:
-            self.plot3D(**kwargs)
+            return self.plot3D(**kwargs)
         elif self._dim > 3:
             raise ValueError(
                 "This framework is in higher dimension than 3!"
@@ -971,7 +1084,7 @@ class Framework(object):
                 + " for projection into 3D use F.plot3D()."
             )
         else:
-            self.plot2D(**kwargs)
+            return self.plot2D(**kwargs)
 
     @doc_category("Other")
     def to_tikz(
