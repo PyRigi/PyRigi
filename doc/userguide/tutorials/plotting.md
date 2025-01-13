@@ -263,12 +263,12 @@ F.plot(inf_flex=flex)
 We can also plot stresses. Contrary to flexes, stresses exist as edge labels. 
 Analogous to the way that infinitesimal flexes can be visualized (see the previous
 section), a `stress` can be provided either as the `n`-th equilibrium stress, as a
-specific `stress` given by a `Matrix` or alternatively as a `Dict[Edge, Coordinate]`. 
+specific `stress` given by a `Matrix` or alternatively as a `dict[Edge, Coordinate]`. 
 It is internally checked, whether the provided stress lies in the cokernel of the
 rigidity matrix. We can specify the positions of the stress labels using the keyword
-`stress_label_pos`, which can either be set for each edge as the same `float` from $[0,1]$
+`stress_label_pos`, which can either be set for all edges as the same `float` from $[0,1]$
 or individually using a `dict[DirectedEdge, float]`. This `float` specifies the position on
-the line segment given by the edge. The missing edges labels are automatically
+the line segment given by the edges. The missing edges labels are automatically
 centered on the edge. A full list of the optional plotting parameters can be found in
 the API reference: {meth}`~.Graph.plot`. 
 

@@ -325,7 +325,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         as_tuples:
-            If `True`, all edges are returned as tuples.
+            If ``True``, all edges are returned as tuples.
 
         Notes
         -----
@@ -2798,7 +2798,7 @@ class Graph(nx.Graph):
             A boolean indicating whether the stress label should be rotated.
         stress_normalization:
             A boolean indicating whether the stress values should be turned into
-            floating point numbers. The stress is automatically normalized.
+            floating point numbers. If ``True``, the stress is automatically normalized.
         font_size:
             The size of the font used for the labels.
         font_color:
