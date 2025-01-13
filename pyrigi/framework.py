@@ -532,7 +532,6 @@ class Framework(object):
         ax = fig.add_subplot(111, projection="3d")
         ax.grid(False)
         ax.set_axis_off()
-        plt.tight_layout()
 
         # Limits of the axes
         abs_list = [list(abs(i)) for i in self._realization.values()]
@@ -661,6 +660,7 @@ class Framework(object):
             blit=True,
         )
 
+        plt.tight_layout()
         # Checking if we are running from the terminal or from a notebook
         import sys
 
@@ -834,11 +834,10 @@ class Framework(object):
         >>> F._plot_with_3D_realization();
         """
         # Create a figure for the rapresentation of the framework
-        fig = plt.figure()
+        fig = plt.figure(dpi=150)
         ax = fig.add_subplot(111, projection="3d")
         ax.grid(False)
         ax.set_axis_off()
-        plt.tight_layout()
 
         if projection_matrix is None:
             pos = self.realization(as_points=True, numerical=True)
@@ -890,6 +889,7 @@ class Framework(object):
                 ha="center",
                 va="center",
             )
+        plt.tight_layout()
         plt.show()
 
     @doc_category("Other")
