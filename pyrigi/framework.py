@@ -364,7 +364,7 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(  # noqa: C901
         self,
-        coordinates: Sequence = None,
+        coordinates: Sequence[int] = None,
         inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         stress: Matrix | int | dict[Edge, Coordinate] = None,
         projection_matrix: Matrix = None,
@@ -395,7 +395,7 @@ class Framework(object):
             The random seed used for generating the projection matrix.
             When the same value is provided, the framework will plot exactly same.
         coordinates:
-            Indexes of two coordinates that will be used as the placement in 2D.
+            Indices of two coordinates that will be used as the placement in 2D.
         inf_flex:
             Optional parameter for plotting a given infinitesimal flex. The standard
             input format is a ``Matrix`` that is the output of e.g. the method
@@ -735,7 +735,7 @@ class Framework(object):
     @doc_category("Other")
     def plot3D(
         self,
-        coordinates: Sequence[Coordinate] = None,
+        coordinates: Sequence[int] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
