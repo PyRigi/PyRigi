@@ -2056,7 +2056,6 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for e in G.edges:
             G.delete_edge(e)
-            print(G.is_Rd_independent(dim=dim))
             if not G.is_Rd_independent(dim=dim):
                 return False
             G.add_edge(*e)

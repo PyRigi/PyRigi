@@ -1584,6 +1584,7 @@ def test_Rd_independent_d1(graph):
         graphs.ThreePrismPlusEdge(),
         graphs.K33plusEdge(),
         graphs.Complete(5),
+        graphs.CompleteBipartite(3, 4),
     ],
 )
 def test_Rd_dependent_d2(graph):
@@ -1598,6 +1599,7 @@ def test_Rd_dependent_d2(graph):
         graphs.ThreePrism(),
         graphs.CompleteBipartite(1, 3),
         graphs.CompleteBipartite(2, 3),
+        graphs.CompleteBipartite(3, 3),
         graphs.Path(3),
         graphs.Cycle(4),
     ],
