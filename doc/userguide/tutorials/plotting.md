@@ -185,12 +185,43 @@ F.plot(
 )
 ```
 
-## Infinitesimal Flexes
+### Collinear Configurations
+
+For collinear configurations and frameworks in $\RR$, the edges are automatically visualized 
+as arcs in $\RR^2$ 
+
+```{code-cell} ipython3
+F = Framework.Complete([[0],[1],[2]])
+F.plot()
+```
+
+Using the keyword ``connection_style``, we are able to specify the pitch of the individual arcs. This parameter can be specified in
+radians as a ``float`` if the same pitch for every arc is desired and a ``list[float]`` or a
+``dict[Edge, float]`` if the pitch is supposed to be provided for each arc individually.
+
+```{code-cell} ipython3
+F = Framework.Complete([[1],[3],[0],[2]])
+F.plot(connection_style={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
+```
+
+We can also enhance the visualization of other configurations using the
+parameter ``curved_edges``. This is particularly useful for almost or piecewise
+collinear configurations, but of course, it can also be applied to arbitrary frameworks.
+It is possible fewer edges in the ``dict``; the remaining edges are than padded with
+zeros. 
+
+```{code-cell} ipython3
+F = frameworks.CnSymmetricFourRegular(n=8)
+F.plot(curved_edges=True, connection_style={(i,i+1): 0.15 for i in range(7)} | {(0,7):-0.15})
+```
+
+### Infinitesimal Flexes
 
 It is possible to include infinitesimal flexes in the plot. With the keyword
 `inf_flex=n`, we can pick the `n`-th nontrivial infinitesimal flex from
 a basis of the rigidity matrix's kernel. There are several keywords that allow
-us to alter the style of the drawn arrows.
+us to alter the style of the drawn arrows. A full list of the optional plotting
+parameters can be found in the API reference: {meth}`~.Graph.plot`.
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
@@ -217,7 +248,9 @@ F.plot(inf_flex=flex)
 
 It is important to use the same order of the vertices of `F` as {meth}`.Graph.vertex_list` when
 providing the infinitesimal flex as a `Matrix`. To circumvent that,
-we also support adding an infinitesimal flex as a `dict[Vertex, Vector]`:
+we also support adding an infinitesimal flex as a `Dict[Vertex, Sequence[Coordinate]]`.
+In both of the cases where the user provides an infinitesimal flex, it is
+internally checked whether the provided vector lies in the kernel of the rigidity matrix.
 
 ```{code-cell} ipython3
 F = frameworks.Square()
@@ -225,8 +258,33 @@ flex = {0: (1, -1), 1: (1, 1), 2: (-1, 1), 3: (-1, -1)}
 F.plot(inf_flex=flex)
 ```
 
-## Plotting in 3 Dimensions
+### Equilibrium Stresses
 
+We can also plot stresses. Contrary to flexes, stresses exist as edge labels. 
+Analogous to the way that infinitesimal flexes can be visualized (see the previous
+section), a `stress` can be provided either as the `n`-th equilibrium stress, as a
+specific `stress` given by a `Matrix` or alternatively as a `dict[Edge, Coordinate]`. 
+It is internally checked, whether the provided stress lies in the cokernel of the
+rigidity matrix. We can specify the positions of the stress labels using the keyword
+`stress_label_pos`, which can either be set for all edges as the same `float` from $[0,1]$
+or individually using a `dict[DirectedEdge, float]`. This `float` specifies the position on
+the line segment given by the edges. The missing edges labels are automatically
+centered on the edge. A full list of the optional plotting parameters can be found in
+the API reference: {meth}`~.Graph.plot`. 
+
+```{code-cell} ipython3
+F = frameworks.Frustum(3)
+F.plot(
+    inf_flex=0,
+    stress=0,
+    stress_color = "orangered",
+    stress_fontsize = 11,
+    stress_label_pos = {(3,5): 0.6, (3,4):0.4, (4,5):0.4},
+    stress_rotate_labels = False
+)
+```
+
+## Plotting in 3 Dimensions
 
 Plotting in 3 dimensions is also possible. The plot can be made interactive by using cell magic:
 
@@ -235,7 +293,8 @@ Plotting in 3 dimensions is also possible. The plot can be made interactive by u
 ```
 
 Using the keyword `equal_aspect_ratio`, we can decide whether we want to stretch the plot to fix the cubic box size (`False`)
-or whether deforming the framework should be avoided beyond affine transformations (`True`). All the other parameters that can be used for {meth}`~.Framework.plot2D` can also be used here.
+or whether deforming the framework should be avoided beyond affine transformations (`True`).
+All the other parameters that can be used for {meth}`~.Framework.plot2D` can also be used here.
 
 ```{code-cell} ipython3
 F = frameworks.Complete(4, dim=3)

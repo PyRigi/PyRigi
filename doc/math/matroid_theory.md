@@ -16,6 +16,10 @@ A subset of the ground set $E$ that is not independent is called _dependent_. A 
 is called a _basis_ for the matroid.
 A _circuit_ is a minimal dependent subset of $E$
 – that is, a dependent set whose proper subsets are all independent.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_Rd_independent`
+{meth}`~.Graph.is_Rd_dependent`
+{meth}`~.Graph.is_Rd_circuit`
 :::
 
 
@@ -31,7 +35,9 @@ The rank function has the following properties:
 * any two subsets $A,B\subset E$, $r(A\cap B) + r(A\cup B) \leq r(A)+r(B)$; and
 * any $A\subset E$ and any $x\notin A$, $r(A) \leq r(A\cup \{x\}) \leq r(A)+1$.
 
-For $A\subset E$, the _closure_ of $A$ is the set $\textrm{cl}(A)=\{x\in E: r(A)=r(A\cup \{x\}) \}$.
+For $A\subset E$, the _closure_ of $A$ is the set $\textrm{cl}(A)=\{x\in E: r(A)=r(A\cup \{x\}) \}$. We call $A\subset E$ _closed_ if $A = \textrm{cl}(A)$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_Rd_closed`
 :::
 
 

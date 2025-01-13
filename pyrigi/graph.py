@@ -11,14 +11,22 @@ from typing import Iterable
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from sympy import Matrix, oo, zeros
+from sympy import Matrix, oo, zeros, sympify
 import numpy as np
 
 import math
 import distinctipy
 from random import randint
 
-from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence, Coordinate
+from pyrigi.data_type import (
+    Vertex,
+    Edge,
+    Point,
+    Inf,
+    Sequence,
+    Coordinate,
+    DirectedEdge,
+)
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
@@ -310,9 +318,14 @@ class Graph(nx.Graph):
             return list(self.nodes)
 
     @doc_category("Attribute getters")
-    def edge_list(self) -> list[Edge]:
+    def edge_list(self, as_tuples: bool = False) -> list[Edge]:
         """
         Return the list of edges.
+
+        Parameters
+        ----------
+        as_tuples:
+            If ``True``, all edges are returned as tuples.
 
         Notes
         -----
@@ -338,9 +351,15 @@ class Graph(nx.Graph):
         [('c', 1), (2, 'a')]
         """
         try:
-            return sorted([sorted(e) for e in self.edges])
+            if as_tuples:
+                return sorted([tuple(sorted(e)) for e in self.edges])
+            else:
+                return sorted([sorted(e) for e in self.edges])
         except BaseException:
-            return list(self.edges)
+            if as_tuples:
+                return [tuple(e) for e in self.edges]
+            else:
+                return list(self.edges)
 
     @doc_category("Graph manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -1353,11 +1372,11 @@ class Graph(nx.Graph):
 
         # in all other cases check by definition
         G = deepcopy(self)
-        for edge in self.edge_list():
-            G.delete_edges([edge])
+        for e in self.edges:
+            G.delete_edge(e)
             if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
                 return False
-            G.add_edges([edge])
+            G.add_edge(*e)
         return True
 
     @doc_category("Generic rigidity")
@@ -1590,11 +1609,11 @@ class Graph(nx.Graph):
 
         # in all other cases check by definition
         G = deepcopy(self)
-        for edge in self.edge_list():
-            G.delete_edges([edge])
+        for e in self.edge_list():
+            G.delete_edge(e)
             if G.is_k_redundantly_rigid(k, dim, combinatorial, prob):
                 return False
-            G.add_edges([edge])
+            G.add_edge(*e)
         return True
 
     @doc_category("Generic rigidity")
@@ -1867,12 +1886,28 @@ class Graph(nx.Graph):
                     "There must be at least one stress but none was found."
                 )
 
-    @doc_category("Partially implemented")
+    @doc_category("Rigidity Matroid")
     def is_Rd_dependent(
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is dependent in the d-rigidity matroid.
+        Return whether the edge set is dependent in the generic dim-rigidity matroid.
+
+        Definitions
+        ---------
+        * :prf:ref:`Dependence <def-matroid>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
+        use_precomputed_pebble_digraph:
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         Notes
         -----
@@ -1880,34 +1915,33 @@ class Graph(nx.Graph):
          * dim=2: not (2,3)-sparse
          * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
 
-        use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2``.
-            If ``True``, the pebble digraph present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-
-        TODO
-        -----
-         Add unit tests
+        Examples
+        --------
+        >>> from pyrigi import graphDB
+        >>> G = graphDB.K33plusEdge()
+        >>> G.is_Rd_dependent()
+        True
         """
         return not self.is_Rd_independent(
             dim, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
         )
 
-    @doc_category("Partially implemented")
+    @doc_category("Rigidity Matroid")
     def is_Rd_independent(
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is independent in the d-rigidity matroid.
+        Return whether the edge set is independent in the generic dim-rigidity matroid.
 
-        Notes
-        -----
-         * dim=1: Graphic Matroid
-         * dim=2: (2,3)-sparse
-         * dim>=1: Compute the rank of the rigidity matrix and compare with edge count
+        Definitions
+        ---------
+        * :prf:ref:`Circuit <def-matroid>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
 
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2``.
             If ``True``, the pebble digraph present in the cache is used.
@@ -1915,9 +1949,24 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
 
+        Notes
+        -----
+         * dim=1: Graphic Matroid
+         * dim=2: (2,3)-sparse
+         * dim>=3: A set of edges forms an independent set in the
+         rigidity matroid if and only if it has no self-stress, as this
+         means that there are no linear relations between the rows of
+         the rigidity matrix. This is tested on a random framework.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
+        >>> G.is_Rd_independent()
+        True
+
         TODO
         -----
-         Add unit tests
+         This function uses a randomized algorithm
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1926,21 +1975,38 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
-            return len(self.cycle_basis()) == 0
+            return len(nx.cycle_basis(self)) == 0
 
         if dim == 2:
             self.is_sparse(
                 2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
 
-        raise NotImplementedError()
+        F = self.random_framework(dim=dim)
+        return len(F.stresses()) == 0
 
-    @doc_category("Partially implemented")
+    @doc_category("Rigidity Matroid")
     def is_Rd_circuit(
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is a circuit in the d-rigidity matroid.
+        Return whether the edge set is a circuit in the generic dim-rigidity matroid.
+
+        Definitions
+        ---------
+        * :prf:ref:`Circuit <def-matroid>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
+        use_precomputed_pebble_digraph:
+            Only relevant if ``dim=2``.
+            If ``True``, the pebble digraph present in the cache is used.
+            If ``False``, recompute the pebble digraph.
+            Use ``True`` only if you are certain that the pebble game digraph
+            is consistent with the graph.
 
         Notes
         -----
@@ -1948,19 +2014,17 @@ class Graph(nx.Graph):
          * dim=2: It is not sparse, but remove any edge and it becomes sparse
                   Fundamental circuit is the whole graph
          * Not combinatorially:
-         * dim>=1: Dependent + Remove every edge and compute the rigidity matrix' rank
+         * dim>=3: Dependent + Remove every edge and compute the rigidity matrix' rank
 
-         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2``.
-            If ``True``, the pebble digraph present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-
-        TODO
-        -----
-         Add unit tests,
-         make computation of ``remaining_edge`` more robust
+        Examples
+        --------
+        >>> from pyrigi import graphDB
+        >>> G = graphDB.K33plusEdge()
+        >>> G.is_Rd_circuit()
+        True
+        >>> G.add_edge(1,2)
+        >>> G.is_Rd_circuit()
+        False
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -1989,33 +2053,62 @@ class Graph(nx.Graph):
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
                 return False
 
-            remaining_edge = list(set(self.edges()) - set(max_sparse_subgraph.edges()))
-            if len(remaining_edge) != 1:
+            remaining_edges = [
+                e for e in self.edges() if not max_sparse_subgraph.has_edge(*e)
+            ]
+            if len(remaining_edges) != 1:
                 # this should not happen
                 raise RuntimeError
 
             return (
                 len(
                     self._pebble_digraph.fundamental_circuit(
-                        u=remaining_edge[0][0],
-                        v=remaining_edge[0][1],
+                        u=remaining_edges[0][0],
+                        v=remaining_edges[0][1],
                     )
                 )
                 == self.number_of_nodes()
             )
 
-        raise NotImplementedError()
+        if not self.is_Rd_dependent(dim=dim):
+            return False
+        G = deepcopy(self)
+        for e in G.edges:
+            G.delete_edge(e)
+            if not G.is_Rd_independent(dim=dim):
+                return False
+            G.add_edge(*e)
+        return True
 
-    @doc_category("Waiting for implementation")
-    def is_Rd_closed(self, dim: int = 2) -> bool:
+    @doc_category("Rigidity Matroid")
+    def is_Rd_closed(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
-        Checks whether the graph's edge set is closed in the d-rigidity matroid.
+        Return whether the edge set is closed in the generic dim-rigidity matroid.
 
-        Notes
-        -----
-         * dim=1: Graphic Matroid
-         * dim=2: ??
-         * dim>=1: Adding any edge does not increase the rigidity matrix rank
+        Definitions
+        -----------
+        * :prf:ref:`Rd-closed <def-rank-function-closure>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
+        combinatorial:
+            If ``True``, each rigid component computed using
+            :meth:`~.Graph.rigid_components(combinatorial=True) is checked to be complete.
+            Otherwise, the closure is computed using randomized
+            :meth:`~.Graph.is_rigid(combinatorial=False)`.
+
+        TODO
+        ----
+        The check for dim>=3 uses a `random_framework`.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1),(1,2),(0,2),(3,4)])
+        >>> G.is_Rd_closed(dim=1)
+        True
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -2023,16 +2116,58 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        raise NotImplementedError()
+
+        if combinatorial:
+            if dim <= 1:
+                if all(
+                    [
+                        nx.subgraph(self, comp).is_isomorphic(
+                            nx.complete_graph(len(comp))
+                        )
+                        for comp in self.rigid_components(dim=dim)
+                    ]
+                ):
+                    return True
+                return False
+
+            raise ValueError(
+                f"The dimension for combinatorial computation must be 1, "
+                f"but is {dim}"
+            )
+
+        else:
+            F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
+            G = deepcopy(self)
+            for e in combinations(self.vertex_list(), 2):
+                if G.has_edge(*e):
+                    continue
+                G.add_edge(*e)
+                F1 = G.random_framework(dim=dim)
+                if F_rank == F1.rigidity_matrix_rank():
+                    return False
+                G.remove_edge(*e)
+            return True
 
     @doc_category("Generic rigidity")
-    def rigid_components(self, dim: int = 2) -> Sequence[Sequence[Vertex]]:
+    def rigid_components(
+        self, dim: int = 2, combinatorial: bool = True
+    ) -> list[list[Vertex]]:
         """
         List the vertex sets inducing vertex-maximal rigid subgraphs.
 
         Definitions
         -----
         :prf:ref:`Rigid components <def-rigid-components>`
+
+        Parameters
+        ---------
+        dim:
+            The dimension that is used for the rigidity check.
+        combinatorial:
+            Boolean determining whether a combinatorial algorithm shall be used:
+            connectivity for ``dim=1`` and pebble games for ``dim=2`` (TODO).
+            If ``combinatorial`` is ``False``, all subraphs
+            are checked using :meth:`~.Graph.is_rigid(combinatorial=False)`.
 
         Notes
         -----
@@ -2043,14 +2178,19 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.rigid_components()
+        >>> G.rigid_components(combinatorial=False)
         [[0, 1], [0, 3], [1, 2], [2, 3]]
 
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
         >>> G.is_rigid()
         False
-        >>> G.rigid_components()
+        >>> G.rigid_components(combinatorial=False)
         [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
+
+        TODO
+        ----
+        Implement using pebble games for dim=2 and adjust the docstring, tests
+        and :meth:`~.Graph.is_Rd_closed` with its tests accordingly.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -2059,30 +2199,44 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        if combinatorial and dim == 1:
+            return [list(comp) for comp in nx.connected_components(self)]
+
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
-                res += self.subgraph(comp).rigid_components(dim)
+                res += self.subgraph(comp).rigid_components(
+                    dim, combinatorial=combinatorial
+                )
             return res
 
-        if self.is_rigid(dim, combinatorial=(dim < 3)):
-            return [list(self)]
-        rigid_subgraphs = {
-            tuple(vertex_subset): True
-            for r in range(2, self.number_of_nodes() - 1)
-            for vertex_subset in combinations(self.nodes, r)
-            if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
-        }
+        if combinatorial:
+            # here will be the implementation using pebble games for dim=2
+            raise ValueError(
+                f"The dimension for combinatorial computation must be 1, "
+                f"but is {dim}"
+            )
 
-        sorted_rigid_subgraphs = sorted(
-            rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True
-        )
-        for i, H1 in enumerate(sorted_rigid_subgraphs):
-            if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
-                for H2 in sorted_rigid_subgraphs[i + 1 :]:
-                    if set(H2).issubset(set(H1)):
-                        rigid_subgraphs[H2] = False
-        return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
+        else:
+            if self.is_rigid(dim, combinatorial=False):
+                return [list(self)]
+
+            rigid_subgraphs = {
+                tuple(vertex_subset): True
+                for r in range(2, self.number_of_nodes() - 1)
+                for vertex_subset in combinations(self.nodes, r)
+                if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=False)
+            }
+
+            sorted_rigid_subgraphs = sorted(
+                rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True
+            )
+            for i, H1 in enumerate(sorted_rigid_subgraphs):
+                if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
+                    for H2 in sorted_rigid_subgraphs[i + 1 :]:
+                        if set(H2).issubset(set(H1)):
+                            rigid_subgraphs[H2] = False
+            return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
 
     @doc_category("Generic rigidity")
     def max_rigid_dimension(self) -> int | Inf:
@@ -2678,10 +2832,11 @@ class Graph(nx.Graph):
             raise ValueError(f"layout_type {layout_type} is not supported.")
 
     @doc_category("Other")
-    def plot(
+    def plot(  # noqa: C901
         self,
         placement: dict[Vertex, Point] = None,
         inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        stress: dict[Edge, Coordinate] = None,
         layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4169E1",
@@ -2699,10 +2854,18 @@ class Graph(nx.Graph):
         ) = "limegreen",
         flex_style: str = "solid",
         flex_arrowsize: int = 20,
+        stress_color: str = "orangered",
+        stress_fontsize: int = 10,
+        stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
+        stress_rotate_labels: bool = True,
+        stress_normalization: bool = False,
+        font_size: int = 12,
         font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
         aspect_ratio: float = 1.0,
+        curved_edges: bool = False,
+        connection_style: float | Sequence[float] | dict[Edge, float] = math.pi / 6,
         **kwargs,
     ) -> None:
         """
@@ -2756,6 +2919,21 @@ class Graph(nx.Graph):
             diagonal in percent. By default 15%.
         flex_arrowsize:
             Size of the arrowhead's length and width.
+        stress_color:
+            Color of the font used to label the edges with stresses.
+        stress_fontsize:
+            Fontsize of the stress labels.
+        stress_label_pos:
+            Position of the stress label along the edge. `float` numbers
+            from the interval `[0,1]` are allowed. `0` represents the head
+            of the edge, `0.5` the center and `1` the edge's tail. The position
+            can either be specified for all edges equally or as a
+            `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
+        stress_rotate_labels:
+            A boolean indicating whether the stress label should be rotated.
+        stress_normalization:
+            A boolean indicating whether the stress values should be turned into
+            floating point numbers. If ``True``, the stress is automatically normalized.
         font_size:
             The size of the font used for the labels.
         font_color:
@@ -2766,6 +2944,18 @@ class Graph(nx.Graph):
             The height of the canvas in inches.
         aspect_ratio:
             The ratio of y-unit to x-unit. By default 1.0.
+        curved_edges:
+            If the edges are too close to each other, we can decide to
+            visualize them as arcs.
+        connection_style:
+            In case of curvilinear plotting (``curved_edges=True``), the edges
+            are displayed as arcs. With this parameter, we can set the
+            pitch of these arcs and it is in radians. It can either be
+            specified for each arc (``connection_style=0.5``) or individually
+            as a ``list`` and ``dict``
+            (``connection_style={(0,1):0.5, (1,2):-0.5}``). It is possible to
+            provide fewer edges when the input is a ``dict``; the remaining
+            edges are padded with zeros in that case.
         """
 
         fig, ax = plt.subplots()
@@ -2778,21 +2968,107 @@ class Graph(nx.Graph):
         if placement is None:
             placement = self.layout(layout)
 
-        nx.draw(
-            self,
-            pos=placement,
-            ax=ax,
-            node_size=vertex_size,
-            node_color=vertex_color,
-            node_shape=vertex_shape,
-            with_labels=vertex_labels,
-            width=edge_width,
-            edge_color=edge_color_array,
-            font_color=font_color,
-            edgelist=edge_list_ref,
-            style=edge_style,
-            **kwargs,
-        )
+        if not curved_edges:
+            nx.draw(
+                self,
+                pos=placement,
+                ax=ax,
+                node_size=vertex_size,
+                node_color=vertex_color,
+                node_shape=vertex_shape,
+                with_labels=vertex_labels,
+                width=edge_width,
+                edge_color=edge_color_array,
+                font_color=font_color,
+                font_size=font_size,
+                edgelist=edge_list_ref,
+                style=edge_style,
+                **kwargs,
+            )
+        else:
+            newGraph = nx.MultiDiGraph()
+            if isinstance(connection_style, float):
+                connection_style = {
+                    e: connection_style for e in self.edge_list(as_tuples=True)
+                }
+            elif isinstance(connection_style, list):
+                if not self.number_of_edges() == len(connection_style):
+                    raise AttributeError(
+                        "The provided `connection_style` doesn't have the correct length."
+                    )
+                connection_style = {
+                    e: style
+                    for e, style in zip(
+                        self.edge_list(as_tuples=True), connection_style
+                    )
+                }
+            elif isinstance(connection_style, dict):
+                if (
+                    not all(
+                        [
+                            isinstance(e, tuple)
+                            and len(e) == 2
+                            and isinstance(v, float | int)
+                            for e, v in connection_style.items()
+                        ]
+                    )
+                    or not all(
+                        [
+                            set(key) in [set([e[0], e[1]]) for e in self.edge_list()]
+                            for key in connection_style.keys()
+                        ]
+                    )
+                    or any(
+                        [set(key) for key in connection_style.keys()].count(e) > 1
+                        for e in [set(key) for key in connection_style.keys()]
+                    )
+                ):
+                    raise AttributeError(
+                        "The provided `connection_style` contains different edges "
+                        + "than the underlying graph or has an incorrect format."
+                    )
+                connection_style = {
+                    e: 0
+                    for e in self.edge_list(as_tuples=True)
+                    if not (
+                        e in connection_style.keys()
+                        or tuple([e[1], e[0]]) in connection_style.keys()
+                    )
+                } | {
+                    (tuple(e) if e in self.edge_list() else tuple([e[1], e[0]])): style
+                    for e, style in connection_style.items()
+                }
+            else:
+                raise TypeError(
+                    "The provided `connection_style` does not have the appropriate type."
+                )
+
+            for e, style in connection_style.items():
+                newGraph.add_edge(e[0], e[1], weight=style)
+            plt.box(False)  # Manually removes the frame of the plot
+            nx.draw_networkx_nodes(
+                newGraph,
+                placement,
+                ax=ax,
+                node_size=vertex_size,
+                node_color=vertex_color,
+                node_shape=vertex_shape,
+            )
+            nx.draw_networkx_labels(
+                newGraph, placement, ax=ax, font_color=font_color, font_size=font_size
+            )
+            for edge in newGraph.edges(data=True):
+                nx.draw_networkx_edges(
+                    newGraph,
+                    placement,
+                    ax=ax,
+                    width=edge_width,
+                    edge_color=edge_color_array,
+                    arrows=True,
+                    arrowstyle="-",
+                    edgelist=[(edge[0], edge[1])],
+                    connectionstyle=f"Arc3, rad = {edge[2]['weight']}",
+                )
 
         if inf_flex is not None:
             magnidutes = []
@@ -2842,7 +3118,16 @@ class Graph(nx.Graph):
             H_placement.update(
                 {v: np.array(placement[v], dtype=float) for v in inf_flex.keys()}
             )
-
+            if (
+                not isinstance(flex_color, str | list)
+                or isinstance(flex_color, list)
+                and not len(flex_color) == len(inf_flex)
+            ):
+                raise TypeError(
+                    "`flex_color` must either be a `str` specifying"
+                    + "a color or a list of strings with the same"
+                    + "number as the nonzero flexes."
+                )
             nx.draw(
                 H,
                 pos=H_placement,
@@ -2856,6 +3141,47 @@ class Graph(nx.Graph):
                 style=flex_style,
                 **kwargs,
             )
+
+        if stress is not None:
+            if stress_normalization:
+                numerical_stress = {
+                    edge: float(sympify(w).evalf(10)) for edge, w in stress.items()
+                }
+                _stress = {
+                    edge: round(w / np.linalg.norm(list(numerical_stress.values())), 2)
+                    for edge, w in numerical_stress.items()
+                }
+            else:
+                _stress = stress
+            if isinstance(stress_label_pos, dict):
+                if not all([self.has_edge(*e) for e in stress_label_pos.keys()]):
+                    raise ValueError(
+                        "The `stress_label_pos` dictionary must contain the same "
+                        + "edges as the stress dictionary."
+                    )
+                for edge in self.edge_list(as_tuples=True):
+                    stress_keys = [set(e) for e in stress_label_pos.keys()]
+                    if set(edge) not in stress_keys:
+                        stress_label_pos[edge] = 0.5
+            elif isinstance(stress_label_pos, float):
+                label_float = stress_label_pos
+                stress_label_pos = {}
+                for edge in self.edge_list(as_tuples=True):
+                    stress_label_pos[edge] = label_float
+            else:
+                raise TypeError(
+                    "`stress_label_pos` must be either a float or a dictionary."
+                )
+            for edge in self.edges:
+                nx.draw_networkx_edge_labels(
+                    self,
+                    pos=placement,
+                    edge_labels={edge: _stress[edge]},
+                    font_color=stress_color,
+                    font_size=stress_fontsize,
+                    label_pos=stress_label_pos[edge],
+                    rotate=stress_rotate_labels,
+                )
 
         plt.show()
 
@@ -2872,6 +3198,7 @@ Graph.__doc__ = Graph.__doc__.replace(
             "General graph theoretical properties",
             "Generic rigidity",
             "Sparseness",
+            "Rigidity Matroid",
             "Other",
             "Waiting for implementation",
         ],
