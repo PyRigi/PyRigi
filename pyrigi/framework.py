@@ -311,10 +311,6 @@ class Framework(object):
         inf_flex:
             Optional parameter for plotting an infinitesimal flex. We expect
             it to have the same format as `realization`: `dict[Vertex, Point]`.
-
-        TODO
-        ----
-        Add the option `equal_aspect_ratio` to the parameters.
         """
 
         self._graph.plot(
