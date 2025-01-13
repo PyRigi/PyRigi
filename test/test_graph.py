@@ -1586,8 +1586,8 @@ def test_not_Rd_circuit_d3(graph):
         graphs.ThreePrism(),
         graphs.ThreePrismPlusEdge(),
         graphs.CompleteBipartite(2, 3),
-    ] +
-    [graphs.Cycle(n) for n in range(3, 7)],
+    ]
+    + [graphs.Cycle(n) for n in range(3, 7)],
 )
 def test_Rd_dependent_d1(graph):
     assert graph.is_Rd_dependent(dim=1)
@@ -1656,7 +1656,6 @@ def test_Rd_dependent_d3(graph):
 )
 def test_Rd_independent_d3(graph):
     assert graph.is_Rd_independent(dim=3)
-
 
 
 @pytest.mark.parametrize(
