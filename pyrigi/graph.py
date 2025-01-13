@@ -11,7 +11,7 @@ from typing import Iterable
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from sympy import Matrix, oo, zeros
+from sympy import Matrix, oo, zeros, sympify
 import numpy as np
 
 import math
@@ -2704,6 +2704,7 @@ class Graph(nx.Graph):
         stress_fontsize: int = 10,
         stress_label_pos: float = 0.35,
         stress_rotate_labels: bool = True,
+        stress_normalization: bool = False,
         font_size: int = 12,
         font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
@@ -2774,6 +2775,9 @@ class Graph(nx.Graph):
             of the edge, `0.5` the center and `1` the edge's tail.
         stress_rotate_labels:
             A boolean indicating whether the stress label should be rotated.
+        stress_normalization:
+            A boolean indicating whether the stress values should be turned into
+            floating point numbers. The stress is automatically normalized.
         font_size:
             The size of the font used for the labels.
         font_color:
@@ -2982,10 +2986,20 @@ class Graph(nx.Graph):
             )
 
         if stress is not None:
+            if stress_normalization:
+                numerical_stress = {
+                    edge: float(sympify(w).evalf(10)) for edge, w in stress.items()
+                }
+                _stress = {
+                    edge: round(w / np.linalg.norm(list(numerical_stress.values())), 2)
+                    for edge, w in numerical_stress.items()
+                }
+            else:
+                _stress = stress
             nx.draw_networkx_edge_labels(
                 self,
                 pos=placement,
-                edge_labels=stress,
+                edge_labels=_stress,
                 font_color=stress_color,
                 font_size=stress_fontsize,
                 label_pos=stress_label_pos,
