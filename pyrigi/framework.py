@@ -682,33 +682,30 @@ class Framework(object):
         """
         Plot the provided framework in 3D.
 
-        Notes
-        -----
-        If this framework is in dimensions higher than 3 and projection_matrix
-        with coordinates are None a random projection matrix
+        If the framework is in a dimension higher than 3 and ``projection_matrix``
+        with ``coordinates`` are ``None``, a random projection matrix
         containing three orthonormal vectors is generated and used for projection into 3D.
         This particular matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
         Only the parameter `coordinates` or `projection_matrix` can be used,
-        not both at the same time!
+        not both at the same time.
 
         Parameters
         ----------
         projection_matrix:
-            The matrix used for projecting the placement of vertices
-            only when they are in dimension higher than 3.
-            The matrix must have dimensions (3, dim),
-            where dim is the dimension of the currect placements of vertices.
-            If None, a random projection matrix is generated.
+            The matrix used for projecting the realization of vertices
+            when the dimension is higher than 3.
+            The matrix must have dimensions ``(3, dim)``,
+            where ``dim`` is the dimension of the framework.
+            If ``None``, a random projection matrix is generated.
         random_seed:
-            The random seed used for generating the projection matrix.
-            When the same value is provided, the framework will plot exactly same.
+            The seed used for generating a random projection matrix.
         coordinates:
-            Indexes of three coordinates that will be used as the placement in 3D.
+            Indices of three coordinates to which the framework is projected.
         return_matrix:
-            If `True` the matrix used for projection into 3D is returned.
+            If ``True``, the matrix used for projection into 3D is returned.
         animation:
-            If `True` the plot is a rotating figure.
+            If ``True``, the plot is a rotating figure.
 
         TODO
         -----
@@ -738,8 +735,8 @@ class Framework(object):
                 or len(coordinates) != 3
             ):
                 raise ValueError(
-                    "coordinates must have length 3!"
-                    + " Exactly Three coordinates are necessary for plotting in 3D."
+                    "The parameter `coordinates` must have length 3!"
+                    + " Exactly three coordinates are necessary for plotting in 3D."
                 )
             if np.max(coordinates) >= self._dim:
                 raise ValueError(
