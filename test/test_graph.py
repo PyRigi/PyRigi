@@ -916,7 +916,7 @@ def test_rigid_components():
     ]
 
     G = graphs.Path(5)
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert sorted([sorted(H) for H in rigid_components]) == [
         [0, 1],
         [1, 2],
@@ -940,7 +940,7 @@ def test_rigid_components():
             ("a", "b"),
         ]
     )
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert [set(H) for H in rigid_components] == [
         set([0, "a", "b"]),
         set([0, 1, 2, 3, 4, 5]),
@@ -950,7 +950,7 @@ def test_rigid_components():
     ]
 
     G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert [set(H) for H in rigid_components] == [
         set([0, 1, 2]),
         set([3, 4, 5]),
@@ -961,18 +961,18 @@ def test_rigid_components():
 
     G = graphs.Complete(3)
     G.add_vertex(3)
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert [set(H) for H in rigid_components] == [set([0, 1, 2]), set([3])] or [
         set(H) for H in rigid_components
     ] == [set([3]), set([0, 1, 2])]
 
     G = graphs.ThreePrism()
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
 
     G = graphs.ThreeConnectedR3Circuit()
     G.remove_node(0)
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert sorted([sorted(H) for H in rigid_components]) == [
         [1, 2, 3, 4],
         [1, 10, 11, 12],
@@ -1539,7 +1539,11 @@ def test_not_Rd_circuit_d2(graph):
     ],
 )
 def test_is_Rd_closed(graph, dim):
-    assert graph.is_Rd_closed(dim=dim)
+    if dim <= 1:
+        assert graph.is_Rd_closed(dim=dim, combinatorial=True)
+        assert graph.is_Rd_closed(dim=dim, combinatorial=False)
+    else:
+        assert graph.is_Rd_closed(dim=dim, combinatorial=False)
 
 
 @pytest.mark.parametrize(
@@ -1553,7 +1557,11 @@ def test_is_Rd_closed(graph, dim):
     ],
 )
 def test_is_not_Rd_closed(graph, dim):
-    assert not graph.is_Rd_closed(dim=dim)
+    if dim <= 1:
+        assert not graph.is_Rd_closed(dim=dim, combinatorial=True)
+        assert not graph.is_Rd_closed(dim=dim, combinatorial=False)
+    else:
+        assert not graph.is_Rd_closed(dim=dim, combinatorial=False)
 
 
 @pytest.mark.parametrize(
