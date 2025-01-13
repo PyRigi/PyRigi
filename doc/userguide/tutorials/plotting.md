@@ -224,3 +224,33 @@ F = frameworks.Square()
 flex = {0: (1, -1), 1: (1, 1), 2: (-1, 1), 3: (-1, -1)}
 F.plot(inf_flex=flex)
 ```
+
+## Plotting in 3 Dimensions
+
+
+Plotting in 3 dimensions is also possible. The plot can be made interactive by using cell magic:
+
+```{code-cell} ipython3
+%matplotlib widget
+```
+
+Using the keyword `equal_aspect_ratio`, we can decide whether we want to stretch the plot to fix the cubic box size (`False`)
+or whether deforming the framework should be avoided beyond affine transformations (`True`).
+All the other parameters that can be used for `Framework.plot2D` can also be used here.
+
+```{code-cell} ipython3
+F = frameworks.Complete(4, dim=3)
+F.plot3D(equal_aspect_ratio=True)
+```
+
+In addition, it is possible to animate a rotation sequence around a specified axis:
+
+```{code-cell} ipython3
+G = graphs.DoubleBanana()
+F = Framework(G, realization={0:(0,0,0), 1:(0,0,1), 2:(1.25,1,0.5), 3:(1.25,-1,0.5), 4:(3,0,0.5), 
+                              5:(-1.25,-1,0.5), 6:(-1.2,1,0.5), 7:(-3,0,0.5)})
+F.plot3D(animation=True, rotation_axis=[0,0,1], equal_aspect_ratio=False)
+```
+
+We can return to the usual inline mode using the command `%matplotlib inline`. Note that triggering this command after using `%matplotlib widget`
+may cause the jupyter notebook to render additional pictures. If this behavior is undesirable, we suggest reevaluating the affected cells.
