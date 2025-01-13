@@ -33,7 +33,7 @@ from sympy import Matrix, pi, sqrt, sympify
         fws.ThreePrismPlusEdge(),
         fws.Complete(3, dim=3),
         fws.Complete(4, dim=3),
-        fws.Octahedron()
+        fws.Octahedron(),
     ]
     + [fws.Complete(2, dim=n) for n in range(1, 10)]
     + [fws.Complete(3, dim=n) for n in range(1, 10)]
@@ -77,7 +77,8 @@ def test_check_vertex_and_edge_order():
         fws.Path(4, dim=3),
         fws.Frustum(3),
         fws.Cube(),
-        fws.BricardsOctahedron()
+        fws.Octahedron(realization="Bricard_line"),
+        fws.Octahedron(realization="Bricard_plane"),
     ]
     + [fws.Cycle(n - 1, dim=n) for n in range(5, 10)]
     + [fws.Cycle(n, dim=n) for n in range(4, 10)]
@@ -100,7 +101,7 @@ def test_not_inf_rigid(framework):
         fws.ThreePrism(),
         fws.Complete(3, dim=3),
         fws.Complete(4, dim=3),
-        fws.Octahedron()
+        fws.Octahedron(),
     ]
     + [fws.Complete(2, dim=n) for n in range(1, 7)]
     + [fws.Complete(3, dim=n) for n in range(2, 7)]
@@ -139,7 +140,8 @@ def test_inf_min_rigid(framework):
         fws.Path(3, dim=3),
         fws.Path(4, dim=3),
         fws.Cube(),
-        fws.BricardsOctahedron()
+        fws.Octahedron(realization="Bricard_line"),
+        fws.Octahedron(realization="Bricard_plane"),
     ]
     + [fws.Cycle(n - 1, dim=n) for n in range(5, 7)]
     + [fws.Cycle(n, dim=n) for n in range(4, 7)]
