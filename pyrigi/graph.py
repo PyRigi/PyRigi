@@ -1872,8 +1872,7 @@ class Graph(nx.Graph):
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is dependent in the generic
-        d-rigidity matroid.
+        Return whether the edge set is dependent in the generic dim-rigidity matroid.
 
         Definitions
         ---------
@@ -1913,8 +1912,7 @@ class Graph(nx.Graph):
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is independent in the generic
-        d-rigidity matroid.
+        Return whether the edge set is independent in the generic dim-rigidity matroid.
 
         Definitions
         ---------
@@ -1973,8 +1971,7 @@ class Graph(nx.Graph):
         self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
         """
-        Checks whether the graph's edge set is a circuit in the generic
-        d-rigidity matroid.
+        Return whether the edge set is a circuit in the generic dim-rigidity matroid.
 
         Definitions
         ---------
@@ -2068,7 +2065,7 @@ class Graph(nx.Graph):
     @doc_category("Waiting for implementation")
     def is_Rd_closed(self, dim: int = 2) -> bool:
         """
-        Checks whether the graph's edge set is closed in the d-rigidity matroid.
+        Return whether the edge set is closed in the generic dim-rigidity matroid.
 
         Notes
         -----
