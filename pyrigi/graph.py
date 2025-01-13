@@ -11,14 +11,22 @@ from typing import Iterable
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from sympy import Matrix, oo, zeros
+from sympy import Matrix, oo, zeros, sympify
 import numpy as np
 
 import math
 import distinctipy
 from random import randint
 
-from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence, Coordinate
+from pyrigi.data_type import (
+    Vertex,
+    Edge,
+    Point,
+    Inf,
+    Sequence,
+    Coordinate,
+    DirectedEdge,
+)
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError
 import pyrigi._pebble_digraph
@@ -310,9 +318,14 @@ class Graph(nx.Graph):
             return list(self.nodes)
 
     @doc_category("Attribute getters")
-    def edge_list(self) -> list[Edge]:
+    def edge_list(self, as_tuples: bool = False) -> list[Edge]:
         """
         Return the list of edges.
+
+        Parameters
+        ----------
+        as_tuples:
+            If ``True``, all edges are returned as tuples.
 
         Notes
         -----
@@ -338,9 +351,15 @@ class Graph(nx.Graph):
         [('c', 1), (2, 'a')]
         """
         try:
-            return sorted([sorted(e) for e in self.edges])
+            if as_tuples:
+                return sorted([tuple(sorted(e)) for e in self.edges])
+            else:
+                return sorted([sorted(e) for e in self.edges])
         except BaseException:
-            return list(self.edges)
+            if as_tuples:
+                return [tuple(e) for e in self.edges]
+            else:
+                return list(self.edges)
 
     @doc_category("Graph manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -2813,10 +2832,11 @@ class Graph(nx.Graph):
             raise ValueError(f"layout_type {layout_type} is not supported.")
 
     @doc_category("Other")
-    def plot(
+    def plot(  # noqa: C901
         self,
         placement: dict[Vertex, Point] = None,
         inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        stress: dict[Edge, Coordinate] = None,
         layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4169E1",
@@ -2834,10 +2854,18 @@ class Graph(nx.Graph):
         ) = "limegreen",
         flex_style: str = "solid",
         flex_arrowsize: int = 20,
+        stress_color: str = "orangered",
+        stress_fontsize: int = 10,
+        stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
+        stress_rotate_labels: bool = True,
+        stress_normalization: bool = False,
+        font_size: int = 12,
         font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
         aspect_ratio: float = 1.0,
+        curved_edges: bool = False,
+        connection_style: float | Sequence[float] | dict[Edge, float] = math.pi / 6,
         **kwargs,
     ) -> None:
         """
@@ -2891,6 +2919,21 @@ class Graph(nx.Graph):
             diagonal in percent. By default 15%.
         flex_arrowsize:
             Size of the arrowhead's length and width.
+        stress_color:
+            Color of the font used to label the edges with stresses.
+        stress_fontsize:
+            Fontsize of the stress labels.
+        stress_label_pos:
+            Position of the stress label along the edge. `float` numbers
+            from the interval `[0,1]` are allowed. `0` represents the head
+            of the edge, `0.5` the center and `1` the edge's tail. The position
+            can either be specified for all edges equally or as a
+            `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
+        stress_rotate_labels:
+            A boolean indicating whether the stress label should be rotated.
+        stress_normalization:
+            A boolean indicating whether the stress values should be turned into
+            floating point numbers. If ``True``, the stress is automatically normalized.
         font_size:
             The size of the font used for the labels.
         font_color:
@@ -2901,6 +2944,18 @@ class Graph(nx.Graph):
             The height of the canvas in inches.
         aspect_ratio:
             The ratio of y-unit to x-unit. By default 1.0.
+        curved_edges:
+            If the edges are too close to each other, we can decide to
+            visualize them as arcs.
+        connection_style:
+            In case of curvilinear plotting (``curved_edges=True``), the edges
+            are displayed as arcs. With this parameter, we can set the
+            pitch of these arcs and it is in radians. It can either be
+            specified for each arc (``connection_style=0.5``) or individually
+            as a ``list`` and ``dict``
+            (``connection_style={(0,1):0.5, (1,2):-0.5}``). It is possible to
+            provide fewer edges when the input is a ``dict``; the remaining
+            edges are padded with zeros in that case.
         """
 
         fig, ax = plt.subplots()
@@ -2913,21 +2968,107 @@ class Graph(nx.Graph):
         if placement is None:
             placement = self.layout(layout)
 
-        nx.draw(
-            self,
-            pos=placement,
-            ax=ax,
-            node_size=vertex_size,
-            node_color=vertex_color,
-            node_shape=vertex_shape,
-            with_labels=vertex_labels,
-            width=edge_width,
-            edge_color=edge_color_array,
-            font_color=font_color,
-            edgelist=edge_list_ref,
-            style=edge_style,
-            **kwargs,
-        )
+        if not curved_edges:
+            nx.draw(
+                self,
+                pos=placement,
+                ax=ax,
+                node_size=vertex_size,
+                node_color=vertex_color,
+                node_shape=vertex_shape,
+                with_labels=vertex_labels,
+                width=edge_width,
+                edge_color=edge_color_array,
+                font_color=font_color,
+                font_size=font_size,
+                edgelist=edge_list_ref,
+                style=edge_style,
+                **kwargs,
+            )
+        else:
+            newGraph = nx.MultiDiGraph()
+            if isinstance(connection_style, float):
+                connection_style = {
+                    e: connection_style for e in self.edge_list(as_tuples=True)
+                }
+            elif isinstance(connection_style, list):
+                if not self.number_of_edges() == len(connection_style):
+                    raise AttributeError(
+                        "The provided `connection_style` doesn't have the correct length."
+                    )
+                connection_style = {
+                    e: style
+                    for e, style in zip(
+                        self.edge_list(as_tuples=True), connection_style
+                    )
+                }
+            elif isinstance(connection_style, dict):
+                if (
+                    not all(
+                        [
+                            isinstance(e, tuple)
+                            and len(e) == 2
+                            and isinstance(v, float | int)
+                            for e, v in connection_style.items()
+                        ]
+                    )
+                    or not all(
+                        [
+                            set(key) in [set([e[0], e[1]]) for e in self.edge_list()]
+                            for key in connection_style.keys()
+                        ]
+                    )
+                    or any(
+                        [set(key) for key in connection_style.keys()].count(e) > 1
+                        for e in [set(key) for key in connection_style.keys()]
+                    )
+                ):
+                    raise AttributeError(
+                        "The provided `connection_style` contains different edges "
+                        + "than the underlying graph or has an incorrect format."
+                    )
+                connection_style = {
+                    e: 0
+                    for e in self.edge_list(as_tuples=True)
+                    if not (
+                        e in connection_style.keys()
+                        or tuple([e[1], e[0]]) in connection_style.keys()
+                    )
+                } | {
+                    (tuple(e) if e in self.edge_list() else tuple([e[1], e[0]])): style
+                    for e, style in connection_style.items()
+                }
+            else:
+                raise TypeError(
+                    "The provided `connection_style` does not have the appropriate type."
+                )
+
+            for e, style in connection_style.items():
+                newGraph.add_edge(e[0], e[1], weight=style)
+            plt.box(False)  # Manually removes the frame of the plot
+            nx.draw_networkx_nodes(
+                newGraph,
+                placement,
+                ax=ax,
+                node_size=vertex_size,
+                node_color=vertex_color,
+                node_shape=vertex_shape,
+            )
+            nx.draw_networkx_labels(
+                newGraph, placement, ax=ax, font_color=font_color, font_size=font_size
+            )
+            for edge in newGraph.edges(data=True):
+                nx.draw_networkx_edges(
+                    newGraph,
+                    placement,
+                    ax=ax,
+                    width=edge_width,
+                    edge_color=edge_color_array,
+                    arrows=True,
+                    arrowstyle="-",
+                    edgelist=[(edge[0], edge[1])],
+                    connectionstyle=f"Arc3, rad = {edge[2]['weight']}",
+                )
 
         if inf_flex is not None:
             magnidutes = []
@@ -2977,7 +3118,16 @@ class Graph(nx.Graph):
             H_placement.update(
                 {v: np.array(placement[v], dtype=float) for v in inf_flex.keys()}
             )
-
+            if (
+                not isinstance(flex_color, str | list)
+                or isinstance(flex_color, list)
+                and not len(flex_color) == len(inf_flex)
+            ):
+                raise TypeError(
+                    "`flex_color` must either be a `str` specifying"
+                    + "a color or a list of strings with the same"
+                    + "number as the nonzero flexes."
+                )
             nx.draw(
                 H,
                 pos=H_placement,
@@ -2991,6 +3141,47 @@ class Graph(nx.Graph):
                 style=flex_style,
                 **kwargs,
             )
+
+        if stress is not None:
+            if stress_normalization:
+                numerical_stress = {
+                    edge: float(sympify(w).evalf(10)) for edge, w in stress.items()
+                }
+                _stress = {
+                    edge: round(w / np.linalg.norm(list(numerical_stress.values())), 2)
+                    for edge, w in numerical_stress.items()
+                }
+            else:
+                _stress = stress
+            if isinstance(stress_label_pos, dict):
+                if not all([self.has_edge(*e) for e in stress_label_pos.keys()]):
+                    raise ValueError(
+                        "The `stress_label_pos` dictionary must contain the same "
+                        + "edges as the stress dictionary."
+                    )
+                for edge in self.edge_list(as_tuples=True):
+                    stress_keys = [set(e) for e in stress_label_pos.keys()]
+                    if set(edge) not in stress_keys:
+                        stress_label_pos[edge] = 0.5
+            elif isinstance(stress_label_pos, float):
+                label_float = stress_label_pos
+                stress_label_pos = {}
+                for edge in self.edge_list(as_tuples=True):
+                    stress_label_pos[edge] = label_float
+            else:
+                raise TypeError(
+                    "`stress_label_pos` must be either a float or a dictionary."
+                )
+            for edge in self.edges:
+                nx.draw_networkx_edge_labels(
+                    self,
+                    pos=placement,
+                    edge_labels={edge: _stress[edge]},
+                    font_color=stress_color,
+                    font_size=stress_fontsize,
+                    label_pos=stress_label_pos[edge],
+                    rotate=stress_rotate_labels,
+                )
 
         plt.show()
 

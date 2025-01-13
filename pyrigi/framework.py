@@ -291,8 +291,10 @@ class Framework(object):
         self,
         realization: dict[Vertex, Point],
         inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        stress: dict[Edge, Coordinate] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
+        curved_edges=False,
         **kwargs,
     ) -> None:
         """
@@ -307,13 +309,18 @@ class Framework(object):
         inf_flex:
             Optional parameter for plotting an infinitesimal flex. We expect
             it to have the same format as `realization`: `dict[Vertex, Point]`.
+        stress:
+            Optional parameter for plotting an equilibrium stress. We expect
+            it to have the format `Dict[Edge, Coordinate]`.
         """
 
         self._graph.plot(
             placement=realization,
+            inf_flex=inf_flex,
+            stress=stress,
             vertex_color=vertex_color,
             edge_width=edge_width,
-            inf_flex=inf_flex,
+            curved_edges=curved_edges,
             **kwargs,
         )
 
@@ -349,9 +356,11 @@ class Framework(object):
         self,
         coordinates: Sequence = None,
         inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        stress: Matrix | int | dict[Edge, Coordinate] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
+        curved_edges: bool = False,
         **kwargs,
     ) -> Optional[Matrix]:
         """
@@ -378,15 +387,32 @@ class Framework(object):
         coordinates:
             Indexes of two coordinates that will be used as the placement in 2D.
         inf_flex:
-            Optional parameter for plotting a given infinitesimal flex. It is
-            important to use the same vertex order as the one
+            Optional parameter for plotting a given infinitesimal flex. The standard
+            input format is a ``Matrix`` that is the output of e.g. the method
+            ``Framework.inf_flexes``. Alternatively, an ``int`` can be specified
+            to directly choose the 0,1,2,...-th nontrivial infinitesimal flex (according
+            to the method ``Framework.nontrivial_inf_flexes``) for plotting.
+            For these input types, is important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
-            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
-            nontrivial infinitesimal flex for plotting.
-            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
-            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+            If the vertex order needs to be specified, a
+            ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which maps the
+            vertex labels to vectors (i.e. a sequence of coordinates).
+        stress:
+            Optional parameter for plotting a given equilibrium stress. The standard
+            input format is a ``Matrix`` that is the output of e.g. the method
+            ``Framework.stresses``. Alternatively, an ``int`` can be specified
+            to directly choose the 0,1,2,...-th equilibrium stress (according
+            to the method ``Framework.stresses``) for plotting.
+            For these input types, is important to use the same edge order as the one
+            from :meth:`.Graph.edge_list`.
+            If the edge order needs to be specified, a ``Dict[Edge, Coordinate]``
+            can be provided, which maps the edges to numbers
+            (i.e. coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
+        curved_edges:
+            If the points are collinear (or close to collinear), then we can set this
+            ``bool`` to ``True``. The result is that the edges are plotted as arcs.
 
         TODO
         -----
@@ -398,7 +424,7 @@ class Framework(object):
                 inf_flex_basis = self.nontrivial_inf_flexes()
                 if inf_flex >= len(inf_flex_basis):
                     raise IndexError(
-                        "The value of inf_flex exceeds "
+                        "The value of `inf_flex` exceeds "
                         + "the dimension of the space "
                         + "of infinitesimal flexes."
                     )
@@ -412,12 +438,35 @@ class Framework(object):
             ):
                 inf_flex_pointwise = inf_flex
             else:
-                raise TypeError("inf_flex does not have the correct Type.")
+                raise TypeError("`inf_flex` does not have the correct Type.")
 
             if not self.is_dict_inf_flex(inf_flex_pointwise):
                 raise ValueError(
                     "The provided `inf_flex` is not an infinitesimal flex."
                 )
+
+        stress_edgewise = None
+        if stress is not None:
+            if isinstance(stress, int) and stress >= 0:
+                stresses = self.stresses()
+                if stress >= len(stresses):
+                    raise IndexError(
+                        "The value of `stress` exceeds "
+                        + "the dimension of the space "
+                        + "of equilibrium stresses."
+                    )
+                stress_edgewise = self._transform_stress_to_edgewise(stresses[stress])
+            elif isinstance(stress, Matrix):
+                stress_edgewise = self._transform_stress_to_edgewise(stress)
+            elif isinstance(stress, dict) and all(
+                isinstance(stress[key], int | float | str) for key in stress.keys()
+            ):
+                stress_edgewise = stress
+            else:
+                raise TypeError("`stress` does not have the correct Type.")
+
+            if not self.is_dict_stress(stress_edgewise):
+                raise ValueError("The provided `stress` is not an equilibrium stress.")
 
         if self._dim == 1:
             placement = {}
@@ -431,14 +480,22 @@ class Framework(object):
                     v: (flex_v[0], 0) for v, flex_v in inf_flex_pointwise.items()
                 }
             self._plot_with_2D_realization(
-                placement, inf_flex=inf_flex_pointwise, **kwargs
+                placement,
+                inf_flex=inf_flex_pointwise,
+                stress=stress_edgewise,
+                curved_edges=True,
+                **kwargs,
             )
             return
 
         if self._dim == 2:
             placement = self.realization(as_points=True, numerical=True)
             self._plot_with_2D_realization(
-                placement, inf_flex=inf_flex_pointwise, **kwargs
+                placement,
+                inf_flex=inf_flex_pointwise,
+                stress=stress_edgewise,
+                curved_edges=curved_edges,
+                **kwargs,
             )
             return
 
@@ -494,7 +551,6 @@ class Framework(object):
         TODO
         ----
         Implement plotting in dimension 3 and
-        better plotting for dimension 1 using ``connectionstyle``
         """
 
         if self._dim > 2:
@@ -1233,7 +1289,51 @@ class Framework(object):
         return pinned_rigidity_matrix
 
     @doc_category("Infinitesimal rigidity")
-    def is_stress(
+    def is_dict_stress(self, dict_stress: dict[Edge, Coordinate], **kwargs) -> bool:
+        """
+        Return whether a dictionary specifies an equilibrium stress of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Equilibrium Stress <def-equilibrium-stress>`
+
+        Parameters
+        ----------
+        dict_stress:
+            Dictionary that maps the edge labels to coordinates.
+
+        Notes
+        -----
+        See :meth:`.Framework.is_vector_stress`.
+
+        Examples
+        --------
+        >>> F = Framework.Complete([[0,0], [1,0], ['1/2',0]])
+        >>> F.is_dict_stress({(0,1):'-1/2', (0,2):1, (1,2):1})
+        True
+        >>> F.is_dict_stress({(0,1):1, (1,2):'-1/2', (0,2):1})
+        False
+        """
+        stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
+        self._check_edge_order(stress_edge_list)
+        graph_edge_list = [tuple(e) for e in self._graph.edge_list()]
+        dict_to_list = []
+
+        for e in graph_edge_list:
+            dict_to_list += [
+                (
+                    dict_stress[e]
+                    if e in stress_edge_list
+                    else dict_stress[tuple([e[1], e[0]])]
+                )
+            ]
+
+        return self.is_vector_stress(
+            dict_to_list, edge_order=self._graph.edge_list(), **kwargs
+        )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_vector_stress(
         self,
         stress: Stress,
         edge_order: Sequence[Edge] = None,
@@ -1280,6 +1380,27 @@ class Framework(object):
             numerical=numerical,
             tolerance=tolerance,
         )
+
+    @doc_category("Infinitesimal rigidity")
+    def is_stress(self, stress: Stress | dict[Edge, Coordinate], **kwargs) -> bool:
+        """
+        Alias for :meth:`Framework.is_vector_stress` and
+        :meth:`Framework.is_dict_stress`.
+
+        Notes
+        -----
+        We distinguish between instances of ``List`` and instances of
+        ``Dict`` to call one of the alias methods.
+
+        """
+        if isinstance(stress, list | Matrix):
+            return self.is_vector_stress(stress, **kwargs)
+        elif isinstance(stress, dict):
+            return self.is_dict_stress(stress, **kwargs)
+        else:
+            raise TypeError(
+                "The `stress` must be specified either by a vector or a dictionary!"
+            )
 
     @doc_category("Infinitesimal rigidity")
     def stress_matrix(
@@ -2143,6 +2264,38 @@ class Framework(object):
             vertex_order[i]: [inf_flex[i * self.dim() + j] for j in range(self.dim())]
             for i in range(len(vertex_order))
         }
+
+    @doc_category("Other")
+    def _transform_stress_to_edgewise(
+        self, stress: Matrix, edge_order: Sequence[Edge] = None
+    ) -> dict[Edge, Coordinate]:
+        r"""
+        Transform the natural data type of a stress (Matrix) to a
+        dictionary that maps an edge to a coordinate.
+
+        Parameters
+        ----------
+        stress:
+            An equilibrium stress in the form of a `Matrix`.
+        edge_order:
+            If ``None``, the :meth:`.Graph.edge_list`
+            is taken as the edge order.
+
+        Notes
+        ----
+        For example, this method can be used for generating an
+        equilibrium stresss for plotting purposes.
+
+        Examples
+        ----
+        >>> F = Framework.Complete([(0,0),(1,0),(1,1),(0,1)])
+        >>> stress = F.stresses()[0]
+        >>> F._transform_stress_to_edgewise(stress)
+        {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
+
+        """
+        edge_order = self._check_edge_order(edge_order)
+        return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
 
     @doc_category("Infinitesimal rigidity")
     def is_vector_inf_flex(
