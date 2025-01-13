@@ -2186,7 +2186,9 @@ class Graph(nx.Graph):
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
-                res += self.subgraph(comp).rigid_components(dim, combinatorial)
+                res += self.subgraph(comp).rigid_components(
+                    dim, combinatorial=combinatorial
+                )
             return res
 
         if combinatorial:
