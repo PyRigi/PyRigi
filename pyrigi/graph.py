@@ -2076,8 +2076,8 @@ class Graph(nx.Graph):
         dim:
             Dimension of the rigidity matroid
         combinatorial:
-            If ``True``, rigid components computed using
-            :meth:`~.Graph.rigid_components(combinatorial=True) are checked to be complete.
+            If ``True``, each rigid component computed using
+            :meth:`~.Graph.rigid_components(combinatorial=True) is checked to be complete.
             Otherwise, the closure is computed using randomized
             :meth:`~.Graph.is_rigid(combinatorial=False)`.
 
