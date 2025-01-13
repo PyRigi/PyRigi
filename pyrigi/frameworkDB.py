@@ -35,6 +35,63 @@ def Diamond() -> Framework:
     return Framework(graphs.Diamond(), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
 
 
+def Cube() -> Framework:
+    """Return the graph given by the skeleton of the regular cube in $R^3$."""
+    F = Framework(
+        graphs.CubeWithDiagonal(),
+        {
+            0: [0, 0, 0],
+            1: [1, 0, 0],
+            2: [1, 1, 0],
+            3: [0, 1, 0],
+            4: [0, 0, 1],
+            5: [1, 0, 1],
+            6: [1, 1, 1],
+            7: [0, 1, 1],
+        },
+    )
+    F.delete_edge([0, 6])
+    return F
+
+
+def Octahedron() -> Framework:
+    """Return the framework given by the skeleton of the regular octahedron in $R^3$."""
+    return Framework(
+        graphs.Octahedral(),
+        {
+            0: [0, 0, "-sqrt(2)"],
+            1: [0, 0, "sqrt(2)"],
+            2: [-1, -1, 0],
+            3: [1, 1, 0],
+            4: [1, -1, 0],
+            5: [-1, 1, 0],
+        },
+    )
+
+
+def BricardsOctahedron() -> Framework:
+    """Return a configuration of Bricard's octahedron in $R^3$."""
+    return Framework(
+        graphs.Octahedral(),
+        {
+            0: [0, 0, "-sqrt(2)"],
+            1: [0, 0, "sqrt(2)"],
+            2: [-1, -1, 0],
+            3: [1, -1, 0],
+            4: [1, 1, 0],
+            5: [-1, 1, 0],
+        },
+    )
+
+
+def K33plusEdge() -> Framework:
+    """Return a realization of the 3-regular complete bipartite graph."""
+    return Framework(
+        graphs.K33plusEdge(),
+        {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 0], 4: [1, 1], 5: [1, 2]},
+    )
+
+
 def Complete(n: int, dim: int = 2) -> Framework:
     """
     Return d-dimensional framework of the complete graph on n vertices.
