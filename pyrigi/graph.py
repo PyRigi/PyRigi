@@ -11,7 +11,7 @@ from typing import Iterable
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from sympy import Matrix, oo, zeros, sympify
+from sympy import Matrix, oo, zeros
 import numpy as np
 
 import math
@@ -2884,7 +2884,7 @@ class Graph(nx.Graph):
 
             for e, style in connection_style.items():
                 newGraph.add_edge(e[0], e[1], weight=style)
-            plt.box(False) # Manually removes the frame of the plot
+            plt.box(False)  # Manually removes the frame of the plot
             nx.draw_networkx_nodes(
                 newGraph,
                 placement,
