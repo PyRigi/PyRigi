@@ -718,7 +718,8 @@ class Framework(object):
 
         Notes
         -----
-        See :meth:`.Framework._plot_using_projection_matrix_3D` for a full list of parameters.
+        See :meth:`.Framework._plot_using_projection_matrix_3D` for a full
+        list of parameters.
 
         TODO
         ----
@@ -794,7 +795,7 @@ class Framework(object):
         ) = "black",
         edge_style: str = "solid",
         equal_aspect_ratio: bool = True,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -913,27 +914,28 @@ class Framework(object):
                     fontsize=fontsize,
                     ha="center",
                     va="center",
+                    alpha=1,
                 )
+        self.plot_inf_flex(ax, inf_flex, **kwargs)
 
-        self._plot_inf_flex(ax, inf_flex, **kwargs)
         plt.tight_layout()
         plt.show()
 
     @doc_category("Other")
-    def _plot_inf_flex(  # noqa: C901
+    def plot_inf_flex(  # noqa: C901
         self,
         ax: Axes,
         inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
         points: dict[Vertex, Point] = None,
         flex_width: float = 2.5,
-        flex_length: float = 0.25,
+        flex_length: float = 0.65,
         flex_color: (
             str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
         ) = "limegreen",
         flex_style: str = "solid",
     ) -> None:
         """
-        Adds infinitesimal flexes as vectors to the axis `ax`.
+        Adds infinitesimal flexes based in the `points` as vectors to the axis `ax`.
 
         Parameters
         ----------
@@ -1038,22 +1040,22 @@ class Framework(object):
                         linestyle=flex_style,
                         length=flex_length,
                         normalize=True,
-                        arrow_length_ratio=0.3,
+                        arrow_length_ratio=0.25,
                     )
 
                 elif self._dim == 3:
                     ax.quiver(
                         points[v][0],
                         points[v][1],
-                        points[v][2],  # <-- starting point of vector
+                        points[v][2],
                         inf_flex_pointwise[v][0],
                         inf_flex_pointwise[v][1],
-                        inf_flex_pointwise[v][2],  # <-- directions of vector
+                        inf_flex_pointwise[v][2],
                         color=flex_color,
                         lw=flex_width,
                         linestyle=flex_style,
                         length=flex_length,
-                        arrow_length_ratio=0.3,
+                        arrow_length_ratio=0.25,
                     )
 
     @doc_category("Other")
