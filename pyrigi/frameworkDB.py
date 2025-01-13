@@ -85,7 +85,9 @@ def BricardsOctahedron() -> Framework:
 
 
 def K33plusEdge() -> Framework:
-    """Return a realization of the 3-regular complete bipartite graph."""
+    """
+    Return a framework of the complete bipartite graph on 3+3 vertices plus an edge.
+    """
     return Framework(
         graphs.K33plusEdge(),
         {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 0], 4: [1, 1], 5: [1, 2]},
