@@ -916,7 +916,7 @@ def test_rigid_components():
     ]
 
     G = graphs.Path(5)
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert sorted([sorted(H) for H in rigid_components]) == [
         [0, 1],
         [1, 2],
@@ -940,7 +940,7 @@ def test_rigid_components():
             ("a", "b"),
         ]
     )
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert [set(H) for H in rigid_components] == [
         set([0, "a", "b"]),
         set([0, 1, 2, 3, 4, 5]),
@@ -950,7 +950,7 @@ def test_rigid_components():
     ]
 
     G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert [set(H) for H in rigid_components] == [
         set([0, 1, 2]),
         set([3, 4, 5]),
@@ -961,18 +961,18 @@ def test_rigid_components():
 
     G = graphs.Complete(3)
     G.add_vertex(3)
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert [set(H) for H in rigid_components] == [set([0, 1, 2]), set([3])] or [
         set(H) for H in rigid_components
     ] == [set([3]), set([0, 1, 2])]
 
     G = graphs.ThreePrism()
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
 
     G = graphs.ThreeConnectedR3Circuit()
     G.remove_node(0)
-    rigid_components = G.rigid_components()
+    rigid_components = G.rigid_components(combinatorial=False)
     assert sorted([sorted(H) for H in rigid_components]) == [
         [1, 2, 3, 4],
         [1, 10, 11, 12],
@@ -981,7 +981,7 @@ def test_rigid_components():
     ]
 
     G = graphs.DoubleBanana()
-    rigid_components = G.rigid_components(dim=3)
+    rigid_components = G.rigid_components(dim=3, combinatorial=False)
     assert [set(H) for H in rigid_components] == [
         set([0, 1, 2, 3, 4]),
         set([0, 1, 5, 6, 7]),
@@ -1526,6 +1526,144 @@ def test_Rd_circuit_d2(graph):
 )
 def test_not_Rd_circuit_d2(graph):
     assert not graph.is_Rd_circuit(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [Graph([(0, 1), (2, 3)]), 1],
+        [Graph([(0, 1), (1, 2), (0, 2), (3, 4)]), 1],
+        [graphs.Complete(4), 2],
+        [graphs.Cycle(4), 2],
+        [Graph([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (1, 4), (2, 5)]), 2],
+    ],
+)
+def test_is_Rd_closed(graph, dim):
+    if dim <= 1:
+        assert graph.is_Rd_closed(dim=dim, combinatorial=True)
+        assert graph.is_Rd_closed(dim=dim, combinatorial=False)
+    else:
+        assert graph.is_Rd_closed(dim=dim, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [graphs.Path(4), 1],
+        [graphs.ThreePrism(), 2],
+        [graphs.ThreePrismPlusEdge(), 2],
+        [graphs.Octahedral(), 3],
+        [graphs.DoubleBanana(), 3],
+    ],
+)
+def test_is_not_Rd_closed(graph, dim):
+    if dim <= 1:
+        assert not graph.is_Rd_closed(dim=dim, combinatorial=True)
+        assert not graph.is_Rd_closed(dim=dim, combinatorial=False)
+    else:
+        assert not graph.is_Rd_closed(dim=dim, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
+)
+def test_Rd_circuit_d3(graph):
+    assert graph.is_Rd_circuit(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(5),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.ThreePrism(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_not_Rd_circuit_d3(graph):
+    assert not graph.is_Rd_circuit(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Diamond(),
+        graphs.K33plusEdge(),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(2, 3),
+    ]
+    + [graphs.Cycle(n) for n in range(3, 7)],
+)
+def test_Rd_dependent_d1(graph):
+    assert graph.is_Rd_dependent(dim=1)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.CompleteBipartite(1, 3),
+        graphs.Path(3),
+    ],
+)
+def test_Rd_independent_d1(graph):
+    assert graph.is_Rd_independent(dim=1)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.ThreePrismPlusEdge(),
+        graphs.K33plusEdge(),
+        graphs.Complete(5),
+        graphs.CompleteBipartite(3, 4),
+    ],
+)
+def test_Rd_dependent_d2(graph):
+    assert graph.is_Rd_dependent(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Diamond(),
+        graphs.ThreePrism(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Path(3),
+        graphs.Cycle(4),
+    ],
+)
+def test_Rd_independent_d2(graph):
+    assert graph.is_Rd_independent(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
+)
+def test_Rd_dependent_d3(graph):
+    assert graph.is_Rd_dependent(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(5),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.ThreePrism(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_Rd_independent_d3(graph):
+    assert graph.is_Rd_independent(dim=3)
 
 
 @pytest.mark.parametrize(
