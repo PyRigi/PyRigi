@@ -35,6 +35,97 @@ def Diamond() -> Framework:
     return Framework(graphs.Diamond(), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
 
 
+def Cube() -> Framework:
+    """Return the graph given by the skeleton of the regular cube in $R^3$."""
+    F = Framework(
+        graphs.CubeWithDiagonal(),
+        {
+            0: [0, 0, 0],
+            1: [1, 0, 0],
+            2: [1, 1, 0],
+            3: [0, 1, 0],
+            4: [0, 0, 1],
+            5: [1, 0, 1],
+            6: [1, 1, 1],
+            7: [0, 1, 1],
+        },
+    )
+    F.delete_edge([0, 6])
+    return F
+
+
+def Octahedron(realization: str = "regular") -> Framework:
+    """
+    Return a framework of the regular octahedron.
+
+    Parameters
+    ----------
+    realization:
+        If ``"regular"``, a realization of the regular octahedron in $R^3$
+        is returned.
+        If ``"Bricard_line"``, a flexible Bricard's octahedron
+        line-symmetric w.r.t. z-axis is returned.
+        If ``"Bricard_plane"``, a flexible Bricard's octahedron
+        plane-symmetric w.r.t. yz-plane is returned.
+    """
+    if realization == "regular":
+        return Framework(
+            graphs.Octahedral(),
+            {
+                0: [0, 0, "-sqrt(2)"],
+                1: [0, 0, "sqrt(2)"],
+                2: [-1, -1, 0],
+                3: [1, 1, 0],
+                4: [1, -1, 0],
+                5: [-1, 1, 0],
+            },
+        )
+    elif realization == "Bricard_line":
+        a = 1
+        b, c, d = 1, 2, 1
+        e, f, g = 2, -1, -1
+        # We define a realization symmetric w.r.t. z-axis.
+        return Framework(
+            graphs.Octahedral(),
+            {
+                0: [a, 0, 0],
+                1: [-a, 0, 0],
+                2: [b, c, d],
+                3: [-b, -c, d],
+                4: [e, f, g],
+                5: [-e, -f, g],
+            },
+        )
+    elif realization == "Bricard_plane":
+        a, b = 1, 1
+        c, d = 1, -2
+        e = 1
+        f, g = 1, 1
+        # We define a realization symmetric w.r.t. yz-plane, which contains 0 and 1.
+        return Framework(
+            graphs.Octahedral(),
+            {
+                0: [0, a, b],
+                1: [0, c, d],
+                2: [e, 0, 0],
+                3: [-e, 0, 0],
+                4: [f, g, 0],
+                5: [-f, g, 0],
+            },
+        )
+    raise ValueError(f"The parameter `realization` cannot be {realization}.")
+
+
+def K33plusEdge() -> Framework:
+    """
+    Return a framework of the complete bipartite graph on 3+3 vertices plus an edge.
+    """
+    return Framework(
+        graphs.K33plusEdge(),
+        {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 0], 4: [1, 1], 5: [1, 2]},
+    )
+
+
 def Complete(n: int, dim: int = 2) -> Framework:
     """
     Return d-dimensional framework of the complete graph on n vertices.
@@ -148,13 +239,6 @@ def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
             for i in range(m, m + n)
         },
     )
-
-
-def K33plusEdge() -> Framework:
-    """Return a framework of the complete bipartite graph on 3+3 vertices plus an edge."""
-    G = CompleteBipartite(3, 3, "dixonI")
-    G.add_edge([0, 1])
-    return G
 
 
 def Frustum(n: int) -> Framework:
