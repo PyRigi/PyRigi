@@ -795,6 +795,7 @@ class Framework(object):
         ) = "black",
         edge_style: str = "solid",
         equal_aspect_ratio: bool = True,
+        padding: float = 0.01,
         **kwargs,
     ) -> None:
         """
@@ -846,11 +847,13 @@ class Framework(object):
             Determines whether the aspect ratio of the plot is equal in all space
             directions or whether it is adjusted depending on the framework's size
             in `x`, `y` and `z`-direction individually.
+        padding:
+            Specifies the white space around the framework.
 
         Notes
         -----
         The parameters for `inf_flex`-plotting are listed in
-        :meth:`.Framework._plot_inf_flex`.
+        :meth:`.Framework.plot_inf_flex`.
 
         Examples
         --------
@@ -886,15 +889,15 @@ class Framework(object):
             marker=vertex_shape,
         )
         if equal_aspect_ratio:
-            min_val = min(x_nodes + y_nodes + z_nodes) - 0.01
-            max_val = max(x_nodes + y_nodes + z_nodes) + 0.01
+            min_val = min(x_nodes + y_nodes + z_nodes) - padding
+            max_val = max(x_nodes + y_nodes + z_nodes) + padding
             ax.set_zlim(min_val, max_val)
             ax.set_ylim(min_val, max_val)
             ax.set_xlim(min_val, max_val)
         else:
-            ax.set_zlim(min(z_nodes) - 0.01, max(z_nodes) + 0.01)
-            ax.set_ylim(min(y_nodes) - 0.01, max(y_nodes) + 0.01)
-            ax.set_xlim(min(x_nodes) - 0.01, max(x_nodes) + 0.01)
+            ax.set_zlim(min(z_nodes) - padding, max(z_nodes) + padding)
+            ax.set_ylim(min(y_nodes) - padding, max(y_nodes) + padding)
+            ax.set_xlim(min(x_nodes) - padding, max(x_nodes) + padding)
 
         for edge in self._graph.edges():
             x = [pos[edge[0]][0], pos[edge[1]][0]]
