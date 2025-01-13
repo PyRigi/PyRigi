@@ -150,13 +150,6 @@ def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
     )
 
 
-def K33plusEdge() -> Framework:
-    """Return a framework of the complete bipartite graph on 3+3 vertices plus an edge."""
-    G = CompleteBipartite(3, 3, "dixonI")
-    G.add_edge([0, 1])
-    return G
-
-
 def Frustum(n: int) -> Framework:
     """
     Return the n-Frustum with `n` vertices in dimension 2.
