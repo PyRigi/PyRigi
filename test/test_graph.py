@@ -981,7 +981,7 @@ def test_rigid_components():
     ]
 
     G = graphs.DoubleBanana()
-    rigid_components = G.rigid_components(dim=3)
+    rigid_components = G.rigid_components(dim=3, combinatorial=False)
     assert [set(H) for H in rigid_components] == [
         set([0, 1, 2, 3, 4]),
         set([0, 1, 5, 6, 7]),

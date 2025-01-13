@@ -2099,47 +2099,48 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        if dim == 1:
+        if dim <= 2:
             if all(
                 [
                     nx.subgraph(self, comp).is_isomorphic(nx.complete_graph(len(comp)))
-                    for comp in nx.connected_components(self)
-                ]
-            ):
-                return True
-            return False
-        if dim == 2:
-            if all(
-                [
-                    nx.subgraph(self, comp).is_isomorphic(nx.complete_graph(len(comp)))
-                    for comp in self.rigid_components()
+                    for comp in self.rigid_components(dim=dim)
                 ]
             ):
                 return True
             return False
 
-        F = self.random_framework(dim=dim)
-        edge_list = set()
+        F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
         G = deepcopy(self)
         for e in combinations(self.vertex_list(), 2):
             if G.has_edge(*e):
-                edge_list |= {e}
                 continue
             G.add_edge(*e)
             F1 = G.random_framework(dim=dim)
-            if F.rigidity_matrix_rank() == F1.rigidity_matrix_rank():
+            if F_rank == F1.rigidity_matrix_rank():
                 return False
             G.remove_edge(*e)
-        return set(self.edges) == edge_list
+        return True
 
     @doc_category("Generic rigidity")
-    def rigid_components(self, dim: int = 2) -> Sequence[Sequence[Vertex]]:
+    def rigid_components(
+        self, dim: int = 2, combinatorial: bool = True
+    ) -> list[list[Vertex]]:
         """
         List the vertex sets inducing vertex-maximal rigid subgraphs.
 
         Definitions
         -----
         :prf:ref:`Rigid components <def-rigid-components>`
+
+        Parameters
+        ---------
+        dim:
+            The dimension that is used for the rigidity check.
+        combinatorial:
+            determines whether a combinatinatorial algorithm shall be used
+            If combinatorial is true, a pebble game algorithm is used.
+            Otherwise a probabilistic check is used that may give false negatives
+            (see :prf:ref:`thm-probabilistic-rigidity-check`).
 
         Notes
         -----
@@ -2169,6 +2170,8 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
+        if dim == 1:
+            return [list(comp) for comp in nx.connected_components(self)]
 
         if not nx.is_connected(self):
             res = []
@@ -2176,13 +2179,13 @@ class Graph(nx.Graph):
                 res += self.subgraph(comp).rigid_components(dim)
             return res
 
-        if self.is_rigid(dim, combinatorial=(dim < 3)):
+        if self.is_rigid(dim, combinatorial=combinatorial):
             return [list(self)]
         rigid_subgraphs = {
             tuple(vertex_subset): True
             for r in range(2, self.number_of_nodes() - 1)
             for vertex_subset in combinations(self.nodes, r)
-            if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
+            if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=combinatorial)
         }
 
         sorted_rigid_subgraphs = sorted(
