@@ -1534,7 +1534,6 @@ def test_not_Rd_circuit_d2(graph):
         [Graph([(0, 1), (2, 3)]), 1],
         [Graph([(0, 1), (1, 2), (0, 2), (3, 4)]), 1],
         [graphs.Complete(4), 2],
-        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]), 2],
         [graphs.Cycle(4), 2],
         [Graph([(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (1, 4), (2, 5)]), 2],
     ],
@@ -1555,6 +1554,109 @@ def test_is_Rd_closed(graph, dim):
 )
 def test_is_not_Rd_closed(graph, dim):
     assert not graph.is_Rd_closed(dim=dim)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
+)
+def test_Rd_circuit_d3(graph):
+    assert graph.is_Rd_circuit(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(5),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.ThreePrism(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_not_Rd_circuit_d3(graph):
+    assert not graph.is_Rd_circuit(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Diamond(),
+        graphs.K33plusEdge(),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.CompleteBipartite(2, 3),
+    ] +
+    [graphs.Cycle(n) for n in range(3, 7)],
+)
+def test_Rd_dependent_d1(graph):
+    assert graph.is_Rd_dependent(dim=1)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.CompleteBipartite(1, 3),
+        graphs.Path(3),
+    ],
+)
+def test_Rd_independent_d1(graph):
+    assert graph.is_Rd_independent(dim=1)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.ThreePrismPlusEdge(),
+        graphs.K33plusEdge(),
+        graphs.Complete(5),
+        graphs.CompleteBipartite(3, 4),
+    ],
+)
+def test_Rd_dependent_d2(graph):
+    assert graph.is_Rd_dependent(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Diamond(),
+        graphs.ThreePrism(),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Path(3),
+        graphs.Cycle(4),
+    ],
+)
+def test_Rd_independent_d2(graph):
+    assert graph.is_Rd_independent(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
+)
+def test_Rd_dependent_d3(graph):
+    assert graph.is_Rd_dependent(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(5),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.ThreePrism(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_Rd_independent_d3(graph):
+    assert graph.is_Rd_independent(dim=3)
+
 
 
 @pytest.mark.parametrize(
