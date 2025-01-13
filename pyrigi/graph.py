@@ -2884,6 +2884,7 @@ class Graph(nx.Graph):
 
             for e, style in connection_style.items():
                 newGraph.add_edge(e[0], e[1], weight=style)
+            plt.box(False) # Manually removes the frame of the plot
             nx.draw_networkx_nodes(
                 newGraph,
                 placement,
@@ -2981,21 +2982,10 @@ class Graph(nx.Graph):
             )
 
         if stress is not None:
-            nonzero_stress = next(
-                (w for _, w in stress.items() if not sympify(w).evalf(10) == 0), None
-            )
-            if nonzero_stress is None:
-                raise ValueError("The provided stress only contains zeros.")
-            _stress = {
-                k: round(
-                    round(sympify(w / (1000 * nonzero_stress)).evalf(10), 5) * 1000, 3
-                )
-                for k, w in stress.items()
-            }
             nx.draw_networkx_edge_labels(
                 self,
                 pos=placement,
-                edge_labels=_stress,
+                edge_labels=stress,
                 font_color=stress_color,
                 font_size=stress_fontsize,
                 label_pos=stress_label_pos,

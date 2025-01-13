@@ -187,8 +187,15 @@ F.plot(
 
 ### Collinear Configurations
 
-For collinear configurations and frameworks in $\RR$, we can visualize the edges as arcs
-in $\RR^2$ using the keyword ``connection_style``. This parameter can be specified in
+For collinear configurations and frameworks in $\RR$, the edges are automatically visualized 
+as arcs in $\RR^2$ 
+
+```{code-cell} ipython3
+F = Framework.Complete([[0],[1],[2]])
+F.plot()
+```
+
+Using the keyword ``connection_style``, we are able to specify the pitch of the individual arcs. This parameter can be specified in
 radians as a ``float`` if the same pitch for every arc is desired and a ``list[float]`` or a
 ``dict[Edge, float]`` if the pitch is supposed to be provided for each arc individually.
 
