@@ -2061,16 +2061,35 @@ class Graph(nx.Graph):
             G.add_edge(*e)
         return True
 
-    @doc_category("Waiting for implementation")
-    def is_Rd_closed(self, dim: int = 2) -> bool:
+    @doc_category("Rigidity Matroid")
+    def is_Rd_closed(self, dim: int = 2, combinatorial: bool = True) -> bool:
         """
         Return whether the edge set is closed in the generic dim-rigidity matroid.
 
-        Notes
-        -----
-         * dim=1: Graphic Matroid
-         * dim=2: ??
-         * dim>=1: Adding any edge does not increase the rigidity matrix rank
+        Definitions
+        -----------
+        * :prf:ref:`Rd-closed <def-rank-function-closure>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+
+        Parameters
+        ---------
+        dim:
+            Dimension of the rigidity matroid
+        combinatorial:
+            If ``True``, each rigid component computed using
+            :meth:`~.Graph.rigid_components(combinatorial=True) is checked to be complete.
+            Otherwise, the closure is computed using randomized
+            :meth:`~.Graph.is_rigid(combinatorial=False)`.
+
+        TODO
+        ----
+        The check for dim>=3 uses a `random_framework`.
+
+        Examples
+        --------
+        >>> G = Graph([(0,1),(1,2),(0,2),(3,4)])
+        >>> G.is_Rd_closed(dim=1)
+        True
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -2078,16 +2097,58 @@ class Graph(nx.Graph):
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        raise NotImplementedError()
+
+        if combinatorial:
+            if dim <= 1:
+                if all(
+                    [
+                        nx.subgraph(self, comp).is_isomorphic(
+                            nx.complete_graph(len(comp))
+                        )
+                        for comp in self.rigid_components(dim=dim)
+                    ]
+                ):
+                    return True
+                return False
+
+            raise ValueError(
+                f"The dimension for combinatorial computation must be 1, "
+                f"but is {dim}"
+            )
+
+        else:
+            F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
+            G = deepcopy(self)
+            for e in combinations(self.vertex_list(), 2):
+                if G.has_edge(*e):
+                    continue
+                G.add_edge(*e)
+                F1 = G.random_framework(dim=dim)
+                if F_rank == F1.rigidity_matrix_rank():
+                    return False
+                G.remove_edge(*e)
+            return True
 
     @doc_category("Generic rigidity")
-    def rigid_components(self, dim: int = 2) -> Sequence[Sequence[Vertex]]:
+    def rigid_components(
+        self, dim: int = 2, combinatorial: bool = True
+    ) -> list[list[Vertex]]:
         """
         List the vertex sets inducing vertex-maximal rigid subgraphs.
 
         Definitions
         -----
         :prf:ref:`Rigid components <def-rigid-components>`
+
+        Parameters
+        ---------
+        dim:
+            The dimension that is used for the rigidity check.
+        combinatorial:
+            Boolean determining whether a combinatorial algorithm shall be used:
+            connectivity for ``dim=1`` and pebble games for ``dim=2`` (TODO).
+            If ``combinatorial`` is ``False``, all subraphs
+            are checked using :meth:`~.Graph.is_rigid(combinatorial=False)`.
 
         Notes
         -----
@@ -2098,14 +2159,19 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.rigid_components()
+        >>> G.rigid_components(combinatorial=False)
         [[0, 1], [0, 3], [1, 2], [2, 3]]
 
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
         >>> G.is_rigid()
         False
-        >>> G.rigid_components()
+        >>> G.rigid_components(combinatorial=False)
         [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
+
+        TODO
+        ----
+        Implement using pebble games for dim=2 and adjust the docstring, tests
+        and :meth:`~.Graph.is_Rd_closed` with its tests accordingly.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -2114,30 +2180,44 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
+        if combinatorial and dim == 1:
+            return [list(comp) for comp in nx.connected_components(self)]
+
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
-                res += self.subgraph(comp).rigid_components(dim)
+                res += self.subgraph(comp).rigid_components(
+                    dim, combinatorial=combinatorial
+                )
             return res
 
-        if self.is_rigid(dim, combinatorial=(dim < 3)):
-            return [list(self)]
-        rigid_subgraphs = {
-            tuple(vertex_subset): True
-            for r in range(2, self.number_of_nodes() - 1)
-            for vertex_subset in combinations(self.nodes, r)
-            if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=(dim < 3))
-        }
+        if combinatorial:
+            # here will be the implementation using pebble games for dim=2
+            raise ValueError(
+                f"The dimension for combinatorial computation must be 1, "
+                f"but is {dim}"
+            )
 
-        sorted_rigid_subgraphs = sorted(
-            rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True
-        )
-        for i, H1 in enumerate(sorted_rigid_subgraphs):
-            if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
-                for H2 in sorted_rigid_subgraphs[i + 1 :]:
-                    if set(H2).issubset(set(H1)):
-                        rigid_subgraphs[H2] = False
-        return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
+        else:
+            if self.is_rigid(dim, combinatorial=False):
+                return [list(self)]
+
+            rigid_subgraphs = {
+                tuple(vertex_subset): True
+                for r in range(2, self.number_of_nodes() - 1)
+                for vertex_subset in combinations(self.nodes, r)
+                if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=False)
+            }
+
+            sorted_rigid_subgraphs = sorted(
+                rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True
+            )
+            for i, H1 in enumerate(sorted_rigid_subgraphs):
+                if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
+                    for H2 in sorted_rigid_subgraphs[i + 1 :]:
+                        if set(H2).issubset(set(H1)):
+                            rigid_subgraphs[H2] = False
+            return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
 
     @doc_category("Generic rigidity")
     def max_rigid_dimension(self) -> int | Inf:
