@@ -2695,7 +2695,7 @@ class Graph(nx.Graph):
 
         if isinstance(edge_color, str):
             return [edge_color for _ in edge_list], edge_list
-
+        print(edge_color)
         if isinstance(edge_color, list):
             edges_partition = edge_color
             colors = distinctipy.get_colors(

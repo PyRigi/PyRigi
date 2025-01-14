@@ -551,7 +551,9 @@ class Framework(object):
         vertex_color: str = "#ff8c00",
         vertex_shape: str = "o",
         vertex_size: int = 13.5,
-        edge_color: str = "k",
+        edge_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "black",
         edge_width: float = 1.1,
         edge_style: str = "solid",
         equal_aspect_ratio: bool = True,
@@ -592,6 +594,8 @@ class Framework(object):
         ax.grid(False)
         ax.set_axis_off()
 
+        edge_color_array, edge_list_ref = self._graph._resolve_edge_colors(edge_color)
+
         # Limits of the axes
         abs_list = [list(abs(i)) for i in self._realization.values()]
         abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
@@ -608,8 +612,10 @@ class Framework(object):
             [], [], [], vertex_shape, color=vertex_color, markersize=vertex_size
         )
         lines = [
-            ax.plot([], [], [], c=edge_color, lw=edge_width, linestyle=edge_style)[0]
-            for _ in range(len(self._graph.edges))
+            ax.plot(
+                [], [], [], c=edge_color_array[i], lw=edge_width, linestyle=edge_style
+            )[0]
+            for i in range(len(edge_list_ref))
         ]
 
         # Animation initialization function.
@@ -921,6 +927,8 @@ class Framework(object):
         ax.grid(False)
         ax.set_axis_off()
 
+        edge_color_array, edge_list_ref = self._graph._resolve_edge_colors(edge_color)
+
         if projection_matrix is None:
             pos = self.realization(as_points=True, numerical=True)
         else:
@@ -953,11 +961,12 @@ class Framework(object):
             ax.set_ylim(min(y_nodes) - padding, max(y_nodes) + padding)
             ax.set_xlim(min(x_nodes) - padding, max(x_nodes) + padding)
 
-        for edge in self._graph.edges():
+        for i in range(len(edge_list_ref)):
+            edge = edge_list_ref[i]
             x = [pos[edge[0]][0], pos[edge[1]][0]]
             y = [pos[edge[0]][1], pos[edge[1]][1]]
             z = [pos[edge[0]][2], pos[edge[1]][2]]
-            ax.plot(x, y, z, c=edge_color, lw=edge_width, linestyle=edge_style)
+            ax.plot(x, y, z, c=edge_color_array[i], lw=edge_width, linestyle=edge_style)
         for node in self._graph.nodes:
             x, y, z, *others = pos[node]
             # To show the name of the vertex
