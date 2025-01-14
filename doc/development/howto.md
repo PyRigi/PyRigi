@@ -159,7 +159,7 @@ Please, follow this naming convention for tests of a specific function/method:
 | `is_bar`  | `test_is_bar`    | that property `bar` holds
 | `is_bar`  | `test_is_not_bar`| that property `bar` does not hold
 
-There can be also more complex tests, i.e., testing more than a single method,
+There can be also more complex tests, i.e., testing more than a single method;
 please, choose a reasonable name for them following the idea above.
 
 Moreover, please add a section `EXAMPLES` in the docstring of the classes and methods that you introduce and provide there examples of the functionalities you implemented.
