@@ -2396,33 +2396,39 @@ class Framework(object):
                         for i in range(self._graph.number_of_edges())
                     ]
                 )
-            # SONC Criterion on the mixed points of the Newton polytope.
-            print(stress_energy)
             coefficients = {
                 (i, j): sp.Poly(stress_energy).coeff_monomial(a[i] * a[j])
                 for i in range(len(inf_flexes))
                 for j in range(i, len(inf_flexes))
             }
-            print(coefficients)
+            """
+            The SONC Criterion says that all faces on the boundary of the
+            Newton polytope need to satisfy the SONC property. It simplifies to
+            $|c_{ij}| <= sqrt(4*c_{ii}*c_{jj})$ for all $i,j$ for coefficients $c_{ij}$.
+            In addition, $c_{ii}$ and $c_{jj}$ need to have the same sign or be zero. 
+            """
             return all(
                 [
                     (
-                        sp.sign(coefficients[(i, i)]) == sp.sign(coefficients[(j, j)])
+                        (
+                            sp.sign(coefficients[(i, i)])
+                            == sp.sign(coefficients[(j, j)])
+                            or sp.sign(coefficients[(i, i)]) == 0
+                            or sp.sign(coefficients[(j, j)]) == 0
+                        )
                         and (
                             -coefficients[(i, j)]
                             if sp.sign(coefficients[(i, j)]) == -1
                             else coefficients[(i, j)]
                         )
                         <= sp.sqrt(4 * coefficients[(i, i)] * coefficients[(j, j)])
-                    ) or 
-                    (sp.sign(coefficients[(i, i)])==0 and sp.sign(coefficients[(i, j)]) == sp.sign(coefficients[(j, j)])) or
-                    (sp.sign(coefficients[(j, j)])==0 and sp.sign(coefficients[(i, j)]) == sp.sign(coefficients[(i, i)])) or
-                    (sp.sign(coefficients[(i, i)])==0 and sp.sign(coefficients[(i, j)]) == 0) or
-                    (sp.sign(coefficients[(j, j)])==0 and sp.sign(coefficients[(i, j)]) == 0)
+                    )
                     for i in range(len(inf_flexes))
                     for j in range(i + 1, len(inf_flexes))
                 ]
-            ) and not all([sp.sign(coefficients[(i, i)])==0 for i in range(len(inf_flexes))])
+            ) and not all(
+                [sp.sign(coefficients[(i, i)]) == 0 for i in range(len(inf_flexes))]
+            )
         """
         # Otherwise we utilize the stress matrix criterion by Connelly.
         a = sp.symbols("a0:%s" % len(stresses), real=True)
