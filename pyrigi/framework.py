@@ -29,7 +29,7 @@ from pyrigi.data_type import (
     Vertex,
     Edge,
     Point,
-    Inf_Flex,
+    InfFlex,
     Stress,
     point_to_vector,
     Sequence,
@@ -360,7 +360,7 @@ class Framework(object):
     def plot2D(  # noqa: C901
         self,
         coordinates: Sequence = None,
-        inf_flex: Matrix | Inf_Flex = None,
+        inf_flex: Matrix | InfFlex = None,
         stress: Matrix | Stress = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
@@ -2937,7 +2937,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_nontrivial_flex(
         self,
-        inf_flex: Inf_Flex,
+        inf_flex: InfFlex,
         **kwargs,
     ) -> bool:
         """
@@ -3043,7 +3043,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_trivial_flex(
         self,
-        inf_flex: Inf_Flex,
+        inf_flex: InfFlex,
         **kwargs,
     ) -> bool:
         """

@@ -36,9 +36,9 @@ Point = Sequence[Number]
 A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
 """
 
-Inf_Flex = Sequence[Number] | dict[Vertex, Sequence[Number]]
+InfFlex = Sequence[Number] | dict[Vertex, Sequence[Number]]
 """
-Given a framework in dimension `dim` with `n` vertices. An infinitesimal flex is either
+Given a framework in dimension `dim` with `n` vertices, an infinitesimal flex is either
 given by a Sequence of `Number` whose length is `dim*n` or by a dictionary from the set
 of vertices to a `Sequence` of length `dim`.
 """
