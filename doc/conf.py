@@ -80,7 +80,7 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_preprocess_types = True
-napoleon_custom_sections = ["Definitions", "Methods"]
+napoleon_custom_sections = ["Definitions", "Methods", "Suggested Improvements"]
 
 autodoc_type_aliases = {
     "Vertex": "Vertex",
@@ -122,6 +122,8 @@ myst_substitutions = {
 myst_heading_anchors = 3
 
 nb_execution_mode = "cache"
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
 
 tippy_enable_mathjax = True
 tippy_props = {

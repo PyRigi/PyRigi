@@ -13,7 +13,6 @@ Classes:
 """
 
 from __future__ import annotations
-from typing import List, Dict, Union
 
 from copy import deepcopy
 from itertools import combinations
@@ -21,6 +20,9 @@ from random import randrange
 
 import networkx as nx
 import sympy as sp
+import numpy as np
+import functools
+
 from sympy import Matrix, flatten, binomial
 import numpy as np
 
@@ -42,10 +44,14 @@ from pyrigi.misc import (
     check_integrality_and_range,
     is_zero_vector,
     generate_two_orthonormal_vectors,
+    generate_three_orthonormal_vectors,
     eval_sympy_vector,
 )
 
-from typing import Optional
+from typing import Optional, Any
+import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.animation import FuncAnimation
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
@@ -95,11 +101,11 @@ class Framework(object):
 
     Notes
     -----
-    Internally, the realization is represented as ``Dict[Vertex,Matrix]``.
-    However, :meth:`~Framework.realization` can also return ``Dict[Vertex,Point]``.
+    Internally, the realization is represented as ``dict[Vertex,Matrix]``.
+    However, :meth:`~Framework.realization` can also return ``dict[Vertex,Point]``.
     """
 
-    def __init__(self, graph: Graph, realization: Dict[Vertex, Point]) -> None:
+    def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
         if nx.number_of_selfloops(graph) > 0:
@@ -209,7 +215,9 @@ class Framework(object):
         self._graph.add_node(vertex)
 
     @doc_category("Framework manipulation")
-    def add_vertices(self, points: List[Point], vertices: List[Vertex] = []) -> None:
+    def add_vertices(
+        self, points: Sequence[Point], vertices: Sequence[Vertex] = []
+    ) -> None:
         r"""
         Add a list of vertices to the framework.
 
@@ -259,7 +267,7 @@ class Framework(object):
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
-    def add_edges(self, edges: List[Edge]) -> None:
+    def add_edges(self, edges: Sequence[Edge]) -> None:
         """
         Add a list of edges to the framework.
 
@@ -286,10 +294,12 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_2D_realization(
         self,
-        realization: Dict[Vertex, Point],
-        inf_flex: Dict[Vertex, Sequence[Coordinate]] = None,
+        realization: dict[Vertex, Point],
+        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
+        stress: dict[Edge, Coordinate] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
+        curved_edges=False,
         **kwargs,
     ) -> None:
         """
@@ -302,15 +312,25 @@ class Framework(object):
         realization:
             The realization in the plane used for plotting.
         inf_flex:
-            Optional parameter for plotting an infinitesimal flex. We expect
-            it to have the same format as `realization`: `Dict[Vertex, Point]`.
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+        stress:
+            Optional parameter for plotting an equilibrium stress. We expect
+            it to have the format `Dict[Edge, Coordinate]`.
         """
 
         self._graph.plot(
             placement=realization,
+            inf_flex=inf_flex,
+            stress=stress,
             vertex_color=vertex_color,
             edge_width=edge_width,
-            inf_flex=inf_flex,
+            curved_edges=curved_edges,
             **kwargs,
         )
 
@@ -344,11 +364,13 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(  # noqa: C901
         self,
-        coordinates: Union[tuple, List] = None,
-        inf_flex: Matrix | int | Dict[Vertex, Sequence[Coordinate]] = None,
+        coordinates: Sequence[int] = None,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        stress: Matrix | int | dict[Edge, Coordinate] = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
+        curved_edges: bool = False,
         **kwargs,
     ) -> Optional[Matrix]:
         """
@@ -373,17 +395,34 @@ class Framework(object):
             The random seed used for generating the projection matrix.
             When the same value is provided, the framework will plot exactly same.
         coordinates:
-            Indexes of two coordinates that will be used as the placement in 2D.
+            Indices of two coordinates that will be used as the placement in 2D.
         inf_flex:
-            Optional parameter for plotting a given infinitesimal flex. It is
-            important to use the same vertex order as the one
+            Optional parameter for plotting a given infinitesimal flex. The standard
+            input format is a ``Matrix`` that is the output of e.g. the method
+            ``Framework.inf_flexes``. Alternatively, an ``int`` can be specified
+            to directly choose the 0,1,2,...-th nontrivial infinitesimal flex (according
+            to the method ``Framework.nontrivial_inf_flexes``) for plotting.
+            For these input types, is important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
-            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
-            nontrivial infinitesimal flex for plotting.
-            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
-            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+            If the vertex order needs to be specified, a
+            ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which maps the
+            vertex labels to vectors (i.e. a sequence of coordinates).
+        stress:
+            Optional parameter for plotting a given equilibrium stress. The standard
+            input format is a ``Matrix`` that is the output of e.g. the method
+            ``Framework.stresses``. Alternatively, an ``int`` can be specified
+            to directly choose the 0,1,2,...-th equilibrium stress (according
+            to the method ``Framework.stresses``) for plotting.
+            For these input types, is important to use the same edge order as the one
+            from :meth:`.Graph.edge_list`.
+            If the edge order needs to be specified, a ``Dict[Edge, Coordinate]``
+            can be provided, which maps the edges to numbers
+            (i.e. coordinates).
         return_matrix:
             If True the matrix used for projection into 2D is returned.
+        curved_edges:
+            If the points are collinear (or close to collinear), then we can set this
+            ``bool`` to ``True``. The result is that the edges are plotted as arcs.
 
         TODO
         -----
@@ -395,7 +434,7 @@ class Framework(object):
                 inf_flex_basis = self.nontrivial_inf_flexes()
                 if inf_flex >= len(inf_flex_basis):
                     raise IndexError(
-                        "The value of inf_flex exceeds "
+                        "The value of `inf_flex` exceeds "
                         + "the dimension of the space "
                         + "of infinitesimal flexes."
                     )
@@ -405,16 +444,39 @@ class Framework(object):
             elif isinstance(inf_flex, Matrix):
                 inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
             elif isinstance(inf_flex, dict) and all(
-                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+                isinstance(inf_flex[key], list | tuple) for key in inf_flex.keys()
             ):
                 inf_flex_pointwise = inf_flex
             else:
-                raise TypeError("inf_flex does not have the correct Type.")
+                raise TypeError("`inf_flex` does not have the correct Type.")
 
             if not self.is_dict_inf_flex(inf_flex_pointwise):
                 raise ValueError(
                     "The provided `inf_flex` is not an infinitesimal flex."
                 )
+
+        stress_edgewise = None
+        if stress is not None:
+            if isinstance(stress, int) and stress >= 0:
+                stresses = self.stresses()
+                if stress >= len(stresses):
+                    raise IndexError(
+                        "The value of `stress` exceeds "
+                        + "the dimension of the space "
+                        + "of equilibrium stresses."
+                    )
+                stress_edgewise = self._transform_stress_to_edgewise(stresses[stress])
+            elif isinstance(stress, Matrix):
+                stress_edgewise = self._transform_stress_to_edgewise(stress)
+            elif isinstance(stress, dict) and all(
+                isinstance(stress[key], int | float | str) for key in stress.keys()
+            ):
+                stress_edgewise = stress
+            else:
+                raise TypeError("`stress` does not have the correct Type.")
+
+            if not self.is_dict_stress(stress_edgewise):
+                raise ValueError("The provided `stress` is not an equilibrium stress.")
 
         if self._dim == 1:
             placement = {}
@@ -428,14 +490,22 @@ class Framework(object):
                     v: (flex_v[0], 0) for v, flex_v in inf_flex_pointwise.items()
                 }
             self._plot_with_2D_realization(
-                placement, inf_flex=inf_flex_pointwise, **kwargs
+                placement,
+                inf_flex=inf_flex_pointwise,
+                stress=stress_edgewise,
+                curved_edges=True,
+                **kwargs,
             )
             return
 
         if self._dim == 2:
             placement = self.realization(as_points=True, numerical=True)
             self._plot_with_2D_realization(
-                placement, inf_flex=inf_flex_pointwise, **kwargs
+                placement,
+                inf_flex=inf_flex_pointwise,
+                stress=stress_edgewise,
+                curved_edges=curved_edges,
+                **kwargs,
             )
             return
 
@@ -476,37 +546,615 @@ class Framework(object):
             return projection_matrix
 
     @doc_category("Other")
-    def plot(
+    def _animate_rotation_around_axis(
         self,
-        **kwargs,
-    ) -> None:
+        vertex_color: str = "#ff8c00",
+        vertex_shape: str = "o",
+        vertex_size: int = 13.5,
+        edge_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "black",
+        edge_width: float = 1.1,
+        edge_style: str = "solid",
+        equal_aspect_ratio: bool = True,
+        total_frames: int = 50,
+        delay: int = 75,
+        rotation_axis: str | Sequence[Coordinate] = None,
+    ) -> Any:
         """
-        Plot the framework.
+        Plot this framework in 3D and animate a rotation around an axis.
 
-        If the dimension of the framework is greater than 2, ``ValueError`` is raised,
-        use :meth:`.Framework.plot2D` instead.
+        Parameters
+        ----------
+        vertex_color, vertex_shape, vertex_size, edge_color, edge_width, edge_style:
+            The user can choose differen colors etc. both for edges and vertices.
+        total_frames:
+            Number of frames used for the animation. The higher this number,
+            the smoother the resulting animation.
+        equal_aspect_ratio:
+            Determines whether the aspect ratio of the plot is equal in all space
+            directions or whether it is adjusted depending on the framework's size
+            in `x`, `y` and `z`-direction individually.
+        delay:
+            Delay between frames in milliseconds.
+        rotation_axis:
+            The user can input a rotation axis or vector. By default, a rotation around
+            the z-axis is performed. This can either be done in the form of a char
+            ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F._animate_rotation_around_axis();
+        """
+        # Creation of the figure
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+        ax.grid(False)
+        ax.set_axis_off()
+
+        edge_color_array, edge_list_ref = self._graph._resolve_edge_colors(edge_color)
+
+        # Limits of the axes
+        abs_list = [list(abs(i)) for i in self._realization.values()]
+        abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
+
+        vertices = np.array(
+            [
+                list(list(self.realization(numerical=True).values())[i])
+                for i in range(self._graph.number_of_nodes())
+            ]
+        )
+
+        # Initializing points (vertices) and lines (edges) for display
+        (vertices_plot,) = ax.plot(
+            [], [], [], vertex_shape, color=vertex_color, markersize=vertex_size
+        )
+        lines = [
+            ax.plot(
+                [], [], [], c=edge_color_array[i], lw=edge_width, linestyle=edge_style
+            )[0]
+            for i in range(len(edge_list_ref))
+        ]
+
+        # Animation initialization function.
+        def init():
+            vertices_plot.set_data([], [])  # Initial coordinates of vertices
+            vertices_plot.set_3d_properties([])  # Initial 3D properties of vertices
+            for line in lines:
+                line.set_data([], [])
+                line.set_3d_properties([])
+            return [vertices_plot] + lines
+
+        def _rotation_matrix(v, frame):
+            # Compute the rotation matrix Q
+            v = np.array(v)
+            v = v / np.linalg.norm(v)
+            angle = frame * np.pi / total_frames
+            cos_angle = np.cos(angle)
+            sin_angle = np.sin(angle)
+
+            # Rodrigues' rotation matrix
+            K = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+            Q = np.eye(3) * cos_angle + K * sin_angle + np.outer(v, v) * (1 - cos_angle)
+            return Q
+
+        match rotation_axis:
+            case None | "z" | "Z":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([0, 0, 1])
+                )
+            case "x" | "X":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([1, 0, 0])
+                )
+            case "y" | "Y":
+                rotation_matrix = functools.partial(
+                    _rotation_matrix, np.array([0, 1, 0])
+                )
+            case _:  # Rotation around a custom axis
+                if isinstance(rotation_axis, (np.ndarray, list, tuple)):
+                    if len(rotation_axis) != 3:
+                        raise ValueError("The rotation_axis must have length 3.")
+                    rotation_matrix = functools.partial(
+                        _rotation_matrix, np.array(rotation_axis)
+                    )
+                else:
+                    raise ValueError(
+                        "The rotation_axis must be of one of the following "
+                        + "types: np.ndarray, list, tuple."
+                    )
+
+        rot_vertices = sum(
+            [
+                vertices.dot(rotation_matrix(frame).T).tolist()
+                for frame in range(2 * total_frames)
+            ],
+            [],
+        )
+        if equal_aspect_ratio:
+            min_val = min([min(pt) for pt in rot_vertices]) - 0.01
+            max_val = max([max(pt) for pt in rot_vertices]) + 0.01
+            ax.set_zlim(min_val, max_val)
+            ax.set_ylim(min_val, max_val)
+            ax.set_xlim(min_val, max_val)
+        else:
+            ax.set_zlim(
+                min([pt[2] for pt in rot_vertices]) - 0.01,
+                max([pt[2] for pt in rot_vertices]) + 0.01,
+            )
+            ax.set_ylim(
+                min([pt[1] for pt in rot_vertices]) - 0.01,
+                max([pt[1] for pt in rot_vertices]) + 0.01,
+            )
+            ax.set_xlim(
+                min([pt[0] for pt in rot_vertices]) - 0.01,
+                max([pt[0] for pt in rot_vertices]) + 0.01,
+            )
+
+        # Function to update data at each frame
+        def update(frame):
+            one_rotation_matrix = rotation_matrix(frame)
+            rotated_vertices = vertices.dot(one_rotation_matrix.T)
+
+            # Update vertices positions
+            vertices_plot.set_data(rotated_vertices[:, 0], rotated_vertices[:, 1])
+            vertices_plot.set_3d_properties(rotated_vertices[:, 2])
+
+            # Update the edges
+            for i, (start, end) in enumerate(self._graph.edges):
+                line = lines[i]
+                line.set_data(
+                    [rotated_vertices[start, 0], rotated_vertices[end, 0]],
+                    [rotated_vertices[start, 1], rotated_vertices[end, 1]],
+                )
+                line.set_3d_properties(
+                    [rotated_vertices[start, 2], rotated_vertices[end, 2]]
+                )
+
+            return [vertices_plot] + lines
+
+        # Creating the animation
+        ani = FuncAnimation(
+            fig,
+            update,
+            frames=total_frames * 2,
+            interval=delay,
+            init_func=init,
+            blit=True,
+        )
+
+        plt.tight_layout()
+        # Checking if we are running from the terminal or from a notebook
+        import sys
+
+        if "ipykernel" in sys.modules:
+            from IPython.display import HTML
+
+            plt.close()
+            return HTML(ani.to_jshtml())
+        else:
+            plt.show()
+            return
+
+    @doc_category("Other")
+    def plot3D(
+        self,
+        coordinates: Sequence[int] = None,
+        projection_matrix: Matrix = None,
+        return_matrix: bool = False,
+        random_seed: int = None,
+        animation: bool = False,
+        **kwargs,
+    ) -> Optional[Matrix]:
+        """
+        Plot the provided framework in 3D.
+
+        If the framework is in a dimension higher than 3 and ``projection_matrix``
+        with ``coordinates`` are ``None``, a random projection matrix
+        containing three orthonormal vectors is generated and used for projection into 3D.
+        This particular matrix is then returned.
         For various formatting options, see :meth:`.Graph.plot`.
+        Only the parameter `coordinates` or `projection_matrix` can be used,
+        not both at the same time.
 
+        Parameters
+        ----------
+        projection_matrix:
+            The matrix used for projecting the realization of vertices
+            when the dimension is higher than 3.
+            The matrix must have dimensions ``(3, dim)``,
+            where ``dim`` is the dimension of the framework.
+            If ``None``, a random projection matrix is generated.
+        random_seed:
+            The seed used for generating a random projection matrix.
+        coordinates:
+            Indices of three coordinates to which the framework is projected.
+        return_matrix:
+            If ``True``, the matrix used for projection into 3D is returned.
+        animation:
+            If ``True``, the plot is a rotating figure.
+
+        Notes
+        -----
+        See :meth:`.Framework._plot_using_projection_matrix_3D` for a full
+        list of parameters.
 
         TODO
         ----
-        Implement plotting in dimension 3 and
-        better plotting for dimension 1 using ``connectionstyle``
+        Project the `inf_flex` as well.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F.plot3D();
         """
 
-        if self._dim > 2:
-            raise ValueError(
-                "This framework is in higher dimension than 2!"
-                + " For projection into 2D use F.plot2D()"
-            )
+        if self._dim == 1 or self._dim == 2:
+            return self.plot2D(**kwargs)
 
-        self.plot2D(**kwargs)
+        if self._dim == 3 and not animation:
+            return self._plot_with_3D_realization(**kwargs)
+
+        elif self._dim == 3 and animation:
+            return self._animate_rotation_around_axis(**kwargs)
+
+        # dim > 3 -> use projection to 3D
+        if coordinates is not None:
+            if (
+                not isinstance(coordinates, tuple)
+                and not isinstance(coordinates, list)
+                or len(coordinates) != 3
+            ):
+                raise ValueError(
+                    "The parameter `coordinates` must have length 3!"
+                    + " Exactly three coordinates are necessary for plotting in 3D."
+                )
+            if np.max(coordinates) >= self._dim:
+                raise ValueError(
+                    f"Index {np.max(coordinates)} out of range"
+                    + f" with placement in dim: {self._dim}."
+                )
+            projection_matrix = np.zeros((3, self._dim))
+            projection_matrix[0, coordinates[0]] = 1
+            projection_matrix[1, coordinates[1]] = 1
+            projection_matrix[2, coordinates[2]] = 1
+
+        if projection_matrix is not None:
+            projection_matrix = np.array(projection_matrix)
+            if projection_matrix.shape != (3, self._dim):
+                raise ValueError(
+                    f"The projection matrix has wrong dimensions! \
+                    {projection_matrix.shape} instead of (3, {self._dim})."
+                )
+        else:
+            projection_matrix = generate_three_orthonormal_vectors(
+                self._dim, random_seed=random_seed
+            )
+            projection_matrix = projection_matrix.T
+        self._plot_with_3D_realization(projection_matrix=projection_matrix, **kwargs)
+        if return_matrix:
+            return projection_matrix
+
+    @doc_category("Other")
+    def _plot_with_3D_realization(
+        self,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        projection_matrix: Matrix = None,
+        vertex_color: str = "#ff8c00",
+        vertex_size: int = 200,
+        vertex_shape: str = "o",
+        vertex_labels: bool = True,
+        font_color: str = "whitesmoke",
+        fontsize: int = 10,
+        edge_width: float = 2.5,
+        edge_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "black",
+        edge_style: str = "solid",
+        equal_aspect_ratio: bool = True,
+        padding: float = 0.01,
+        **kwargs,
+    ) -> None:
+        """
+        Plot the graph of the framework with the given realization in the plane.
+
+        For description of other parameters see :meth:`.Framework.plot`.
+
+        Parameters
+        ----------
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+        projection_matrix:
+            The matrix used for projection.
+            The matrix must have dimensions ``(3, dim)``,
+            where ``dim`` is the dimension of the framework.
+        vertex_color:
+            The color of the vertices. The color can be a string or an rgb (or rgba)
+            tuple of floats from 0-1.
+        vertex_size:
+            The size of the vertices.
+        vertex_shape:
+            The shape of the vertices specified as as matplotlib.scatter
+            marker, one of ``so^>v<dph8``.
+        vertex_labels:
+            If ``True`` (default), vertex labels are displayed.
+        fontsize:
+            The size of the font used for the labels.
+        font_color:
+            The color of the font used for the labels.
+        edge_width:
+        edge_color:
+            If a single color is given as a string or rgb (or rgba) tuple
+            of floats from 0-1, then all edges get this color.
+            If a (possibly incomplete) partition of the edges is given,
+            then each part gets a different color.
+            If a dictionary from colors to a list of edge is given,
+            edges are colored accordingly.
+            The edges missing in the partition/dictionary, are colored black.
+        edge_style:
+            Edge line style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        equal_aspect_ratio:
+            Determines whether the aspect ratio of the plot is equal in all space
+            directions or whether it is adjusted depending on the framework's size
+            in `x`, `y` and `z`-direction individually.
+        padding:
+            Specifies the white space around the framework.
+
+        Notes
+        -----
+        The parameters for `inf_flex`-plotting are listed in
+        the API reference.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(4, dim=3)
+        >>> F._plot_with_3D_realization();
+        """
+        # Create a figure for the rapresentation of the framework
+        fig = plt.figure(dpi=150)
+        ax = fig.add_subplot(111, projection="3d")
+        ax.grid(False)
+        ax.set_axis_off()
+
+        edge_color_array, edge_list_ref = self._graph._resolve_edge_colors(edge_color)
+
+        if projection_matrix is None:
+            pos = self.realization(as_points=True, numerical=True)
+        else:
+            pos = {}
+            for vertex, position in self.realization(
+                as_points=False, numerical=True
+            ).items():
+                pos[vertex] = np.dot(projection_matrix, np.array(position))
+
+        # Draw the vertices as points in the 3D enviroment
+        x_nodes = [pos[node][0] for node in self._graph.nodes]
+        y_nodes = [pos[node][1] for node in self._graph.nodes]
+        z_nodes = [pos[node][2] for node in self._graph.nodes]
+        ax.scatter(
+            x_nodes,
+            y_nodes,
+            z_nodes,
+            c=vertex_color,
+            s=vertex_size,
+            marker=vertex_shape,
+        )
+        if equal_aspect_ratio:
+            min_val = min(x_nodes + y_nodes + z_nodes) - padding
+            max_val = max(x_nodes + y_nodes + z_nodes) + padding
+            ax.set_zlim(min_val, max_val)
+            ax.set_ylim(min_val, max_val)
+            ax.set_xlim(min_val, max_val)
+        else:
+            ax.set_zlim(min(z_nodes) - padding, max(z_nodes) + padding)
+            ax.set_ylim(min(y_nodes) - padding, max(y_nodes) + padding)
+            ax.set_xlim(min(x_nodes) - padding, max(x_nodes) + padding)
+
+        for i in range(len(edge_list_ref)):
+            edge = edge_list_ref[i]
+            x = [pos[edge[0]][0], pos[edge[1]][0]]
+            y = [pos[edge[0]][1], pos[edge[1]][1]]
+            z = [pos[edge[0]][2], pos[edge[1]][2]]
+            ax.plot(x, y, z, c=edge_color_array[i], lw=edge_width, linestyle=edge_style)
+        for node in self._graph.nodes:
+            x, y, z, *others = pos[node]
+            # To show the name of the vertex
+            if vertex_labels:
+                ax.text(
+                    x,
+                    y,
+                    z,
+                    str(node),
+                    color=font_color,
+                    fontsize=fontsize,
+                    ha="center",
+                    va="center",
+                    alpha=1,
+                )
+        self._plot_inf_flex(ax, inf_flex, **kwargs)
+
+        plt.tight_layout()
+        plt.show()
+
+    @doc_category("Other")
+    def _plot_inf_flex(  # noqa: C901
+        self,
+        ax: Axes,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
+        points: dict[Vertex, Point] = None,
+        flex_width: float = 2.5,
+        flex_length: float = 0.65,
+        flex_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "limegreen",
+        flex_style: str = "solid",
+    ) -> None:
+        """
+        Adds infinitesimal flexes based in the `points` as vectors to the axis `ax`.
+
+        Parameters
+        ----------
+        ax:
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+        flex_width:
+            Width of the infinitesimal flex's arrowtail.
+        flex_length:
+            Length of the displayed flex relative to the total canvas
+            diagonal in percent. By default 15%.
+        flex_color:
+            The color of the infinitesimal flex is by default 'limegreen'.
+        flex_style:
+            Line Style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        """
+        if inf_flex is not None:
+            inf_flex_pointwise = None
+            if isinstance(inf_flex, int) and inf_flex >= 0:
+                inf_flex_basis = self.nontrivial_inf_flexes()
+                if inf_flex >= len(inf_flex_basis):
+                    raise IndexError(
+                        "The value of inf_flex exceeds "
+                        + "the dimension of the space "
+                        + "of infinitesimal flexes."
+                    )
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
+                    inf_flex_basis[inf_flex]
+                )
+            elif isinstance(inf_flex, Matrix):
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
+            elif isinstance(inf_flex, dict) and all(
+                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+            ):
+                inf_flex_pointwise = inf_flex
+            else:
+                raise TypeError("inf_flex does not have the correct Type.")
+
+            if not self.is_dict_inf_flex(inf_flex_pointwise):
+                raise ValueError(
+                    "The provided `inf_flex` is not an infinitesimal flex."
+                )
+
+            if points is None:
+                points = self.realization(as_points=True, numerical=True)
+            elif not isinstance(points, dict):
+                raise TypeError("Realization has the wrong type!")
+            elif not all(
+                [
+                    len(points[v]) == len(points[points.keys()[0]])
+                    and len(points[v]) in [2, 3]
+                    for v in self._graph.nodes
+                ]
+            ):
+                raise ValueError(
+                    "Not all values in the realization have the same"
+                    + "length and the dimension needs to be 2 or 3."
+                )
+
+            magnidutes = []
+            for flex_key in inf_flex_pointwise.keys():
+                if len(inf_flex_pointwise[flex_key]) != len(
+                    points[list(points.keys())[0]]
+                ):
+                    raise ValueError(
+                        "The infinitesimal flex needs to be "
+                        + f"in dimension {len(points[list(points.keys())[0]])}."
+                    )
+                inf_flex = [float(x) for x in inf_flex_pointwise[flex_key]]
+                magnidutes.append(np.linalg.norm(inf_flex))
+
+            # normalize the edge lengths by the Euclidean norm of the longest one
+            flex_mag = max(magnidutes)
+            for flex_key in inf_flex_pointwise.keys():
+                if not all(entry == 0 for entry in inf_flex_pointwise[flex_key]):
+                    inf_flex_pointwise[flex_key] = tuple(
+                        flex / flex_mag for flex in inf_flex_pointwise[flex_key]
+                    )
+            # Delete the edges with zero length
+            inf_flex_pointwise = {
+                flex_key: np.array(inf_flex_pointwise[flex_key], dtype=float)
+                for flex_key in inf_flex_pointwise.keys()
+                if not all(entry == 0 for entry in inf_flex_pointwise[flex_key])
+            }
+
+            for v in inf_flex_pointwise.keys():
+                if len(points[v]) == 2:
+                    ax.quiver(
+                        points[v][0],
+                        points[v][1],
+                        inf_flex_pointwise[v][0],
+                        inf_flex_pointwise[v][1],
+                        color=flex_color,
+                        lw=flex_width,
+                        linestyle=flex_style,
+                        length=flex_length,
+                        normalize=True,
+                        arrow_length_ratio=0.25,
+                    )
+
+                elif self._dim == 3:
+                    ax.quiver(
+                        points[v][0],
+                        points[v][1],
+                        points[v][2],
+                        inf_flex_pointwise[v][0],
+                        inf_flex_pointwise[v][1],
+                        inf_flex_pointwise[v][2],
+                        color=flex_color,
+                        lw=flex_width,
+                        linestyle=flex_style,
+                        length=flex_length,
+                        arrow_length_ratio=0.25,
+                    )
+
+    @doc_category("Other")
+    def plot(
+        self,
+        **kwargs,
+    ) -> Optional[Matrix]:
+        """
+        Plot the framework.
+
+        Notes
+        -----
+        If the dimension of the framework is greater than 3, ``ValueError`` is raised,
+        use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
+        For various formatting options, see :meth:`.Graph.plot`.
+        """
+
+        if self._dim == 3:
+            return self.plot3D(**kwargs)
+        elif self._dim > 3:
+            raise ValueError(
+                "This framework is in higher dimension than 3!"
+                + " For projection into 2D use F.plot2D(),"
+                + " for projection into 3D use F.plot3D()."
+            )
+        else:
+            return self.plot2D(**kwargs)
 
     @doc_category("Other")
     def to_tikz(
         self,
-        vertex_style: Union(str, dict[str : list[Vertex]]) = "fvertex",
-        edge_style: Union(str, dict[str : list[Edge]]) = "edge",
+        vertex_style: str | dict[str : Sequence[Vertex]] = "fvertex",
+        edge_style: str | dict[str : Sequence[Edge]] = "edge",
         label_style: str = "labelsty",
         figure_opts: str = "",
         vertex_in_labels: bool = False,
@@ -617,7 +1265,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def from_points(cls, points: List[Point]) -> Framework:
+    def from_points(cls, points: Sequence[Point]) -> Framework:
         """
         Generate a framework from a list of points.
 
@@ -646,7 +1294,7 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, dim: int = 2, rand_range: int | List[int] = None
+        cls, graph: Graph, dim: int = 2, rand_range: int | Sequence[int] = None
     ) -> Framework:
         """
         Return a framework with random realization.
@@ -670,20 +1318,17 @@ class Framework(object):
 
         Notes
         -----
-        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``.
-
-        TODO
-        ----
-        Set the correct default range value.
+        If ``rand_range=None``, then the range is set to ``(-a,a)`` for
+        ``a = 10^4 * n * d``.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            b = 10**4 * graph.number_of_nodes() ** 2 * dim
+            b = 10**4 * graph.number_of_nodes() * dim
             a = -b
-        if isinstance(rand_range, list):
+        if isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
                 raise ValueError("If `rand_range` is a list, it must be of length 2.")
             a, b = rand_range
@@ -730,7 +1375,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Collinear(cls, graph: Graph, d: int = 1) -> Framework:
+    def Collinear(cls, graph: Graph, dim: int = 1) -> Framework:
         """
         Return the framework with a realization on the x-axis in the d-dimensional space.
 
@@ -742,23 +1387,23 @@ class Framework(object):
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
-        >>> Framework.Collinear(graphs.Complete(3), d=2)
+        >>> Framework.Collinear(graphs.Complete(3), dim=2)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
-        check_integrality_and_range(d, "dimension d", 1)
+        check_integrality_and_range(dim, "dimension d", 1)
         return Framework(
             graph,
             {
-                v: [i] + [0 for _ in range(d - 1)]
+                v: [i] + [0 for _ in range(dim - 1)]
                 for i, v in enumerate(graph.vertex_list())
             },
         )
 
     @classmethod
     @doc_category("Class methods")
-    def Simplicial(cls, graph: Graph, d: int = None) -> Framework:
+    def Simplicial(cls, graph: Graph, dim: int = None) -> Framework:
         """
         Return the framework with a realization on the d-simplex.
 
@@ -766,10 +1411,10 @@ class Framework(object):
         ----------
         graph:
             Underlying graph on which the framework is constructed.
-        d:
-            The dimension ``d`` has to be at least the number of vertices
+        dim:
+            The dimension ``dim`` has to be at least the number of vertices
             of the ``graph`` minus one.
-            If ``d`` is not specified, then the least possible one is used.
+            If ``dim`` is not specified, then the least possible one is used.
 
         Examples
         ----
@@ -780,15 +1425,15 @@ class Framework(object):
         >>> F.realization(as_points=True)
         {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
-        if d is None:
-            d = graph.number_of_nodes() - 1
+        if dim is None:
+            dim = graph.number_of_nodes() - 1
         check_integrality_and_range(
-            d, "dimension d", max([1, graph.number_of_nodes() - 1])
+            dim, "dimension d", max([1, graph.number_of_nodes() - 1])
         )
         return Framework(
             graph,
             {
-                v: [1 if j == i - 1 else 0 for j in range(d)]
+                v: [1 if j == i - 1 else 0 for j in range(dim)]
                 for i, v in enumerate(graph.vertex_list())
             },
         )
@@ -822,7 +1467,7 @@ class Framework(object):
 
     @classmethod
     @doc_category("Class methods")
-    def Complete(cls, points: List[Point]) -> Framework:
+    def Complete(cls, points: Sequence[Point]) -> Framework:
         """
         Generate a framework on the complete graph from a given list of points.
 
@@ -857,7 +1502,7 @@ class Framework(object):
         del self._realization[vertex]
 
     @doc_category("Framework manipulation")
-    def delete_vertices(self, vertices: List[Vertex]) -> None:
+    def delete_vertices(self, vertices: Sequence[Vertex]) -> None:
         """
         Delete a list of vertices from the framework.
         """
@@ -872,7 +1517,7 @@ class Framework(object):
         self._graph.delete_edge(edge)
 
     @doc_category("Framework manipulation")
-    def delete_edges(self, edges: List[Edge]) -> None:
+    def delete_edges(self, edges: Sequence[Edge]) -> None:
         """
         Delete a list of edges from the framework.
         """
@@ -881,7 +1526,7 @@ class Framework(object):
     @doc_category("Attribute getters")
     def realization(
         self, as_points: bool = False, numerical: bool = False
-    ) -> Dict[Vertex, Point]:
+    ) -> dict[Vertex, Point]:
         """
         Return a copy of the realization.
 
@@ -982,7 +1627,7 @@ class Framework(object):
         return True
 
     @doc_category("Framework manipulation")
-    def set_realization(self, realization: Dict[Vertex, Point]) -> None:
+    def set_realization(self, realization: dict[Vertex, Point]) -> None:
         r"""
         Change the realization of the framework.
 
@@ -1044,7 +1689,7 @@ class Framework(object):
 
     @doc_category("Framework manipulation")
     def set_vertex_positions_from_lists(
-        self, vertices: List[Vertex], points: List[Point]
+        self, vertices: Sequence[Vertex], points: Sequence[Point]
     ) -> None:
         """
         Change the coordinates of a given list of vertices.
@@ -1074,7 +1719,7 @@ class Framework(object):
         self.set_vertex_positions({v: pos for v, pos in zip(vertices, points)})
 
     @doc_category("Framework manipulation")
-    def set_vertex_positions(self, subset_of_realization: Dict[Vertex, Point]):
+    def set_vertex_positions(self, subset_of_realization: dict[Vertex, Point]):
         """
         Change the coordinates of vertices given by a dictionary.
 
@@ -1097,8 +1742,8 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix(
         self,
-        vertex_order: List[Vertex] = None,
-        edge_order: List[Edge] = None,
+        vertex_order: Sequence[Vertex] = None,
+        edge_order: Sequence[Edge] = None,
     ) -> Matrix:
         r"""
         Construct the rigidity matrix of the framework.
@@ -1153,87 +1798,55 @@ class Framework(object):
             ]
         )
 
-    def pinned_rigidity_matrix(
-        self,
-        pinned_vertices: Dict[Vertex, List[int]] = None,
-        vertex_order: List[Vertex] = None,
-        edge_order: List[Edge] = None,
-    ) -> Matrix:
-        r"""
-        Construct the rigidity matrix of the framework.
+    @doc_category("Infinitesimal rigidity")
+    def is_dict_stress(self, dict_stress: dict[Edge, Coordinate], **kwargs) -> bool:
+        """
+        Return whether a dictionary specifies an equilibrium stress of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Equilibrium Stress <def-equilibrium-stress>`
 
         Parameters
         ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the columns
-            of the rigidity matrix.
-        edge_order:
-            A list of edges, providing the ordering for the rows
-            of the rigidity matrix.
+        dict_stress:
+            Dictionary that maps the edge labels to coordinates.
 
-        TODO
-        ----
-        definition of pinned rigidity matrix, tests
+        Notes
+        -----
+        See :meth:`.Framework.is_vector_stress`.
 
         Examples
         --------
-        >>> F = Framework(Graph([[0, 1], [0, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
-        >>> F.pinned_rigidity_matrix()
-        Matrix([
-        [-1,  0, 1, 0, 0, 0],
-        [-1, -1, 0, 0, 1, 1],
-        [ 1,  0, 0, 0, 0, 0],
-        [ 0,  1, 0, 0, 0, 0],
-        [ 0,  0, 1, 0, 0, 0]])
+        >>> F = Framework.Complete([[0,0], [1,0], ['1/2',0]])
+        >>> F.is_dict_stress({(0,1):'-1/2', (0,2):1, (1,2):1})
+        True
+        >>> F.is_dict_stress({(0,1):1, (1,2):'-1/2', (0,2):1})
+        False
         """
-        vertex_order = self._check_vertex_order(vertex_order)
-        edge_order = self._check_edge_order(edge_order)
-        rigidity_matrix = self.rigidity_matrix(
-            vertex_order=vertex_order, edge_order=edge_order
+        stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
+        self._check_edge_order(stress_edge_list)
+        graph_edge_list = [tuple(e) for e in self._graph.edge_list()]
+        dict_to_list = []
+
+        for e in graph_edge_list:
+            dict_to_list += [
+                (
+                    dict_stress[e]
+                    if e in stress_edge_list
+                    else dict_stress[tuple([e[1], e[0]])]
+                )
+            ]
+
+        return self.is_vector_stress(
+            dict_to_list, edge_order=self._graph.edge_list(), **kwargs
         )
 
-        if pinned_vertices is None:
-            freedom = self._dim * (self._dim + 1) // 2
-            pinned_vertices = {}
-            upper = self._dim + 1
-            for v in vertex_order:
-                upper -= 1
-                frozen_coord = []
-                for i in range(upper):
-                    if freedom > 0:
-                        frozen_coord.append(i)
-                        freedom -= 1
-                    else:
-                        pinned_vertices[v] = frozen_coord
-                        break
-                pinned_vertices[v] = frozen_coord
-        else:
-            number_pinned = sum([len(coord) for coord in pinned_vertices.values()])
-            if number_pinned > self._dim * (self._dim + 1) // 2:
-                raise ValueError(
-                    "The maximal number of coordinates that"
-                    f"can be pinned is {self._dim * (self._dim + 1) // 2}, "
-                    f"but you provided {number_pinned}."
-                )
-            for v in pinned_vertices:
-                if min(pinned_vertices[v]) < 0 or max(pinned_vertices[v]) >= self._dim:
-                    raise ValueError("Coordinate indices out of range.")
-
-        pinning_rows = []
-        for v in pinned_vertices:
-            for coord in pinned_vertices[v]:
-                idx = vertex_order.index(v)
-                new_row = Matrix.zeros(1, self._dim * self._graph.number_of_nodes())
-                new_row[idx * self._dim + coord] = 1
-                pinning_rows.append(new_row)
-        pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
-        return pinned_rigidity_matrix
-
     @doc_category("Infinitesimal rigidity")
-    def is_stress(
+    def is_vector_stress(
         self,
         stress: Stress,
-        edge_order: List[Edge] = None,
+        edge_order: Sequence[Edge] = None,
         numerical: bool = False,
         tolerance=1e-9,
     ) -> bool:
@@ -1279,11 +1892,32 @@ class Framework(object):
         )
 
     @doc_category("Infinitesimal rigidity")
+    def is_stress(self, stress: Stress | dict[Edge, Coordinate], **kwargs) -> bool:
+        """
+        Alias for :meth:`Framework.is_vector_stress` and
+        :meth:`Framework.is_dict_stress`.
+
+        Notes
+        -----
+        We distinguish between instances of ``List`` and instances of
+        ``Dict`` to call one of the alias methods.
+
+        """
+        if isinstance(stress, list | Matrix):
+            return self.is_vector_stress(stress, **kwargs)
+        elif isinstance(stress, dict):
+            return self.is_dict_stress(stress, **kwargs)
+        else:
+            raise TypeError(
+                "The `stress` must be specified either by a vector or a dictionary!"
+            )
+
+    @doc_category("Infinitesimal rigidity")
     def stress_matrix(
         self,
         stress: Stress,
-        edge_order: List[Edge] = None,
-        vertex_order: List[Vertex] = None,
+        edge_order: Sequence[Edge] = None,
+        vertex_order: Sequence[Vertex] = None,
     ) -> Matrix:
         r"""
         Construct the stress matrix from a stress of from its support.
@@ -1340,7 +1974,7 @@ class Framework(object):
         return stress_matr
 
     @doc_category("Infinitesimal rigidity")
-    def trivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
+    def trivial_inf_flexes(self, vertex_order: Sequence[Vertex] = None) -> list[Matrix]:
         r"""
         Return a basis of the vector subspace of trivial infinitesimal flexes.
 
@@ -1399,7 +2033,9 @@ class Framework(object):
         return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
-    def nontrivial_inf_flexes(self, vertex_order: List[Vertex] = None) -> List[Matrix]:
+    def nontrivial_inf_flexes(
+        self, vertex_order: Sequence[Vertex] = None
+    ) -> list[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
 
@@ -1441,8 +2077,8 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
-        self, include_trivial: bool = False, vertex_order: List[Vertex] = None
-    ) -> List[Matrix]:
+        self, include_trivial: bool = False, vertex_order: Sequence[Vertex] = None
+    ) -> list[Matrix]:
         r"""
         Return a basis of the space of infinitesimal flexes.
 
@@ -1514,7 +2150,7 @@ class Framework(object):
         return basis[s:]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self, edge_order: List[Edge] = None) -> List[Matrix]:
+    def stresses(self, edge_order: Sequence[Edge] = None) -> list[Matrix]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
@@ -1584,7 +2220,7 @@ class Framework(object):
         >>> F1 = frameworkDB.CompleteBipartite(4,4)
         >>> F1.is_inf_rigid()
         True
-        >>> F2 = frameworkDB.Cycle(4,d=2)
+        >>> F2 = frameworkDB.Cycle(4,dim=2)
         >>> F2.is_inf_rigid()
         False
         """
@@ -2035,7 +2671,7 @@ class Framework(object):
     @doc_category("Framework properties")
     def is_congruent_realization(
         self,
-        other_realization: Dict[Vertex, Point],
+        other_realization: dict[Vertex, Point],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2100,7 +2736,7 @@ class Framework(object):
     @doc_category("Framework properties")
     def is_equivalent_realization(
         self,
-        other_realization: Dict[Vertex, Point],
+        other_realization: dict[Vertex, Point],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2162,7 +2798,7 @@ class Framework(object):
         )
 
     @doc_category("Framework manipulation")
-    def translate(self, vector: Point, inplace: bool = True) -> Union[None, Framework]:
+    def translate(self, vector: Point, inplace: bool = True) -> None | Framework:
         """
         Translate the framework.
 
@@ -2191,7 +2827,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Framework manipulation")
-    def rotate2D(self, angle: float, inplace: bool = True) -> Union[None, Framework]:
+    def rotate2D(self, angle: float, inplace: bool = True) -> None | Framework:
         """
         Rotate the planar framework counter clockwise.
 
@@ -2221,7 +2857,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self, numerical: bool = False) -> Dict[Edge, Coordinate]:
+    def edge_lengths(self, numerical: bool = False) -> dict[Edge, Coordinate]:
         """
         Return the dictionary of the edge lengths.
 
@@ -2387,7 +3023,7 @@ class Framework(object):
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
         >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
         >>> F.generate_stl_bars(scale=20)
-        STL files for the bars have been generated in the chosen folder.
+        STL files for the bars have been generated in the folder `stl_output`.
         """
         from pathlib import Path as plPath
 
@@ -2418,12 +3054,14 @@ class Framework(object):
                 filename=f_name,
             )
 
-        print("STL files for the bars have been generated in the chosen folder.")
+        print(
+            f"STL files for the bars have been generated in the folder `{output_dir}`."
+        )
 
     @doc_category("Other")
-    def _transform_inf_flex_to_pointwise(  # noqa: C901
-        self, inf_flex: Matrix, vertex_order: List[Vertex] = None
-    ) -> Dict[Vertex, Sequence[Coordinate]]:
+    def _transform_inf_flex_to_pointwise(
+        self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
+    ) -> dict[Vertex, list[Coordinate]]:
         r"""
         Transform the natural data type of a flex (Matrix) to a
         dictionary that maps a vertex to a Sequence of coordinates
@@ -2457,11 +3095,43 @@ class Framework(object):
             for i in range(len(vertex_order))
         }
 
+    @doc_category("Other")
+    def _transform_stress_to_edgewise(
+        self, stress: Matrix, edge_order: Sequence[Edge] = None
+    ) -> dict[Edge, Coordinate]:
+        r"""
+        Transform the natural data type of a stress (Matrix) to a
+        dictionary that maps an edge to a coordinate.
+
+        Parameters
+        ----------
+        stress:
+            An equilibrium stress in the form of a `Matrix`.
+        edge_order:
+            If ``None``, the :meth:`.Graph.edge_list`
+            is taken as the edge order.
+
+        Notes
+        ----
+        For example, this method can be used for generating an
+        equilibrium stresss for plotting purposes.
+
+        Examples
+        ----
+        >>> F = Framework.Complete([(0,0),(1,0),(1,1),(0,1)])
+        >>> stress = F.stresses()[0]
+        >>> F._transform_stress_to_edgewise(stress)
+        {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
+
+        """
+        edge_order = self._check_edge_order(edge_order)
+        return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
+
     @doc_category("Infinitesimal rigidity")
     def is_vector_inf_flex(
         self,
-        inf_flex: List[Coordinate],
-        vertex_order: List[Vertex] = None,
+        inf_flex: Sequence[Coordinate],
+        vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2511,7 +3181,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_inf_flex(
-        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
         """
         Return whether a dictionary specifies an infinitesimal flex of the framework.
@@ -2555,8 +3225,8 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_nontrivial_inf_flex(
         self,
-        inf_flex: List[Coordinate],
-        vertex_order: List[Vertex] = None,
+        inf_flex: Sequence[Coordinate],
+        vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2638,7 +3308,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_nontrivial_inf_flex(
-        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
         r"""
         Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
@@ -2684,7 +3354,9 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_nontrivial_flex(
-        self, inf_flex: List[Coordinate] | Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self,
+        inf_flex: Sequence[Coordinate] | dict[Vertex, Sequence[Coordinate]],
+        **kwargs,
     ) -> bool:
         """
         Alias for :meth:`Framework.is_vector_nontrivial_inf_flex` and
@@ -2695,7 +3367,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list):
+        if isinstance(inf_flex, list | tuple):
             return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_nontrivial_inf_flex(inf_flex, **kwargs)
@@ -2705,7 +3377,9 @@ class Framework(object):
             )
 
     @doc_category("Infinitesimal rigidity")
-    def is_vector_trivial_inf_flex(self, inf_flex: List[Coordinate], **kwargs) -> bool:
+    def is_vector_trivial_inf_flex(
+        self, inf_flex: Sequence[Coordinate], **kwargs
+    ) -> bool:
         r"""
         Return whether an infinitesimal flex is trivial.
 
@@ -2740,7 +3414,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_trivial_inf_flex(
-        self, vert_to_flex: Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
     ) -> bool:
         r"""
         Return whether an infinitesimal flex specified by a dictionary is trivial.
@@ -2786,7 +3460,9 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_trivial_flex(
-        self, inf_flex: List[Coordinate] | Dict[Vertex, Sequence[Coordinate]], **kwargs
+        self,
+        inf_flex: Sequence[Coordinate] | dict[Vertex, Sequence[Coordinate]],
+        **kwargs,
     ) -> bool:
         """
         Alias for :meth:`Framework.is_vector_trivial_inf_flex` and
@@ -2797,7 +3473,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list):
+        if isinstance(inf_flex, list | tuple):
             return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_trivial_inf_flex(inf_flex, **kwargs)
@@ -2807,7 +3483,7 @@ class Framework(object):
             )
 
     @doc_category("Other")
-    def _check_vertex_order(self, vertex_order=List[Vertex]) -> List[Vertex]:
+    def _check_vertex_order(self, vertex_order=Sequence[Vertex]) -> list[Vertex]:
         """
         Checks whether the provided `vertex_order` contains the same elements
         as the graph's vertex set.
@@ -2832,10 +3508,10 @@ class Framework(object):
                     "New vertex set must contain exactly "
                     + "the same vertices as the underlying graph!"
                 )
-            return vertex_order
+            return list(vertex_order)
 
     @doc_category("Other")
-    def _check_edge_order(self, edge_order=List[Vertex]) -> List[Edge]:
+    def _check_edge_order(self, edge_order=Sequence[Edge]) -> list[Edge]:
         """
         Checks whether the provided `edge_order` contains the same elements
         as the graph's edge set.
@@ -2862,7 +3538,7 @@ class Framework(object):
                 raise ValueError(
                     "edge_order must contain exactly the same edges as the graph!"
                 )
-            return edge_order
+            return list(edge_order)
 
 
 Framework.__doc__ = Framework.__doc__.replace(

@@ -3,8 +3,7 @@ Module for miscellaneous functions.
 """
 
 import math
-from pyrigi.data_type import Coordinate, point_to_vector
-from typing import List, Sequence
+from pyrigi.data_type import Sequence, Coordinate, point_to_vector
 from sympy import Matrix
 import numpy as np
 from math import isclose, log10
@@ -88,6 +87,33 @@ def generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matri
     return matrix
 
 
+def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
+    """
+    Generate three random numeric orthonormal vectors in the given dimension.
+
+    Notes
+    -----
+    The vectors are in the columns of the returned matrix. To ensure that the
+    vectors are uniformly distributed over the Stiefel manifold, we need to
+    ensure that the triangular matrix `R` has positive diagonal elements.
+
+    Parameters
+    ----------
+    dim:
+        The dimension in which the vectors are generated.
+    random_seed:
+        Seed for generating random vectors.
+        When the same value is provided, the same vectors are generated.
+    """
+
+    if random_seed is not None:
+        np.random.seed(random_seed)
+
+    matrix = np.random.randn(dim, 3)
+    Q, R = np.linalg.qr(matrix)
+    return Q @ np.diag(np.sign(np.diag(R)))
+
+
 def check_integrality_and_range(
     n: int, name: str = "number n", min_n: int = 0, max_n: int = math.inf
 ) -> None:
@@ -135,7 +161,7 @@ def is_zero_vector(
 
 def eval_sympy_vector(
     vector: Sequence[Coordinate], tolerance: float = 1e-9
-) -> List[float]:
+) -> list[float]:
     """
     Converts a sympy vector to a (numerical) list of floats.
 
