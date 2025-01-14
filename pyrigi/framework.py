@@ -955,10 +955,6 @@ class Framework(object):
         If the dimension of the framework is greater than 3, ``ValueError`` is raised,
         use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
         For various formatting options, see :meth:`.Graph.plot`.
-
-        TODO
-        ----
-        Implement plotting in dimension 3 and
         """
 
         if self._dim == 3:
@@ -1140,18 +1136,15 @@ class Framework(object):
 
         Notes
         -----
-        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``.
-
-        TODO
-        ----
-        Set the correct default range value.
+        If ``rand_range=None``, then the range is set to ``(-a,a)`` for
+        ``a = 10^4 * n * d``.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            b = 10**4 * graph.number_of_nodes() ** 2 * dim
+            b = 10**4 * graph.number_of_nodes() * dim
             a = -b
         if isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
@@ -1622,82 +1615,6 @@ class Framework(object):
                 for e in edge_order
             ]
         )
-
-    def pinned_rigidity_matrix(
-        self,
-        pinned_vertices: dict[Vertex, Sequence[int]] = None,
-        vertex_order: Sequence[Vertex] = None,
-        edge_order: Sequence[Edge] = None,
-    ) -> Matrix:
-        r"""
-        Construct the rigidity matrix of the framework.
-
-        Parameters
-        ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the columns
-            of the rigidity matrix.
-        edge_order:
-            A list of edges, providing the ordering for the rows
-            of the rigidity matrix.
-
-        TODO
-        ----
-        definition of pinned rigidity matrix, tests
-
-        Examples
-        --------
-        >>> F = Framework(Graph([[0, 1], [0, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
-        >>> F.pinned_rigidity_matrix()
-        Matrix([
-        [-1,  0, 1, 0, 0, 0],
-        [-1, -1, 0, 0, 1, 1],
-        [ 1,  0, 0, 0, 0, 0],
-        [ 0,  1, 0, 0, 0, 0],
-        [ 0,  0, 1, 0, 0, 0]])
-        """
-        vertex_order = self._check_vertex_order(vertex_order)
-        edge_order = self._check_edge_order(edge_order)
-        rigidity_matrix = self.rigidity_matrix(
-            vertex_order=vertex_order, edge_order=edge_order
-        )
-
-        if pinned_vertices is None:
-            freedom = self._dim * (self._dim + 1) // 2
-            pinned_vertices = {}
-            upper = self._dim + 1
-            for v in vertex_order:
-                upper -= 1
-                frozen_coord = []
-                for i in range(upper):
-                    if freedom > 0:
-                        frozen_coord.append(i)
-                        freedom -= 1
-                    else:
-                        pinned_vertices[v] = frozen_coord
-                        break
-                pinned_vertices[v] = frozen_coord
-        else:
-            number_pinned = sum([len(coord) for coord in pinned_vertices.values()])
-            if number_pinned > self._dim * (self._dim + 1) // 2:
-                raise ValueError(
-                    "The maximal number of coordinates that"
-                    f"can be pinned is {self._dim * (self._dim + 1) // 2}, "
-                    f"but you provided {number_pinned}."
-                )
-            for v in pinned_vertices:
-                if min(pinned_vertices[v]) < 0 or max(pinned_vertices[v]) >= self._dim:
-                    raise ValueError("Coordinate indices out of range.")
-
-        pinning_rows = []
-        for v in pinned_vertices:
-            for coord in pinned_vertices[v]:
-                idx = vertex_order.index(v)
-                new_row = Matrix.zeros(1, self._dim * self._graph.number_of_nodes())
-                new_row[idx * self._dim + coord] = 1
-                pinning_rows.append(new_row)
-        pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
-        return pinned_rigidity_matrix
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_stress(self, dict_stress: dict[Edge, Coordinate], **kwargs) -> bool:

@@ -454,11 +454,8 @@ class GraphDrawer(object):
         Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_out`.
 
         It determines what to do when the mouse leaves multicanvas.
-
-        TODO
-        ----
-        x,y are unused
         """
+        _, _ = x, y # To avoid unused variable warning
         self._selected_vertex = None
         self._vertexmove_on = False
         with hold_canvas():
