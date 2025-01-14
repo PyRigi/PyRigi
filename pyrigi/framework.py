@@ -29,10 +29,11 @@ from pyrigi.data_type import (
     Vertex,
     Edge,
     Point,
+    InfFlex,
     Stress,
     point_to_vector,
     Sequence,
-    Coordinate,
+    Number,
 )
 
 from pyrigi.graph import Graph
@@ -295,8 +296,8 @@ class Framework(object):
     def _plot_with_2D_realization(
         self,
         realization: dict[Vertex, Point],
-        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
-        stress: dict[Edge, Coordinate] = None,
+        inf_flex: dict[Vertex, Sequence[Number]] = None,
+        stress: dict[Edge, Number] = None,
         vertex_color="#ff8c00",
         edge_width=1.5,
         curved_edges=False,
@@ -317,11 +318,11 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         stress:
             Optional parameter for plotting an equilibrium stress. We expect
-            it to have the format `Dict[Edge, Coordinate]`.
+            it to have the format `Dict[Edge, Number]`.
         """
 
         self._graph.plot(
@@ -365,8 +366,8 @@ class Framework(object):
     def plot2D(  # noqa: C901
         self,
         coordinates: Sequence[int] = None,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
-        stress: Matrix | int | dict[Edge, Coordinate] = None,
+        inf_flex: Matrix | InfFlex = None,
+        stress: Matrix | Stress = None,
         projection_matrix: Matrix = None,
         return_matrix: bool = False,
         random_seed: int = None,
@@ -405,7 +406,7 @@ class Framework(object):
             For these input types, is important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
             If the vertex order needs to be specified, a
-            ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which maps the
+            ``dict[Vertex, Sequence[Number]]`` can be provided, which maps the
             vertex labels to vectors (i.e. a sequence of coordinates).
         stress:
             Optional parameter for plotting a given equilibrium stress. The standard
@@ -415,7 +416,7 @@ class Framework(object):
             to the method ``Framework.stresses``) for plotting.
             For these input types, is important to use the same edge order as the one
             from :meth:`.Graph.edge_list`.
-            If the edge order needs to be specified, a ``Dict[Edge, Coordinate]``
+            If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
         return_matrix:
@@ -559,7 +560,7 @@ class Framework(object):
         equal_aspect_ratio: bool = True,
         total_frames: int = 50,
         delay: int = 75,
-        rotation_axis: str | Sequence[Coordinate] = None,
+        rotation_axis: str | Sequence[Number] = None,
     ) -> Any:
         """
         Plot this framework in 3D and animate a rotation around an axis.
@@ -841,7 +842,7 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_3D_realization(
         self,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Number]] = None,
         projection_matrix: Matrix = None,
         vertex_color: str = "#ff8c00",
         vertex_size: int = 200,
@@ -871,7 +872,7 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            Lastly, a ``Dict[Vertex, Sequence[Number]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         projection_matrix:
             The matrix used for projection.
@@ -991,7 +992,7 @@ class Framework(object):
     def _plot_inf_flex(  # noqa: C901
         self,
         ax: Axes,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Number]],
         points: dict[Vertex, Point] = None,
         flex_width: float = 2.5,
         flex_length: float = 0.65,
@@ -1012,8 +1013,8 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
-            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+            Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of Numbers).
         flex_width:
             Width of the infinitesimal flex's arrowtail.
         flex_length:
@@ -1799,7 +1800,7 @@ class Framework(object):
         )
 
     @doc_category("Infinitesimal rigidity")
-    def is_dict_stress(self, dict_stress: dict[Edge, Coordinate], **kwargs) -> bool:
+    def is_dict_stress(self, dict_stress: dict[Edge, Number], **kwargs) -> bool:
         """
         Return whether a dictionary specifies an equilibrium stress of the framework.
 
@@ -1845,7 +1846,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_stress(
         self,
-        stress: Stress,
+        stress: Sequence[Number],
         edge_order: Sequence[Edge] = None,
         numerical: bool = False,
         tolerance=1e-9,
@@ -1892,7 +1893,7 @@ class Framework(object):
         )
 
     @doc_category("Infinitesimal rigidity")
-    def is_stress(self, stress: Stress | dict[Edge, Coordinate], **kwargs) -> bool:
+    def is_stress(self, stress: Stress, **kwargs) -> bool:
         """
         Alias for :meth:`Framework.is_vector_stress` and
         :meth:`Framework.is_dict_stress`.
@@ -2537,7 +2538,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self, numerical: bool = False) -> dict[Edge, Coordinate]:
+    def edge_lengths(self, numerical: bool = False) -> dict[Edge, Number]:
         """
         Return the dictionary of the edge lengths.
 
@@ -2741,7 +2742,7 @@ class Framework(object):
     @doc_category("Other")
     def _transform_inf_flex_to_pointwise(
         self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
-    ) -> dict[Vertex, list[Coordinate]]:
+    ) -> dict[Vertex, list[Number]]:
         r"""
         Transform the natural data type of a flex (Matrix) to a
         dictionary that maps a vertex to a Sequence of coordinates
@@ -2778,7 +2779,7 @@ class Framework(object):
     @doc_category("Other")
     def _transform_stress_to_edgewise(
         self, stress: Matrix, edge_order: Sequence[Edge] = None
-    ) -> dict[Edge, Coordinate]:
+    ) -> dict[Edge, Number]:
         r"""
         Transform the natural data type of a stress (Matrix) to a
         dictionary that maps an edge to a coordinate.
@@ -2810,7 +2811,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_inf_flex(
         self,
-        inf_flex: Sequence[Coordinate],
+        inf_flex: Sequence[Number],
         vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
@@ -2861,7 +2862,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
         """
         Return whether a dictionary specifies an infinitesimal flex of the framework.
@@ -2905,7 +2906,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_nontrivial_inf_flex(
         self,
-        inf_flex: Sequence[Coordinate],
+        inf_flex: Sequence[Number],
         vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
@@ -2988,7 +2989,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_nontrivial_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
         r"""
         Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
@@ -3035,7 +3036,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_nontrivial_flex(
         self,
-        inf_flex: Sequence[Coordinate] | dict[Vertex, Sequence[Coordinate]],
+        inf_flex: InfFlex,
         **kwargs,
     ) -> bool:
         """
@@ -3057,9 +3058,7 @@ class Framework(object):
             )
 
     @doc_category("Infinitesimal rigidity")
-    def is_vector_trivial_inf_flex(
-        self, inf_flex: Sequence[Coordinate], **kwargs
-    ) -> bool:
+    def is_vector_trivial_inf_flex(self, inf_flex: Sequence[Number], **kwargs) -> bool:
         r"""
         Return whether an infinitesimal flex is trivial.
 
@@ -3094,7 +3093,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_trivial_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
         r"""
         Return whether an infinitesimal flex specified by a dictionary is trivial.
@@ -3141,7 +3140,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_trivial_flex(
         self,
-        inf_flex: Sequence[Coordinate] | dict[Vertex, Sequence[Coordinate]],
+        inf_flex: InfFlex,
         **kwargs,
     ) -> bool:
         """

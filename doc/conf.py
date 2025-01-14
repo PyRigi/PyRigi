@@ -85,8 +85,12 @@ napoleon_custom_sections = ["Definitions", "Methods", "Suggested Improvements"]
 autodoc_type_aliases = {
     "Vertex": "Vertex",
     "Edge": "Edge",
+    "DirectedEdge": "DirectedEdge",
     "Point": "Point",
-    "Coordinate": "Coordinate",
+    "Number": "Number",
+    "Stress": "Stress",
+    "InfFlex": "InfFlex",
+    "Inf": "Inf",
 }
 napoleon_attr_annotations = True
 

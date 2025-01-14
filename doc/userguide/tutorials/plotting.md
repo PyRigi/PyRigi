@@ -248,7 +248,7 @@ F.plot(inf_flex=flex)
 
 It is important to use the same order of the vertices of `F` as {meth}`.Graph.vertex_list` when
 providing the infinitesimal flex as a `Matrix`. To circumvent that,
-we also support adding an infinitesimal flex as a `Dict[Vertex, Sequence[Coordinate]]`.
+we also support adding an infinitesimal flex as a `Dict[Vertex, Sequence[Number]]`.
 In both of the cases where the user provides an infinitesimal flex, it is
 internally checked whether the provided vector lies in the kernel of the rigidity matrix.
 
@@ -263,7 +263,7 @@ F.plot(inf_flex=flex)
 We can also plot stresses. Contrary to flexes, stresses exist as edge labels. 
 Analogous to the way that infinitesimal flexes can be visualized (see the previous
 section), a `stress` can be provided either as the `n`-th equilibrium stress, as a
-specific `stress` given by a `Matrix` or alternatively as a `dict[Edge, Coordinate]`. 
+specific `stress` given by a `Matrix` or alternatively as a `dict[Edge, Number]`. 
 It is internally checked, whether the provided stress lies in the cokernel of the
 rigidity matrix. We can specify the positions of the stress labels using the keyword
 `stress_label_pos`, which can either be set for all edges as the same `float` from $[0,1]$
