@@ -909,7 +909,7 @@ class Framework(object):
         font_color: str = "whitesmoke",
         equal_aspect_ratio: bool = True,
         padding: float = 0.01,
-        dpi = 200,
+        dpi=200,
     ) -> Optional[Matrix]:
         """
         Plot the provided framework in 3D.
