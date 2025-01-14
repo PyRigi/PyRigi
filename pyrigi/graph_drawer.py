@@ -455,7 +455,7 @@ class GraphDrawer(object):
 
         It determines what to do when the mouse leaves multicanvas.
         """
-        _, _ = x, y # To avoid unused variable warning
+        _, _ = x, y  # To avoid unused variable warning
         self._selected_vertex = None
         self._vertexmove_on = False
         with hold_canvas():
