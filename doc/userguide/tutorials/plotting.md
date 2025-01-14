@@ -212,7 +212,7 @@ zeros.
 
 ```{code-cell} ipython3
 F = frameworks.CnSymmetricFourRegular(n=8)
-F.plot(curved_edges=True, connection_style={(i,i+1): 0.15 for i in range(7)} | {(0,7):-0.15})
+F.plot(curved_edges=True, connection_style={(i,i+1): -0.15 for i in range(7)} | {(0,7):0.15})
 ```
 
 ### Infinitesimal Flexes
@@ -221,7 +221,7 @@ It is possible to include infinitesimal flexes in the plot. With the keyword
 `inf_flex=n`, we can pick the `n`-th nontrivial infinitesimal flex from
 a basis of the rigidity matrix's kernel. There are several keywords that allow
 us to alter the style of the drawn arrows. A full list of the optional plotting
-parameters can be found in the API reference: {meth}`~.Graph.plot`.
+parameters can be found in the API reference: {meth}`~.Framework.Plot2D`. 
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
@@ -270,7 +270,7 @@ rigidity matrix. We can specify the positions of the stress labels using the key
 or individually using a `dict[DirectedEdge, float]`. This `float` specifies the position on
 the line segment given by the edges. The missing edges labels are automatically
 centered on the edge. A full list of the optional plotting parameters can be found in
-the API reference: {meth}`~.Graph.plot`. 
+the API reference: {meth}`~.Framework.Plot2D`. 
 
 ```{code-cell} ipython3
 F = frameworks.Frustum(3)
@@ -294,7 +294,7 @@ Plotting in 3 dimensions is also possible. The plot can be made interactive by u
 
 Using the keyword `equal_aspect_ratio`, we can decide whether we want to stretch the plot to fix the cubic box size (`False`)
 or whether deforming the framework should be avoided beyond affine transformations (`True`).
-All the other parameters that can be used for {meth}`~.Framework.plot2D` can also be used here.
+The other possible keywords can be found in the corresponding API reference: {meth}`~.Framework.plot3D`.
 
 ```{code-cell} ipython3
 F = frameworks.Complete(4, dim=3)
@@ -315,11 +315,12 @@ Note that triggering this command after using `%matplotlib widget`
 may cause the jupyter notebook to render additional pictures.
 If this behavior is underirable, we suggest reevaluating the affected cells.
 
-It is also possible to plot infinitesimal flexes in 3D using the `inf_flex` keyword. For details,
-the entire list of parameters can be looked up in the corresponding API reference.
+It is also possible to plot infinitesimal flexes and equilibrium stresses in 3D using the
+`inf_flex` and `stress` keywords, respectively. For details, the entire list of parameters
+concerning infinitesimal flexes and equilibrium stresses can
+be looked up in the corresponding API reference: {meth}`.Framework.plot3D`.
 
 ```{code-cell} ipython3
-_F = frameworks.Frustum(3)
-F = Framework(_F._graph, {v: p+[1 if v<=2 else 0] for v,p in _F.realization(as_points=True).items()})
-F.plot(inf_flex=1, equal_aspect_ratio=False)
+F = frameworks.Octahedron(realization="Bricard_plane")
+F.plot(inf_flex=0, stress=0, equal_aspect_ratio=True, flex_length=0.6, stress_fontsize=10)
 ```

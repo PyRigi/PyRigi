@@ -688,12 +688,13 @@ class Framework(object):
         edge_color: (
             str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
         ) = "black",
-        edge_width: float = 1.1,
+        edge_width: float = 1.5,
         edge_style: str = "solid",
         equal_aspect_ratio: bool = True,
         total_frames: int = 50,
         delay: int = 75,
         rotation_axis: str | Sequence[Coordinate] = None,
+        dpi: int = 150,
     ) -> Any:
         """
         Plot this framework in 3D and animate a rotation around an axis.
@@ -715,6 +716,8 @@ class Framework(object):
             The user can input a rotation axis or vector. By default, a rotation around
             the z-axis is performed. This can either be done in the form of a char
             ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
+        dpi:
+            Dots per inch of the produced animation.
 
         Examples
         --------
@@ -723,7 +726,7 @@ class Framework(object):
         >>> F.animate3D();
         """
         # Creation of the figure
-        fig = plt.figure()
+        fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(111, projection="3d")
         ax.grid(False)
         ax.set_axis_off()
@@ -898,7 +901,7 @@ class Framework(object):
         flex_style: str = "solid",
         flex_arrowsize: int = 20,
         stress_color: str = "orangered",
-        stress_fontsize: int = 8,
+        stress_fontsize: int = 9,
         stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
         stress_rotate_labels: bool = True,
         stress_normalization: bool = False,
@@ -906,6 +909,7 @@ class Framework(object):
         font_color: str = "whitesmoke",
         equal_aspect_ratio: bool = True,
         padding: float = 0.01,
+        dpi = 200,
     ) -> Optional[Matrix]:
         """
         Plot the provided framework in 3D.
@@ -932,6 +936,102 @@ class Framework(object):
             Indices of three coordinates to which the framework is projected.
         return_matrix:
             If ``True``, the matrix used for projection into 3D is returned.
+                projection_matrix:
+            The matrix used for projecting the placement of vertices
+            only when they are in dimension higher than 2.
+            The matrix must have dimensions (2, dim),
+            where dim is the dimension of the currect placements of vertices.
+            If None, a random projection matrix is generated.
+        random_seed:
+            The random seed used for generating the projection matrix.
+            When the same value is provided, the framework will plot exactly same.
+        coordinates:
+            Indices of two coordinates that will be used as the placement in 2D.
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. The standard
+            input format is a ``Matrix`` that is the output of e.g. the method
+            ``Framework.inf_flexes``. Alternatively, an ``int`` can be specified
+            to directly choose the 0,1,2,...-th nontrivial infinitesimal flex (according
+            to the method ``Framework.nontrivial_inf_flexes``) for plotting.
+            For these input types, is important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            If the vertex order needs to be specified, a
+            ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which maps the
+            vertex labels to vectors (i.e. a sequence of coordinates).
+        stress:
+            Optional parameter for plotting a given equilibrium stress. The standard
+            input format is a ``Matrix`` that is the output of e.g. the method
+            ``Framework.stresses``. Alternatively, an ``int`` can be specified
+            to directly choose the 0,1,2,...-th equilibrium stress (according
+            to the method ``Framework.stresses``) for plotting.
+            For these input types, is important to use the same edge order as the one
+            from :meth:`.Graph.edge_list`.
+            If the edge order needs to be specified, a ``Dict[Edge, Coordinate]``
+            can be provided, which maps the edges to numbers
+            (i.e. coordinates).
+        return_matrix:
+            If True the matrix used for projection into 2D is returned.
+        vertex_size:
+            The size of the vertices.
+        vertex_color:
+            The color of the vertices. The color can be a string or an rgb (or rgba)
+            tuple of floats from 0-1.
+        vertex_shape:
+            The shape of the vertices specified as as matplotlib.scatter
+            marker, one of ``so^>v<dph8``.
+        vertex_labels:
+            If ``True`` (default), vertex labels are displayed.
+        edge_width:
+        edge_color:
+            If a single color is given as a string or rgb (or rgba) tuple
+            of floats from 0-1, then all edges get this color.
+            If a (possibly incomplete) partition of the edges is given,
+            then each part gets a different color.
+            If a dictionary from colors to a list of edge is given,
+            edges are colored accordingly.
+            The edges missing in the partition/dictionary, are colored black.
+        edge_style:
+            Edge line style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        flex_width:
+            The width of the infinitesimal flex's arrow tail.
+        flex_color:
+            The color of the infinitesimal flex is by default 'limegreen'.
+        flex_style:
+            Line Style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        flex_length:
+            Length of the displayed flex relative to the total canvas
+            diagonal in percent. By default 15%.
+        flex_arrowsize:
+            Size of the arrowhead's length and width.
+        stress_color:
+            Color of the font used to label the edges with stresses.
+        stress_fontsize:
+            Fontsize of the stress labels.
+        stress_label_pos:
+            Position of the stress label along the edge. `float` numbers
+            from the interval `[0,1]` are allowed. `0` represents the head
+            of the edge, `0.5` the center and `1` the edge's tail. The position
+            can either be specified for all edges equally or as a
+            `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
+        stress_rotate_labels:
+            A boolean indicating whether the stress label should be rotated.
+        stress_normalization:
+            A boolean indicating whether the stress values should be turned into
+            floating point numbers. If ``True``, the stress is automatically normalized.
+        font_size:
+            The size of the font used for the labels.
+        font_color:
+            The color of the font used for the labels.
+        equal_aspect_ratio
+            Determines whether the aspect ratio of the plot is equal in all space
+            directions or whether it is adjusted depending on the framework's size
+            in `x`, `y` and `z`-direction individually.
+        padding:
+            Specifies the white space around the framework.
+        dpi:
+            Dots per inch of the produced graphic.
 
         Notes
         -----
@@ -977,7 +1077,7 @@ class Framework(object):
                 **(plotting_args | flex_args | stress_args),
             )
 
-        fig = plt.figure(dpi=150)
+        fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(111, projection="3d")
         ax.grid(False)
         ax.set_axis_off()
@@ -1356,7 +1456,7 @@ class Framework(object):
                     lw=flex_width,
                     linestyle=flex_style,
                     length=flex_length,
-                    arrow_length_ratio=0.25,
+                    arrow_length_ratio=0.35,
                 )
         else:
             raise ValueError(
@@ -1370,7 +1470,7 @@ class Framework(object):
         stress: Matrix | Stress,
         points: dict[Vertex, Point] = None,
         stress_color: str = "orangered",
-        stress_fontsize: int = 8,
+        stress_fontsize: int = 10,
         stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
         stress_rotate_labels: bool = True,
         stress_normalization: bool = False,
