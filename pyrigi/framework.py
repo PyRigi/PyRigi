@@ -2959,9 +2959,7 @@ class Framework(object):
             )
 
     @doc_category("Infinitesimal rigidity")
-    def is_vector_trivial_inf_flex(
-        self, inf_flex: Sequence[Number], **kwargs
-    ) -> bool:
+    def is_vector_trivial_inf_flex(self, inf_flex: Sequence[Number], **kwargs) -> bool:
         r"""
         Return whether an infinitesimal flex is trivial.
 

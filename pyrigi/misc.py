@@ -159,9 +159,7 @@ def is_zero_vector(
         )
 
 
-def eval_sympy_vector(
-    vector: Sequence[Number], tolerance: float = 1e-9
-) -> list[float]:
+def eval_sympy_vector(vector: Sequence[Number], tolerance: float = 1e-9) -> list[float]:
     """
     Converts a sympy vector to a (numerical) list of floats.
 
