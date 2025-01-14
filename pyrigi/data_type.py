@@ -13,17 +13,17 @@ from collections.abc import Sequence
 
 Vertex = Hashable
 """
-Any hashable type can be used for a Vertex.
+Any hashable type can be used for a :obj:`pyrigi.data_type.Vertex`.
 """
 
 Edge = set[Vertex] | tuple[Vertex, Vertex] | list[Vertex]
 """
-An Edge is an unordered pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
+An unordered pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
 """
 
 DirectedEdge = tuple[Vertex, Vertex] | list[Vertex]
 """
-A DirectedEdge is an ordered pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
+An ordered pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
 """
 
 Number = int | float | str
@@ -33,21 +33,25 @@ An integer, float or a string interpretable by :func:`~sympy.core.sympify.sympif
 
 Point = Sequence[Number]
 """
-A Point is a Sequence of Coordinates whose length is the dimension of its affine space.
+A :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`
+whose length is the dimension of its affine space.
 """
 
 InfFlex = Sequence[Number] | dict[Vertex, Sequence[Number]]
 """
 Given a framework in dimension `dim` with `n` vertices, an infinitesimal flex is either
-given by a Sequence of `Number` whose length is `dim*n` or by a dictionary from the set
-of vertices to a `Sequence` of length `dim`.
+given by a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`
+whose length is `dim*n` or by a dictionary from the set of vertices
+to a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`
+of length `dim`.
 """
 
 Stress = Sequence[Number] | dict[Edge, Number]
 """
-Given a framework in dimension with `m` edges. An equilibrium stress is either
-given by a Sequence of `Number` whose length is `m` or by a dictionary from the set
-of edges to a `Sequence` of `Number`.
+Given a framework in dimension with `m` edges, an equilibrium stress is either
+given by a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`
+whose length is `m` or by a dictionary from the set of edges
+to a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`.
 """
 
 Inf = sp.core.numbers.Infinity | np.float32
@@ -76,7 +80,7 @@ def point_to_vector(point: Point) -> Matrix:
         return point if (point.shape[1] == 1) else point.transpose()
 
     if not isinstance(point, Sequence) or isinstance(point, str):
-        raise TypeError("The point must be a Sequence of Coordinates.")
+        raise TypeError("The point must be a Sequence of Numbers.")
 
     try:
         res = Matrix(point)
