@@ -2578,6 +2578,7 @@ class Framework(object):
         # framework.
         a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
         b = sp.symbols("b0:%s" % len(stresses), real=True)
+        edges = self._graph.edge_list()
         stress_energy = 0
         for i in range(len(stresses)):
             Q = 0
