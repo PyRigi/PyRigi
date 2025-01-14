@@ -1954,7 +1954,7 @@ class Graph(nx.Graph):
          * dim>=3: A set of edges forms an independent set in the
            rigidity matroid if and only if it has no self-stress, as this
            means that there are no linear relations between the rows of
-           the rigidity matrix. This is tested on a random framework.     
+           the rigidity matrix. This is tested on a random framework.
 
         Examples
         --------
