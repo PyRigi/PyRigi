@@ -24,7 +24,7 @@ from pyrigi.data_type import (
     Point,
     Inf,
     Sequence,
-    Coordinate,
+    Number,
     DirectedEdge,
 )
 from pyrigi.misc import doc_category, generate_category_tables
@@ -2835,8 +2835,8 @@ class Graph(nx.Graph):
     def plot(  # noqa: C901
         self,
         placement: dict[Vertex, Point] = None,
-        inf_flex: dict[Vertex, Sequence[Coordinate]] = None,
-        stress: dict[Edge, Coordinate] = None,
+        inf_flex: dict[Vertex, Sequence[Number]] = None,
+        stress: dict[Edge, Number] = None,
         layout: str = "spring",
         vertex_size: int = 300,
         vertex_color: str = "#4169E1",
