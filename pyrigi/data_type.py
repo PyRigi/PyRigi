@@ -54,7 +54,7 @@ whose length is `m` or by a dictionary from the set of edges
 to a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`.
 """
 
-Inf = sp.core.numbers.Infinity | np.float32
+Inf = sp.core.numbers.Infinity
 """
 Provides a data type that can become infinite.
 """
