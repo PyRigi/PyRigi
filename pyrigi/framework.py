@@ -318,7 +318,7 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         stress:
             Optional parameter for plotting an equilibrium stress. We expect
@@ -842,7 +842,7 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_3D_realization(
         self,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Number]] = None,
         projection_matrix: Matrix = None,
         vertex_color: str = "#ff8c00",
         vertex_size: int = 200,
@@ -872,7 +872,7 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            Lastly, a ``Dict[Vertex, Sequence[Number]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         projection_matrix:
             The matrix used for projection.
@@ -992,7 +992,7 @@ class Framework(object):
     def _plot_inf_flex(  # noqa: C901
         self,
         ax: Axes,
-        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Number]],
         points: dict[Vertex, Point] = None,
         flex_width: float = 2.5,
         flex_length: float = 0.65,
@@ -1013,8 +1013,8 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
-            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+            Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of Numbers).
         flex_width:
             Width of the infinitesimal flex's arrowtail.
         flex_length:
