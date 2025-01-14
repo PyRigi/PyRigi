@@ -41,6 +41,8 @@ Stress = Sequence[int | float | str]
 A Stress is a Sequence of `int | float | str`.
 """
 
+Inf_Flex = Sequence[int | float | str]
+
 Inf = Number
 """
 Provides a data type that can become infinite.

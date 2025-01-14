@@ -307,7 +307,7 @@ In addition, it is possible to animate a rotation sequence around a specified ax
 G = graphs.DoubleBanana()
 F = Framework(G, realization={0:(0,0,0), 1:(0,0,1), 2:(1.25,1,0.5), 3:(1.25,-1,0.5), 4:(3,0,0.5), 
                               5:(-1.25,-1,0.5), 6:(-1.2,1,0.5), 7:(-3,0,0.5)})
-F.plot3D(animation=True, rotation_axis=[0,0,1], equal_aspect_ratio=False)
+F.animate3D(rotation_axis=[0,0,1], equal_aspect_ratio=False)
 ```
 
 We can return to the usual inline mode using the command `%matplotlib inline`.
