@@ -198,8 +198,14 @@ def test_is_independent(framework):
         [fws.K33plusEdge(), True],
         [fws.ThreePrism(realization="flexible"), False],
         pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
-        pytest.param(fws.CompleteBipartite(3, 3, realization="collinear"), False, marks=pytest.mark.long_local),
-        pytest.param(fws.ConnellyExampleSecondOrderRigidity(), False, marks=pytest.mark.slow_main)
+        pytest.param(
+            fws.CompleteBipartite(3, 3, realization="collinear"),
+            False,
+            marks=pytest.mark.long_local,
+        ),
+        pytest.param(
+            fws.ConnellyExampleSecondOrderRigidity(), False, marks=pytest.mark.slow_main
+        ),
     ],
 )
 def test_is_prestress_stable(framework, bool_res):
@@ -217,8 +223,14 @@ def test_is_prestress_stable(framework, bool_res):
         [fws.K33plusEdge(), True],
         [fws.ThreePrism(realization="flexible"), False],
         pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
-        pytest.param(fws.CompleteBipartite(3, 3, realization="collinear"), True, marks=pytest.mark.long_local),
-        pytest.param(fws.ConnellyExampleSecondOrderRigidity(), True, marks=pytest.mark.slow_main)
+        pytest.param(
+            fws.CompleteBipartite(3, 3, realization="collinear"),
+            True,
+            marks=pytest.mark.long_local,
+        ),
+        pytest.param(
+            fws.ConnellyExampleSecondOrderRigidity(), True, marks=pytest.mark.slow_main
+        ),
     ],
 )
 def test_is_second_order_rigid(framework, bool_res):
