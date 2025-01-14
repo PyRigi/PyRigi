@@ -197,23 +197,13 @@ def test_is_independent(framework):
         [fws.Square(), False],
         [fws.K33plusEdge(), True],
         [fws.ThreePrism(realization="flexible"), False],
-        pytest.param(fws.Frustum(5), True, marks=pytest.mark.slow_main),
+        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
+        pytest.param(fws.CompleteBipartite(3, 3, realization="collinear"), False, marks=pytest.mark.long_local),
+        pytest.param(fws.ConnellyExampleSecondOrderRigidity(), False, marks=pytest.mark.slow_main)
     ],
 )
 def test_is_prestress_stable(framework, bool_res):
     assert framework.is_prestress_stable() == bool_res
-
-
-@pytest.mark.parametrize(
-    "framework",
-    [
-        [fws.CompleteBipartite(3, 3, realization="collinear")],
-        [fws.ConnellyExampleSecondOrderRigidity()],
-    ],
-)
-def test_is_prestress_stable_high_dim(framework):
-    with pytest.raises(AttributeError):
-        framework.is_prestress_stable()
 
 
 @pytest.mark.parametrize(
@@ -226,23 +216,13 @@ def test_is_prestress_stable_high_dim(framework):
         [fws.Square(), False],
         [fws.K33plusEdge(), True],
         [fws.ThreePrism(realization="flexible"), False],
-        pytest.param(fws.Frustum(5), True, marks=pytest.mark.slow_main),
+        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
+        pytest.param(fws.CompleteBipartite(3, 3, realization="collinear"), True, marks=pytest.mark.long_local),
+        pytest.param(fws.ConnellyExampleSecondOrderRigidity(), True, marks=pytest.mark.slow_main)
     ],
 )
 def test_is_second_order_rigid(framework, bool_res):
     assert framework.is_second_order_rigid() == bool_res
-
-
-@pytest.mark.parametrize(
-    "framework",
-    [
-        [fws.CompleteBipartite(3, 3, realization="collinear")],
-        [fws.ConnellyExampleSecondOrderRigidity()],
-    ],
-)
-def test_is_second_order_rigid_high_dim(framework):
-    with pytest.raises(AttributeError):
-        framework.is_second_order_rigid()
 
 
 @pytest.mark.parametrize(
