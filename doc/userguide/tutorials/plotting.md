@@ -316,8 +316,7 @@ may cause the jupyter notebook to render additional pictures.
 If this behavior is underirable, we suggest reevaluating the affected cells.
 
 It is also possible to plot infinitesimal flexes in 3D using the `inf_flex` keyword. For details,
-the entire list of parameters can be looked up in the corresponding API reference:
-{meth}`~.Framework.plot_inf_flex`.
+the entire list of parameters can be looked up in the corresponding API reference.
 
 ```{code-cell} ipython3
 _F = frameworks.Frustum(3)

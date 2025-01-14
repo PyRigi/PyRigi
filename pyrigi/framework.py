@@ -907,7 +907,7 @@ class Framework(object):
         Notes
         -----
         The parameters for `inf_flex`-plotting are listed in
-        :meth:`.Framework.plot_inf_flex`.
+        the API reference.
 
         Examples
         --------
@@ -973,13 +973,13 @@ class Framework(object):
                     va="center",
                     alpha=1,
                 )
-        self.plot_inf_flex(ax, inf_flex, **kwargs)
+        self._plot_inf_flex(ax, inf_flex, **kwargs)
 
         plt.tight_layout()
         plt.show()
 
     @doc_category("Other")
-    def plot_inf_flex(  # noqa: C901
+    def _plot_inf_flex(  # noqa: C901
         self,
         ax: Axes,
         inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
@@ -2813,7 +2813,7 @@ class Framework(object):
         )
 
     @doc_category("Other")
-    def _transform_inf_flex_to_pointwise(  # noqa: C901
+    def _transform_inf_flex_to_pointwise(
         self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
     ) -> dict[Vertex, list[Coordinate]]:
         r"""
