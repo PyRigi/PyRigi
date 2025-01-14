@@ -464,7 +464,6 @@ class Graph(nx.Graph):
         return max([self.degree(v) for v in self.nodes])
 
     @staticmethod
-    @doc_category("Sparseness")
     def _pebble_values_are_correct(K: int, L: int) -> bool:
         r"""
         Check if K and L satisfy pebble game conditions.
@@ -478,7 +477,6 @@ class Graph(nx.Graph):
             return False
         return True
 
-    @doc_category("Sparseness")
     def _build_pebble_digraph(self, K: int, L: int) -> None:
         r"""
         Build and save the pebble digraph from scratch.
@@ -531,7 +529,6 @@ class Graph(nx.Graph):
 
         return self._pebble_digraph.to_undirected()
 
-    @doc_category("Sparseness")
     def _is_pebble_digraph_sparse(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> bool:
