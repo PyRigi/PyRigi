@@ -294,7 +294,7 @@ Plotting in 3 dimensions is also possible. The plot can be made interactive by u
 
 Using the keyword `equal_aspect_ratio`, we can decide whether we want to stretch the plot to fix the cubic box size (`False`)
 or whether deforming the framework should be avoided beyond affine transformations (`True`).
-All the other parameters that can be used for `Framework.plot2D` can also be used here.
+All the other parameters that can be used for {meth}`~.Framework.plot2D` can also be used here.
 
 ```{code-cell} ipython3
 F = frameworks.Complete(4, dim=3)
@@ -310,5 +310,16 @@ F = Framework(G, realization={0:(0,0,0), 1:(0,0,1), 2:(1.25,1,0.5), 3:(1.25,-1,0
 F.plot3D(animation=True, rotation_axis=[0,0,1], equal_aspect_ratio=False)
 ```
 
-We can return to the usual inline mode using the command `%matplotlib inline`. Note that triggering this command after using `%matplotlib widget`
-may cause the jupyter notebook to render additional pictures. If this behavior is undesirable, we suggest reevaluating the affected cells.
+We can return to the usual inline mode using the command `%matplotlib inline`.
+Note that triggering this command after using `%matplotlib widget`
+may cause the jupyter notebook to render additional pictures.
+If this behavior is underirable, we suggest reevaluating the affected cells.
+
+It is also possible to plot infinitesimal flexes in 3D using the `inf_flex` keyword. For details,
+the entire list of parameters can be looked up in the corresponding API reference.
+
+```{code-cell} ipython3
+_F = frameworks.Frustum(3)
+F = Framework(_F._graph, {v: p+[1 if v<=2 else 0] for v,p in _F.realization(as_points=True).items()})
+F.plot(inf_flex=1, equal_aspect_ratio=False)
+```
