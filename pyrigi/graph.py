@@ -134,7 +134,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        :func:`~networkx.utils.misc.graphs_equal(self, other)`
+        :func:`~networkx.utils.misc.graphs_equal`
         behaves strangely, hence it is not used.
         """
         if (
@@ -1952,9 +1952,9 @@ class Graph(nx.Graph):
          * dim=1: Graphic Matroid
          * dim=2: (2,3)-sparse
          * dim>=3: A set of edges forms an independent set in the
-         rigidity matroid if and only if it has no self-stress, as this
-         means that there are no linear relations between the rows of
-         the rigidity matrix. This is tested on a random framework.
+           rigidity matroid if and only if it has no self-stress, as this
+           means that there are no linear relations between the rows of
+           the rigidity matrix. This is tested on a random framework.     
 
         Examples
         --------
