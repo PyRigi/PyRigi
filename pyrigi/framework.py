@@ -51,6 +51,7 @@ from pyrigi.misc import (
 
 from typing import Optional, Any
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 from matplotlib.animation import FuncAnimation
 
 __doctest_requires__ = {
@@ -312,8 +313,13 @@ class Framework(object):
         realization:
             The realization in the plane used for plotting.
         inf_flex:
-            Optional parameter for plotting an infinitesimal flex. We expect
-            it to have the same format as `realization`: `dict[Vertex, Point]`.
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         stress:
             Optional parameter for plotting an equilibrium stress. We expect
             it to have the format `Dict[Edge, Number]`.
@@ -359,7 +365,7 @@ class Framework(object):
     @doc_category("Other")
     def plot2D(  # noqa: C901
         self,
-        coordinates: Sequence = None,
+        coordinates: Sequence[int] = None,
         inf_flex: Matrix | InfFlex = None,
         stress: Matrix | Stress = None,
         projection_matrix: Matrix = None,
@@ -390,7 +396,7 @@ class Framework(object):
             The random seed used for generating the projection matrix.
             When the same value is provided, the framework will plot exactly same.
         coordinates:
-            Indexes of two coordinates that will be used as the placement in 2D.
+            Indices of two coordinates that will be used as the placement in 2D.
         inf_flex:
             Optional parameter for plotting a given infinitesimal flex. The standard
             input format is a ``Matrix`` that is the output of e.g. the method
@@ -546,7 +552,9 @@ class Framework(object):
         vertex_color: str = "#ff8c00",
         vertex_shape: str = "o",
         vertex_size: int = 13.5,
-        edge_color: str = "k",
+        edge_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "black",
         edge_width: float = 1.1,
         edge_style: str = "solid",
         equal_aspect_ratio: bool = True,
@@ -587,6 +595,8 @@ class Framework(object):
         ax.grid(False)
         ax.set_axis_off()
 
+        edge_color_array, edge_list_ref = self._graph._resolve_edge_colors(edge_color)
+
         # Limits of the axes
         abs_list = [list(abs(i)) for i in self._realization.values()]
         abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
@@ -603,8 +613,10 @@ class Framework(object):
             [], [], [], vertex_shape, color=vertex_color, markersize=vertex_size
         )
         lines = [
-            ax.plot([], [], [], c=edge_color, lw=edge_width, linestyle=edge_style)[0]
-            for _ in range(len(self._graph.edges))
+            ax.plot(
+                [], [], [], c=edge_color_array[i], lw=edge_width, linestyle=edge_style
+            )[0]
+            for i in range(len(edge_list_ref))
         ]
 
         # Animation initialization function.
@@ -765,9 +777,14 @@ class Framework(object):
         animation:
             If ``True``, the plot is a rotating figure.
 
-        TODO
+        Notes
         -----
-        project the inf-flex as well in `_plot_using_projection_matrix_3D`.
+        See :meth:`.Framework._plot_using_projection_matrix_3D` for a full
+        list of parameters.
+
+        TODO
+        ----
+        Project the `inf_flex` as well.
 
         Examples
         --------
@@ -825,16 +842,22 @@ class Framework(object):
     @doc_category("Other")
     def _plot_with_3D_realization(
         self,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]] = None,
         projection_matrix: Matrix = None,
         vertex_color: str = "#ff8c00",
         vertex_size: int = 200,
         vertex_shape: str = "o",
-        font_size: int = 10,
+        vertex_labels: bool = True,
         font_color: str = "whitesmoke",
-        edge_color: str = "k",
-        edge_width: float = 1.5,
+        fontsize: int = 10,
+        edge_width: float = 2.5,
+        edge_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "black",
         edge_style: str = "solid",
         equal_aspect_ratio: bool = True,
+        padding: float = 0.01,
+        **kwargs,
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -843,6 +866,14 @@ class Framework(object):
 
         Parameters
         ----------
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
         projection_matrix:
             The matrix used for projection.
             The matrix must have dimensions ``(3, dim)``,
@@ -857,7 +888,7 @@ class Framework(object):
             marker, one of ``so^>v<dph8``.
         vertex_labels:
             If ``True`` (default), vertex labels are displayed.
-        font_size:
+        fontsize:
             The size of the font used for the labels.
         font_color:
             The color of the font used for the labels.
@@ -877,6 +908,13 @@ class Framework(object):
             Determines whether the aspect ratio of the plot is equal in all space
             directions or whether it is adjusted depending on the framework's size
             in `x`, `y` and `z`-direction individually.
+        padding:
+            Specifies the white space around the framework.
+
+        Notes
+        -----
+        The parameters for `inf_flex`-plotting are listed in
+        the API reference.
 
         Examples
         --------
@@ -889,6 +927,8 @@ class Framework(object):
         ax = fig.add_subplot(111, projection="3d")
         ax.grid(False)
         ax.set_axis_off()
+
+        edge_color_array, edge_list_ref = self._graph._resolve_edge_colors(edge_color)
 
         if projection_matrix is None:
             pos = self.realization(as_points=True, numerical=True)
@@ -912,36 +952,178 @@ class Framework(object):
             marker=vertex_shape,
         )
         if equal_aspect_ratio:
-            min_val = min(x_nodes + y_nodes + z_nodes) - 0.01
-            max_val = max(x_nodes + y_nodes + z_nodes) + 0.01
+            min_val = min(x_nodes + y_nodes + z_nodes) - padding
+            max_val = max(x_nodes + y_nodes + z_nodes) + padding
             ax.set_zlim(min_val, max_val)
             ax.set_ylim(min_val, max_val)
             ax.set_xlim(min_val, max_val)
         else:
-            ax.set_zlim(min(z_nodes) - 0.01, max(z_nodes) + 0.01)
-            ax.set_ylim(min(y_nodes) - 0.01, max(y_nodes) + 0.01)
-            ax.set_xlim(min(x_nodes) - 0.01, max(x_nodes) + 0.01)
+            ax.set_zlim(min(z_nodes) - padding, max(z_nodes) + padding)
+            ax.set_ylim(min(y_nodes) - padding, max(y_nodes) + padding)
+            ax.set_xlim(min(x_nodes) - padding, max(x_nodes) + padding)
 
-        for edge in self._graph.edges():
+        for i in range(len(edge_list_ref)):
+            edge = edge_list_ref[i]
             x = [pos[edge[0]][0], pos[edge[1]][0]]
             y = [pos[edge[0]][1], pos[edge[1]][1]]
             z = [pos[edge[0]][2], pos[edge[1]][2]]
-            ax.plot(x, y, z, c=edge_color, lw=edge_width, linestyle=edge_style)
+            ax.plot(x, y, z, c=edge_color_array[i], lw=edge_width, linestyle=edge_style)
         for node in self._graph.nodes:
             x, y, z, *others = pos[node]
             # To show the name of the vertex
-            ax.text(
-                x,
-                y,
-                z,
-                str(node),
-                color=font_color,
-                fontsize=font_size,
-                ha="center",
-                va="center",
-            )
+            if vertex_labels:
+                ax.text(
+                    x,
+                    y,
+                    z,
+                    str(node),
+                    color=font_color,
+                    fontsize=fontsize,
+                    ha="center",
+                    va="center",
+                    alpha=1,
+                )
+        self._plot_inf_flex(ax, inf_flex, **kwargs)
+
         plt.tight_layout()
         plt.show()
+
+    @doc_category("Other")
+    def _plot_inf_flex(  # noqa: C901
+        self,
+        ax: Axes,
+        inf_flex: Matrix | int | dict[Vertex, Sequence[Coordinate]],
+        points: dict[Vertex, Point] = None,
+        flex_width: float = 2.5,
+        flex_length: float = 0.65,
+        flex_color: (
+            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = "limegreen",
+        flex_style: str = "solid",
+    ) -> None:
+        """
+        Adds infinitesimal flexes based in the `points` as vectors to the axis `ax`.
+
+        Parameters
+        ----------
+        ax:
+        inf_flex:
+            Optional parameter for plotting a given infinitesimal flex. It is
+            important to use the same vertex order as the one
+            from :meth:`.Graph.vertex_list`.
+            Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
+            nontrivial infinitesimal flex for plotting.
+            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+        flex_width:
+            Width of the infinitesimal flex's arrowtail.
+        flex_length:
+            Length of the displayed flex relative to the total canvas
+            diagonal in percent. By default 15%.
+        flex_color:
+            The color of the infinitesimal flex is by default 'limegreen'.
+        flex_style:
+            Line Style: ``-``/``solid``, ``--``/``dashed``,
+            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        """
+        if inf_flex is not None:
+            inf_flex_pointwise = None
+            if isinstance(inf_flex, int) and inf_flex >= 0:
+                inf_flex_basis = self.nontrivial_inf_flexes()
+                if inf_flex >= len(inf_flex_basis):
+                    raise IndexError(
+                        "The value of inf_flex exceeds "
+                        + "the dimension of the space "
+                        + "of infinitesimal flexes."
+                    )
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(
+                    inf_flex_basis[inf_flex]
+                )
+            elif isinstance(inf_flex, Matrix):
+                inf_flex_pointwise = self._transform_inf_flex_to_pointwise(inf_flex)
+            elif isinstance(inf_flex, dict) and all(
+                isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+            ):
+                inf_flex_pointwise = inf_flex
+            else:
+                raise TypeError("inf_flex does not have the correct Type.")
+
+            if not self.is_dict_inf_flex(inf_flex_pointwise):
+                raise ValueError(
+                    "The provided `inf_flex` is not an infinitesimal flex."
+                )
+
+            if points is None:
+                points = self.realization(as_points=True, numerical=True)
+            elif not isinstance(points, dict):
+                raise TypeError("Realization has the wrong type!")
+            elif not all(
+                [
+                    len(points[v]) == len(points[points.keys()[0]])
+                    and len(points[v]) in [2, 3]
+                    for v in self._graph.nodes
+                ]
+            ):
+                raise ValueError(
+                    "Not all values in the realization have the same"
+                    + "length and the dimension needs to be 2 or 3."
+                )
+
+            magnidutes = []
+            for flex_key in inf_flex_pointwise.keys():
+                if len(inf_flex_pointwise[flex_key]) != len(
+                    points[list(points.keys())[0]]
+                ):
+                    raise ValueError(
+                        "The infinitesimal flex needs to be "
+                        + f"in dimension {len(points[list(points.keys())[0]])}."
+                    )
+                inf_flex = [float(x) for x in inf_flex_pointwise[flex_key]]
+                magnidutes.append(np.linalg.norm(inf_flex))
+
+            # normalize the edge lengths by the Euclidean norm of the longest one
+            flex_mag = max(magnidutes)
+            for flex_key in inf_flex_pointwise.keys():
+                if not all(entry == 0 for entry in inf_flex_pointwise[flex_key]):
+                    inf_flex_pointwise[flex_key] = tuple(
+                        flex / flex_mag for flex in inf_flex_pointwise[flex_key]
+                    )
+            # Delete the edges with zero length
+            inf_flex_pointwise = {
+                flex_key: np.array(inf_flex_pointwise[flex_key], dtype=float)
+                for flex_key in inf_flex_pointwise.keys()
+                if not all(entry == 0 for entry in inf_flex_pointwise[flex_key])
+            }
+
+            for v in inf_flex_pointwise.keys():
+                if len(points[v]) == 2:
+                    ax.quiver(
+                        points[v][0],
+                        points[v][1],
+                        inf_flex_pointwise[v][0],
+                        inf_flex_pointwise[v][1],
+                        color=flex_color,
+                        lw=flex_width,
+                        linestyle=flex_style,
+                        length=flex_length,
+                        normalize=True,
+                        arrow_length_ratio=0.25,
+                    )
+
+                elif self._dim == 3:
+                    ax.quiver(
+                        points[v][0],
+                        points[v][1],
+                        points[v][2],
+                        inf_flex_pointwise[v][0],
+                        inf_flex_pointwise[v][1],
+                        inf_flex_pointwise[v][2],
+                        color=flex_color,
+                        lw=flex_width,
+                        linestyle=flex_style,
+                        length=flex_length,
+                        arrow_length_ratio=0.25,
+                    )
 
     @doc_category("Other")
     def plot(
@@ -956,10 +1138,6 @@ class Framework(object):
         If the dimension of the framework is greater than 3, ``ValueError`` is raised,
         use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
         For various formatting options, see :meth:`.Graph.plot`.
-
-        TODO
-        ----
-        Implement plotting in dimension 3 and
         """
 
         if self._dim == 3:
@@ -1141,18 +1319,15 @@ class Framework(object):
 
         Notes
         -----
-        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``.
-
-        TODO
-        ----
-        Set the correct default range value.
+        If ``rand_range=None``, then the range is set to ``(-a,a)`` for
+        ``a = 10^4 * n * d``.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            b = 10**4 * graph.number_of_nodes() ** 2 * dim
+            b = 10**4 * graph.number_of_nodes() * dim
             a = -b
         if isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
@@ -1623,82 +1798,6 @@ class Framework(object):
                 for e in edge_order
             ]
         )
-
-    def pinned_rigidity_matrix(
-        self,
-        pinned_vertices: dict[Vertex, Sequence[int]] = None,
-        vertex_order: Sequence[Vertex] = None,
-        edge_order: Sequence[Edge] = None,
-    ) -> Matrix:
-        r"""
-        Construct the rigidity matrix of the framework.
-
-        Parameters
-        ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the columns
-            of the rigidity matrix.
-        edge_order:
-            A list of edges, providing the ordering for the rows
-            of the rigidity matrix.
-
-        TODO
-        ----
-        definition of pinned rigidity matrix, tests
-
-        Examples
-        --------
-        >>> F = Framework(Graph([[0, 1], [0, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
-        >>> F.pinned_rigidity_matrix()
-        Matrix([
-        [-1,  0, 1, 0, 0, 0],
-        [-1, -1, 0, 0, 1, 1],
-        [ 1,  0, 0, 0, 0, 0],
-        [ 0,  1, 0, 0, 0, 0],
-        [ 0,  0, 1, 0, 0, 0]])
-        """
-        vertex_order = self._check_vertex_order(vertex_order)
-        edge_order = self._check_edge_order(edge_order)
-        rigidity_matrix = self.rigidity_matrix(
-            vertex_order=vertex_order, edge_order=edge_order
-        )
-
-        if pinned_vertices is None:
-            freedom = self._dim * (self._dim + 1) // 2
-            pinned_vertices = {}
-            upper = self._dim + 1
-            for v in vertex_order:
-                upper -= 1
-                frozen_coord = []
-                for i in range(upper):
-                    if freedom > 0:
-                        frozen_coord.append(i)
-                        freedom -= 1
-                    else:
-                        pinned_vertices[v] = frozen_coord
-                        break
-                pinned_vertices[v] = frozen_coord
-        else:
-            number_pinned = sum([len(coord) for coord in pinned_vertices.values()])
-            if number_pinned > self._dim * (self._dim + 1) // 2:
-                raise ValueError(
-                    "The maximal number of coordinates that"
-                    f"can be pinned is {self._dim * (self._dim + 1) // 2}, "
-                    f"but you provided {number_pinned}."
-                )
-            for v in pinned_vertices:
-                if min(pinned_vertices[v]) < 0 or max(pinned_vertices[v]) >= self._dim:
-                    raise ValueError("Coordinate indices out of range.")
-
-        pinning_rows = []
-        for v in pinned_vertices:
-            for coord in pinned_vertices[v]:
-                idx = vertex_order.index(v)
-                new_row = Matrix.zeros(1, self._dim * self._graph.number_of_nodes())
-                new_row[idx * self._dim + coord] = 1
-                pinning_rows.append(new_row)
-        pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
-        return pinned_rigidity_matrix
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_stress(self, dict_stress: dict[Edge, Number], **kwargs) -> bool:
@@ -2641,7 +2740,7 @@ class Framework(object):
         )
 
     @doc_category("Other")
-    def _transform_inf_flex_to_pointwise(  # noqa: C901
+    def _transform_inf_flex_to_pointwise(
         self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
     ) -> dict[Vertex, list[Number]]:
         r"""

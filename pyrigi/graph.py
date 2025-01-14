@@ -58,9 +58,7 @@ class Graph(nx.Graph):
 
     TODO
     ----
-    Implement an alias for plotting.
-    Graphical output in Jupyter.
-    Graph names.
+    Refactor plotting.
     Describe in the documentation when an output
     of a randomized algorithm is guaranteed to be correct.
     Switch from  parameter `combinatorial=True/False`
@@ -68,8 +66,6 @@ class Graph(nx.Graph):
 
     METHODS
 
-    Notes
-    -----
     This class inherits the class :class:`networkx.Graph`.
     Some of the inherited methods are for instance:
 
@@ -101,6 +97,12 @@ class Graph(nx.Graph):
     - :doc:`A Database of some Graphs <networkx:reference/generators>`
     - :doc:`Reading and Writing Graphs <networkx:reference/readwrite/index>`
     - :doc:`Converting to and from other Data Formats <networkx:reference/convert>`
+
+    Suggested Improvements
+    ----------------------
+    Graphical output in Jupyter.
+    Graph names.
+    __repr__ output for larger graphs?
     """
 
     def __str__(self) -> str:
@@ -130,9 +132,9 @@ class Graph(nx.Graph):
         >>> G == H
         True
 
-        Note
-        ----
-        :func:`~networkx.utils.misc.graphs_equal(self, other)`
+        Notes
+        -----
+        :func:`~networkx.utils.misc.graphs_equal`
         behaves strangely, hence it is not used.
         """
         if (
@@ -1434,8 +1436,8 @@ class Graph(nx.Graph):
         >>> G.is_k_redundantly_rigid(2, 2)
         True
 
-        TODO
-        ----
+        Suggested Improvements
+        ----------------------
         Improve with pebble games.
         """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
@@ -1643,10 +1645,6 @@ class Graph(nx.Graph):
         >>> G.add_edge(0,2)
         >>> G.is_rigid()
         True
-
-        TODO
-        ----
-        Pebble game algorithm for dim=2.
 
         Notes
         -----
@@ -1954,9 +1952,9 @@ class Graph(nx.Graph):
          * dim=1: Graphic Matroid
          * dim=2: (2,3)-sparse
          * dim>=3: A set of edges forms an independent set in the
-         rigidity matroid if and only if it has no self-stress, as this
-         means that there are no linear relations between the rows of
-         the rigidity matrix. This is tested on a random framework.
+           rigidity matroid if and only if it has no self-stress, as this
+           means that there are no linear relations between the rows of
+           the rigidity matrix. This is tested on a random framework.
 
         Examples
         --------
@@ -1966,7 +1964,7 @@ class Graph(nx.Graph):
 
         TODO
         -----
-         This function uses a randomized algorithm
+        Warning: This function uses a randomized algorithm
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
@@ -2165,7 +2163,7 @@ class Graph(nx.Graph):
             The dimension that is used for the rigidity check.
         combinatorial:
             Boolean determining whether a combinatorial algorithm shall be used:
-            connectivity for ``dim=1`` and pebble games for ``dim=2`` (TODO).
+            connectivity for ``dim=1`` and pebble games for ``dim=2``.
             If ``combinatorial`` is ``False``, all subraphs
             are checked using :meth:`~.Graph.is_rigid(combinatorial=False)`.
 
@@ -2334,8 +2332,11 @@ class Graph(nx.Graph):
 
         TODO
         ----
-        Implement taking canonical before computing the integer representation.
         Tests.
+
+        Suggested Improvements
+        ---------------------
+        Implement taking canonical before computing the integer representation.
         """
         if self.number_of_edges() == 0:
             raise ValueError(
@@ -2695,7 +2696,7 @@ class Graph(nx.Graph):
 
         if isinstance(edge_color, str):
             return [edge_color for _ in edge_list], edge_list
-
+        print(edge_color)
         if isinstance(edge_color, list):
             edges_partition = edge_color
             colors = distinctipy.get_colors(
