@@ -234,7 +234,7 @@ In general, a docstring should contain the following items (in this order):
  - short description (one line, compulsory)
  - longer description (optional)
  - definitions (optional): references to related definitions
- - parameters (optional): types are added automatically from type hinting
+ - parameters (optional): description of parameters, types are added automatically from type hinting
  - examples (highly recommended)
  - notes (optional): implementation details
  - suggested improvements (optional): proposed changes/extensions to the method

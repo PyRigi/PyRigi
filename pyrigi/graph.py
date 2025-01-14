@@ -132,8 +132,8 @@ class Graph(nx.Graph):
         >>> G == H
         True
 
-        Note
-        ----
+        Notes
+        -----
         :func:`~networkx.utils.misc.graphs_equal(self, other)`
         behaves strangely, hence it is not used.
         """
