@@ -1398,7 +1398,7 @@ def test_is_tight():
 def test_plot():
     G = graphs.DoubleBanana()
     G.plot(layout="random")
-    plt.close()
+    plt.close("all")
 
 
 @pytest.mark.parametrize(

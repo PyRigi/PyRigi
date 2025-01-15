@@ -628,7 +628,7 @@ def test_plot_error(realization):
     F = Framework(graphs.Complete(2), {0: [1, 0, 0], 1: [0, 1, 1]})
     F.plot()
 
-    plt.close()
+    plt.close("all")
 
 
 def test_plot2D():
@@ -653,7 +653,7 @@ def test_plot2D():
     F = fws.Complete(4, dim=1)
     F.plot2D(stress=0)
 
-    plt.close()
+    plt.close("all")
 
 
 def test_plot3D():
@@ -679,7 +679,7 @@ def test_plot3D():
     F = fws.Complete(4, dim=1)
     F.plot3D(stress=0)
 
-    plt.close()
+    plt.close("all")
 
 
 def test_animate3D():
@@ -694,7 +694,7 @@ def test_animate3D():
     with pytest.raises(AttributeError):
         F.animate3D()
 
-    plt.close()
+    plt.close("all")
 
 
 def test_rigidity_matrix():
