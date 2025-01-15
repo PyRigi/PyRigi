@@ -221,7 +221,7 @@ It is possible to include infinitesimal flexes in the plot. With the keyword
 `inf_flex=n`, we can pick the `n`-th nontrivial infinitesimal flex from
 a basis of the rigidity matrix's kernel. There are several keywords that allow
 us to alter the style of the drawn arrows. A full list of the optional plotting
-parameters can be found in the API reference: {meth}`~.Framework.Plot2D`. 
+parameters can be found in the API reference: {meth}`~.Framework.plot2D`. 
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
@@ -270,7 +270,7 @@ rigidity matrix. We can specify the positions of the stress labels using the key
 or individually using a `dict[DirectedEdge, float]`. This `float` specifies the position on
 the line segment given by the edges. The missing edges labels are automatically
 centered on the edge. A full list of the optional plotting parameters can be found in
-the API reference: {meth}`~.Framework.Plot2D`. 
+the API reference: {meth}`~.Framework.plot2D`. 
 
 ```{code-cell} ipython3
 F = frameworks.Frustum(3)
