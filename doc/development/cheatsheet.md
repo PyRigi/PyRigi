@@ -127,7 +127,7 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 {meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 % list of related references, no separating commas
 :::
 ````
@@ -146,7 +146,7 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 {meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 % list of related references, no separating commas
 :::
 

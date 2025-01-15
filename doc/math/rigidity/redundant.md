@@ -86,7 +86,7 @@ Let $G = (V, E)$ be a {prf:ref}`2-redundantly 3-rigid <def-redundantly-rigid-gra
   |E| \geq 3 |V| - 4 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Thm 4.5}`
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 4.5}`
 :::
 
 
@@ -98,7 +98,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-redundantly 3-rigid <def-redundantly-rigid-gra
   |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Thm 4.9}`
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 4.9}`
 :::
 
 
@@ -123,7 +123,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-ri
   |E| \geq d |V| - \binom{d + 1}{2} + k d + max \left\{ 0, \left\lceil k - \frac{d + 1}{2} \right\rceil \right\} \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 5}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 5}`
 :::
 
 
@@ -135,7 +135,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-ri
   |E| \geq \left\lceil \frac{d + k}{2} |V| \right\rceil \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 6}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 6}`
 :::
 
 
@@ -148,7 +148,7 @@ Let $G = (V, E)$ be a {prf:ref}`1-vertex-redundantly 2-rigid <def-redundantly-ri
 \end{equation*}
 
 {{references}} {cite:p}`Servatius1989`
-{cite:p}`Summers2008{Lem 1}`
+{cite:p}`SummersYuAnderson2008{Lem 1}`
 :::
 
 
@@ -160,7 +160,7 @@ Let $G = (V, E)$ be a {prf:ref}`2-vertex-redundantly 2-rigid <def-redundantly-ri
   |E| \geq 2 |V| + 2 \,.
 \end{equation*}
 
-{{references}} {cite:p}`AlirezaMotevallian2014{Lem 4.9}`
+{{references}} {cite:p}`MotevallianYuAnderson2014{Lem 4.9}`
 :::
 
 
@@ -184,7 +184,7 @@ Let $G = (V, E)$ be a {prf:ref}`3-vertex-redundantly 3-rigid <def-redundantly-ri
   |E| \geq 3 |V| + 5 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Lem 2.12}`
+{{references}} {cite:p}`JordanPostonRoach2022{Lem 2.12}`
 :::
 
 
@@ -196,7 +196,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly 3-rigid <def-redundantly-ri
   |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Thm 3.3}`
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 3.3}`
 :::
 
 
@@ -208,7 +208,7 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly d-rigid <def-redu
   |E| \leq (d + k) |V| - \binom{d + k + 1}{2} \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 7}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 7}`
 :::
 
 
@@ -220,6 +220,6 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly 1-rigid <def-redu
   |E| \leq (k + 1) |V| - (k + 1)^2 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 8}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 8}`
 :::
 

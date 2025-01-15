@@ -52,7 +52,7 @@ where $1\leq i\leq n$.
 {{pyrigi_crossref}} {func}`~.graphDB.CnSymmetricFourRegular`
 {func}`~.frameworkDB.CnSymmetricFourRegular`
 
-{{references}} {cite:p}`LaPorta2024`
+{{references}} {cite:p}`LaPortaSchulze2024`
 :::
 
 :::{prf:definition} Counterexample for the symmetry-adjusted Laman count which contains a joint at the origin
@@ -85,5 +85,5 @@ $n/2$-gons clockwise and anti-clockwise, respectively.
 {{pyrigi_crossref}} {func}`~.graphDB.CnSymmetricFourRegularWithFixedVertex`
 {func}`~.frameworkDB.CnSymmetricFourRegularWithFixedVertex`
 
-{{references}} {cite:p}`LaPorta2024`
+{{references}} {cite:p}`LaPortaSchulze2024`
 :::
