@@ -726,6 +726,12 @@ class Framework(object):
         >>> F = frameworkDB.Complete(4, dim=3)
         >>> F.animate3D();
         """
+        if self._dim != 3:
+            raise AttributeError(
+                "The Framework is in dimension {self._dim}, "
+                + "not 3 as the method `animate3D` requires."
+            )
+
         # Creation of the figure
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(111, projection="3d")

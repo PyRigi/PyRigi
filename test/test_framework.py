@@ -621,11 +621,13 @@ def test_plot_error(realization):
     F = Framework(graphs.Complete(2), realization)
     with pytest.raises(ValueError):
         F.plot()
-    
+
     F = Framework(graphs.Complete(2), {0: [1, 0], 1: [0, 1]})
     F.plot()
+
     F = Framework(graphs.Complete(2), {0: [1, 0, 0], 1: [0, 1, 1]})
     F.plot()
+
     plt.close()
 
 
@@ -633,7 +635,7 @@ def test_plot2D():
     F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
     with pytest.raises(ValueError):
         F.plot2D(projection_matrix=[[1, 0], [0, 1], [0, 0]])
-    F.plot2D(projection_matrix=[[1, 0, 0, 0], [0, 1, 0, 0]]) 
+    F.plot2D(projection_matrix=[[1, 0, 0, 0], [0, 1, 0, 0]])
 
     F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
     with pytest.raises(ValueError):
@@ -647,6 +649,10 @@ def test_plot2D():
 
     F = fws.Complete(4)
     F.plot2D(stress=0)
+
+    F = fws.Complete(4, dim=1)
+    F.plot2D(stress=0)
+
     plt.close()
 
 
@@ -660,19 +666,36 @@ def test_plot3D():
     with pytest.raises(ValueError):
         F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1]])
     F.plot3D(projection_matrix=[[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]])
-    
+
     F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
     F.plot3D(inf_flex=0)
 
     F = fws.Octahedron(realization="Bricard_plane")
     F.plot3D(inf_flex=0, stress=0)
+
+    F = fws.Complete(4)
+    F.plot3D(stress=0)
+
+    F = fws.Complete(4, dim=1)
+    F.plot3D(stress=0)
+
     plt.close()
 
 
 def test_animate3D():
     F = fws.Complete(4, dim=3)
     F.animate3D()
+
+    F = fws.Complete(3)
+    with pytest.raises(AttributeError):
+        F.animate3D()
+
+    F = fws.Complete(5, dim=4)
+    with pytest.raises(AttributeError):
+        F.animate3D()
+
     plt.close()
+
 
 def test_rigidity_matrix():
     F = fws.Complete(2)
