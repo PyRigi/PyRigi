@@ -2739,7 +2739,6 @@ class Framework(object):
             f"STL files for the bars have been generated in the folder `{output_dir}`."
         )
 
-    @doc_category("Other")
     def _transform_inf_flex_to_pointwise(
         self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
     ) -> dict[Vertex, list[Number]]:
@@ -2776,7 +2775,6 @@ class Framework(object):
             for i in range(len(vertex_order))
         }
 
-    @doc_category("Other")
     def _transform_stress_to_edgewise(
         self, stress: Matrix, edge_order: Sequence[Edge] = None
     ) -> dict[Edge, Number]:
@@ -3161,7 +3159,6 @@ class Framework(object):
                 "The `inf_flex` must be specified either by a vector or a dictionary!"
             )
 
-    @doc_category("Other")
     def _check_vertex_order(self, vertex_order=Sequence[Vertex]) -> list[Vertex]:
         """
         Checks whether the provided `vertex_order` contains the same elements
@@ -3189,7 +3186,6 @@ class Framework(object):
                 )
             return list(vertex_order)
 
-    @doc_category("Other")
     def _check_edge_order(self, edge_order=Sequence[Edge]) -> list[Edge]:
         """
         Checks whether the provided `edge_order` contains the same elements
