@@ -3,7 +3,7 @@ Module for miscellaneous functions.
 """
 
 import math
-from pyrigi.data_type import Sequence, Coordinate, point_to_vector
+from pyrigi.data_type import Sequence, Number, point_to_vector
 from sympy import Matrix
 import numpy as np
 from math import isclose, log10
@@ -126,7 +126,7 @@ def check_integrality_and_range(
 
 
 def is_zero_vector(
-    vector: Sequence[Coordinate], numerical: bool = False, tolerance: float = 1e-9
+    vector: Sequence[Number], numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
     """
     Check if the given vector is zero.
@@ -159,9 +159,7 @@ def is_zero_vector(
         )
 
 
-def eval_sympy_vector(
-    vector: Sequence[Coordinate], tolerance: float = 1e-9
-) -> list[float]:
+def eval_sympy_vector(vector: Sequence[Number], tolerance: float = 1e-9) -> list[float]:
     """
     Converts a sympy vector to a (numerical) list of floats.
 
