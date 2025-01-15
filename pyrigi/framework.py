@@ -1482,6 +1482,10 @@ class Framework(object):
         **kwargs,
     ) -> None:
         """
+        Adds an equilibrium stress based in the `edges` as numbers to the axis `ax`.
+
+        Parameters
+        ----------        
         ax:
         stress:
             Optional parameter for plotting a given equilibrium stress. The standard
