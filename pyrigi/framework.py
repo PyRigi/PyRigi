@@ -30,11 +30,11 @@ from pyrigi.data_type import (
     Vertex,
     Edge,
     Point,
+    InfFlex,
     Stress,
-    Inf_Flex,
     point_to_vector,
     Sequence,
-    Coordinate,
+    Number,
     DirectedEdge,
 )
 
@@ -312,6 +312,7 @@ class Framework(object):
         font_color: str = "whitesmoke",
         curved_edges: bool = False,
         connection_style: float | Sequence[float] | dict[Edge, float] = np.pi / 6,
+        **kwargs,
     ) -> None:
         """
         Plot the graph of the framework with the given realization in the plane.
@@ -328,11 +329,11 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         stress:
             Optional parameter for plotting an equilibrium stress. We expect
-            it to have the format `Dict[Edge, Coordinate]`.
+            it to have the format `Dict[Edge, Number]`.
         """
         edge_color_array, edge_list_ref = self._resolve_edge_colors(edge_color)
 
@@ -395,7 +396,7 @@ class Framework(object):
         projection_matrix: Matrix = None,
         random_seed: int = None,
         coordinates: Sequence[int] = None,
-        inf_flex: int | Inf_Flex = None,
+        inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
         return_matrix: bool = False,
         vertex_size: int = 300,
@@ -459,7 +460,7 @@ class Framework(object):
             For these input types, is important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
             If the vertex order needs to be specified, a
-            ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which maps the
+            ``dict[Vertex, Sequence[Number]]`` can be provided, which maps the
             vertex labels to vectors (i.e. a sequence of coordinates).
         stress:
             Optional parameter for plotting a given equilibrium stress. The standard
@@ -469,7 +470,7 @@ class Framework(object):
             to the method ``Framework.stresses``) for plotting.
             For these input types, is important to use the same edge order as the one
             from :meth:`.Graph.edge_list`.
-            If the edge order needs to be specified, a ``Dict[Edge, Coordinate]``
+            If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
         return_matrix:
@@ -693,7 +694,7 @@ class Framework(object):
         equal_aspect_ratio: bool = True,
         total_frames: int = 50,
         delay: int = 75,
-        rotation_axis: str | Sequence[Coordinate] = None,
+        rotation_axis: str | Sequence[Number] = None,
         dpi: int = 150,
     ) -> Any:
         """
@@ -881,7 +882,7 @@ class Framework(object):
         projection_matrix: Matrix = None,
         random_seed: int = None,
         coordinates: Sequence[int] = None,
-        inf_flex: int | Inf_Flex = None,
+        inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
         return_matrix: bool = False,
         vertex_size: int = 200,
@@ -956,7 +957,7 @@ class Framework(object):
             For these input types, is important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
             If the vertex order needs to be specified, a
-            ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which maps the
+            ``dict[Vertex, Sequence[Number]]`` can be provided, which maps the
             vertex labels to vectors (i.e. a sequence of coordinates).
         stress:
             Optional parameter for plotting a given equilibrium stress. The standard
@@ -966,7 +967,7 @@ class Framework(object):
             to the method ``Framework.stresses``) for plotting.
             For these input types, is important to use the same edge order as the one
             from :meth:`.Graph.edge_list`.
-            If the edge order needs to be specified, a ``Dict[Edge, Coordinate]``
+            If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
         return_matrix:
@@ -1192,7 +1193,7 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``Dict[Vertex, Sequence[Coordinate]]`` can be provided, which
+            Lastly, a ``Dict[Vertex, Sequence[Number]]`` can be provided, which
             maps the vertex labels to vectors (i.e. a sequence of coordinates).
         projection_matrix:
             The matrix used for projection.
@@ -1288,7 +1289,7 @@ class Framework(object):
     def _plot_inf_flex(  # noqa: C901
         self,
         ax: Axes,
-        inf_flex: Matrix | Inf_Flex,
+        inf_flex: Matrix | InfFlex,
         points: dict[Vertex, Point] = None,
         flex_width: float = 2.5,
         flex_length: float = 0.65,
@@ -1312,8 +1313,8 @@ class Framework(object):
             from :meth:`.Graph.vertex_list`.
             Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
             nontrivial infinitesimal flex for plotting.
-            Lastly, a ``dict[Vertex, Sequence[Coordinate]]`` can be provided, which
-            maps the vertex labels to vectors (i.e. a sequence of coordinates).
+            Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
+            maps the vertex labels to vectors (i.e. a sequence of Numbers).
         flex_width:
             Width of the infinitesimal flex's arrowtail.
         flex_length:
@@ -1488,7 +1489,7 @@ class Framework(object):
             to the method ``Framework.stresses``) for plotting.
             For these input types, is important to use the same edge order as the one
             from :meth:`.Graph.edge_list`.
-            If the edge order needs to be specified, a ``Dict[Edge, Coordinate]``
+            If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
         points:
@@ -1634,10 +1635,6 @@ class Framework(object):
         If the dimension of the framework is greater than 3, ``ValueError`` is raised,
         use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
         For various formatting options, see :meth:`.Graph.plot`.
-
-        TODO
-        ----
-        Implement plotting in dimension 3 and
         """
         if self._dim == 3:
             return self.plot3D(**kwargs)
@@ -1818,18 +1815,15 @@ class Framework(object):
 
         Notes
         -----
-        If ``rand_range=None``, then the range is set to ``(-10 * n^2 * d)``.
-
-        TODO
-        ----
-        Set the correct default range value.
+        If ``rand_range=None``, then the range is set to ``(-a,a)`` for
+        ``a = 10^4 * n * d``.
         """
         if not isinstance(dim, int) or dim < 1:
             raise TypeError(
                 f"The dimension needs to be a positive integer, but is {dim}!"
             )
         if rand_range is None:
-            b = 10**4 * graph.number_of_nodes() ** 2 * dim
+            b = 10**4 * graph.number_of_nodes() * dim
             a = -b
         if isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
@@ -2301,84 +2295,8 @@ class Framework(object):
             ]
         )
 
-    def pinned_rigidity_matrix(
-        self,
-        pinned_vertices: dict[Vertex, Sequence[int]] = None,
-        vertex_order: Sequence[Vertex] = None,
-        edge_order: Sequence[Edge] = None,
-    ) -> Matrix:
-        r"""
-        Construct the rigidity matrix of the framework.
-
-        Parameters
-        ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the columns
-            of the rigidity matrix.
-        edge_order:
-            A list of edges, providing the ordering for the rows
-            of the rigidity matrix.
-
-        TODO
-        ----
-        definition of pinned rigidity matrix, tests
-
-        Examples
-        --------
-        >>> F = Framework(Graph([[0, 1], [0, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
-        >>> F.pinned_rigidity_matrix()
-        Matrix([
-        [-1,  0, 1, 0, 0, 0],
-        [-1, -1, 0, 0, 1, 1],
-        [ 1,  0, 0, 0, 0, 0],
-        [ 0,  1, 0, 0, 0, 0],
-        [ 0,  0, 1, 0, 0, 0]])
-        """
-        vertex_order = self._check_vertex_order(vertex_order)
-        edge_order = self._check_edge_order(edge_order)
-        rigidity_matrix = self.rigidity_matrix(
-            vertex_order=vertex_order, edge_order=edge_order
-        )
-
-        if pinned_vertices is None:
-            freedom = self._dim * (self._dim + 1) // 2
-            pinned_vertices = {}
-            upper = self._dim + 1
-            for v in vertex_order:
-                upper -= 1
-                frozen_coord = []
-                for i in range(upper):
-                    if freedom > 0:
-                        frozen_coord.append(i)
-                        freedom -= 1
-                    else:
-                        pinned_vertices[v] = frozen_coord
-                        break
-                pinned_vertices[v] = frozen_coord
-        else:
-            number_pinned = sum([len(coord) for coord in pinned_vertices.values()])
-            if number_pinned > self._dim * (self._dim + 1) // 2:
-                raise ValueError(
-                    "The maximal number of coordinates that"
-                    f"can be pinned is {self._dim * (self._dim + 1) // 2}, "
-                    f"but you provided {number_pinned}."
-                )
-            for v in pinned_vertices:
-                if min(pinned_vertices[v]) < 0 or max(pinned_vertices[v]) >= self._dim:
-                    raise ValueError("Coordinate indices out of range.")
-
-        pinning_rows = []
-        for v in pinned_vertices:
-            for coord in pinned_vertices[v]:
-                idx = vertex_order.index(v)
-                new_row = Matrix.zeros(1, self._dim * self._graph.number_of_nodes())
-                new_row[idx * self._dim + coord] = 1
-                pinning_rows.append(new_row)
-        pinned_rigidity_matrix = Matrix.vstack(rigidity_matrix, *pinning_rows)
-        return pinned_rigidity_matrix
-
     @doc_category("Infinitesimal rigidity")
-    def is_dict_stress(self, dict_stress: dict[Edge, Coordinate], **kwargs) -> bool:
+    def is_dict_stress(self, dict_stress: dict[Edge, Number], **kwargs) -> bool:
         """
         Return whether a dictionary specifies an equilibrium stress of the framework.
 
@@ -2424,7 +2342,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_stress(
         self,
-        stress: Stress,
+        stress: Sequence[Number],
         edge_order: Sequence[Edge] = None,
         numerical: bool = False,
         tolerance=1e-9,
@@ -2471,7 +2389,7 @@ class Framework(object):
         )
 
     @doc_category("Infinitesimal rigidity")
-    def is_stress(self, stress: Stress | dict[Edge, Coordinate], **kwargs) -> bool:
+    def is_stress(self, stress: Stress, **kwargs) -> bool:
         """
         Alias for :meth:`Framework.is_vector_stress` and
         :meth:`Framework.is_dict_stress`.
@@ -3116,7 +3034,7 @@ class Framework(object):
         return new_framework
 
     @doc_category("Other")
-    def edge_lengths(self, numerical: bool = False) -> dict[Edge, Coordinate]:
+    def edge_lengths(self, numerical: bool = False) -> dict[Edge, Number]:
         """
         Return the dictionary of the edge lengths.
 
@@ -3320,7 +3238,7 @@ class Framework(object):
     @doc_category("Other")
     def _transform_inf_flex_to_pointwise(
         self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
-    ) -> dict[Vertex, list[Coordinate]]:
+    ) -> dict[Vertex, list[Number]]:
         r"""
         Transform the natural data type of a flex (Matrix) to a
         dictionary that maps a vertex to a Sequence of coordinates
@@ -3357,7 +3275,7 @@ class Framework(object):
     @doc_category("Other")
     def _transform_stress_to_edgewise(
         self, stress: Matrix, edge_order: Sequence[Edge] = None
-    ) -> dict[Edge, Coordinate]:
+    ) -> dict[Edge, Number]:
         r"""
         Transform the natural data type of a stress (Matrix) to a
         dictionary that maps an edge to a coordinate.
@@ -3389,7 +3307,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_inf_flex(
         self,
-        inf_flex: Sequence[Coordinate],
+        inf_flex: Sequence[Number],
         vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
@@ -3440,7 +3358,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
         """
         Return whether a dictionary specifies an infinitesimal flex of the framework.
@@ -3484,7 +3402,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_vector_nontrivial_inf_flex(
         self,
-        inf_flex: Sequence[Coordinate],
+        inf_flex: Sequence[Number],
         vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
@@ -3567,7 +3485,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_nontrivial_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
         r"""
         Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
@@ -3614,7 +3532,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_nontrivial_flex(
         self,
-        inf_flex: Sequence[Coordinate] | dict[Vertex, Sequence[Coordinate]],
+        inf_flex: InfFlex,
         **kwargs,
     ) -> bool:
         """
@@ -3636,9 +3554,7 @@ class Framework(object):
             )
 
     @doc_category("Infinitesimal rigidity")
-    def is_vector_trivial_inf_flex(
-        self, inf_flex: Sequence[Coordinate], **kwargs
-    ) -> bool:
+    def is_vector_trivial_inf_flex(self, inf_flex: Sequence[Number], **kwargs) -> bool:
         r"""
         Return whether an infinitesimal flex is trivial.
 
@@ -3673,7 +3589,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_trivial_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Coordinate]], **kwargs
+        self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
         r"""
         Return whether an infinitesimal flex specified by a dictionary is trivial.
@@ -3720,7 +3636,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_trivial_flex(
         self,
-        inf_flex: Sequence[Coordinate] | dict[Vertex, Sequence[Coordinate]],
+        inf_flex: InfFlex,
         **kwargs,
     ) -> bool:
         """

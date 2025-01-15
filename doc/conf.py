@@ -80,13 +80,17 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_preprocess_types = True
-napoleon_custom_sections = ["Definitions", "Methods"]
+napoleon_custom_sections = ["Definitions", "Methods", "Suggested Improvements"]
 
 autodoc_type_aliases = {
     "Vertex": "Vertex",
     "Edge": "Edge",
+    "DirectedEdge": "DirectedEdge",
     "Point": "Point",
-    "Coordinate": "Coordinate",
+    "Number": "Number",
+    "Stress": "Stress",
+    "InfFlex": "InfFlex",
+    "Inf": "Inf",
 }
 napoleon_attr_annotations = True
 

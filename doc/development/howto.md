@@ -146,8 +146,21 @@ veeeeery long docstring that has to violate the 90 characters limit due to a ref
 
 Tests are extremely important to guarantee the realiability of code.
 Please create tests for the functionalities that you implement and place them in the `test` folder, within the appropriate file.
-Each test should be in the form of a method starting with `test_`.
-Tests can be parametrized, see for instance `test_inf_rigid` in `test_framework.py`.
+Each test should be in the form of a function starting with `test_`.
+Tests can be parametrized, see for instance `test_is_inf_rigid` in `test_framework.py`.
+
+Please, follow this naming convention for tests of a specific function/method:
+
+| function  | test name        | test...
+|-----------|------------------|---------------------------------------
+| `foo`     | `test_foo`       | the functionality of `foo`
+| `foo(dim)`| `test_foo_d1`    | the functionality of `foo` for `dim=1`
+| `foo`     | `test_foo_error` | that `foo` raises correct errors
+| `is_bar`  | `test_is_bar`    | that property `bar` holds
+| `is_bar`  | `test_is_not_bar`| that property `bar` does not hold
+
+There can be also more complex tests, i.e., testing more than a single method;
+please, choose a reasonable name for them following the idea above.
 
 Moreover, please add a section `EXAMPLES` in the docstring of the classes and methods that you introduce and provide there examples of the functionalities you implemented.
 
@@ -175,8 +188,8 @@ We mark tests that take longer time according to the following table:
 | marker               | per test | total time | execution
 | -------------------- | -------- | ---------- | -------------------
 | standard (no marker) | < 0.5s   | < 2 min    | on merge/PR to `dev`
-| `slow_main`            | < 10s    | < 15 min   | on merge/PR to `main`
-| `long_local`           | > 10s    | hours      | locally when needed
+| `slow_main`          | < 10s    | < 15 min   | on merge/PR to `main`
+| `long_local`         | > 10s    | hours      | locally when needed
 
 The column `total time` indicates how much time is needed to run all tests with the given marker.
 The time limits per tests are approximate: it is better to have a longer standard tests than none.
@@ -233,10 +246,11 @@ or {meth}`.Framework.realization`.
 In general, a docstring should contain the following items (in this order):
  - short description (one line, compulsory)
  - longer description (optional)
- - list of definitions (optional)
- - parameters description (optional): types are added automatically from type hinting
+ - definitions (optional): references to related definitions
+ - parameters (optional): description of parameters, types are added automatically from type hinting
  - examples (highly recommended)
  - notes (optional): implementation details
+ - suggested improvements (optional): proposed changes/extensions to the method
 
 ### Auto-build
 

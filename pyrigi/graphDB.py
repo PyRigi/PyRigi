@@ -154,14 +154,9 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
     Return a C_n-symmetric graph.
 
-    TODO
-    ----
-    use in tests
-
     Definitions
     -----------
     * :prf:ref:`Example with a free group action <def-Cn-symmetric>`
-
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
@@ -184,10 +179,6 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
-
-    TODO
-    ----
-    use in tests
 
     Definitions
     -----------

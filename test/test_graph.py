@@ -9,7 +9,7 @@ import networkx as nx
 from random import randint
 
 
-def test_add():
+def test__add__():
     G = Graph([[0, 1], [1, 2], [2, 0]])
     H = Graph([[0, 1], [1, 3], [3, 0]])
     assert G + H == Graph([[0, 1], [1, 2], [2, 0], [1, 3], [3, 0]])
@@ -21,7 +21,7 @@ def test_add():
     assert G + H == Graph.from_vertices_and_edges([0, 1, 2, 3, 4], [[0, 1], [1, 2]])
 
 
-def test_KL_values_are_correct():
+def test__pebble_values_are_correct():
     assert Graph._pebble_values_are_correct(2, 3)
     assert Graph._pebble_values_are_correct(1, 1)
     assert Graph._pebble_values_are_correct(20, 20)
@@ -30,7 +30,7 @@ def test_KL_values_are_correct():
     assert Graph._pebble_values_are_correct(40, 79)
 
 
-def test_KL_values_are_not_correct():
+def test__pebble_values_are_not_correct():
     assert not Graph._pebble_values_are_correct(2, 4)
     assert not Graph._pebble_values_are_correct(1, -1)
     assert not Graph._pebble_values_are_correct(0, 0)
@@ -56,7 +56,7 @@ def test_KL_values_are_not_correct():
         graphs.ThreePrismPlusEdge(),
     ],
 )
-def test_rigid_in_d2(graph):
+def test_is_rigid_d2(graph):
     assert graph.is_rigid(dim=2, combinatorial=True)
     assert graph.is_rigid(dim=2, combinatorial=False)
 
@@ -72,7 +72,7 @@ def test_rigid_in_d2(graph):
         graphs.Path(4),
     ],
 )
-def test_not_rigid_in_d2(graph):
+def test_is_not_rigid_d2(graph):
     assert not graph.is_rigid(dim=2, combinatorial=True)
     assert not graph.is_rigid(dim=2, combinatorial=False)
 
@@ -91,7 +91,7 @@ def test_not_rigid_in_d2(graph):
         graphs.Path(3),
     ],
 )
-def test_rigid_in_d1(graph):
+def test_is_rigid_d1(graph):
     assert graph.is_rigid(dim=1, combinatorial=True)
     assert graph.is_rigid(dim=1, combinatorial=False)
 
@@ -100,7 +100,7 @@ def test_rigid_in_d1(graph):
     "graph",
     [Graph.from_vertices(range(3)), Graph([[0, 1], [2, 3]])],
 )
-def test_not_rigid_in_d1(graph):
+def test_is_not_rigid_d1(graph):
     assert not graph.is_rigid(dim=1, combinatorial=True)
     assert not graph.is_rigid(dim=1, combinatorial=False)
 
@@ -129,7 +129,7 @@ def test_is_rigid(graph, dim):
         graphs.ThreePrism(),
     ],
 )
-def test_2_3_sparse(graph):
+def test_is_2_3_sparse(graph):
     assert graph.is_sparse(2, 3, algorithm="subgraph")
     assert graph.is_sparse(2, 3, algorithm="pebble")
 
@@ -144,7 +144,7 @@ def test_2_3_sparse(graph):
         graphs.ThreePrismPlusEdge(),
     ],
 )
-def test_not_2_3_sparse(graph):
+def test_is_not_2_3_sparse(graph):
     assert not graph.is_sparse(2, 3, algorithm="subgraph")
     assert not graph.is_sparse(2, 3, algorithm="pebble")
 
@@ -159,7 +159,7 @@ def test_not_2_3_sparse(graph):
         graphs.ThreePrism(),
     ],
 )
-def test_2_3_tight(graph):
+def test_is_2_3_tight(graph):
     assert graph.is_tight(2, 3, algorithm="pebble")
     assert graph.is_tight(2, 3, algorithm="subgraph")
 
@@ -180,7 +180,7 @@ def test_2_3_tight(graph):
         graphs.ThreePrismPlusEdge(),
     ],
 )
-def test_not_2_3_tight(graph):
+def test_is_not_2_3_tight(graph):
     assert not graph.is_tight(2, 3, algorithm="subgraph")
     assert not graph.is_tight(2, 3, algorithm="pebble")
 
@@ -194,7 +194,7 @@ def test_not_2_3_tight(graph):
         Graph.from_int(102),  # a tree on 5 vertices
     ],
 )
-def test_min_rigid_in_d1(graph):
+def test_is_min_rigid_d1(graph):
     assert graph.is_min_rigid(dim=1, combinatorial=True)
     assert graph.is_min_rigid(dim=1, combinatorial=False)
 
@@ -213,7 +213,7 @@ def test_min_rigid_in_d1(graph):
         graphs.Cycle(4),
     ],
 )
-def test_not_min_rigid_in_d1(graph):
+def test_is_not_min_rigid_d1(graph):
     assert not graph.is_min_rigid(dim=1, combinatorial=True)
     assert not graph.is_min_rigid(dim=1, combinatorial=False)
 
@@ -228,7 +228,7 @@ def test_not_min_rigid_in_d1(graph):
         graphs.ThreePrism(),
     ],
 )
-def test_min_rigid_in_d2(graph):
+def test_is_min_rigid_d2(graph):
     assert graph.is_min_rigid(dim=2, combinatorial=True)
     assert graph.is_min_rigid(dim=2, combinatorial=False)
 
@@ -249,7 +249,7 @@ def test_min_rigid_in_d2(graph):
         graphs.ThreePrismPlusEdge(),
     ],
 )
-def test_not_min_rigid_in_d2(graph):
+def test_is_not_min_rigid_d2(graph):
     assert not graph.is_min_rigid(dim=2, combinatorial=True)
     assert not graph.is_min_rigid(dim=2, combinatorial=False)
 
@@ -266,7 +266,7 @@ def test_not_min_rigid_in_d2(graph):
         graphs.ThreePrismPlusEdge(),
     ],
 )
-def test_globally_rigid_in_d2(graph):
+def test_is_globally_rigid_d2(graph):
     assert graph.is_globally_rigid(dim=2)
 
 
@@ -314,7 +314,7 @@ def read_globally(d_v_):
         [read_globally("D19V23"), 19],
     ],
 )
-def test_globally_rigid_in_d(graph, gdim):
+def test_is_globally_rigid(graph, gdim):
     assert graph.is_globally_rigid(dim=gdim)
 
 
@@ -363,7 +363,7 @@ def test_globally_rigid_in_d(graph, gdim):
         [graphs.CompleteBipartite(2, 3), 19],
     ],
 )
-def test_not_globally_rigid_in_d(graph, gdim):
+def test_is_not_globally_rigid(graph, gdim):
     assert not graph.is_globally_rigid(dim=gdim)
 
 
@@ -381,7 +381,7 @@ def test_not_globally_rigid_in_d(graph, gdim):
         graphs.ThreePrism(),
     ],
 )
-def test_not_globally_in_d2(graph):
+def test_is_not_globally_d2(graph):
     assert not graph.is_globally_rigid(dim=2)
 
 
@@ -394,7 +394,7 @@ def test_not_globally_in_d2(graph):
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]),
     ],
 )
-def test_vertex_redundantly_rigid_in_d2(graph):
+def test_is_vertex_redundantly_rigid_d2(graph):
     assert graph.is_vertex_redundantly_rigid(dim=2)
     assert graph.is_vertex_redundantly_rigid(dim=2, combinatorial=False)
 
@@ -414,7 +414,7 @@ def test_vertex_redundantly_rigid_in_d2(graph):
         [Graph.from_int(16351), 3],
     ],
 )
-def test_k_vertex_redundantly_rigid_in_d1(graph, k):
+def test_is_k_vertex_redundantly_rigid_d1(graph, k):
     assert graph.is_k_vertex_redundantly_rigid(k, dim=1)
     assert graph.is_k_vertex_redundantly_rigid(k, dim=1, combinatorial=False)
 
@@ -435,7 +435,7 @@ def test_k_vertex_redundantly_rigid_in_d1(graph, k):
         [graphs.CompleteMinusOne(7), 3],
     ],
 )
-def test_k_vertex_redundantly_rigid_in_d2(graph, k):
+def test_is_k_vertex_redundantly_rigid_d2(graph, k):
     assert graph.is_k_vertex_redundantly_rigid(k, dim=2)
     assert graph.is_k_vertex_redundantly_rigid(k, dim=2, combinatorial=False)
 
@@ -463,7 +463,7 @@ def test_k_vertex_redundantly_rigid_in_d2(graph, k):
         ],
     ],
 )
-def test_k_vertex_redundantly_rigid_in_d3(graph, k):
+def test_is_k_vertex_redundantly_rigid_d3(graph, k):
     assert graph.is_k_vertex_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
@@ -476,7 +476,7 @@ def test_k_vertex_redundantly_rigid_in_d3(graph, k):
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]),
     ],
 )
-def test_not_vertex_redundantly_rigid_in_d2(graph):
+def test_is_not_vertex_redundantly_rigid_d2(graph):
     assert not graph.is_vertex_redundantly_rigid(dim=2)
     assert not graph.is_vertex_redundantly_rigid(dim=2, combinatorial=False)
 
@@ -490,7 +490,7 @@ def test_not_vertex_redundantly_rigid_in_d2(graph):
         [Graph([["a", "b"], ["b", "c"], ["c", "a"], ["d", "a"], ["e", "d"]]), 1],
     ],
 )
-def test_not_k_vertex_redundantly_rigid_in_d1(graph, k):
+def test_is_not_k_vertex_redundantly_rigid_d1(graph, k):
     assert not graph.is_k_vertex_redundantly_rigid(k, dim=1)
     assert not graph.is_k_vertex_redundantly_rigid(k, dim=1, combinatorial=False)
 
@@ -504,7 +504,7 @@ def test_not_k_vertex_redundantly_rigid_in_d1(graph, k):
         [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]), 1],
     ],
 )
-def test_not_k_vertex_redundantly_rigid_in_d2(graph, k):
+def test_is_not_k_vertex_redundantly_rigid_d2(graph, k):
     assert not graph.is_k_vertex_redundantly_rigid(k, dim=2)
     assert not graph.is_k_vertex_redundantly_rigid(k, dim=2, combinatorial=False)
 
@@ -531,7 +531,7 @@ def test_not_k_vertex_redundantly_rigid_in_d2(graph, k):
         ],
     ],
 )
-def test_not_k_vertex_redundantly_rigid_in_d3(graph, k):
+def test_is_not_k_vertex_redundantly_rigid_d3(graph, k):
     assert not graph.is_k_vertex_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
@@ -550,7 +550,7 @@ def test_not_k_vertex_redundantly_rigid_in_d3(graph, k):
         [Graph.from_int(16350), 3],
     ],
 )
-def test_min_k_vertex_redundantly_rigid_in_d1(graph, k):
+def test_is_min_k_vertex_redundantly_rigid_d1(graph, k):
     assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1)
     assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1, combinatorial=False)
 
@@ -570,7 +570,7 @@ def test_min_k_vertex_redundantly_rigid_in_d1(graph, k):
         pytest.param(Graph.from_int(1048575), 3, marks=pytest.mark.slow_main),
     ],
 )
-def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
+def test_is_min_k_vertex_redundantly_rigid_d2(graph, k):
     assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2)
     assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2, combinatorial=False)
 
@@ -582,7 +582,7 @@ def test_min_k_vertex_redundantly_rigid_in_d2(graph, k):
         pytest.param(Graph.from_int(1048575), 2, marks=pytest.mark.slow_main),
     ],
 )
-def test_min_k_vertex_redundantly_rigid_in_d3(graph, k):
+def test_is_min_k_vertex_redundantly_rigid_d3(graph, k):
     assert graph.is_min_k_vertex_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
@@ -595,7 +595,7 @@ def test_min_k_vertex_redundantly_rigid_in_d3(graph, k):
         [Graph.from_int(16351), 3],
     ],
 )
-def test_not_min_k_vertex_redundantly_rigid_in_d1(graph, k):
+def test_is_not_min_k_vertex_redundantly_rigid_d1(graph, k):
     assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1)
     assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1, combinatorial=False)
 
@@ -609,7 +609,7 @@ def test_not_min_k_vertex_redundantly_rigid_in_d1(graph, k):
         [Graph.from_int(2097151), 3],
     ],
 )
-def test_not_min_k_vertex_redundantly_rigid_in_d2(graph, k):
+def test_is_not_min_k_vertex_redundantly_rigid_d2(graph, k):
     assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2)
     assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2, combinatorial=False)
 
@@ -638,7 +638,7 @@ def test_not_min_k_vertex_redundantly_rigid_in_d2(graph, k):
         ],
     ],
 )
-def test_not_min_k_vertex_redundantly_rigid_in_d3(graph, k):
+def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k):
     assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
@@ -654,7 +654,7 @@ def test_not_min_k_vertex_redundantly_rigid_in_d3(graph, k):
         graphs.Complete(7),
     ],
 )
-def test_redundantly_rigid_in_d2(graph):
+def test_is_redundantly_rigid_d2(graph):
     assert graph.is_redundantly_rigid(dim=2)
     assert graph.is_redundantly_rigid(dim=2, combinatorial=False)
 
@@ -676,7 +676,7 @@ def test_redundantly_rigid_in_d2(graph):
         [graphs.Complete(5), 3],
     ],
 )
-def test_k_redundantly_rigid_in_d1(graph, k):
+def test_is_k_redundantly_rigid_d1(graph, k):
     assert graph.is_k_redundantly_rigid(k, dim=1)
     assert graph.is_k_redundantly_rigid(k, dim=1, combinatorial=False)
 
@@ -699,7 +699,7 @@ def test_k_redundantly_rigid_in_d1(graph, k):
         # [Graph.from_int(2097151), 3],
     ],
 )
-def test_k_redundantly_rigid_in_d2(graph, k):
+def test_is_k_redundantly_rigid_d2(graph, k):
     assert graph.is_k_redundantly_rigid(k, dim=2)
     assert graph.is_k_redundantly_rigid(k, dim=2, combinatorial=False)
 
@@ -728,7 +728,7 @@ def test_k_redundantly_rigid_in_d2(graph, k):
         ],
     ],
 )
-def test_k_redundantly_rigid_in_d3(graph, k):
+def test_is_k_redundantly_rigid_d3(graph, k):
     assert graph.is_k_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
@@ -749,7 +749,7 @@ def test_k_redundantly_rigid_in_d3(graph, k):
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]),
     ],
 )
-def test_not_redundantly_rigid_in_d2(graph):
+def test_is_not_redundantly_rigid_d2(graph):
     assert not graph.is_redundantly_rigid(dim=2)
     assert not graph.is_redundantly_rigid(dim=2, combinatorial=False)
 
@@ -762,7 +762,7 @@ def test_not_redundantly_rigid_in_d2(graph):
         [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]), 3],
     ],
 )
-def test_not_k_redundantly_rigid_in_d1(graph, k):
+def test_is_not_k_redundantly_rigid_d1(graph, k):
     assert not graph.is_k_redundantly_rigid(k, dim=1)
     assert not graph.is_k_redundantly_rigid(k, dim=1, combinatorial=False)
 
@@ -781,7 +781,7 @@ def test_not_k_redundantly_rigid_in_d1(graph, k):
         ],
     ],
 )
-def test_not_k_redundantly_rigid_in_d2(graph, k):
+def test_is_not_k_redundantly_rigid_d2(graph, k):
     assert not graph.is_k_redundantly_rigid(k, dim=2)
     assert not graph.is_k_redundantly_rigid(k, dim=2, combinatorial=False)
 
@@ -800,7 +800,7 @@ def test_not_k_redundantly_rigid_in_d2(graph, k):
         ],
     ],
 )
-def test_not_k_redundantly_rigid_in_d3(graph, k):
+def test_is_not_k_redundantly_rigid_d3(graph, k):
     assert not graph.is_k_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
@@ -819,7 +819,7 @@ def test_not_k_redundantly_rigid_in_d3(graph, k):
         [graphs.Complete(5), 3],
     ],
 )
-def test_min_k_redundantly_rigid_in_d1(graph, k):
+def test_is_min_k_redundantly_rigid_d1(graph, k):
     assert graph.is_min_k_redundantly_rigid(k, dim=1)
     assert graph.is_min_k_redundantly_rigid(k, dim=1, combinatorial=False)
 
@@ -839,7 +839,7 @@ def test_min_k_redundantly_rigid_in_d1(graph, k):
         # [Graph.from_int(1048059), 3],
     ],
 )
-def test_min_k_redundantly_rigid_in_d2(graph, k):
+def test_is_min_k_redundantly_rigid_d2(graph, k):
     assert graph.is_min_k_redundantly_rigid(k, dim=2)
     assert graph.is_min_k_redundantly_rigid(k, dim=2, combinatorial=False)
 
@@ -852,7 +852,7 @@ def test_min_k_redundantly_rigid_in_d2(graph, k):
         pytest.param(Graph.from_int(32767), 2, marks=pytest.mark.slow_main),
     ],
 )
-def test_min_k_redundantly_rigid_in_d3(graph, k):
+def test_is_min_k_redundantly_rigid_d3(graph, k):
     assert graph.is_min_k_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
@@ -867,7 +867,7 @@ def test_min_k_redundantly_rigid_in_d3(graph, k):
         [Graph.from_int(16351), 3],
     ],
 )
-def test_not_min_k_redundantly_rigid_in_d1(graph, k):
+def test_is_not_min_k_redundantly_rigid_d1(graph, k):
     assert not graph.is_min_k_redundantly_rigid(k, dim=1)
     assert not graph.is_min_k_redundantly_rigid(k, dim=1, combinatorial=False)
 
@@ -881,7 +881,7 @@ def test_not_min_k_redundantly_rigid_in_d1(graph, k):
         # [Graph.from_int(1048063), 3],
     ],
 )
-def test_not_min_k_redundantly_rigid_in_d2(graph, k):
+def test_is_not_min_k_redundantly_rigid_d2(graph, k):
     assert not graph.is_min_k_redundantly_rigid(k, dim=2)
     assert not graph.is_min_k_redundantly_rigid(k, dim=2, combinatorial=False)
 
@@ -897,7 +897,7 @@ def test_not_min_k_redundantly_rigid_in_d2(graph, k):
         # [Graph.from_int(134201311), 3],
     ],
 )
-def test_not_min_k_redundantly_rigid_in_d3(graph, k):
+def test_is_not_min_k_redundantly_rigid_d3(graph, k):
     assert not graph.is_min_k_redundantly_rigid(k, dim=3, combinatorial=False)
 
 
@@ -991,7 +991,7 @@ def test_rigid_components():
     ]
 
 
-def test_str():
+def test__str__():
     G = Graph([[2, 1], [2, 3]])
     assert str(G) == "Graph with vertices [1, 2, 3] and edges [[1, 2], [2, 3]]"
     G = Graph([(chr(i + 67), i + 1) for i in range(3)] + [(i, i + 1) for i in range(3)])
@@ -1003,7 +1003,7 @@ def test_str():
     assert str(G) == "Graph with vertices ['C', 1, 'D', 2, 'E', 3, 0] and edges []"
 
 
-def test_vertex_edge_lists():
+def test_vertex_and_edge_lists():
     G = Graph([[2, 1], [2, 3]])
     assert G.vertex_list() == [1, 2, 3]
     assert G.edge_list() == [[1, 2], [2, 3]]
@@ -1056,7 +1056,7 @@ def test_integer_representation(graph, gint):
     assert Graph.from_int(graph.to_int()).is_isomorphic(graph)
 
 
-def test_integer_representation_fail():
+def test_integer_representation_error():
     with pytest.raises(ValueError):
         Graph([]).to_int()
     with pytest.raises(ValueError):
@@ -1090,7 +1090,7 @@ def test_integer_representation_fail():
         ["rigid_components", []],
     ],
 )
-def test_loops(method, params):
+def test_loop_error(method, params):
     with pytest.raises(LoopError):
         G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
         func = getattr(G, method)
@@ -1177,7 +1177,7 @@ def test_all_k_extensions():
     )
 
 
-def test_k_extension_fail():
+def test_k_extension_error():
     with pytest.raises(TypeError):
         graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1], [0, 2]], dim=-1)
     with pytest.raises(ValueError):
@@ -1320,7 +1320,7 @@ def test_CompleteOnVertices():
     ).is_isomorphic(graphs.Complete(20))
 
 
-def test_check_edge_list():
+def test__check_edge_list():
     G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
     G._check_edge((1, 2))
     G._check_edge([3, 2])
@@ -1343,7 +1343,7 @@ def test_check_edge_list():
         G._check_edge_list(["23"])
 
 
-def test_check_edge_format_list():
+def test__check_edge_format_list():
     G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
     G._check_edge_format((1, 3))
     G._check_edge_format([3, 1])
@@ -1387,7 +1387,7 @@ def test_is_3_6_sparse():
     assert not G.is_sparse(3, 6)
 
 
-def test_is_k_l_tight():
+def test_is_tight():
     G = graphs.Complete(4)
     assert G.is_tight(2, 2)
     G = graphs.CompleteBipartite(4, 4)
@@ -1405,7 +1405,7 @@ def test_is_k_l_tight():
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_cf(graph, n):
+def test_number_of_realizations_count_reflection(graph, n):
     assert graph.number_of_realizations(count_reflection=True) == n
 
 
@@ -1450,7 +1450,7 @@ def test_number_of_realizations_sphere(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere_cf(graph, n):
+def test_number_of_realizations_sphere_count_reflection(graph, n):
     assert (
         graph.number_of_realizations(spherical_realizations=True, count_reflection=True)
         == n
@@ -1478,7 +1478,7 @@ def test_number_of_realizations_error(graph):
     "graph",
     [graphs.Cycle(n) for n in range(3, 7)],
 )
-def test_Rd_circuit_d1(graph):
+def test_is_Rd_circuit_d1(graph):
     assert graph.is_Rd_circuit(dim=1)
 
 
@@ -1495,7 +1495,7 @@ def test_Rd_circuit_d1(graph):
         graphs.Path(3),
     ],
 )
-def test_not_Rd_circuit_d1(graph):
+def test_is_not_Rd_circuit_d1(graph):
     assert not graph.is_Rd_circuit(dim=1)
 
 
@@ -1507,7 +1507,7 @@ def test_not_Rd_circuit_d1(graph):
         graphs.K33plusEdge(),
     ],
 )
-def test_Rd_circuit_d2(graph):
+def test_is_Rd_circuit_d2(graph):
     assert graph.is_Rd_circuit(dim=2)
 
 
@@ -1524,7 +1524,7 @@ def test_Rd_circuit_d2(graph):
         graphs.Cycle(4),
     ],
 )
-def test_not_Rd_circuit_d2(graph):
+def test_is_not_Rd_circuit_d2(graph):
     assert not graph.is_Rd_circuit(dim=2)
 
 
@@ -1568,7 +1568,7 @@ def test_is_not_Rd_closed(graph, dim):
     "graph",
     [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
 )
-def test_Rd_circuit_d3(graph):
+def test_is_Rd_circuit_d3(graph):
     assert graph.is_Rd_circuit(dim=3)
 
 
@@ -1582,7 +1582,7 @@ def test_Rd_circuit_d3(graph):
         graphs.K33plusEdge(),
     ],
 )
-def test_not_Rd_circuit_d3(graph):
+def test_is_not_Rd_circuit_d3(graph):
     assert not graph.is_Rd_circuit(dim=3)
 
 
@@ -1597,7 +1597,7 @@ def test_not_Rd_circuit_d3(graph):
     ]
     + [graphs.Cycle(n) for n in range(3, 7)],
 )
-def test_Rd_dependent_d1(graph):
+def test_is_Rd_dependent_d1(graph):
     assert graph.is_Rd_dependent(dim=1)
 
 
@@ -1609,7 +1609,7 @@ def test_Rd_dependent_d1(graph):
         graphs.Path(3),
     ],
 )
-def test_Rd_independent_d1(graph):
+def test_is_Rd_independent_d1(graph):
     assert graph.is_Rd_independent(dim=1)
 
 
@@ -1623,7 +1623,7 @@ def test_Rd_independent_d1(graph):
         graphs.CompleteBipartite(3, 4),
     ],
 )
-def test_Rd_dependent_d2(graph):
+def test_is_Rd_dependent_d2(graph):
     assert graph.is_Rd_dependent(dim=2)
 
 
@@ -1640,7 +1640,7 @@ def test_Rd_dependent_d2(graph):
         graphs.Cycle(4),
     ],
 )
-def test_Rd_independent_d2(graph):
+def test_is_Rd_independent_d2(graph):
     assert graph.is_Rd_independent(dim=2)
 
 
@@ -1648,7 +1648,7 @@ def test_Rd_independent_d2(graph):
     "graph",
     [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
 )
-def test_Rd_dependent_d3(graph):
+def test_is_Rd_dependent_d3(graph):
     assert graph.is_Rd_dependent(dim=3)
 
 
@@ -1662,7 +1662,7 @@ def test_Rd_dependent_d3(graph):
         graphs.K33plusEdge(),
     ],
 )
-def test_Rd_independent_d3(graph):
+def test_is_Rd_independent_d3(graph):
     assert graph.is_Rd_independent(dim=3)
 
 
