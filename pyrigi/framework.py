@@ -2311,22 +2311,6 @@ class Framework(object):
         """
         Check whether the framework is prestress stable.
 
-        Checking prestress stability is generally computationally hard. In the case where
-        there is a single stress or infinitesimal motion, the problem becomes easier:
-
-        If there is only one infinitesimal flex $q$, we check for a basis
-        $(w^{(k)})_{i=1}^m$ of the stress space that the stress energy
-        $sum_{ij in E} w^{(k)}_{ij} * ||q(i)-q(j)||^2$
-        is always non-zero by verifying that not all of these energies
-        become simultaneously 0 for all $k=1,...,m$.
-
-        If there is only one stress, denote a basis of the infinitesimal flex
-        space by $(q^{(k)})_{k=1}^s$. We proceed to check whether all coefficients
-        of the monomials $({a_k}^2 : k=1,...,s)$ in the quadratic polynomial
-        $sum_{k=1}^s sum_{ij in E} w{ij} * ||a_k * (q^{(k)}(i)-q^{(k)}(j))||^2$
-        have the same sign. A simple result about sum of squares polynomials then shows
-        the positivity of the stress energy.
-
         Definitions
         ----------
         :prf:ref:`Prestress stability <def-prestress-stability>`.
@@ -2338,15 +2322,10 @@ class Framework(object):
         >>> F.is_prestress_stable()
         True
 
-        Suggested Improvements
-        ----------------------
-        In the general case, we use the stress matrix criterion from
-        {{references}}{cite:p}`Connelly1996{Prop 3.4.2}` stating that prestress
-        stability is equivalent to the positive semidefiniteness of the stress matrix
-        associated with the framework on the space of nontrivial infinitesimal motions.
-        In this method, we investigate the contraposition: if this stress matrix is
-        globally negative definite or at least nonpositive, then the framework cannot
-        be prestress stable.
+        Notes
+        -----
+        The implementation details are specified in
+        the section on second-order rigiditiy.
         """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
@@ -2402,10 +2381,7 @@ class Framework(object):
                 for j in range(i, len(inf_flexes))
             }
             """
-            The SONC Criterion says that all faces on the boundary of the
-            Newton polytope need to satisfy the SONC property. It simplifies to
-            $|c_{ij}| <= sqrt(4*c_{ii}*c_{jj})$ for all $i,j$ for coefficients $c_{ij}$.
-            In addition, $c_{ii}$ and $c_{jj}$ need to have the same sign or be zero.
+            We then apply the SONC criterion.
             """
             return all(
                 [
@@ -2448,11 +2424,6 @@ class Framework(object):
         ----------
         :prf:ref:`Second-order Rigidity <def-second-order-rigid>`.
 
-        Parameters
-        ----------
-        symbolic:
-            Determines whether the check if symbolic (default) or numerical.
-
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2460,21 +2431,11 @@ class Framework(object):
         >>> F.is_second_order_rigid()
         True
 
-        Suggested Improvements
-        ----------------------
-        In the case where there is more than one infinitesimal flex and stress, we need
-        to solve a semi-definite program (SDP). This is done by parametrizing the space
-        of infinitesimal flexes by variables $a_{i=1,...,r}$ and the space of stresses by variables
-        $b_{j=1,...,s}$. This turns the stress energy into a cubic polynomial that is homogeneous
-        and quadratic in $a_i$ and homogeneously linear in $b_j$:
-        $$sum_{k=1}^s sum_{m=1}^r sum_{ij in E} b_k * omega^{(k)}_{ij} * ||a_m * ( q^{(m)}(i)-q^{(m)}(j) )||^2 $$
-        If the polynomial system in the variables ``a`` described by the coefficients
-        of the linear monomials $b_i$ has only non-real nontrivial solutions, then the
-        framework is second-order rigid. Otherwise, there would be a infinitesimal
-        flex such that for any equilibrium stress it holds that the stress energy
-        is zero. This is exactly the negation of the
-        :prf:ref:`equivalent second-order rigidity criterion <thm-second-order-rigid>`.
-        """  # noqa: E501
+        Notes
+        -----
+        The implementation details are specified in
+        the section on second-order rigiditiy.
+        """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
         if self.is_inf_rigid():
