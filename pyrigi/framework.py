@@ -294,7 +294,6 @@ class Framework(object):
         """
         return deepcopy(self._graph)
 
-    @doc_category("Plotting")
     def _plot_with_2D_realization(
         self,
         ax: Axes,
@@ -1167,7 +1166,6 @@ class Framework(object):
         if return_matrix:
             return projection_matrix
 
-    @doc_category("Plotting")
     def _plot_with_3D_realization(
         self,
         ax: Axes,
@@ -1291,7 +1289,6 @@ class Framework(object):
                     va="center",
                 )
 
-    @doc_category("Plotting")
     def _plot_inf_flex(  # noqa: C901
         self,
         ax: Axes,
@@ -1470,7 +1467,6 @@ class Framework(object):
                 "The dimension of the infinitesimal flex needs to be between 1 and 3."
             )
 
-    @doc_category("Plotting")
     def _plot_stress(  # noqa: C901
         self,
         ax: Axes,
@@ -3721,7 +3717,6 @@ class Framework(object):
                 )
             return list(edge_order)
 
-    @doc_category("Plotting")
     def _resolve_connection_style(self, connection_style: str) -> str:
         """
         Resolve the connection style for the visualization of the framework.
@@ -3787,7 +3782,6 @@ class Framework(object):
             )
         return connection_style
 
-    @doc_category("Plotting")
     def _resolve_edge_colors(
         self, edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
     ) -> tuple[list, list]:
