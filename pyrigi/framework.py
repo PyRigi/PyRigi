@@ -51,6 +51,7 @@ from typing import Optional, Any
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.animation import FuncAnimation
+from warnings import warn
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
@@ -2307,7 +2308,7 @@ class Framework(object):
         return self.is_independent() and self.is_inf_rigid()
 
     @doc_category("Other")
-    def is_prestress_stable(self) -> bool:
+    def is_prestress_stable(self, inf_flexes: Sequence[InfFlex] = None, stresses: Sequence[Stress] = None) -> bool:
         """
         Check whether the framework is prestress stable.
 
@@ -2339,6 +2340,15 @@ class Framework(object):
         ----------
         :prf:ref:`Prestress stability <def-prestress-stability>`.
 
+        Parameters
+        ----------
+        inf_flexes, stresses:
+            The user can optionally provide a precomputed list of infinitesimal flexes
+            and stresses to check the second-order rigidity criterion on, as this
+            computation might become expensive for symbolic coordinates. This
+            functionality is only recommended for advanced users, so a warning is
+            thrown when either is provided.
+
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2346,8 +2356,27 @@ class Framework(object):
         >>> F.is_prestress_stable()
         True
         """
-        stresses = self.stresses()
-        inf_flexes = self.inf_flexes()
+        if inf_flexes is None:
+            inf_flexes = self.inf_flexes()
+        else:
+            if not all([self.is_inf_flex(q) for q in inf_flexes]):
+                raise ValueError("Some of the provided `inf_flexes` are " +
+                                 "not actually infinitesimal flexes.")
+            if len(inf_flexes) == 0:
+                raise ValueError("The list of `inf_flexes` cannot be empty!")
+            warn("If you don't provide a complete list of infinitesimal flexes, the " +
+                "result of `is_prestress_stable` might be incorrect.")
+        if stresses is None:
+            stresses = self.stresses()
+        else: 
+            if not all([self.is_stress(w) for w in stresses]):
+                raise ValueError("Some of the provided `stresses` are " +
+                                 "not actually equilibrium stresses.")
+            if len(stresses) == 0:
+                raise ValueError("The list of `stresses` cannot be empty!")
+            warn("If you don't provide a complete list of equilibrium stresses, the " +
+                "result of `is_prestress_stable` might be incorrect.")    
+        
         edges = self._graph.edge_list()
         if self.is_inf_rigid():
             return True
@@ -2525,7 +2554,7 @@ class Framework(object):
             return True
 
     @doc_category("Other")
-    def is_second_order_rigid(self) -> bool:
+    def is_second_order_rigid(self, inf_flexes: Sequence[InfFlex] = None, stresses: Sequence[Stress] = None) -> bool:
         """
         Check whether the framework is second-order rigid.
 
@@ -2554,8 +2583,12 @@ class Framework(object):
 
         Parameters
         ----------
-        symbolic:
-            Determines whether the check if symbolic (default) or numerical.
+        inf_flexes, stresses:
+            The user can optionally provide a precomputed list of infinitesimal flexes
+            and stresses to check the second-order rigidity criterion on, as this
+            computation might become expensive for symbolic coordinates. This
+            functionality is only recommended for advanced users, so a warning is
+            thrown when either is provided.
 
         Examples
         --------
@@ -2564,14 +2597,36 @@ class Framework(object):
         >>> F.is_second_order_rigid()
         True
         """  # noqa: E501
-        stresses = self.stresses()
-        inf_flexes = self.inf_flexes()
+        if inf_flexes is None:
+            inf_flexes = self.inf_flexes()
+            if len(inf_flexes) == 1:
+                return self.is_prestress_stable(inf_flexes=inf_flexes)
+        else:
+            if not all([self.is_inf_flex(q) for q in inf_flexes]):
+                raise ValueError("Some of the provided `inf_flexes` are " +
+                                 "not actually infinitesimal flexes.")
+            if len(inf_flexes) == 0:
+                raise ValueError("The list of `inf_flexes` cannot be empty!")
+            warn("If you don't provide a complete list of infinitesimal flexes, the " +
+                "result of `is_second_order_rigid` might be incorrect.")
+        if stresses is None:
+            stresses = self.stresses()
+            if len(stresses) == 1:
+                return self.is_prestress_stable(inf_flexes=inf_flexes, stresses=stresses)
+        else: 
+            if not all([self.is_inf_flex(w) for w in stresses]):
+                raise ValueError("Some of the provided `stresses` are " +
+                                 "not actually equilibrium stresses.")
+            if len(stresses) == 0:
+                raise ValueError("The list of `stresses` cannot be empty!")
+            warn("If you don't provide a complete list of equilibrium stresses, the " +
+                "result of `is_second_order_rigid` might be incorrect.")
+
         if self.is_inf_rigid():
             return True
         if len(inf_flexes) == 0 or len(stresses) == 0:
             return False
-        if len(stresses) == 1 or len(inf_flexes) == 1:
-            return self.is_prestress_stable()
+
 
         # When there are more than one stress and flex, we use the polynomial system
         # described by the stress energy to test the second-order rigidity of the
@@ -2597,8 +2652,8 @@ class Framework(object):
                         for k in range(self._graph.number_of_edges())
                     ]
                 )
-            stress_energy = stress_energy + b[i] * Q.simplify()
-        stress_energy = sp.Poly(stress_energy.simplify(), b)
+            stress_energy = stress_energy + b[i] * Q
+        stress_energy = sp.Poly(stress_energy, b)
         # From the `stress_energy`, we extract the coefficients of the variable `b[i]`
         # for each `i`. If the resulting polynomial system has no solution in `sympy`,
         # then the corresponding vanishing ideal is either equal to $<0>$ or $<1>$. We
