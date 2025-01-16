@@ -1,6 +1,7 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
 from pyrigi.exception import LoopError
+import matplotlib.pyplot as plt
 
 import pytest
 from sympy import Matrix
@@ -1392,6 +1393,12 @@ def test_is_tight():
     assert G.is_tight(2, 2)
     G = graphs.CompleteBipartite(4, 4)
     assert not G.is_tight(3, 6)
+
+
+def test_plot():
+    G = graphs.DoubleBanana()
+    G.plot(layout="random")
+    plt.close("all")
 
 
 @pytest.mark.parametrize(
