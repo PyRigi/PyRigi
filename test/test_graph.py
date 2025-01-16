@@ -1,6 +1,6 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
-from pyrigi.exception import LoopError, DimensionValueError
+from pyrigi.exception import LoopError, DimensionValueError, DimensionCombinatorialValueError
 import matplotlib.pyplot as plt
 
 import pytest
@@ -1152,6 +1152,19 @@ def test_dimension_error(method, params):
         func = getattr(G, method)
         func(*params)
 
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["is_min_rigid", [3]],
+        ["is_rigid", [3]],
+    ],
+)
+def test_dimension_combinatorial_error(method, params):
+    with pytest.raises(DimensionCombinatorialValueError):
+        G = graphs.DoubleBanana()
+        func = getattr(G, method)
+        func(*params,combinatorial=True)
 
 def test_k_extension():
     assert str(graphs.Complete(2).zero_extension([0, 1])) == str(graphs.Complete(3))
