@@ -17,7 +17,6 @@ from __future__ import annotations
 from copy import deepcopy
 from itertools import combinations
 from random import randrange
-import distinctipy
 
 import networkx as nx
 import sympy as sp
@@ -53,7 +52,6 @@ from pyrigi.misc import (
 
 from typing import Optional, Any
 import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
 from matplotlib.animation import FuncAnimation
 
 __doctest_requires__ = {
@@ -494,7 +492,7 @@ class Framework(object):
         fig.set_figheight(canvas_height)
         ax.set_aspect(aspect_ratio)
 
-        import pyrigi._plot as _plot
+        from pyrigi import _plot
 
         if self._dim == 1:
             placement = {}
@@ -645,6 +643,7 @@ class Framework(object):
         ax.grid(False)
         ax.set_axis_off()
 
+        from pyrigi import _plot
         edge_color_array, edge_list_ref = _plot._resolve_edge_colors(self, edge_color)
 
         # Limits of the axes
@@ -994,7 +993,7 @@ class Framework(object):
                 v: p + [0 for _ in range(3 - self._dim)] for v, p in placement.items()
             }
 
-        import pyrigi._plot as _plot
+        from pyrigi import _plot
 
         if self._dim in [1, 2, 3]:
             _plot._plot_with_3D_realization(self,

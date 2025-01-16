@@ -1,5 +1,9 @@
-
-from sympy import Matrix, flatten, binomial, sympify
+import networkx as nx
+import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from sympy import Matrix, sympify
+import distinctipy
 
 from pyrigi.framework import Framework
 from pyrigi.data_type import (
@@ -8,9 +12,7 @@ from pyrigi.data_type import (
     Point,
     InfFlex,
     Stress,
-    point_to_vector,
     Sequence,
-    Number,
     DirectedEdge,
 )
 
