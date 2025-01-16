@@ -193,11 +193,15 @@ def test_is_independent(framework):
         [fws.Complete(4, dim=2), True],
         [fws.Frustum(3), True],
         [fws.Frustum(4), True],
-        [fws.Frustum(5), True],
         [fws.Square(), False],
         [fws.K33plusEdge(), True],
         [fws.ThreePrism(realization="flexible"), False],
-        pytest.param(fws.Frustum(5), True, marks=pytest.mark.slow_main),
+        [fws.ThreePrism(realization="parallel"), True],
+        [fws.Octahedron(realization="regular"), True],
+        [fws.Octahedron(realization="Bricard_plane"), False],
+        [fws.Octahedron(realization="Bricard_line"), False],
+        [fws.Cube(), False],
+        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
     ],
 )
 def test_is_prestress_stable(framework, bool_res):
@@ -211,8 +215,8 @@ def test_is_prestress_stable(framework, bool_res):
         [fws.ConnellyExampleSecondOrderRigidity()],
     ],
 )
-def test_is_prestress_stable_high_dim(framework):
-    with pytest.raises(AttributeError):
+def test_is_prestress_stable_error(framework):
+    with pytest.raises(ValueError):
         framework.is_prestress_stable()
 
 
@@ -222,11 +226,15 @@ def test_is_prestress_stable_high_dim(framework):
         [fws.Complete(4, dim=2), True],
         [fws.Frustum(3), True],
         [fws.Frustum(4), True],
-        [fws.Frustum(5), True],
         [fws.Square(), False],
         [fws.K33plusEdge(), True],
         [fws.ThreePrism(realization="flexible"), False],
-        pytest.param(fws.Frustum(5), True, marks=pytest.mark.slow_main),
+        [fws.ThreePrism(realization="parallel"), True],
+        [fws.Octahedron(realization="regular"), True],
+        [fws.Octahedron(realization="Bricard_plane"), False],
+        [fws.Octahedron(realization="Bricard_line"), False],
+        [fws.Cube(), False],
+        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
     ],
 )
 def test_is_second_order_rigid(framework, bool_res):
@@ -240,8 +248,8 @@ def test_is_second_order_rigid(framework, bool_res):
         [fws.ConnellyExampleSecondOrderRigidity()],
     ],
 )
-def test_is_second_order_rigid_high_dim(framework):
-    with pytest.raises(AttributeError):
+def test_is_second_order_rigid_error(framework):
+    with pytest.raises(ValueError):
         framework.is_second_order_rigid()
 
 

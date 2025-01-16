@@ -2405,7 +2405,8 @@ class Framework(object):
             ) and not all(
                 [sp.sign(coefficients[(i, i)]) == 0 for i in range(len(inf_flexes))]
             )
-        raise AttributeError(
+
+        raise ValueError(
             "Prestress stability is not yet implemented for the general case."
         )
 
@@ -2445,9 +2446,7 @@ class Framework(object):
         if len(stresses) == 1 or len(inf_flexes) == 1:
             return self.is_prestress_stable()
 
-        raise AttributeError(
-            "Second-order rigidity is not implemented for this framework."
-        )
+        raise ValueError("Second-order rigidity is not implemented for this framework.")
 
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
