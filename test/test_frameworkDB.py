@@ -1,5 +1,3 @@
-from pyrigi.graph import Graph
-from pyrigi.framework import Framework
 import pyrigi.frameworkDB as fws
 import numpy as np
 from math import isclose
