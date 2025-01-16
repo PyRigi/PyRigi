@@ -211,8 +211,8 @@ def test_is_prestress_stable(framework, bool_res):
 @pytest.mark.parametrize(
     "framework",
     [
-        [fws.CompleteBipartite(3, 3, realization="collinear")],
-        [fws.ConnellyExampleSecondOrderRigidity()],
+        fws.CompleteBipartite(3, 3, realization="collinear"),
+        fws.ConnellyExampleSecondOrderRigidity(),
     ],
 )
 def test_is_prestress_stable_error(framework):
@@ -244,8 +244,8 @@ def test_is_second_order_rigid(framework, bool_res):
 @pytest.mark.parametrize(
     "framework",
     [
-        [fws.CompleteBipartite(3, 3, realization="collinear")],
-        [fws.ConnellyExampleSecondOrderRigidity()],
+        fws.CompleteBipartite(3, 3, realization="collinear"),
+        fws.ConnellyExampleSecondOrderRigidity(),
     ],
 )
 def test_is_second_order_rigid_error(framework):
