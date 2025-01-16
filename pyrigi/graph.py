@@ -18,7 +18,7 @@ from random import randint
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 
 from pyrigi.misc import doc_category, generate_category_tables
-from pyrigi.exception import LoopError, DimensionValueError
+from pyrigi.exception import LoopError, DimensionValueError, DimensionCombinatorialValueError
 import pyrigi._pebble_digraph
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
@@ -1656,10 +1656,7 @@ class Graph(nx.Graph):
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
         else:
-            raise ValueError(
-                f"The Dimension for combinatorial computation must be either 1 or 2, "
-                f"but is {dim}"
-            )
+            raise DimensionCombinatorialValueError([1,2],dim)
 
     @doc_category("Generic rigidity")
     def is_min_rigid(
@@ -1743,10 +1740,7 @@ class Graph(nx.Graph):
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_min_inf_rigid()
         else:
-            raise ValueError(
-                f"The dimension for combinatorial computation must be either 1 or 2, "
-                f"but is {dim}"
-            )
+            raise DimensionCombinatorialValueError([1,2],dim)
 
     @doc_category("Generic rigidity")
     def is_globally_rigid(self, dim: int = 2, prob: float = 0.0001) -> bool:
@@ -2083,10 +2077,7 @@ class Graph(nx.Graph):
                     return True
                 return False
 
-            raise ValueError(
-                f"The dimension for combinatorial computation must be 1, "
-                f"but is {dim}"
-            )
+            raise DimensionCombinatorialValueError(1,dim)
 
         else:
             F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
@@ -2163,10 +2154,7 @@ class Graph(nx.Graph):
 
         if combinatorial:
             # here will be the implementation using pebble games for dim=2
-            raise ValueError(
-                f"The dimension for combinatorial computation must be 1, "
-                f"but is {dim}"
-            )
+            raise DimensionCombinatorialValueError(1,dim)
 
         else:
             if self.is_rigid(dim, combinatorial=False):
