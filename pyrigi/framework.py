@@ -23,7 +23,7 @@ import sympy as sp
 import numpy as np
 import functools
 
-from sympy import Matrix, flatten, binomial, sympify
+from sympy import Matrix, flatten, binomial
 
 from pyrigi.data_type import (
     Vertex,
