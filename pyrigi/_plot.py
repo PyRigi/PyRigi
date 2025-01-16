@@ -16,7 +16,7 @@ from pyrigi.data_type import (
     DirectedEdge,
 )
 
-def _plot_inf_flex(  # noqa: C901
+def plot_inf_flex(  # noqa: C901
         framework: Framework,
         ax: Axes,
         inf_flex: Matrix | InfFlex,
@@ -195,7 +195,7 @@ def _plot_inf_flex(  # noqa: C901
         )
 
 
-def _plot_stress(  # noqa: C901
+def plot_stress(  # noqa: C901
         framework: Framework,
         ax: Axes,
         stress: Matrix | Stress,
@@ -301,7 +301,7 @@ def _plot_stress(  # noqa: C901
     if len(points[list(points.keys())[0]]) == 2:
         if curved_edges:
             newGraph = nx.MultiDiGraph()
-            connection_style = _resolve_connection_style(framework, connection_style)
+            connection_style = resolve_connection_style(framework, connection_style)
             for e, style in connection_style.items():
                 newGraph.add_edge(e[0], e[1], weight=style)
             plt.box(False)  # Manually removes the frame of the plot
@@ -356,7 +356,7 @@ def _plot_stress(  # noqa: C901
             + " for frameworks in 1, 2, and 3 dimensions."
         )
 
-def _plot_with_3D_realization(
+def plot_with_3D_realization(
     framework: Framework,
     ax: Axes,
     realization: dict[Vertex, Point],
@@ -433,7 +433,7 @@ def _plot_with_3D_realization(
     """
     # Create a figure for the rapresentation of the framework
 
-    edge_color_array, edge_list_ref = _resolve_edge_colors(framework,edge_color)
+    edge_color_array, edge_list_ref = resolve_edge_colors(framework, edge_color)
 
     # Draw the vertices as points in the 3D enviroment
     x_nodes = [realization[node][0] for node in framework._graph.nodes]
@@ -479,7 +479,7 @@ def _plot_with_3D_realization(
                 va="center",
             )
 
-def _resolve_connection_style(framework: Framework, connection_style: str) -> str:
+def resolve_connection_style(framework: Framework, connection_style: str) -> str:
     """
     Resolve the connection style for the visualization of the framework.
 
@@ -544,7 +544,7 @@ def _resolve_connection_style(framework: Framework, connection_style: str) -> st
         )
     return connection_style
 
-def _resolve_edge_colors(
+def resolve_edge_colors(
     framework: Framework, edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
 ) -> tuple[list, list]:
     """
@@ -603,7 +603,7 @@ def _resolve_edge_colors(
     return edge_color_array, edge_list_ref
 
 
-def _plot_with_2D_realization(
+def plot_with_2D_realization(
     framework: Framework,
     ax: Axes,
     realization: dict[Vertex, Point],
@@ -643,7 +643,7 @@ def _plot_with_2D_realization(
         Optional parameter for plotting an equilibrium stress. We expect
         it to have the format `Dict[Edge, Number]`.
     """
-    edge_color_array, edge_list_ref = _resolve_edge_colors(framework,edge_color)
+    edge_color_array, edge_list_ref = resolve_edge_colors(framework, edge_color)
 
     if not curved_edges:
         nx.draw(
@@ -663,7 +663,7 @@ def _plot_with_2D_realization(
         )
     else:
         newGraph = nx.MultiDiGraph()
-        connection_style = _resolve_connection_style(framework, connection_style)
+        connection_style = resolve_connection_style(framework, connection_style)
         for e, style in connection_style.items():
             newGraph.add_edge(e[0], e[1], weight=style)
         plt.box(False)  # Manually removes the frame of the plot

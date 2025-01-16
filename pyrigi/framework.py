@@ -501,27 +501,27 @@ class Framework(object):
             ).items():
                 placement[vertex] = np.append(np.array(position), 0)
 
-            _plot._plot_with_2D_realization(self,
-                ax, placement, curved_edges=True, **plotting_args
-            )
+            _plot.plot_with_2D_realization(self,
+                                           ax, placement, curved_edges=True, **plotting_args
+                                           )
 
             if inf_flex is not None:
-                _plot._plot_inf_flex(self, ax, inf_flex, points=placement, **flex_args)
+                _plot.plot_inf_flex(self, ax, inf_flex, points=placement, **flex_args)
             if stress is not None:
-                _plot._plot_stress(self,
-                    ax, stress, points=placement, curved_edges=True, **stress_args
-                )
+                _plot.plot_stress(self,
+                                  ax, stress, points=placement, curved_edges=True, **stress_args
+                                  )
             return
 
         placement = self.realization(as_points=True, numerical=True)
         if self._dim == 2:
-            _plot._plot_with_2D_realization(self,
-                ax, placement, curved_edges=curved_edges, **plotting_args
-            )
+            _plot.plot_with_2D_realization(self,
+                                           ax, placement, curved_edges=curved_edges, **plotting_args
+                                           )
             if inf_flex is not None:
-                _plot._plot_inf_flex(self, ax, inf_flex, **flex_args)
+                _plot.plot_inf_flex(self, ax, inf_flex, **flex_args)
             if stress is not None:
-                _plot._plot_stress(self, ax, stress, curved_edges=curved_edges, **stress_args)
+                _plot.plot_stress(self, ax, stress, curved_edges=curved_edges, **stress_args)
             return
 
         # dim > 2 -> use projection to 2D
@@ -562,26 +562,26 @@ class Framework(object):
         ).items():
             placement[vertex] = np.dot(projection_matrix, np.array(position))
 
-        _plot._plot_with_2D_realization(self,
-            ax, placement, curved_edges=curved_edges, **plotting_args
-        )
+        _plot.plot_with_2D_realization(self,
+                                       ax, placement, curved_edges=curved_edges, **plotting_args
+                                       )
         if inf_flex is not None:
-            _plot._plot_inf_flex(self,
-                ax,
-                inf_flex,
-                points=placement,
-                projection_matrix=projection_matrix,
-                **flex_args,
-            )
+            _plot.plot_inf_flex(self,
+                                ax,
+                                inf_flex,
+                                points=placement,
+                                projection_matrix=projection_matrix,
+                                **flex_args,
+                                )
         if stress is not None:
-            _plot._plot_stress(self,
-                ax,
-                stress,
-                points=placement,
-                projection_matrix=projection_matrix,
-                curved_edges=curved_edges,
-                **stress_args,
-            )
+            _plot.plot_stress(self,
+                              ax,
+                              stress,
+                              points=placement,
+                              projection_matrix=projection_matrix,
+                              curved_edges=curved_edges,
+                              **stress_args,
+                              )
         if return_matrix:
             return projection_matrix
 
@@ -644,7 +644,7 @@ class Framework(object):
         ax.set_axis_off()
 
         from pyrigi import _plot
-        edge_color_array, edge_list_ref = _plot._resolve_edge_colors(self, edge_color)
+        edge_color_array, edge_list_ref = _plot.resolve_edge_colors(self, edge_color)
 
         # Limits of the axes
         abs_list = [list(abs(i)) for i in self._realization.values()]
@@ -996,17 +996,17 @@ class Framework(object):
         from pyrigi import _plot
 
         if self._dim in [1, 2, 3]:
-            _plot._plot_with_3D_realization(self,
-                ax,
-                placement,
-                equal_aspect_ratio=equal_aspect_ratio,
-                padding=padding,
-                **plotting_args,
-            )
+            _plot.plot_with_3D_realization(self,
+                                           ax,
+                                           placement,
+                                           equal_aspect_ratio=equal_aspect_ratio,
+                                           padding=padding,
+                                           **plotting_args,
+                                           )
             if inf_flex is not None:
-                _plot._plot_inf_flex(self, ax, inf_flex, points=placement, **flex_args)
+                _plot.plot_inf_flex(self, ax, inf_flex, points=placement, **flex_args)
             if stress is not None:
-                _plot._plot_stress(self, ax, stress, points=placement, **stress_args)
+                _plot.plot_stress(self, ax, stress, points=placement, **stress_args)
             return
 
         # dim > 3 -> use projection to 3D
@@ -1047,29 +1047,29 @@ class Framework(object):
         ).items():
             placement[vertex] = np.dot(projection_matrix, np.array(position))
 
-        _plot._plot_with_3D_realization(self,
-            ax,
-            placement,
-            equal_aspect_ratio=equal_aspect_ratio,
-            padding=padding,
-            **plotting_args,
-        )
+        _plot.plot_with_3D_realization(self,
+                                       ax,
+                                       placement,
+                                       equal_aspect_ratio=equal_aspect_ratio,
+                                       padding=padding,
+                                       **plotting_args,
+                                       )
         if inf_flex is not None:
-            _plot._plot_inf_flex(self,
-                ax,
-                inf_flex,
-                points=placement,
-                projection_matrix=projection_matrix,
-                **flex_args,
-            )
+            _plot.plot_inf_flex(self,
+                                ax,
+                                inf_flex,
+                                points=placement,
+                                projection_matrix=projection_matrix,
+                                **flex_args,
+                                )
         if stress is not None:
-            _plot._plot_stress(self,
-                ax,
-                stress,
-                points=placement,
-                projection_matrix=projection_matrix,
-                **stress_args,
-            )
+            _plot.plot_stress(self,
+                              ax,
+                              stress,
+                              points=placement,
+                              projection_matrix=projection_matrix,
+                              **stress_args,
+                              )
         if return_matrix:
             return projection_matrix
 
