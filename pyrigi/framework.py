@@ -39,7 +39,7 @@ from pyrigi.data_type import (
 )
 
 from pyrigi.graph import Graph
-from pyrigi.exception import LoopError
+from pyrigi.exception import LoopError, DimensionValueError
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
@@ -1823,9 +1823,7 @@ class Framework(object):
         ``a = 10^4 * n * d``.
         """
         if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+            raise DimensionValueError(dim)
         if rand_range is None:
             b = 10**4 * graph.number_of_nodes() * dim
             a = -b

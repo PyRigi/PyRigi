@@ -1,6 +1,6 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
-from pyrigi.exception import LoopError
+from pyrigi.exception import LoopError, DimensionValueError
 import matplotlib.pyplot as plt
 
 import pytest
@@ -1094,6 +1094,61 @@ def test_integer_representation_error():
 def test_loop_error(method, params):
     with pytest.raises(LoopError):
         G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        func = getattr(G, method)
+        func(*params)
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["all_k_extensions", [1,2.1]],
+        ["all_k_extensions", [2,-1]],
+        ["extension_sequence", [1.1]],
+        ["extension_sequence", [0]],
+        ["is_Rd_circuit", [2.1]],
+        ["is_Rd_circuit", [-1]],
+        ["is_Rd_closed", [3.2]],
+        ["is_Rd_closed", [-2]],
+        ["is_Rd_dependent", [3/2]],
+        ["is_Rd_dependent", [-2]],
+        ["is_Rd_independent", [1.2]],
+        ["is_Rd_independent", [-1]],
+        ["is_globally_rigid", [3.1]],
+        ["is_globally_rigid", [-2]],
+        ["is_k_redundantly_rigid", [2,3.7]],
+        ["is_k_redundantly_rigid", [2,-4]],
+        ["is_k_vertex_redundantly_rigid", [2,2.3]],
+        ["is_k_vertex_redundantly_rigid", [2,-7]],
+        ["is_min_k_redundantly_rigid", [2,3.7]],
+        ["is_min_k_redundantly_rigid", [2,-4]],
+        ["is_min_k_vertex_redundantly_rigid", [2,2.3]],
+        ["is_min_k_vertex_redundantly_rigid", [2,-7]],
+        ["is_min_redundantly_rigid", [2.6]],
+        ["is_min_redundantly_rigid", [-2]],
+        ["is_min_vertex_redundantly_rigid", [3.2]],
+        ["is_min_vertex_redundantly_rigid", [-4]],
+        ["is_min_rigid", [1.2]],
+        ["is_min_rigid", [-3]],
+        ["is_rigid", [1.1]],
+        ["is_rigid", [-2]],
+        ["is_redundantly_rigid", [math.log(2)]],
+        ["is_redundantly_rigid", [-2]],
+        ["is_vertex_redundantly_rigid", [4.8]],
+        ["is_vertex_redundantly_rigid", [-3]],
+        ["k_extension",[0,[1,2],[],4,2.6]],
+        ["k_extension",[0,[1,2],[],4,-3]],
+        ["one_extension",[[1,2,3],[1,2],4,2.6]],
+        ["one_extension",[[1,2,3],[1,2],4,-3]],
+        ["random_framework", [1.1]],
+        ["random_framework", [-2]],
+        ["rigid_components", [3.7]],
+        ["rigid_components", [-4]],
+        ["zero_extension",[[1,2],4,2.6]],
+        ["zero_extension",[[1,2],4,-3]],
+    ],
+)
+def test_dimension_error(method, params):
+    with pytest.raises(DimensionValueError):
+        G = Graph([[1, 2], [1, 3], [2, 3]])
         func = getattr(G, method)
         func(*params)
 
