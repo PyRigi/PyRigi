@@ -140,10 +140,6 @@ def K66MinusPerfectMatching():
     Return a complete bipartite graph minus a perfect matching.
 
     A matching is formed by six non-incident edges.
-
-    TODO
-    ----
-    use in tests
     """
     G = CompleteBipartite(6, 6)
     G.delete_edges([(i, i + 6) for i in range(0, 6)])
@@ -201,10 +197,6 @@ def ThreeConnectedR3Circuit():
     Return a 3-connected R_3-circuit.
 
     The returned graph is hypothesized to be the smallest 3-connected R_3-circuit.
-
-    TODO
-    ----
-    use in tests
     """
     return Graph(
         [
