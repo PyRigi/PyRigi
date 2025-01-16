@@ -16,20 +16,21 @@ from pyrigi.data_type import (
     DirectedEdge,
 )
 
+
 def plot_inf_flex(  # noqa: C901
-        framework: Framework,
-        ax: Axes,
-        inf_flex: Matrix | InfFlex,
-        points: dict[Vertex, Point] = None,
-        flex_width: float = 2.5,
-        flex_length: float = 0.65,
-        flex_color: (
-                str | Sequence[Sequence[Edge]] | dict[str: Sequence[Edge]]
-        ) = "limegreen",
-        flex_style: str = "solid",
-        flex_arrowsize: int = 20,
-        projection_matrix: Matrix = None,
-        **kwargs,
+    framework: Framework,
+    ax: Axes,
+    inf_flex: Matrix | InfFlex,
+    points: dict[Vertex, Point] = None,
+    flex_width: float = 2.5,
+    flex_length: float = 0.65,
+    flex_color: (
+        str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+    ) = "limegreen",
+    flex_style: str = "solid",
+    flex_arrowsize: int = 20,
+    projection_matrix: Matrix = None,
+    **kwargs,
 ) -> None:
     """
     Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
@@ -72,7 +73,7 @@ def plot_inf_flex(  # noqa: C901
     elif isinstance(inf_flex, Matrix):
         inf_flex_pointwise = framework._transform_inf_flex_to_pointwise(inf_flex)
     elif isinstance(inf_flex, dict) and all(
-            isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+        isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
     ):
         inf_flex_pointwise = inf_flex
     else:
@@ -97,11 +98,11 @@ def plot_inf_flex(  # noqa: C901
     elif not isinstance(points, dict):
         raise TypeError("Realization has the wrong type!")
     elif not all(
-            [
-                len(points[v]) == len(points[list(points.keys())[0]])
-                and len(points[v]) in [2, 3]
-                for v in framework._graph.nodes
-            ]
+        [
+            len(points[v]) == len(points[list(points.keys())[0]])
+            and len(points[v]) in [2, 3]
+            for v in framework._graph.nodes
+        ]
     ):
         raise ValueError(
             "Not all values in the realization have the same"
@@ -135,7 +136,7 @@ def plot_inf_flex(  # noqa: C901
     if len(inf_flex_pointwise[list(inf_flex_pointwise.keys())[0]]) == 2:
         x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
         y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
-        arrow_length = np.sqrt(x_canvas_width ** 2 + y_canvas_width ** 2) * flex_length
+        arrow_length = np.sqrt(x_canvas_width**2 + y_canvas_width**2) * flex_length
         H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex_pointwise.keys()])
         H_placement = {
             str(v)
@@ -152,9 +153,9 @@ def plot_inf_flex(  # noqa: C901
             {v: np.array(points[v], dtype=float) for v in inf_flex_pointwise.keys()}
         )
         if (
-                not isinstance(flex_color, str | list)
-                or isinstance(flex_color, list)
-                and not len(flex_color) == len(inf_flex_pointwise)
+            not isinstance(flex_color, str | list)
+            or isinstance(flex_color, list)
+            and not len(flex_color) == len(inf_flex_pointwise)
         ):
             raise TypeError(
                 "`flex_color` must either be a `str` specifying"
@@ -196,18 +197,18 @@ def plot_inf_flex(  # noqa: C901
 
 
 def plot_stress(  # noqa: C901
-        framework: Framework,
-        ax: Axes,
-        stress: Matrix | Stress,
-        points: dict[Vertex, Point] = None,
-        stress_color: str = "orangered",
-        stress_fontsize: int = 10,
-        stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
-        stress_rotate_labels: bool = True,
-        stress_normalization: bool = False,
-        connection_style: float | dict[DirectedEdge, float] = 0.5,
-        curved_edges: bool = False,
-        **kwargs,
+    framework: Framework,
+    ax: Axes,
+    stress: Matrix | Stress,
+    points: dict[Vertex, Point] = None,
+    stress_color: str = "orangered",
+    stress_fontsize: int = 10,
+    stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
+    stress_rotate_labels: bool = True,
+    stress_normalization: bool = False,
+    connection_style: float | dict[DirectedEdge, float] = 0.5,
+    curved_edges: bool = False,
+    **kwargs,
 ) -> None:
     """
     Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
@@ -257,7 +258,7 @@ def plot_stress(  # noqa: C901
     elif isinstance(stress, Matrix):
         stress_edgewise = framework._transform_stress_to_edgewise(stress)
     elif isinstance(stress, dict) and all(
-            isinstance(stress[key], int | float | str) for key in stress.keys()
+        isinstance(stress[key], int | float | str) for key in stress.keys()
     ):
         stress_edgewise = stress
     else:
@@ -295,9 +296,7 @@ def plot_stress(  # noqa: C901
         for edge in framework._graph.edge_list(as_tuples=True):
             stress_label_pos[edge] = label_float
     else:
-        raise TypeError(
-            "`stress_label_pos` must be either a float or a dictionary."
-        )
+        raise TypeError("`stress_label_pos` must be either a float or a dictionary.")
     if len(points[list(points.keys())[0]]) == 2:
         if curved_edges:
             newGraph = nx.MultiDiGraph()
@@ -356,6 +355,7 @@ def plot_stress(  # noqa: C901
             + " for frameworks in 1, 2, and 3 dimensions."
         )
 
+
 def plot_with_3D_realization(
     framework: Framework,
     ax: Axes,
@@ -367,9 +367,7 @@ def plot_with_3D_realization(
     font_color: str = "whitesmoke",
     font_size: int = 10,
     edge_width: float = 2.5,
-    edge_color: (
-        str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-    ) = "black",
+    edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = "black",
     edge_style: str = "solid",
     equal_aspect_ratio: bool = True,
     padding: float = 0.01,
@@ -479,6 +477,7 @@ def plot_with_3D_realization(
                 va="center",
             )
 
+
 def resolve_connection_style(framework: Framework, connection_style: str) -> str:
     """
     Resolve the connection style for the visualization of the framework.
@@ -490,25 +489,20 @@ def resolve_connection_style(framework: Framework, connection_style: str) -> str
     """
     G = framework._graph
     if isinstance(connection_style, float):
-        connection_style = {
-            e: connection_style for e in G.edge_list(as_tuples=True)
-        }
+        connection_style = {e: connection_style for e in G.edge_list(as_tuples=True)}
     elif isinstance(connection_style, list):
         if not G.number_of_edges() == len(connection_style):
             raise ValueError(
                 "The provided `connection_style` doesn't have the correct length."
             )
         connection_style = {
-            e: style
-            for e, style in zip(G.edge_list(as_tuples=True), connection_style)
+            e: style for e, style in zip(G.edge_list(as_tuples=True), connection_style)
         }
     elif isinstance(connection_style, dict):
         if (
             not all(
                 [
-                    isinstance(e, tuple)
-                    and len(e) == 2
-                    and isinstance(v, float | int)
+                    isinstance(e, tuple) and len(e) == 2 and isinstance(v, float | int)
                     for e, v in connection_style.items()
                 ]
             )
@@ -544,8 +538,10 @@ def resolve_connection_style(framework: Framework, connection_style: str) -> str
         )
     return connection_style
 
+
 def resolve_edge_colors(
-    framework: Framework, edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+    framework: Framework,
+    edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]],
 ) -> tuple[list, list]:
     """
     Return the lists of colors and edges in the format for plotting.
@@ -565,9 +561,7 @@ def resolve_edge_colors(
         for i, part in enumerate(edges_partition):
             for e in part:
                 if not G.has_edge(e[0], e[1]):
-                    raise ValueError(
-                        "The input includes a pair that is not an edge."
-                    )
+                    raise ValueError("The input includes a pair that is not an edge.")
                 edge_color_array.append(colors[i])
                 edge_list_ref.append(tuple(e))
     elif isinstance(edge_color, dict):
@@ -612,9 +606,7 @@ def plot_with_2D_realization(
     vertex_shape: str = "o",
     vertex_labels: bool = True,
     edge_width: float = 2.5,
-    edge_color: (
-        str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-    ) = "black",
+    edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = "black",
     edge_style: str = "solid",
     font_size: int = 12,
     font_color: str = "whitesmoke",
