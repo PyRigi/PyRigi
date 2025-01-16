@@ -58,6 +58,8 @@ __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
 }
 
+from pyrigi.plot_style import PlotStyle
+
 
 class Framework(object):
     r"""
@@ -295,40 +297,18 @@ class Framework(object):
     @doc_category("Plotting")
     def plot2D(  # noqa: C901
         self,
+        plot_style: PlotStyle = None,
         projection_matrix: Matrix = None,
         random_seed: int = None,
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
         return_matrix: bool = False,
-        vertex_size: int = 300,
-        vertex_color: str = "#ff8c00",
-        vertex_shape: str = "o",
-        vertex_labels: bool = True,
-        edge_width: float = 2.5,
-        edge_color: (
-            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-        ) = "black",
-        edge_style: str = "solid",
-        flex_width: float = 1.5,
-        flex_length: float = 0.15,
-        flex_color: (
-            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-        ) = "limegreen",
-        flex_style: str = "solid",
-        flex_arrowsize: int = 20,
-        stress_color: str = "orangered",
-        stress_fontsize: int = 10,
-        stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
-        stress_rotate_labels: bool = True,
-        stress_normalization: bool = False,
-        font_size: int = 12,
-        font_color: str = "whitesmoke",
-        canvas_width: float = 6.4,
-        canvas_height: float = 4.8,
-        aspect_ratio: float = 1.0,
-        curved_edges: bool = False,
-        connection_style: float | Sequence[float] | dict[Edge, float] = np.pi / 6,
+        edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        flex_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        stress_label_positions: dict[DirectedEdge, float] = None,
+        connection_styles: Sequence[float] | dict[Edge, float] = None,
+        **kwargs,
     ) -> Optional[Matrix]:
         """
         Plot this framework in 2D.
@@ -457,39 +437,24 @@ class Framework(object):
         >>> F = frameworkDB.Frustum(3)
         >>> F.plot2D(inf_flex=0, stress=0);
         """
-        plotting_args = {
-            "vertex_size": vertex_size,
-            "vertex_color": vertex_color,
-            "vertex_shape": vertex_shape,
-            "vertex_labels": vertex_labels,
-            "edge_width": edge_width,
-            "edge_color": edge_color,
-            "edge_style": edge_style,
-            "font_size": font_size,
-            "font_color": font_color,
-            "connection_style": connection_style,
-        }
-        flex_args = {
-            "flex_width": flex_width,
-            "flex_length": flex_length,
-            "flex_color": flex_color,
-            "flex_style": flex_style,
-            "flex_arrowsize": flex_arrowsize,
-        }
-        stress_args = {
-            "stress_color": stress_color,
-            "stress_fontsize": stress_fontsize,
-            "stress_label_pos": stress_label_pos,
-            "stress_rotate_labels": stress_rotate_labels,
-            "stress_normalization": stress_normalization,
-            "connection_style": connection_style,
+        if plot_style is None:
+            plot_style = PlotStyle()
+
+        # Update the plot_style instance with any passed keyword arguments
+        plot_style.update(**kwargs)
+
+        custom_style = {
+            "edge_coloring": edge_coloring,
+            "flex_coloring": flex_coloring,
+            "stress_label_positions": stress_label_positions,
+            "connection_styles": connection_styles,
         }
 
         fig, ax = plt.subplots()
         ax.set_adjustable("datalim")
-        fig.set_figwidth(canvas_width)
-        fig.set_figheight(canvas_height)
-        ax.set_aspect(aspect_ratio)
+        fig.set_figwidth(plot_style.canvas_width)
+        fig.set_figheight(plot_style.canvas_height)
+        ax.set_aspect(plot_style.aspect_ratio)
 
         from pyrigi import _plot
 
@@ -501,27 +466,59 @@ class Framework(object):
                 placement[vertex] = np.append(np.array(position), 0)
 
             _plot.plot_with_2D_realization(
-                self, ax, placement, curved_edges=True, **plotting_args
+                self,
+                ax,
+                placement,
+                curved_edges=True,
+                plot_style=plot_style,
+                custom_style=custom_style,
             )
 
             if inf_flex is not None:
-                _plot.plot_inf_flex(self, ax, inf_flex, points=placement, **flex_args)
+                _plot.plot_inf_flex(
+                    self,
+                    ax,
+                    inf_flex,
+                    points=placement,
+                    plot_style=plot_style,
+                    custom_style=custom_style,
+                )
             if stress is not None:
                 _plot.plot_stress(
-                    self, ax, stress, points=placement, curved_edges=True, **stress_args
+                    self,
+                    ax,
+                    stress,
+                    points=placement,
+                    curved_edges=True,
+                    plot_style=plot_style,
+                    custom_style=custom_style,
                 )
             return
 
         placement = self.realization(as_points=True, numerical=True)
         if self._dim == 2:
             _plot.plot_with_2D_realization(
-                self, ax, placement, curved_edges=curved_edges, **plotting_args
+                self,
+                ax,
+                placement,
+                plot_style=plot_style,
+                custom_style=custom_style,
             )
             if inf_flex is not None:
-                _plot.plot_inf_flex(self, ax, inf_flex, **flex_args)
+                _plot.plot_inf_flex(
+                    self,
+                    ax,
+                    inf_flex,
+                    plot_style=plot_style,
+                    custom_style=custom_style,
+                )
             if stress is not None:
                 _plot.plot_stress(
-                    self, ax, stress, curved_edges=curved_edges, **stress_args
+                    self,
+                    ax,
+                    stress,
+                    plot_style=plot_style,
+                    custom_style=custom_style,
                 )
             return
 
@@ -564,7 +561,11 @@ class Framework(object):
             placement[vertex] = np.dot(projection_matrix, np.array(position))
 
         _plot.plot_with_2D_realization(
-            self, ax, placement, curved_edges=curved_edges, **plotting_args
+            self,
+            ax,
+            placement,
+            plot_style=plot_style,
+            custom_style=custom_style,
         )
         if inf_flex is not None:
             _plot.plot_inf_flex(
@@ -573,7 +574,8 @@ class Framework(object):
                 inf_flex,
                 points=placement,
                 projection_matrix=projection_matrix,
-                **flex_args,
+                plot_style=plot_style,
+                custom_style=custom_style,
             )
         if stress is not None:
             _plot.plot_stress(
@@ -582,8 +584,8 @@ class Framework(object):
                 stress,
                 points=placement,
                 projection_matrix=projection_matrix,
-                curved_edges=curved_edges,
-                **stress_args,
+                plot_style=plot_style,
+                custom_style=custom_style,
             )
         if return_matrix:
             return projection_matrix

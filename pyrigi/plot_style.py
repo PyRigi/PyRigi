@@ -1,27 +1,27 @@
-class PlotStyle:
+class PlotStyle(object):
     def __init__(
-            self,
-            vertex_size: int = 300,
-            vertex_color: str = "#ff8c00",
-            vertex_shape: str = "o",
-            vertex_labels: bool = True,
-            edge_width: float = 2.5,
-            edge_color: str = "black",
-            edge_style: str = "solid",
-            flex_width: float = 1.5,
-            flex_length: float = 0.15,
-            flex_color: str = "limegreen",
-            flex_style: str = "solid",
-            flex_arrowsize: int = 20,
-            stress_color: str = "orangered",
-            stress_fontsize: int = 10,
-            stress_label_pos: float = 0.5,
-            font_size: int = 12,
-            font_color: str = "whitesmoke",
-            canvas_width: float = 6.4,
-            canvas_height: float = 4.8,
-            aspect_ratio: float = 1.0,
-            curved_edges: bool = False,
+        self,
+        vertex_size: int = 300,
+        vertex_color: str = "#ff8c00",
+        vertex_shape: str = "o",
+        vertex_labels: bool = True,
+        edge_width: float = 2.5,
+        edge_color: str = "black",
+        edge_style: str = "solid",
+        flex_width: float = 1.5,
+        flex_length: float = 0.15,
+        flex_color: str = "limegreen",
+        flex_style: str = "solid",
+        flex_arrowsize: int = 20,
+        stress_color: str = "orangered",
+        stress_fontsize: int = 10,
+        stress_label_pos: float = 0.5,
+        font_size: int = 12,
+        font_color: str = "whitesmoke",
+        canvas_width: float = 6.4,
+        canvas_height: float = 4.8,
+        aspect_ratio: float = 1.0,
+        curved_edges: bool = False,
     ):
         self.vertex_size = vertex_size
         self.vertex_color = vertex_color
@@ -44,3 +44,13 @@ class PlotStyle:
         self.canvas_height = canvas_height
         self.aspect_ratio = aspect_ratio
         self.curved_edges = curved_edges
+
+    def update(self, **kwargs):
+        """
+        Update the plot style attributes from the keyword arguments.
+        """
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+            else:
+                raise ValueError(f"PlotStyle does not have the attribute {key}.")

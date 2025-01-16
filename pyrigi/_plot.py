@@ -1,3 +1,5 @@
+from typing import Any
+
 import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
@@ -15,6 +17,7 @@ from pyrigi.data_type import (
     Sequence,
     DirectedEdge,
 )
+from pyrigi.plot_style import PlotStyle
 
 
 def plot_inf_flex(  # noqa: C901
@@ -22,14 +25,9 @@ def plot_inf_flex(  # noqa: C901
     ax: Axes,
     inf_flex: Matrix | InfFlex,
     points: dict[Vertex, Point] = None,
-    flex_width: float = 2.5,
-    flex_length: float = 0.65,
-    flex_color: (
-        str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-    ) = "limegreen",
-    flex_style: str = "solid",
-    flex_arrowsize: int = 20,
     projection_matrix: Matrix = None,
+    plot_style: PlotStyle = None,
+    custom_style: dict[str, Any] = None,
     **kwargs,
 ) -> None:
     """
@@ -136,7 +134,9 @@ def plot_inf_flex(  # noqa: C901
     if len(inf_flex_pointwise[list(inf_flex_pointwise.keys())[0]]) == 2:
         x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
         y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
-        arrow_length = np.sqrt(x_canvas_width**2 + y_canvas_width**2) * flex_length
+        arrow_length = (
+            np.sqrt(x_canvas_width**2 + y_canvas_width**2) * plot_style.flex_length
+        )
         H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex_pointwise.keys()])
         H_placement = {
             str(v)
@@ -153,9 +153,9 @@ def plot_inf_flex(  # noqa: C901
             {v: np.array(points[v], dtype=float) for v in inf_flex_pointwise.keys()}
         )
         if (
-            not isinstance(flex_color, str | list)
-            or isinstance(flex_color, list)
-            and not len(flex_color) == len(inf_flex_pointwise)
+            not isinstance(plot_style.flex_color, str | list)
+            or isinstance(plot_style.flex_color, list)
+            and not len(plot_style.flex_color) == len(inf_flex_pointwise)
         ):
             raise TypeError(
                 "`flex_color` must either be a `str` specifying"
@@ -167,12 +167,12 @@ def plot_inf_flex(  # noqa: C901
             pos=H_placement,
             ax=ax,
             arrows=True,
-            arrowsize=flex_arrowsize,
+            arrowsize=plot_style.flex_arrowsize,
             node_size=0,
             node_color="white",
-            width=flex_width,
-            edge_color=flex_color,
-            style=flex_style,
+            width=plot_style.flex_width,
+            edge_color=plot_style.flex_color,
+            style=plot_style.flex_style,
             **kwargs,
         )
     elif framework._dim == 3:
@@ -184,10 +184,10 @@ def plot_inf_flex(  # noqa: C901
                 inf_flex_pointwise[v][0],
                 inf_flex_pointwise[v][1],
                 inf_flex_pointwise[v][2],
-                color=flex_color,
-                lw=flex_width,
-                linestyle=flex_style,
-                length=flex_length,
+                color=plot_style.flex_color,
+                lw=plot_style.flex_width,
+                linestyle=plot_style.flex_style,
+                length=plot_style.flex_length,
                 arrow_length_ratio=0.35,
             )
     else:
@@ -201,13 +201,8 @@ def plot_stress(  # noqa: C901
     ax: Axes,
     stress: Matrix | Stress,
     points: dict[Vertex, Point] = None,
-    stress_color: str = "orangered",
-    stress_fontsize: int = 10,
-    stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
-    stress_rotate_labels: bool = True,
-    stress_normalization: bool = False,
-    connection_style: float | dict[DirectedEdge, float] = 0.5,
-    curved_edges: bool = False,
+    plot_style: PlotStyle = PlotStyle(),
+    custom_style: dict[str, Any] = {},
     **kwargs,
 ) -> None:
     """
@@ -270,7 +265,7 @@ def plot_stress(  # noqa: C901
     if points is None:
         points = framework.realization(as_points=True, numerical=True)
 
-    if stress_normalization:
+    if plot_style.stress_normalization:
         numerical_stress = {
             edge: float(sympify(w).evalf(10)) for edge, w in stress_edgewise.items()
         }
@@ -280,7 +275,9 @@ def plot_stress(  # noqa: C901
         }
     else:
         _stress = stress_edgewise
-    if isinstance(stress_label_pos, dict):
+    if False:
+        # TODO fix custom positions
+        # isinstance(stress_label_pos, dict):
         if not all([framework._graph.has_edge(*e) for e in stress_label_pos.keys()]):
             raise ValueError(
                 "The `stress_label_pos` dictionary must contain the same "
@@ -290,8 +287,8 @@ def plot_stress(  # noqa: C901
             stress_keys = [set(e) for e in stress_label_pos.keys()]
             if set(edge) not in stress_keys:
                 stress_label_pos[edge] = 0.5
-    elif isinstance(stress_label_pos, float):
-        label_float = stress_label_pos
+    elif isinstance(plot_style.stress_label_pos, float):
+        label_float = plot_style.stress_label_pos
         stress_label_pos = {}
         for edge in framework._graph.edge_list(as_tuples=True):
             stress_label_pos[edge] = label_float
@@ -601,17 +598,8 @@ def plot_with_2D_realization(
     framework: Framework,
     ax: Axes,
     realization: dict[Vertex, Point],
-    vertex_size: int = 300,
-    vertex_color: str = "#ff8c00",
-    vertex_shape: str = "o",
-    vertex_labels: bool = True,
-    edge_width: float = 2.5,
-    edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = "black",
-    edge_style: str = "solid",
-    font_size: int = 12,
-    font_color: str = "whitesmoke",
-    curved_edges: bool = False,
-    connection_style: float | Sequence[float] | dict[Edge, float] = np.pi / 6,
+    plot_style: PlotStyle,
+    custom_style: dict[str, Any],
     **kwargs,
 ) -> None:
     """
@@ -635,27 +623,27 @@ def plot_with_2D_realization(
         Optional parameter for plotting an equilibrium stress. We expect
         it to have the format `Dict[Edge, Number]`.
     """
-    edge_color_array, edge_list_ref = resolve_edge_colors(framework, edge_color)
+    edge_color_array, edge_list_ref = resolve_edge_colors(framework, plot_style.edge_color)
 
-    if not curved_edges:
+    if not plot_style.curved_edges:
         nx.draw(
             framework._graph,
             pos=realization,
             ax=ax,
-            node_size=vertex_size,
-            node_color=vertex_color,
-            node_shape=vertex_shape,
-            with_labels=vertex_labels,
-            width=edge_width,
+            node_size=plot_style.vertex_size,
+            node_color=plot_style.vertex_color,
+            node_shape=plot_style.vertex_shape,
+            with_labels=plot_style.vertex_labels,
+            width=plot_style.edge_width,
             edge_color=edge_color_array,
-            font_color=font_color,
-            font_size=font_size,
+            font_color=plot_style.font_color,
+            font_size=plot_style.font_size,
             edgelist=edge_list_ref,
-            style=edge_style,
+            style=plot_style.edge_style,
         )
     else:
         newGraph = nx.MultiDiGraph()
-        connection_style = resolve_connection_style(framework, connection_style)
+        connection_style = resolve_connection_style(framework, plot_style.connection_style)
         for e, style in connection_style.items():
             newGraph.add_edge(e[0], e[1], weight=style)
         plt.box(False)  # Manually removes the frame of the plot
@@ -670,19 +658,19 @@ def plot_with_2D_realization(
             newGraph,
             realization,
             ax=ax,
-            node_size=vertex_size,
-            node_color=vertex_color,
-            node_shape=vertex_shape,
+            node_size=plot_style.vertex_size,
+            node_color=plot_style.vertex_color,
+            node_shape=plot_style.vertex_shape,
         )
         nx.draw_networkx_labels(
-            newGraph, realization, ax=ax, font_color=font_color, font_size=font_size
+            newGraph, realization, ax=ax, font_color=plot_style.font_color, font_size=plot_style.font_size
         )
         for edge in newGraph.edges(data=True):
             nx.draw_networkx_edges(
                 newGraph,
                 realization,
                 ax=ax,
-                width=edge_width,
+                width=plot_style.edge_width,
                 edge_color=edge_color_array,
                 arrows=True,
                 arrowstyle="-",
