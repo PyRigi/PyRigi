@@ -249,6 +249,8 @@ def Frustum(n: int) -> Framework:
     -----------
     * :prf:ref:`n-Frustum <def-n-frustum>`
     """
+    if n <= 2 or not isinstance(n, int):
+        raise ValueError("`n` needs to be at least 3 but is {n}")
     realization = {
         j: (sp.cos(2 * j * sp.pi / n), sp.sin(2 * j * sp.pi / n)) for j in range(0, n)
     }
