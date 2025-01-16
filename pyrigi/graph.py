@@ -2769,6 +2769,7 @@ class Graph(nx.Graph):
         self,
         placement: dict[Vertex, Point] = None,
         layout: str = "spring",
+        vertex_color: str = "#4169E1",
         **kwargs,
     ) -> None:
         """
@@ -2782,6 +2783,9 @@ class Graph(nx.Graph):
         layout:
             The possibilities are ``spring`` (default), ``circular``,
             ``random`` or ``planar``, see also :meth:`~Graph.layout`.
+        vertex_color:
+            To distinguish :meth:`~Framework.plot` from this method,
+            the `vertex_color` has a different default value.
 
         Methods
         -------
@@ -2808,7 +2812,7 @@ class Graph(nx.Graph):
             raise TypeError("The placement does not have the correct format")
         from pyrigi import Framework
 
-        Framework(self, placement).plot(**kwargs)
+        Framework(self, placement).plot(vertex_color=vertex_color, **kwargs)
 
 
 Graph.__doc__ = Graph.__doc__.replace(
