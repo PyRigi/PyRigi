@@ -617,11 +617,15 @@ def test_is_congruent():
         {0: [0, 0, 0, 0], 1: [0, 0, 0, 0]},
     ],
 )
-def test_plot(realization):
+def test_plot_error(realization):
     F = Framework(graphs.Complete(2), realization)
     with pytest.raises(ValueError):
         F.plot()
 
+    plt.close()
+
+
+def test_plot():
     F = Framework(graphs.Complete(2), {0: [1, 0], 1: [0, 1]})
     F.plot()
 
