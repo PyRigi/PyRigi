@@ -1075,20 +1075,18 @@ class Framework(object):
             "stress_rotate_labels": stress_rotate_labels,
             "stress_normalization": stress_normalization,
         }
-
-        if self._dim == 1 or self._dim == 2:
-            return self.plot2D(
-                inf_flex=inf_flex,
-                stress=stress,
-                **(plotting_args | flex_args | stress_args),
-            )
-
         fig = plt.figure(dpi=dpi)
         ax = fig.add_subplot(111, projection="3d")
         ax.grid(False)
         ax.set_axis_off()
+
         placement = self.realization(as_points=True, numerical=True)
-        if self._dim == 3:
+        if self._dim in [1, 2]:
+            placement = {
+                v: p + [0 for _ in range(3 - self._dim)] for v, p in placement.items()
+            }
+
+        if self._dim in [1, 2, 3]:
             self._plot_with_3D_realization(
                 ax,
                 placement,
