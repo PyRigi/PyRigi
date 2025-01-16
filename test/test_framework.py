@@ -617,7 +617,7 @@ def test_is_congruent():
         {0: [0, 0, 0, 0], 1: [0, 0, 0, 0]},
     ],
 )
-def test_plot_error(realization):
+def test_plot(realization):
     F = Framework(graphs.Complete(2), realization)
     with pytest.raises(ValueError):
         F.plot()
@@ -687,11 +687,11 @@ def test_animate3D():
     F.animate3D()
 
     F = fws.Complete(3)
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         F.animate3D()
 
     F = fws.Complete(5, dim=4)
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         F.animate3D()
 
     plt.close("all")

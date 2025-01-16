@@ -726,7 +726,7 @@ class Framework(object):
         >>> F.animate3D();
         """
         if self._dim != 3:
-            raise AttributeError(
+            raise ValueError(
                 "The Framework is in dimension {self._dim}, "
                 + "not 3 as the method `animate3D` requires."
             )
@@ -1305,7 +1305,7 @@ class Framework(object):
         **kwargs,
     ) -> None:
         """
-        Adds infinitesimal flexes based in the `points` as vectors to the axis `ax`.
+        Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
 
         Parameters
         ----------
@@ -1482,7 +1482,7 @@ class Framework(object):
         **kwargs,
     ) -> None:
         """
-        Adds an equilibrium stress based in the `edges` as numbers to the axis `ax`.
+        Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
 
         Parameters
         ----------
@@ -1624,8 +1624,8 @@ class Framework(object):
                 )
         else:
             raise ValueError(
-                "The method `_plot_stress` is currently only implemented"
-                + " for frameworks in 1 up to 3 dimensions."
+                "The method `_plot_stress` is currently implemented only"
+                + " for frameworks in 1, 2, and 3 dimensions."
             )
 
     @doc_category("Plotting")
@@ -3737,7 +3737,7 @@ class Framework(object):
             }
         elif isinstance(connection_style, list):
             if not G.number_of_edges() == len(connection_style):
-                raise AttributeError(
+                raise ValueError(
                     "The provided `connection_style` doesn't have the correct length."
                 )
             connection_style = {
@@ -3765,7 +3765,7 @@ class Framework(object):
                     for e in [set(key) for key in connection_style.keys()]
                 )
             ):
-                raise AttributeError(
+                raise ValueError(
                     "The provided `connection_style` contains different edges "
                     + "than the underlying graph or has an incorrect format."
                 )
