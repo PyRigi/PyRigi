@@ -1,6 +1,11 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
-from pyrigi.exception import LoopError, DimensionValueError, DimensionCombinatorialValueError, NonNegativeIntParameterValueError
+from pyrigi.exception import (
+    LoopError,
+    DimensionValueError,
+    DimensionCombinatorialValueError,
+    NonNegativeIntParameterValueError,
+)
 import matplotlib.pyplot as plt
 
 import pytest
@@ -1097,6 +1102,7 @@ def test_loop_error(method, params):
         func = getattr(G, method)
         func(*params)
 
+
 @pytest.mark.parametrize(
     "method, params",
     [
@@ -1106,20 +1112,20 @@ def test_loop_error(method, params):
         ["is_Rd_circuit", [-1]],
         ["is_Rd_closed", [3.2]],
         ["is_Rd_closed", [-2]],
-        ["is_Rd_dependent", [3/2]],
+        ["is_Rd_dependent", [3 / 2]],
         ["is_Rd_dependent", [-2]],
         ["is_Rd_independent", [1.2]],
         ["is_Rd_independent", [-1]],
         ["is_globally_rigid", [3.1]],
         ["is_globally_rigid", [-2]],
-        ["is_k_redundantly_rigid", [2,3.7]],
-        ["is_k_redundantly_rigid", [2,-4]],
-        ["is_k_vertex_redundantly_rigid", [2,2.3]],
-        ["is_k_vertex_redundantly_rigid", [2,-7]],
-        ["is_min_k_redundantly_rigid", [2,3.7]],
-        ["is_min_k_redundantly_rigid", [2,-4]],
-        ["is_min_k_vertex_redundantly_rigid", [2,2.3]],
-        ["is_min_k_vertex_redundantly_rigid", [2,-7]],
+        ["is_k_redundantly_rigid", [2, 3.7]],
+        ["is_k_redundantly_rigid", [2, -4]],
+        ["is_k_vertex_redundantly_rigid", [2, 2.3]],
+        ["is_k_vertex_redundantly_rigid", [2, -7]],
+        ["is_min_k_redundantly_rigid", [2, 3.7]],
+        ["is_min_k_redundantly_rigid", [2, -4]],
+        ["is_min_k_vertex_redundantly_rigid", [2, 2.3]],
+        ["is_min_k_vertex_redundantly_rigid", [2, -7]],
         ["is_min_redundantly_rigid", [2.6]],
         ["is_min_redundantly_rigid", [-2]],
         ["is_min_vertex_redundantly_rigid", [3.2]],
@@ -1132,16 +1138,16 @@ def test_loop_error(method, params):
         ["is_redundantly_rigid", [-2]],
         ["is_vertex_redundantly_rigid", [4.8]],
         ["is_vertex_redundantly_rigid", [-3]],
-        ["k_extension",[0,[1,2],[],4,2.6]],
-        ["k_extension",[0,[1,2],[],4,-3]],
-        ["one_extension",[[1,2,3],[1,2],4,2.6]],
-        ["one_extension",[[1,2,3],[1,2],4,-3]],
+        ["k_extension", [0, [1, 2], [], 4, 2.6]],
+        ["k_extension", [0, [1, 2], [], 4, -3]],
+        ["one_extension", [[1, 2, 3], [1, 2], 4, 2.6]],
+        ["one_extension", [[1, 2, 3], [1, 2], 4, -3]],
         ["random_framework", [1.1]],
         ["random_framework", [-2]],
         ["rigid_components", [3.7]],
         ["rigid_components", [-4]],
-        ["zero_extension",[[1,2],4,2.6]],
-        ["zero_extension",[[1,2],4,-3]],
+        ["zero_extension", [[1, 2], 4, 2.6]],
+        ["zero_extension", [[1, 2], 4, -3]],
     ],
 )
 def test_dimension_error(method, params):
@@ -1150,11 +1156,12 @@ def test_dimension_error(method, params):
         func = getattr(G, method)
         func(*params)
 
+
 @pytest.mark.parametrize(
     "method, params",
     [
-        ["all_k_extensions", [1,2.1]],
-        ["all_k_extensions", [2,-1]],
+        ["all_k_extensions", [1, 2.1]],
+        ["all_k_extensions", [2, -1]],
     ],
 )
 def test_iterator_dimension_error(method, params):
@@ -1163,19 +1170,20 @@ def test_iterator_dimension_error(method, params):
         func = getattr(G, method)
         next(func(*params))
 
+
 @pytest.mark.parametrize(
     "method, params",
     [
-        ["is_k_redundantly_rigid", [2.4,3]],
-        ["is_k_redundantly_rigid", [-2,4]],
-        ["is_k_vertex_redundantly_rigid", [3.7,2]],
-        ["is_k_vertex_redundantly_rigid", [-3,7]],
-        ["is_min_k_redundantly_rigid", [2.5,3]],
-        ["is_min_k_redundantly_rigid", [-1,4]],
-        ["is_min_k_vertex_redundantly_rigid", [2/3,2]],
-        ["is_min_k_vertex_redundantly_rigid", [-3,7]],
-        ["k_extension",[0.3,[1,2],[],4,2]],
-        ["k_extension",[-2,[1,2],[],4,3]],
+        ["is_k_redundantly_rigid", [2.4, 3]],
+        ["is_k_redundantly_rigid", [-2, 4]],
+        ["is_k_vertex_redundantly_rigid", [3.7, 2]],
+        ["is_k_vertex_redundantly_rigid", [-3, 7]],
+        ["is_min_k_redundantly_rigid", [2.5, 3]],
+        ["is_min_k_redundantly_rigid", [-1, 4]],
+        ["is_min_k_vertex_redundantly_rigid", [2 / 3, 2]],
+        ["is_min_k_vertex_redundantly_rigid", [-3, 7]],
+        ["k_extension", [0.3, [1, 2], [], 4, 2]],
+        ["k_extension", [-2, [1, 2], [], 4, 3]],
     ],
 )
 def test_parameter_error(method, params):
@@ -1184,11 +1192,12 @@ def test_parameter_error(method, params):
         func = getattr(G, method)
         func(*params)
 
+
 @pytest.mark.parametrize(
     "method, params",
     [
-        ["all_k_extensions", [1.1,2]],
-        ["all_k_extensions", [-1,1]],
+        ["all_k_extensions", [1.1, 2]],
+        ["all_k_extensions", [-1, 1]],
     ],
 )
 def test_iterator_parameter_error(method, params):
@@ -1196,6 +1205,7 @@ def test_iterator_parameter_error(method, params):
         G = Graph([[1, 2], [1, 3], [2, 3]])
         func = getattr(G, method)
         next(func(*params))
+
 
 @pytest.mark.parametrize(
     "method, params",
@@ -1208,7 +1218,8 @@ def test_dimension_combinatorial_error(method, params):
     with pytest.raises(DimensionCombinatorialValueError):
         G = graphs.DoubleBanana()
         func = getattr(G, method)
-        func(*params,combinatorial=True)
+        func(*params, combinatorial=True)
+
 
 def test_k_extension():
     assert str(graphs.Complete(2).zero_extension([0, 1])) == str(graphs.Complete(3))

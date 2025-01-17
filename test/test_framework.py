@@ -436,11 +436,12 @@ def test_loop_error():
         G = Graph([[1, 2], [2, 3], [1, 3], [2, 2]])
         Framework.Random(G)
 
+
 @pytest.mark.parametrize(
     "param",
     [
-        1.1
-        -2
+        1.1,
+        -2,
     ],
 )
 def test_dimension_error(param):
@@ -449,6 +450,7 @@ def test_dimension_error(param):
         Framework.Random(G, param)
     with pytest.raises(DimensionValueError):
         Framework.Empty(param)
+
 
 def test_translate():
     G = graphs.Complete(3)
