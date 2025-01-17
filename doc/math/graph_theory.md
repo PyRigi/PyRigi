@@ -26,7 +26,7 @@ The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and 
 {{pyrigi_crossref}} {meth}`~.Graph.is_sparse`
 {meth}`~.Graph.is_tight`
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 :::
 
 

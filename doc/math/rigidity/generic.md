@@ -33,7 +33,7 @@ The graph $G$ is called _minimally (generically) $d$-rigid_ if a (equivalently, 
 
 A graph $G = (V, E)$ with $|V|\geq 2$ is minimally (generically) $2$-rigid if and only if $G$ is {prf:ref}`(2,3)-tight <def-kl-sparse-tight>`.
 
-{{references}} {cite:p}`Geiringer1927`
+{{references}} {cite:p}`PollaczekGeiringer1927`
 {cite:p}`Laman1970`
 :::
 
@@ -60,7 +60,7 @@ Let $G = (V, E)$ be a graph and let $F=(G,p)$ be a framework with a random param
 If $F$ is (minimally) infinitesimally $d$-rigid, then $G$ is (minimally) $d$-rigid.
 If $F$ is not (minimally) infinitesimally $d$-rigid, then $G$ is not (minimally) $d$-rigid with probability $1-(dn-\binom{d+1}{2})/N$.
 In other words the probability of a false negative is $(dn-\binom{d+1}{2})/N$.
-{{references}} {cite:p}`Gortler2010`
+{{references}} {cite:p}`GortlerHealyThurston2010`
 :::
 
 :::{prf:definition} Rigid components in $\RR^d$
