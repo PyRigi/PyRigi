@@ -1,6 +1,5 @@
 import pyrigi.frameworkDB as fws
 import sympy as sp
-from math import isclose
 
 import pytest
 
