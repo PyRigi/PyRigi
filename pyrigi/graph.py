@@ -156,7 +156,7 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]]
         """  # noqa: E501
         return Graph(nx.compose(self, other))
-        
+
     @classmethod
     @doc_category("Class methods")
     def from_vertices_and_edges(
@@ -2639,19 +2639,19 @@ class Graph(nx.Graph):
             [v for v in self.nodes if v in G2.nodes],
             [e for e in self.edges if e in G2.edges],
         )
-    
+
     @doc_category("Generic rigidity")
     def is_separating_pair(self, u: Vertex, v: Vertex):
         """
         Check if a pair of vertices is a separating (or separation) pair for G.
-        
+
         Parameters
         ----------
         u: Vertex
         v: Vertex
-        
+
         Definitions
-        -----
+        --------
         :prf:ref:`separating-pair <def-separating-pair>` TODO
 
         Examples
@@ -2664,19 +2664,53 @@ class Graph(nx.Graph):
         True
         """
         G_ = deepcopy(self)
-        G_.delete_vertices([u,v])
+        G_.delete_vertices([u, v])
         # G_ must not be connected...
         if nx.is_k_edge_connected(G_, 1):
             return False
         # ...there are:
         # neither exactly two components resulting one of which consists of a single edge
-        elif len(nx.k_components(G_)[1])==2 and (len(nx.k_components(G_)[1][0])==2 or len(nx.k_components(G_)[1][1])==2):
+        elif len(nx.k_components(G_)[1]) == 2 and (
+            len(nx.k_components(G_)[1][0]) == 2 or len(nx.k_components(G_)[1][1]) == 2
+        ):
             return False
         # nor exactly three components resulting each of which consists of a single edge
-        elif len(nx.k_components(G_)[1])==3 and G_.is_isomorphic(Graph([[1,2],[3,4],[5,6]])):
+        elif len(nx.k_components(G_)[1]) == 3 and G_.is_isomorphic(
+            Graph([[1, 2], [3, 4], [5, 6]])
+        ):
             return False
         else:
             return True
+
+    def neighbors_of_set(self, V: list[Vertex] | set[Vertex]):
+        """
+        Return the set of neighbors of a set of vertices of the graph.
+        If one of the vertices in V does not appear in self, the
+        method ignores it.
+
+        Parameters
+        --------
+        V:
+            set or list of vertices
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.neighbors_of_set([1,2])
+        {0, 3, 4}
+        >>> G = Graph([[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G.neighbors_of_set([1,2])
+        {3, 4}
+        >>> G.neighbors_of_set([3,4])
+        {0, 1, 2}
+
+        """
+        res = set()
+        for v in V:
+            if v in self.nodes():
+                res.update(self.neighbors(v))
+        return res.difference(V)
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> Dict[Vertex, Point]:

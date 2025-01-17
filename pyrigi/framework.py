@@ -2100,7 +2100,9 @@ class Framework(object):
                 filename=f_name,
             )
 
-        print(f"STL files for the bars have been generated in the folder `{output_dir}`.")
+        print(
+            f"STL files for the bars have been generated in the folder `{output_dir}`."
+        )
 
     @doc_category("Other")
     def _transform_inf_flex_to_pointwise(  # noqa: C901
