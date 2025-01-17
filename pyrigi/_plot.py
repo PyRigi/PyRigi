@@ -346,18 +346,8 @@ def plot_with_3D_realization(
     framework: Framework,
     ax: Axes,
     realization: dict[Vertex, Point],
-    vertex_color: str = "#ff8c00",
-    vertex_size: int = 200,
-    vertex_shape: str = "o",
-    vertex_labels: bool = True,
-    font_color: str = "whitesmoke",
-    font_size: int = 10,
-    edge_width: float = 2.5,
-    edge_color: str = "black",
+    plot_style: PlotStyle,
     edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-    edge_style: str = "solid",
-    equal_aspect_ratio: bool = True,
-    padding: float = 0.01,
 ) -> None:
     """
     Plot the graph of the framework with the given realization in the plane.
@@ -416,13 +406,13 @@ def plot_with_3D_realization(
     The parameters for `inf_flex`-plotting are listed in
     the API reference.
     """
-    # Create a figure for the rapresentation of the framework
+    # Create a figure for the representation of the framework
 
     edge_color_array, edge_list_ref = resolve_edge_colors(
-        framework, edge_color, edge_coloring
+        framework, plot_style.edge_color, edge_coloring
     )
 
-    # Draw the vertices as points in the 3D enviroment
+    # Draw the vertices as points in the 3D environment
     x_nodes = [realization[node][0] for node in framework._graph.nodes]
     y_nodes = [realization[node][1] for node in framework._graph.nodes]
     z_nodes = [realization[node][2] for node in framework._graph.nodes]
@@ -430,38 +420,41 @@ def plot_with_3D_realization(
         x_nodes,
         y_nodes,
         z_nodes,
-        c=vertex_color,
-        s=vertex_size,
-        marker=vertex_shape,
+        c=plot_style.vertex_color,
+        s=plot_style.vertex_size,
+        marker=plot_style.vertex_shape,
     )
-    if equal_aspect_ratio:
-        min_val = min(x_nodes + y_nodes + z_nodes) - padding
-        max_val = max(x_nodes + y_nodes + z_nodes) + padding
-        ax.set_zlim(min_val, max_val)
-        ax.set_ylim(min_val, max_val)
-        ax.set_xlim(min_val, max_val)
-    else:
-        ax.set_zlim(min(z_nodes) - padding, max(z_nodes) + padding)
-        ax.set_ylim(min(y_nodes) - padding, max(y_nodes) + padding)
-        ax.set_xlim(min(x_nodes) - padding, max(x_nodes) + padding)
+
+    min_val = min(x_nodes + y_nodes + z_nodes) - plot_style.padding
+    max_val = max(x_nodes + y_nodes + z_nodes) + plot_style.padding
+    ax.set_zlim(min_val, max_val)
+    ax.set_ylim(min_val, max_val)
+    ax.set_xlim(min_val, max_val)
 
     for i in range(len(edge_list_ref)):
         edge = edge_list_ref[i]
         x = [realization[edge[0]][0], realization[edge[1]][0]]
         y = [realization[edge[0]][1], realization[edge[1]][1]]
         z = [realization[edge[0]][2], realization[edge[1]][2]]
-        ax.plot(x, y, z, c=edge_color_array[i], lw=edge_width, linestyle=edge_style)
-    for node in framework._graph.nodes:
-        x, y, z, *others = realization[node]
-        # To show the name of the vertex
-        if vertex_labels:
+        ax.plot(
+            x,
+            y,
+            z,
+            c=edge_color_array[i],
+            lw=plot_style.edge_width,
+            linestyle=plot_style.edge_style,
+        )
+    # To show the name of the vertex
+    if plot_style.vertex_labels:
+        for node in framework._graph.nodes:
+            x, y, z, *others = realization[node]
             ax.text(
                 x,
                 y,
                 z,
                 str(node),
-                color=font_color,
-                fontsize=font_size,
+                color=plot_style.font_color,
+                fontsize=plot_style.font_size,
                 ha="center",
                 va="center",
             )

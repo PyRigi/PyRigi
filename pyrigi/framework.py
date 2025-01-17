@@ -491,6 +491,8 @@ class Framework(object):
                 projection_matrix=projection_matrix,
             )
         if stress is not None:
+            if stress_label_positions is None:
+                stress_label_positions = {}
             _plot.plot_stress(
                 self,
                 ax,
@@ -709,39 +711,17 @@ class Framework(object):
     @doc_category("Plotting")
     def plot3D(
         self,
+        plot_style: PlotStyle = None,
         projection_matrix: Matrix = None,
         random_seed: int = None,
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
-        return_matrix: bool = False,
-        vertex_size: int = 200,
-        vertex_color: str = "#ff8c00",
-        vertex_shape: str = "o",
-        vertex_labels: bool = True,
-        edge_width: float = 2.5,
-        edge_color: (
-            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-        ) = "black",
-        edge_style: str = "solid",
-        flex_width: float = 2.5,
-        flex_length: float = 0.75,
-        flex_color: (
-            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-        ) = "limegreen",
-        flex_style: str = "solid",
-        flex_arrowsize: int = 20,
-        stress_color: str = "orangered",
-        stress_fontsize: int = 9,
-        stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
-        stress_rotate_labels: bool = True,
-        stress_normalization: bool = False,
-        font_size: int = 12,
-        font_color: str = "whitesmoke",
-        equal_aspect_ratio: bool = True,
-        padding: float = 0.01,
-        dpi=200,
-    ) -> Optional[Matrix]:
+        edge_coloring: Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = None,
+        stress_label_positions: dict[DirectedEdge, float] = None,
+        connection_styles: dict[Edge, float] = None,
+        **kwargs,
+    ) -> None:
         """
         Plot the provided framework in 3D.
 
@@ -875,32 +855,14 @@ class Framework(object):
         >>> F = frameworkDB.Octahedron(realization="Bricard_plane")
         >>> F.plot3D(inf_flex=0, stress=0);
         """
-        plotting_args = {
-            "vertex_size": vertex_size,
-            "vertex_color": vertex_color,
-            "vertex_shape": vertex_shape,
-            "vertex_labels": vertex_labels,
-            "edge_width": edge_width,
-            "edge_color": edge_color,
-            "edge_style": edge_style,
-            "font_size": font_size,
-            "font_color": font_color,
-        }
-        flex_args = {
-            "flex_width": flex_width,
-            "flex_length": flex_length,
-            "flex_color": flex_color,
-            "flex_style": flex_style,
-            "flex_arrowsize": flex_arrowsize,
-        }
-        stress_args = {
-            "stress_color": stress_color,
-            "stress_fontsize": stress_fontsize,
-            "stress_label_pos": stress_label_pos,
-            "stress_rotate_labels": stress_rotate_labels,
-            "stress_normalization": stress_normalization,
-        }
-        fig = plt.figure(dpi=dpi)
+        if plot_style is None:
+            # change some PlotStyle default values to fit 3D plotting better
+            plot_style = PlotStyle(vertex_size=200, flex_length=0.75)
+
+        # Update the plot_style instance with any passed keyword arguments
+        plot_style.update(**kwargs)
+
+        fig = plt.figure(dpi=plot_style.dpi)
         ax = fig.add_subplot(111, projection="3d")
         ax.grid(False)
         ax.set_axis_off()
@@ -908,92 +870,53 @@ class Framework(object):
         placement = self.realization(as_points=True, numerical=True)
         if self._dim in [1, 2]:
             placement = {
-                v: p + [0 for _ in range(3 - self._dim)] for v, p in placement.items()
+                v: list(p) + [0 for _ in range(3 - self._dim)]
+                for v, p in placement.items()
             }
 
-        from pyrigi import _plot
+        elif self._dim == 3:
+            placement = self.realization(as_points=True, numerical=True)
 
-        if self._dim in [1, 2, 3]:
-            _plot.plot_with_3D_realization(
-                self,
-                ax,
-                placement,
-                equal_aspect_ratio=equal_aspect_ratio,
-                padding=padding,
-                **plotting_args,
-            )
-            if inf_flex is not None:
-                _plot.plot_inf_flex(self, ax, inf_flex, points=placement, **flex_args)
-            if stress is not None:
-                _plot.plot_stress(self, ax, stress, points=placement, **stress_args)
-            return
-
-        # dim > 3 -> use projection to 3D
-        if coordinates is not None:
-            if (
-                not isinstance(coordinates, tuple)
-                and not isinstance(coordinates, list)
-                or len(coordinates) != 3
-            ):
-                raise ValueError(
-                    "The parameter `coordinates` must have length 3!"
-                    + " Exactly three coordinates are necessary for plotting in 3D."
-                )
-            if np.max(coordinates) >= self._dim:
-                raise ValueError(
-                    f"Index {np.max(coordinates)} out of range"
-                    + f" with placement in dim: {self._dim}."
-                )
-            projection_matrix = np.zeros((3, self._dim))
-            projection_matrix[0, coordinates[0]] = 1
-            projection_matrix[1, coordinates[1]] = 1
-            projection_matrix[2, coordinates[2]] = 1
-
-        if projection_matrix is not None:
-            projection_matrix = np.array(projection_matrix)
-            if projection_matrix.shape != (3, self._dim):
-                raise ValueError(
-                    f"The projection matrix has wrong dimensions! \
-                    {projection_matrix.shape} instead of (3, {self._dim})."
-                )
         else:
-            projection_matrix = generate_three_orthonormal_vectors(
-                self._dim, random_seed=random_seed
+            placement, projection_matrix = self.projected_realization(
+                projection_matrix=projection_matrix,
+                projection_coordinates=coordinates,
+                proj_dim=3,
+                random_seed=random_seed,
             )
-            projection_matrix = projection_matrix.T
-        for vertex, position in self.realization(
-            as_points=False, numerical=True
-        ).items():
-            placement[vertex] = np.dot(projection_matrix, np.array(position))
+
+        from pyrigi import _plot
 
         _plot.plot_with_3D_realization(
             self,
             ax,
             placement,
-            equal_aspect_ratio=equal_aspect_ratio,
-            padding=padding,
-            **plotting_args,
+            plot_style,
+            edge_coloring=edge_coloring,
         )
+
         if inf_flex is not None:
             _plot.plot_inf_flex(
                 self,
                 ax,
                 inf_flex,
                 points=placement,
+                plot_style=plot_style,
                 projection_matrix=projection_matrix,
-                **flex_args,
             )
+
         if stress is not None:
+            if stress_label_positions is None:
+                stress_label_positions = {}
             _plot.plot_stress(
                 self,
                 ax,
                 stress,
                 points=placement,
-                projection_matrix=projection_matrix,
-                **stress_args,
+                plot_style=plot_style,
+                connection_styles=connection_styles,
+                stress_label_positions=stress_label_positions,
             )
-        if return_matrix:
-            return projection_matrix
 
     @doc_category("Plotting")
     def plot(
@@ -2493,12 +2416,15 @@ class Framework(object):
                 )
             projection_matrix = projection_matrix.T
 
-        return {
-            vertex: tuple(np.dot(projection_matrix, np.array(position)))
-            for vertex, position in self.realization(
-                as_points=False, numerical=True
-            ).items()
-        }
+        return (
+            {
+                vertex: tuple(np.dot(projection_matrix, np.array(position)))
+                for vertex, position in self.realization(
+                    as_points=False, numerical=True
+                ).items()
+            },
+            projection_matrix,
+        )
 
     @doc_category("Other")
     def edge_lengths(self, numerical: bool = False) -> dict[Edge, Number]:

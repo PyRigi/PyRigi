@@ -28,6 +28,8 @@ class PlotStyle(object):
         aspect_ratio: float = 1.0,
         curved_edges: bool = False,
         connection_style: float = np.pi / 6,
+        padding: float = 0.01,
+        dpi: int = 200,
     ):
         self.vertex_size = vertex_size
         self.vertex_color = vertex_color
@@ -53,6 +55,8 @@ class PlotStyle(object):
         self.aspect_ratio = aspect_ratio
         self.curved_edges = curved_edges
         self.connection_style = connection_style
+        self.padding = padding
+        self.dpi = dpi
 
     def update(self, **kwargs):
         """
