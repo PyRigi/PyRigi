@@ -295,7 +295,7 @@ class Framework(object):
         return deepcopy(self._graph)
 
     @doc_category("Plotting")
-    def plot2D(  # noqa: C901
+    def plot2D(
         self,
         plot_style: PlotStyle = None,
         projection_matrix: Matrix = None,
@@ -303,13 +303,11 @@ class Framework(object):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
-        return_matrix: bool = False,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        flex_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         connection_styles: Sequence[float] | dict[Edge, float] = None,
         **kwargs,
-    ) -> Optional[Matrix]:
+    ) -> None:
         """
         Plot this framework in 2D.
 
@@ -443,13 +441,6 @@ class Framework(object):
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
 
-        custom_style = {
-            "edge_coloring": edge_coloring,
-            "flex_coloring": flex_coloring,
-            "stress_label_positions": stress_label_positions,
-            "connection_styles": connection_styles,
-        }
-
         fig, ax = plt.subplots()
         ax.set_adjustable("datalim")
         fig.set_figwidth(plot_style.canvas_width)
@@ -459,123 +450,45 @@ class Framework(object):
         from pyrigi import _plot
 
         if self._dim == 1:
-            placement = {}
-            for vertex, position in self.realization(
-                as_points=True, numerical=True
-            ).items():
-                placement[vertex] = np.append(np.array(position), 0)
+            placement = {
+                vertex: [position[0], 0]
+                for vertex, position in self.realization(
+                    as_points=True, numerical=True
+                ).items()
+            }
+            if hasattr(kwargs, "curved_edges"):
+                plot_style.update(curved_edges=kwargs["curved_edges"])
+            else:
+                plot_style.update(curved_edges=True)
 
-            _plot.plot_with_2D_realization(
-                self,
-                ax,
-                placement,
-                curved_edges=True,
-                plot_style=plot_style,
-                custom_style=custom_style,
+        elif self._dim == 2:
+            placement = self.realization(as_points=True, numerical=True)
+
+        else:
+            placement, projection_matrix = self.projected_realization(
+                projection_matrix=projection_matrix,
+                projection_coordinates=coordinates,
+                proj_dim=2,
+                random_seed=random_seed,
             )
-
-            if inf_flex is not None:
-                _plot.plot_inf_flex(
-                    self,
-                    ax,
-                    inf_flex,
-                    points=placement,
-                    plot_style=plot_style,
-                    custom_style=custom_style,
-                )
-            if stress is not None:
-                _plot.plot_stress(
-                    self,
-                    ax,
-                    stress,
-                    points=placement,
-                    curved_edges=True,
-                    plot_style=plot_style,
-                    custom_style=custom_style,
-                )
-            return
-
-        placement = self.realization(as_points=True, numerical=True)
-        if self._dim == 2:
-            _plot.plot_with_2D_realization(
-                self,
-                ax,
-                placement,
-                plot_style=plot_style,
-                custom_style=custom_style,
-            )
-            if inf_flex is not None:
-                _plot.plot_inf_flex(
-                    self,
-                    ax,
-                    inf_flex,
-                    plot_style=plot_style,
-                    custom_style=custom_style,
-                )
-            if stress is not None:
-                _plot.plot_stress(
-                    self,
-                    ax,
-                    stress,
-                    plot_style=plot_style,
-                    custom_style=custom_style,
-                )
-            return
-
-        # dim > 2 -> use projection to 2D
-        if coordinates is not None:
-            if (
-                not isinstance(coordinates, tuple)
-                and not isinstance(coordinates, list)
-                or len(coordinates) != 2
-            ):
-                raise ValueError(
-                    "coordinates must have length 2!"
-                    + " Exactly Two coordinates are necessary for plotting in 2D."
-                )
-            if np.max(coordinates) >= self._dim:
-                raise ValueError(
-                    f"Index {np.max(coordinates)} out of range"
-                    + f" with placement in dim: {self._dim}."
-                )
-            projection_matrix = np.zeros((2, self._dim))
-            projection_matrix[0, coordinates[0]] = 1
-            projection_matrix[1, coordinates[1]] = 1
-
-        if projection_matrix is not None:
-            projection_matrix = np.array(projection_matrix)
-            if projection_matrix.shape != (2, self._dim):
-                raise ValueError(
-                    f"The projection matrix has wrong dimensions! \
-                    {projection_matrix.shape} instead of (2, {self._dim})."
-                )
-        if projection_matrix is None:
-            projection_matrix = generate_two_orthonormal_vectors(
-                self._dim, random_seed=random_seed
-            )
-            projection_matrix = projection_matrix.T
-
-        for vertex, position in self.realization(
-            as_points=False, numerical=True
-        ).items():
-            placement[vertex] = np.dot(projection_matrix, np.array(position))
 
         _plot.plot_with_2D_realization(
             self,
             ax,
             placement,
             plot_style=plot_style,
-            custom_style=custom_style,
+            edge_coloring=edge_coloring,
+            connection_styles=connection_styles,
         )
+
         if inf_flex is not None:
             _plot.plot_inf_flex(
                 self,
                 ax,
                 inf_flex,
                 points=placement,
-                projection_matrix=projection_matrix,
                 plot_style=plot_style,
-                custom_style=custom_style,
+                projection_matrix=projection_matrix,
             )
         if stress is not None:
             _plot.plot_stress(
@@ -583,12 +496,10 @@ class Framework(object):
                 ax,
                 stress,
                 points=placement,
-                projection_matrix=projection_matrix,
                 plot_style=plot_style,
-                custom_style=custom_style,
+                connection_styles=connection_styles,
+                stress_label_positions=stress_label_positions,
             )
-        if return_matrix:
-            return projection_matrix
 
     @doc_category("Plotting")
     def animate3D(
@@ -596,9 +507,8 @@ class Framework(object):
         vertex_color: str = "#ff8c00",
         vertex_shape: str = "o",
         vertex_size: int = 13.5,
-        edge_color: (
-            str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-        ) = "black",
+        edge_color: str = "black",
+        edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         edge_width: float = 1.5,
         edge_style: str = "solid",
         equal_aspect_ratio: bool = True,
@@ -650,7 +560,9 @@ class Framework(object):
 
         from pyrigi import _plot
 
-        edge_color_array, edge_list_ref = _plot.resolve_edge_colors(self, edge_color)
+        edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
+            self, edge_color, edge_coloring
+        )
 
         # Limits of the axes
         abs_list = [list(abs(i)) for i in self._realization.values()]
@@ -2496,14 +2408,14 @@ class Framework(object):
 
     @doc_category("Framework manipulation")
     def projected_realization(
-            self,
-            proj_dim: int = None,
-            projection_matrix: Matrix = None,
-            random_seed: int = None,
-            coordinates: Sequence[int] = None,
-    ) -> dict[Vertex, Point]:
+        self,
+        proj_dim: int = None,
+        projection_matrix: Matrix = None,
+        random_seed: int = None,
+        coordinates: Sequence[int] = None,
+    ) -> tuple[dict[Vertex, Point], Matrix]:
         """
-        Return the realization projected to a lower dimension.
+        Return the realization projected to a lower dimension and the projection matrix.
 
         Parameters
         ----------
@@ -2540,10 +2452,17 @@ class Framework(object):
                     f"The number of coordinates ({len(coordinates)}) does not match"
                     + f" proj_dim ({proj_dim})."
                 )
-            return {
-                v: tuple([pos[coord] for coord in coordinates])
-                for v, pos in self._realization.items()
-            }
+            matrix = np.zeros((len(coordinates), self._dim))
+            for i, coord in enumerate(coordinates):
+                matrix[i, coord] = 1
+
+            return (
+                {
+                    v: tuple([pos[coord] for coord in coordinates])
+                    for v, pos in self._realization.items()
+                },
+                Matrix(matrix),
+            )
 
         if projection_matrix is not None:
             projection_matrix = np.array(projection_matrix)
