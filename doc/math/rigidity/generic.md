@@ -33,7 +33,7 @@ The graph $G$ is called _minimally (generically) $d$-rigid_ if a (equivalently, 
 
 A graph $G = (V, E)$ with $|V|\geq 2$ is minimally (generically) $2$-rigid if and only if $G$ is {prf:ref}`(2,3)-tight <def-kl-sparse-tight>`.
 
-{{references}} {cite:p}`Geiringer1927`
+{{references}} {cite:p}`PollaczekGeiringer1927`
 {cite:p}`Laman1970`
 :::
 
