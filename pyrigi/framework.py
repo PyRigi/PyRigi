@@ -1985,7 +1985,7 @@ class Framework(object):
         Realization {0:(1,), 1:(2,), 2:(3,), 3:(4,)}
         """  # noqa: E501
         if not points:
-            raise ValueError("The list of points cannot be empty.")
+            raise ValueError("The list of points cannot be empty!")
 
         Kn = CompleteGraph(len(points))
         return Framework(Kn, {v: Matrix(p) for v, p in zip(Kn.nodes, points)})
@@ -2211,7 +2211,7 @@ class Framework(object):
             raise ValueError("Multiple Vertices with the same name were found!")
         if not len(vertices) == len(points):
             raise IndexError(
-                "The list of vertices does not have the same length as the list of points"
+                "The list of vertices does not have the same length as the list of points!"
             )
         self.set_vertex_positions({v: pos for v, pos in zip(vertices, points)})
 
@@ -2904,7 +2904,7 @@ class Framework(object):
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError("Underlying graphs are not same.")
+            raise ValueError("The underlying graphs are not same!")
 
         return self.is_congruent_realization(
             other_framework._realization, numerical, tolerance
@@ -2969,7 +2969,7 @@ class Framework(object):
         """
 
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError("Underlying graphs are not same.")
+            raise ValueError("The underlying graphs are not same!")
         return self.is_equivalent_realization(
             other_framework._realization, numerical, tolerance
         )
@@ -2992,7 +2992,7 @@ class Framework(object):
         if inplace:
             if vector.shape[0] != self.dim():
                 raise ValueError(
-                    "The dimension of the vector has to be the same as of the framework."
+                    "The dimension of the vector has to be the same as of the framework!"
                 )
 
             for v in self._realization.keys():
@@ -3113,7 +3113,7 @@ class Framework(object):
                 "To create meshes of bars that can be exported as STL files, "
                 "the packages 'trimesh' and 'manifold3d' are required. "
                 "To install PyRigi including trimesh and manifold3d, "
-                "run 'pip install pyrigi[meshing]'"
+                "run 'pip install pyrigi[meshing]'!"
             )
 
         if (
@@ -3122,15 +3122,15 @@ class Framework(object):
             or bar_width <= 0
             or bar_height <= 0
         ):
-            raise ValueError("Use only positive values for the parameters.")
+            raise ValueError("The parameters must be positive!")
 
         if bar_width <= holes_diameter:
-            raise ValueError("The bar width must be greater than the holes diameter.")
+            raise ValueError("The bar width must be greater than the holes diameter!")
 
         if holes_distance <= 2 * holes_diameter:
             raise ValueError(
                 "The distance between the holes must be greater "
-                "than twice the holes diameter."
+                "than twice the holes diameter!"
             )
 
         # Create the main bar as a box
@@ -3389,7 +3389,7 @@ class Framework(object):
         for v in self._graph.vertex_list():
             if v not in vert_to_flex:
                 raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
+                    f"Vertex {v} must be in the dictionary `vert_to_flex`!"
                 )
             dict_to_list += list(vert_to_flex[v])
 
@@ -3519,7 +3519,7 @@ class Framework(object):
         for v in self._graph.vertex_list():
             if v not in vert_to_flex:
                 raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
+                    f"Vertex {v} must be in the dictionary `vert_to_flex`!"
                 )
             dict_to_list += list(vert_to_flex[v])
 
@@ -3623,7 +3623,7 @@ class Framework(object):
         for v in self._graph.vertex_list():
             if v not in vert_to_flex:
                 raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
+                    f"Vertex {v} must be in the dictionary `vert_to_flex`!"
                 )
             dict_to_list += list(vert_to_flex[v])
 
@@ -3677,7 +3677,7 @@ class Framework(object):
                 self._graph.vertex_list()
             ) == set(vertex_order):
                 raise ValueError(
-                    "New vertex set must contain exactly "
+                    "The new vertex set must contain exactly "
                     + "the same vertices as the underlying graph!"
                 )
             return list(vertex_order)
@@ -3728,7 +3728,7 @@ class Framework(object):
         elif isinstance(connection_style, list):
             if not G.number_of_edges() == len(connection_style):
                 raise ValueError(
-                    "The provided `connection_style` doesn't have the correct length."
+                    "The provided `connection_style` doesn't have the correct length!"
                 )
             connection_style = {
                 e: style
@@ -3757,7 +3757,7 @@ class Framework(object):
             ):
                 raise ValueError(
                     "The provided `connection_style` contains different edges "
-                    + "than the underlying graph or has an incorrect format."
+                    + "than the underlying graph or has an incorrect format!"
                 )
             connection_style = {
                 e: 0
@@ -3772,7 +3772,7 @@ class Framework(object):
             }
         else:
             raise TypeError(
-                "The provided `connection_style` does not have the appropriate type."
+                "The provided `connection_style` does not have the appropriate type!"
             )
         return connection_style
 
@@ -3798,7 +3798,7 @@ class Framework(object):
                 for e in part:
                     if not G.has_edge(e[0], e[1]):
                         raise ValueError(
-                            "The input includes a pair that is not an edge."
+                            "The input includes a pair that is not an edge!"
                         )
                     edge_color_array.append(colors[i])
                     edge_list_ref.append(tuple(e))
@@ -3808,12 +3808,12 @@ class Framework(object):
                 for e in edges:
                     if not G.has_edge(e[0], e[1]):
                         raise ValueError(
-                            "The input includes an edge that is not part of the framework"
+                            "The input includes an edge that is not part of the framework!"
                         )
                     edge_color_array.append(color)
                     edge_list_ref.append(tuple(e))
         else:
-            raise ValueError("The input color_edge has none of the supported formats.")
+            raise ValueError("The input color_edge has none of the supported formats!")
         for e in edge_list:
             if (e[0], e[1]) not in edge_list_ref and (e[1], e[0]) not in edge_list_ref:
                 edge_color_array.append("black")
@@ -3830,7 +3830,7 @@ class Framework(object):
                     duplicates.append(e)
             raise ValueError(
                 f"The color of the edges in the following list"
-                f"was specified multiple times: {duplicates}."
+                f"was specified multiple times: {duplicates}!"
             )
         return edge_color_array, edge_list_ref
 

@@ -227,11 +227,11 @@ class Graph(nx.Graph):
         """
         if not isinstance(input_pair, list | tuple) or not len(input_pair) == 2:
             raise TypeError(
-                f"The input {input_pair} must be a tuple or list of length 2."
+                f"The input {input_pair} must be a tuple or list of length 2!"
             )
         if not input_pair[0] in self.nodes or not input_pair[1] in self.nodes:
             raise ValueError(
-                f"The elements of the pair {input_pair} are not vertices of the graph."
+                f"The elements of the pair {input_pair} are not vertices of the graph!"
             )
         if input_pair[0] == input_pair[1]:
             raise LoopError("The input {input_pair} must be two distinct vertices.")
@@ -251,10 +251,10 @@ class Graph(nx.Graph):
         self._check_edge_format(edge)
         if vertices and (not edge[0] in vertices or not edge[1] in vertices):
             raise ValueError(
-                f"The elements of the edge {edge} are not among vertices {vertices}."
+                f"The elements of the edge {edge} are not among vertices {vertices}!"
             )
         if not self.has_edge(edge[0], edge[1]):
-            raise ValueError(f"Edge {edge} is not contained in the graph.")
+            raise ValueError(f"Edge {edge} is not contained in the graph!")
 
     def _check_edge_list(
         self, edges: Sequence[Edge], vertices: Sequence[Vertex] = None
@@ -483,7 +483,7 @@ class Graph(nx.Graph):
         if not self._pebble_values_are_correct(K, L):
             raise TypeError(
                 "K and L need to be integers that satisfy the conditions of\
-                 K > 0, L >= 0 and L < 2K."
+                 K > 0, L >= 0 and L < 2K!"
             )
 
         dir_graph = pyrigi._pebble_digraph.PebbleDiGraph(K, L)
@@ -598,7 +598,7 @@ class Graph(nx.Graph):
             else:
                 raise ValueError(
                     "K and L with pebble algorithm need to satisfy the\
-                     conditions of K > 0, 0 <= L < 2K."
+                     conditions of K > 0, 0 <= L < 2K!"
                 )
         if algorithm == "subgraph":
             for j in range(K, self.number_of_nodes() + 1):
@@ -624,7 +624,7 @@ class Graph(nx.Graph):
         # reaching this position means that the algorithm is unknown
         raise ValueError(
             f"If specified, the value of the algorithm parameter must be one of "
-            f'"pebble", "subgraph", or "default". Instead, it is {algorithm}.'
+            f'"pebble", "subgraph", or "default". Instead, it is {algorithm}!'
         )
 
     @doc_category("Sparseness")
@@ -846,14 +846,14 @@ class Graph(nx.Graph):
             raise NonNegativeIntParameterValueError(k, "k")
         for vertex in vertices:
             if vertex not in self.nodes:
-                raise ValueError(f"Vertex {vertex} is not contained in the graph")
+                raise ValueError(f"Vertex {vertex} is not contained in the graph!")
         if len(set(vertices)) != dim + k:
             raise ValueError(
-                f"List of vertices must contain {dim + k} distinct vertices"
+                f"List of vertices must contain {dim + k} distinct vertices!"
             )
         self._check_edge_list(edges, vertices)
         if len(edges) != k:
-            raise ValueError(f"List of edges must contain {k} distinct edges")
+            raise ValueError(f"List of edges must contain {k} distinct edges!")
         if new_vertex is None:
             candidate = self.number_of_nodes()
             while candidate in self.nodes:
@@ -908,11 +908,11 @@ class Graph(nx.Graph):
         if self.number_of_nodes() < (dim + k):
             raise ValueError(
                 f"The number of nodes in the graph needs to be "
-                f"greater or equal than {dim + k}!"
+                f"greater than or equal to {dim + k}!"
             )
         if self.number_of_edges() < k:
             raise ValueError(
-                f"The number of edges in the graph needs to be greater or equal than {k}!"
+                f"The number of edges in the graph needs to be greater than or equal to {k}!"
             )
         solutions = []
         for edges in combinations(self.edges, k):
@@ -1055,7 +1055,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         check_min_rigid:
-            If ``True``, ``ValueError`` is raised if the graph is not minimally 2-rigid
+            If ``True``, a ``ValueError`` is raised if the graph is not minimally 2-rigid
             If ``False``, it is assumed that the user is inputing a minimally rigid graph.
 
         spherical_realizations:
@@ -1087,7 +1087,7 @@ class Graph(nx.Graph):
             import lnumber
 
             if check_min_rigid and not self.is_min_rigid():
-                raise ValueError("The graph must be minimally 2-rigid.")
+                raise ValueError("The graph must be minimally 2-rigid!")
 
             if self.number_of_nodes() == 1:
                 return 1
@@ -1108,7 +1108,7 @@ class Graph(nx.Graph):
             raise ImportError(
                 "For counting the number of realizations, "
                 "the optional package 'lnumber' is used, "
-                "run `pip install pyrigi[realization-counting]`."
+                "run `pip install pyrigi[realization-counting]`!"
             )
 
     @doc_category("Generic rigidity")
@@ -1634,7 +1634,7 @@ class Graph(nx.Graph):
         if not isinstance(combinatorial, bool):
             raise TypeError(
                 "combinatorial determines the method of rigidity-computation. "
-                "It needs to be a Boolean."
+                "It needs to be a Boolean!"
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
@@ -1659,7 +1659,7 @@ class Graph(nx.Graph):
         elif not combinatorial:
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
-                raise ValueError("The parameter prob is too large.")
+                raise ValueError("The parameter prob is too large!")
             from pyrigi.framework import Framework
 
             F = Framework.Random(self, dim, rand_range=[1, N])
@@ -1717,7 +1717,7 @@ class Graph(nx.Graph):
         if not isinstance(combinatorial, bool):
             raise TypeError(
                 "combinatorial determines the method of rigidity-computation. "
-                "It needs to be a Boolean."
+                "It needs to be a Boolean!"
             )
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
@@ -1743,7 +1743,7 @@ class Graph(nx.Graph):
         elif not combinatorial:
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
-                raise ValueError("The parameter prob is too large.")
+                raise ValueError("The parameter prob is too large!")
             from pyrigi.framework import Framework
 
             F = Framework.Random(self, dim, rand_range=[1, N])
@@ -1845,7 +1845,7 @@ class Graph(nx.Graph):
                 return F.stress_matrix(omega).rank() == n - dim - 1
             else:
                 raise ValueError(
-                    "There must be at least one stress but none was found."
+                    "There must be at least one stress but none was found!"
                 )
 
     @doc_category("Rigidity Matroid")
@@ -2291,12 +2291,12 @@ class Graph(nx.Graph):
         if self.number_of_edges() == 0:
             raise ValueError(
                 "The integer representation is only defined "
-                "for graphs with at least one edge."
+                "for graphs with at least one edge!"
             )
         if self.min_degree() == 0:
             raise ValueError(
                 "The integer representation only works "
-                "for graphs without isolated vertices."
+                "for graphs without isolated vertices!"
             )
         if nx.number_of_selfloops(self) == 0:
             M = self.adjacency_matrix(vertex_order)
@@ -2317,9 +2317,9 @@ class Graph(nx.Graph):
         of the integer representation.
         """
         if not isinstance(N, int):
-            raise TypeError(f"The parameter n has to be an integer, not {type(N)}.")
+            raise TypeError(f"The parameter n has to be an integer, not {type(N)}!")
         if N <= 0:
-            raise ValueError(f"The parameter n has to be positive, not {N}.")
+            raise ValueError(f"The parameter n has to be positive, not {N}!")
         L = bin(N)[2:]
         n = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)
         rows = []
@@ -2347,16 +2347,16 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1] and edges [[0, 1]]
         """
         if not M.is_square:
-            raise TypeError("The matrix is not square!")
+            raise ValueError("The matrix is not square!")
         if not M.is_symmetric():
-            raise TypeError("The matrix is not symmetric.")
+            raise ValueError("The matrix is not symmetric!")
 
         vertices = range(M.cols)
         edges = []
         for i, j in combinations(vertices, 2):
             if not (M[i, j] == 0 or M[i, j] == 1):
-                raise TypeError(
-                    "The provided adjacency matrix contains entries other than 0 and 1"
+                raise ValueError(
+                    "The provided adjacency matrix contains entries other than 0 and 1!"
                 )
             if M[i, j] == 1:
                 edges += [(i, j)]
@@ -2658,12 +2658,12 @@ class Graph(nx.Graph):
         """
         if edge not in self.edges or edge not in G2.edges:
             raise ValueError(
-                f"The edge {edge} is not in the intersection of the graphs."
+                f"The edge {edge} is not in the intersection of the graphs!"
             )
         # check if the intersection is a t-complete graph
         if not self.intersection(G2).is_isomorphic(nx.complete_graph(t)):
             raise ValueError(
-                f"The intersection of the graphs must be a {t}-complete graph."
+                f"The intersection of the graphs must be a {t}-complete graph!"
             )
         G = self + G2
         G.remove_edge(edge[0], edge[1])
@@ -2722,7 +2722,7 @@ class Graph(nx.Graph):
         elif layout_type == "spring":
             return nx.drawing.layout.spring_layout(self)
         else:
-            raise ValueError(f"layout_type {layout_type} is not supported.")
+            raise ValueError(f"layout_type {layout_type} is not supported!")
 
     @doc_category("Other")
     def plot(
@@ -2769,7 +2769,7 @@ class Graph(nx.Graph):
                 ]
             )
         ):
-            raise TypeError("The placement does not have the correct format")
+            raise TypeError("The placement does not have the correct format!")
         from pyrigi import Framework
 
         Framework(self, placement).plot(vertex_color=vertex_color, **kwargs)
