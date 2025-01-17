@@ -1,6 +1,6 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
-from pyrigi.exception import LoopError, DimensionValueError, DimensionCombinatorialValueError
+from pyrigi.exception import LoopError, DimensionValueError, DimensionCombinatorialValueError, NonNegativeIntParameterValueError
 import matplotlib.pyplot as plt
 
 import pytest
@@ -1100,8 +1100,6 @@ def test_loop_error(method, params):
 @pytest.mark.parametrize(
     "method, params",
     [
-        ["all_k_extensions", [1,2.1]],
-        ["all_k_extensions", [2,-1]],
         ["extension_sequence", [1.1]],
         ["extension_sequence", [0]],
         ["is_Rd_circuit", [2.1]],
@@ -1152,6 +1150,52 @@ def test_dimension_error(method, params):
         func = getattr(G, method)
         func(*params)
 
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["all_k_extensions", [1,2.1]],
+        ["all_k_extensions", [2,-1]],
+    ],
+)
+def test_iterator_dimension_error(method, params):
+    with pytest.raises(DimensionValueError):
+        G = Graph([[1, 2], [1, 3], [2, 3]])
+        func = getattr(G, method)
+        next(func(*params))
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["is_k_redundantly_rigid", [2.4,3]],
+        ["is_k_redundantly_rigid", [-2,4]],
+        ["is_k_vertex_redundantly_rigid", [3.7,2]],
+        ["is_k_vertex_redundantly_rigid", [-3,7]],
+        ["is_min_k_redundantly_rigid", [2.5,3]],
+        ["is_min_k_redundantly_rigid", [-1,4]],
+        ["is_min_k_vertex_redundantly_rigid", [2/3,2]],
+        ["is_min_k_vertex_redundantly_rigid", [-3,7]],
+        ["k_extension",[0.3,[1,2],[],4,2]],
+        ["k_extension",[-2,[1,2],[],4,3]],
+    ],
+)
+def test_parameter_error(method, params):
+    with pytest.raises(NonNegativeIntParameterValueError):
+        G = Graph([[1, 2], [1, 3], [2, 3]])
+        func = getattr(G, method)
+        func(*params)
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["all_k_extensions", [1.1,2]],
+        ["all_k_extensions", [-1,1]],
+    ],
+)
+def test_iterator_parameter_error(method, params):
+    with pytest.raises(NonNegativeIntParameterValueError):
+        G = Graph([[1, 2], [1, 3], [2, 3]])
+        func = getattr(G, method)
+        next(func(*params))
 
 @pytest.mark.parametrize(
     "method, params",
@@ -1247,7 +1291,7 @@ def test_all_k_extensions():
 
 
 def test_k_extension_error():
-    with pytest.raises(TypeError):
+    with pytest.raises(DimensionValueError):
         graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1], [0, 2]], dim=-1)
     with pytest.raises(ValueError):
         graphs.Complete(6).k_extension(2, [0, 1, 6], [[0, 1], [0, 6]], dim=1)

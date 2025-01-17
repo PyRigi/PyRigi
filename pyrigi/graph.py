@@ -837,6 +837,8 @@ class Graph(nx.Graph):
         """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise DimensionValueError(dim)
+        if not isinstance(k, int) or k < 0:
+            raise NonNegativeIntParameterValueError(k, "k")
         for vertex in vertices:
             if vertex not in self.nodes:
                 raise ValueError(f"Vertex {vertex} is not contained in the graph")
