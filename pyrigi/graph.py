@@ -1027,7 +1027,7 @@ class Graph(nx.Graph):
         Count the number of complex planar or spherical realizations
         of a minimally 2-rigid graph.
 
-        Algorithms of :cite:p:`CapcoGalletGraseggerEtAl2018` and
+        Algorithms of :cite:p:`CapcoGalletEtAl2018` and
         :cite:p:`GalletGraseggerSchicho2020` are used.
         Note, however, that here the result from these algorithms
         is by default divided by two.
@@ -1062,7 +1062,7 @@ class Graph(nx.Graph):
         count_reflection:
             If ``True``, the number of realizations is computed modulo direct isometries.
             But reflection is counted to be non-congruent as used in
-            :cite:p:`CapcoGalletGraseggerEtAl2018` and
+            :cite:p:`CapcoGalletEtAl2018` and
             :cite:p:`GalletGraseggerSchicho2020`.
             If ``False`` (default), reflection is not counted.
 
