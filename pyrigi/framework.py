@@ -1957,9 +1957,7 @@ class Framework(object):
         Realization {}
         """
         if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+            raise DimensionValueError(dim)
         F = Framework(graph=Graph(), realization={})
         F._dim = dim
         return F
