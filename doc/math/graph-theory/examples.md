@@ -30,7 +30,7 @@ Then either
 * $d=3$ and $G\in \{B_{3,2}\}\cup \mathcal{B}_{3,2}^+$ or
 * $d\geq 4$ and $G\in \{B_{d,d-1}$, $B_{d,d-2}\}\cup \mathcal{B}_{d,d-1}^+$.
 
-{{references}} {cite:p}`Grasegger2022`
+{{references}} {cite:p}`GraseggerGulerEtAl2022`
 :::
 
 
@@ -50,7 +50,7 @@ Suppose that $G=(V,E)$ is the $2$-sum of $G_1=(V_1,E_1)$ and $G_2=(V_2,E_2)$.
 Then $G$ is an $\mathcal{R}_d$-circuit if and only if $G_1$ and $G_2$ are both
 $\mathcal{R}_{d}$-circuits.
 
-{{references}} {cite:p}`Grasegger2022`
+{{references}} {cite:p}`GraseggerGulerEtAl2022`
 :::
 
 
@@ -61,7 +61,7 @@ A different generalization is as follows.
 
 Let $\mathcal{M}=(E,r)$ be a matroid with finite ground set $E$ and rank function $r$.
 A _circuit_ of $\mathcal{M}$ is a set $C\subseteq E$ such that $r(C)=|C|-1=r(C-e)$
-for all $e\in E$. Jackson, Nixon and Smith {cite:p}`Jackson2024` introduced a
+for all $e\in E$. Jackson, Nixon and Smith {cite:p}`JacksonNixonSmith2024` introduced a
 generalization to _$k$-fold circuits_ i.e. sets $D\subseteq E$ such that
 $r(D)=|D|-2=r(D-e)$ for all $e\in D$, for some fixed integer $k\geq 0$.
 
@@ -76,7 +76,7 @@ Then $G$ is a $k$-fold circuit in $\mathcal{R}_d$ if and only if $G_1$ is a $k_1
 $\mathcal{R}_d$-circuit and $G_2$ is a $k_2$-fold $\mathcal{R}_d$-circuit for some
 $k_1,k_2\geq 1$ with $k_1+k_2=k+1$.
 
-{{references}} {cite:p}`Jackson2024`
+{{references}} {cite:p}`JacksonNixonSmith2024`
 :::
 
 
@@ -135,7 +135,7 @@ that a $2$-dimensional framework $F=(G,p)$ on $G$ is _$C_k$-symmetric_, if
 $G$ is $\Gamma$-symmetric and for all $\delta \in \Gamma$ and $v\in V(G)$
 we have $\tau_k(\delta)\,p(v) = p(\delta v)$.
 
-{{references}} {cite:p}`LaPorta2024`
+{{references}} {cite:p}`LaPortaSchulze2024`
 :::
 
 :::{prf:definition} Counterexample for the symmetry-adjusted Laman count with a free group action
@@ -167,7 +167,7 @@ where $1\leq i\leq n$.
 {{pyrigi_crossref}} {func}`~.graphDB.CnSymmetricFourRegular`
 {func}`~.frameworkDB.CnSymmetricFourRegular`
 
-{{references}} {cite:p}`LaPorta2024`
+{{references}} {cite:p}`LaPortaSchulze2024`
 :::
 
 :::{prf:definition} Counterexample for the symmetry-adjusted Laman count which contains a joint at the origin
@@ -200,5 +200,5 @@ $n/2$-gons clockwise and anti-clockwise, respectively.
 {{pyrigi_crossref}} {func}`~.graphDB.CnSymmetricFourRegularWithFixedVertex`
 {func}`~.frameworkDB.CnSymmetricFourRegularWithFixedVertex`
 
-{{references}} {cite:p}`LaPorta2024`
+{{references}} {cite:p}`LaPortaSchulze2024`
 :::
