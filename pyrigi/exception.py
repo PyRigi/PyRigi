@@ -7,7 +7,7 @@ class DimensionValueError(ValueError):
     Error when the dimension is not a positive integer.
     """
     def __init__(self, dim, *args, **kwargs):
-        super().__init__("The dimension needs to be a positive integer, but is "+str(dim)+"!", *args, **kwargs)
+        super().__init__(f"The dimension needs to be a positive integer, but is {dim}!", *args, **kwargs)
 
 
 class DimensionCombinatorialValueError(ValueError):
@@ -20,3 +20,11 @@ class DimensionCombinatorialValueError(ValueError):
         elif isinstance(dim_expected, list):
             str_expected = "in "+str(dim_expected)
         super().__init__("The combinatorial computation is only available for dimension "+str_expected+", but is "+str(dim)+"!", *args, **kwargs)
+
+
+class NonNegativeIntParameterValueError(ValueError):
+    """
+    Error when a parameter is not a nonnegative integer.
+    """
+    def __init__(self, param, name: str = "k ", *args, **kwargs):
+        super().__init__(name+f" needs to be a nonnegative integer, but is {param}!", *args, **kwargs)

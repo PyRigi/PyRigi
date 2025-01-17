@@ -18,7 +18,7 @@ from random import randint
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 
 from pyrigi.misc import doc_category, generate_category_tables
-from pyrigi.exception import LoopError, DimensionValueError, DimensionCombinatorialValueError
+from pyrigi.exception import LoopError, DimensionValueError, DimensionCombinatorialValueError, NonNegativeIntParameterValueError
 import pyrigi._pebble_digraph
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
@@ -896,6 +896,8 @@ class Graph(nx.Graph):
         """
         if not isinstance(dim, int) or dim < 1:
             raise DimensionValueError(dim)
+        if not isinstance(k, int) or k < 0:
+            raise NonNegativeIntParameterValueError(k,"k")
         if self.number_of_nodes() < (dim + k):
             raise ValueError(
                 f"The number of nodes in the graph needs to be "
@@ -1162,8 +1164,8 @@ class Graph(nx.Graph):
         """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise DimensionValueError(dim)
-        if not isinstance(k, int):
-            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
+        if not isinstance(k, int) or k < 0:
+            raise NonNegativeIntParameterValueError(k,"k")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
@@ -1286,8 +1288,8 @@ class Graph(nx.Graph):
 
         if not isinstance(dim, int) or dim < 1:
             raise DimensionValueError(dim)
-        if not isinstance(k, int):
-            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
+        if not isinstance(k, int) or k < 0:
+            raise NonNegativeIntParameterValueError(k,"k")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
@@ -1415,8 +1417,8 @@ class Graph(nx.Graph):
         """  # noqa: E501
         if not isinstance(dim, int) or dim < 1:
             raise DimensionValueError(dim)
-        if not isinstance(k, int):
-            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
+        if not isinstance(k, int) or k < 0:
+            raise NonNegativeIntParameterValueError(k,"k")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
@@ -1530,8 +1532,8 @@ class Graph(nx.Graph):
 
         if not isinstance(dim, int) or dim < 1:
             raise DimensionValueError(dim)
-        if not isinstance(k, int):
-            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
+        if not isinstance(k, int) or k < 0:
+            raise NonNegativeIntParameterValueError(k,"k")
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
