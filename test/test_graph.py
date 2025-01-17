@@ -109,9 +109,8 @@ def test_is_not_rigid_d1(graph):
 
 @pytest.mark.parametrize(
     "graph, dim",
-    [[graphs.K66MinusPerfectMatching(), 3]] +
-    [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
-
+    [[graphs.K66MinusPerfectMatching(), 3]]
+    + [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
 )
 def test_is_rigid(graph, dim):
     assert graph.is_rigid(dim, combinatorial=(dim < 3))
@@ -261,6 +260,33 @@ def test_is_not_min_rigid_d2(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        graphs.Complete(3),
+        graphs.Complete(4),
+        graphs.Octahedral(),
+        graphs.K66MinusPerfectMatching(),
+    ],
+)
+def test_is_min_rigid_d3(graph):
+    assert graph.is_min_rigid(dim=3, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(5),
+        graphs.CubeWithDiagonal(),
+        graphs.CompleteBipartite(5, 5),
+        graphs.DoubleBanana(dim=3),
+        pytest.param(graphs.ThreeConnectedR3Circuit(), marks=pytest.mark.slow_main),
+    ],
+)
+def test_is_not_min_rigid_d3(graph):
+    assert not graph.is_min_rigid(dim=3, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
         graphs.Complete(2),
         graphs.Complete(3),
         graphs.Complete(4),
@@ -314,8 +340,8 @@ def read_globally(d_v_):
         [read_globally("D10V14"), 10],
         [read_globally("D19V20"), 19],
         [read_globally("D19V21"), 19],
-        [read_globally("D19V22"), 19],
-        [read_globally("D19V23"), 19],
+        pytest.param(read_globally("D19V22"), 19, marks=pytest.mark.slow_main),
+        pytest.param(read_globally("D19V23"), 19, marks=pytest.mark.slow_main),
     ],
 )
 def test_is_globally_rigid(graph, gdim):
@@ -1699,7 +1725,7 @@ def test_is_Rd_independent_d3(graph):
         [graphs.DoubleBanana(), 2],
         [graphs.CompleteMinusOne(5), 3],
         [graphs.Octahedral(), 3],
-        [graphs.K66MinusPerfectMatching(), 3]
+        [graphs.K66MinusPerfectMatching(), 3],
     ],
 )
 def test_max_rigid_dimension(graph, k):
