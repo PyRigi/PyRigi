@@ -2494,6 +2494,93 @@ class Framework(object):
         new_framework.rotate2D(angle, True)
         return new_framework
 
+    @doc_category("Framework manipulation")
+    def projected_realization(
+            self,
+            proj_dim: int = None,
+            projection_matrix: Matrix = None,
+            random_seed: int = None,
+            coordinates: Sequence[int] = None,
+    ) -> dict[Vertex, Point]:
+        """
+        Return the realization projected to a lower dimension.
+
+        Parameters
+        ----------
+        proj_dim:
+            The dimension to which the framework is projected.
+            This is determined from ``projection_matrix`` if it is provided.
+        projection_matrix:
+            The matrix used for projecting the placement of vertices.
+            The matrix must have dimensions ``(proj_dim, dim)``,
+            where ``dim`` is the dimension of the framework ``self``.
+            If ``None``, a numerical random projection matrix is generated.
+        random_seed:
+            The random seed used for generating the projection matrix.
+        coordinates:
+            Indices of coordinates to which projection is applied.
+            Providing the parameter overrides the previous ones.
+
+        Suggested Improvements
+        ----------------------
+        Generate random projection matrix over symbolic rationals.
+        """
+        if coordinates is not None:
+            if not isinstance(coordinates, tuple) and not isinstance(coordinates, list):
+                raise TypeError(
+                    "The parameter ``coordinates`` must be a tuple or a list."
+                )
+            if max(coordinates) >= self._dim:
+                raise ValueError(
+                    f"Index {np.max(coordinates)} out of range"
+                    + f" with placement in dim: {self._dim}."
+                )
+            if isinstance(proj_dim, int) and len(coordinates) != proj_dim:
+                raise ValueError(
+                    f"The number of coordinates ({len(coordinates)}) does not match"
+                    + f" proj_dim ({proj_dim})."
+                )
+            return {
+                v: tuple([pos[coord] for coord in coordinates])
+                for v, pos in self._realization.items()
+            }
+
+        if projection_matrix is not None:
+            projection_matrix = np.array(projection_matrix)
+            if projection_matrix.shape[1] != self._dim:
+                raise ValueError(
+                    "The projection matrix has wrong number of columns."
+                    + f"{projection_matrix.shape[1]} instead of {self._dim}."
+                )
+            if isinstance(proj_dim, int) and projection_matrix.shape[0] != proj_dim:
+                raise ValueError(
+                    "The projection matrix has wrong number of rows."
+                    + f"{projection_matrix.shape[0]} instead of {self._dim}."
+                )
+
+        if projection_matrix is None:
+            if proj_dim == 2:
+                projection_matrix = generate_two_orthonormal_vectors(
+                    self._dim, random_seed=random_seed
+                )
+            elif proj_dim == 3:
+                projection_matrix = generate_three_orthonormal_vectors(
+                    self._dim, random_seed=random_seed
+                )
+            else:
+                raise ValueError(
+                    "An automatically generated random matrix is supported"
+                    + f" only in dimension 2 or 3. {proj_dim} was given instead."
+                )
+            projection_matrix = projection_matrix.T
+
+        return {
+            vertex: tuple(np.dot(projection_matrix, np.array(position)))
+            for vertex, position in self.realization(
+                as_points=False, numerical=True
+            ).items()
+        }
+
     @doc_category("Other")
     def edge_lengths(self, numerical: bool = False) -> dict[Edge, Number]:
         """
