@@ -254,25 +254,25 @@ Cleaning is necessary especially to get the documentation updated
 after a change in docstrings.
 
 ### References
-We use a bib file to collect the metadat of references (```refs.bib```).
+We use a bib file to collect the metadata of references (`refs.bib`).
 In order to avoid duplicates and missing entries we use a consistent style.
 An item is labeled according to the following format
- - 1 author: ```SurnameYear```
- - 2 authors: ```SurnameSurnameYear```
- - 3 authors: ```SurnameSurnameSurnameYear```
- - 4 or more authors: ```SurnameSurnameEtAlYear```
+ - 1 author: `SurnameYear`
+ - 2 authors: `SurnameSurnameYear`
+ - 3 authors: `SurnameSurnameSurnameYear`
+ - 4 or more authors: `SurnameSurnameEtAlYear`
 
 where year is in YYYY format. Labels shall not have diacritical signs.
 The references shall be sorted in the file by label even though there is automatic sorting for the output.
 Within the metadata for one reference we keep the following order:
- - ```author``` (full names)
- - ```title```
- - ```journal```/```publisher```
- - ```volume```/```address```
- - ```number```
- - ```pages```
- - ```year```
- - ```doi```/```eprint``` (for published papers the ```doi``` shall be provided, for preprints an ```eprint``` identifier is fine)
+ - `author` (full names)
+ - `title`
+ - `journal`/`publisher`
+ - `volume`/`address`
+ - `number`
+ - `pages`
+ - `year`
+ - `doi`/`eprint` (for published papers the `doi` shall be provided, for preprints an `eprint` identifier is fine)
 
 ### Creating tutorials
 
