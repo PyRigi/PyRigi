@@ -2682,6 +2682,7 @@ class Graph(nx.Graph):
         else:
             return True
 
+    @doc_category("Generic rigidity")
     def neighbors_of_set(self, V: list[Vertex] | set[Vertex]):
         """
         Return the set of neighbors of a set of vertices of the graph.
@@ -2705,12 +2706,41 @@ class Graph(nx.Graph):
         >>> G.neighbors_of_set([3,4])
         {0, 1, 2}
 
-        """
+        """  # noqa: E501
         res = set()
         for v in V:
             if v in self.nodes():
                 res.update(self.neighbors(v))
         return res.difference(V)
+
+    @doc_category("Generic rigidity")
+    def clique(self, X: list[Vertex] | set[Vertex]):
+        """
+        Return the clique graph of self with respect of the set of vertices X.
+
+        Parameters
+        --------
+        X:
+            set or list of vertices
+
+        Examples
+        --------
+        >>> G = Graph([[0, 1], [0, 3], [0, 4], [1, 2], [1, 5], [2, 3], [2, 4], [3, 5]])
+        >>> G.clique([0,1,2,3])
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
+
+        """  # noqa: E501
+        H = deepcopy(self)
+        H.delete_vertices(X)
+        vert_conn_comp = list(nx.connected_components(H))
+        H = deepcopy(self)
+        for V in vert_conn_comp:
+            H.delete_vertices(V)
+            import pyrigi.graphDB as graphs
+
+            K = graphs.Complete(self.neighbors_of_set(V))
+            H += K
+        return H
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> Dict[Vertex, Point]:
