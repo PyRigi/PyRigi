@@ -157,30 +157,6 @@ class Graph(nx.Graph):
         """  # noqa: E501
         return Graph(nx.compose(self, other))
         
-    def __sub__(self, other: Graph):
-        r"""
-        Return the difference of self and other.
-
-        Examples
-        --------
-        >>> G = graphs.Complete(5)
-        >>> H = graphs.Complete(3)
-        >>> G-H
-        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> G = Graph([[0,1],[1,2],[2,0],[2,3],[3,0]])
-        >>> H = Graph([[0,1],[1,2]])
-        >>> G-H
-        Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]]
-        """  # noqa: E501
-        S = deepcopy(self)
-        S.delete_edges(list(other.edges()))
-        vertices_to_remove = []
-        for vertex in S.nodes():
-            if not any(vertex in edge for edge in S.edges()):
-                vertices_to_remove.append(vertex)
-        S.delete_vertices(vertices_to_remove)
-        return S
-
     @classmethod
     @doc_category("Class methods")
     def from_vertices_and_edges(
