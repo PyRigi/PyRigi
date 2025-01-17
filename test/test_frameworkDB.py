@@ -207,7 +207,6 @@ def test_CompleteBipartite():
         fws.CompleteBipartite(1.5, 2.5)
 
     F = fws.CompleteBipartite(3, 4)
-    print(F.edge_lengths().values())
     assert (
         F.dim() == 2
         and F._graph.number_of_nodes() == 7
