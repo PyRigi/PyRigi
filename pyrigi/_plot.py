@@ -30,29 +30,6 @@ def plot_inf_flex(  # noqa: C901
 ) -> None:
     """
     Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
-
-    Parameters
-    ----------
-    ax:
-    inf_flex:
-        Optional parameter for plotting a given infinitesimal flex. It is
-        important to use the same vertex order as the one
-        from :meth:`.Graph.vertex_list`.
-        Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
-        nontrivial infinitesimal flex for plotting.
-        Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
-        maps the vertex labels to vectors (i.e. a sequence of Numbers).
-    flex_width:
-        Width of the infinitesimal flex's arrowtail.
-    flex_length:
-        Length of the displayed flex relative to the total canvas
-        diagonal in percent. By default 15%.
-    flex_color:
-        The color of the infinitesimal flex is by default 'limegreen'.
-    flex_style:
-        Line Style: ``-``/``solid``, ``--``/``dashed``,
-        ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
-    projection_matrix:
     """
     if isinstance(inf_flex, int) and inf_flex >= 0:
         inf_flex_basis = framework.nontrivial_inf_flexes()
@@ -196,38 +173,6 @@ def plot_stress(  # noqa: C901
 ) -> None:
     """
     Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
-
-    Parameters
-    ----------
-    ax:
-    stress:
-        Optional parameter for plotting a given equilibrium stress. The standard
-        input format is a ``Matrix`` that is the output of e.g. the method
-        ``Framework.stresses``. Alternatively, an ``int`` can be specified
-        to directly choose the 0,1,2,...-th equilibrium stress (according
-        to the method ``Framework.stresses``) for plotting.
-        For these input types, is important to use the same edge order as the one
-        from :meth:`.Graph.edge_list`.
-        If the edge order needs to be specified, a ``Dict[Edge, Number]``
-        can be provided, which maps the edges to numbers
-        (i.e. coordinates).
-    points:
-        It is possible to provide an alternative realization.
-    stress_color:
-        Color of the font used to label the edges with stresses.
-    stress_fontsize:
-        Fontsize of the stress labels.
-    stress_label_pos:
-        Position of the stress label along the edge. `float` numbers
-        from the interval `[0,1]` are allowed. `0` represents the head
-        of the edge, `0.5` the center and `1` the edge's tail. The position
-        can either be specified for all edges equally or as a
-        `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
-    stress_rotate_labels:
-        A boolean indicating whether the stress label should be rotated.
-    stress_normalization:
-        A boolean indicating whether the stress values should be turned into
-        floating point numbers. If ``True``, the stress is automatically normalized.
     """
     stress_edgewise = None
     if isinstance(stress, int) and stress >= 0:
@@ -350,61 +295,7 @@ def plot_with_3D_realization(
     edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
 ) -> None:
     """
-    Plot the graph of the framework with the given realization in the plane.
-
-    For description of other parameters see :meth:`.Framework.plot`.
-
-    Parameters
-    ----------
-    inf_flex:
-        Optional parameter for plotting a given infinitesimal flex. It is
-        important to use the same vertex order as the one
-        from :meth:`.Graph.vertex_list`.
-        Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
-        nontrivial infinitesimal flex for plotting.
-        Lastly, a ``Dict[Vertex, Sequence[Number]]`` can be provided, which
-        maps the vertex labels to vectors (i.e. a sequence of coordinates).
-    projection_matrix:
-        The matrix used for projection.
-        The matrix must have dimensions ``(3, dim)``,
-        where ``dim`` is the dimension of the framework.
-    vertex_color:
-        The color of the vertices. The color can be a string or an rgb (or rgba)
-        tuple of floats from 0-1.
-    vertex_size:
-        The size of the vertices.
-    vertex_shape:
-        The shape of the vertices specified as as matplotlib.scatter
-        marker, one of ``so^>v<dph8``.
-    vertex_labels:
-        If ``True`` (default), vertex labels are displayed.
-    font_size:
-        The size of the font used for the labels.
-    font_color:
-        The color of the font used for the labels.
-    edge_width:
-    edge_color:
-        If a single color is given as a string or rgb (or rgba) tuple
-        of floats from 0-1, then all edges get this color.
-        If a (possibly incomplete) partition of the edges is given,
-        then each part gets a different color.
-        If a dictionary from colors to a list of edge is given,
-        edges are colored accordingly.
-        The edges missing in the partition/dictionary, are colored black.
-    edge_style:
-        Edge line style: ``-``/``solid``, ``--``/``dashed``,
-        ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
-    equal_aspect_ratio:
-        Determines whether the aspect ratio of the plot is equal in all space
-        directions or whether it is adjusted depending on the framework's size
-        in `x`, `y` and `z`-direction individually.
-    padding:
-        Specifies the white space around the framework.
-
-    Notes
-    -----
-    The parameters for `inf_flex`-plotting are listed in
-    the API reference.
+    Plot the framework with the given realization in the 3-space.
     """
     # Create a figure for the representation of the framework
 
@@ -467,11 +358,6 @@ def resolve_connection_style(
 ) -> dict[Edge, float]:
     """
     Resolve the connection style for the visualization of the framework.
-
-    Parameters
-    ----------
-    connection_style:
-        The connection style for the visualization of the framework.
     """
     G = framework._graph
 
@@ -594,24 +480,6 @@ def plot_with_2D_realization(
 ) -> None:
     """
     Plot the graph of the framework with the given realization in the plane.
-
-    For description of other parameters see :meth:`.Framework.plot`.
-
-    Parameters
-    ----------
-    realization:
-        The realization in the plane used for plotting.
-    inf_flex:
-        Optional parameter for plotting a given infinitesimal flex. It is
-        important to use the same vertex order as the one
-        from :meth:`.Graph.vertex_list`.
-        Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
-        nontrivial infinitesimal flex for plotting.
-        Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
-        maps the vertex labels to vectors (i.e. a sequence of coordinates).
-    stress:
-        Optional parameter for plotting an equilibrium stress. We expect
-        it to have the format `Dict[Edge, Number]`.
     """
     edge_color_array, edge_list_ref = resolve_edge_colors(
         framework, plot_style.edge_color, edge_coloring

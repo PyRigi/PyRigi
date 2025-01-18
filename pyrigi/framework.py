@@ -320,6 +320,9 @@ class Framework(object):
 
         Parameters
         ----------
+        plot_style:
+            An instance of the PlotStyle class that defines the visual style for plotting.
+            This can control the appearance of vertices, edges, fonts, stresses, and flexes.
         projection_matrix:
             The matrix used for projecting the placement of vertices
             only when they are in dimension higher than 2.
@@ -353,79 +356,19 @@ class Framework(object):
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
-        return_matrix:
-            If True the matrix used for projection into 2D is returned.
-        vertex_size:
-            The size of the vertices.
-        vertex_color:
-            The color of the vertices. The color can be a string or an rgb (or rgba)
-            tuple of floats from 0-1.
-        vertex_shape:
-            The shape of the vertices specified as as matplotlib.scatter
-            marker, one of ``so^>v<dph8``.
-        vertex_labels:
-            If ``True`` (default), vertex labels are displayed.
-        edge_width:
-        edge_color:
-            If a single color is given as a string or rgb (or rgba) tuple
-            of floats from 0-1, then all edges get this color.
-            If a (possibly incomplete) partition of the edges is given,
-            then each part gets a different color.
-            If a dictionary from colors to a list of edge is given,
-            edges are colored accordingly.
-            The edges missing in the partition/dictionary, are colored black.
-        edge_style:
-            Edge line style: ``-``/``solid``, ``--``/``dashed``,
-            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
-        flex_width:
-            The width of the infinitesimal flex's arrow tail.
-        flex_color:
-            The color of the infinitesimal flex is by default 'limegreen'.
-        flex_style:
-            Line Style: ``-``/``solid``, ``--``/``dashed``,
-            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
-        flex_length:
-            Length of the displayed flex relative to the total canvas
-            diagonal in percent. By default 15%.
-        flex_arrowsize:
-            Size of the arrowhead's length and width.
-        stress_color:
-            Color of the font used to label the edges with stresses.
-        stress_fontsize:
-            Fontsize of the stress labels.
-        stress_label_pos:
-            Position of the stress label along the edge. `float` numbers
-            from the interval `[0,1]` are allowed. `0` represents the head
-            of the edge, `0.5` the center and `1` the edge's tail. The position
-            can either be specified for all edges equally or as a
-            `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
-        stress_rotate_labels:
-            A boolean indicating whether the stress label should be rotated.
-        stress_normalization:
-            A boolean indicating whether the stress values should be turned into
-            floating point numbers. If ``True``, the stress is automatically normalized.
-        font_size:
-            The size of the font used for the labels.
-        font_color:
-            The color of the font used for the labels.
-        canvas_width:
-            The width of the canvas in inches.
-        canvas_height:
-            The height of the canvas in inches.
-        aspect_ratio:
-            The ratio of y-unit to x-unit. By default 1.0.
-        curved_edges:
-            If the edges are too close to each other, we can decide to
-            visualize them as arcs.
-        connection_style:
-            In case of curvilinear plotting (``curved_edges=True``), the edges
-            are displayed as arcs. With this parameter, we can set the
-            pitch of these arcs and it is in radians. It can either be
-            specified for each arc (``connection_style=0.5``) or individually
-            as a ``list`` and ``dict``
-            (``connection_style={(0,1):0.5, (1,2):-0.5}``). It is possible to
-            provide fewer edges when the input is a ``dict``; the remaining
-            edges are padded with zeros in that case.
+        edge_coloring:
+            Optional parameter to specify the coloring of edges. It can be
+            a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
+            or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
+            values are lists of edges.
+        stress_label_positions:
+            Dictionary specifying the position of stress labels along the edges. Keys are
+            ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
+            Ommited edges are given the value ``plot_style.stress_label_pos``.
+        connection_styles:
+            Optional parameter to specify custom connection styles for edges. Can be a
+            ``Sequence[float]`` or a ``dict[Edge, float]`` where values define the curvature
+            angle of edges in radians.
 
         Examples
         --------
@@ -735,29 +678,20 @@ class Framework(object):
 
         Parameters
         ----------
+        plot_style:
+            An instance of the PlotStyle class that defines the visual style for plotting.
+            This can control the appearance of vertices, edges, fonts, stresses, and flexes.
         projection_matrix:
-            The matrix used for projecting the realization of vertices
-            when the dimension is higher than 3.
-            The matrix must have dimensions ``(3, dim)``,
-            where ``dim`` is the dimension of the framework.
-            If ``None``, a random projection matrix is generated.
-        random_seed:
-            The seed used for generating a random projection matrix.
-        coordinates:
-            Indices of three coordinates to which the framework is projected.
-        return_matrix:
-            If ``True``, the matrix used for projection into 3D is returned.
-                projection_matrix:
             The matrix used for projecting the placement of vertices
-            only when they are in dimension higher than 2.
-            The matrix must have dimensions (2, dim),
+            only when they are in dimension higher than 3.
+            The matrix must have dimensions (3, dim),
             where dim is the dimension of the currect placements of vertices.
             If None, a random projection matrix is generated.
         random_seed:
             The random seed used for generating the projection matrix.
             When the same value is provided, the framework will plot exactly same.
         coordinates:
-            Indices of two coordinates that will be used as the placement in 2D.
+            Indices of two coordinates that will be used as the placement in 3D.
         inf_flex:
             Optional parameter for plotting a given infinitesimal flex. The standard
             input format is a ``Matrix`` that is the output of e.g. the method
@@ -780,74 +714,20 @@ class Framework(object):
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
-        return_matrix:
-            If True the matrix used for projection into 2D is returned.
-        vertex_size:
-            The size of the vertices.
-        vertex_color:
-            The color of the vertices. The color can be a string or an rgb (or rgba)
-            tuple of floats from 0-1.
-        vertex_shape:
-            The shape of the vertices specified as as matplotlib.scatter
-            marker, one of ``so^>v<dph8``.
-        vertex_labels:
-            If ``True`` (default), vertex labels are displayed.
-        edge_width:
-        edge_color:
-            If a single color is given as a string or rgb (or rgba) tuple
-            of floats from 0-1, then all edges get this color.
-            If a (possibly incomplete) partition of the edges is given,
-            then each part gets a different color.
-            If a dictionary from colors to a list of edge is given,
-            edges are colored accordingly.
-            The edges missing in the partition/dictionary, are colored black.
-        edge_style:
-            Edge line style: ``-``/``solid``, ``--``/``dashed``,
-            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
-        flex_width:
-            The width of the infinitesimal flex's arrow tail.
-        flex_color:
-            The color of the infinitesimal flex is by default 'limegreen'.
-        flex_style:
-            Line Style: ``-``/``solid``, ``--``/``dashed``,
-            ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
-        flex_length:
-            Length of the displayed flex relative to the total canvas
-            diagonal in percent. By default 15%.
-        flex_arrowsize:
-            Size of the arrowhead's length and width.
-        stress_color:
-            Color of the font used to label the edges with stresses.
-        stress_fontsize:
-            Fontsize of the stress labels.
-        stress_label_pos:
-            Position of the stress label along the edge. `float` numbers
-            from the interval `[0,1]` are allowed. `0` represents the head
-            of the edge, `0.5` the center and `1` the edge's tail. The position
-            can either be specified for all edges equally or as a
-            `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
-        stress_rotate_labels:
-            A boolean indicating whether the stress label should be rotated.
-        stress_normalization:
-            A boolean indicating whether the stress values should be turned into
-            floating point numbers. If ``True``, the stress is automatically normalized.
-        font_size:
-            The size of the font used for the labels.
-        font_color:
-            The color of the font used for the labels.
-        equal_aspect_ratio
-            Determines whether the aspect ratio of the plot is equal in all space
-            directions or whether it is adjusted depending on the framework's size
-            in `x`, `y` and `z`-direction individually.
-        padding:
-            Specifies the white space around the framework.
-        dpi:
-            Dots per inch of the produced graphic.
+        edge_coloring:
+            Optional parameter to specify the coloring of edges. It can be
+            a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
+            or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
+            values are lists of edges.
+        stress_label_positions:
+            Dictionary specifying the position of stress labels along the edges. Keys are
+            ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
+            Ommited edges are given the value ``plot_style.stress_label_pos``.
+        connection_styles:
+            Optional parameter to specify custom connection styles for edges. Can be a
+            ``Sequence[float]`` or a ``dict[Edge, float]`` where values define the curvature
+            angle of edges in radians.
 
-        Notes
-        -----
-        See :meth:`.Framework._plot_using_projection_matrix_3D` for a full
-        list of parameters.
 
         Examples
         --------
