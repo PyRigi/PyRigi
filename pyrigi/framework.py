@@ -322,7 +322,7 @@ class Framework(object):
         ----------
         plot_style:
             An instance of the PlotStyle class that defines the visual style for plotting.
-            This can control the appearance of vertices, edges, fonts, stresses, and flexes.
+            See :class:`PlotStyle` for more details.
         projection_matrix:
             The matrix used for projecting the placement of vertices
             only when they are in dimension higher than 2.
@@ -367,8 +367,8 @@ class Framework(object):
             Ommited edges are given the value ``plot_style.stress_label_pos``.
         connection_styles:
             Optional parameter to specify custom connection styles for edges. Can be a
-            ``Sequence[float]`` or a ``dict[Edge, float]`` where values define the curvature
-            angle of edges in radians.
+            ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
+            the curvature angle of edges in radians.
 
         Examples
         --------
@@ -410,7 +410,7 @@ class Framework(object):
         else:
             placement, projection_matrix = self.projected_realization(
                 projection_matrix=projection_matrix,
-                projection_coordinates=coordinates,
+                coordinates=coordinates,
                 proj_dim=2,
                 random_seed=random_seed,
             )
@@ -680,7 +680,7 @@ class Framework(object):
         ----------
         plot_style:
             An instance of the PlotStyle class that defines the visual style for plotting.
-            This can control the appearance of vertices, edges, fonts, stresses, and flexes.
+            See :class:`.PlotStyle` for more information.
         projection_matrix:
             The matrix used for projecting the placement of vertices
             only when they are in dimension higher than 3.
@@ -725,8 +725,8 @@ class Framework(object):
             Ommited edges are given the value ``plot_style.stress_label_pos``.
         connection_styles:
             Optional parameter to specify custom connection styles for edges. Can be a
-            ``Sequence[float]`` or a ``dict[Edge, float]`` where values define the curvature
-            angle of edges in radians.
+            ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
+            the curvature angle of edges in radians.
 
 
         Examples
@@ -760,7 +760,7 @@ class Framework(object):
         else:
             placement, projection_matrix = self.projected_realization(
                 projection_matrix=projection_matrix,
-                projection_coordinates=coordinates,
+                coordinates=coordinates,
                 proj_dim=3,
                 random_seed=random_seed,
             )
