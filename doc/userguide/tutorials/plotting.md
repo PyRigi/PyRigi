@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.4
+    jupytext_version: 1.16.6
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -88,29 +88,34 @@ There are various options to format a plot.
 Vertex color/size or label color/size can be changed.
 
 ```{code-cell} ipython3
+from pyrigi.plot_style import PlotStyle
+```
+
+```{code-cell} ipython3
 G = Graph([[0,1]])
-formatting = {
-    "placement": {0: [0,0], 1: [1,0]},
-    "canvas_height": 1,
-}
-G.plot(vertex_labels=False, vertex_color='green', **formatting)
-G.plot(vertex_size=1500, font_size=30, font_color='#FFFFFF', **formatting)
+plot_style = PlotStyle(
+    canvas_height=1,
+    vertex_color='blue'
+)
+p = {0: [0,0], 1: [1,0]}
+G.plot(plot_style, placement=p, vertex_labels=False, vertex_color='green')
+G.plot(plot_style, placement=p, vertex_size=1500, font_size=30, font_color='#FFFFFF')
 ```
 
 There are various styles of vertices and edges.
 
 ```{code-cell} ipython3
-formatting["vertex_labels"] = False
-G.plot(vertex_shape='s', edge_style='-', **formatting)
-G.plot(vertex_shape='o', edge_style='--', **formatting)
-G.plot(vertex_shape='^', edge_style='-.', **formatting)
-G.plot(vertex_shape='>', edge_style=':', **formatting)
-G.plot(vertex_shape='v', edge_style='solid', **formatting)
-G.plot(vertex_shape='<', edge_style='dashed', **formatting)
-G.plot(vertex_shape='d', edge_style='dashdot', **formatting)
-G.plot(vertex_shape='p', edge_style='dotted', **formatting)
-G.plot(vertex_shape='h', edge_width=3, **formatting)
-G.plot(vertex_shape='8', edge_width=5, **formatting)
+plot_style.update(vertex_labels= False)
+G.plot(plot_style, placement=p, vertex_shape='s', edge_style='-')
+G.plot(plot_style, placement=p, vertex_shape='o', edge_style='--')
+G.plot(plot_style, placement=p, vertex_shape='^', edge_style='-.')
+G.plot(plot_style, placement=p, vertex_shape='>', edge_style=':')
+G.plot(plot_style, placement=p, vertex_shape='v', edge_style='solid')
+G.plot(plot_style, placement=p, vertex_shape='<', edge_style='dashed')
+G.plot(plot_style, placement=p, vertex_shape='d', edge_style='dashdot')
+G.plot(plot_style, placement=p, vertex_shape='p', edge_style='dotted')
+G.plot(plot_style, placement=p, vertex_shape='h', edge_width=3)
+G.plot(plot_style, placement=p, vertex_shape='8', edge_width=5)
 ```
 
 ## Edge coloring
@@ -119,34 +124,34 @@ The color of all edges can be changed.
 
 ```{code-cell} ipython3
 P = graphs.Path(6)
-formatting = {
-    "placement": {v: [v, 0] for v in P.vertex_list()},
-    "canvas_height": 2,
-    "edge_width": 5,
-}
-P.plot(edge_color='red', **formatting)
+plot_style = PlotStyle(
+    canvas_height=2,
+    edge_width=5,
+)
+p = {v: [v, 0] for v in P.vertex_list()}
+P.plot(plot_style, placement=p, edge_color='red')
 ```
 
 If a partition of the edges is specified, then each part is colored differently.
 
 ```{code-cell} ipython3
-P.plot(edge_color=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]], **formatting)
+P.plot(plot_style, placement=p, edge_coloring=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]])
 ```
 
 If the partition is incomplete, the missing edges are black.
 
 ```{code-cell} ipython3
-P.plot(edge_color=[[[0, 1], [2, 3]], [[5, 4], [4, 3]]], **formatting)
+P.plot(plot_style, placement=p, edge_coloring=[[[0, 1], [2, 3]], [[5, 4], [4, 3]]])
 ```
 
 Visually distinct colors are generated using the package [`distinctipy`](https://pypi.org/project/distinctipy/).
 
 ```{code-cell} ipython3
 P30 = graphs.Path(30)
-P30.plot(
+P30.plot( 
     vertex_size=15,
     vertex_labels=False,
-    edge_color=[[e] for e in P30.edge_list()],
+    edge_coloring=[[e] for e in P30.edge_list()],
     edge_width=3
 )
 ```
@@ -154,12 +159,12 @@ P30.plot(
 Another possibility is to provide a dictionary assigning to a color a list of edges. Missing edges are again black.
 
 ```{code-cell} ipython3
-P.plot(
-    edge_color={
-        "yellow": [[0, 1], [2, 3]],
-        "#ABCDEF": [[5, 4], [4, 3]]
-    },
-    **formatting
+P.plot(plot_style,
+       placement=p,
+        edge_coloring={
+            "yellow": [[0, 1], [2, 3]],
+            "#ABCDEF": [[5, 4], [4, 3]]
+        },
 )
 ```
 
@@ -181,14 +186,14 @@ F.plot(
     vertex_color='#A2B4C6',
     edge_style='dashed',
     edge_width=2,
-    edge_color={"pink": [[0,1],[3,6]], "lightgreen": [[2, 3], [3, 5]]}
+    edge_coloring={"pink": [[0,1],[3,6]], "lightgreen": [[2, 3], [3, 5]]}
 )
 ```
 
 ### Collinear Configurations
 
 For collinear configurations and frameworks in $\RR$, the edges are automatically visualized 
-as arcs in $\RR^2$ 
+as arcs in $\RR^2$
 
 ```{code-cell} ipython3
 F = Framework.Complete([[0],[1],[2]])
@@ -201,18 +206,18 @@ radians as a ``float`` if the same pitch for every arc is desired and a ``list[f
 
 ```{code-cell} ipython3
 F = Framework.Complete([[1],[3],[0],[2]])
-F.plot(connection_style={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
+F.plot(connection_styles={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
 ```
 
 We can also enhance the visualization of other configurations using the
 parameter ``curved_edges``. This is particularly useful for almost or piecewise
 collinear configurations, but of course, it can also be applied to arbitrary frameworks.
 It is possible fewer edges in the ``dict``; the remaining edges are than padded with
-zeros. 
+zeros.
 
 ```{code-cell} ipython3
 F = frameworks.CnSymmetricFourRegular(n=8)
-F.plot(curved_edges=True, connection_style={(i,i+1): -0.15 for i in range(7)} | {(0,7):0.15})
+F.plot(curved_edges=True, connection_style=0, connection_styles={(i,i+1): -0.15 for i in range(7)} | {(0,7):0.15})
 ```
 
 ### Infinitesimal Flexes
@@ -221,7 +226,7 @@ It is possible to include infinitesimal flexes in the plot. With the keyword
 `inf_flex=n`, we can pick the `n`-th nontrivial infinitesimal flex from
 a basis of the rigidity matrix's kernel. There are several keywords that allow
 us to alter the style of the drawn arrows. A full list of the optional plotting
-parameters can be found in the API reference: {meth}`~.Framework.plot2D`. 
+parameters can be found in the API reference: {meth}`~.Framework.plot2D`.
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
@@ -270,7 +275,7 @@ rigidity matrix. We can specify the positions of the stress labels using the key
 or individually using a `dict[DirectedEdge, float]`. This `float` specifies the position on
 the line segment given by the edges. The missing edges labels are automatically
 centered on the edge. A full list of the optional plotting parameters can be found in
-the API reference: {meth}`~.Framework.plot2D`. 
+the API reference: {meth}`~.Framework.plot2D`.
 
 ```{code-cell} ipython3
 F = frameworks.Frustum(3)
@@ -279,7 +284,7 @@ F.plot(
     stress=0,
     stress_color = "orangered",
     stress_fontsize = 11,
-    stress_label_pos = {(3,5): 0.6, (3,4):0.4, (4,5):0.4},
+    stress_label_positions = {(3,5): 0.6, (3,4):0.4, (4,5):0.4},
     stress_rotate_labels = False
 )
 ```
@@ -298,7 +303,7 @@ The other possible keywords can be found in the corresponding API reference: {me
 
 ```{code-cell} ipython3
 F = frameworks.Complete(4, dim=3)
-F.plot3D(equal_aspect_ratio=True)
+F.plot3D()
 ```
 
 In addition, it is possible to animate a rotation sequence around a specified axis:
@@ -322,5 +327,9 @@ be looked up in the corresponding API reference: {meth}`.Framework.plot3D`.
 
 ```{code-cell} ipython3
 F = frameworks.Octahedron(realization="Bricard_plane")
-F.plot(inf_flex=0, stress=0, equal_aspect_ratio=True, flex_length=0.6, stress_fontsize=10)
+F.plot(inf_flex=0, stress=0, flex_length=0.6, stress_fontsize=10)
+```
+
+```{code-cell} ipython3
+
 ```
