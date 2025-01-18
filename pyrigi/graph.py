@@ -2664,24 +2664,15 @@ class Graph(nx.Graph):
         >>> H.is_separating_pair(1,3)
         True
         """
-        G_ = self.copy()
-        G_.delete_vertices([u, v])
-        # G_ must not be connected...
-        if nx.is_k_edge_connected(G_, 1):
-            return False
-        # ...there are:
-        # neither exactly two components resulting one of which consists of a single edge
-        elif len(nx.k_components(G_)[1]) == 2 and (
-            len(nx.k_components(G_)[1][0]) == 2 or len(nx.k_components(G_)[1][1]) == 2
-        ):
-            return False
-        # nor exactly three components resulting each of which consists of a single edge
-        elif len(nx.k_components(G_)[1]) == 3 and G_.is_isomorphic(
-            Graph([[1, 2], [3, 4], [5, 6]])
-        ):
-            return False
-        else:
+        # self must be a 2-connected graph
+        if not nx.is_biconnected(self):
+            raise ValueError("The input graph must be 2-connected.")
+        H = self.copy()
+        H.delete_vertices([u, v])
+        if not nx.is_connected(H):
             return True
+        else:
+            return False
 
     @doc_category("Generic rigidity")
     def neighbors_of_set(self, V: list[Vertex] | set[Vertex]):
