@@ -2774,6 +2774,9 @@ class Graph(nx.Graph):
         """
         Plot the graph.
 
+        To distinguish :meth:`~Framework.plot` from this method,
+        the `vertex_color` has a different default value.
+
         Parameters
         ----------
         plot_style:
@@ -2785,9 +2788,7 @@ class Graph(nx.Graph):
         layout:
             The possibilities are ``spring`` (default), ``circular``,
             ``random`` or ``planar``, see also :meth:`~Graph.layout`.
-        vertex_color:
-            To distinguish :meth:`~Framework.plot` from this method,
-            the `vertex_color` has a different default value.
+
 
         Methods
         -------

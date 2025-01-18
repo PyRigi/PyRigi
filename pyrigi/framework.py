@@ -380,6 +380,8 @@ class Framework(object):
         """
         if plot_style is None:
             plot_style = PlotStyle()
+        else:
+            plot_style = deepcopy(plot_style)
 
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
@@ -738,6 +740,8 @@ class Framework(object):
         if plot_style is None:
             # change some PlotStyle default values to fit 3D plotting better
             plot_style = PlotStyle(vertex_size=200, flex_length=0.75)
+        else:
+            plot_style = deepcopy(plot_style)
 
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
@@ -801,6 +805,7 @@ class Framework(object):
     @doc_category("Plotting")
     def plot(
         self,
+        plot_style: PlotStyle = None,
         **kwargs,
     ) -> Optional[Matrix]:
         """
@@ -812,8 +817,11 @@ class Framework(object):
         use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
         For various formatting options, see :meth:`.Graph.plot`.
         """
+        if plot_style is None:
+            plot_style = PlotStyle()
+
         if self._dim == 3:
-            return self.plot3D(**kwargs)
+            return self.plot3D(plot_style=plot_style, **kwargs)
         elif self._dim > 3:
             raise ValueError(
                 "This framework is in higher dimension than 3!"
@@ -821,7 +829,7 @@ class Framework(object):
                 + " for projection into 3D use F.plot3D()."
             )
         else:
-            return self.plot2D(**kwargs)
+            return self.plot2D(plot_style=plot_style, **kwargs)
 
     @doc_category("Other")
     def to_tikz(
