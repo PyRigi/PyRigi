@@ -2659,11 +2659,12 @@ class Graph(nx.Graph):
         >>> G = Graph([[0,1],[1,2],[2,0],[2,3],[3,0]])
         >>> G.is_separating_pair(1,3)
         False
-        >>> G = graphs.Cycle(5)
-        >>> G.is_separating_pair(1,3)
+        >>> import pyrigi.graphDB as graphs
+        >>> H = graphs.Cycle(5)
+        >>> H.is_separating_pair(1,3)
         True
         """
-        G_ = deepcopy(self)
+        G_ = self.copy()
         G_.delete_vertices([u, v])
         # G_ must not be connected...
         if nx.is_k_edge_connected(G_, 1):
@@ -2728,12 +2729,15 @@ class Graph(nx.Graph):
         >>> G = Graph([[0, 1], [0, 3], [0, 4], [1, 2], [1, 5], [2, 3], [2, 4], [3, 5]])
         >>> G.clique([0,1,2,3])
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
+        >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]])
+        >>> G.clique([0,1,4,5,6,7,8,11,12])
+        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
 
         """  # noqa: E501
-        H = deepcopy(self)
+        H = self.copy()
         H.delete_vertices(X)
         vert_conn_comp = list(nx.connected_components(H))
-        H = deepcopy(self)
+        H = self.copy()
         for V in vert_conn_comp:
             H.delete_vertices(V)
             import pyrigi.graphDB as graphs
@@ -2752,7 +2756,7 @@ class Graph(nx.Graph):
         if nx.node_connectivity(self) >= 3:
             return self
         else:
-            augmented_G = deepcopy(self)
+            augmented_G = self.copy()
             cutsets = list(nx.all_node_cuts(self))
             augmented_G.add_edges(cutsets)
             tricomp = nx.k_components(augmented_G)[3]
@@ -2789,8 +2793,8 @@ class Graph(nx.Graph):
                 "u and v must be a non-adjacent pair of vertices of the graph."
             )
         H = self._part_of_block_3(u, v)
-        K = deepcopy(self)
-        F = deepcopy(self)
+        K = self.copy()
+        F = self.copy()
         K.delete_vertices(H.nodes())
         import pyrigi.graphDB as graphs
 
