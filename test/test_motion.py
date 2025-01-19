@@ -159,12 +159,27 @@ def test_ParametricMotion_init():
 
 
 def test_ApproximateMotion_init():
-    ApproximateMotion.from_framework(fws.Cycle(4), 100)
+    ApproximateMotion.from_framework(fws.Cycle(4), 10)
+    F = fws.Cycle(5)
+    ApproximateMotion(F.graph(), F.realization(as_points=True, numerical=True), 1, 1)
 
 
 @pytest.mark.slow_main
 def test_animate():
     F = fws.Square()
-    M = ApproximateMotion(F.graph(), F.realization(as_points=True, numerical=True), 118, 0.075)
-    assert np.linalg.norm([u-v for u,v in zip(sum([list(val) for val in M.motion_samples[0].values()],[]), sum([list(val) for val in M.motion_samples[-1].values()],[]))])<1e-2
+    M = ApproximateMotion(
+        F.graph(), F.realization(as_points=True, numerical=True), 167, 0.075
+    )
+    assert (
+        np.linalg.norm(
+            [
+                u - v
+                for u, v in zip(
+                    sum([list(val) for val in M.motion_samples[0].values()], []),
+                    sum([list(val) for val in M.motion_samples[-1].values()], []),
+                )
+            ]
+        )
+        < 1e-2
+    )
     M.animate()

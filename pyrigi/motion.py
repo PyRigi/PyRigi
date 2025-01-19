@@ -29,7 +29,7 @@ class Motion(object):
 
     def __repr__(self) -> str:
         return self.__str__()
-    
+
     @staticmethod
     def _normalize_realizations(
         realizations: Sequence[dict[Vertex, Point]],
@@ -106,16 +106,19 @@ class Motion(object):
 
         if self._dim != 2:
             raise ValueError("This motion is not in dimension 2!")
-        if self.__class__.__name__=="ParametricMotion":
+        if self.__class__.__name__ == "ParametricMotion":
             lower, upper = self._interval
             if lower == -np.inf or upper == np.inf:
                 realizations = self._realization_sampling(sampling, use_tan=True)
             else:
                 realizations = self._realization_sampling(sampling)
-        elif self.__class__.__name__=="ApproximateMotion":
+        elif self.__class__.__name__ == "ApproximateMotion":
             realizations = self.motion_samples
         else:
-            raise AttributeError("The method `animate` is not yet implemented for the class {self.__class__.__name__}")
+            raise AttributeError(
+                "The method `animate` is not yet implemented for "
+                + "the class {self.__class__.__name__}"
+            )
 
         realizations = self._normalize_realizations(realizations, width, height, 15)
 
@@ -170,6 +173,7 @@ class Motion(object):
             with open(filename, "wt") as file:
                 file.write(svg)
         return SVG(data=svg)
+
 
 class ParametricMotion(Motion):
     """
@@ -341,7 +345,9 @@ class ApproximateMotion(Motion):
     initial_step_length:
         The step size of each retraction step.
     edge_lengths:
-        The edge lengths that ought to be preserved. 
+        The edge lengths that ought to be preserved.
+    chosen_flex:
+        An integer indicating the chosen flex.
 
     Examples
     --------
@@ -359,7 +365,12 @@ class ApproximateMotion(Motion):
     """  # noqa: E501
 
     def __init__(
-        self, graph: Graph, starting_configuration: dict[Vertex, Point], steps: int, step_length: float = 0.1
+        self,
+        graph: Graph,
+        starting_configuration: dict[Vertex, Point],
+        steps: int,
+        step_length: float = 0.1,
+        chosen_flex: int = 0,
     ) -> None:
         """
         Creates an instance.
@@ -371,10 +382,16 @@ class ApproximateMotion(Motion):
                 "The realization does not contain the correct amount of vertices!"
             )
 
-        self._starting_configuration = {v: tuple([float(sp.sympify(pt).evalf(15)) for pt in p]) for v, p in starting_configuration.items()}
+        self._starting_configuration = {
+            v: tuple([float(sp.sympify(pt).evalf(15)) for pt in p])
+            for v, p in starting_configuration.items()
+        }
         p0 = list(self._starting_configuration.values())[0]
         # Translate to the origin
-        self._starting_configuration = {v: tuple([pt[i]-p0[i] for i in range(len(pt))]) for v,pt in self._starting_configuration.items()}
+        self._starting_configuration = {
+            v: tuple([pt[i] - p0[i] for i in range(len(pt))])
+            for v, pt in self._starting_configuration.items()
+        }
         self._dim = len(list(self._starting_configuration.values())[0])
         for v in self._graph.nodes:
             if v not in starting_configuration:
@@ -387,30 +404,70 @@ class ApproximateMotion(Motion):
 
         self.motion_samples = [self._starting_configuration]
         self.steps = steps
+        self.chosen_flex = chosen_flex
         self.initial_step_length = step_length
         self._current_step_length = step_length
         F = Framework(self._graph, self._starting_configuration)
         self.edge_lengths = F.edge_lengths(numerical=True)
-        cur_inf_flex = normalize_flex(F._transform_inf_flex_to_pointwise(F.inf_flexes()[0]))
-        for i in range(steps):
+        cur_inf_flex = normalize_flex(
+            F._transform_inf_flex_to_pointwise(F.inf_flexes()[chosen_flex]),
+            numerical=True,
+        )
+        i = 1
+        while i < steps:
             euler_step, cur_inf_flex = self._euler_step(cur_inf_flex)
             self.motion_samples.append(self._newton_steps(euler_step))
             # Reject the step if the step size is not close to what we expect
-            if any([np.linalg.norm([p1-p2 for p1,p2 in zip(self.motion_samples[-1][v], self.motion_samples[-2][v])])>self.initial_step_length for v in self._graph.nodes]):
-                self._current_step_length=self._current_step_length/2
+            if any(
+                [
+                    np.linalg.norm(
+                        [
+                            p1 - p2
+                            for p1, p2 in zip(
+                                self.motion_samples[-1][v], self.motion_samples[-2][v]
+                            )
+                        ]
+                    )
+                    > self.initial_step_length
+                    for v in self._graph.nodes
+                ]
+            ):
+                self._current_step_length = self._current_step_length / 2
                 self.motion_samples.pop()
-                i = i-1
-            elif all([np.linalg.norm([p1-p2 for p1,p2 in zip(self.motion_samples[-1][v], self.motion_samples[-2][v])])<self.initial_step_length/1.5 for v in self._graph.nodes]):
-                self._current_step_length=self._current_step_length*2
+                i = i - 1
+            elif all(
+                [
+                    np.linalg.norm(
+                        [
+                            p1 - p2
+                            for p1, p2 in zip(
+                                self.motion_samples[-1][v], self.motion_samples[-2][v]
+                            )
+                        ]
+                    )
+                    < self.initial_step_length / 2
+                    for v in self._graph.nodes
+                ]
+            ):
+                self._current_step_length = self._current_step_length * 1.5
                 self.motion_samples.pop()
-                i = i-1
-    
+                i = i - 1
+            i = i + 1
+
     @classmethod
-    def from_framework(cls, F: Framework, steps: int, step_length: float = 0.001):
+    def from_framework(
+        cls, F: Framework, steps: int, step_length: float = 0.01, chosen_flex: int = 0
+    ):
         """
         Instantiates an ``ApproximateMotion`` from a ``Framework``.
         """
-        return ApproximateMotion(F.graph(), F.realization(as_points=True, numerical=True), steps, step_length)
+        return ApproximateMotion(
+            F.graph(),
+            F.realization(as_points=True, numerical=True),
+            steps,
+            step_length,
+            chosen_flex,
+        )
 
     def _euler_step(self, old_inf_flex: InfFlex) -> tuple[dict[Vertex, Point], InfFlex]:
         """
@@ -420,23 +477,88 @@ class ApproximateMotion(Motion):
         that was used in the computation as a tuple.
         """
         F = Framework(self._graph, self.motion_samples[-1])
-        inf_flex = normalize_flex(F._transform_inf_flex_to_pointwise(F.inf_flexes()[0]))
-        if any([np.linalg.norm([float(sp.sympify(q-w).evalf(15)) for q,w in zip(inf_flex[v], old_inf_flex[v])])>1 for v in inf_flex.keys()]):
-            inf_flex = {v: [-pt for pt in p] for v,p in inf_flex.items()}
+        inf_flex = normalize_flex(
+            F._transform_inf_flex_to_pointwise(F.inf_flexes()[self.chosen_flex]),
+            numerical=True,
+        )
+        if any(
+            [
+                np.linalg.norm([q - w for q, w in zip(inf_flex[v], old_inf_flex[v])])
+                > 1
+                for v in inf_flex.keys()
+            ]
+        ):
+            inf_flex = {v: [-pt for pt in p] for v, p in inf_flex.items()}
         point = self.motion_samples[-1]
-        return {v: tuple([p[i]+self._current_step_length*inf_flex[v][i] for i in range(len(point[v]))]) for v, p in point.items()}, inf_flex
+        return {
+            v: tuple(
+                [
+                    p[i] + self._current_step_length * inf_flex[v][i]
+                    for i in range(len(point[v]))
+                ]
+            )
+            for v, p in point.items()
+        }, inf_flex
 
-    def _newton_steps(self, realization: dict[Vertex, Point]) -> dict[Vertex, Point]: 
+    def _newton_steps(self, realization: dict[Vertex, Point]) -> dict[Vertex, Point]:
         F = Framework(self._graph, realization)
         cur_sol = np.array(sum([list(p) for p in realization.values()], []))
-        while not all([np.isclose(L, self.edge_lengths[e], atol=1e-4) for e, L in F.edge_lengths(numerical=True).items()]):
+        cur_error = prev_error = sum(
+            [
+                np.abs(L - self.edge_lengths[e])
+                for e, L in F.edge_lengths(numerical=True).items()
+            ]
+        )
+        damping = 1e-1
+        while not cur_error < 1e-6:
             mat = np.array(F.rigidity_matrix()).astype(np.float64)
-            equations = [np.linalg.norm([float(sp.sympify(v-w).evalf(15)) for v, w in zip(cur_sol[(self._dim*e[0]):(self._dim*(e[0]+1))], cur_sol[(self._dim*e[1]):(self._dim*(e[1]+1))])])-self.edge_lengths[e] for e in self.edge_lengths.keys()]
+            equations = [
+                np.linalg.norm(
+                    [
+                        v - w
+                        for v, w in zip(
+                            cur_sol[(self._dim * e[0]) : (self._dim * (e[0] + 1))],
+                            cur_sol[(self._dim * e[1]) : (self._dim * (e[1] + 1))],
+                        )
+                    ]
+                )
+                - self.edge_lengths[e]
+                for e in self.edge_lengths.keys()
+            ]
             newton_step = np.dot(np.linalg.pinv(mat), equations)
-            new_sol = [float(sp.sympify(cur_sol[i] - 1e-2*newton_step[i]).evalf(15)) for i in range(len(cur_sol))]
-            cur_sol = sum([[new_sol[i+j] - new_sol[j] for j in range(self._dim)] for i in range(0,len(new_sol),self._dim)], [])
-            F = Framework(self._graph, {i: [cur_sol[(self._dim*i):(self._dim*(i+1))]] for i in range(len(realization.keys()))})
-        return({i: tuple(cur_sol[(self._dim*i):(self._dim*(i+1))]) for i in range(len(realization.keys()))})
+            new_sol = [
+                cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
+            ]
+            cur_sol = sum(
+                [
+                    [new_sol[i + j] - new_sol[j] for j in range(self._dim)]
+                    for i in range(0, len(new_sol), self._dim)
+                ],
+                [],
+            )
+            F = Framework(
+                self._graph,
+                {
+                    i: [cur_sol[(self._dim * i) : (self._dim * (i + 1))]]
+                    for i in range(len(realization.keys()))
+                },
+            )
+            cur_error = sum(
+                [
+                    np.abs(L - self.edge_lengths[e])
+                    for e, L in F.edge_lengths(numerical=True).items()
+                ]
+            )
+            if cur_error < prev_error:
+                damping = 1.25 * damping
+            else:
+                damping = damping / 2
+            prev_error = cur_error
+
+        return {
+            i: tuple(cur_sol[(self._dim * i) : (self._dim * (i + 1))])
+            for i in range(len(realization.keys()))
+        }
 
     def __str__(self) -> str:
         res = super().__str__() + " with starting configuration\n"

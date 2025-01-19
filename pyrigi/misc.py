@@ -182,16 +182,30 @@ def eval_sympy_vector(vector: Sequence[Number], tolerance: float = 1e-9) -> list
     ]
 
 
-def normalize_flex(inf_flex: InfFlex, numerical:bool=False) -> InfFlex:
+def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
     """
     Divides a vector by its Euclidean norm.
     """
     if isinstance(inf_flex, dict):
-        complete_flex = sum(list(inf_flex.values()),[])
-        flex_norm = np.linalg.norm(complete_flex) if numerical else sp.sqrt(sum([q**2 for q in complete_flex]))
-        return {v: tuple([pt/flex_norm for pt in q]) for v, q in inf_flex.items()}
+        if numerical:
+            _inf_flex = {
+                v: [float(sp.sympify(q).evalf(15)) for q in flex]
+                for v, flex in inf_flex.items()
+            }
+            flex_norm = np.linalg.norm(sum(_inf_flex.values(), []))
+            return {
+                v: tuple([pt / flex_norm for pt in q]) for v, q in _inf_flex.items()
+            }
+        flex_norm = sp.sqrt(
+            sum([q**2 for q in sum([list(val) for val in inf_flex.values()], [])])
+        )
+        return {v: tuple([pt / flex_norm for pt in q]) for v, q in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
-        flex_norm = np.linalg.norm(inf_flex) if numerical else sp.sqrt(sum([q**2 for q in inf_flex]))
-        return [q/flex_norm for q in inf_flex]
+        if numerical:
+            _inf_flex = [float(sp.sympify(q).evalf(15)) for q in _inf_flex]
+            flex_norm = np.linalg.norm(_inf_flex)
+            return [q / flex_norm for q in _inf_flex]
+        flex_norm = sp.sqrt(sum([q**2 for q in inf_flex]))
+        return [q / flex_norm for q in inf_flex]
     else:
         raise TypeError("`inf_flex` does not have the correct type.")
