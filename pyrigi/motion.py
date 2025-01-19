@@ -403,10 +403,11 @@ class ApproximateMotion(Motion):
                 )
 
         self.motion_samples = [self._starting_configuration]
+        cur_sol = self._starting_configuration
         self.steps = steps
         self.chosen_flex = chosen_flex
         self.initial_step_length = step_length
-        self._current_step_length = step_length
+        self._current_step_length = step_length / 3
         F = Framework(self._graph, self._starting_configuration)
         self.edge_lengths = F.edge_lengths(numerical=True)
         cur_inf_flex = normalize_flex(
@@ -415,41 +416,48 @@ class ApproximateMotion(Motion):
         )
         i = 1
         while i < steps:
-            euler_step, cur_inf_flex = self._euler_step(cur_inf_flex)
-            self.motion_samples.append(self._newton_steps(euler_step))
+            euler_step, cur_inf_flex = self._euler_step(cur_inf_flex, cur_sol)
+            cur_sol = self._newton_steps(euler_step)
+            self.motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
-            if any(
-                [
-                    np.linalg.norm(
-                        [
-                            p1 - p2
-                            for p1, p2 in zip(
-                                self.motion_samples[-1][v], self.motion_samples[-2][v]
-                            )
-                        ]
-                    )
-                    > self.initial_step_length
-                    for v in self._graph.nodes
-                ]
+            if (
+                np.linalg.norm(
+                    [
+                        np.linalg.norm(
+                            [
+                                p1 - p2
+                                for p1, p2 in zip(
+                                    self.motion_samples[-1][v],
+                                    self.motion_samples[-2][v],
+                                )
+                            ]
+                        )
+                        for v in self._graph.nodes
+                    ]
+                )
+                > self.initial_step_length * 2
             ):
                 self._current_step_length = self._current_step_length / 2
                 self.motion_samples.pop()
                 i = i - 1
-            elif all(
-                [
-                    np.linalg.norm(
-                        [
-                            p1 - p2
-                            for p1, p2 in zip(
-                                self.motion_samples[-1][v], self.motion_samples[-2][v]
-                            )
-                        ]
-                    )
-                    < self.initial_step_length / 2
-                    for v in self._graph.nodes
-                ]
+            elif (
+                np.linalg.norm(
+                    [
+                        np.linalg.norm(
+                            [
+                                p1 - p2
+                                for p1, p2 in zip(
+                                    self.motion_samples[-1][v],
+                                    self.motion_samples[-2][v],
+                                )
+                            ]
+                        )
+                        for v in self._graph.nodes
+                    ]
+                )
+                < self.initial_step_length / 2
             ):
-                self._current_step_length = self._current_step_length * 1.5
+                self._current_step_length = self._current_step_length * 2
                 self.motion_samples.pop()
                 i = i - 1
             i = i + 1
@@ -469,22 +477,28 @@ class ApproximateMotion(Motion):
             chosen_flex,
         )
 
-    def _euler_step(self, old_inf_flex: InfFlex) -> tuple[dict[Vertex, Point], InfFlex]:
+    def _euler_step(
+        self, old_inf_flex: InfFlex, realization: dict[Vertex, Point]
+    ) -> tuple[dict[Vertex, Point], InfFlex]:
         """
         Computes a single Euler step.
 
         This method returns the resulting configuration and the infinitesimal flex
         that was used in the computation as a tuple.
         """
-        F = Framework(self._graph, self.motion_samples[-1])
+        F = Framework(self._graph, realization)
         inf_flex = normalize_flex(
             F._transform_inf_flex_to_pointwise(F.inf_flexes()[self.chosen_flex]),
             numerical=True,
         )
-        if any(
+        if np.linalg.norm(
             [
                 np.linalg.norm([q - w for q, w in zip(inf_flex[v], old_inf_flex[v])])
-                > 1
+                for v in inf_flex.keys()
+            ]
+        ) > 1.5 * np.linalg.norm(
+            [
+                np.linalg.norm([-q - w for q, w in zip(inf_flex[v], old_inf_flex[v])])
                 for v in inf_flex.keys()
             ]
         ):
@@ -509,8 +523,8 @@ class ApproximateMotion(Motion):
                 for e, L in F.edge_lengths(numerical=True).items()
             ]
         )
-        damping = 1e-1
-        while not cur_error < 1e-6:
+        damping = 5e-2
+        while not cur_error < 1e-4:
             mat = np.array(F.rigidity_matrix()).astype(np.float64)
             equations = [
                 np.linalg.norm(
@@ -549,8 +563,8 @@ class ApproximateMotion(Motion):
                     for e, L in F.edge_lengths(numerical=True).items()
                 ]
             )
-            if cur_error < prev_error:
-                damping = 1.25 * damping
+            if cur_error <= prev_error:
+                damping = damping * 1.25
             else:
                 damping = damping / 2
             prev_error = cur_error
