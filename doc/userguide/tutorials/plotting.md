@@ -217,7 +217,7 @@ zeros.
 
 ```{code-cell} ipython3
 F = frameworks.CnSymmetricFourRegular(n=8)
-F.plot(curved_edges=True, connection_style=0, connection_styles={(i,i+1): -0.15 for i in range(7)} | {(0,7):0.15})
+F.plot(curved_edges=True, connection_style=0, connection_styles={(i,i+1):0.15 for i in range(7)} | {(0,7):-0.15})
 ```
 
 ### Infinitesimal Flexes
