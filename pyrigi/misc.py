@@ -3,8 +3,9 @@ Module for miscellaneous functions.
 """
 
 import math
-from pyrigi.data_type import Sequence, Number, point_to_vector
+from pyrigi.data_type import Sequence, Number, point_to_vector, InfFlex
 from sympy import Matrix
+import sympy as sp
 import numpy as np
 from math import isclose, log10
 
@@ -179,3 +180,18 @@ def eval_sympy_vector(vector: Sequence[Number], tolerance: float = 1e-9) -> list
         float(coord.evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))))
         for coord in point_to_vector(vector)
     ]
+
+
+def normalize_flex(inf_flex: InfFlex, numerical:bool=False) -> InfFlex:
+    """
+    Divides a vector by its Euclidean norm.
+    """
+    if isinstance(inf_flex, dict):
+        complete_flex = sum(list(inf_flex.values()),[])
+        flex_norm = np.linalg.norm(complete_flex) if numerical else sp.sqrt(sum([q**2 for q in complete_flex]))
+        return {v: tuple([pt/flex_norm for pt in q]) for v, q in inf_flex.items()}
+    elif isinstance(inf_flex, Sequence):
+        flex_norm = np.linalg.norm(inf_flex) if numerical else sp.sqrt(sum([q**2 for q in inf_flex]))
+        return [q/flex_norm for q in inf_flex]
+    else:
+        raise TypeError("`inf_flex` does not have the correct type.")

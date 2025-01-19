@@ -1,6 +1,8 @@
-from pyrigi.motion import ParametricMotion
+from pyrigi.motion import ParametricMotion, ApproximateMotion
 import pyrigi.graphDB as graphs
+import pyrigi.frameworkDB as fws
 import sympy as sp
+import numpy as np
 import pytest
 
 
@@ -154,3 +156,15 @@ def test_ParametricMotion_init():
     }
     with pytest.raises(ValueError):
         ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
+
+
+def test_ApproximateMotion_init():
+    ApproximateMotion.from_framework(fws.Cycle(4), 100)
+
+
+@pytest.mark.slow_main
+def test_animate():
+    F = fws.Square()
+    M = ApproximateMotion(F.graph(), F.realization(as_points=True, numerical=True), 118, 0.075)
+    assert np.linalg.norm([u-v for u,v in zip(sum([list(val) for val in M.motion_samples[0].values()],[]), sum([list(val) for val in M.motion_samples[-1].values()],[]))])<1e-2
+    M.animate()
