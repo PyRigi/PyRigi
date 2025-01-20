@@ -117,7 +117,7 @@ def test_realization():
     assert abs(tmp[1] - (-63 / 65)) < 1e-9
 
 
-def test_parmot_init():
+def test_ParametricMotion_init():
     mot = {
         0: ("k", "0"),
         1: ("1", "0"),

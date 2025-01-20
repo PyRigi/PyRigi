@@ -146,8 +146,21 @@ veeeeery long docstring that has to violate the 90 characters limit due to a ref
 
 Tests are extremely important to guarantee the realiability of code.
 Please create tests for the functionalities that you implement and place them in the `test` folder, within the appropriate file.
-Each test should be in the form of a method starting with `test_`.
-Tests can be parametrized, see for instance `test_inf_rigid` in `test_framework.py`.
+Each test should be in the form of a function starting with `test_`.
+Tests can be parametrized, see for instance `test_is_inf_rigid` in `test_framework.py`.
+
+Please, follow this naming convention for tests of a specific function/method:
+
+| function  | test name        | test...
+|-----------|------------------|---------------------------------------
+| `foo`     | `test_foo`       | the functionality of `foo`
+| `foo(dim)`| `test_foo_d1`    | the functionality of `foo` for `dim=1`
+| `foo`     | `test_foo_error` | that `foo` raises correct errors
+| `is_bar`  | `test_is_bar`    | that property `bar` holds
+| `is_bar`  | `test_is_not_bar`| that property `bar` does not hold
+
+There can be also more complex tests, i.e., testing more than a single method;
+please, choose a reasonable name for them following the idea above.
 
 Moreover, please add a section `EXAMPLES` in the docstring of the classes and methods that you introduce and provide there examples of the functionalities you implemented.
 
@@ -175,8 +188,8 @@ We mark tests that take longer time according to the following table:
 | marker               | per test | total time | execution
 | -------------------- | -------- | ---------- | -------------------
 | standard (no marker) | < 0.5s   | < 2 min    | on merge/PR to `dev`
-| `slow_main`            | < 10s    | < 15 min   | on merge/PR to `main`
-| `long_local`           | > 10s    | hours      | locally when needed
+| `slow_main`          | < 10s    | < 15 min   | on merge/PR to `main`
+| `long_local`         | > 10s    | hours      | locally when needed
 
 The column `total time` indicates how much time is needed to run all tests with the given marker.
 The time limits per tests are approximate: it is better to have a longer standard tests than none.
@@ -253,6 +266,27 @@ make html
 ```
 Cleaning is necessary especially to get the documentation updated
 after a change in docstrings.
+
+### References
+We use a bib file to collect the metadata of references (`refs.bib`).
+In order to avoid duplicates and missing entries we use a consistent style.
+An item is labeled according to the following format
+ - 1 author: `SurnameYear`
+ - 2 authors: `SurnameSurnameYear`
+ - 3 authors: `SurnameSurnameSurnameYear`
+ - 4 or more authors: `SurnameSurnameEtAlYear`
+
+where year is in YYYY format. Labels shall not have diacritical signs.
+The references shall be sorted in the file by label even though there is automatic sorting for the output.
+Within the metadata for one reference we keep the following order:
+ - `author` (full names)
+ - `title`
+ - `journal`/`publisher`
+ - `volume`/`address`
+ - `number`
+ - `pages`
+ - `year`
+ - `doi`/`eprint` (for published papers the `doi` shall be provided, for preprints an `eprint` identifier is fine)
 
 ### Creating tutorials
 

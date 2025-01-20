@@ -4,6 +4,7 @@ import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
 from pyrigi.data_type import point_to_vector
+import matplotlib.pyplot as plt
 
 from copy import deepcopy
 
@@ -41,7 +42,7 @@ from sympy import Matrix, pi, sqrt, sympify
     + [fws.Complete(n, dim=n) for n in range(1, 10)]
     + [fws.Complete(n + 1, dim=n) for n in range(1, 10)],
 )
-def test_inf_rigid(framework):
+def test_is_inf_rigid(framework):
     assert framework.is_inf_rigid()
 
 
@@ -84,7 +85,7 @@ def test_check_vertex_and_edge_order():
     + [fws.Cycle(n, dim=n) for n in range(4, 10)]
     + [fws.Cycle(n + 1, dim=n) for n in range(3, 10)],
 )
-def test_not_inf_rigid(framework):
+def test_is_not_inf_rigid(framework):
     assert not framework.is_inf_rigid()
 
 
@@ -109,7 +110,7 @@ def test_not_inf_rigid(framework):
     + [fws.Complete(n, dim=n) for n in range(1, 7)]
     + [fws.Complete(n + 1, dim=n) for n in range(1, 7)],
 )
-def test_inf_min_rigid(framework):
+def test_is_min_inf_rigid(framework):
     assert framework.is_min_inf_rigid()
 
 
@@ -147,7 +148,7 @@ def test_inf_min_rigid(framework):
     + [fws.Cycle(n, dim=n) for n in range(4, 7)]
     + [fws.Cycle(n + 1, dim=n) for n in range(3, 7)],
 )
-def test_not_min_inf_rigid(framework):
+def test_is_not_min_inf_rigid(framework):
     assert not framework.is_min_inf_rigid()
 
 
@@ -489,7 +490,7 @@ def test_is_quasi_injective():
     assert F6.is_quasi_injective()
 
 
-def test_framework_loops():
+def test_loop_error():
     with pytest.raises(LoopError):
         G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
         F = Framework(G, {1: (0, 0), 2: (1, 1), 3: (2, 0)})
@@ -687,28 +688,83 @@ def test_plot_error(realization):
     with pytest.raises(ValueError):
         F.plot()
 
+    plt.close()
 
-def test_plot2D_error():
+
+def test_plot():
+    F = Framework(graphs.Complete(2), {0: [1, 0], 1: [0, 1]})
+    F.plot()
+
+    F = Framework(graphs.Complete(2), {0: [1, 0, 0], 1: [0, 1, 1]})
+    F.plot()
+
+    plt.close("all")
+
+
+def test_plot2D():
     F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
     with pytest.raises(ValueError):
         F.plot2D(projection_matrix=[[1, 0], [0, 1], [0, 0]])
+    F.plot2D(projection_matrix=[[1, 0, 0, 0], [0, 1, 0, 0]])
 
     F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
     with pytest.raises(ValueError):
         F.plot2D(projection_matrix=[[1, 0], [0, 1]])
+    F.plot2D()
 
+    F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
     with pytest.raises(ValueError):
-        F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0]})
+        F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0], 2: [0, 0, 0]})
+    F.plot2D(inf_flex=0)
+
+    F = fws.Complete(4)
+    F.plot2D(stress=0)
+
+    F = fws.Complete(4, dim=1)
+    F.plot2D(stress=0)
+
+    plt.close("all")
 
 
-def test_plot3D_error():
+def test_plot3D():
     F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
     with pytest.raises(ValueError):
         F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1], [0, 0, 0]])
+    F.plot3D()
 
     F = Framework(graphs.Complete(2), {0: [0, 0, 0, 0], 1: [1, 0, 0, 0]})
     with pytest.raises(ValueError):
         F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1]])
+    F.plot3D(projection_matrix=[[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]])
+
+    F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
+    F.plot3D(inf_flex=0)
+
+    F = fws.Octahedron(realization="Bricard_plane")
+    F.plot3D(inf_flex=0, stress=0)
+
+    F = fws.Complete(4)
+    F.plot3D(stress=0)
+
+    F = fws.Complete(4, dim=1)
+    F.plot3D(stress=0)
+
+    plt.close("all")
+
+
+def test_animate3D():
+    F = fws.Complete(4, dim=3)
+    F.animate3D()
+
+    F = fws.Complete(3)
+    with pytest.raises(ValueError):
+        F.animate3D()
+
+    F = fws.Complete(5, dim=4)
+    with pytest.raises(ValueError):
+        F.animate3D()
+
+    plt.close("all")
 
 
 def test_rigidity_matrix():

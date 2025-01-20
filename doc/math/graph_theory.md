@@ -26,7 +26,7 @@ The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and 
 {{pyrigi_crossref}} {meth}`~.Graph.is_sparse`
 {meth}`~.Graph.is_tight`
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 :::
 
 
@@ -61,5 +61,4 @@ is called a $d$-dimensional _k-extension_ of $G$.
 
 :::{toctree}
 :maxdepth: 2
-graph-theory/known-families
-graph-theory/double-banana
+graph-theory/examples
