@@ -765,7 +765,11 @@ class Framework(object):
         centroid_y = sum([p[1] for p in placement.values()]) / len(placement)
         centroid_z = sum([p[2] for p in placement.values()]) / len(placement)
         _placement = {
-            v: [p[0] - centroid_x, p[1] - centroid_y, p[2] - centroid_z]
+            v: [
+                plot_style.axis_scales[0] * (p[0] - centroid_x),
+                plot_style.axis_scales[1] * (p[1] - centroid_y),
+                plot_style.axis_scales[2] * (p[2] - centroid_z),
+            ]
             for v, p in placement.items()
         }
 
