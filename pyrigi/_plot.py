@@ -111,7 +111,6 @@ def plot_inf_flex2D(
     points: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
     plot_style: PlotStyle2D = None,
-    **kwargs,
 ) -> None:
     """
     Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
@@ -153,7 +152,6 @@ def plot_inf_flex2D(
         width=plot_style.flex_width,
         edge_color=plot_style.flex_color,
         style=plot_style.flex_style,
-        **kwargs,
     )
 
 
@@ -171,6 +169,14 @@ def plot_inf_flex3D(
     inf_flex_pointwise = resolve_inf_flex(
         framework, inf_flex, points, projection_matrix
     )
+    x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
+    y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
+    z_canvas_width = ax.get_zlim()[1] - ax.get_zlim()[0]
+    arrow_length = (
+        np.sqrt(x_canvas_width**2 + y_canvas_width**2 + z_canvas_width**2)
+        * plot_style.flex_length
+    )
+
     for v in inf_flex_pointwise.keys():
         ax.quiver(
             points[v][0],
@@ -182,7 +188,7 @@ def plot_inf_flex3D(
             color=plot_style.flex_color,
             lw=plot_style.flex_width,
             linestyle=plot_style.flex_style,
-            length=plot_style.flex_length,
+            length=arrow_length,
             arrow_length_ratio=0.35,
         )
 
@@ -259,7 +265,6 @@ def plot_stress2D(
     points: dict[Vertex, Point] = None,
     arc_angles_dict: dict[Edge, float] = None,
     stress_label_positions: dict[Edge, float] = None,
-    **kwargs,
 ) -> None:
     """
     Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
@@ -297,7 +302,6 @@ def plot_stress2D(
                 ),
                 rotate=plot_style.stress_rotate_labels,
                 connectionstyle=f"Arc3, rad = {e[2]['weight']}",
-                **kwargs,
             )
     else:
         for edge in framework._graph.edges:
@@ -320,7 +324,6 @@ def plot_stress2D(
                     else 1 - stress_label_positions[tuple(edge[::-1])]
                 ),
                 rotate=plot_style.stress_rotate_labels,
-                **kwargs,
             )
 
 
@@ -331,7 +334,6 @@ def plot_stress3D(
     plot_style: PlotStyle,
     points: dict[Vertex, Point] = None,
     stress_label_positions: dict[Edge, float] = None,
-    **kwargs,
 ) -> None:
     stress_edgewise, stress_label_positions = resolve_stress(
         framework, stress, plot_style, stress_label_positions
@@ -354,7 +356,6 @@ def plot_stress3D(
             fontsize=plot_style.stress_fontsize,
             ha="center",
             va="center",
-            **kwargs,
         )
 
 
@@ -374,10 +375,15 @@ def plot_with_3D_realization(
         framework, plot_style.edge_color, edge_coloring
     )
 
-    # Draw the vertices as points in the 3D environment
+    # Center the realization
     x_nodes = [realization[node][0] for node in framework._graph.nodes]
     y_nodes = [realization[node][1] for node in framework._graph.nodes]
     z_nodes = [realization[node][2] for node in framework._graph.nodes]
+    min_val = min(x_nodes + y_nodes + z_nodes) - plot_style.padding
+    max_val = max(x_nodes + y_nodes + z_nodes) + plot_style.padding
+    ax.set_zlim(min_val, max_val)
+    ax.set_ylim(min_val, max_val)
+    ax.set_xlim(min_val, max_val)
     ax.scatter(
         x_nodes,
         y_nodes,
@@ -386,12 +392,6 @@ def plot_with_3D_realization(
         s=plot_style.vertex_size,
         marker=plot_style.vertex_shape,
     )
-
-    min_val = min(x_nodes + y_nodes + z_nodes) - plot_style.padding
-    max_val = max(x_nodes + y_nodes + z_nodes) + plot_style.padding
-    ax.set_zlim(min_val, max_val)
-    ax.set_ylim(min_val, max_val)
-    ax.set_xlim(min_val, max_val)
 
     for i in range(len(edge_list_ref)):
         edge = edge_list_ref[i]
@@ -547,7 +547,6 @@ def plot_with_2D_realization(
     plot_style: PlotStyle2D,
     edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
-    **kwargs,
 ) -> None:
     """
     Plot the graph of the framework with the given realization in the plane.

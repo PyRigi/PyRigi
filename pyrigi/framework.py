@@ -508,18 +508,16 @@ class Framework(object):
         edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
             self, edge_color, edge_coloring
         )
-
+        realization = self.realization(as_points=True, numerical=True)
+        centroid_x = sum([p[0] for p in realization.values()]) / len(realization)
+        centroid_y = sum([p[1] for p in realization.values()]) / len(realization)
+        centroid_z = sum([p[2] for p in realization.values()]) / len(realization)
+        realization = {
+            v: [p[0] - centroid_x, p[1] - centroid_y, p[2] - centroid_z]
+            for v, p in realization.items()
+        }
         # Limits of the axes
-        abs_list = [list(abs(i)) for i in self._realization.values()]
-        abs_list = [max(abs_list[i]) for i in range(len(abs_list))]
-
-        vertices = np.array(
-            [
-                list(list(self.realization(numerical=True).values())[i])
-                for i in range(self._graph.number_of_nodes())
-            ]
-        )
-
+        vertices = np.array(list(realization.values()))
         # Initializing points (vertices) and lines (edges) for display
         (vertices_plot,) = ax.plot(
             [], [], [], vertex_shape, color=vertex_color, markersize=vertex_size
@@ -732,7 +730,7 @@ class Framework(object):
         """
         if plot_style is None:
             # change some PlotStyle default values to fit 3D plotting better
-            plot_style = PlotStyle3D(vertex_size=200, flex_length=0.75)
+            plot_style = PlotStyle3D(vertex_size=175, flex_length=0.2)
         else:
             plot_style = PlotStyle3D.from_plot_style(plot_style)
 
@@ -762,12 +760,21 @@ class Framework(object):
                 random_seed=random_seed,
             )
 
+        # Center the realization
+        centroid_x = sum([p[0] for p in placement.values()]) / len(placement)
+        centroid_y = sum([p[1] for p in placement.values()]) / len(placement)
+        centroid_z = sum([p[2] for p in placement.values()]) / len(placement)
+        _placement = {
+            v: [p[0] - centroid_x, p[1] - centroid_y, p[2] - centroid_z]
+            for v, p in placement.items()
+        }
+
         from pyrigi import _plot
 
         _plot.plot_with_3D_realization(
             self,
             ax,
-            placement,
+            _placement,
             plot_style,
             edge_coloring=edge_coloring,
         )
@@ -777,7 +784,7 @@ class Framework(object):
                 self,
                 ax,
                 inf_flex,
-                points=placement,
+                points=_placement,
                 plot_style=plot_style,
                 projection_matrix=projection_matrix,
             )
@@ -787,7 +794,7 @@ class Framework(object):
                 self,
                 ax,
                 stress,
-                points=placement,
+                points=_placement,
                 plot_style=plot_style,
                 stress_label_positions=stress_label_positions,
             )
@@ -807,9 +814,6 @@ class Framework(object):
         use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
         For various formatting options, see :meth:`.Graph.plot`.
         """
-        if plot_style is None:
-            plot_style = PlotStyle()
-
         if self._dim == 3:
             return self.plot3D(plot_style=plot_style, **kwargs)
         elif self._dim > 3:

@@ -83,7 +83,7 @@ class PlotStyle(object):
         font_color: str = "whitesmoke",
         canvas_width: float = 6.4,
         canvas_height: float = 4.8,
-        dpi: int = 200,
+        dpi: int = 175,
     ):
         self.vertex_size = vertex_size
         self.vertex_color = vertex_color

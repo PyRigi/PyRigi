@@ -200,24 +200,25 @@ F = Framework.Complete([[0],[1],[2]])
 F.plot()
 ```
 
-Using the keyword ``connection_style``, we are able to specify the pitch of the individual arcs. This parameter can be specified in
+Using the keyword ``arc_angles_dict``, we are able to specify the pitch of the individual arcs. This parameter can be specified in
 radians as a ``float`` if the same pitch for every arc is desired and a ``list[float]`` or a
 ``dict[Edge, float]`` if the pitch is supposed to be provided for each arc individually.
 
 ```{code-cell} ipython3
 F = Framework.Complete([[1],[3],[0],[2]])
-F.plot(connection_styles={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
+F.plot(arc_angles_dict={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
 ```
 
 We can also enhance the visualization of other configurations using the
-parameter ``curved_edges``. This is particularly useful for almost or piecewise
+boolean ``edges_as_arcs``. This is particularly useful for visualizing almost or piecewise
 collinear configurations, but of course, it can also be applied to arbitrary frameworks.
 It is possible fewer edges in the ``dict``; the remaining edges are than padded with
-zeros.
+the default value ``arc_angle=math.pi/6``. Here, we want to have some straight edges, so we
+redefine the ``arc_angle`` as $0$.
 
 ```{code-cell} ipython3
 F = frameworks.CnSymmetricFourRegular(n=8)
-F.plot(curved_edges=True, connection_style=0, connection_styles={(i,i+1):0.15 for i in range(7)} | {(0,7):-0.15})
+F.plot(edges_as_arcs=True, arc_angle=0, arc_angles_dict={(i,i+1):0.15 for i in range(7)} | {(0,7):-0.15})
 ```
 
 ### Infinitesimal Flexes
@@ -226,7 +227,7 @@ It is possible to include infinitesimal flexes in the plot. With the keyword
 `inf_flex=n`, we can pick the `n`-th nontrivial infinitesimal flex from
 a basis of the rigidity matrix's kernel. There are several keywords that allow
 us to alter the style of the drawn arrows. A full list of the optional plotting
-parameters can be found in the API reference: {meth}`~.Framework.plot2D`.
+parameters can be found in the API reference: {class}`~.PlotStyle`.
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
@@ -275,7 +276,7 @@ rigidity matrix. We can specify the positions of the stress labels using the key
 or individually using a `dict[DirectedEdge, float]`. This `float` specifies the position on
 the line segment given by the edges. The missing edges labels are automatically
 centered on the edge. A full list of the optional plotting parameters can be found in
-the API reference: {meth}`~.Framework.plot2D`.
+the API reference: {class}`~.PlotStyle`.
 
 ```{code-cell} ipython3
 F = frameworks.Frustum(3)
@@ -287,6 +288,14 @@ F.plot(
     stress_label_positions = {(3,5): 0.6, (3,4):0.4, (4,5):0.4},
     stress_rotate_labels = False
 )
+```
+
+The visualization of equilibrium stresses can be combined with the plotting of
+collinear configurations from a previous section that displays edges as curved arcs.
+
+```{code-cell} ipython3
+F = Framework.Complete([[1],[3],[0],[2]])
+F.plot(stress=0, arc_angles_dict={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
 ```
 
 ## Plotting in 3 Dimensions
@@ -323,13 +332,9 @@ If this behavior is underirable, we suggest reevaluating the affected cells.
 It is also possible to plot infinitesimal flexes and equilibrium stresses in 3D using the
 `inf_flex` and `stress` keywords, respectively. For details, the entire list of parameters
 concerning infinitesimal flexes and equilibrium stresses can
-be looked up in the corresponding API reference: {meth}`.Framework.plot3D`.
+be looked up in the corresponding API reference: {class}`~.PlotStyle`.
 
 ```{code-cell} ipython3
 F = frameworks.Octahedron(realization="Bricard_plane")
-F.plot(inf_flex=0, stress=0, flex_length=0.6, stress_fontsize=10)
-```
-
-```{code-cell} ipython3
-
+F.plot(inf_flex=0, stress=0, flex_length=0.2, stress_fontsize=10)
 ```
