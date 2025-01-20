@@ -19,7 +19,7 @@ class PlotStyle(object):
         If ``True`` (default), vertex labels are displayed.
     edge_width:
     edge_color:
-        A color given as a string (name like ``"green" or  hex ``"#00ff00"``).
+        A color given as a string (name like ``"green"`` or  hex ``"#00ff00"``).
         For specifying a different color for each edge,
         see parameter ``edge_coloring`` in :meth:`.Framework.plot2D`.
     edge_style:
