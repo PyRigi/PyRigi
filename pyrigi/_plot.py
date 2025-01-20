@@ -267,7 +267,7 @@ def plot_stress2D(
     stress_edgewise, stress_label_positions = resolve_stress(
         framework, stress, plot_style, stress_label_positions
     )
-
+    print(stress_edgewise)
     if plot_style.curved_edges:
         new_graph = nx.MultiDiGraph()
         connection_style = resolve_connection_style(
@@ -282,10 +282,20 @@ def plot_stress2D(
                 new_graph,
                 ax=ax,
                 pos=points,
-                edge_labels={edge: stress_edgewise[edge]},
+                edge_labels={
+                    edge: (
+                        stress_edgewise[edge]
+                        if edge in stress_edgewise
+                        else stress_edgewise[tuple(edge[::-1])]
+                    )
+                },
                 font_color=plot_style.stress_color,
                 font_size=plot_style.stress_fontsize,
-                label_pos=stress_label_positions[edge],
+                label_pos=(
+                    stress_label_positions[edge]
+                    if edge in stress_label_positions
+                    else 1.0 - stress_label_positions[tuple(edge[::-1])]
+                ),
                 rotate=plot_style.stress_rotate_labels,
                 connectionstyle=f"Arc3, rad = {e[2]['weight']}",
                 **kwargs,
@@ -296,10 +306,20 @@ def plot_stress2D(
                 framework._graph,
                 ax=ax,
                 pos=points,
-                edge_labels={edge: stress_edgewise[edge]},
+                edge_labels={
+                    edge: (
+                        stress_edgewise[edge]
+                        if edge in stress_edgewise
+                        else stress_edgewise[tuple(edge[::-1])]
+                    )
+                },
                 font_color=plot_style.stress_color,
                 font_size=plot_style.stress_fontsize,
-                label_pos=stress_label_positions[edge],
+                label_pos=(
+                    stress_label_positions[edge]
+                    if edge in stress_label_positions
+                    else 1 - stress_label_positions[tuple(edge[::-1])]
+                ),
                 rotate=plot_style.stress_rotate_labels,
                 **kwargs,
             )
@@ -326,7 +346,11 @@ def plot_stress3D(
             pos[0],
             pos[1],
             pos[2],
-            str(stress_edgewise[edge]),
+            str(
+                stress_edgewise[edge]
+                if edge in stress_edgewise
+                else stress_edgewise[tuple(edge[::-1])]
+            ),
             color=plot_style.stress_color,
             fontsize=plot_style.stress_fontsize,
             ha="center",
