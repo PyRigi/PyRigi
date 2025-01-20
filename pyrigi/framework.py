@@ -50,7 +50,7 @@ from pyrigi.misc import (
     eval_sympy_vector,
 )
 
-from typing import Optional, Any
+from typing import Any
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
@@ -305,7 +305,7 @@ class Framework(object):
         stress: int | Stress = None,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
-        arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
+        arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
         **kwargs,
     ) -> None:
         """
@@ -808,18 +808,17 @@ class Framework(object):
         self,
         plot_style: PlotStyle = None,
         **kwargs,
-    ) -> Optional[Matrix]:
+    ) -> None:
         """
         Plot the framework.
 
-        Notes
-        -----
-        If the dimension of the framework is greater than 3, ``ValueError`` is raised,
+        The framework can be plotted only if its dimension is less than 3.
+        For plotting a projection of a higher dimensional framework,
         use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
-        For various formatting options, see :meth:`.Graph.plot`.
+        For various formatting options, see :class:`.PlotStyle`.
         """
         if self._dim == 3:
-            return self.plot3D(plot_style=plot_style, **kwargs)
+            self.plot3D(plot_style=plot_style, **kwargs)
         elif self._dim > 3:
             raise ValueError(
                 "This framework is in higher dimension than 3!"
@@ -827,7 +826,7 @@ class Framework(object):
                 + " for projection into 3D use F.plot3D()."
             )
         else:
-            return self.plot2D(plot_style=plot_style, **kwargs)
+            self.plot2D(plot_style=plot_style, **kwargs)
 
     @doc_category("Other")
     def to_tikz(

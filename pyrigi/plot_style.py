@@ -7,41 +7,46 @@ class PlotStyle(object):
 
     For options specific to 2D or 3D plots,
     see :class:`.PlotStyle2D` and :class:`.PlotStyle3D`.
+    For specifying different colors for each edge etc.,
+    see :meth:`.Framework.plot2D` and :meth:`.Framework.plot3D`.
+
+    Note that the parameters can be used directly in plot methods
+    like :meth:`.Graph.plot` or :meth:`.Framework.plot2D`.
 
     Parameters
     ----------
     vertex_size:
         The size of the vertices.
     vertex_color:
-        The color of the vertices. The color can be a string or rgb (or rgba)
-        tuple of floats from 0-1.
+        The color of the vertices given by name like ``"green"`` or  hex ``"#00ff00"``.
     vertex_labels:
         If ``True`` (default), vertex labels are displayed.
     vertex_shape:
-        The shape of the vertices specified as matplotlib.scatter
+        The shape of the vertices specified as :meth:`matplotlib.pyplot.scatter`
         marker, one of ``so^>v<dph8``.
     edge_width:
     edge_color:
-        A color given as a string (name like ``"green"`` or  hex ``"#00ff00"``).
+        The color of all edges given as a string
+        (name like ``"green"`` or  hex ``"#00ff00"``).
         For specifying a different color for each edge,
         see parameter ``edge_coloring`` in :meth:`.Framework.plot2D`.
     edge_style:
         Edge line style: ``-``/``solid``, ``--``/``dashed``,
-        ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        ``-.``/``dashdot`` or ``:``/``dotted``.
     flex_width:
         The width of the infinitesimal flex's arrow tail.
     flex_color:
-        The color of the infinitesimal flex is by default 'limegreen'.
+        The color of the infinitesimal flex.
     flex_style:
         Line Style: ``-``/``solid``, ``--``/``dashed``,
-        ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        ``-.``/``dashdot`` or ``:``/``dotted``.
     flex_length:
         Length of the displayed flex relative to the total canvas
-        diagonal in percent. By default 15%.
-    flex_arrowsize:
-        Size of the arrowhead's length and width.
+        diagonal in percent.
+    flex_arrow_size:
+        The size of the arrowhead's length and width.
     stress_color:
-        Color of the font used to label the edges with stresses.
+        The Color of the font used to label the edges with stresses.
     stress_fontsize:
         Fontsize of the stress labels.
     stress_rotate_labels:
@@ -74,7 +79,7 @@ class PlotStyle(object):
         flex_length: float = 0.15,
         flex_color: str = "limegreen",
         flex_style: str = "solid",
-        flex_arrowsize: int = 20,
+        flex_arrow_size: int = 20,
         stress_color: str = "orangered",
         stress_fontsize: int = 10,
         stress_rotate_labels: bool = True,
@@ -96,7 +101,7 @@ class PlotStyle(object):
         self.flex_length = flex_length
         self.flex_color = flex_color
         self.flex_style = flex_style
-        self.flex_arrowsize = flex_arrowsize
+        self.flex_arrow_size = flex_arrow_size
         self.stress_color = stress_color
         self.stress_fontsize = stress_fontsize
         self.stress_rotate_labels = stress_rotate_labels
@@ -122,37 +127,27 @@ class PlotStyle2D(PlotStyle):
     """
     Class for defining the 2D plot style.
 
-    Inherits from PlotStyle.
-
     Parameters
     ----------
-    stress_label_pos:
-        Position of the stress label along the edge. `float` numbers
-        from the interval `[0,1]` are allowed. `0` represents the head
-        of the edge, `0.5` the center and `1` the edge's tail.
     aspect_ratio:
-        The ratio of y-unit to x-unit. By default 1.0.
+        The ratio of y-unit to x-unit.
     edges_as_arcs:
-        If the edges are too close to each other, we can decide to
-        visualize them as arcs.
+        If ``True`` (default), the edges are displayed as arcs.
     arc_angle:
-        In case of curvilinear plotting (``edges_as_arcs=True``), the edges
-        are displayed as arcs. With this parameter, we can set the
-        pitch of these arcs in radians.
+        Only if ``edges_as_arcs=True``:
+        the pitch of the edge arcs in radians.
         For setting different values for individual edges,
         see ``arc_angles_dict` in :meth:`.Framework.plot2D`.
     """
 
     def __init__(
         self,
-        stress_label_pos: float = 0.5,
         aspect_ratio: float = 1.0,
         edges_as_arcs: bool = False,
         arc_angle: float = np.pi / 6,
         **kwargs,
     ):
         super().__init__(**kwargs)
-        self.stress_label_pos = stress_label_pos
         self.aspect_ratio = aspect_ratio
         self.edges_as_arcs = edges_as_arcs
         self.arc_angle = arc_angle
@@ -176,9 +171,8 @@ class PlotStyle3D(PlotStyle):
 
     Parameters
     ----------
-
     axis_scales:
-        Triple indicating the scaling of the three axes.
+        A triple indicating the scaling of the three axes.
     padding:
         Padding value for the plot.
     """

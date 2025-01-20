@@ -26,7 +26,20 @@ def resolve_inf_flex(
     projection_matrix: Matrix = None,
 ) -> dict[Vertex, Point]:
     """
-    Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
+    Resolve an infinitesimal flex from various datatypes.
+
+    Parameters
+    ----------
+    framework:
+    inf_flex:
+        The infinitesimal flex to resolve.
+    points:
+        A realization.
+        If None, the framework's realization is used.
+    projection_matrix:
+        A matrix used for projection to a lower dimension.
+
+
     """
     if isinstance(inf_flex, int) and inf_flex >= 0:
         inf_flex_basis = framework.nontrivial_inf_flexes()
@@ -112,7 +125,18 @@ def plot_inf_flex2D(
     plot_style: PlotStyle2D = None,
 ) -> None:
     """
-    Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
+    Plot a 2D infinitesimal flex on the canvas.
+
+    Parameters
+    ----------
+    framework:
+    ax:
+        The matplotlib axis on which the flex is drawn.
+    inf_flex:
+        The infinitesimal flex to plot.
+    projection_matrix:
+        A matrix used to project the infinitesimal flex to 2D.
+    plot_style:
     """
     inf_flex_pointwise = resolve_inf_flex(
         framework, inf_flex, points, projection_matrix
@@ -145,7 +169,7 @@ def plot_inf_flex2D(
         pos=H_placement,
         ax=ax,
         arrows=True,
-        arrowsize=plot_style.flex_arrowsize,
+        arrowsize=plot_style.flex_arrow_size,
         node_size=0,
         node_color="white",
         width=plot_style.flex_width,
@@ -163,7 +187,18 @@ def plot_inf_flex3D(
     plot_style: PlotStyle3D = None,
 ) -> None:
     """
-    Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
+    Plot a 3D infinitesimal flex on the canvas.
+
+    Parameters
+    ----------
+    framework:
+    ax:
+        The matplotlib axis on which the flex is drawn.
+    inf_flex:
+        The infinitesimal flex to plot.
+    projection_matrix:
+        A matrix used to project the infinitesimal flex to 3D.
+    plot_style:
     """
     inf_flex_pointwise = resolve_inf_flex(
         framework, inf_flex, points, projection_matrix
@@ -196,10 +231,27 @@ def resolve_stress(
     framework: Framework,
     stress: Matrix | Stress,
     plot_style: PlotStyle,
-    stress_label_positions: dict[Edge, float] = None,
+    stress_label_positions: dict[DirectedEdge, float] = None,
 ) -> tuple[dict[Edge, Number], dict[DirectedEdge, float]]:
     """
-    Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
+    Resolve an equilibrium stress from various datatypes and
+    position of the labels on edges.
+
+    Parameters
+    ----------
+    framework:
+    stress:
+        The equilibrium stress to resolve.
+    plot_style:
+    stress_label_positions:
+        A dictionary mapping directed edges
+        to values determining the position of stress labels.
+
+    Returns
+    -------
+    tuple[dict[Edge, Number], dict[DirectedEdge, float]]
+        A tuple with two dictionaries: one for the stress values and another
+        for the label positions.
     """
 
     if stress_label_positions is None:
@@ -266,7 +318,22 @@ def plot_stress2D(
     stress_label_positions: dict[Edge, float] = None,
 ) -> None:
     """
-    Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
+    Plot a 2D equilibrium stress on the canvas.
+
+    Parameters
+    ----------
+    framework:
+    ax:
+        The matplotlib axis on which the stress is drawn.
+    stress:
+        The equilibrium stress to draw.
+    plot_style:
+    points:
+        A dictionary mapping vertices to their points in the realization.
+    arc_angles_dict:
+        A dictionary specifying arc angles for curved edges.
+    stress_label_positions:
+        A dictionary mapping edges to label position floats.
     """
     stress_edgewise, stress_label_positions = resolve_stress(
         framework, stress, plot_style, stress_label_positions
@@ -427,7 +494,7 @@ def resolve_arc_angles(
     arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
 ) -> dict[Edge, float]:
     """
-    Resolve the connection style for the visualization of the framework.
+    Resolve the arc angles style for the visualization of the framework.
     """
     G = framework._graph
 
