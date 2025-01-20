@@ -84,6 +84,9 @@ S.plot(aspect_ratio=0.4)
 
 ## Formatting
 There are various options to format a plot.
+One can create an instance of class {class}`~.PlotStyle`
+or pass the same input parameters directly as keyword arguments.
+These two options can be combined, keyword arguments having the priority.
 
 Vertex color/size or label color/size can be changed.
 
@@ -239,7 +242,7 @@ F.plot(
     flex_length=0.25,
     flex_color="darkgrey",
     flex_style="-",
-    flex_arrowsize=15
+    flex_arrow_size=15
 )
 ```
 

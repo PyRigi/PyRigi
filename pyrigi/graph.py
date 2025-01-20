@@ -2774,16 +2774,17 @@ class Graph(nx.Graph):
         """
         Plot the graph.
 
-        See also :class:`~pyrigi.plotting.PlotStyle`,
-        :meth:`~Framework.plot`, `~Framework.plot2D` and
-        `~Framework.plot3D` for possible parameters for formatting.
-        To distinguish :meth:`~Framework.plot` from this method,
-        the `vertex_color` has a different default value.
+        See also :class:`.PlotStyle`,
+        :meth:`~.Framework.plot`, :meth:`~.Framework.plot2D` and
+        :meth:`~.Framework.plot3D` for possible parameters for formatting.
+        To distinguish :meth:`.Framework.plot` from this method,
+        the ``vertex_color`` has a different default value.
 
         Parameters
         ----------
         plot_style:
-            An instance of the PlotStyle class that defines the visual style for plotting.
+            An instance of the :class:`.PlotStyle` class
+            that defines the visual style for plotting.
             See :class:`.PlotStyle` for more information.
         placement:
             If ``placement`` is not specified,

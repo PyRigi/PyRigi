@@ -311,35 +311,33 @@ class Framework(object):
         """
         Plot this framework in 2D.
 
-        If this framework is in dimensions higher than 2 and projection_matrix
-        with coordinates are None a random projection matrix
+        If this framework is in dimensions higher than 2 and ``projection_matrix``
+        with ``coordinates`` are ``None``, a random projection matrix
         containing two orthonormal vectors is generated and used for projection into 2D.
-        This matrix is then returned.
-        For various formatting options, see :meth:`.Graph.plot`.
-        Only coordinates or projection_matrix parameter can be used, not both!
+        For various formatting options, see :meth:`.PlotStyle`.
+        Only ``coordinates`` or ``projection_matrix`` parameter can be used, not both!
 
         Parameters
         ----------
         plot_style:
-            An instance of the PlotStyle class that defines the visual style for plotting.
-            See :class:`PlotStyle` for more details.
+            An instance of the ``PlotStyle`` class that defines the visual style
+            for plotting, see :class:`PlotStyle` for more details.
         projection_matrix:
             The matrix used for projecting the placement of vertices
             only when they are in dimension higher than 2.
-            The matrix must have dimensions (2, dim),
-            where dim is the dimension of the currect placements of vertices.
-            If None, a random projection matrix is generated.
+            The matrix must have dimensions ``(2, dim)``,
+            where ``dim`` is the dimension of the framework.
+            If ``None``, a random projection matrix is generated.
         random_seed:
             The random seed used for generating the projection matrix.
-            When the same value is provided, the framework will plot exactly same.
         coordinates:
-            Indices of two coordinates that will be used as the placement in 2D.
+            Indices of two coordinates to which the framework is projected.
         inf_flex:
             Optional parameter for plotting a given infinitesimal flex. The standard
             input format is a ``Matrix`` that is the output of e.g. the method
-            ``Framework.inf_flexes``. Alternatively, an ``int`` can be specified
+            :meth:`~.Framework.inf_flexes`. Alternatively, an ``int`` can be specified
             to directly choose the 0,1,2,...-th nontrivial infinitesimal flex (according
-            to the method ``Framework.nontrivial_inf_flexes``) for plotting.
+            to the method :meth:`~.Framework.nontrivial_inf_flexes`) for plotting.
             For these input types, is important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
             If the vertex order needs to be specified, a
@@ -348,9 +346,9 @@ class Framework(object):
         stress:
             Optional parameter for plotting a given equilibrium stress. The standard
             input format is a ``Matrix`` that is the output of e.g. the method
-            ``Framework.stresses``. Alternatively, an ``int`` can be specified
+            :meth:`~.Framework.stresses`. Alternatively, an ``int`` can be specified
             to directly choose the 0,1,2,...-th equilibrium stress (according
-            to the method ``Framework.stresses``) for plotting.
+            to the method :meth:`~.Framework.stresses`) for plotting.
             For these input types, is important to use the same edge order as the one
             from :meth:`.Graph.edge_list`.
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
@@ -361,12 +359,13 @@ class Framework(object):
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
+            The ommited edges are given the value ``plot_style.edge_color``.
         stress_label_positions:
             Dictionary specifying the position of stress labels along the edges. Keys are
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
-            Ommited edges are given the value ``plot_style.stress_label_pos``.
+            Ommited edges are given the value ``0.5``.
         arc_angles_dict:
-            Optional parameter to specify custom connection styles for edges. Can be a
+            Optional parameter to specify custom arc angle for edges. Can be a
             ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
             the curvature angle of edges in radians.
 
@@ -668,33 +667,31 @@ class Framework(object):
         If the framework is in a dimension higher than 3 and ``projection_matrix``
         with ``coordinates`` are ``None``, a random projection matrix
         containing three orthonormal vectors is generated and used for projection into 3D.
-        This particular matrix is then returned.
-        For various formatting options, see :meth:`.Graph.plot`.
-        Only the parameter `coordinates` or `projection_matrix` can be used,
+        For various formatting options, see :meth:`.PlotStyle`.
+        Only the parameter ``coordinates`` or ``projection_matrix`` can be used,
         not both at the same time.
 
         Parameters
         ----------
         plot_style:
-            An instance of the PlotStyle class that defines the visual style for plotting.
-            See :class:`.PlotStyle` for more information.
+            An instance of the ``PlotStyle`` class that defines the visual style
+            for plotting, see :class:`PlotStyle` for more details.
         projection_matrix:
             The matrix used for projecting the placement of vertices
-            only when they are in dimension higher than 3.
-            The matrix must have dimensions (3, dim),
-            where dim is the dimension of the currect placements of vertices.
-            If None, a random projection matrix is generated.
+            only when they are in dimension higher than 2.
+            The matrix must have dimensions ``(2, dim)``,
+            where ``dim`` is the dimension of the framework.
+            If ``None``, a random projection matrix is generated.
         random_seed:
             The random seed used for generating the projection matrix.
-            When the same value is provided, the framework will plot exactly same.
         coordinates:
-            Indices of two coordinates that will be used as the placement in 3D.
+            Indices of two coordinates to which the framework is projected.
         inf_flex:
             Optional parameter for plotting a given infinitesimal flex. The standard
             input format is a ``Matrix`` that is the output of e.g. the method
-            ``Framework.inf_flexes``. Alternatively, an ``int`` can be specified
+            :meth:`~.Framework.inf_flexes`. Alternatively, an ``int`` can be specified
             to directly choose the 0,1,2,...-th nontrivial infinitesimal flex (according
-            to the method ``Framework.nontrivial_inf_flexes``) for plotting.
+            to the method :meth:`~.Framework.nontrivial_inf_flexes`) for plotting.
             For these input types, is important to use the same vertex order as the one
             from :meth:`.Graph.vertex_list`.
             If the vertex order needs to be specified, a
@@ -703,9 +700,9 @@ class Framework(object):
         stress:
             Optional parameter for plotting a given equilibrium stress. The standard
             input format is a ``Matrix`` that is the output of e.g. the method
-            ``Framework.stresses``. Alternatively, an ``int`` can be specified
+            :meth:`~.Framework.stresses`. Alternatively, an ``int`` can be specified
             to directly choose the 0,1,2,...-th equilibrium stress (according
-            to the method ``Framework.stresses``) for plotting.
+            to the method :meth:`~.Framework.stresses`) for plotting.
             For these input types, is important to use the same edge order as the one
             from :meth:`.Graph.edge_list`.
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
@@ -716,10 +713,11 @@ class Framework(object):
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
+            The ommited edges are given the value ``plot_style.edge_color``.
         stress_label_positions:
             Dictionary specifying the position of stress labels along the edges. Keys are
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
-            Ommited edges are given the value ``plot_style.stress_label_pos``.
+            Ommited edges are given the value ``0.5``.
 
 
         Examples
