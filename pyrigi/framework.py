@@ -58,7 +58,7 @@ __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
 }
 
-from pyrigi.plot_style import PlotStyle
+from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 
 class Framework(object):
@@ -379,9 +379,9 @@ class Framework(object):
         >>> F.plot2D(inf_flex=0, stress=0);
         """
         if plot_style is None:
-            plot_style = PlotStyle()
+            plot_style = PlotStyle2D()
         else:
-            plot_style = deepcopy(plot_style)
+            plot_style = PlotStyle2D.from_plot_style(plot_style)
 
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
@@ -738,9 +738,9 @@ class Framework(object):
         """
         if plot_style is None:
             # change some PlotStyle default values to fit 3D plotting better
-            plot_style = PlotStyle(vertex_size=200, flex_length=0.75)
+            plot_style = PlotStyle3D(vertex_size=200, flex_length=0.75)
         else:
-            plot_style = deepcopy(plot_style)
+            plot_style = PlotStyle3D.from_plot_style(plot_style)
 
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)

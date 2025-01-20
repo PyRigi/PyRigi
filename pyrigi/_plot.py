@@ -14,7 +14,7 @@ from pyrigi.data_type import (
     Stress,
     Sequence,
 )
-from pyrigi.plot_style import PlotStyle
+from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 
 def plot_inf_flex(  # noqa: C901
@@ -102,7 +102,7 @@ def plot_inf_flex(  # noqa: C901
         if not all(entry == 0 for entry in inf_flex_pointwise[flex_key])
     }
 
-    if len(inf_flex_pointwise[list(inf_flex_pointwise.keys())[0]]) == 2:
+    if len(list(inf_flex_pointwise.values())[0]) == 2:
         x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
         y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
         arrow_length = (
@@ -138,7 +138,7 @@ def plot_inf_flex(  # noqa: C901
             style=plot_style.flex_style,
             **kwargs,
         )
-    elif framework._dim == 3:
+    elif framework.dim() == 3:
         for v in inf_flex_pointwise.keys():
             ax.quiver(
                 points[v][0],
@@ -172,7 +172,6 @@ def plot_stress(  # noqa: C901
     """
     Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
     """
-    stress_edgewise = None
     if isinstance(stress, int) and stress >= 0:
         stresses = framework.stresses()
         if stress >= len(stresses):
@@ -222,9 +221,10 @@ def plot_stress(  # noqa: C901
         elif edge[::-1] in stress_label_positions:
             stress_label_all[edge] = 1 - stress_label_positions[edge[::-1]]
         else:
-            stress_label_all[edge] = plot_style.stress_label_pos
+            stress_label_all[edge] = 0.5
 
-    if len(points[list(points.keys())[0]]) == 2:
+    if len(list(points.values())[0]) == 2:
+        plot_style = PlotStyle2D.from_plot_style(plot_style)
         if plot_style.curved_edges:
             newGraph = nx.MultiDiGraph()
             connection_style = resolve_connection_style(
@@ -260,7 +260,8 @@ def plot_stress(  # noqa: C901
                     rotate=plot_style.stress_rotate_labels,
                     **kwargs,
                 )
-    elif len(points[list(points.keys())[0]]) == 3:
+    elif len(list(points.values())[0]) == 3:
+        plot_style = PlotStyle3D.from_plot_style(plot_style)
         for edge, edge_stress in stress_label_positions.items():
             pos = [
                 points[edge[0]][i]
@@ -289,7 +290,7 @@ def plot_with_3D_realization(
     framework: Framework,
     ax: Axes,
     realization: dict[Vertex, Point],
-    plot_style: PlotStyle,
+    plot_style: PlotStyle3D,
     edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
 ) -> None:
     """
@@ -471,7 +472,7 @@ def plot_with_2D_realization(
     framework: Framework,
     ax: Axes,
     realization: dict[Vertex, Point],
-    plot_style: PlotStyle,
+    plot_style: PlotStyle2D,
     edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     connection_styles: Sequence[float] | dict[Edge, float] = None,
     **kwargs,

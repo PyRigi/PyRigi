@@ -5,6 +5,9 @@ class PlotStyle(object):
     """
     Class for defining the plot style.
 
+    For options specific to 2D or 3D plots,
+    see :class:`.PlotStyle2D` and :class:`.PlotStyle3D`.
+
     Parameters
     ----------
     vertex_size:
@@ -12,11 +15,11 @@ class PlotStyle(object):
     vertex_color:
         The color of the vertices. The color can be a string or rgb (or rgba)
         tuple of floats from 0-1.
+    vertex_labels:
+        If ``True`` (default), vertex labels are displayed.
     vertex_shape:
         The shape of the vertices specified as matplotlib.scatter
         marker, one of ``so^>v<dph8``.
-    vertex_labels:
-        If ``True`` (default), vertex labels are displayed.
     edge_width:
     edge_color:
         A color given as a string (name like ``"green"`` or  hex ``"#00ff00"``).
@@ -41,10 +44,6 @@ class PlotStyle(object):
         Color of the font used to label the edges with stresses.
     stress_fontsize:
         Fontsize of the stress labels.
-    stress_label_pos:
-        Position of the stress label along the edge. `float` numbers
-        from the interval `[0,1]` are allowed. `0` represents the head
-        of the edge, `0.5` the center and `1` the edge's tail.
     stress_rotate_labels:
         A boolean indicating whether the stress label should be rotated.
     stress_normalization:
@@ -58,6 +57,79 @@ class PlotStyle(object):
         The width of the canvas in inches.
     canvas_height:
         The height of the canvas in inches.
+    dpi:
+        DPI (dots per inch) for the plot.
+    """
+
+    def __init__(
+        self,
+        vertex_size: int = 300,
+        vertex_color: str = "#ff8c00",
+        vertex_labels: bool = True,
+        vertex_shape: str = "o",
+        edge_width: float = 2.5,
+        edge_color: str = "black",
+        edge_style: str = "solid",
+        flex_width: float = 1.5,
+        flex_length: float = 0.15,
+        flex_color: str = "limegreen",
+        flex_style: str = "solid",
+        flex_arrowsize: int = 20,
+        stress_color: str = "orangered",
+        stress_fontsize: int = 10,
+        stress_rotate_labels: bool = True,
+        stress_normalization: bool = False,
+        font_size: int = 12,
+        font_color: str = "whitesmoke",
+        canvas_width: float = 6.4,
+        canvas_height: float = 4.8,
+        dpi: int = 200,
+    ):
+        self.vertex_size = vertex_size
+        self.vertex_color = vertex_color
+        self.vertex_labels = vertex_labels
+        self.vertex_shape = vertex_shape
+        self.edge_width = edge_width
+        self.edge_color = edge_color
+        self.edge_style = edge_style
+        self.flex_width = flex_width
+        self.flex_length = flex_length
+        self.flex_color = flex_color
+        self.flex_style = flex_style
+        self.flex_arrowsize = flex_arrowsize
+        self.stress_color = stress_color
+        self.stress_fontsize = stress_fontsize
+        self.stress_rotate_labels = stress_rotate_labels
+        self.stress_normalization = stress_normalization
+        self.font_size = font_size
+        self.font_color = font_color
+        self.canvas_width = canvas_width
+        self.canvas_height = canvas_height
+        self.dpi = dpi
+
+    def update(self, **kwargs):
+        """
+        Update the plot style attributes from the keyword arguments.
+        """
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+            else:
+                raise ValueError(f"PlotStyle does not have the attribute {key}.")
+
+
+class PlotStyle2D(PlotStyle):
+    """
+    Class for defining the 2D plot style.
+
+    Inherits from PlotStyle.
+
+    Parameters
+    ----------
+    stress_label_pos:
+        Position of the stress label along the edge. `float` numbers
+        from the interval `[0,1]` are allowed. `0` represents the head
+        of the edge, `0.5` the center and `1` the edge's tail.
     aspect_ratio:
         The ratio of y-unit to x-unit. By default 1.0.
     curved_edges:
@@ -73,66 +145,62 @@ class PlotStyle(object):
 
     def __init__(
         self,
-        vertex_size: int = 300,
-        vertex_color: str = "#ff8c00",
-        vertex_shape: str = "o",
-        vertex_labels: bool = True,
-        edge_width: float = 2.5,
-        edge_color: str = "black",
-        edge_style: str = "solid",
-        flex_width: float = 1.5,
-        flex_length: float = 0.15,
-        flex_color: str = "limegreen",
-        flex_style: str = "solid",
-        flex_arrowsize: int = 20,
-        stress_color: str = "orangered",
-        stress_fontsize: int = 10,
         stress_label_pos: float = 0.5,
-        stress_rotate_labels: bool = True,
-        stress_normalization: bool = False,
-        font_size: int = 12,
-        font_color: str = "whitesmoke",
-        canvas_width: float = 6.4,
-        canvas_height: float = 4.8,
         aspect_ratio: float = 1.0,
         curved_edges: bool = False,
         connection_style: float = np.pi / 6,
-        padding: float = 0.01,
-        dpi: int = 200,
+        **kwargs,
     ):
-        self.vertex_size = vertex_size
-        self.vertex_color = vertex_color
-        self.vertex_shape = vertex_shape
-        self.vertex_labels = vertex_labels
-        self.edge_width = edge_width
-        self.edge_color = edge_color
-        self.edge_style = edge_style
-        self.flex_width = flex_width
-        self.flex_length = flex_length
-        self.flex_color = flex_color
-        self.flex_style = flex_style
-        self.flex_arrowsize = flex_arrowsize
-        self.stress_color = stress_color
-        self.stress_fontsize = stress_fontsize
+        super().__init__(**kwargs)
         self.stress_label_pos = stress_label_pos
-        self.stress_rotate_labels = stress_rotate_labels
-        self.stress_normalization = stress_normalization
-        self.font_size = font_size
-        self.font_color = font_color
-        self.canvas_width = canvas_width
-        self.canvas_height = canvas_height
         self.aspect_ratio = aspect_ratio
         self.curved_edges = curved_edges
         self.connection_style = connection_style
-        self.padding = padding
-        self.dpi = dpi
 
-    def update(self, **kwargs):
+    @classmethod
+    def from_plot_style(cls, plot_style: PlotStyle):
         """
-        Update the plot style attributes from the keyword arguments.
+        Construct an instance of ``PlotStyle2D`` from a given instance of ``PlotStyle``.
+
+        Parameters
+        ----------
+        plot_style: PlotStyle
+            The PlotStyle instance to copy attributes from.
         """
-        for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
-            else:
-                raise ValueError(f"PlotStyle does not have the attribute {key}.")
+        return cls(**plot_style.__dict__)
+
+
+class PlotStyle3D(PlotStyle):
+    """
+    Class for defining the 3D plot style.
+
+    Parameters
+    ----------
+
+    axis_ratios:
+        Triple indicating the relative sizes of the three axes.
+    padding:
+        Padding value for the plot.
+    """
+
+    def __init__(
+        self,
+        padding: float = 0.01,
+        axis_ratios: tuple[float, float, float] = (1.0, 1.0, 1.0),
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        self.padding = padding
+        self.axis_ratios = axis_ratios
+
+    @classmethod
+    def from_plot_style(cls, plot_style: PlotStyle):
+        """
+        Construct an instance of ``PlotStyle3D`` from a given instance of ``PlotStyle``.
+
+        Parameters
+        ----------
+        plot_style: PlotStyle
+            The PlotStyle instance to copy attributes from.
+        """
+        return cls(**plot_style.__dict__)
