@@ -438,7 +438,7 @@ class Framework(object):
         if stress is not None:
             if stress_label_positions is None:
                 stress_label_positions = {}
-            _plot.plot_stress(
+            _plot.plot_stress2D(
                 self,
                 ax,
                 stress,
@@ -791,7 +791,7 @@ class Framework(object):
         if stress is not None:
             if stress_label_positions is None:
                 stress_label_positions = {}
-            _plot.plot_stress(
+            _plot.plot_stress3D(
                 self,
                 ax,
                 stress,

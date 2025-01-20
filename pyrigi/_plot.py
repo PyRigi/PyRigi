@@ -13,6 +13,8 @@ from pyrigi.data_type import (
     InfFlex,
     Stress,
     Sequence,
+    Number,
+    DirectedEdge,
 )
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
@@ -159,16 +161,12 @@ def plot_inf_flex(  # noqa: C901
         )
 
 
-def plot_stress(  # noqa: C901
+def resolve_stress(
     framework: Framework,
-    ax: Axes,
     stress: Matrix | Stress,
     plot_style: PlotStyle,
-    points: dict[Vertex, Point] = None,
-    connection_styles: dict[Edge, float] = None,
     stress_label_positions: dict[Edge, float] = None,
-    **kwargs,
-) -> None:
+) -> tuple[dict[Edge, Number], dict[DirectedEdge, float]]:
     """
     Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
     """
@@ -193,9 +191,6 @@ def plot_stress(  # noqa: C901
     if not framework.is_dict_stress(stress_edgewise):
         raise ValueError("The provided `stress` is not an equilibrium stress.")
 
-    if points is None:
-        points = framework.realization(as_points=True, numerical=True)
-
     if plot_style.stress_normalization:
         numerical_stress = {
             edge: float(sympify(w).evalf(10)) for edge, w in stress_edgewise.items()
@@ -214,75 +209,101 @@ def plot_stress(  # noqa: C901
             "The `stress_label_positions` dictionary must contain the same "
             + "edges as the stress dictionary."
         )
-    stress_label_all = {}
+
+    if stress_label_positions is None:
+        stress_label_positions = {}
     for edge in framework._graph.edge_list(as_tuples=True):
         if edge in stress_label_positions:
-            stress_label_all[edge] = stress_label_positions[edge]
+            stress_label_positions[edge] = stress_label_positions[edge]
         elif edge[::-1] in stress_label_positions:
-            stress_label_all[edge] = 1 - stress_label_positions[edge[::-1]]
+            stress_label_positions[edge] = 1 - stress_label_positions[edge[::-1]]
         else:
-            stress_label_all[edge] = 0.5
+            stress_label_positions[edge] = 0.5
 
-    if len(list(points.values())[0]) == 2:
-        plot_style = PlotStyle2D.from_plot_style(plot_style)
-        if plot_style.curved_edges:
-            newGraph = nx.MultiDiGraph()
-            connection_style = resolve_connection_style(
-                framework, plot_style.connection_style, connection_styles
-            )
-            for e, style in connection_style.items():
-                newGraph.add_edge(e[0], e[1], weight=style)
-            plt.box(False)  # Manually removes the frame of the plot
-            for e in newGraph.edges(data=True):
-                edge = tuple([e[0], e[1]])
-                nx.draw_networkx_edge_labels(
-                    newGraph,
-                    ax=ax,
-                    pos=points,
-                    edge_labels={edge: _stress[edge]},
-                    font_color=plot_style.stress_color,
-                    font_size=plot_style.stress_fontsize,
-                    label_pos=stress_label_all[edge],
-                    rotate=plot_style.stress_rotate_labels,
-                    connectionstyle=f"Arc3, rad = {e[2]['weight']}",
-                    **kwargs,
-                )
-        else:
-            for edge in framework._graph.edges:
-                nx.draw_networkx_edge_labels(
-                    framework._graph,
-                    ax=ax,
-                    pos=points,
-                    edge_labels={edge: _stress[edge]},
-                    font_color=plot_style.stress_color,
-                    font_size=plot_style.stress_fontsize,
-                    label_pos=stress_label_all[edge],
-                    rotate=plot_style.stress_rotate_labels,
-                    **kwargs,
-                )
-    elif len(list(points.values())[0]) == 3:
-        plot_style = PlotStyle3D.from_plot_style(plot_style)
-        for edge, edge_stress in stress_label_positions.items():
-            pos = [
-                points[edge[0]][i]
-                + edge_stress * (points[edge[1]][i] - points[edge[0]][i])
-                for i in range(3)
-            ]
-            ax.text(
-                pos[0],
-                pos[1],
-                pos[2],
-                str(_stress[edge]),
-                color=plot_style.stress_color,
-                fontsize=plot_style.stress_fontsize,
-                ha="center",
-                va="center",
+    return _stress, stress_label_positions
+
+
+def plot_stress2D(
+    framework: Framework,
+    ax: Axes,
+    stress: Matrix | Stress,
+    plot_style: PlotStyle2D,
+    points: dict[Vertex, Point] = None,
+    connection_styles: dict[Edge, float] = None,
+    stress_label_positions: dict[Edge, float] = None,
+    **kwargs,
+) -> None:
+    """
+    Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
+    """
+    stress_edgewise, stress_label_positions = resolve_stress(
+        framework, stress, plot_style, stress_label_positions
+    )
+
+    if plot_style.curved_edges:
+        new_graph = nx.MultiDiGraph()
+        connection_style = resolve_connection_style(
+            framework, plot_style.connection_style, connection_styles
+        )
+        for e, style in connection_style.items():
+            new_graph.add_edge(e[0], e[1], weight=style)
+        plt.box(False)  # Manually removes the frame of the plot
+        for e in new_graph.edges(data=True):
+            edge = tuple([e[0], e[1]])
+            nx.draw_networkx_edge_labels(
+                new_graph,
+                ax=ax,
+                pos=points,
+                edge_labels={edge: stress_edgewise[edge]},
+                font_color=plot_style.stress_color,
+                font_size=plot_style.stress_fontsize,
+                label_pos=stress_label_positions[edge],
+                rotate=plot_style.stress_rotate_labels,
+                connectionstyle=f"Arc3, rad = {e[2]['weight']}",
                 **kwargs,
             )
     else:
-        raise ValueError(
-            "The method `_plot_stress` is currently implemented only"
-            + " for frameworks in 1, 2, and 3 dimensions."
+        for edge in framework._graph.edges:
+            nx.draw_networkx_edge_labels(
+                framework._graph,
+                ax=ax,
+                pos=points,
+                edge_labels={edge: stress_edgewise[edge]},
+                font_color=plot_style.stress_color,
+                font_size=plot_style.stress_fontsize,
+                label_pos=stress_label_positions[edge],
+                rotate=plot_style.stress_rotate_labels,
+                **kwargs,
+            )
+
+
+def plot_stress3D(
+    framework: Framework,
+    ax: Axes,
+    stress: Matrix | Stress,
+    plot_style: PlotStyle,
+    points: dict[Vertex, Point] = None,
+    stress_label_positions: dict[Edge, float] = None,
+    **kwargs,
+) -> None:
+    stress_edgewise, stress_label_positions = resolve_stress(
+        framework, stress, plot_style, stress_label_positions
+    )
+    for edge, edge_stress in stress_label_positions.items():
+        pos = [
+            points[edge[0]][i] + edge_stress * (points[edge[1]][i] - points[edge[0]][i])
+            for i in range(3)
+        ]
+        ax.text(
+            pos[0],
+            pos[1],
+            pos[2],
+            str(stress_edgewise[edge]),
+            color=plot_style.stress_color,
+            fontsize=plot_style.stress_fontsize,
+            ha="center",
+            va="center",
+            **kwargs,
         )
 
 
