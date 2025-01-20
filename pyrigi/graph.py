@@ -900,6 +900,12 @@ class Graph(nx.Graph):
 
         >>> len(list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)))
         2
+
+        Notes
+        -----
+        It turns out that possible errors on bad input paramters are only raised,
+        when the output iterator is actually used,
+        not when it is created.
         """
         if not isinstance(dim, int) or dim < 1:
             raise DimensionValueError(dim)
