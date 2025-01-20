@@ -664,7 +664,6 @@ class Framework(object):
         stress: int | Stress = None,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
-        connection_styles: dict[Edge, float] = None,
         **kwargs,
     ) -> None:
         """
@@ -798,7 +797,6 @@ class Framework(object):
                 stress,
                 points=placement,
                 plot_style=plot_style,
-                connection_styles=connection_styles,
                 stress_label_positions=stress_label_positions,
             )
 
