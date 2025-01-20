@@ -177,8 +177,8 @@ class PlotStyle3D(PlotStyle):
     Parameters
     ----------
 
-    axis_ratios:
-        Triple indicating the relative sizes of the three axes.
+    axis_scales:
+        Triple indicating the scaling of the three axes.
     padding:
         Padding value for the plot.
     """
@@ -186,12 +186,12 @@ class PlotStyle3D(PlotStyle):
     def __init__(
         self,
         padding: float = 0.01,
-        axis_ratios: tuple[float, float, float] = (1.0, 1.0, 1.0),
+        axis_scales: tuple[float, float, float] = (1.0, 1.0, 1.0),
         **kwargs,
     ):
         super().__init__(**kwargs)
         self.padding = padding
-        self.axis_ratios = axis_ratios
+        self.axis_scales = axis_scales
 
     @classmethod
     def from_plot_style(cls, plot_style: PlotStyle):

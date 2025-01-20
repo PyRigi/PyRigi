@@ -55,7 +55,6 @@ def resolve_inf_flex(
             v: [v_flex, 0] for v, v_flex in inf_flex_pointwise.items()
         }
     if projection_matrix is not None:
-        # TODO use random projection matrix from plot_with_2D_realization
         inf_flex_pointwise = {
             v: np.dot(projection_matrix, np.array(flex))
             for v, flex in inf_flex_pointwise.items()
