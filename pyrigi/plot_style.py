@@ -19,13 +19,9 @@ class PlotStyle(object):
         If ``True`` (default), vertex labels are displayed.
     edge_width:
     edge_color:
-        If a single color is given as a string or rgb (or rgba) tuple
-        of floats from 0-1, then all edges get this color.
-        If a (possibly incomplete) partition of the edges is given,
-        then each part gets a different color.
-        If a dictionary from colors to a list of edge is given,
-        edges are colored accordingly.
-        The edges missing in the partition/dictionary, are colored black.
+        A color given as a string (name like ``"green" or  hex ``"#00ff00"``).
+        For specifying a different color for each edge,
+        see parameter ``edge_coloring`` in :meth:`.Framework.plot2D`.
     edge_style:
         Edge line style: ``-``/``solid``, ``--``/``dashed``,
         ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
@@ -48,9 +44,7 @@ class PlotStyle(object):
     stress_label_pos:
         Position of the stress label along the edge. `float` numbers
         from the interval `[0,1]` are allowed. `0` represents the head
-        of the edge, `0.5` the center and `1` the edge's tail. The position
-        can either be specified for all edges equally or as a
-        `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
+        of the edge, `0.5` the center and `1` the edge's tail.
     stress_rotate_labels:
         A boolean indicating whether the stress label should be rotated.
     stress_normalization:
@@ -72,12 +66,9 @@ class PlotStyle(object):
     connection_style:
         In case of curvilinear plotting (``curved_edges=True``), the edges
         are displayed as arcs. With this parameter, we can set the
-        pitch of these arcs and it is in radians. It can either be
-        specified for each arc (``connection_style=0.5``) or individually
-        as a ``list`` and ``dict``
-        (``connection_style={(0,1):0.5, (1,2):-0.5}``). It is possible to
-        provide fewer edges when the input is a ``dict``; the remaining
-        edges are padded with zeros in that case.
+        pitch of these arcs in radians.
+        For setting different values for individual edges,
+        see ``connection_styles` in :meth:`.Framework.plot2D`.
     """
 
     def __init__(
