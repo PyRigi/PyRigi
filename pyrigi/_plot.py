@@ -19,15 +19,12 @@ from pyrigi.data_type import (
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 
-def plot_inf_flex(  # noqa: C901
+def resolve_inf_flex(
     framework: Framework,
-    ax: Axes,
     inf_flex: int | Matrix | InfFlex,
     points: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
-    plot_style: PlotStyle = None,
-    **kwargs,
-) -> None:
+) -> dict[Vertex, Point]:
     """
     Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
     """
@@ -104,60 +101,89 @@ def plot_inf_flex(  # noqa: C901
         if not all(entry == 0 for entry in inf_flex_pointwise[flex_key])
     }
 
-    if len(list(inf_flex_pointwise.values())[0]) == 2:
-        x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
-        y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
-        arrow_length = (
-            np.sqrt(x_canvas_width**2 + y_canvas_width**2) * plot_style.flex_length
+    return inf_flex_pointwise
+
+
+def plot_inf_flex2D(
+    framework: Framework,
+    ax: Axes,
+    inf_flex: int | Matrix | InfFlex,
+    points: dict[Vertex, Point] = None,
+    projection_matrix: Matrix = None,
+    plot_style: PlotStyle2D = None,
+    **kwargs,
+) -> None:
+    """
+    Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
+    """
+    inf_flex_pointwise = resolve_inf_flex(
+        framework, inf_flex, points, projection_matrix
+    )
+
+    x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
+    y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
+    arrow_length = (
+        np.sqrt(x_canvas_width**2 + y_canvas_width**2) * plot_style.flex_length
+    )
+    H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex_pointwise.keys()])
+    H_placement = {
+        str(v)
+        + "_flex": np.array(
+            [
+                points[v][0] + arrow_length * inf_flex_pointwise[v][0],
+                points[v][1] + arrow_length * inf_flex_pointwise[v][1],
+            ],
+            dtype=float,
         )
-        H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex_pointwise.keys()])
-        H_placement = {
-            str(v)
-            + "_flex": np.array(
-                [
-                    points[v][0] + arrow_length * inf_flex_pointwise[v][0],
-                    points[v][1] + arrow_length * inf_flex_pointwise[v][1],
-                ],
-                dtype=float,
-            )
-            for v in inf_flex_pointwise.keys()
-        }
-        H_placement.update(
-            {v: np.array(points[v], dtype=float) for v in inf_flex_pointwise.keys()}
-        )
-        if not isinstance(plot_style.flex_color, str):
-            raise TypeError("`flex_color` must be a `str` specifying a color.")
-        nx.draw(
-            H,
-            pos=H_placement,
-            ax=ax,
-            arrows=True,
-            arrowsize=plot_style.flex_arrowsize,
-            node_size=0,
-            node_color="white",
-            width=plot_style.flex_width,
-            edge_color=plot_style.flex_color,
-            style=plot_style.flex_style,
-            **kwargs,
-        )
-    elif framework.dim() == 3:
-        for v in inf_flex_pointwise.keys():
-            ax.quiver(
-                points[v][0],
-                points[v][1],
-                points[v][2],
-                inf_flex_pointwise[v][0],
-                inf_flex_pointwise[v][1],
-                inf_flex_pointwise[v][2],
-                color=plot_style.flex_color,
-                lw=plot_style.flex_width,
-                linestyle=plot_style.flex_style,
-                length=plot_style.flex_length,
-                arrow_length_ratio=0.35,
-            )
-    else:
-        raise ValueError(
-            "The dimension of the infinitesimal flex needs to be between 1 and 3."
+        for v in inf_flex_pointwise.keys()
+    }
+    H_placement.update(
+        {v: np.array(points[v], dtype=float) for v in inf_flex_pointwise.keys()}
+    )
+    if not isinstance(plot_style.flex_color, str):
+        raise TypeError("`flex_color` must be a `str` specifying a color.")
+    nx.draw(
+        H,
+        pos=H_placement,
+        ax=ax,
+        arrows=True,
+        arrowsize=plot_style.flex_arrowsize,
+        node_size=0,
+        node_color="white",
+        width=plot_style.flex_width,
+        edge_color=plot_style.flex_color,
+        style=plot_style.flex_style,
+        **kwargs,
+    )
+
+
+def plot_inf_flex3D(
+    framework: Framework,
+    ax: Axes,
+    inf_flex: int | Matrix | InfFlex,
+    points: dict[Vertex, Point] = None,
+    projection_matrix: Matrix = None,
+    plot_style: PlotStyle3D = None,
+) -> None:
+    """
+    Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
+    """
+    inf_flex_pointwise = resolve_inf_flex(
+        framework, inf_flex, points, projection_matrix
+    )
+    for v in inf_flex_pointwise.keys():
+        ax.quiver(
+            points[v][0],
+            points[v][1],
+            points[v][2],
+            inf_flex_pointwise[v][0],
+            inf_flex_pointwise[v][1],
+            inf_flex_pointwise[v][2],
+            color=plot_style.flex_color,
+            lw=plot_style.flex_width,
+            linestyle=plot_style.flex_style,
+            length=plot_style.flex_length,
+            arrow_length_ratio=0.35,
         )
 
 
@@ -170,6 +196,10 @@ def resolve_stress(
     """
     Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
     """
+
+    if stress_label_positions is None:
+        stress_label_positions = {}
+
     if isinstance(stress, int) and stress >= 0:
         stresses = framework.stresses()
         if stress >= len(stresses):
@@ -210,8 +240,6 @@ def resolve_stress(
             + "edges as the stress dictionary."
         )
 
-    if stress_label_positions is None:
-        stress_label_positions = {}
     for edge in framework._graph.edge_list(as_tuples=True):
         if edge in stress_label_positions:
             stress_label_positions[edge] = stress_label_positions[edge]

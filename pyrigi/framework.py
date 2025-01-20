@@ -427,7 +427,7 @@ class Framework(object):
         )
 
         if inf_flex is not None:
-            _plot.plot_inf_flex(
+            _plot.plot_inf_flex2D(
                 self,
                 ax,
                 inf_flex,
@@ -436,8 +436,6 @@ class Framework(object):
                 projection_matrix=projection_matrix,
             )
         if stress is not None:
-            if stress_label_positions is None:
-                stress_label_positions = {}
             _plot.plot_stress2D(
                 self,
                 ax,
@@ -779,7 +777,7 @@ class Framework(object):
         )
 
         if inf_flex is not None:
-            _plot.plot_inf_flex(
+            _plot.plot_inf_flex3D(
                 self,
                 ax,
                 inf_flex,
@@ -789,8 +787,6 @@ class Framework(object):
             )
 
         if stress is not None:
-            if stress_label_positions is None:
-                stress_label_positions = {}
             _plot.plot_stress3D(
                 self,
                 ax,
