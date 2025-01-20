@@ -132,30 +132,30 @@ class PlotStyle2D(PlotStyle):
         of the edge, `0.5` the center and `1` the edge's tail.
     aspect_ratio:
         The ratio of y-unit to x-unit. By default 1.0.
-    curved_edges:
+    edges_as_arcs:
         If the edges are too close to each other, we can decide to
         visualize them as arcs.
-    connection_style:
-        In case of curvilinear plotting (``curved_edges=True``), the edges
+    arc_angle:
+        In case of curvilinear plotting (``edges_as_arcs=True``), the edges
         are displayed as arcs. With this parameter, we can set the
         pitch of these arcs in radians.
         For setting different values for individual edges,
-        see ``connection_styles` in :meth:`.Framework.plot2D`.
+        see ``arc_angles_dict` in :meth:`.Framework.plot2D`.
     """
 
     def __init__(
         self,
         stress_label_pos: float = 0.5,
         aspect_ratio: float = 1.0,
-        curved_edges: bool = False,
-        connection_style: float = np.pi / 6,
+        edges_as_arcs: bool = False,
+        arc_angle: float = np.pi / 6,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self.stress_label_pos = stress_label_pos
         self.aspect_ratio = aspect_ratio
-        self.curved_edges = curved_edges
-        self.connection_style = connection_style
+        self.edges_as_arcs = edges_as_arcs
+        self.arc_angle = arc_angle
 
     @classmethod
     def from_plot_style(cls, plot_style: PlotStyle):

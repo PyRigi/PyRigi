@@ -257,7 +257,7 @@ def plot_stress2D(
     stress: Matrix | Stress,
     plot_style: PlotStyle2D,
     points: dict[Vertex, Point] = None,
-    connection_styles: dict[Edge, float] = None,
+    arc_angles_dict: dict[Edge, float] = None,
     stress_label_positions: dict[Edge, float] = None,
     **kwargs,
 ) -> None:
@@ -267,13 +267,12 @@ def plot_stress2D(
     stress_edgewise, stress_label_positions = resolve_stress(
         framework, stress, plot_style, stress_label_positions
     )
-    print(stress_edgewise)
-    if plot_style.curved_edges:
+    if plot_style.edges_as_arcs:
         new_graph = nx.MultiDiGraph()
-        connection_style = resolve_connection_style(
-            framework, plot_style.connection_style, connection_styles
+        arc_angles = resolve_arc_angles(
+            framework, plot_style.arc_angle, arc_angles_dict
         )
-        for e, style in connection_style.items():
+        for e, style in arc_angles.items():
             new_graph.add_edge(e[0], e[1], weight=style)
         plt.box(False)  # Manually removes the frame of the plot
         for e in new_graph.edges(data=True):
@@ -423,57 +422,57 @@ def plot_with_3D_realization(
             )
 
 
-def resolve_connection_style(
+def resolve_arc_angles(
     framework: Framework,
-    connection_style: float,
-    connection_styles: Sequence[float] | dict[Edge, float] = None,
+    arc_angle: float,
+    arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
 ) -> dict[Edge, float]:
     """
     Resolve the connection style for the visualization of the framework.
     """
     G = framework._graph
 
-    if connection_styles is None:
-        connection_styles = {}
+    if arc_angles_dict is None:
+        arc_angles_dict = {}
 
-    if isinstance(connection_styles, list):
-        if not G.number_of_edges() == len(connection_styles):
+    if isinstance(arc_angles_dict, list):
+        if not G.number_of_edges() == len(arc_angles_dict):
             raise ValueError(
-                "The provided `connection_styles` don't have the correct length."
+                "The provided `arc_angles_dict` don't have the correct length."
             )
         res = {
-            e: style for e, style in zip(G.edge_list(as_tuples=True), connection_styles)
+            e: style for e, style in zip(G.edge_list(as_tuples=True), arc_angles_dict)
         }
-    elif isinstance(connection_styles, dict):
+    elif isinstance(arc_angles_dict, dict):
         if (
             not all(
                 [
                     isinstance(e, tuple) and len(e) == 2 and isinstance(v, float | int)
-                    for e, v in connection_styles.items()
+                    for e, v in arc_angles_dict.items()
                 ]
             )
             or not all(
                 [
                     set(key) in [set([e[0], e[1]]) for e in G.edge_list()]
-                    for key in connection_styles.keys()
+                    for key in arc_angles_dict.keys()
                 ]
             )
             or any(
-                [set(key) for key in connection_styles.keys()].count(e) > 1
-                for e in [set(key) for key in connection_styles.keys()]
+                [set(key) for key in arc_angles_dict.keys()].count(e) > 1
+                for e in [set(key) for key in arc_angles_dict.keys()]
             )
         ):
             raise ValueError(
-                "The provided `connection_styles` contain different edges "
+                "The provided `arc_angles_dict` contain different edges "
                 + "than the underlying graph or has an incorrect format."
             )
-        res = {e: style for e, style in connection_styles.items() if G.has_edge(*e)}
+        res = {e: style for e, style in arc_angles_dict.items() if G.has_edge(*e)}
         for e in G.edges:
             if not (tuple(e) in res or tuple([e[1], e[0]]) in res):
-                res[tuple(e)] = connection_style
+                res[tuple(e)] = arc_angle
     else:
         raise TypeError(
-            "The provided `connection_styles` do not have the appropriate type."
+            "The provided `arc_angles_dict` do not have the appropriate type."
         )
     return res
 
@@ -547,7 +546,7 @@ def plot_with_2D_realization(
     realization: dict[Vertex, Point],
     plot_style: PlotStyle2D,
     edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-    connection_styles: Sequence[float] | dict[Edge, float] = None,
+    arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
     **kwargs,
 ) -> None:
     """
@@ -557,7 +556,7 @@ def plot_with_2D_realization(
         framework, plot_style.edge_color, edge_coloring
     )
 
-    if not plot_style.curved_edges:
+    if not plot_style.edges_as_arcs:
         nx.draw(
             framework._graph,
             pos=realization,
@@ -575,10 +574,10 @@ def plot_with_2D_realization(
         )
     else:
         newGraph = nx.MultiDiGraph()
-        connection_style = resolve_connection_style(
-            framework, plot_style.connection_style, connection_styles
+        arc_angles = resolve_arc_angles(
+            framework, plot_style.arc_angle, arc_angles_dict
         )
-        for e, style in connection_style.items():
+        for e, style in arc_angles.items():
             newGraph.add_edge(e[0], e[1], weight=style)
         plt.box(False)  # Manually removes the frame of the plot
         plt.tick_params(

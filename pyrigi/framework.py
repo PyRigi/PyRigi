@@ -305,7 +305,7 @@ class Framework(object):
         stress: int | Stress = None,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
-        connection_styles: Sequence[float] | dict[Edge, float] = None,
+        arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
         **kwargs,
     ) -> None:
         """
@@ -365,7 +365,7 @@ class Framework(object):
             Dictionary specifying the position of stress labels along the edges. Keys are
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
             Ommited edges are given the value ``plot_style.stress_label_pos``.
-        connection_styles:
+        arc_angles_dict:
             Optional parameter to specify custom connection styles for edges. Can be a
             ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
             the curvature angle of edges in radians.
@@ -401,10 +401,10 @@ class Framework(object):
                     as_points=True, numerical=True
                 ).items()
             }
-            if hasattr(kwargs, "curved_edges"):
-                plot_style.update(curved_edges=kwargs["curved_edges"])
+            if hasattr(kwargs, "edges_as_arcs"):
+                plot_style.update(edges_as_arcs=kwargs["edges_as_arcs"])
             else:
-                plot_style.update(curved_edges=True)
+                plot_style.update(edges_as_arcs=True)
 
         elif self._dim == 2:
             placement = self.realization(as_points=True, numerical=True)
@@ -423,7 +423,7 @@ class Framework(object):
             placement,
             plot_style=plot_style,
             edge_coloring=edge_coloring,
-            connection_styles=connection_styles,
+            arc_angles_dict=arc_angles_dict,
         )
 
         if inf_flex is not None:
@@ -442,7 +442,7 @@ class Framework(object):
                 stress,
                 points=placement,
                 plot_style=plot_style,
-                connection_styles=connection_styles,
+                arc_angles_dict=arc_angles_dict,
                 stress_label_positions=stress_label_positions,
             )
 
@@ -722,10 +722,6 @@ class Framework(object):
             Dictionary specifying the position of stress labels along the edges. Keys are
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
             Ommited edges are given the value ``plot_style.stress_label_pos``.
-        connection_styles:
-            Optional parameter to specify custom connection styles for edges. Can be a
-            ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
-            the curvature angle of edges in radians.
 
 
         Examples
