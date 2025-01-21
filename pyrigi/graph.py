@@ -2803,7 +2803,7 @@ class Graph(nx.Graph):
         >>> G.plot(vertex_color="#FF0000", edge_color="black", vertex_size=50)
 
         Specifying a custom plot style
-        >>> from pyrigi.plotting import PlotStyle
+        >>> from pyrigi.plot_style import PlotStyle
         >>> plot_style = PlotStyle(vertex_color="#FF0000")
         >>> G.plot(plot_style)
 
