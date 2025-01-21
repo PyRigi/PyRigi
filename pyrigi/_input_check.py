@@ -79,7 +79,6 @@ def greater(val1: int, val2: int, name1: str, name2: str = "") -> None:
         )
 
 
-
 def pebble_values(K: int, L: int) -> None:
     """
     Check if K and L satisfy the pebble conditions K > 0 and 0 <= L < 2K.

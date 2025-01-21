@@ -481,20 +481,6 @@ class Graph(nx.Graph):
         """
         return max([self.degree(v) for v in self.nodes])
 
-    @staticmethod
-    def _pebble_values_are_correct(K: int, L: int) -> bool:
-        r"""
-        Check if K and L satisfy pebble game conditions.
-
-        K and L need to be integers that satisfy the conditions
-        K > 0, L >= 0 and L < 2K
-        """
-        if not (isinstance(K, int) and isinstance(L, int)):
-            return False
-        if K <= 0 or L < 0 or L >= 2 * K:
-            return False
-        return True
-
     def _build_pebble_digraph(self, K: int, L: int) -> None:
         r"""
         Build and save the pebble digraph from scratch.
@@ -503,11 +489,7 @@ class Graph(nx.Graph):
         Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
         from the rest of the graph.
         """
-        if not self._pebble_values_are_correct(K, L):
-            raise TypeError(
-                "K and L need to be integers that satisfy the conditions of\
-                 K > 0, L >= 0 and L < 2K!"
-            )
+        _input_check.pebble_values(K, L)
 
         dir_graph = pyrigi._pebble_digraph.PebbleDiGraph(K, L)
         dir_graph.add_nodes_from(self.nodes)
@@ -610,19 +592,15 @@ class Graph(nx.Graph):
         >>> G.is_sparse(3,6)
         False
         """
-        if not (isinstance(K, int) and isinstance(L, int)):
-            raise TypeError("K and L need to be integers!")
+        _input_check.integrality_and_range(K, "K", min_n=1)
+        _input_check.integrality_and_range(L, "L", min_n=0)
 
         if algorithm == "pebble":
-            if self._pebble_values_are_correct(K, L):
-                return self._is_pebble_digraph_sparse(
-                    K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
-                )
-            else:
-                raise ValueError(
-                    "K and L with pebble algorithm need to satisfy the\
-                     conditions of K > 0, 0 <= L < 2K!"
-                )
+            _input_check.pebble_values(K, L)
+            return self._is_pebble_digraph_sparse(
+                K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+            )
+
         if algorithm == "subgraph":
             for j in range(K, self.number_of_nodes() + 1):
                 for vertex_set in combinations(self.nodes, j):
@@ -631,18 +609,20 @@ class Graph(nx.Graph):
                         return False
             return True
         if algorithm == "default":
-            if self._pebble_values_are_correct(K, L):
-                # use "pebble" if possible
-                algorithm = "pebble"
-            else:
-                # otherwise use "subgraph"
-                algorithm = "subgraph"
-            return self.is_sparse(
-                K,
-                L,
-                algorithm,
-                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-            )
+            try:
+                return self.is_sparse(
+                    K,
+                    L,
+                    "pebble",
+                    use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+                )
+            finally:
+                return self.is_sparse(
+                    K,
+                    L,
+                    "subgraph",
+                    use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+                )
 
         # reaching this position means that the algorithm is unknown
         raise ValueError(
