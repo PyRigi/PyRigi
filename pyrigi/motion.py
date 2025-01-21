@@ -31,7 +31,7 @@ class Motion(object):
 
     def __repr__(self) -> str:
         return self.__str__()
-    
+
     def graph(self) -> Graph:
         """
         Return a copy of the underlying graph.
