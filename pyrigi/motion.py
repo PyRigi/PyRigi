@@ -370,7 +370,7 @@ class ApproximateMotion(Motion):
     >>> motion
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (1.0, 1.0), 3: (0.0, 1.0)},
-    10 retraction steps and initial step size 0.05.
+    10 retraction steps and initial step size 0.1.
     """  # noqa: E501
 
     def __init__(
@@ -378,7 +378,7 @@ class ApproximateMotion(Motion):
         graph: Graph,
         starting_configuration: dict[Vertex, Point],
         steps: int,
-        step_size: float = 0.05,
+        step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
     ) -> None:
@@ -387,7 +387,7 @@ class ApproximateMotion(Motion):
         """
         super().__init__(graph)
 
-        if not len(starting_configuration) == self._graph.number_of_nodes():
+        if not len(starting_configuration) == graph.number_of_nodes():
             raise IndexError(
                 "The realization does not contain the correct amount of vertices!"
             )
@@ -396,14 +396,14 @@ class ApproximateMotion(Motion):
             v: tuple([float(sp.sympify(pt).evalf(15)) for pt in p])
             for v, p in starting_configuration.items()
         }
-        p0 = list(self._starting_configuration.values())[0]
+        p0 = self._starting_configuration[graph.vertex_list()[0]]
         # Translate to the origin
         self._starting_configuration = {
             v: tuple([pt[i] - p0[i] for i in range(len(pt))])
             for v, pt in self._starting_configuration.items()
         }
         self._dim = len(list(self._starting_configuration.values())[0])
-        for v in self._graph.nodes:
+        for v in graph.nodes:
             if v not in starting_configuration:
                 raise KeyError(f"Vertex {v} is not a key of the given realization!")
             if len(self._starting_configuration[v]) != self._dim:
@@ -418,7 +418,7 @@ class ApproximateMotion(Motion):
         self.chosen_flex = chosen_flex
         self.step_size = step_size
         self._current_step_size = step_size
-        F = Framework(self._graph, self._starting_configuration)
+        F = Framework(graph, self._starting_configuration)
         self.edge_lengths = F.edge_lengths(numerical=True)
         cur_inf_flex = normalize_flex(
             F._transform_inf_flex_to_pointwise(F.inf_flexes()[chosen_flex]),
@@ -441,7 +441,7 @@ class ApproximateMotion(Motion):
                 np.linalg.norm(
                     [
                         p1 - p2
-                        for v in self._graph.nodes
+                        for v in graph.nodes
                         for p1, p2 in zip(
                             self.motion_samples[-1][v],
                             self.motion_samples[-2][v],
@@ -454,13 +454,14 @@ class ApproximateMotion(Motion):
                 self.motion_samples.pop()
                 jump_indicator[0] = True
                 if all(jump_indicator):
-                    step_size_rescaling = step_size_rescaling**(0.75)
+                    step_size_rescaling = step_size_rescaling ** (0.75)
+                    jump_indicator = [False, False]
                 continue
             elif (
                 np.linalg.norm(
                     [
                         p1 - p2
-                        for v in self._graph.nodes
+                        for v in graph.nodes
                         for p1, p2 in zip(
                             self.motion_samples[-1][v],
                             self.motion_samples[-2][v],
@@ -473,14 +474,15 @@ class ApproximateMotion(Motion):
                 self.motion_samples.pop()
                 jump_indicator[1] = True
                 if all(jump_indicator):
-                    step_size_rescaling = step_size_rescaling**(0.75)
+                    step_size_rescaling = step_size_rescaling ** (0.75)
+                    jump_indicator = [False, False]
                 continue
             jump_indicator = [False, False]
             i = i + 1
 
     @classmethod
     def from_framework(
-        cls, F: Framework, steps: int, step_size: float = 0.05, chosen_flex: int = 0
+        cls, F: Framework, steps: int, step_size: float = 0.1, chosen_flex: int = 0
     ):
         """
         Instantiates an ``ApproximateMotion`` from a ``Framework``.
@@ -537,7 +539,9 @@ class ApproximateMotion(Motion):
 
     def _newton_steps(self, realization: dict[Vertex, Point]) -> dict[Vertex, Point]:
         F = Framework(self._graph, realization)
-        cur_sol = np.array(sum([list(p) for p in realization.values()], []))
+        cur_sol = np.array(
+            sum([list(realization[v]) for v in self._graph.vertex_list()], [])
+        )
         cur_error = prev_error = sum(
             [
                 np.abs(L - self.edge_lengths[e])
@@ -591,8 +595,10 @@ class ApproximateMotion(Motion):
             prev_error = cur_error
 
         return {
-            i: tuple(cur_sol[(self._dim * i) : (self._dim * (i + 1))])
-            for i in range(len(realization.keys()))
+            self._graph.vertex_list()[i]: tuple(
+                cur_sol[(self._dim * i) : (self._dim * (i + 1))]
+            )
+            for i in range(self._graph.number_of_nodes())
         }
 
     def __str__(self) -> str:
