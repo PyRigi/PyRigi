@@ -83,7 +83,7 @@ def test_realization():
         },
         [-sp.oo, sp.oo],
     )
-    R = mot.realization(0, numeric=False)
+    R = mot.realization(0, numerical=False)
     tmp = R[0]
     assert tmp[0] == 0
     assert tmp[1] == 0
@@ -100,7 +100,7 @@ def test_realization():
     assert tmp[0] == 1
     assert tmp[1] == 0
 
-    R = mot.realization("2/3", numeric=False)
+    R = mot.realization("2/3", numerical=False)
     tmp = R[2]
     assert tmp[0] == sp.sympify("-7/5")
     assert tmp[1] == sp.sympify("9/5")
@@ -109,7 +109,7 @@ def test_realization():
     assert tmp[0] == sp.sympify("-16/65")
     assert tmp[1] == sp.sympify("-63/65")
 
-    R = mot.realization(2 / 3, numeric=True)
+    R = mot.realization(2 / 3, numerical=True)
     tmp = R[2]
     assert abs(tmp[0] - (-7 / 5)) < 1e-9
     assert abs(tmp[1] - 9 / 5) < 1e-9
