@@ -4,13 +4,14 @@ This module contains functionality related to motions (continuous flexes).
 
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
-from pyrigi.data_type import Vertex, Point, Sequence, InfFlex
+from pyrigi.data_type import Vertex, Point, Sequence, InfFlex, Number
 from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex
 import numpy as np
 import sympy as sp
 from IPython.display import SVG
 from typing import Any
+from copy import deepcopy
 
 
 class Motion(object):
@@ -30,6 +31,12 @@ class Motion(object):
 
     def __repr__(self) -> str:
         return self.__str__()
+    
+    def graph(self) -> Graph:
+        """
+        Return a copy of the underlying graph.
+        """
+        return deepcopy(self._graph)
 
     @staticmethod
     def _normalize_realizations(
@@ -99,7 +106,6 @@ class Motion(object):
         duration:
             The duration of one period of the animation in seconds.
         """
-
         if self._dim != 2:
             raise ValueError("Animations are supported only for motions in 2D.")
         if not (
@@ -269,15 +275,22 @@ class ParametricMotion(Motion):
                 return False
         return True
 
-    def realization(self, value, numeric: bool = False) -> dict[Vertex:Point]:
+    def realization(self, value: Number, numerical: bool = False) -> dict[Vertex:Point]:
         """
-        Return specific realization for the given value of the parameter.
+        Return specific realization for the given ``value`` of the parameter.
 
+        Parameters
+        ----------
+        value:
+            The parameter of the deformation path is substituted by ``value``.
+        numerical:
+            Boolean determining whether the sympy expressions are supposed to be
+            evaluated (``True``) or not (``False``).
         """
 
         realization = {}
         for v in self._graph.nodes:
-            if numeric:
+            if numerical:
                 _value = sp.sympify(value).evalf()
                 placement = (
                     self._parametrization[v]
@@ -383,7 +396,7 @@ class ApproximateMotion(Motion):
     Attributes
     ----------
     edge_lengths:
-        The edge lengths that ought to be preserved. This parameter is set internally.
+        The edge lengths that ought to be preserved.
     motion_samples:
         A list of numerical configurations on the configuration space.
 

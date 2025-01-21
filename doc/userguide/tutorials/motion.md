@@ -53,7 +53,7 @@ motion = ParametricMotion(
         3: ("cos(8*pi/5 + t)", "sin(8*pi/5 + t)"),
         4: ("cos(t)", "sin(t)")
     },
-    [0, sp.sympify("pi")],
+    [0, sp.sympify("2*pi")],
 )
 motion.animate()
 ```
