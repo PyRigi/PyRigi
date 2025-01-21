@@ -371,6 +371,7 @@ class Framework(object):
 
         Examples
         --------
+        >>> from pyrigi import Graph, Framework
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3), (0,2), (1,3), (0,4)])
         >>> F = Framework(G, {0:(0,0), 1:(1,0), 2:(1,2), 3:(0,1), 4:(-1,0)})
         >>> from pyrigi.plot_style import PlotStyle2D
@@ -393,6 +394,10 @@ class Framework(object):
         Use edge coloring
         >>> edge_coloring = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
         >>> F.plot2D(edge_coloring=edge_coloring)
+
+        The following is just to close all figures after running the example:
+        >>> import matplotlib.pyplot
+        >>> matplotlib.pyplot.close("all")
         """
         if plot_style is None:
             plot_style = PlotStyle2D()
@@ -763,6 +768,10 @@ class Framework(object):
         Use edge coloring
         >>> edge_coloring = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
         >>> F.plot3D(edge_coloring=edge_coloring)
+
+        The following is just to close all figures after running the example:
+        >>> import matplotlib.pyplot
+        >>> matplotlib.pyplot.close("all")
         """
         if plot_style is None:
             # change some PlotStyle default values to fit 3D plotting better

@@ -2816,6 +2816,10 @@ class Graph(nx.Graph):
 
         Combining different customizations
         >>> G.plot(plot_style, layout="random", placement=placement)
+
+        The following is just to close all figures after running the example:
+        >>> import matplotlib.pyplot
+        >>> matplotlib.pyplot.close("all")
         """
         if plot_style is None:
             plot_style = PlotStyle(vertex_color="#4169E1")
