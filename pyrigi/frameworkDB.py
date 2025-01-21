@@ -4,15 +4,15 @@ This is a module for providing common types of frameworks.
 
 from pyrigi.framework import Framework
 import pyrigi.graphDB as graphs
-import pyrigi.misc as misc
+import pyrigi._input_check as _input_check
 
 import sympy as sp
 
 
 def Cycle(n: int, dim: int = 2) -> Framework:
     """Return d-dimensional framework of the n-cycle."""
-    misc.check_integrality_and_range(n, "number of vertices n", 3)
-    misc.check_integrality_and_range(dim, "dimension d", 1)
+    _input_check.integrality_and_range(n, "number of vertices n", 3)
+    _input_check.integrality_and_range(dim, "dimension d", 1)
     if n - 1 <= dim:
         return Framework.Simplicial(graphs.Cycle(n), dim)
     elif dim == 1:
@@ -134,8 +134,8 @@ def Complete(n: int, dim: int = 2) -> Framework:
     ----
     Describe the generated realization.
     """
-    misc.check_integrality_and_range(n, "number of vertices n", 1)
-    misc.check_integrality_and_range(dim, "dimension d", 1)
+    _input_check.integrality_and_range(n, "number of vertices n", 1)
+    _input_check.integrality_and_range(dim, "dimension d", 1)
     if n - 1 <= dim:
         return Framework.Simplicial(graphs.Complete(n), dim)
     elif dim == 1:
@@ -150,8 +150,8 @@ def Complete(n: int, dim: int = 2) -> Framework:
 
 def Path(n: int, dim: int = 2) -> Framework:
     """Return d-dimensional framework of the path graph on n vertices."""
-    misc.check_integrality_and_range(n, "number of vertices n", 2)
-    misc.check_integrality_and_range(dim, "dimension d", 1)
+    _input_check.integrality_and_range(n, "number of vertices n", 2)
+    _input_check.integrality_and_range(dim, "dimension d", 1)
     if n - 1 <= dim:
         return Framework.Simplicial(graphs.Path(n), dim)
     elif dim == 1:
@@ -214,8 +214,8 @@ def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
     ----
     Implement realization in higher dimensions.
     """
-    misc.check_integrality_and_range(m, "size m", 1)
-    misc.check_integrality_and_range(n, "size n", 1)
+    _input_check.integrality_and_range(m, "size m", 1)
+    _input_check.integrality_and_range(n, "size n", 1)
     if realization == "dixonI":
         return Framework(
             graphs.CompleteBipartite(m, n),

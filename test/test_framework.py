@@ -2,7 +2,7 @@ from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
-from pyrigi.exception import LoopError, DimensionValueError
+from pyrigi.exception import LoopError
 from pyrigi.data_type import point_to_vector
 import matplotlib.pyplot as plt
 
@@ -440,15 +440,30 @@ def test_loop_error():
 @pytest.mark.parametrize(
     "param",
     [
-        1.1,
+        0,
         -2,
     ],
 )
-def test_dimension_error(param):
-    with pytest.raises(DimensionValueError):
+def test_dimension_value_error(param):
+    with pytest.raises(ValueError):
         G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
         Framework.Random(G, param)
-    with pytest.raises(DimensionValueError):
+    with pytest.raises(ValueError):
+        Framework.Empty(param)
+
+
+@pytest.mark.parametrize(
+    "param",
+    [
+        1.1,
+        3/2,
+    ],
+)
+def test_dimension_type_error(param):
+    with pytest.raises(TypeError):
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        Framework.Random(G, param)
+    with pytest.raises(TypeError):
         Framework.Empty(param)
 
 

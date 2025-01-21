@@ -1927,7 +1927,7 @@ class Framework(object):
         """
         if dim is None:
             dim = graph.number_of_nodes() - 1
-        check_integrality_and_range(
+        _input_check.integrality_and_range(
             dim, "dimension d", max([1, graph.number_of_nodes() - 1])
         )
         return Framework(

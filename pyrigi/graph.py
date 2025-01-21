@@ -221,6 +221,13 @@ class Graph(nx.Graph):
         edges = list(combinations(vertices, 2))
         return Graph.from_vertices_and_edges(vertices, edges)
 
+    def _input_check_loop(self) -> None:
+        """
+        Check whether a graph has loops and raise an error in case.
+        """
+        if nx.number_of_selfloops(self) > 0:
+            raise LoopError()
+
     def _check_edge_format(self, input_pair: Edge) -> None:
         """
         Check if an input_pair is a pair of distinct vertices of the graph.
@@ -1174,8 +1181,7 @@ class Graph(nx.Graph):
         _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1296,8 +1302,7 @@ class Graph(nx.Graph):
         _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1424,8 +1429,7 @@ class Graph(nx.Graph):
         _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1537,8 +1541,7 @@ class Graph(nx.Graph):
         _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1631,8 +1634,7 @@ class Graph(nx.Graph):
                 "combinatorial determines the method of rigidity-computation. "
                 "It needs to be a Boolean!"
             )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -1713,8 +1715,7 @@ class Graph(nx.Graph):
                 "combinatorial determines the method of rigidity-computation. "
                 "It needs to be a Boolean!"
             )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -1797,10 +1798,9 @@ class Graph(nx.Graph):
         `False` with probability less than `prob`, which is 0.0001 by default.
         """  # noqa: E501
         _input_check.dimension(dim)
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
-        elif dim == 1:
+        if dim == 1:
             if (self.number_of_nodes() == 2 and self.number_of_edges() == 1) or (
                 self.number_of_nodes() == 1 or self.number_of_nodes() == 0
             ):
@@ -1924,8 +1924,7 @@ class Graph(nx.Graph):
         Warning: This function uses a randomized algorithm
         """
         _input_check.dimension(dim)
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
         if dim == 1:
             return len(nx.cycle_basis(self)) == 0
 
@@ -1979,8 +1978,7 @@ class Graph(nx.Graph):
         False
         """
         _input_check.dimension(dim)
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
         if dim == 1:
             if not nx.is_connected(self):
                 return False
@@ -2060,8 +2058,7 @@ class Graph(nx.Graph):
         True
         """
         _input_check.dimension(dim)
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
         if combinatorial:
             if dim <= 1:
@@ -2136,8 +2133,7 @@ class Graph(nx.Graph):
         and :meth:`~.Graph.is_Rd_closed` with its tests accordingly.
         """
         _input_check.dimension(dim)
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
 
         if combinatorial and dim == 1:
             return [list(comp) for comp in nx.connected_components(self)]
@@ -2204,8 +2200,8 @@ class Graph(nx.Graph):
         >>> G.max_rigid_dimension()
         3
         """
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_loop()
+
         if not nx.is_connected(self):
             return 0
 
@@ -2287,14 +2283,12 @@ class Graph(nx.Graph):
                 "The integer representation only works "
                 "for graphs without isolated vertices!"
             )
-        if nx.number_of_selfloops(self) == 0:
-            M = self.adjacency_matrix(vertex_order)
-            upper_diag = [
-                str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]
-            ]
-            return int("".join(upper_diag), 2)
-        else:
-            raise LoopError()
+        self._input_check_loop()
+        M = self.adjacency_matrix(vertex_order)
+        upper_diag = [
+            str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]
+        ]
+        return int("".join(upper_diag), 2)
 
     @classmethod
     @doc_category("Class methods")

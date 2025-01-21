@@ -2,7 +2,6 @@ from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
 from pyrigi.exception import (
     LoopError,
-    DimensionValueError,
     DimensionCombinatorialValueError,
     NonNegativeIntParameterValueError,
 )
@@ -1348,7 +1347,7 @@ def test_all_k_extensions():
 
 
 def test_k_extension_error():
-    with pytest.raises(DimensionValueError):
+    with pytest.raises(ValueError):
         graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1], [0, 2]], dim=-1)
     with pytest.raises(ValueError):
         graphs.Complete(6).k_extension(2, [0, 1, 6], [[0, 1], [0, 6]], dim=1)
