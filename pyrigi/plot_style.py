@@ -70,11 +70,11 @@ class PlotStyle(object):
     >>> from pyrigi import Graph
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> plot_style = PlotStyle(vertex_color="#FF0000", edge_color="black", vertex_size=50)
-    >>> G.plot(plot_style);
+    >>> G.plot(plot_style)
 
     To change the plot style later, use the :meth:`.update` method:
     >>> plot_style.update(vertex_color="#00FF00")
-    >>> G.plot(plot_style);
+    >>> G.plot(plot_style)
     """
 
     def __init__(

@@ -806,15 +806,11 @@ class Framework(object):
             )
 
         # Center the realization
-        centroid_x = sum([p[0] for p in placement.values()]) / len(placement)
-        centroid_y = sum([p[1] for p in placement.values()]) / len(placement)
-        centroid_z = sum([p[2] for p in placement.values()]) / len(placement)
+        centroid = [
+            sum([p[i] for p in placement.values()]) / len(placement) for i in range(3)
+        ]
         _placement = {
-            v: [
-                plot_style.axis_scales[0] * (p[0] - centroid_x),
-                plot_style.axis_scales[1] * (p[1] - centroid_y),
-                plot_style.axis_scales[2] * (p[2] - centroid_z),
-            ]
+            v: [p[0] - centroid[0], p[1] - centroid[1], p[2] - centroid[2]]
             for v, p in placement.items()
         }
 
