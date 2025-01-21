@@ -343,10 +343,9 @@ class ApproximateMotion(Motion):
         A list of numerical configurations on the configuration space.
     steps:
         The amount of retraction steps.
-    initial_step_length:
-        The step size of each retraction step.
-    edge_lengths:
-        The edge lengths that ought to be preserved.
+    step_size:
+        The step size of each retraction step. If the output seems too jumpy or instable,
+        consider reducing the step size.
     chosen_flex:
         An integer indicating the chosen flex.
     turning_threshold:
@@ -355,6 +354,9 @@ class ApproximateMotion(Motion):
         previous Euler step is calculated using the Euclidean norm. If the current
         distance is at least ``turning_threshold`` times as large as the distance
         of the negative infinitesimal flex, then the latter one is chosen instead.
+        If instead the animation is too slow, consider increasing this value.
+    edge_lengths:
+        The edge lengths that ought to be preserved. This parameter is set internally.
 
     Examples
     --------
@@ -368,7 +370,7 @@ class ApproximateMotion(Motion):
     >>> motion
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (1.0, 1.0), 3: (0.0, 1.0)},
-    10 retraction steps and initial step size 0.1.
+    10 retraction steps and initial step size 0.05.
     """  # noqa: E501
 
     def __init__(
@@ -376,7 +378,7 @@ class ApproximateMotion(Motion):
         graph: Graph,
         starting_configuration: dict[Vertex, Point],
         steps: int,
-        step_length: float = 0.05,
+        step_size: float = 0.05,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
     ) -> None:
@@ -414,15 +416,20 @@ class ApproximateMotion(Motion):
         cur_sol = self._starting_configuration
         self.steps = steps
         self.chosen_flex = chosen_flex
-        self.initial_step_length = step_length
-        self._current_step_length = step_length
+        self.step_size = step_size
+        self._current_step_size = step_size
         F = Framework(self._graph, self._starting_configuration)
         self.edge_lengths = F.edge_lengths(numerical=True)
         cur_inf_flex = normalize_flex(
             F._transform_inf_flex_to_pointwise(F.inf_flexes()[chosen_flex]),
             numerical=True,
         )
+
         i = 1
+        # To avoid an infinite loop, the step size rescaling is reduced if only too large
+        # or too small step sizes are found Its value converges to 1.
+        step_size_rescaling = 2
+        jump_indicator = [False, False]
         while i < steps:
             euler_step, cur_inf_flex = self._euler_step(
                 cur_inf_flex, cur_sol, turning_threshold
@@ -441,11 +448,14 @@ class ApproximateMotion(Motion):
                         )
                     ]
                 )
-                > self.initial_step_length * 2
+                > self.step_size * 2
             ):
-                self._current_step_length = self._current_step_length / 2
+                self._current_step_size = self._current_step_size / step_size_rescaling
                 self.motion_samples.pop()
-                i = i - 1
+                jump_indicator[0] = True
+                if all(jump_indicator):
+                    step_size_rescaling = step_size_rescaling**(0.75)
+                continue
             elif (
                 np.linalg.norm(
                     [
@@ -457,16 +467,20 @@ class ApproximateMotion(Motion):
                         )
                     ]
                 )
-                < self.initial_step_length / 2
+                < self.step_size / 2
             ):
-                self._current_step_length = self._current_step_length * 2
+                self._current_step_size = self._current_step_size * step_size_rescaling
                 self.motion_samples.pop()
-                i = i - 1
+                jump_indicator[1] = True
+                if all(jump_indicator):
+                    step_size_rescaling = step_size_rescaling**(0.75)
+                continue
+            jump_indicator = [False, False]
             i = i + 1
 
     @classmethod
     def from_framework(
-        cls, F: Framework, steps: int, step_length: float = 0.05, chosen_flex: int = 0
+        cls, F: Framework, steps: int, step_size: float = 0.05, chosen_flex: int = 0
     ):
         """
         Instantiates an ``ApproximateMotion`` from a ``Framework``.
@@ -475,7 +489,7 @@ class ApproximateMotion(Motion):
             F.graph(),
             F.realization(as_points=True, numerical=True),
             steps,
-            step_length,
+            step_size,
             chosen_flex,
         )
 
@@ -514,7 +528,7 @@ class ApproximateMotion(Motion):
         return {
             v: tuple(
                 [
-                    p[i] + self._current_step_length * inf_flex[v][i]
+                    p[i] + self._current_step_size * inf_flex[v][i]
                     for i in range(len(point[v]))
                 ]
             )
@@ -585,5 +599,5 @@ class ApproximateMotion(Motion):
         res = super().__str__() + " with starting configuration\n"
         res += str(self.motion_samples[0]) + ",\n"
         res += str(self.steps) + " retraction steps and initial step size "
-        res += str(self.initial_step_length) + "."
+        res += str(self.step_size) + "."
         return res

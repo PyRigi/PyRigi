@@ -318,7 +318,7 @@ A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 ```{code-cell} ipython3
 from pyrigi.motion import ApproximateMotion
 F = frameworks.CompleteBipartite(2,4)
-motion = ApproximateMotion.from_framework(F, 394, chosen_flex=0, step_length=0.15)
+motion = ApproximateMotion.from_framework(F, 395, chosen_flex=0, step_size=0.15)
 motion.animate(duration=10)
 ```
 
