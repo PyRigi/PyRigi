@@ -67,13 +67,14 @@ class PlotStyle(object):
 
     Examples
     --------
+    >>> from pyrigi import Graph
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> plot_style = PlotStyle(vertex_color="#FF0000", edge_color="black", vertex_size=50)
-    >>> G.plot(plot_style)
+    >>> G.plot(plot_style);
 
     To change the plot style later, use the :meth:`.update` method:
     >>> plot_style.update(vertex_color="#00FF00")
-    >>> G.plot(plot_style)
+    >>> G.plot(plot_style);
     """
 
     def __init__(
@@ -195,6 +196,10 @@ class PlotStyle3D(PlotStyle):
     ):
         super().__init__(**kwargs)
         self.padding = padding
+        if len(axis_scales) != 3 or any(
+            [not isinstance(scale, float) for scale in axis_scales]
+        ):
+            raise ValueError("The length of `axis_scales` is not 3.")
         self.axis_scales = axis_scales
 
     @classmethod

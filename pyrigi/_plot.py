@@ -223,7 +223,7 @@ def plot_inf_flex3D(
             lw=plot_style.flex_width,
             linestyle=plot_style.flex_style,
             length=arrow_length,
-            arrow_length_ratio=0.35,
+            arrow_length_ratio=0.3,
         )
 
 
@@ -447,9 +447,10 @@ def plot_with_3D_realization(
     z_nodes = [realization[node][2] for node in framework._graph.nodes]
     min_val = min(x_nodes + y_nodes + z_nodes) - plot_style.padding
     max_val = max(x_nodes + y_nodes + z_nodes) + plot_style.padding
-    ax.set_zlim(min_val, max_val)
-    ax.set_ylim(min_val, max_val)
-    ax.set_xlim(min_val, max_val)
+    aspect_ratio = plot_style.axis_scales
+    ax.set_zlim(min_val * aspect_ratio[0], max_val * aspect_ratio[0])
+    ax.set_ylim(min_val * aspect_ratio[1], max_val * aspect_ratio[1])
+    ax.set_xlim(min_val * aspect_ratio[2], max_val * aspect_ratio[2])
     ax.scatter(
         x_nodes,
         y_nodes,

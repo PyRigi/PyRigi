@@ -350,5 +350,14 @@ be looked up in the corresponding API reference: {class}`~.PlotStyle`.
 
 ```{code-cell} ipython3
 F = frameworks.Octahedron(realization="Bricard_plane")
-F.plot(inf_flex=0, stress=0, flex_length=0.2, stress_fontsize=10)
+inf_flex = {v: [-qt for qt in q] 
+            for v, q in F._transform_inf_flex_to_pointwise(F.inf_flexes()[0]).items()
+}
+F.plot(inf_flex=inf_flex, 
+       stress=0,
+       flex_length=0.25,
+       stress_fontsize=11,
+       axis_scales=(0.625,0.625,0.625),
+       stress_label_positions={e: 0.6 for e in F.graph().edges}
+)
 ```
