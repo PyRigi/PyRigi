@@ -84,36 +84,46 @@ S.plot(aspect_ratio=0.4)
 
 ## Formatting
 There are various options to format a plot.
-One can create an instance of class {class}`~.PlotStyle`
-or pass the same input parameters directly as keyword arguments.
-These two options can be combined, keyword arguments having the priority.
+One can pass them as keywords arguments, for instance 
+vertex color/size or label color/size can be changed.
 
-Vertex color/size or label color/size can be changed.
+```{code-cell} ipython3
+G = Graph([[0,1]])
+p = {0: [0,0], 1: [1,0]}
+G.plot(placement=p, canvas_height=1, vertex_labels=False, vertex_color='green')
+G.plot(placement=p, canvas_height=1, vertex_size=1500, font_size=30, font_color='#FFFFFF')
+```
+
+In order to format multiple plots using the same arguments,
+we can create an instance of class {class}`~.PlotStyle` (see also {class}`~.PlotStyle2D`)
+and pass it to each plot.
 
 ```{code-cell} ipython3
 from pyrigi.plot_style import PlotStyle
 ```
 
 ```{code-cell} ipython3
-G = Graph([[0,1]])
 plot_style = PlotStyle(
     canvas_height=1,
-    vertex_color='blue'
+    vertex_color='blue',
+    vertex_labels=False,
 )
-p = {0: [0,0], 1: [1,0]}
-G.plot(plot_style, placement=p, vertex_labels=False, vertex_color='green')
-G.plot(plot_style, placement=p, vertex_size=1500, font_size=30, font_color='#FFFFFF')
 ```
 
 There are various styles of vertices and edges.
 
 ```{code-cell} ipython3
-plot_style.update(vertex_labels= False)
 G.plot(plot_style, placement=p, vertex_shape='s', edge_style='-')
 G.plot(plot_style, placement=p, vertex_shape='o', edge_style='--')
 G.plot(plot_style, placement=p, vertex_shape='^', edge_style='-.')
 G.plot(plot_style, placement=p, vertex_shape='>', edge_style=':')
 G.plot(plot_style, placement=p, vertex_shape='v', edge_style='solid')
+```
+
+We can also change some values of `plot_style`:
+
+```{code-cell} ipython3
+plot_style.update(vertex_color='green')
 G.plot(plot_style, placement=p, vertex_shape='<', edge_style='dashed')
 G.plot(plot_style, placement=p, vertex_shape='d', edge_style='dashdot')
 G.plot(plot_style, placement=p, vertex_shape='p', edge_style='dotted')
@@ -181,6 +191,7 @@ F.plot()
 ```
 
 The same formatting options as for graphs are available for frameworks.
+See also {class}`~.PlotStyle2D` and {class}`~.PlotStyle3D`.
 
 ```{code-cell} ipython3
 F = frameworks.Complete(9)
