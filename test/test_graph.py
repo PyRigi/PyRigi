@@ -2,8 +2,6 @@ from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
 from pyrigi.exception import (
     LoopError,
-    DimensionCombinatorialValueError,
-    NonNegativeIntParameterValueError,
 )
 import matplotlib.pyplot as plt
 
@@ -1189,7 +1187,6 @@ def test_dimension_value_error(method, params):
         func(*params)
 
 
-
 @pytest.mark.parametrize(
     "method, params",
     [
@@ -1201,6 +1198,7 @@ def test_iterator_dimension_type_error(method, params):
         G = Graph([[1, 2], [1, 3], [2, 3]])
         func = getattr(G, method)
         next(func(*params))
+
 
 @pytest.mark.parametrize(
     "method, params",
@@ -1220,19 +1218,36 @@ def test_iterator_dimension_value_error(method, params):
     "method, params",
     [
         ["is_k_redundantly_rigid", [2.4, 3]],
-        ["is_k_redundantly_rigid", [-2, 4]],
         ["is_k_vertex_redundantly_rigid", [3.7, 2]],
-        ["is_k_vertex_redundantly_rigid", [-3, 7]],
         ["is_min_k_redundantly_rigid", [2.5, 3]],
-        ["is_min_k_redundantly_rigid", [-1, 4]],
         ["is_min_k_vertex_redundantly_rigid", [2 / 3, 2]],
-        ["is_min_k_vertex_redundantly_rigid", [-3, 7]],
         ["k_extension", [0.3, [1, 2], [], 4, 2]],
+    ],
+)
+def test_parameter_type_error(method, params):
+    with pytest.raises(TypeError):
+        G = Graph([[1, 2], [1, 3], [2, 3]])
+        func = getattr(G, method)
+        func(*params)
+
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["is_k_redundantly_rigid", [-1, 3]],
+        ["is_k_redundantly_rigid", [-2, 4]],
+        ["is_k_vertex_redundantly_rigid", [-1, 2]],
+        ["is_k_vertex_redundantly_rigid", [-3, 7]],
+        ["is_min_k_redundantly_rigid", [-1, 3]],
+        ["is_min_k_redundantly_rigid", [-2, 4]],
+        ["is_min_k_vertex_redundantly_rigid", [-1, 2]],
+        ["is_min_k_vertex_redundantly_rigid", [-3, 7]],
+        ["k_extension", [-1, [1, 2], [], 4, 2]],
         ["k_extension", [-2, [1, 2], [], 4, 3]],
     ],
 )
-def test_parameter_error(method, params):
-    with pytest.raises(NonNegativeIntParameterValueError):
+def test_parameter_value_error(method, params):
+    with pytest.raises(ValueError):
         G = Graph([[1, 2], [1, 3], [2, 3]])
         func = getattr(G, method)
         func(*params)
@@ -1242,11 +1257,24 @@ def test_parameter_error(method, params):
     "method, params",
     [
         ["all_k_extensions", [1.1, 2]],
-        ["all_k_extensions", [-1, 1]],
     ],
 )
-def test_iterator_parameter_error(method, params):
-    with pytest.raises(NonNegativeIntParameterValueError):
+def test_iterator_parameter_type_error(method, params):
+    with pytest.raises(TypeError):
+        G = Graph([[1, 2], [1, 3], [2, 3]])
+        func = getattr(G, method)
+        next(func(*params))
+
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["all_k_extensions", [-1, 2]],
+        ["all_k_extensions", [-2, 1]],
+    ],
+)
+def test_iterator_parameter_value_error(method, params):
+    with pytest.raises(ValueError):
         G = Graph([[1, 2], [1, 3], [2, 3]])
         func = getattr(G, method)
         next(func(*params))
@@ -1260,7 +1288,7 @@ def test_iterator_parameter_error(method, params):
     ],
 )
 def test_dimension_combinatorial_error(method, params):
-    with pytest.raises(DimensionCombinatorialValueError):
+    with pytest.raises(ValueError):
         G = graphs.DoubleBanana()
         func = getattr(G, method)
         func(*params, combinatorial=True)
@@ -1489,47 +1517,47 @@ def test_CompleteOnVertices():
     ).is_isomorphic(graphs.Complete(20))
 
 
-def test__check_edge_list():
+def test__input_check_edge_list():
     G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
-    G._check_edge((1, 2))
-    G._check_edge([3, 2])
-    G._check_edge_list([(1, 2), (2, 3)])
-    G._check_edge_list([(1, 2)], [1, 2])
-    G._check_edge_list([(2, 3)], [2, 3])
+    G._input_check_edge((1, 2))
+    G._input_check_edge([3, 2])
+    G._input_check_edge_list([(1, 2), (2, 3)])
+    G._input_check_edge_list([(1, 2)], [1, 2])
+    G._input_check_edge_list([(2, 3)], [2, 3])
     with pytest.raises(ValueError):
-        G._check_edge((1, 3))
+        G._input_check_edge((1, 3))
     with pytest.raises(ValueError):
-        G._check_edge((1, 4))
+        G._input_check_edge((1, 4))
     with pytest.raises(ValueError):
-        G._check_edge_list([(1, 2), (1, 3), (2, 3)])
+        G._input_check_edge_list([(1, 2), (1, 3), (2, 3)])
     with pytest.raises(ValueError):
-        G._check_edge_list([(1, 2), (2, 3)], [1, 2])
+        G._input_check_edge_list([(1, 2), (2, 3)], [1, 2])
     with pytest.raises(TypeError):
-        G._check_edge_list([(2,)])
+        G._input_check_edge_list([(2,)])
     with pytest.raises(TypeError):
-        G._check_edge_list([2, 3])
+        G._input_check_edge_list([2, 3])
     with pytest.raises(TypeError):
-        G._check_edge_list(["23"])
+        G._input_check_edge_list(["23"])
 
 
-def test__check_edge_format_list():
+def test__input_check_edge_format_list():
     G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
-    G._check_edge_format((1, 3))
-    G._check_edge_format([3, 1])
-    G._check_edge_format_list([(1, 2), (1, 3)])
-    G._check_edge_format_list([(1, 2), (1, 3), (2, 3)])
+    G._input_check_edge_format((1, 3))
+    G._input_check_edge_format([3, 1])
+    G._input_check_edge_format_list([(1, 2), (1, 3)])
+    G._input_check_edge_format_list([(1, 2), (1, 3), (2, 3)])
     with pytest.raises(ValueError):
-        G._check_edge_format((1, 4))
+        G._input_check_edge_format((1, 4))
     with pytest.raises(TypeError):
-        G._check_edge_format_list([(2,)])
+        G._input_check_edge_format_list([(2,)])
     with pytest.raises(TypeError):
-        G._check_edge_format_list([2, 3])
+        G._input_check_edge_format_list([2, 3])
     with pytest.raises(TypeError):
-        G._check_edge_format_list(["23"])
+        G._input_check_edge_format_list(["23"])
     with pytest.raises(LoopError):
-        G._check_edge_format([3, 3])
+        G._input_check_edge_format([3, 3])
     with pytest.raises(LoopError):
-        G._check_edge_format_list([(1, 1), (1, 3), (2, 3)])
+        G._input_check_edge_format_list([(1, 1), (1, 3), (2, 3)])
 
 
 def test_from_vertices_and_edges():
@@ -1546,6 +1574,8 @@ def test_from_vertices_and_edges():
         ["a", "c"],
         ["a", "d"],
     ]
+    with pytest.raises(ValueError):
+        Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 4]])
 
 
 def test_is_3_6_sparse():

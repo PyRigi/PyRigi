@@ -268,7 +268,7 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        self._graph._check_edge_format(edge)
+        self._graph._input_check_edge_format(edge)
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
@@ -2211,7 +2211,8 @@ class Framework(object):
             raise ValueError("Multiple Vertices with the same name were found!")
         if not len(vertices) == len(points):
             raise IndexError(
-                "The list of vertices does not have the same length as the list of points!"
+                "The list of vertices does not have the same length "
+                "as the list of points!"
             )
         self.set_vertex_positions({v: pos for v, pos in zip(vertices, points)})
 
@@ -2269,8 +2270,8 @@ class Framework(object):
         [-1, -3, 0,  0,  1, 3],
         [ 0,  0, 1, -3, -1, 3]])
         """
-        vertex_order = self._check_vertex_order(vertex_order)
-        edge_order = self._check_edge_order(edge_order)
+        vertex_order = self._input_check_vertex_order(vertex_order)
+        edge_order = self._input_check_edge_order(edge_order)
 
         # ``delta`` is responsible for distinguishing the edges (i,j) and (j,i)
         def delta(e, w):
@@ -2322,7 +2323,7 @@ class Framework(object):
         False
         """
         stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
-        self._check_edge_order(stress_edge_list)
+        self._input_check_edge_order(stress_edge_list)
         graph_edge_list = [tuple(e) for e in self._graph.edge_list()]
         dict_to_list = []
 
@@ -2381,7 +2382,7 @@ class Framework(object):
         >>> F.is_stress(omega1)
         False
         """
-        edge_order = self._check_edge_order(edge_order=edge_order)
+        edge_order = self._input_check_edge_order(edge_order=edge_order)
         return is_zero_vector(
             Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order),
             numerical=numerical,
@@ -2449,8 +2450,8 @@ class Framework(object):
         [  4, -2, -1, -1],
         [  4, -2, -1, -1]])
         """
-        vertex_order = self._check_vertex_order(vertex_order)
-        edge_order = self._check_edge_order(edge_order)
+        vertex_order = self._input_check_vertex_order(vertex_order)
+        edge_order = self._input_check_edge_order(edge_order)
         if not self.is_stress(stress, edge_order=edge_order, numerical=True):
             raise ValueError(
                 "The provided stress does not lie in the cokernel of the rigidity matrix!"
@@ -2509,7 +2510,7 @@ class Framework(object):
         [-2],
         [ 0]])]
         """
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._input_check_vertex_order(vertex_order)
         dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in vertex_order])
@@ -2628,7 +2629,7 @@ class Framework(object):
         [0],
         [0]])]
         """  # noqa: E501
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._input_check_vertex_order(vertex_order)
         if include_trivial:
             return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
         rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
@@ -2864,7 +2865,7 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        self._check_vertex_order(list(other_realization.keys()))
+        self._input_check_vertex_order(list(other_realization.keys()))
 
         for u, v in combinations(self._graph.nodes, 2):
             edge_vec = (self._realization[u]) - self._realization[v]
@@ -2929,7 +2930,7 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        self._check_vertex_order(list(other_realization.keys()))
+        self._input_check_vertex_order(list(other_realization.keys()))
 
         for u, v in self._graph.edges:
             edge_vec = self._realization[u] - self._realization[v]
@@ -3265,7 +3266,7 @@ class Framework(object):
         {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
         """
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._input_check_vertex_order(vertex_order)
         return {
             vertex_order[i]: [inf_flex[i * self.dim() + j] for j in range(self.dim())]
             for i in range(len(vertex_order))
@@ -3299,7 +3300,7 @@ class Framework(object):
         {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
 
         """
-        edge_order = self._check_edge_order(edge_order)
+        edge_order = self._input_check_edge_order(edge_order)
         return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
 
     @doc_category("Infinitesimal rigidity")
@@ -3347,7 +3348,7 @@ class Framework(object):
         >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
         True
         """
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._input_check_vertex_order(vertex_order)
         return is_zero_vector(
             self.rigidity_matrix(vertex_order=vertex_order) * Matrix(inf_flex),
             numerical=numerical,
@@ -3383,7 +3384,7 @@ class Framework(object):
         >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
         True
         """
-        self._check_vertex_order(list(vert_to_flex.keys()))
+        self._input_check_vertex_order(list(vert_to_flex.keys()))
         dict_to_list = []
 
         for v in self._graph.vertex_list():
@@ -3453,7 +3454,7 @@ class Framework(object):
         >>> F.is_vector_nontrivial_inf_flex(q)
         False
         """
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._input_check_vertex_order(vertex_order)
         if not self.is_vector_inf_flex(
             inf_flex,
             vertex_order=vertex_order,
@@ -3513,7 +3514,7 @@ class Framework(object):
         >>> F.is_dict_nontrivial_inf_flex(q)
         False
         """
-        self._check_vertex_order(list(vert_to_flex.keys()))
+        self._input_check_vertex_order(list(vert_to_flex.keys()))
         dict_to_list = []
 
         for v in self._graph.vertex_list():
@@ -3617,7 +3618,7 @@ class Framework(object):
         >>> F.is_dict_trivial_inf_flex(q)
         True
         """
-        self._check_vertex_order(list(vert_to_flex.keys()))
+        self._input_check_vertex_order(list(vert_to_flex.keys()))
         dict_to_list = []
 
         for v in self._graph.vertex_list():
@@ -3655,7 +3656,7 @@ class Framework(object):
                 "The `inf_flex` must be specified either by a vector or a dictionary!"
             )
 
-    def _check_vertex_order(self, vertex_order=Sequence[Vertex]) -> list[Vertex]:
+    def _input_check_vertex_order(self, vertex_order=Sequence[Vertex]) -> list[Vertex]:
         """
         Checks whether the provided `vertex_order` contains the same elements
         as the graph's vertex set.
@@ -3682,7 +3683,7 @@ class Framework(object):
                 )
             return list(vertex_order)
 
-    def _check_edge_order(self, edge_order=Sequence[Edge]) -> list[Edge]:
+    def _input_check_edge_order(self, edge_order=Sequence[Edge]) -> list[Edge]:
         """
         Checks whether the provided `edge_order` contains the same elements
         as the graph's edge set.
@@ -3808,7 +3809,8 @@ class Framework(object):
                 for e in edges:
                     if not G.has_edge(e[0], e[1]):
                         raise ValueError(
-                            "The input includes an edge that is not part of the framework!"
+                            "The input includes an edge "
+                            "that is not part of the framework!"
                         )
                     edge_color_array.append(color)
                     edge_list_ref.append(tuple(e))

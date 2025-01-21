@@ -50,13 +50,15 @@ def test_check_vertex_and_edge_order():
     F = Framework.Random(Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]))
     vertex_order = ["a", "#", 0, 1.8]
     edge_order = [(0, "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
-    assert F._check_vertex_order(vertex_order) and F._check_edge_order(edge_order)
+    assert F._input_check_vertex_order(vertex_order) and F._input_check_edge_order(
+        edge_order
+    )
     vertex_order = ["a", "#", 0, "s"]
     edge_order = [("#", "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
     with pytest.raises(ValueError):
-        F._check_vertex_order(vertex_order)
+        F._input_check_vertex_order(vertex_order)
     with pytest.raises(ValueError):
-        F._check_edge_order(edge_order)
+        F._input_check_edge_order(edge_order)
 
 
 @pytest.mark.parametrize(
@@ -456,7 +458,7 @@ def test_dimension_value_error(param):
     "param",
     [
         1.1,
-        3/2,
+        3 / 2,
     ],
 )
 def test_dimension_type_error(param):

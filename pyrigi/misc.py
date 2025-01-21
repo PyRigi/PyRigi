@@ -2,7 +2,6 @@
 Module for miscellaneous functions.
 """
 
-import math
 from pyrigi.data_type import Sequence, Number, point_to_vector
 from sympy import Matrix
 import numpy as np
@@ -112,7 +111,6 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     matrix = np.random.randn(dim, 3)
     Q, R = np.linalg.qr(matrix)
     return Q @ np.diag(np.sign(np.diag(R)))
-
 
 
 def is_zero_vector(

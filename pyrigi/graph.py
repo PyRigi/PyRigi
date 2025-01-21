@@ -20,8 +20,6 @@ from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import (
     LoopError,
-    DimensionCombinatorialValueError,
-    NonNegativeIntParameterValueError,
 )
 import pyrigi._pebble_digraph
 import pyrigi._input_check as _input_check
@@ -186,7 +184,7 @@ class Graph(nx.Graph):
         """
         G = Graph()
         G.add_nodes_from(vertices)
-        G._check_edge_format_list(edges)
+        G._input_check_edge_format_list(edges)
         G.add_edges(edges)
         return G
 
@@ -228,7 +226,28 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-    def _check_edge_format(self, input_pair: Edge) -> None:
+    def _input_check_vertex_members(
+        self, to_check: Sequence[Vertex] | Vertex, name: str = ""
+    ) -> None:
+        """
+        Check whether the elements of a list are indeed vertices and
+        raise error otherwise.
+        """
+        if not isinstance(to_check, Iterable):
+            if to_check not in self.nodes:
+                raise ValueError(
+                    f"The element {to_check} is not a vertex of the graph!"
+                )
+        else:
+            for vertex in to_check:
+                if vertex not in self.nodes:
+                    raise ValueError(
+                        f"The element {vertex} from "
+                        + name
+                        + f" {to_check} is not a vertex of the graph!"
+                    )
+
+    def _input_check_edge_format(self, input_pair: Edge) -> None:
         """
         Check if an input_pair is a pair of distinct vertices of the graph.
         """
@@ -236,14 +255,11 @@ class Graph(nx.Graph):
             raise TypeError(
                 f"The input {input_pair} must be a tuple or list of length 2!"
             )
-        if not input_pair[0] in self.nodes or not input_pair[1] in self.nodes:
-            raise ValueError(
-                f"The elements of the pair {input_pair} are not vertices of the graph!"
-            )
+        self._input_check_vertex_members(input_pair, "the input pair")
         if input_pair[0] == input_pair[1]:
             raise LoopError("The input {input_pair} must be two distinct vertices.")
 
-    def _check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
+    def _input_check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
         """
         Check if the given input is an edge of the graph with endvertices in vertices.
 
@@ -255,7 +271,7 @@ class Graph(nx.Graph):
             Check if the endvertices of the edge are contained in the list ``vertices``.
             If None, the function considers all vertices of the graph.
         """
-        self._check_edge_format(edge)
+        self._input_check_edge_format(edge)
         if vertices and (not edge[0] in vertices or not edge[1] in vertices):
             raise ValueError(
                 f"The elements of the edge {edge} are not among vertices {vertices}!"
@@ -263,11 +279,11 @@ class Graph(nx.Graph):
         if not self.has_edge(edge[0], edge[1]):
             raise ValueError(f"Edge {edge} is not contained in the graph!")
 
-    def _check_edge_list(
+    def _input_check_edge_list(
         self, edges: Sequence[Edge], vertices: Sequence[Vertex] = None
     ) -> None:
         """
-        Apply _check_edge to all edges in a list.
+        Apply _input_check_edge to all edges in a list.
 
         Parameters
         ----------
@@ -278,11 +294,11 @@ class Graph(nx.Graph):
             If None (default), the function considers all vertices of the graph.
         """
         for edge in edges:
-            self._check_edge(edge, vertices)
+            self._input_check_edge(edge, vertices)
 
-    def _check_edge_format_list(self, pairs: Sequence[Edge]) -> None:
+    def _input_check_edge_format_list(self, pairs: Sequence[Edge]) -> None:
         """
-        Apply _check_edge_format to all pairs in a list.
+        Apply _input_check_edge_format to all pairs in a list.
 
         Parameters
         ----------
@@ -290,7 +306,7 @@ class Graph(nx.Graph):
             a list of pairs to be checked
         """
         for pair in pairs:
-            self._check_edge_format(pair)
+            self._input_check_edge_format(pair)
 
     @doc_category("Attribute getters")
     def vertex_list(self) -> list[Vertex]:
@@ -848,16 +864,13 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
         """  # noqa: E501
         _input_check.dimension(dim)
-        if not isinstance(k, int) or k < 0:
-            raise NonNegativeIntParameterValueError(k, "k")
-        for vertex in vertices:
-            if vertex not in self.nodes:
-                raise ValueError(f"Vertex {vertex} is not contained in the graph!")
+        _input_check.integrality_and_range(k, "k", min_n=0)
+        self._input_check_vertex_members(vertices, "'the vertices'")
         if len(set(vertices)) != dim + k:
             raise ValueError(
                 f"List of vertices must contain {dim + k} distinct vertices!"
             )
-        self._check_edge_list(edges, vertices)
+        self._input_check_edge_list(edges, vertices)
         if len(edges) != k:
             raise ValueError(f"List of edges must contain {k} distinct edges!")
         if new_vertex is None:
@@ -914,17 +927,17 @@ class Graph(nx.Graph):
         not when it is created.
         """
         _input_check.dimension(dim)
-        if not isinstance(k, int) or k < 0:
-            raise NonNegativeIntParameterValueError(k, "k")
-        if self.number_of_nodes() < (dim + k):
-            raise ValueError(
-                f"The number of nodes in the graph needs to be "
-                f"greater than or equal to {dim + k}!"
-            )
-        if self.number_of_edges() < k:
-            raise ValueError(
-                f"The number of edges in the graph needs to be greater than or equal to {k}!"
-            )
+        _input_check.integrality_and_range(k, "k", min_n=0)
+        _input_check.greater_equal(
+            self.number_of_nodes(),
+            dim + k,
+            "number of vertices in the graph",
+            "dim + k",
+        )
+        _input_check.greater_equal(
+            self.number_of_edges(), k, "number of edges in the graph", "k"
+        )
+
         solutions = []
         for edges in combinations(self.edges, k):
             s = set(self.nodes)
@@ -1179,8 +1192,7 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
         _input_check.dimension(dim)
-        if not isinstance(k, int) or k < 0:
-            raise NonNegativeIntParameterValueError(k, "k")
+        _input_check.integrality_and_range(k, "k", min_n=0)
         self._input_check_loop()
 
         n = self.number_of_nodes()
@@ -1300,8 +1312,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
 
         _input_check.dimension(dim)
-        if not isinstance(k, int) or k < 0:
-            raise NonNegativeIntParameterValueError(k, "k")
+        _input_check.integrality_and_range(k, "k", min_n=0)
         self._input_check_loop()
 
         n = self.number_of_nodes()
@@ -1427,8 +1438,7 @@ class Graph(nx.Graph):
         Improve with pebble games.
         """  # noqa: E501
         _input_check.dimension(dim)
-        if not isinstance(k, int) or k < 0:
-            raise NonNegativeIntParameterValueError(k, "k")
+        _input_check.integrality_and_range(k, "k", min_n=0)
         self._input_check_loop()
 
         n = self.number_of_nodes()
@@ -1539,8 +1549,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
 
         _input_check.dimension(dim)
-        if not isinstance(k, int) or k < 0:
-            raise NonNegativeIntParameterValueError(k, "k")
+        _input_check.integrality_and_range(k, "k", min_n=0)
         self._input_check_loop()
 
         n = self.number_of_nodes()
@@ -1635,6 +1644,10 @@ class Graph(nx.Graph):
                 "It needs to be a Boolean!"
             )
         self._input_check_loop()
+        if combinatorial:
+            _input_check.dimension_for_algorithm(
+                dim, [1, 2], "the combinatorial algorithm"
+            )
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -1661,8 +1674,6 @@ class Graph(nx.Graph):
 
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
-        else:
-            raise DimensionCombinatorialValueError([1, 2], dim)
 
     @doc_category("Generic rigidity")
     def is_min_rigid(
@@ -1716,6 +1727,10 @@ class Graph(nx.Graph):
                 "It needs to be a Boolean!"
             )
         self._input_check_loop()
+        if combinatorial:
+            _input_check.dimension_for_algorithm(
+                dim, [1, 2], "the combinatorial algorithm"
+            )
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -1743,8 +1758,6 @@ class Graph(nx.Graph):
 
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_min_inf_rigid()
-        else:
-            raise DimensionCombinatorialValueError([1, 2], dim)
 
     @doc_category("Generic rigidity")
     def is_globally_rigid(self, dim: int = 2, prob: float = 0.0001) -> bool:
@@ -2061,6 +2074,9 @@ class Graph(nx.Graph):
         self._input_check_loop()
 
         if combinatorial:
+            _input_check.dimension_for_algorithm(
+                dim, [1], "the combinatorial algorithm"
+            )
             if dim <= 1:
                 if all(
                     [
@@ -2072,9 +2088,6 @@ class Graph(nx.Graph):
                 ):
                     return True
                 return False
-
-            raise DimensionCombinatorialValueError(1, dim)
-
         else:
             F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
             G = deepcopy(self)
@@ -2148,7 +2161,9 @@ class Graph(nx.Graph):
 
         if combinatorial:
             # here will be the implementation using pebble games for dim=2
-            raise DimensionCombinatorialValueError(1, dim)
+            _input_check.dimension_for_algorithm(
+                dim, [1], "the combinatinatorial algorithm"
+            )
 
         else:
             if self.is_rigid(dim, combinatorial=False):
@@ -2273,21 +2288,16 @@ class Graph(nx.Graph):
         ---------------------
         Implement taking canonical before computing the integer representation.
         """
-        if self.number_of_edges() == 0:
-            raise ValueError(
-                "The integer representation is only defined "
-                "for graphs with at least one edge!"
-            )
+        _input_check.greater_equal(self.number_of_edges(), 1, "number of edges")
         if self.min_degree() == 0:
             raise ValueError(
                 "The integer representation only works "
                 "for graphs without isolated vertices!"
             )
         self._input_check_loop()
+
         M = self.adjacency_matrix(vertex_order)
-        upper_diag = [
-            str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]
-        ]
+        upper_diag = [str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]]
         return int("".join(upper_diag), 2)
 
     @classmethod
@@ -2299,10 +2309,8 @@ class Graph(nx.Graph):
         See :meth:`to_int` for the description
         of the integer representation.
         """
-        if not isinstance(N, int):
-            raise TypeError(f"The parameter n has to be an integer, not {type(N)}!")
-        if N <= 0:
-            raise ValueError(f"The parameter n has to be positive, not {N}!")
+        _input_check.integrality_and_range(N, "parameter n", min_n=1)
+
         L = bin(N)[2:]
         n = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)
         rows = []
