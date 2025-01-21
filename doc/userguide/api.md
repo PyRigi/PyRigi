@@ -10,4 +10,5 @@ api/frameworkDB
 api/graphdrawer
 api/datatype
 api/misc
+api/plot_style
 :::
