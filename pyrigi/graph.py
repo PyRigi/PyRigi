@@ -23,6 +23,8 @@ import pyrigi._pebble_digraph
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
+from pyrigi.plot_style import PlotStyle
+
 
 class Graph(nx.Graph):
     """
@@ -2764,36 +2766,64 @@ class Graph(nx.Graph):
     @doc_category("Other")
     def plot(
         self,
+        plot_style: PlotStyle = None,
         placement: dict[Vertex, Point] = None,
         layout: str = "spring",
-        vertex_color: str = "#4169E1",
         **kwargs,
     ) -> None:
         """
         Plot the graph.
 
+        See also :class:`.PlotStyle`,
+        :meth:`~.Framework.plot`, :meth:`~.Framework.plot2D` and
+        :meth:`~.Framework.plot3D` for possible parameters for formatting.
+        To distinguish :meth:`.Framework.plot` from this method,
+        the ``vertex_color`` has a different default value.
+
         Parameters
         ----------
+        plot_style:
+            An instance of the :class:`.PlotStyle` class
+            that defines the visual style for plotting.
+            See :class:`.PlotStyle` for more information.
         placement:
             If ``placement`` is not specified,
             then it is generated depending on parameter ``layout``.
         layout:
             The possibilities are ``spring`` (default), ``circular``,
             ``random`` or ``planar``, see also :meth:`~Graph.layout`.
-        vertex_color:
-            To distinguish :meth:`~Framework.plot` from this method,
-            the `vertex_color` has a different default value.
-
-        Methods
-        -------
-        See also :meth:`~Framework.plot`, `~Framework.plot2D` and
-        `~Framework.plot3D` for possible parameters
 
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-        >>> G.plot();
+        >>> G.plot()
+
+        Using keyword arguments for customizing the plot style,
+        see :class:`.PlotStyle` and :class:`.PlotStyle2D` for all possible options.
+        >>> G.plot(vertex_color="#FF0000", edge_color="black", vertex_size=50)
+
+        Specifying a custom plot style
+        >>> from pyrigi.plot_style import PlotStyle
+        >>> plot_style = PlotStyle(vertex_color="#FF0000")
+        >>> G.plot(plot_style)
+
+        Using different layout
+        >>> G.plot(layout="circular")
+
+        Using custom placement for vertices
+        >>> placement = {0: (1,2), 1: (2,3), 2: (3,4), 3: (4,5)}
+        >>> G.plot(placement=placement)
+
+        Combining different customizations
+        >>> G.plot(plot_style, layout="random", placement=placement)
+
+        The following is just to close all figures after running the example:
+        >>> import matplotlib.pyplot
+        >>> matplotlib.pyplot.close("all")
         """
+        if plot_style is None:
+            plot_style = PlotStyle(vertex_color="#4169E1")
+
         if placement is None:
             placement = self.layout(layout)
         if (
@@ -2809,7 +2839,7 @@ class Graph(nx.Graph):
             raise TypeError("The placement does not have the correct format")
         from pyrigi import Framework
 
-        Framework(self, placement).plot(vertex_color=vertex_color, **kwargs)
+        Framework(self, placement).plot(plot_style=plot_style, **kwargs)
 
 
 Graph.__doc__ = Graph.__doc__.replace(
