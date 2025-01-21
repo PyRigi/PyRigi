@@ -287,9 +287,10 @@ class ParametricMotion(Motion):
         realization = {}
         for v in self._graph.nodes:
             if numeric:
+                _value = sp.sympify(value).evalf()
                 placement = (
                     self._parametrization[v]
-                    .subs({self._parameter: float(value)})
+                    .subs({self._parameter: float(_value)})
                     .evalf()
                 )
             else:
@@ -348,6 +349,12 @@ class ApproximateMotion(Motion):
         The edge lengths that ought to be preserved.
     chosen_flex:
         An integer indicating the chosen flex.
+    turning_threshold:
+        Determines when the reflected infinitesimal flex at position ``chosen_flex``
+        is taken instead of the regular one. To decide this, the distance from the
+        previous Euler step is calculated using the Euclidean norm. If the current
+        distance is at least ``turning_threshold`` times as large as the distance
+        of the negative infinitesimal flex, then the latter one is chosen instead.
 
     Examples
     --------
@@ -369,8 +376,9 @@ class ApproximateMotion(Motion):
         graph: Graph,
         starting_configuration: dict[Vertex, Point],
         steps: int,
-        step_length: float = 0.1,
+        step_length: float = 0.05,
         chosen_flex: int = 0,
+        turning_threshold: float = 1.5,
     ) -> None:
         """
         Creates an instance.
@@ -407,7 +415,7 @@ class ApproximateMotion(Motion):
         self.steps = steps
         self.chosen_flex = chosen_flex
         self.initial_step_length = step_length
-        self._current_step_length = step_length / 3
+        self._current_step_length = step_length
         F = Framework(self._graph, self._starting_configuration)
         self.edge_lengths = F.edge_lengths(numerical=True)
         cur_inf_flex = normalize_flex(
@@ -416,23 +424,21 @@ class ApproximateMotion(Motion):
         )
         i = 1
         while i < steps:
-            euler_step, cur_inf_flex = self._euler_step(cur_inf_flex, cur_sol)
+            euler_step, cur_inf_flex = self._euler_step(
+                cur_inf_flex, cur_sol, turning_threshold
+            )
             cur_sol = self._newton_steps(euler_step)
             self.motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
                 np.linalg.norm(
                     [
-                        np.linalg.norm(
-                            [
-                                p1 - p2
-                                for p1, p2 in zip(
-                                    self.motion_samples[-1][v],
-                                    self.motion_samples[-2][v],
-                                )
-                            ]
-                        )
+                        p1 - p2
                         for v in self._graph.nodes
+                        for p1, p2 in zip(
+                            self.motion_samples[-1][v],
+                            self.motion_samples[-2][v],
+                        )
                     ]
                 )
                 > self.initial_step_length * 2
@@ -443,16 +449,12 @@ class ApproximateMotion(Motion):
             elif (
                 np.linalg.norm(
                     [
-                        np.linalg.norm(
-                            [
-                                p1 - p2
-                                for p1, p2 in zip(
-                                    self.motion_samples[-1][v],
-                                    self.motion_samples[-2][v],
-                                )
-                            ]
-                        )
+                        p1 - p2
                         for v in self._graph.nodes
+                        for p1, p2 in zip(
+                            self.motion_samples[-1][v],
+                            self.motion_samples[-2][v],
+                        )
                     ]
                 )
                 < self.initial_step_length / 2
@@ -464,7 +466,7 @@ class ApproximateMotion(Motion):
 
     @classmethod
     def from_framework(
-        cls, F: Framework, steps: int, step_length: float = 0.01, chosen_flex: int = 0
+        cls, F: Framework, steps: int, step_length: float = 0.05, chosen_flex: int = 0
     ):
         """
         Instantiates an ``ApproximateMotion`` from a ``Framework``.
@@ -478,7 +480,10 @@ class ApproximateMotion(Motion):
         )
 
     def _euler_step(
-        self, old_inf_flex: InfFlex, realization: dict[Vertex, Point]
+        self,
+        old_inf_flex: InfFlex,
+        realization: dict[Vertex, Point],
+        turning_threshold: float,
     ) -> tuple[dict[Vertex, Point], InfFlex]:
         """
         Computes a single Euler step.
@@ -493,13 +498,15 @@ class ApproximateMotion(Motion):
         )
         if np.linalg.norm(
             [
-                np.linalg.norm([q - w for q, w in zip(inf_flex[v], old_inf_flex[v])])
+                q - w
                 for v in inf_flex.keys()
+                for q, w in zip(inf_flex[v], old_inf_flex[v])
             ]
-        ) > 1.5 * np.linalg.norm(
+        ) > turning_threshold * np.linalg.norm(
             [
-                np.linalg.norm([-q - w for q, w in zip(inf_flex[v], old_inf_flex[v])])
+                -q - w
                 for v in inf_flex.keys()
+                for q, w in zip(inf_flex[v], old_inf_flex[v])
             ]
         ):
             inf_flex = {v: [-pt for pt in p] for v, p in inf_flex.items()}
