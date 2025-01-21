@@ -20,11 +20,11 @@ from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import (
     LoopError,
-    DimensionValueError,
     DimensionCombinatorialValueError,
     NonNegativeIntParameterValueError,
 )
 import pyrigi._pebble_digraph
+import pyrigi._input_check as _input_check
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
@@ -840,8 +840,7 @@ class Graph(nx.Graph):
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
         for vertex in vertices:
@@ -907,8 +906,7 @@ class Graph(nx.Graph):
         when the output iterator is actually used,
         not when it is created.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
         if self.number_of_nodes() < (dim + k):
@@ -990,8 +988,7 @@ class Graph(nx.Graph):
         >>> G.extension_sequence(return_solution=True)
         [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not dim == 2:
             raise NotImplementedError()
         if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
@@ -1127,8 +1124,7 @@ class Graph(nx.Graph):
 
         See :meth:`.is_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
@@ -1175,8 +1171,7 @@ class Graph(nx.Graph):
         False
 
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
         if nx.number_of_selfloops(self) > 0:
@@ -1253,8 +1248,7 @@ class Graph(nx.Graph):
 
         See :meth:`.is_min_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         return self.is_min_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
@@ -1299,8 +1293,7 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
         if nx.number_of_selfloops(self) > 0:
@@ -1428,8 +1421,7 @@ class Graph(nx.Graph):
         ----------------------
         Improve with pebble games.
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
         if nx.number_of_selfloops(self) > 0:
@@ -1497,8 +1489,7 @@ class Graph(nx.Graph):
 
         See :meth:`.is_min_k_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         return self.is_min_k_redundantly_rigid(1, dim, combinatorial, prob)
 
     @doc_category("Generic rigidity")
@@ -1543,8 +1534,7 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not isinstance(k, int) or k < 0:
             raise NonNegativeIntParameterValueError(k, "k")
         if nx.number_of_selfloops(self) > 0:
@@ -1635,8 +1625,7 @@ class Graph(nx.Graph):
          * dim>=1: Rigidity Matrix if ``combinatorial==False``
         By default, the graph is in dimension two and a combinatorial check is employed.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not isinstance(combinatorial, bool):
             raise TypeError(
                 "combinatorial determines the method of rigidity-computation. "
@@ -1718,8 +1707,7 @@ class Graph(nx.Graph):
          * dim=2: Pebble-game/(2,3)-tight
          * dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if not isinstance(combinatorial, bool):
             raise TypeError(
                 "combinatorial determines the method of rigidity-computation. "
@@ -1808,8 +1796,7 @@ class Graph(nx.Graph):
         the graph is not generically globally d-rigid, and it will give a wrong answer
         `False` with probability less than `prob`, which is 0.0001 by default.
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
@@ -1936,8 +1923,7 @@ class Graph(nx.Graph):
         -----
         Warning: This function uses a randomized algorithm
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
@@ -1992,8 +1978,7 @@ class Graph(nx.Graph):
         >>> G.is_Rd_circuit()
         False
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
         if dim == 1:
@@ -2074,8 +2059,7 @@ class Graph(nx.Graph):
         >>> G.is_Rd_closed(dim=1)
         True
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
@@ -2151,8 +2135,7 @@ class Graph(nx.Graph):
         Implement using pebble games for dim=2 and adjust the docstring, tests
         and :meth:`~.Graph.is_Rd_closed` with its tests accordingly.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 

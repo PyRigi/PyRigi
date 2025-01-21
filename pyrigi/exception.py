@@ -3,19 +3,6 @@ class LoopError(ValueError):
         super().__init__(msg, *args, **kwargs)
 
 
-class DimensionValueError(ValueError):
-    """
-    Error when the dimension is not a positive integer.
-    """
-
-    def __init__(self, dim, *args, **kwargs):
-        super().__init__(
-            f"The dimension needs to be a positive integer, but is {dim}!",
-            *args,
-            **kwargs,
-        )
-
-
 class DimensionCombinatorialValueError(ValueError):
     """
     Error when the dimension is not in the range of a combinatorial computation.

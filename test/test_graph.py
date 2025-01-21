@@ -1107,51 +1107,30 @@ def test_loop_error(method, params):
     "method, params",
     [
         ["extension_sequence", [1.1]],
-        ["extension_sequence", [0]],
         ["is_Rd_circuit", [2.1]],
-        ["is_Rd_circuit", [-1]],
         ["is_Rd_closed", [3.2]],
-        ["is_Rd_closed", [-2]],
         ["is_Rd_dependent", [3 / 2]],
-        ["is_Rd_dependent", [-2]],
         ["is_Rd_independent", [1.2]],
-        ["is_Rd_independent", [-1]],
         ["is_globally_rigid", [3.1]],
-        ["is_globally_rigid", [-2]],
         ["is_k_redundantly_rigid", [2, 3.7]],
-        ["is_k_redundantly_rigid", [2, -4]],
         ["is_k_vertex_redundantly_rigid", [2, 2.3]],
-        ["is_k_vertex_redundantly_rigid", [2, -7]],
         ["is_min_k_redundantly_rigid", [2, 3.7]],
-        ["is_min_k_redundantly_rigid", [2, -4]],
         ["is_min_k_vertex_redundantly_rigid", [2, 2.3]],
-        ["is_min_k_vertex_redundantly_rigid", [2, -7]],
         ["is_min_redundantly_rigid", [2.6]],
-        ["is_min_redundantly_rigid", [-2]],
         ["is_min_vertex_redundantly_rigid", [3.2]],
-        ["is_min_vertex_redundantly_rigid", [-4]],
         ["is_min_rigid", [1.2]],
-        ["is_min_rigid", [-3]],
         ["is_rigid", [1.1]],
-        ["is_rigid", [-2]],
         ["is_redundantly_rigid", [math.log(2)]],
-        ["is_redundantly_rigid", [-2]],
         ["is_vertex_redundantly_rigid", [4.8]],
-        ["is_vertex_redundantly_rigid", [-3]],
         ["k_extension", [0, [1, 2], [], 4, 2.6]],
-        ["k_extension", [0, [1, 2], [], 4, -3]],
         ["one_extension", [[1, 2, 3], [1, 2], 4, 2.6]],
-        ["one_extension", [[1, 2, 3], [1, 2], 4, -3]],
         ["random_framework", [1.1]],
-        ["random_framework", [-2]],
         ["rigid_components", [3.7]],
-        ["rigid_components", [-4]],
         ["zero_extension", [[1, 2], 4, 2.6]],
-        ["zero_extension", [[1, 2], 4, -3]],
     ],
 )
-def test_dimension_error(method, params):
-    with pytest.raises(DimensionValueError):
+def test_dimension_type_error(method, params):
+    with pytest.raises(TypeError):
         G = Graph([[1, 2], [1, 3], [2, 3]])
         func = getattr(G, method)
         func(*params)
@@ -1160,12 +1139,79 @@ def test_dimension_error(method, params):
 @pytest.mark.parametrize(
     "method, params",
     [
+        ["extension_sequence", [0]],
+        ["extension_sequence", [-2]],
+        ["is_Rd_circuit", [0]],
+        ["is_Rd_circuit", [-1]],
+        ["is_Rd_closed", [0]],
+        ["is_Rd_closed", [-2]],
+        ["is_Rd_dependent", [0]],
+        ["is_Rd_dependent", [-2]],
+        ["is_Rd_independent", [0]],
+        ["is_Rd_independent", [-1]],
+        ["is_globally_rigid", [0]],
+        ["is_globally_rigid", [-2]],
+        ["is_k_redundantly_rigid", [2, 0]],
+        ["is_k_redundantly_rigid", [2, -4]],
+        ["is_k_vertex_redundantly_rigid", [2, 0]],
+        ["is_k_vertex_redundantly_rigid", [2, -7]],
+        ["is_min_k_redundantly_rigid", [2, 0]],
+        ["is_min_k_redundantly_rigid", [2, -4]],
+        ["is_min_k_vertex_redundantly_rigid", [2, 0]],
+        ["is_min_k_vertex_redundantly_rigid", [2, -7]],
+        ["is_min_redundantly_rigid", [0]],
+        ["is_min_redundantly_rigid", [-2]],
+        ["is_min_vertex_redundantly_rigid", [0]],
+        ["is_min_vertex_redundantly_rigid", [-4]],
+        ["is_min_rigid", [0]],
+        ["is_min_rigid", [-3]],
+        ["is_rigid", [0]],
+        ["is_rigid", [-2]],
+        ["is_redundantly_rigid", [0]],
+        ["is_redundantly_rigid", [-2]],
+        ["is_vertex_redundantly_rigid", [0]],
+        ["is_vertex_redundantly_rigid", [-3]],
+        ["k_extension", [0, [1, 2], [], 4, 0]],
+        ["k_extension", [0, [1, 2], [], 4, -3]],
+        ["one_extension", [[1, 2, 3], [1, 2], 4, 0]],
+        ["one_extension", [[1, 2, 3], [1, 2], 4, -3]],
+        ["random_framework", [0]],
+        ["random_framework", [-2]],
+        ["rigid_components", [0]],
+        ["rigid_components", [-4]],
+        ["zero_extension", [[1, 2], 4, 0]],
+        ["zero_extension", [[1, 2], 4, -3]],
+    ],
+)
+def test_dimension_value_error(method, params):
+    with pytest.raises(ValueError):
+        G = Graph([[1, 2], [1, 3], [2, 3]])
+        func = getattr(G, method)
+        func(*params)
+
+
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
         ["all_k_extensions", [1, 2.1]],
+    ],
+)
+def test_iterator_dimension_type_error(method, params):
+    with pytest.raises(TypeError):
+        G = Graph([[1, 2], [1, 3], [2, 3]])
+        func = getattr(G, method)
+        next(func(*params))
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["all_k_extensions", [1, 0]],
         ["all_k_extensions", [2, -1]],
     ],
 )
-def test_iterator_dimension_error(method, params):
-    with pytest.raises(DimensionValueError):
+def test_iterator_dimension_value_error(method, params):
+    with pytest.raises(ValueError):
         G = Graph([[1, 2], [1, 3], [2, 3]])
         func = getattr(G, method)
         next(func(*params))

@@ -39,22 +39,24 @@ from pyrigi.data_type import (
 )
 
 from pyrigi.graph import Graph
-from pyrigi.exception import LoopError, DimensionValueError
+from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
     generate_category_tables,
-    check_integrality_and_range,
     is_zero_vector,
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
     eval_sympy_vector,
 )
 
+import pyrigi._input_check as _input_check
+
 from typing import Optional, Any
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from matplotlib.animation import FuncAnimation
+
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
@@ -1822,8 +1824,7 @@ class Framework(object):
         If ``rand_range=None``, then the range is set to ``(-a,a)`` for
         ``a = 10^4 * n * d``.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         if rand_range is None:
             b = 10**4 * graph.number_of_nodes() * dim
             a = -b
@@ -1891,7 +1892,7 @@ class Framework(object):
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
-        check_integrality_and_range(dim, "dimension d", 1)
+        _input_check.dimension(dim)
         return Framework(
             graph,
             {
@@ -1956,8 +1957,7 @@ class Framework(object):
         Graph with vertices [] and edges []
         Realization {}
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise DimensionValueError(dim)
+        _input_check.dimension(dim)
         F = Framework(graph=Graph(), realization={})
         F._dim = dim
         return F

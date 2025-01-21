@@ -39,13 +39,13 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         # Check the conditions
         if 0 >= K:
-            raise ValueError("K must be positive")
+            raise ValueError("K must be positive!")
 
         if 0 > L:
-            raise ValueError("L must be non-negative")
+            raise ValueError("L must be non-negative!")
 
         if L >= 2 * K:
-            raise ValueError("L<2K must hold")
+            raise ValueError("L<2K must hold!")
 
     @property
     def K(self) -> int:

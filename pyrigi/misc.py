@@ -114,16 +114,6 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     return Q @ np.diag(np.sign(np.diag(R)))
 
 
-def check_integrality_and_range(
-    n: int, name: str = "number n", min_n: int = 0, max_n: int = math.inf
-) -> None:
-    if not isinstance(n, int):
-        raise TypeError("The " + name + f" has to be an integer, not {type(n)}.")
-    if n < min_n or n > max_n:
-        raise ValueError(
-            "The " + name + f" has to be an integer in [{min_n},{max_n}], not {n}."
-        )
-
 
 def is_zero_vector(
     vector: Sequence[Number], numerical: bool = False, tolerance: float = 1e-9
