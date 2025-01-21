@@ -371,11 +371,28 @@ class Framework(object):
 
         Examples
         --------
-        >>> from pyrigi import frameworkDB
-        >>> F = frameworkDB.Complete(4, dim=1)
-        >>> F.plot2D(stress=0);
-        >>> F = frameworkDB.Frustum(3)
-        >>> F.plot2D(inf_flex=0, stress=0);
+        >>> G = Graph([(0,1), (1,2), (2,3), (0,3), (0,2), (1,3), (0,4)])
+        >>> F = Framework(G, {0:(0,0), 1:(1,0), 2:(1,2), 3:(0,1), 4:(-1,0)})
+        >>> from pyrigi.plot_style import PlotStyle2D
+        >>> style = PlotStyle2D(vertex_color="green", edge_color="blue")
+        >>> F.plot2D(plot_style=style)
+
+        Use keyword arguments
+        >>> F.plot2D(vertex_color="red", edge_color="black", vertex_size=500)
+
+        Specify stress and its labels positions
+        >>> stress_label_positions = {(0, 1): 0.7, (1, 2): 0.2}
+        >>> F.plot2D(stress=0, stress_label_positions=stress_label_positions)
+
+        Specify infinitesimal flex
+        >>> F.plot2D(inf_flex=0)
+
+        Use both stress and infinitesimal flex
+        >>> F.plot2D(stress=0, inf_flex=0)
+
+        Use edge coloring
+        >>> edge_coloring = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
+        >>> F.plot2D(edge_coloring=edge_coloring)
         """
         if plot_style is None:
             plot_style = PlotStyle2D()
@@ -724,7 +741,28 @@ class Framework(object):
         --------
         >>> from pyrigi import frameworkDB
         >>> F = frameworkDB.Octahedron(realization="Bricard_plane")
-        >>> F.plot3D(inf_flex=0, stress=0);
+        >>> F.plot3D()
+
+        >>> from pyrigi.plot_style import PlotStyle3D
+        >>> style = PlotStyle3D(vertex_color="green", edge_color="blue")
+        >>> F.plot3D(plot_style=style)
+
+        Use keyword arguments
+        >>> F.plot3D(vertex_color="red", edge_color="black", vertex_size=500)
+
+        Specify stress and its positions
+        >>> stress_label_positions = {(0, 2): 0.7, (1, 2): 0.2}
+        >>> F.plot3D(stress=0, stress_label_positions=stress_label_positions)
+
+        Specify infinitesimal flex
+        >>> F.plot3D(inf_flex=0)
+
+        Use both stress and infinitesimal flex
+        >>> F.plot3D(stress=0, inf_flex=0)
+
+        Use edge coloring
+        >>> edge_coloring = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
+        >>> F.plot3D(edge_coloring=edge_coloring)
         """
         if plot_style is None:
             # change some PlotStyle default values to fit 3D plotting better

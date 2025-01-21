@@ -2796,7 +2796,26 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-        >>> G.plot();
+        >>> G.plot()
+
+        Using keyword arguments for customizing the plot style,
+        see :class:`.PlotStyle` and :class:`.PlotStyle2D` for all possible options.
+        >>> G.plot(vertex_color="#FF0000", edge_color="black", vertex_size=50)
+
+        Specifying a custom plot style
+        >>> from pyrigi.plotting import PlotStyle
+        >>> plot_style = PlotStyle(vertex_color="#FF0000")
+        >>> G.plot(plot_style)
+
+        Using different layout
+        >>> G.plot(layout="circular")
+
+        Using custom placement for vertices
+        >>> placement = {0: (1,2), 1: (2,3), 2: (3,4), 3: (4,5)}
+        >>> G.plot(placement=placement)
+
+        Combining different customizations
+        >>> G.plot(plot_style, layout="random", placement=placement)
         """
         if plot_style is None:
             plot_style = PlotStyle(vertex_color="#4169E1")
