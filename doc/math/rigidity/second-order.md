@@ -43,7 +43,7 @@ call $F$ _second-order rigid_.
 {prf:ref}`continuous rigidity<def-cont-rigid-framework>` in $\RR^d$. 
 None of these implications are reversible.
 
-{{references}} {cite:p}`Connelly2017{Thm 2.6}`
+{{references}} {cite:p}`ConnellyGortler2017{Thm 2.6}`
 :::
 
 :::{prf:theorem} Equivalent criterion for second-order rigidity 
@@ -56,7 +56,31 @@ A framework $F=(G,p)$ is second-order rigid in $\RR^d$ if and only if for every
 \sum_{ij \in E} \omega_{ij}\cdot ||q_i-q_j||^2\,>\,0.
 \end{equation*} 
 
-{{references}} {cite:p}`Connelly2017{Thm 2.5}`
+{{references}} {cite:p}`ConnellyGortler2017{Thm 2.5}`
+:::
+
+While this theorem shows that second-order rigidity and prestress stability are distinguishable only
+by a swap of quanitifiers, they are indeed separate concepts, as the following example highlights.
+
+:::{prf:example} Second-order rigid framework that is not prestress stable
+:label: exmp-second-order-not-prestress-stable
+
+Let $G$ be a graph on the vertices $V=\{1,\dots,8\}$ described by the following set of edges:
+\begin{equation*}
+E=\{\{1, 2\},\, \{1, 3\},\, \{1,4\},\, \{1, 6\},\, \{1, 7\},\,
+\{2,3\},\, \{2,5\},\, \{2, 7\},\, \{3, 4\},\, \{3, 5\},\,
+\{4,5\},\, \{4,6\},\,
+\{5,6\},\, \{5,7\},\,
+\{6, 7\}\}.
+\end{equation*}
+We describe a {prf:ref}`framework <def-framework>` on $G$ by the {prf:ref}`realization <def-framework>` $p:V\rightarrow \RR^3$ defined by
+\begin{equation*}
+p(1)=(0,0,0),~p(2)=p(6)=(0,1,0),~p(3)=(0,0,1),p(4)=p(7)=(1,0,0),~p(5)=(1,1,0).
+\end{equation*}
+This framework has two {prf:ref}`nontrivial infinitesimal flexes <def-trivial-inf-flex>` and two {prf:ref}`equilibrium stresses <def-equilibrium-stress>`. It is {prf:ref}`second-order rigid <def-second-order-rigid>`, but not {prf:ref}`prestress stable <def-prestress-stability>`.
+{{references}} {cite:p}`ConnellyWhiteley1996{Exm 5.3.1}`
+
+{{pyrigi_crossref}} {func}`~.frameworkDB.ConnellyExampleSecondOrderRigidity`
 :::
 
 Checking prestress stability and second-order rigidity is generally computationally hard. In the case where
@@ -82,9 +106,8 @@ $|c_{ij}| <= sqrt(4*c_{ii}*c_{jj})$ for all $i,j$ for coefficients $c_{ij}$
 of the monomials ${a_i}\cdot{a_j}$. In addition, $c_{ii}$ and $c_{jj}$ need
 to have the same sign or be zero.
 
-
-The following theorem then shows that in these two cases, {prf:ref}`prestress stability def-prestress-stability`
-and {prf:ref}`second-order-rigidity def-second-order-rigid` are equivalent.
+The following theorem then shows that in these two cases, {prf:ref}`prestress stability <def-prestress-stability>`
+and {prf:ref}`second-order-rigidity <def-second-order-rigid>` are equivalent.
 
 :::{prf:theorem} Second-order rigidity and prestress stability in the case of one-dimensional stresses or flexes
 :label: thm-second-order-implies-prestress-stability
@@ -95,11 +118,11 @@ Let $F$ denote a $d$-dimensional {prf:ref}`second-order rigid <def-second-order-
 of {prf:ref}`equilibrium stresses <def-equilibrium-stress>`. Then, $F$ is 
 {prf:ref}`prestress stable <def-prestress-stability>`.
 
-{{references}} {cite:p}`Connelly1996`
+{{references}} {cite:p}`ConnellyWhiteley1996`
 :::
 
 In the general case, we use the {prf:ref}`stress matrix <def-stress-matrix>` criterion from
-{cite:p}`Connelly1996{Prop 3.4.2}` stating that prestress
+{cite:p}`ConnellyWhiteley1996{Prop 3.4.2}` stating that prestress
 stability is equivalent to the positive semidefiniteness of the stress matrix
 associated with the framework on the space of {prf:ref}`nontrivial infinitesimal flexes <def-trivial-inf-flex>`.
 In the method {meth}`~.Framework.is_prestress_stable`,
