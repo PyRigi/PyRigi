@@ -310,44 +310,6 @@ collinear configurations from a previous section that displays edges as curved a
 ```{code-cell} ipython3
 F = Framework.Complete([[1],[3],[0],[2]])
 F.plot(stress=0, arc_angles_dict={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-0.3})
-
-
-### Continuous Motions
-
-It is possible to create {prf:ref}`continuous motions <def-motion>` in two separate ways. First,
-the user can specify a parametric motion using the class ``ParametricMotion``. 
-As an example, consider the 4-cycle. A parametric motion can be specified
-using the following sequence of commands:
-
-```{code-cell} ipython3
-from pyrigi.motion import ParametricMotion
-import sympy as sp
-motion = ParametricMotion(
-    graphs.Cycle(4),
-    {
-        0: ("0", "0"),
-        1: ("1", "0"),
-        2: ("4 * (t**2 - 2) / (t**2 + 4)", "12 * t / (t**2 + 4)"),
-        3: (
-            "(t**4 - 13 * t**2 + 4) / (t**4 + 5 * t**2 + 4)",
-            "6 * (t**3 - 2 * t) / (t**4 + 5 * t**2 + 4)",
-        ),
-    },
-    [-sp.oo, sp.oo],
-)
-motion.animate()
-```
-
-However, a parametric motion is not always available. If you still want to get an
-intuition for how a deformation path looks, it can be numerically approximated using
-the class ``ApproximateMotion``. As an example, consider the complete bipartite graph $K_{4,2}$.
-A cyclic motion of $K_{4,2}$ can be approximated using the following code:
-
-```{code-cell} ipython3
-from pyrigi.motion import ApproximateMotion
-F = frameworks.CompleteBipartite(2,4)
-motion = ApproximateMotion.from_framework(F, 395, chosen_flex=0, step_size=0.15)
-motion.animate(duration=10)
 ```
 
 ## Plotting in 3 Dimensions

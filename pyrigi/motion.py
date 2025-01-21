@@ -10,6 +10,7 @@ from pyrigi.misc import point_to_vector, normalize_flex
 import numpy as np
 import sympy as sp
 from IPython.display import SVG
+from typing import Any
 
 
 class Motion(object):
@@ -68,34 +69,29 @@ class Motion(object):
             realizations_normalized.append(r_norm)
         return realizations_normalized
 
-    def animate(
+    def _animate(
         self,
+        realizations: Sequence[dict[Vertex, Point]],
         width: int = 500,
         height: int = 500,
         filename: str = None,
-        sampling: int = 50,
         show_labels: bool = True,
         vertex_size: int = 5,
         duration: int = 8,
-    ) -> None:
+    ) -> Any:
         """
-        Animate the parametric motion.
+        Animate the continuous motion.
 
         Parameters
         ----------
+        realizations:
+            A list of realization samples describing the motion.
         width:
-            The width of the window in the svg file.
+            The width of the window in the saved svg file.
         height:
-            The height of the window in the svg file.
+            The height of the window in the saved svg file.
         filename:
             A name used to store the svg. If ``None```, the svg is not saved.
-        sampling:
-            The number of discrete points or frames used to approximate the motion in the
-            animation. A higher value results in a smoother and more accurate
-            representation of the motion, while a lower value can speed up rendering
-            but may lead to a less precise or jerky animation. This parameter controls
-            the resolution of the animation's movement by setting the density of
-            sampled data points between keyframes or time steps.
         show_labels:
             If ``True``, the vertices will have a number label.
         vertex_size:
@@ -105,16 +101,11 @@ class Motion(object):
         """
 
         if self._dim != 2:
-            raise ValueError("This motion is not in dimension 2!")
-        if self.__class__.__name__ == "ParametricMotion":
-            lower, upper = self._interval
-            if lower == -np.inf or upper == np.inf:
-                realizations = self._realization_sampling(sampling, use_tan=True)
-            else:
-                realizations = self._realization_sampling(sampling)
-        elif self.__class__.__name__ == "ApproximateMotion":
-            realizations = self.motion_samples
-        else:
+            raise ValueError("Animations are supported only for motions in 2D.")
+        if not (
+            self.__class__.__name__ == "ApproximateMotion"
+            or self.__class__.__name__ == "ParametricMotion"
+        ):
             raise AttributeError(
                 "The method `animate` is not yet implemented for "
                 + "the class {self.__class__.__name__}"
@@ -228,7 +219,7 @@ class ParametricMotion(Motion):
         super().__init__(graph)
 
         if not len(motion) == self._graph.number_of_nodes():
-            raise IndexError(
+            raise ValueError(
                 "The realization does not contain the correct amount of vertices!"
             )
 
@@ -327,6 +318,39 @@ class ParametricMotion(Motion):
             realizations.append(self.realization(f"tan({i})", numeric=True))
         return realizations
 
+    def animate(self, sampling: int = 50, **kwargs) -> Any:
+        """
+        Animate the parametric motion.
+
+        Parameters
+        ----------
+        sampling:
+            The number of discrete points or frames used to approximate the motion in the
+            animation. A higher value results in a smoother and more accurate
+            representation of the motion, while a lower value can speed up rendering
+            but may lead to a less precise or jerky animation. This parameter controls
+            the resolution of the animation's movement by setting the density of
+            sampled data points between keyframes or time steps.
+        width:
+            The width of the window in the saved svg file.
+        height:
+            The height of the window in the saved svg file.
+        filename:
+            A name used to store the svg. If ``None```, the svg is not saved.
+        show_labels:
+            If ``True``, the vertices will have a number label.
+        vertex_size:
+            The size of vertices in the animation.
+        duration:
+            The duration of one period of the animation in seconds.
+        """
+        lower, upper = self._interval
+        if lower == -np.inf or upper == np.inf:
+            realizations = self._realization_sampling(sampling, use_tan=True)
+        else:
+            realizations = self._realization_sampling(sampling)
+        return self._animate(realizations, **kwargs)
+
 
 class ApproximateMotion(Motion):
     """
@@ -339,15 +363,15 @@ class ApproximateMotion(Motion):
     Parameters
     ----------
     graph:
-    motion_samples:
-        A list of numerical configurations on the configuration space.
     steps:
-        The amount of retraction steps.
+        The amount of retraction steps that are performed. This number is equal to the
+        amount of ``motion_samples`` that are computed.
     step_size:
         The step size of each retraction step. If the output seems too jumpy or instable,
         consider reducing the step size.
     chosen_flex:
-        An integer indicating the chosen flex.
+        An integer indicating the ``i``-th flex from the list of :meth:`Framework.inf_flexes`
+        for ``i=chosen_flex``.
     turning_threshold:
         Determines when the reflected infinitesimal flex at position ``chosen_flex``
         is taken instead of the regular one. To decide this, the distance from the
@@ -355,8 +379,13 @@ class ApproximateMotion(Motion):
         distance is at least ``turning_threshold`` times as large as the distance
         of the negative infinitesimal flex, then the latter one is chosen instead.
         If instead the animation is too slow, consider increasing this value.
+
+    Attributes
+    ----------
     edge_lengths:
         The edge lengths that ought to be preserved. This parameter is set internally.
+    motion_samples:
+        A list of numerical configurations on the configuration space.
 
     Examples
     --------
@@ -388,7 +417,7 @@ class ApproximateMotion(Motion):
         super().__init__(graph)
 
         if not len(starting_configuration) == graph.number_of_nodes():
-            raise IndexError(
+            raise ValueError(
                 "The realization does not contain the correct amount of vertices!"
             )
 
@@ -494,6 +523,28 @@ class ApproximateMotion(Motion):
             step_size,
             chosen_flex,
         )
+
+    def animate(self, **kwargs) -> Any:
+        """
+        Animate the approximate motion.
+
+        Parameters
+        ----------
+        width:
+            The width of the window in the saved svg file.
+        height:
+            The height of the window in the saved svg file.
+        filename:
+            A name used to store the svg. If ``None```, the svg is not saved.
+        show_labels:
+            If ``True``, the vertices will have a number label.
+        vertex_size:
+            The size of vertices in the animation.
+        duration:
+            The duration of one period of the animation in seconds.
+        """
+        realizations = self.motion_samples
+        return self._animate(realizations, **kwargs)
 
     def _euler_step(
         self,

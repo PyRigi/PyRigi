@@ -196,9 +196,7 @@ def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
             return {
                 v: tuple([pt / flex_norm for pt in q]) for v, q in _inf_flex.items()
             }
-        flex_norm = sp.sqrt(
-            sum([q**2 for q in sum([list(val) for val in inf_flex.values()], [])])
-        )
+        flex_norm = sp.sqrt(sum([q**2 for val in inf_flex.values() for q in val]))
         return {v: tuple([pt / flex_norm for pt in q]) for v, q in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
         if numerical:
