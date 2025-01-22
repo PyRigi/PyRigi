@@ -3117,22 +3117,18 @@ class Framework(object):
                 "run 'pip install pyrigi[meshing]'!"
             )
 
-        if (
-            holes_distance <= 0
-            or holes_diameter <= 0
-            or bar_width <= 0
-            or bar_height <= 0
-        ):
-            raise ValueError("The parameters must be positive!")
+        _input_check.greater(holes_distance, 0, "holes_distance")
+        _input_check.greater(holes_diameter, 0, "holes_diameter")
+        _input_check.greater(bar_width, 0, "bar_width")
+        _input_check.greater(bar_height, 0, "bar_height")
 
-        if bar_width <= holes_diameter:
-            raise ValueError("The bar width must be greater than the holes diameter!")
-
-        if holes_distance <= 2 * holes_diameter:
-            raise ValueError(
-                "The distance between the holes must be greater "
-                "than twice the holes diameter!"
-            )
+        _input_check.greater(bar_width, holes_diameter, "bar_width", "holes_diameter")
+        _input_check.greater(
+            holes_distance,
+            2 * holes_diameter,
+            "holes_distance",
+            "twice the holes_diameter",
+        )
 
         # Create the main bar as a box
         bar = trimesh_box(extents=[holes_distance, bar_width, bar_height])

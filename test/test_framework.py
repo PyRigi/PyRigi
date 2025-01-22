@@ -838,15 +838,32 @@ def test__generate_stl_bar():
     mesh = Framework._generate_stl_bar(30, 4, 10, 5)
     assert mesh is not None
 
-    with pytest.raises(ValueError):
+
+@pytest.mark.meshing
+@pytest.mark.parametrize(
+    "holes_dist, holes_diam, bar_w, bar_h",
+    [
         # negative values are not allowed
-        Framework._generate_stl_bar(30, 4, 10, -5)
-    with pytest.raises(ValueError):
+        [30, 4, 10, -5],
+        [30, 4, -10, 5],
+        [30, -4, 10, 5],
+        [-30, 4, 10, 5],
+        # zero values are not allowed
+        [30, 4, 10, 0],
+        [30, 4, 0, 5],
+        [30, 0, 10, 5],
+        [0, 4, 10, 5],
         # width must be greater than diameter
-        Framework._generate_stl_bar(30, 4, 3, 5)
+        [30, 4, 3, 5],
+        [30, 4, 4, 5],
+        # holes_distance > 2 * holes_diameter
+        [6, 4, 10, 5],
+        [10, 5, 12, 12],
+    ],
+)
+def test__generate_stl_bar_error(holes_dist, holes_diam, bar_w, bar_h):
     with pytest.raises(ValueError):
-        # holes_distance <= 2 * holes_diameter
-        Framework._generate_stl_bar(6, 4, 10, 5)
+        Framework._generate_stl_bar(holes_dist, holes_diam, bar_w, bar_h)
 
 
 @pytest.mark.meshing
