@@ -36,12 +36,13 @@ motion = ParametricMotion(
             "6 * (t**3 - 2 * t) / (t**4 + 5 * t**2 + 4)",
         ),
     },
-    [-sp.oo, sp.oo],
+    [-sp.oo, sp.oo], # parameter interval
 )
 motion.animate()
 ```
 
 It is also possible to provide trivial motions in a similar manner.
+The animation can be formatted using some parameters from {class}`~.PlotStyle` as keyword arguments.
 
 ```{code-cell} ipython3
 motion = ParametricMotion(
@@ -55,7 +56,11 @@ motion = ParametricMotion(
     },
     [0, sp.sympify("2*pi")],
 )
-motion.animate()
+motion.animate(
+    vertex_labels=False,
+    edge_color='blue',
+    edge_width=20,
+)
 ```
 
 Internal checks on the edge lengths are in place to ensure that the specified parametric motion
