@@ -235,9 +235,7 @@ class Motion(object):
             _realizations = self._fix_origin(realizations)
         else:
             _realizations = realizations
-        _realizations = self._normalize_realizations(
-            _realizations, width, height, 15
-        )
+        _realizations = self._normalize_realizations(_realizations, width, height, 15)
 
         svg = f'<svg width="{width}" height="{height}" version="1.1" '
         svg += 'baseProfile="full" xmlns="http://www.w3.org/2000/svg" '
