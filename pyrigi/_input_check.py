@@ -82,6 +82,21 @@ def greater(val1: int, val2: int, name1: str, name2: str = "") -> None:
             f"but is {val1}!"
         )
 
+def smaller_equal(val1: int, val2: int, name1: str, name2: str = "") -> None:
+    """
+    Checks whether an input parameter val1 is greater than or equal to val2 and
+    raises an error otherwise.
+    """
+    if name2 == "":
+        str2 = ""
+    else:
+        str2 = name2 + ", i.e. "
+    if val1 > val2:
+        raise ValueError(
+            "The " + name1 + " needs to be "
+            "smaller than or equal to " + str2 + f"{val2}, "
+            f"but is {val1}!"
+        )
 
 def pebble_values(K: int, L: int) -> None:
     """

@@ -168,6 +168,7 @@ def test_integrality_and_range_type_error(k):
 )
 def test_greater_equal(val1, val2):
     assert _input_check.greater_equal(val1, val2, "") is None
+    assert _input_check.smaller_equal(val2, val1, "") is None
 
 
 @pytest.mark.parametrize(
@@ -184,6 +185,8 @@ def test_greater_equal(val1, val2):
 def test_greater_equal_value_error(val1, val2):
     with pytest.raises(ValueError):
         _input_check.greater_equal(val1, val2, "")
+    with pytest.raises(ValueError):
+        _input_check.smaller_equal(val2, val1, "")
 
 
 @pytest.mark.parametrize(
@@ -214,7 +217,7 @@ def test_greater(val1, val2):
         [-2, -2],
     ],
 )
-def test_greaterl_value_error(val1, val2):
+def test_greater_value_error(val1, val2):
     with pytest.raises(ValueError):
         _input_check.greater(val1, val2, "")
 
