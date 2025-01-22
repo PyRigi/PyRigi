@@ -2738,24 +2738,6 @@ class Graph(nx.Graph):
         return H
 
     @doc_category("Generic rigidity")
-    def _part_of_block_3(self, u: Vertex, v: Vertex):
-        """
-        Return the 3-block of {u,v} in self without the new edges that
-        connect the neighbors of the deleted sets of vertices.
-        It is a support function for block_3 method.
-        """
-        if nx.node_connectivity(self) >= 3:
-            return self
-        else:
-            augmented_G = self.copy()
-            cutsets = list(nx.all_node_cuts(self))
-            augmented_G.add_edges(cutsets)
-            tricomp = nx.k_components(augmented_G)[3]
-            V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
-            B = self.subgraph(V_B)
-            return B
-
-    @doc_category("Generic rigidity")
     def block_3(self, u: Vertex, v: Vertex):
         """
         Return the 3-block of {u,v}.
@@ -2773,7 +2755,6 @@ class Graph(nx.Graph):
         >>> G.block_3(0,11)
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]
         """  # noqa: E501
-
         # self must be a 2-connected graph
         if not nx.is_biconnected(self):
             raise ValueError("The graph must be 2-connected.")
@@ -2783,19 +2764,18 @@ class Graph(nx.Graph):
             raise ValueError(
                 "u and v must be a non-adjacent pair of vertices of the graph."
             )
-        H = self._part_of_block_3(u, v)
-        K = self.copy()
-        F = self.copy()
-        K.delete_vertices(H.nodes())
-        import pyrigi.graphDB as graphs
-
-        for w in K.nodes():
-            L = graphs.Complete(self.neighbors(w))
-            F += L
-        for i in nx.k_components(K)[1]:
-            L = graphs.Complete(self.neighbors_of_set(i))
-            F += L
-        return F._part_of_block_3(u, v)
+        if nx.node_connectivity(self) >= 3:
+            return self
+        else:
+            augmented_G = self.copy()
+            cutsets = list(nx.all_node_cuts(self))
+            augmented_G.add_edges(cutsets)
+            tricomp = nx.k_components(augmented_G)[3]
+            print(tricomp)
+            
+            V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
+            B = augmented_G.subgraph(V_B)
+            return B
 
     def Rd_circuit(
         self, 
