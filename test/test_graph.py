@@ -1071,11 +1071,16 @@ def test_integer_representation_error():
         ["is_Rd_circuit", []],
         ["is_Rd_closed", []],
         ["rigid_components", []],
+        ["_input_check_loop", []],
     ],
 )
 def test_loop_error(method, params):
     with pytest.raises(LoopError):
         G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        func = getattr(G, method)
+        func(*params)
+    with pytest.raises(LoopError):
+        G = Graph([[1, 1]])
         func = getattr(G, method)
         func(*params)
 
@@ -1497,47 +1502,319 @@ def test_CompleteOnVertices():
     ).is_isomorphic(graphs.Complete(20))
 
 
-def test__input_check_edge_list():
-    G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
-    G._input_check_edge((1, 2))
-    G._input_check_edge([3, 2])
-    G._input_check_edge_list([(1, 2), (2, 3)])
-    G._input_check_edge_list([(1, 2)], [1, 2])
-    G._input_check_edge_list([(2, 3)], [2, 3])
-    with pytest.raises(ValueError):
-        G._input_check_edge((1, 3))
-    with pytest.raises(ValueError):
-        G._input_check_edge((1, 4))
-    with pytest.raises(ValueError):
-        G._input_check_edge_list([(1, 2), (1, 3), (2, 3)])
-    with pytest.raises(ValueError):
-        G._input_check_edge_list([(1, 2), (2, 3)], [1, 2])
-    with pytest.raises(TypeError):
-        G._input_check_edge_list([(2,)])
-    with pytest.raises(TypeError):
-        G._input_check_edge_list([2, 3])
-    with pytest.raises(TypeError):
-        G._input_check_edge_list(["23"])
+@pytest.mark.parametrize(
+    "graph",
+    [
+        Graph.from_vertices([]),
+        Graph.from_vertices([1, 2, 3]),
+        Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]),
+        Graph([[1, 2], [2, 3]]),
+    ],
+)
+def test__input_check_loop(graph):
+    assert graph._input_check_loop() is None
 
 
-def test__input_check_edge_format_list():
-    G = Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])
-    G._input_check_edge_format((1, 3))
-    G._input_check_edge_format([3, 1])
-    G._input_check_edge_format_list([(1, 2), (1, 3)])
-    G._input_check_edge_format_list([(1, 2), (1, 3), (2, 3)])
+@pytest.mark.parametrize(
+    "graph",
+    [
+        Graph([[1, 1]]),
+        Graph([[1, 2], [2, 3], [3, 3]]),
+    ],
+)
+def test__input_check_loop_error(graph):
+    with pytest.raises(LoopError):
+        graph._input_check_loop()
+
+
+@pytest.mark.parametrize(
+    "vertices, edges",
+    [
+        [[1], [[1, 1]]],
+        [[1, 2, 3], [[1, 2], [2, 3], [3, 3]]],
+    ],
+)
+def test__input_check_loop_error2(vertices, edges):
+    with pytest.raises(LoopError):
+        Graph.from_vertices_and_edges(vertices, edges)._input_check_loop()
+
+
+@pytest.mark.parametrize(
+    "graph, vertex",
+    [
+        [Graph.from_vertices([1]), 1],
+        [Graph.from_vertices([1, 2, 3]), 3],
+        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), 3],
+        [Graph([[1, 2], [2, 3]]), 2],
+        [Graph([[1, 2], [1, 1]]), 1],
+        [Graph.from_int(7), 0],
+        [Graph.from_int(31), 3],
+        [Graph.from_vertices([1]), [1]],
+        [Graph.from_vertices([1, 2, 3]), [2, 3]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), [1, 3]],
+        [Graph([[1, 2], [2, 3]]), [2, 2]],
+        [Graph.from_int(7), [0, 1]],
+        [Graph.from_int(31), [1, 3]],
+        [Graph([["a", "b"], ["b", 3]]), "a"],
+        [Graph([["a", "b"], ["b", 3]]), ["a", "b"]],
+        [Graph([["a", "b"], ["b", 3]]), ["a", 3]],
+        [Graph([[-1, -2], [-2, 3]]), -1],
+        [Graph([[-1, -2], [-2, 3]]), [-1, -2]],
+        [Graph([[-1, -2], [-2, 3]]), [-1, 3]],
+    ],
+)
+def test__input_check_vertex_members(graph, vertex):
+    assert graph._input_check_vertex_members(vertex) is None
+
+
+@pytest.mark.parametrize(
+    "graph, vertex",
+    [
+        [Graph([]), 1],
+        [Graph.from_vertices([1]), 2],
+        [Graph.from_vertices([1, 2, 3]), 4],
+        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), -1],
+        [Graph([[1, 2], [2, 3]]), 0],
+        [Graph([[1, 2], [1, 1]]), 3],
+        [Graph.from_int(7), "a"],
+        [Graph.from_int(31), 10],
+        [Graph.from_vertices([1]), [2]],
+        [Graph.from_vertices([1, 2, 3]), [3, 4]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), [5, 6]],
+        [Graph([[1, 2], [2, 3]]), [2, 2, 4]],
+        [Graph.from_int(7), [0, 4]],
+        [Graph.from_int(31), [1, 2, 12]],
+        [Graph([["a", "b"], ["b", 3]]), "c"],
+        [Graph([["a", "b"], ["b", 3]]), ["a", "c"]],
+        [Graph([["a", "b"], ["b", 3]]), ["a", 4]],
+        [Graph([[-1, -2], [-2, 3]]), -3],
+        [Graph([[-1, -2], [-2, 3]]), [-1, -2, 4]],
+        [Graph([[-1, -2], [-2, 3]]), [-1, 3, -3]],
+    ],
+)
+def test__input_check_vertex_members_error(graph, vertex):
     with pytest.raises(ValueError):
-        G._input_check_edge_format((1, 4))
+        graph._input_check_vertex_members(vertex)
+
+
+@pytest.mark.parametrize(
+    "graph, edge",
+    [
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 2)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 2]],
+        [Graph([[1, 2], [2, 3]]), [1, 2]],
+        # [Graph([[1, 2], [1, 1]]), [1, 1]],
+        [Graph.from_int(7), [0, 1]],
+        [Graph.from_int(31), [1, 2]],
+        [Graph([["a", "b"], ["b", 3]]), ["a", "b"]],
+        [Graph([["a", "b"], ["b", 3]]), (3, "b")],
+        [Graph([["a", "b"], ["b", 3]]), ["b", "a"]],
+        [Graph([[-1, -2], [-2, 3]]), [-2, -1]],
+        [Graph([[-1, -2], [-2, 3]]), [-1, -2]],
+        [Graph([[-1, -2], [-2, 3]]), [-2, 3]],
+    ],
+)
+def test__input_check_edge(graph, edge):
+    assert graph._input_check_edge(edge) is None
+    assert graph._input_check_edge_format(edge) is None
+
+
+@pytest.mark.parametrize(
+    "graph, edge, vertices",
+    [
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 2), [1, 2, 2]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 2], [1, 2, 3]],
+        [Graph([[1, 2], [2, 3]]), [1, 2], [2, 1]],
+        [Graph([[1, 2], [2, 3], [3, 4]]), [1, 2], [3, 2, 1]],
+        # [Graph([[1, 2], [1, 1]]), [1, 1], [1, 2]],
+        # [Graph([[1, 2], [1, 1]]), [1, 1], [1, 1]],
+        # [Graph([[1, 2], [1, 1]]), [1, 1], [1]],
+        [Graph.from_int(7), [0, 1], [0, 1, 2, 3, 4]],
+        [Graph.from_int(31), [1, 2], [1, 2, 3]],
+        [Graph([["a", "b"], ["b", 3]]), ["a", "b"], ["a", "b"]],
+        [Graph([["a", "b"], ["b", 3]]), (3, "b"), ["a", "b", 3]],
+        [Graph([["a", "b"], ["b", 3]]), ["b", "a"], ["a", "b", 3]],
+        [Graph([[-1, -2], [-2, 3]]), [-2, -1], [-3, -2, -1, 0, 1, 2, 3]],
+        [Graph([[-1, -2], [-2, 3]]), [-1, -2], [-1, -2, 3]],
+        [Graph([[-1, -2], [-2, 3]]), [-2, 3], [-2, 3]],
+    ],
+)
+def test__input_check_edge_on_vertices(graph, edge, vertices):
+    assert graph._input_check_edge(edge, vertices) is None
+
+
+@pytest.mark.parametrize(
+    "graph, edge",
+    [
+        [Graph([]), (1, 3)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 3)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 1]],
+        [Graph([[1, 2], [2, 3]]), [1, 3]],
+        [Graph.from_int(7), [0, 4]],
+        [Graph.from_int(31), [1, -2]],
+        [Graph([["a", "b"], ["b", 3]]), ["a", "c"]],
+        [Graph([["a", "b"], ["b", 3]]), (3, "a")],
+        [Graph([["a", "b"], ["b", 3]]), ["3", "a"]],
+        [Graph([[-1, -2], [-2, 3]]), [3, -1]],
+        [Graph([[-1, -2], [-2, 3]]), [-1, 0]],
+        [Graph([[-1, -2], [-2, 3]]), [-2, -3]],
+        # [Graph([[1, 2], [1, 1]]), [[2, 2]]],
+    ],
+)
+def test__input_check_edge_value_error(graph, edge):
+    with pytest.raises(ValueError):
+        graph._input_check_edge(edge)
+
+
+@pytest.mark.parametrize(
+    "graph, edge, vertices",
+    [
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 2), [1, 3, 3]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 2], [1, 3]],
+        [Graph([[1, 2], [2, 3]]), [1, 2], [2, 2]],
+        [Graph([[1, 2], [2, 3], [3, 4]]), [1, 2], [3, 2]],
+        # [Graph([[1, 2], [1, 1]]), [1, 1], [2, 2]],
+        # [Graph([[1, 2], [1, 1]]), [1, 1], [2, 3]],
+        # [Graph([[1, 2], [1, 1]]), [1, 1], [0]],
+        [Graph.from_int(7), [0, 1], [1, 2, 3, 4]],
+        [Graph.from_int(31), [1, 2], [1, 3]],
+        [Graph([["a", "b"], ["b", 3]]), ["a", "b"], ["a", "c"]],
+        [Graph([["a", "b"], ["b", 3]]), (3, "b"), ["a", "b", 2]],
+        [Graph([["a", "b"], ["b", 3]]), ["b", "a"], ["a"]],
+        [Graph([[-1, -2], [-2, 3]]), [-2, -1], [-3, -2, 0, 1, 2, 3]],
+        [Graph([[-1, -2], [-2, 3]]), [-1, -2], [-2, 3]],
+        [Graph([[-1, -2], [-2, 3]]), [-2, 3], [3]],
+    ],
+)
+def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
+    with pytest.raises(ValueError):
+        graph._input_check_edge(edge, vertices)
+
+
+@pytest.mark.parametrize(
+    "graph, edge",
+    [
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1, 2, 3]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
+        [Graph([[1, 2], [2, 3]]), "12"],
+        [Graph.from_int(7), [[0, 1]]],
+        [Graph.from_int(31), [[1, 2], [2, 3]]],
+    ],
+)
+def test__input_check_edge_type_error(graph, edge):
     with pytest.raises(TypeError):
-        G._input_check_edge_format_list([(2,)])
+        graph._input_check_edge(edge)
     with pytest.raises(TypeError):
-        G._input_check_edge_format_list([2, 3])
+        graph._input_check_edge_format(edge)
+
+
+@pytest.mark.parametrize(
+    "graph, edge, vertices",
+    [
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,), [1, 2, 3]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1), [1, 2, 3]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1], [1, 2, 3]],
+        [Graph([(1, 2), (2, 3)]), [1, 2, 3], [1, 2, 3]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]", [1, 2, 3]],
+        [Graph([[1, 2], [2, 3]]), "12", [1, 2, 3]],
+        [Graph.from_int(7), [[0, 1]], [1, 2, 3]],
+        [Graph.from_int(31), [[1, 2], [2, 3]], [1, 2, 3]],
+        [Graph([[1, 2], [2, 3]]), [1, 2], "1"],
+        [Graph([[1, 2], [2, 3]]), [1, 2], 1],
+    ],
+)
+def test__input_check_edge_on_vertices_type_error(graph, edge, vertices):
     with pytest.raises(TypeError):
-        G._input_check_edge_format_list(["23"])
-    with pytest.raises(LoopError):
-        G._input_check_edge_format([3, 3])
-    with pytest.raises(LoopError):
-        G._input_check_edge_format_list([(1, 1), (1, 3), (2, 3)])
+        graph._input_check_edge(edge, vertices)
+
+
+@pytest.mark.parametrize(
+    "graph, edge",
+    [
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 2)]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2]]],
+        [Graph([[1, 2], [2, 3]]), [[1, 2]]],
+        # [Graph([[1, 2], [1, 1]]), [[1, 1]]],
+        [Graph.from_int(7), [[0, 1]]],
+        [Graph.from_int(31), [[1, 2]]],
+        [Graph([["a", "b"], ["b", 3]]), [["a", "b"]]],
+        [Graph([["a", "b"], ["b", 3]]), [(3, "b")]],
+        [Graph([["a", "b"], ["b", 3]]), [["b", "a"]]],
+        [Graph([[-1, -2], [-2, 3]]), [[-2, -1]]],
+        [Graph([[-1, -2], [-2, 3]]), [[-1, -2]]],
+        [Graph([[-1, -2], [-2, 3]]), [[-2, 3]]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 2), (3, 2)]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2], [1, 2]]],
+        [Graph([[1, 2], [2, 3]]), [[1, 2], (2, 3)]],
+        [Graph.from_int(7), [[0, 1], [1, 2]]],
+        [Graph.from_int(31), [[1, 2], [2, 3]]],
+        [Graph([["a", "b"], ["b", 3]]), [["a", "b"], ["b", 3]]],
+        [Graph([["a", "b"], ["b", 3]]), [(3, "b"), ("a", "b")]],
+        [Graph([["a", "b"], ["b", 3]]), [["b", "a"], (3, "b")]],
+        [Graph([[-1, -2], [-2, 3]]), [[-2, -1], [-2, 3]]],
+        [Graph([[-1, -2], [-2, 3]]), [[-1, -2], (-2, 3)]],
+        [Graph([[-1, -2], [-2, 3]]), [[-2, 3], [-1, -2]]],
+    ],
+)
+def test__input_check_edge_list(graph, edge):
+    assert graph._input_check_edge_list(edge) is None
+    assert graph._input_check_edge_format_list(edge) is None
+
+
+@pytest.mark.parametrize(
+    "graph, edge",
+    [
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 3)]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 1]]],
+        [Graph([[1, 2], [2, 3]]), [[1, 3]]],
+        [Graph.from_int(7), [[0, 4]]],
+        [Graph.from_int(31), [[1, -2]]],
+        [Graph([["a", "b"], ["b", 3]]), [["a", "c"]]],
+        [Graph([["a", "b"], ["b", 3]]), [(3, "a")]],
+        [Graph([["a", "b"], ["b", 3]]), [["3", "a"]]],
+        [Graph([[-1, -2], [-2, 3]]), [[3, -1]]],
+        [Graph([[-1, -2], [-2, 3]]), [[-1, 0]]],
+        [Graph([[-1, -2], [-2, 3]]), [[-2, -3]]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 2), (3, 3)]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2], [1, 3]]],
+        [Graph([[1, 2], [2, 3]]), [[1, 2], (2, 4)]],
+        [Graph.from_int(7), [[0, 1], [1, -2]]],
+        [Graph.from_int(31), [[1, 5], [2, 3]]],
+        [Graph([["a", "b"], ["b", 3]]), [["a", "c"], ["b", 3]]],
+        [Graph([["a", "b"], ["b", 3]]), [(3, "b"), ("a", "d")]],
+        [Graph([["a", "b"], ["b", 3]]), [["b", "3"], (3, "b")]],
+        [Graph([[-1, -2], [-2, 3]]), [[-2, -1], [1, 3]]],
+        [Graph([[-1, -2], [-2, 3]]), [[-1, 5], (-2, 3)]],
+        [Graph([[-1, -2], [-2, 3]]), [[-2, -3], [-1, -2]]],
+    ],
+)
+def test__input_check_edge_list_value_error(graph, edge):
+    with pytest.raises(ValueError):
+        graph._input_check_edge_list(edge)
+
+
+@pytest.mark.parametrize(
+    "graph, edge",
+    [
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1,)]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1)]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
+        [Graph([[1, 2], [2, 3]]), "12"],
+        [Graph.from_int(7), [0, 1]],
+        [Graph.from_int(31), (1, 2)],
+        [Graph.from_int(31), [[[1, 2], [2, 3]]]],
+    ],
+)
+def test__input_check_edge_list_type_error(graph, edge):
+    with pytest.raises(TypeError):
+        graph._input_check_edge_list(edge)
+    with pytest.raises(TypeError):
+        graph._input_check_edge_format_list(edge)
 
 
 def test_from_vertices_and_edges():

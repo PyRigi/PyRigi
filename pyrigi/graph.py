@@ -257,7 +257,7 @@ class Graph(nx.Graph):
             )
         self._input_check_vertex_members(input_pair, "the input pair")
         if input_pair[0] == input_pair[1]:
-            raise LoopError("The input {input_pair} must be two distinct vertices.")
+            raise LoopError(f"The input {input_pair} must be two distinct vertices.")
 
     def _input_check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
         """

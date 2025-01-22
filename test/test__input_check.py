@@ -145,7 +145,7 @@ def test_integrality_and_range_value_error(k):
 @pytest.mark.parametrize(
     "k",
     [
-        -2.1, 0.0, 2.3, 2.0, 3/2, "one",
+        -2.1, 0.0, 2.3, 2.0, 3/2, "one", [1, 2],
     ],
 )
 def test_integrality_and_range_type_error(k):
@@ -258,6 +258,8 @@ def test_pebble_values_value_error(K, L):
         [2, 3.14],
         [2, "three"],
         ["one", 2],
+        [[1, 2], 1],
+        [2, [1, 3]],
     ],
 )
 def test_pebble_values_type_error(K, L):
