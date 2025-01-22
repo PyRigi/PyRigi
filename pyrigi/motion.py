@@ -4,7 +4,7 @@ This module contains functionality related to motions (continuous flexes).
 
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
-from pyrigi.data_type import Vertex, Point, Sequence, InfFlex, Number
+from pyrigi.data_type import Vertex, Point, Sequence, InfFlex, Number, DirectedEdge
 from pyrigi.plot_style import PlotStyle, PlotStyle2D
 from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex
@@ -13,6 +13,7 @@ import sympy as sp
 from IPython.display import SVG
 from typing import Any
 from copy import deepcopy
+from warnings import warn
 
 
 class Motion(object):
@@ -38,6 +39,101 @@ class Motion(object):
         Return a copy of the underlying graph.
         """
         return deepcopy(self._graph)
+
+    def _fix_origin(
+        self,
+        realizations: Sequence[dict[Vertex, Point]],
+    ) -> list[dict[Vertex, Point]]:
+        """
+        Pin the first vertex to the origin.
+
+        Parameters
+        ----------
+        realizations:
+            A list of realization samples describing the motion.
+        """
+        _realizations = []
+        u = self._graph.vertex_list()[0]
+        for r in realizations:
+            # Translate the realization to the origin
+            _r = {v: [p[i] - r[u][i] for i in range(len(p))] for v, p in r.items()}
+            _realizations.append(_r)
+        return _realizations
+
+    @staticmethod
+    def _fix_edge(
+        realizations: Sequence[dict[Vertex, Point]],
+        fixed_edge: DirectedEdge,
+        fixed_direction: Sequence[Number],
+    ) -> list[dict[Vertex, Point]]:
+        """
+        Fix the edge ``fixed_edge`` for every entry of ``realizations``.
+
+        Parameters
+        ----------
+        realizations:
+            A list of realization samples describing the motion.
+        fixed_edge:
+            The edge of the underlying graph that should not move during
+            the animation. By default, the first entry is pinned to the origin
+            and the second is pinned to the `x`-axis.
+        fixed_direction:
+            Vector to which the first direction is fixed. By default, this is given by
+            the first and second entry.
+        """
+        if len(fixed_edge) != 2:
+            raise TypeError("The length of `fixed_edge` is not 2.")
+        (v1, v2) = (fixed_edge[0], fixed_edge[1])
+        if not v1 in realizations[0] and v in realizations[0]:
+            raise ValueError(
+                "The vertices of the edge {realizations} are not part of the graph."
+            )
+
+        # Translate the realization to the origin
+        _realizations = [
+            {v: [p[i] - r[v1][i] for i in range(len(p))] for v, p in r.items()}
+            for r in realizations
+        ]
+        if fixed_direction is None:
+            fixed_direction = [
+                q - p for p, q in zip(_realizations[0][v1], _realizations[0][v2])
+            ]
+            if np.isclose(np.linalg.norm(fixed_direction), 0, rtol=1e-6):
+                warn(
+                    f"The entries of the edge {fixed_edge} are too close to each other. Thus, `fixed_direction=(1,0)` is chosen instead."
+                )
+                fixed_direction = (1, 0)
+            else:
+                fixed_direction = [
+                    p / np.linalg.norm(fixed_direction) for p in fixed_direction
+                ]
+
+        output_realizations = []
+        for r in _realizations:
+            if any([len(p) != 2 for p in r.values()]):
+                raise ValueError(
+                    "This method is not implemented for dimensions other than 2."
+                )
+            if len(fixed_direction) != 2 or np.linalg.norm(fixed_direction) != 1:
+                raise ValueError("`fixed_direction` does not have the correct format.")
+
+            v_dist = np.linalg.norm(r[v2])
+            theta = np.arccos(
+                np.dot([v_dist * t for t in fixed_direction], r[v2]) / v_dist**2
+            )
+
+            if r[v2][0] * r[v2][1] < 0:
+                rotation_matrix = np.array(
+                    [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
+                )
+            else:
+                rotation_matrix = np.array(
+                    [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
+                )
+            # Rotate the realization to the `fixed_direction`.
+            r = {v: np.dot(rotation_matrix, p) for v, p in r.items()}
+            output_realizations.append(r)
+        return output_realizations
 
     @staticmethod
     def _normalize_realizations(
@@ -71,8 +167,8 @@ class Motion(object):
             r_norm = {}
             for v, placement in r.items():
                 r_norm[v] = [
-                    int((placement[0] - xmin) * norm_factor) + spacing,
-                    int((placement[1] - ymin) * norm_factor) + spacing,
+                    (placement[0] - xmin) * norm_factor + spacing,
+                    (placement[1] - ymin) * norm_factor + spacing,
                 ]
             realizations_normalized.append(r_norm)
         return realizations_normalized
@@ -81,6 +177,8 @@ class Motion(object):
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
+        fixed_edge: DirectedEdge = None,
+        fixed_direction: Sequence[Number] = [1, 0],
         filename: str = None,
         duration: int = 8,
         **kwargs,
@@ -92,11 +190,18 @@ class Motion(object):
 
         Parameters
         ----------
+        realizations:
+            A list of realization samples describing the motion.
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
-        realizations:
-            A list of realization samples describing the motion.
+        fixed_edge:
+            The edge of the underlying graph that should not move during
+            the animation. The default is that only the origin is pinned and that
+            the framework can rotate freely.
+        fixed_direction:
+            Vector to which the first direction is fixed. By default, this is the
+            x-axis.
         filename:
             A name used to store the svg. If ``None``, the svg is not saved.
         duration:
@@ -116,7 +221,12 @@ class Motion(object):
 
         width = plot_style.canvas_width
         height = plot_style.canvas_height
-        realizations = self._normalize_realizations(realizations, width, height, 15)
+
+        if fixed_edge is not None:
+            _realizations = self._fix_edge(realizations, fixed_edge, fixed_direction)
+        else:
+            _realizations = self._fix_origin(realizations)
+        _realizations = self._normalize_realizations(_realizations, width, height, 15)
 
         svg = f'<svg width="{width}" height="{height}" version="1.1" '
         svg += 'baseProfile="full" xmlns="http://www.w3.org/2000/svg" '
@@ -140,11 +250,11 @@ class Motion(object):
                     '\t<text x="15" y="22" font-size="22.5" font-family="DejaVuSans" '
                 )
                 tmp += f'text-anchor="middle" fill="{plot_style.font_color}">'
-                tmp += f'\n\t\t{v_label}\n\t</text>\n'
+                tmp += f"\n\t\t{v_label}\n\t</text>\n"
             tmp += "\t</marker>\n</defs>\n"
             svg = svg + "\n" + tmp
 
-        inital_realization = realizations[0]
+        inital_realization = _realizations[0]
         for u, v in self._graph.edges:
             ru = inital_realization[u]
             rv = inital_realization[v]
@@ -158,7 +268,7 @@ class Motion(object):
 
         for u, v in self._graph.edges:
             positions_str = ""
-            for r in realizations:
+            for r in _realizations:
                 ru = r[u]
                 rv = r[v]
                 positions_str += f" M {ru[0]} {ru[1]} L {rv[0]} {rv[1]};"
@@ -336,7 +446,11 @@ class ParametricMotion(Motion):
             realizations.append(self.realization(f"tan({i})", numerical=True))
         return realizations
 
-    def animate(self, sampling: int = 50, **kwargs) -> Any:
+    def animate(
+        self,
+        sampling: int = 50,
+        **kwargs,
+    ) -> Any:
         """
         Animate the parametric motion.
 
@@ -357,7 +471,11 @@ class ParametricMotion(Motion):
             realizations = self._realization_sampling(sampling, use_tan=True)
         else:
             realizations = self._realization_sampling(sampling)
-        return super().animate(realizations, None, **kwargs)
+        return super().animate(
+            realizations,
+            None,
+            **kwargs,
+        )
 
 
 class ApproximateMotion(Motion):
@@ -413,7 +531,7 @@ class ApproximateMotion(Motion):
     def __init__(
         self,
         graph: Graph,
-        starting_configuration: dict[Vertex, Point],
+        starting_realization: dict[Vertex, Point],
         steps: int,
         step_size: float = 0.1,
         chosen_flex: int = 0,
@@ -424,38 +542,34 @@ class ApproximateMotion(Motion):
         """
         super().__init__(graph)
 
-        if not len(starting_configuration) == graph.number_of_nodes():
+        if not len(starting_realization) == graph.number_of_nodes():
             raise ValueError(
                 "The realization does not contain the correct amount of vertices!"
             )
 
-        self._starting_configuration = {
+        self._starting_realization = {
             v: tuple([float(sp.sympify(pt).evalf(15)) for pt in p])
-            for v, p in starting_configuration.items()
+            for v, p in starting_realization.items()
         }
-        p0 = self._starting_configuration[graph.vertex_list()[0]]
         # Translate to the origin
-        self._starting_configuration = {
-            v: tuple([pt[i] - p0[i] for i in range(len(pt))])
-            for v, pt in self._starting_configuration.items()
-        }
-        self._dim = len(list(self._starting_configuration.values())[0])
+
+        self._dim = len(list(self._starting_realization.values())[0])
         for v in graph.nodes:
-            if v not in starting_configuration:
+            if v not in starting_realization:
                 raise KeyError(f"Vertex {v} is not a key of the given realization!")
-            if len(self._starting_configuration[v]) != self._dim:
+            if len(self._starting_realization[v]) != self._dim:
                 raise ValueError(
-                    f"The point {self._starting_configuration[v]} in the parametrization"
+                    f"The point {self._starting_realization[v]} in the parametrization"
                     f" corresponding to vertex {v} does not have the right dimension."
                 )
 
-        self.motion_samples = [self._starting_configuration]
-        cur_sol = self._starting_configuration
+        self.motion_samples = [self._starting_realization]
+        cur_sol = self._starting_realization
         self.steps = steps
         self.chosen_flex = chosen_flex
         self.step_size = step_size
         self._current_step_size = step_size
-        F = Framework(graph, self._starting_configuration)
+        F = Framework(graph, self._starting_realization)
         self.edge_lengths = F.edge_lengths(numerical=True)
         cur_inf_flex = normalize_flex(
             F._transform_inf_flex_to_pointwise(F.inf_flexes()[chosen_flex]),
@@ -532,14 +646,21 @@ class ApproximateMotion(Motion):
             chosen_flex,
         )
 
-    def animate(self, **kwargs) -> Any:
+    def animate(
+        self,
+        **kwargs,
+    ) -> Any:
         """
         Animate the approximate motion.
 
         See the parent method :meth:`~.Motion.animate` for a list of possible keywords.
         """
         realizations = self.motion_samples
-        return super().animate(realizations, None, **kwargs)
+        return super().animate(
+            realizations,
+            None,
+            **kwargs,
+        )
 
     def _euler_step(
         self,
@@ -611,16 +732,9 @@ class ApproximateMotion(Motion):
                 for e in self.edge_lengths.keys()
             ]
             newton_step = np.dot(np.linalg.pinv(mat), equations)
-            new_sol = [
+            cur_sol = [
                 cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
             ]
-            cur_sol = sum(
-                [
-                    [new_sol[i + j] - new_sol[j] for j in range(self._dim)]
-                    for i in range(0, len(new_sol), self._dim)
-                ],
-                [],
-            )
             F = Framework(
                 self._graph,
                 {

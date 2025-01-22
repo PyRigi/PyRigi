@@ -61,6 +61,7 @@ motion.animate()
 Internal checks on the edge lengths are in place to ensure that the specified parametric motion
 never violates the edge-length equations. 
 
+
 ## Approximate Motion
 
 However, a parametric motion is not always available. If you still want to get an
@@ -77,3 +78,15 @@ motion.animate(duration=10)
 ```
 
 Currently, only nontrivial motions can be computed in this way.
+
+Typically, only the origin is fixed during the animation sequence. If a (directed) edge is
+provided in the method {meth}`~.Motion.animate` via the keyword `fixed_edge`, then it is possible to
+pin the first vertex of `fixed_edge` to the origin and the second vertex to the vector from the origin
+to the placement of the second vertex. Alternatively, this vector can be specified using the keyword
+``fixed_direction``.
+
+```{code-cell} ipython3
+F = frameworks.Path(5)
+motion = ApproximateMotion.from_framework(F, 147, chosen_flex=1)
+motion.animate(fixed_edge=[0,4], fixed_direction=[0,1])
+```

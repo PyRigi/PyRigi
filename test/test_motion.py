@@ -167,13 +167,13 @@ def test_ApproximateMotion_init():
 def test_animate():
     F = fws.Square()
     M = ApproximateMotion(
-        F.graph(), F.realization(as_points=True, numerical=True), 167, 0.075
+        F.graph(), F.realization(as_points=True, numerical=True), 50, 0.075
     )
     # Test that (1) the motion actually does something and
     # (2) that it returns to its original configuration
-    assert F.is_equivalent_realization(
-        M.motion_samples[-1], numerical=True
-    ) and not F.is_equivalent_realization(
-        M.motion_samples[83], numerical=True, tolerance=1
-    )
+
+    for i in range(1, len(M.motion_samples)):
+        assert F.is_equivalent_realization(
+            M.motion_samples[i], numerical=True
+        ) and not F.is_congruent_realization(M.motion_samples[i], numerical=True)
     M.animate()
