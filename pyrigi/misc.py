@@ -3,7 +3,7 @@ Module for miscellaneous functions.
 """
 
 import math
-from pyrigi.data_type import Sequence, Number, point_to_vector, InfFlex
+from pyrigi.data_type import Sequence, Number, point_to_vector, InfFlex, Vertex, Point
 from sympy import Matrix
 import sympy as sp
 import numpy as np
@@ -207,3 +207,41 @@ def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
         return [q / flex_norm for q in inf_flex]
     else:
         raise TypeError("`inf_flex` does not have the correct type.")
+
+
+def vector_distance_pointwise(
+    dict1: dict[Vertex, Sequence[Number]],
+    dict2: dict[Vertex, Sequence[Number]],
+    numerical: bool = False,
+) -> float:
+    """
+    Computes the Euclidean distance between two realizations or pointwise vectors.
+
+    This method computes the Euclidean distance from the realization `dict_1`
+    to `dict2`. These dicts need to be based on the same vertex set.
+    """
+    if not set(dict1.keys()) == set(dict2.keys()) or not len(dict1) == len(dict2):
+        raise ValueError("`dict1` and `dict2` are not based on the same vertex set.")
+    if numerical:
+        return np.linalg.norm(
+            [
+                p1 - p2
+                for v in dict1.keys()
+                for p1, p2 in zip(
+                    dict1[v],
+                    dict2[v],
+                )
+            ]
+        )
+    return sp.sqrt(
+        sum(
+            [
+                (p1 - p2) ** 2
+                for v in dict1.keys()
+                for p1, p2 in zip(
+                    dict1[v],
+                    dict2[v],
+                )
+            ]
+        )
+    )

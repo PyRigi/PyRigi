@@ -7,7 +7,7 @@ from pyrigi.framework import Framework
 from pyrigi.data_type import Vertex, Point, Sequence, InfFlex, Number, DirectedEdge
 from pyrigi.plot_style import PlotStyle, PlotStyle2D
 from sympy import simplify
-from pyrigi.misc import point_to_vector, normalize_flex
+from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
 import numpy as np
 import sympy as sp
 from IPython.display import SVG
@@ -561,7 +561,6 @@ class ApproximateMotion(Motion):
             v: tuple([float(sp.sympify(pt).evalf(15)) for pt in p])
             for v, p in starting_realization.items()
         }
-        # Translate to the origin
 
         self._dim = len(list(self._starting_realization.values())[0])
         for v in graph.nodes:
@@ -599,15 +598,8 @@ class ApproximateMotion(Motion):
             self.motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
-                np.linalg.norm(
-                    [
-                        p1 - p2
-                        for v in graph.nodes
-                        for p1, p2 in zip(
-                            self.motion_samples[-1][v],
-                            self.motion_samples[-2][v],
-                        )
-                    ]
+                vector_distance_pointwise(
+                    self.motion_samples[-1], self.motion_samples[-2], numerical=True
                 )
                 > self.step_size * 2
             ):
@@ -619,15 +611,8 @@ class ApproximateMotion(Motion):
                     jump_indicator = [False, False]
                 continue
             elif (
-                np.linalg.norm(
-                    [
-                        p1 - p2
-                        for v in graph.nodes
-                        for p1, p2 in zip(
-                            self.motion_samples[-1][v],
-                            self.motion_samples[-2][v],
-                        )
-                    ]
+                vector_distance_pointwise(
+                    self.motion_samples[-1], self.motion_samples[-2], numerical=True
                 )
                 < self.step_size / 2
             ):
@@ -690,20 +675,16 @@ class ApproximateMotion(Motion):
             F._transform_inf_flex_to_pointwise(F.inf_flexes()[self.chosen_flex]),
             numerical=True,
         )
-        if np.linalg.norm(
-            [
-                q - w
-                for v in inf_flex.keys()
-                for q, w in zip(inf_flex[v], old_inf_flex[v])
-            ]
-        ) > turning_threshold * np.linalg.norm(
-            [
-                -q - w
-                for v in inf_flex.keys()
-                for q, w in zip(inf_flex[v], old_inf_flex[v])
-            ]
+        reflected_inf_flex = {v: [-pt for pt in p] for v, p in inf_flex.items()}
+
+        if vector_distance_pointwise(
+            inf_flex, old_inf_flex, numerical=True
+        ) > turning_threshold * vector_distance_pointwise(
+            reflected_inf_flex,
+            old_inf_flex,
+            numerical=True,
         ):
-            inf_flex = {v: [-pt for pt in p] for v, p in inf_flex.items()}
+            inf_flex = reflected_inf_flex
         point = self.motion_samples[-1]
         return {
             v: tuple(
