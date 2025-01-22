@@ -11,7 +11,7 @@ from typing import List, Dict, Union, Iterable
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from sympy import Matrix, oo, zeros, symbols
+from sympy import Matrix, oo, zeros
 import numpy as np
 
 import math
@@ -2730,7 +2730,7 @@ class Graph(nx.Graph):
         vert_conn_comp = list(nx.connected_components(H))
         H = self.copy()
         import pyrigi.graphDB as graphs
-        
+
         for V in vert_conn_comp:
             H.delete_vertices(V)
             K = graphs.Complete(self.neighbors_of_set(V))
@@ -2775,21 +2775,11 @@ class Graph(nx.Graph):
             B = augmented_G.subgraph(V_B)
             return B
 
-    def Rd_circuit(
-        self, 
-        u = None, 
-        v = None, 
-        dim: int = 2,
-        **kwargs,
-    ):
-        '''
-        Return an Rd_circuit of self. 
-        If a vertex is given, then return an Rd_circuit of self that contains
-        that vertex.
-        If two vertices u, v are given, then return an Rd_circuit of self + uv, i.e., it
-        contains the edge uv. This is useful to verify if (u,v) is a weakly globally 
-        linked pair.
-        
+    def fundamental_circuit(self, u: Vertex, v: Vertex):
+        """
+        Return an R2_circuit of self + uv, i.e., it
+        contains the edge uv.
+
         Parameters
         --------
         u:
@@ -2799,48 +2789,26 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        '''  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
+        >>> H = G.block_3(0,11)
+        >>> H.fundamental_circuit(0,11)
+        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
+        """  # noqa: E501
+
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
-        if u is None and v is None:
-            B_0 = Graph()
-        # our case:
-        elif isinstance(u, Vertex) and isinstance(v, Vertex) and u in self.nodes() and v in self.nodes():
-            B_0 = Graph([[u,v]])
-        # elif isinstance(u, Vertex) and u in self.nodes():
-            # # find an edge in self.edges() that has u as vertex and create B_0
-        # elif isinstance(v, Vertex) and v in self.nodes():
-            # # find an edge in self.edges() that has v as vertex and create B_0
-        else: 
-            raise TypeError(
-                "u and v needs to be a vertices of the graph."
-            )
-        # now starts the real algorithm
-        for e in self.edges():
-            B_0.add_edges([e])
-            if B_0.is_Rd_dependent(dim=2,**kwargs):
-                break
-        from pyrigi import Framework
-        F = Framework.Random(B_0, dim=2)
-        # essendo usciti dal ciclo for, l'ultimo arco aggiunto, 
-        # quindi l'unico che potrebbe creare problemi,
-        # è indicato con e
-        i = B_0.edge_list().index(sorted(e))
-        lambda_ = symbols('lambda')
-        from sympy import solve
-        for j in range(F.rigidity_matrix().rows):
-            if j != i:
-                eq = F.rigidity_matrix().row(i) - lambda_ * F.rigidity_matrix().row(j)
-                soluzioni = solve(eq, lambda_)
-                if soluzioni:
-                    print('siamo qui')
-                    V = [e, [u,v],B_0.edge_list()[j]]
-                    return nx.subgraph(B_0,V) # bisogna togliere i vettori che non sono min dip vabbe quella roba lì
-        return B_0
+        if (
+            not isinstance(u, Vertex)
+            or not isinstance(v, Vertex)
+            or u not in self.nodes()
+            or v not in self.nodes()
+        ):
+            raise TypeError("u and v need to be a vertices of the graph.")
+        self._build_pebble_digraph(K=2, L=3)
+        set_nodes = self._pebble_digraph.fundamental_circuit(u, v)
+        F = Graph(self._pebble_digraph.to_undirected())
+        return nx.subgraph(F, set_nodes)
+
 
 
     @doc_category("Other")
