@@ -833,6 +833,42 @@ def test_edge_lengths():
     assert all([(v - 1).is_zero for v in F.edge_lengths(numerical=False).values()])
 
 
+@pytest.mark.parametrize(
+    "framework1, framework2",
+    [
+        [
+            fws.Complete(3, dim=2),
+            Framework(Graph.from_int(7), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
+        ],
+        [
+            fws.Complete(4, dim=2),
+            fws.Complete(4, dim=2),
+        ],
+    ],
+)
+def test__input_check_underlying_graphs(framework1, framework2):
+    assert framework1._input_check_underlying_graphs(framework2) is None
+    assert framework2._input_check_underlying_graphs(framework1) is None
+
+
+@pytest.mark.parametrize(
+    "framework1, framework2",
+    [
+        [
+            fws.Complete(3, dim=2),
+            Framework(Graph.from_int(31), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [2, 2]})
+        ],
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            Framework(Graph([[0, 1], [1, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]})
+        ],
+    ],
+)
+def test__input_check_underlying_graphs_error(framework1, framework2):
+    with pytest.raises(ValueError):
+        framework1._input_check_underlying_graphs(framework2)
+
+
 @pytest.mark.meshing
 def test__generate_stl_bar():
     mesh = Framework._generate_stl_bar(30, 4, 10, 5)
