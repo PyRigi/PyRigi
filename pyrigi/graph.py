@@ -308,6 +308,62 @@ class Graph(nx.Graph):
         for pair in pairs:
             self._input_check_edge_format(pair)
 
+    def _input_check_vertex_order(self, vertex_order=Sequence[Vertex]) -> list[Vertex]:
+        """
+        Checks whether the provided `vertex_order` contains the same elements
+        as the graph's vertex set.
+
+        Parameters
+        ----------
+        vertex_order:
+            List of vertices in the preferred order
+
+        Notes
+        -----
+        Throws an error if the vertices in `vertex_order` do not agree with the
+        underlying graphs's vertices.
+        """
+        if vertex_order is None:
+            return self.vertex_list()
+        else:
+            if not self.number_of_nodes() == len(vertex_order) or not set(
+                self.vertex_list()
+            ) == set(vertex_order):
+                raise ValueError(
+                    "The new vertex set must contain exactly "
+                    + "the same vertices as the underlying graph!"
+                )
+            return list(vertex_order)
+
+    def _input_check_edge_order(self, edge_order=Sequence[Edge]) -> list[Edge]:
+        """
+        Checks whether the provided `edge_order` contains the same elements
+        as the graph's edge set.
+
+        Parameters
+        ----------
+        edge_order:
+            List of edges in the preferred order
+
+        Notes
+        -----
+        Throws an error if the edges in `edge_order` do not agree with the
+        underlying graphs's edges.
+        """
+        if edge_order is None:
+            return self.edge_list()
+        else:
+            if not self.number_of_edges() == len(edge_order) or not all(
+                [
+                    set(e) in [set(e) for e in edge_order]
+                    for e in self.edge_list()
+                ]
+            ):
+                raise ValueError(
+                    "The edge_order must contain exactly the same edges as the graph!"
+                )
+            return list(edge_order)
+
     @doc_category("Attribute getters")
     def vertex_list(self) -> list[Vertex]:
         """
@@ -444,15 +500,8 @@ class Graph(nx.Graph):
         >>> G.degree_sequence()
         [1, 2, 1]
         """
-        if vertex_order is None:
-            vertex_order = self.vertex_list()
-        else:
-            if not set(self.nodes) == set(
-                vertex_order
-            ) or not self.number_of_nodes() == len(vertex_order):
-                raise IndexError(
-                    "The vertex_order must contain the same vertices as the graph!"
-                )
+        vertex_order = self._input_check_vertex_order(vertex_order)
+
         return [self.degree(v) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
@@ -2360,15 +2409,7 @@ class Graph(nx.Graph):
         :func:`networkx.linalg.graphmatrix.adjacency_matrix`
         requires `scipy`. To avoid unnecessary imports, the method is implemented here.
         """
-        if vertex_order is None:
-            vertex_order = self.vertex_list()
-        else:
-            if not set(self.nodes) == set(
-                vertex_order
-            ) or not self.number_of_nodes() == len(vertex_order):
-                raise IndexError(
-                    "The vertex_order must contain the same vertices as the graph!"
-                )
+        vertex_order = self._input_check_vertex_order(vertex_order)
 
         row_list = [
             [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order

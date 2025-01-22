@@ -46,21 +46,6 @@ def test_is_inf_rigid(framework):
     assert framework.is_inf_rigid()
 
 
-def test_check_vertex_and_edge_order():
-    F = Framework.Random(Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]))
-    vertex_order = ["a", "#", 0, 1.8]
-    edge_order = [(0, "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
-    assert F._input_check_vertex_order(vertex_order) and F._input_check_edge_order(
-        edge_order
-    )
-    vertex_order = ["a", "#", 0, "s"]
-    edge_order = [("#", "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
-    with pytest.raises(ValueError):
-        F._input_check_vertex_order(vertex_order)
-    with pytest.raises(ValueError):
-        F._input_check_edge_order(edge_order)
-
-
 @pytest.mark.parametrize(
     "framework",
     [

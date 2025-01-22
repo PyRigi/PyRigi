@@ -1718,7 +1718,11 @@ def test__input_check_edge_type_error(graph, edge):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1), [1, 2, 3]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1], [1, 2, 3]],
         [Graph([(1, 2), (2, 3)]), [1, 2, 3], [1, 2, 3]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]", [1, 2, 3]],
+        [
+            Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]),
+            "[3, 2]",
+            [1, 2, 3],
+        ],
         [Graph([[1, 2], [2, 3]]), "12", [1, 2, 3]],
         [Graph.from_int(7), [[0, 1]], [1, 2, 3]],
         [Graph.from_int(31), [[1, 2], [2, 3]], [1, 2, 3]],
@@ -1815,6 +1819,70 @@ def test__input_check_edge_list_type_error(graph, edge):
         graph._input_check_edge_list(edge)
     with pytest.raises(TypeError):
         graph._input_check_edge_format_list(edge)
+
+
+@pytest.mark.parametrize(
+    "graph, vertex_order",
+    [
+        [Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]), ["a", "#", 0, 1.8]],
+        [Graph([[1, 2], [2, 3]]), [1, 2, 3]],
+        [Graph([[1, 2], [2, 3]]), [1, 3, 2]],
+        [Graph.from_int(7), [0, 1, 2]],
+    ],
+)
+def test__input_check_vertex_order(graph, vertex_order):
+    assert graph._input_check_vertex_order(vertex_order) == vertex_order
+
+
+@pytest.mark.parametrize(
+    "graph, vertex_order",
+    [
+        [Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]), ["a", "#", 0, "s"]],
+        [Graph([[1, 2], [2, 3]]), [1, 3]],
+        [Graph([[1, 2], [2, 3]]), [1, 2, 2]],
+        [Graph([[1, 2], [2, 3]]), [1, 2, 2, 3]],
+        [Graph([[1, 2], [2, 3]]), [1, 2, 3, 4]],
+        [Graph.from_int(7), [1, 2, 3]],
+    ],
+)
+def test__input_check_vertex_order_error(graph, vertex_order):
+    with pytest.raises(ValueError):
+        graph._input_check_vertex_order(vertex_order)
+
+
+@pytest.mark.parametrize(
+    "graph, edge_order",
+    [
+        [
+            Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]),
+            [(0, "#"), ("a", 1.8), (0, 1.8), ("#", "a")],
+        ],
+        [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3]]],
+        [Graph([[1, 2], [2, 3]]), [[2, 1], [3, 2]]],
+        [Graph([[1, 2], [2, 3]]), [[2, 3], [1, 2]]],
+        [Graph.from_int(7), [[0, 1], [1, 2], [2, 0]]],
+    ],
+)
+def test__input_check_edge_order(graph, edge_order):
+    assert graph._input_check_edge_order(edge_order) == edge_order
+
+
+@pytest.mark.parametrize(
+    "graph, edge_order",
+    [
+        [
+            Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]),
+            [("#", "#"), ("a", 1.8), (0, 1.8), ("#", "a")],
+        ],
+        [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 4]]],
+        [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3], [1, 3]]],
+        [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3], [1, 2]]],
+        [Graph.from_int(7), [[0, 1], [1, 2], [1, 2]]],
+    ],
+)
+def test__input_check_edge_order_error(graph, edge_order):
+    with pytest.raises(ValueError):
+        graph._input_check_edge_order(edge_order)
 
 
 def test_from_vertices_and_edges():
