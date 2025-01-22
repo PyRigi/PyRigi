@@ -869,6 +869,98 @@ def test__input_check_underlying_graphs_error(framework1, framework2):
         framework1._input_check_underlying_graphs(framework2)
 
 
+@pytest.mark.parametrize(
+    "framework, realization, v",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            None,
+            1
+        ],
+        [
+            Framework.Random(Graph([[1, 2], [2, 3]])),
+            {1: [1, 0], 2: [1, 1], 3: [2, 2]},
+            2
+        ],
+        [
+            Framework.Random(Graph([["a", 2], [2, -3]])),
+            {2: [1, 0], -3: [1, 1], "a": [2, 2]},
+            2
+        ],
+    ],
+)
+def test__input_check_vertex_key(framework, realization, v):
+    assert framework._input_check_vertex_key(v, realization) is None
+
+
+@pytest.mark.parametrize(
+    "framework, realization, v",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            None,
+            4
+        ],
+        [
+            Framework.Random(Graph([[1, 2], [2, 3]])),
+            {1: [1, 0], 2: [1, 1]},
+            3
+        ],
+        [
+            Framework.Random(Graph([["a", 2], [2, -3]])),
+            {2: [1, 0], -3: [1, 1], "a": [2, 2]},
+            "b"
+        ],
+    ],
+)
+def test__input_check_vertex_key_error(framework, realization, v):
+    with pytest.raises(KeyError):
+        framework._input_check_vertex_key(v, realization)
+
+
+@pytest.mark.parametrize(
+    "framework, point",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            [2, 3]
+        ],
+        [
+            Framework.Random(Graph([[1, 2], [2, 3]]), 3),
+            [2, 3, 4]
+        ],
+        [
+            Framework.Random(Graph([["a", 2], [2, -3]]), 1),
+            [2]
+        ]
+    ],
+)
+def test__input_check_point_dimension(framework, point):
+    assert framework._input_check_point_dimension(point) is None
+
+
+@pytest.mark.parametrize(
+    "framework, point",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            [2, 3, 3]
+        ],
+        [
+            Framework.Random(Graph([[1, 2], [2, 3]]), 3),
+            [2, 3]
+        ],
+        [
+            Framework.Random(Graph([["a", 2], [2, -3]]), 1),
+            []
+        ]
+    ],
+)
+def test__input_check_point_dimension_error(framework, point):
+    with pytest.raises(IndexError):
+        framework._input_check_point_dimension(point)
+
+
 @pytest.mark.meshing
 def test__generate_stl_bar():
     mesh = Framework._generate_stl_bar(30, 4, 10, 5)

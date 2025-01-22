@@ -2147,13 +2147,9 @@ class Framework(object):
                 "The realization does not contain the correct amount of vertices!"
             )
         for v in self._graph.nodes:
-            if v not in realization:
-                raise KeyError("Vertex {vertex} is not a key of the given realization!")
-            if not len(realization[v]) == self.dimension():
-                raise IndexError(
-                    f"The element {realization[v]} does not have "
-                    f"the dimension {self.dimension()}!"
-                )
+            self._input_check_vertex_key(v, realization)
+            self._input_check_point_dimension(realization[v])
+
         self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
     @doc_category("Framework manipulation")
@@ -2170,12 +2166,9 @@ class Framework(object):
         Graph with vertices [0] and edges []
         Realization {0:(6, 2)}
         """
-        if vertex not in self._realization:
-            raise KeyError("Vertex {vertex} is not a key of the given realization!")
-        if not len(point) == self.dimension():
-            raise IndexError(
-                f"The point {point} does not have the dimension {self.dimension()}!"
-            )
+        self._input_check_vertex_key(vertex)
+        self._input_check_point_dimension(point)
+
         self._realization[vertex] = Matrix(point)
 
     @doc_category("Framework manipulation")
@@ -3645,13 +3638,35 @@ class Framework(object):
                 "The `inf_flex` must be specified either by a vector or a dictionary!"
             )
 
-    def _input_check_underlying_graphs(self, other_framework):
+    def _input_check_underlying_graphs(self, other_framework) -> None:
         """
         Checks whether the underlying graphs of two frameworks are the same and
         raises an error otherwise.
         """
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
             raise ValueError("The underlying graphs are not same!")
+
+    def _input_check_vertex_key(
+        self, vertex: Vertex, realization: dict[Vertex, Point] = None
+    ) -> None:
+        """
+        Checks whether a vertex appears as key in a realization and
+        raises an error otherwise.
+        """
+        if realization is None:
+            realization = self._realization
+        if vertex not in realization:
+            raise KeyError("Vertex {vertex} is not a key of the given realization!")
+
+    def _input_check_point_dimension(self, point: Point) -> None:
+        """
+        Checks whether a point has the right dimension and
+        raises an error otherwise.
+        """
+        if not len(point) == self.dimension():
+            raise IndexError(
+                f"The point {point} does not have the dimension {self.dimension()}!"
+            )
 
     def _resolve_connection_style(self, connection_style: str) -> str:
         """
