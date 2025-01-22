@@ -2771,8 +2771,6 @@ class Graph(nx.Graph):
             cutsets = list(nx.all_node_cuts(self))
             augmented_G.add_edges(cutsets)
             tricomp = nx.k_components(augmented_G)[3]
-            print(tricomp)
-            
             V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
             B = augmented_G.subgraph(V_B)
             return B
