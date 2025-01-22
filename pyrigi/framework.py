@@ -113,8 +113,7 @@ class Framework(object):
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
-        if nx.number_of_selfloops(graph) > 0:
-            raise LoopError()
+        graph._input_check_loop()
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
                 "The length of realization has to be equal to "
@@ -632,7 +631,7 @@ class Framework(object):
                     + " Exactly Two coordinates are necessary for plotting in 2D."
                 )
             if np.max(coordinates) >= self._dim:
-                raise ValueError(
+                raise IndexError(
                     f"Index {np.max(coordinates)} out of range"
                     + f" with placement in dim: {self._dim}."
                 )
@@ -727,11 +726,7 @@ class Framework(object):
         >>> F = frameworkDB.Complete(4, dim=3)
         >>> F.animate3D();
         """
-        if self._dim != 3:
-            raise ValueError(
-                "The Framework is in dimension {self._dim}, "
-                + "not 3 as the method `animate3D` requires."
-            )
+        _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
 
         # Creation of the figure
         fig = plt.figure(dpi=dpi)

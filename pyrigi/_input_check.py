@@ -24,8 +24,12 @@ def dimension_for_algorithm(dim: int, possible: list, algorithm: str = "") -> No
     raises an error otherwise.
     """
     if dim not in possible:
+        if len(possible) == 1:
+            in_str = str(possible[0])
+        else:
+            in_str = f"in {possible}"
         raise ValueError(
-            "For " + algorithm + f" the dimension needs to be in {possible},"
+            "For `" + algorithm + f"` the dimension needs to be " + in_str + ", "
             f"but is {dim}!"
         )
 
