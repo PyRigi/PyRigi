@@ -2,7 +2,6 @@ from pyrigi.motion import ParametricMotion, ApproximateMotion
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 import sympy as sp
-import numpy as np
 import pytest
 
 
@@ -170,16 +169,11 @@ def test_animate():
     M = ApproximateMotion(
         F.graph(), F.realization(as_points=True, numerical=True), 167, 0.075
     )
-    assert (
-        np.linalg.norm(
-            [
-                u - v
-                for u, v in zip(
-                    sum([list(val) for val in M.motion_samples[0].values()], []),
-                    sum([list(val) for val in M.motion_samples[-1].values()], []),
-                )
-            ]
-        )
-        < 1e-2
+    # Test that (1) the motion actually does something and
+    # (2) that it returns to its original configuration
+    assert F.is_equivalent_realization(
+        M.motion_samples[-1], numerical=True
+    ) and not F.is_equivalent_realization(
+        M.motion_samples[83], numerical=True, tolerance=1
     )
     M.animate()

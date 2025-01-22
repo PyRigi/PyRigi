@@ -5,6 +5,7 @@ This module contains functionality related to motions (continuous flexes).
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 from pyrigi.data_type import Vertex, Point, Sequence, InfFlex, Number
+from pyrigi.plot_style import PlotStyle, PlotStyle2D
 from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex
 import numpy as np
@@ -76,47 +77,45 @@ class Motion(object):
             realizations_normalized.append(r_norm)
         return realizations_normalized
 
-    def _animate(
+    def animate(
         self,
         realizations: Sequence[dict[Vertex, Point]],
-        width: int = 500,
-        height: int = 500,
+        plot_style: PlotStyle,
         filename: str = None,
-        show_labels: bool = True,
-        vertex_size: int = 5,
         duration: int = 8,
+        **kwargs,
     ) -> Any:
         """
         Animate the continuous motion.
 
+        See :class:`~.PlotStyle` for a list of possible visualization keywords.
+
         Parameters
         ----------
+        plot_style:
+            An instance of the ``PlotStyle`` class that defines the visual style
+            for plotting, see :class:`~.PlotStyle` for more details.
         realizations:
             A list of realization samples describing the motion.
-        width:
-            The width of the window in the saved svg file.
-        height:
-            The height of the window in the saved svg file.
         filename:
-            A name used to store the svg. If ``None```, the svg is not saved.
-        show_labels:
-            If ``True``, the vertices will have a number label.
-        vertex_size:
-            The size of vertices in the animation.
+            A name used to store the svg. If ``None``, the svg is not saved.
         duration:
             The duration of one period of the animation in seconds.
         """
         if self._dim != 2:
             raise ValueError("Animations are supported only for motions in 2D.")
-        if not (
-            self.__class__.__name__ == "ApproximateMotion"
-            or self.__class__.__name__ == "ParametricMotion"
-        ):
-            raise AttributeError(
-                "The method `animate` is not yet implemented for "
-                + "the class {self.__class__.__name__}"
-            )
 
+        if plot_style is None:
+            plot_style = PlotStyle2D(
+                vertex_size=6, canvas_width=500, canvas_height=500, edge_width=5
+            )
+        else:
+            plot_style = PlotStyle2D.from_plot_style(plot_style)
+        # Update the plot_style instance with any passed keyword arguments
+        plot_style.update(**kwargs)
+
+        width = plot_style.canvas_width
+        height = plot_style.canvas_height
         realizations = self._normalize_realizations(realizations, width, height, 15)
 
         svg = f'<svg width="{width}" height="{height}" version="1.1" '
@@ -128,15 +127,20 @@ class Motion(object):
         for i, v in enumerate(self._graph.nodes):
             v_to_int[v] = i
             tmp = """<defs>\n"""
-
+            v_label = str(v)
             tmp += f'\t<marker id="vertex{i}" viewBox="0 0 30 30" '
-            tmp += f'refX="15" refY="15" markerWidth="{vertex_size}" '
-            tmp += f'markerHeight="{vertex_size}">\n'
-            tmp += '\t<circle cx="15" cy="15" r="13.5" fill="white" '
-            tmp += 'stroke="black" stroke-width="2"/>\n'
-            if show_labels:
-                tmp += '\t<text x="15" y="22" font-size="22.5" '
-                tmp += f'text-anchor="middle" fill="black">\n\t\t{i}\n\t</text>\n'
+            tmp += f'refX="15" refY="15" markerWidth="{plot_style.vertex_size}" '
+            tmp += f'markerHeight="{plot_style.vertex_size}">\n'
+            tmp += (
+                f'\t<circle cx="15" cy="15" r="13.5" fill="{plot_style.vertex_color}" '
+            )
+            tmp += 'stroke="white" stroke-width="0"/>\n'
+            if plot_style.vertex_labels:
+                tmp += (
+                    '\t<text x="15" y="22" font-size="22.5" font-family="DejaVuSans" '
+                )
+                tmp += f'text-anchor="middle" fill="{plot_style.font_color}">'
+                tmp += f'\n\t\t{v_label}\n\t</text>\n'
             tmp += "\t</marker>\n</defs>\n"
             svg = svg + "\n" + tmp
 
@@ -144,7 +148,8 @@ class Motion(object):
         for u, v in self._graph.edges:
             ru = inital_realization[u]
             rv = inital_realization[v]
-            path = '<path fill="transparent" stroke="grey" stroke-width="5px" '
+            path = f'<path fill="transparent" stroke="{plot_style.edge_color}" '
+            path += f'stroke-width="{plot_style.edge_width}px" '
             path += f'id="edge{v_to_int[u]}-{v_to_int[v]}" d="M {ru[0]} {ru[1]} '
             path += f'L {rv[0]} {ru[1]}" marker-start="url(#vertex{v_to_int[u]})" '
             path += f'marker-end="url(#vertex{v_to_int[v]})" />'
@@ -277,7 +282,7 @@ class ParametricMotion(Motion):
 
     def realization(self, value: Number, numerical: bool = False) -> dict[Vertex:Point]:
         """
-        Return specific realization for the given ``value`` of the parameter.
+        Return a specific realization for the given ``value`` of the parameter.
 
         Parameters
         ----------
@@ -320,7 +325,7 @@ class ParametricMotion(Motion):
         realizations = []
         if not use_tan:
             for i in np.linspace(self._interval[0], self._interval[1], n):
-                realizations.append(self.realization(i, numeric=True))
+                realizations.append(self.realization(i, numerical=True))
             return realizations
 
         newinterval = [
@@ -328,12 +333,14 @@ class ParametricMotion(Motion):
             sp.atan(self._interval[1]).evalf(),
         ]
         for i in np.linspace(newinterval[0], newinterval[1], n):
-            realizations.append(self.realization(f"tan({i})", numeric=True))
+            realizations.append(self.realization(f"tan({i})", numerical=True))
         return realizations
 
     def animate(self, sampling: int = 50, **kwargs) -> Any:
         """
         Animate the parametric motion.
+
+        See the parent method :meth:`~.Motion.animate` for a list of possible keywords.
 
         Parameters
         ----------
@@ -344,25 +351,13 @@ class ParametricMotion(Motion):
             but may lead to a less precise or jerky animation. This parameter controls
             the resolution of the animation's movement by setting the density of
             sampled data points between keyframes or time steps.
-        width:
-            The width of the window in the saved svg file.
-        height:
-            The height of the window in the saved svg file.
-        filename:
-            A name used to store the svg. If ``None```, the svg is not saved.
-        show_labels:
-            If ``True``, the vertices will have a number label.
-        vertex_size:
-            The size of vertices in the animation.
-        duration:
-            The duration of one period of the animation in seconds.
         """
         lower, upper = self._interval
         if lower == -np.inf or upper == np.inf:
             realizations = self._realization_sampling(sampling, use_tan=True)
         else:
             realizations = self._realization_sampling(sampling)
-        return self._animate(realizations, **kwargs)
+        return super().animate(realizations, None, **kwargs)
 
 
 class ApproximateMotion(Motion):
@@ -541,23 +536,10 @@ class ApproximateMotion(Motion):
         """
         Animate the approximate motion.
 
-        Parameters
-        ----------
-        width:
-            The width of the window in the saved svg file.
-        height:
-            The height of the window in the saved svg file.
-        filename:
-            A name used to store the svg. If ``None```, the svg is not saved.
-        show_labels:
-            If ``True``, the vertices will have a number label.
-        vertex_size:
-            The size of vertices in the animation.
-        duration:
-            The duration of one period of the animation in seconds.
+        See the parent method :meth:`~.Motion.animate` for a list of possible keywords.
         """
         realizations = self.motion_samples
-        return self._animate(realizations, **kwargs)
+        return super().animate(realizations, None, **kwargs)
 
     def _euler_step(
         self,
