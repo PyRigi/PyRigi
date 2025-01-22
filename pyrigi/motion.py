@@ -84,7 +84,7 @@ class Motion(object):
         if len(fixed_edge) != 2:
             raise TypeError("The length of `fixed_edge` is not 2.")
         (v1, v2) = (fixed_edge[0], fixed_edge[1])
-        if not v1 in realizations[0] and v in realizations[0]:
+        if not (v1 in realizations[0] and v2 in realizations[0]):
             raise ValueError(
                 "The vertices of the edge {realizations} are not part of the graph."
             )
@@ -100,7 +100,8 @@ class Motion(object):
             ]
             if np.isclose(np.linalg.norm(fixed_direction), 0, rtol=1e-6):
                 warn(
-                    f"The entries of the edge {fixed_edge} are too close to each other. Thus, `fixed_direction=(1,0)` is chosen instead."
+                    f"The entries of the edge {fixed_edge} are too close to each "
+                    + "other. Thus, `fixed_direction=(1,0)` is chosen instead."
                 )
                 fixed_direction = (1, 0)
             else:
