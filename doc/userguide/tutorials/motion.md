@@ -59,7 +59,7 @@ motion = ParametricMotion(
 motion.animate(
     vertex_labels=False,
     edge_color='blue',
-    edge_width=20,
+    edge_width=4,
 )
 ```
 
@@ -82,7 +82,8 @@ motion = ApproximateMotion.from_framework(F, 393, chosen_flex=0, step_size=0.15)
 motion.animate(duration=10)
 ```
 
-Currently, only nontrivial motions can be computed in this way.
+Only nontrivial motions can be computed in this way, so you don't need to worry about approximating a
+trivial motion here.
 
 Typically, only the origin is fixed during the animation sequence. If a (directed) edge is
 provided in the method {meth}`~.Motion.animate` via the keyword `fixed_edge`, then it is possible to

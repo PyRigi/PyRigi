@@ -180,6 +180,7 @@ class Motion(object):
         plot_style: PlotStyle,
         fixed_edge: DirectedEdge = None,
         fixed_direction: Sequence[Number] = [1, 0],
+        fix_origin: bool = True,
         filename: str = None,
         duration: int = 8,
         **kwargs,
@@ -187,7 +188,9 @@ class Motion(object):
         """
         Animate the continuous motion.
 
-        See :class:`~.PlotStyle` for a list of possible visualization keywords.
+        See :class:`~.PlotStyle2D` for a list of possible visualization keywords.
+        Not necessarily all of them apply (e.g. keywords related to infinitesimal
+        flexes are ignored).
 
         Parameters
         ----------
@@ -201,8 +204,11 @@ class Motion(object):
             the animation. The default is that only the origin is pinned and that
             the framework can rotate freely.
         fixed_direction:
-            Vector to which the first direction is fixed. By default, this is the
-            x-axis.
+            Vector to which the first direction is fixed. By default, it is the
+            vector from ``fixed_edge[0]`` to ``fixed_edge[1]``.
+        fix_origin:
+            A boolean deciding whether the origin is fixed. This only has an effect
+            if fixed_edge=None``.
         filename:
             A name used to store the svg. If ``None``, the svg is not saved.
         duration:
@@ -225,9 +231,13 @@ class Motion(object):
 
         if fixed_edge is not None:
             _realizations = self._fix_edge(realizations, fixed_edge, fixed_direction)
-        else:
+        elif fix_origin:
             _realizations = self._fix_origin(realizations)
-        _realizations = self._normalize_realizations(_realizations, width, height, 15)
+        else:
+            _realizations = realizations
+        _realizations = self._normalize_realizations(
+            _realizations, width, height, 15
+        )
 
         svg = f'<svg width="{width}" height="{height}" version="1.1" '
         svg += 'baseProfile="full" xmlns="http://www.w3.org/2000/svg" '
@@ -475,6 +485,7 @@ class ParametricMotion(Motion):
         return super().animate(
             realizations,
             None,
+            fix_origin=False,
             **kwargs,
         )
 
@@ -660,6 +671,7 @@ class ApproximateMotion(Motion):
         return super().animate(
             realizations,
             None,
+            fix_origin=True,
             **kwargs,
         )
 
