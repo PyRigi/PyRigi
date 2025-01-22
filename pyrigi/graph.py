@@ -2729,10 +2729,10 @@ class Graph(nx.Graph):
         H.delete_vertices(X)
         vert_conn_comp = list(nx.connected_components(H))
         H = self.copy()
+        import pyrigi.graphDB as graphs
+        
         for V in vert_conn_comp:
             H.delete_vertices(V)
-            import pyrigi.graphDB as graphs
-
             K = graphs.Complete(self.neighbors_of_set(V))
             H += K
         return H
