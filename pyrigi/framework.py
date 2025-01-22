@@ -2310,7 +2310,7 @@ class Framework(object):
         False
         """
         stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
-        self._graph._input_check_edge_order(stress_edge_list)
+        self._graph._input_check_edge_order(stress_edge_list, "dict_stress")
         graph_edge_list = [tuple(e) for e in self._graph.edge_list()]
         dict_to_list = []
 
@@ -2852,7 +2852,9 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        self._graph._input_check_vertex_order(list(other_realization.keys()))
+        self._graph._input_check_vertex_order(
+            list(other_realization.keys()), "other_realization"
+        )
 
         for u, v in combinations(self._graph.nodes, 2):
             edge_vec = (self._realization[u]) - self._realization[v]
@@ -2916,7 +2918,9 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        self._graph._input_check_vertex_order(list(other_realization.keys()))
+        self._graph._input_check_vertex_order(
+            list(other_realization.keys()), "other_realization"
+        )
 
         for u, v in self._graph.edges:
             edge_vec = self._realization[u] - self._realization[v]
@@ -3366,14 +3370,10 @@ class Framework(object):
         >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
         True
         """
-        self._graph._input_check_vertex_order(list(vert_to_flex.keys()))
-        dict_to_list = []
+        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
+        dict_to_list = []
         for v in self._graph.vertex_list():
-            if v not in vert_to_flex:
-                raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`!"
-                )
             dict_to_list += list(vert_to_flex[v])
 
         return self.is_vector_inf_flex(
@@ -3496,14 +3496,10 @@ class Framework(object):
         >>> F.is_dict_nontrivial_inf_flex(q)
         False
         """
-        self._graph._input_check_vertex_order(list(vert_to_flex.keys()))
-        dict_to_list = []
+        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
+        dict_to_list = []
         for v in self._graph.vertex_list():
-            if v not in vert_to_flex:
-                raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`!"
-                )
             dict_to_list += list(vert_to_flex[v])
 
         return self.is_vector_nontrivial_inf_flex(
@@ -3600,14 +3596,10 @@ class Framework(object):
         >>> F.is_dict_trivial_inf_flex(q)
         True
         """
-        self._graph._input_check_vertex_order(list(vert_to_flex.keys()))
-        dict_to_list = []
+        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
+        dict_to_list = []
         for v in self._graph.vertex_list():
-            if v not in vert_to_flex:
-                raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`!"
-                )
             dict_to_list += list(vert_to_flex[v])
 
         return self.is_vector_trivial_inf_flex(

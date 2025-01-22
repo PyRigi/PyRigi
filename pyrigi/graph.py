@@ -308,7 +308,9 @@ class Graph(nx.Graph):
         for pair in pairs:
             self._input_check_edge_format(pair)
 
-    def _input_check_vertex_order(self, vertex_order=Sequence[Vertex]) -> list[Vertex]:
+    def _input_check_vertex_order(
+        self, vertex_order=Sequence[Vertex], name: str = ""
+    ) -> list[Vertex]:
         """
         Checks whether the provided `vertex_order` contains the same elements
         as the graph's vertex set.
@@ -330,12 +332,16 @@ class Graph(nx.Graph):
                 self.vertex_list()
             ) == set(vertex_order):
                 raise ValueError(
-                    "The new vertex set must contain exactly "
-                    + "the same vertices as the underlying graph!"
+                    "The vertices in `"
+                    + name
+                    + "` must be exactly "
+                    + "the same vertices as in the graph!"
                 )
             return list(vertex_order)
 
-    def _input_check_edge_order(self, edge_order=Sequence[Edge]) -> list[Edge]:
+    def _input_check_edge_order(
+        self, edge_order=Sequence[Edge], name: str = ""
+    ) -> list[Edge]:
         """
         Checks whether the provided `edge_order` contains the same elements
         as the graph's edge set.
@@ -354,13 +360,11 @@ class Graph(nx.Graph):
             return self.edge_list()
         else:
             if not self.number_of_edges() == len(edge_order) or not all(
-                [
-                    set(e) in [set(e) for e in edge_order]
-                    for e in self.edge_list()
-                ]
+                [set(e) in [set(e) for e in edge_order] for e in self.edge_list()]
             ):
                 raise ValueError(
-                    "The edge_order must contain exactly the same edges as the graph!"
+                    "The edges in `" + name + "` must be exactly "
+                    "the same edges as in the graph!"
                 )
             return list(edge_order)
 
