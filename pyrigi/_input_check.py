@@ -29,7 +29,7 @@ def dimension_for_algorithm(dim: int, possible: list, algorithm: str = "") -> No
         else:
             in_str = f"in {possible}"
         raise ValueError(
-            "For `" + algorithm + f"` the dimension needs to be " + in_str + ", "
+            "For `" + algorithm + "` the dimension needs to be " + in_str + ", "
             f"but is {dim}!"
         )
 

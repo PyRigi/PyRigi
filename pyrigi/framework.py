@@ -39,7 +39,6 @@ from pyrigi.data_type import (
 )
 
 from pyrigi.graph import Graph
-from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
@@ -1109,7 +1108,7 @@ class Framework(object):
                     + " Exactly three coordinates are necessary for plotting in 3D."
                 )
             if np.max(coordinates) >= self._dim:
-                raise ValueError(
+                raise IndexError(
                     f"Index {np.max(coordinates)} out of range"
                     + f" with placement in dim: {self._dim}."
                 )
@@ -2899,8 +2898,7 @@ class Framework(object):
             Used tolerance when checking numerically.
         """
 
-        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError("The underlying graphs are not same!")
+        self._input_check_underlying_graphs(other_framework)
 
         return self.is_congruent_realization(
             other_framework._realization, numerical, tolerance
@@ -2964,8 +2962,8 @@ class Framework(object):
             Used tolerance when checking numerically.
         """
 
-        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError("The underlying graphs are not same!")
+        self._input_check_underlying_graphs(other_framework)
+
         return self.is_equivalent_realization(
             other_framework._realization, numerical, tolerance
         )
@@ -3646,6 +3644,14 @@ class Framework(object):
             raise TypeError(
                 "The `inf_flex` must be specified either by a vector or a dictionary!"
             )
+
+    def _input_check_underlying_graphs(self, other_framework):
+        """
+        Checks whether the underlying graphs of two frameworks are the same and
+        raises an error otherwise.
+        """
+        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+            raise ValueError("The underlying graphs are not same!")
 
     def _resolve_connection_style(self, connection_style: str) -> str:
         """
