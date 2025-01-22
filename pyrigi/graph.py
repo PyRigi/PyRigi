@@ -2809,7 +2809,42 @@ class Graph(nx.Graph):
         F = Graph(self._pebble_digraph.to_undirected())
         return nx.subgraph(F, set_nodes)
 
+    def is_weakly_globally_linked(self, u: Vertex, v: Vertex):
+        """
+        Return True if the graph is weakly globally linked.
+        TODO
+        add reference to Theorem 5.8
+        """
+        # self must be a 2-connected graph
+        if not nx.is_biconnected(self):
+            raise ValueError("The input graph must be 2-connected.")
+        if u not in self.nodes() or v not in self.nodes():
+            raise ValueError("u and v must be vertices of the graph.")
+        # check (u,v) are non adjacent
+        if [u, v] in self.edges():
+            # in self.edges() edges are not oriented, so this works both
+            # for [u,v] and for [v,u]
+            return True  # they are actually globally linked, not just weakly
+        # check (u,v) are linked pair
+        if v not in list(filter(lambda x: u in x, self.rigid_components()))[0]:
+            return False
 
+        # check (u,v) are such that kappa_self(u,v) > 2
+        if nx.algorithms.connectivity.local_node_connectivity(self, u, v) <= 2:
+            return False
+
+        # THEN
+        # if (u,v) separating pair in self
+        H = self.copy()
+        H.delete_vertices([u, v])
+        if not nx.is_connected(H):
+            return True
+        # OR
+        # elif Clique(B,V_0) is globally rigid
+        B = self.block_3(u, v)
+        B._build_pebble_digraph(K=2, L=3)
+        V_0 = B._pebble_digraph.fundamental_circuit(u, v)
+        return B.clique(V_0).is_globally_rigid()
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> Dict[Vertex, Point]:
