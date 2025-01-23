@@ -548,7 +548,7 @@ class Graph(nx.Graph):
         return self.number_of_edges() == self._pebble_digraph.number_of_edges()
 
     @doc_category("Sparseness")
-    def is_sparse(
+    def is_kl_sparse(
         self,
         K: int,
         L: int,
@@ -578,10 +578,10 @@ class Graph(nx.Graph):
         ----
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.DoubleBanana()
-        >>> G.is_sparse(3,6)
+        >>> G.is_kl_sparse(3,6)
         True
         >>> G.add_edge(0,1)
-        >>> G.is_sparse(3,6)
+        >>> G.is_kl_sparse(3,6)
         False
         """
         if not (isinstance(K, int) and isinstance(L, int)):
@@ -611,7 +611,7 @@ class Graph(nx.Graph):
             else:
                 # otherwise use "subgraph"
                 algorithm = "subgraph"
-            return self.is_sparse(
+            return self.is_kl_sparse(
                 K,
                 L,
                 algorithm,
@@ -623,9 +623,23 @@ class Graph(nx.Graph):
             f"If specified, the value of the algorithm parameter must be one of "
             f'"pebble", "subgraph", or "default". Instead, it is {algorithm}.'
         )
+    
+    @doc_category("Sparseness")
+    def is_sparse(
+        self,
+        K: int,
+        L: int,
+        algorithm: str = "default",
+        use_precomputed_pebble_digraph: bool = False,
+    ) -> bool:
+        r"""
+        Alias for :meth:`.is_kl_sparse`.
+        """
+        return self.is_kl_sparse(K, L, algorithm, use_precomputed_pebble_digraph)
+        
 
     @doc_category("Sparseness")
-    def is_tight(
+    def is_kl_tight(
         self,
         K: int,
         L: int,
@@ -654,10 +668,10 @@ class Graph(nx.Graph):
         ----´
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(4)
-        >>> G.is_tight(2,2)
+        >>> G.is_kl_tight(2,2)
         True
         >>> G1 = graphs.CompleteBipartite(4,4)
-        >>> G1.is_tight(3,6)
+        >>> G1.is_kl_tight(3,6)
         False
         """
         return (
@@ -669,6 +683,24 @@ class Graph(nx.Graph):
             )
             and self.number_of_edges() == K * self.number_of_nodes() - L
         )
+    
+    @doc_category("Sparseness")
+    def is_tight(
+        self,
+        K: int,
+        L: int,
+        algorithm: str = "default",
+        use_precomputed_pebble_digraph: bool = False,
+    ) -> bool:
+        r"""
+        Alias for :meth:`~.is_kl_tight`.
+        """
+        return self.is_kl_tight(
+                K,
+                L,
+                algorithm,
+                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+            )
 
     @doc_category("Graph manipulation")
     def zero_extension(
