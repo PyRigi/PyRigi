@@ -1,3 +1,4 @@
+from pyrigi import Framework
 from pyrigi.motion import ParametricMotion, ApproximateMotion
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
@@ -177,3 +178,31 @@ def test_animate():
             M.motion_samples[i], numerical=True
         ) and not F.is_congruent_realization(M.motion_samples[i], numerical=True)
     M.animate()
+
+
+def test_ApproximateMotion_from_framework():
+    F = fws.Square()
+    M = ApproximateMotion.from_framework(F, 10, 0.075)
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+
+    # Square with a triangle on one of its sides
+    F.add_vertex([2, 2])
+    F.add_edges([[2, 4], [3, 4]])
+    M = ApproximateMotion.from_framework(F, 10, 0.075)
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+
+    # overconstrained flexible framework
+    F = Framework.Complete([[0, 0], [1, 0], [1, 1], [0, 1]])
+    F.add_vertex([2, 2])
+    F.add_edge([2, 4])
+    M = ApproximateMotion.from_framework(F, 10, 0.075)
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
