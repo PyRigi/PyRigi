@@ -1071,7 +1071,7 @@ def test_integer_representation_error():
         ["is_Rd_circuit", []],
         ["is_Rd_closed", []],
         ["rigid_components", []],
-        ["_input_check_loop", []],
+        ["_input_check_no_loop", []],
     ],
 )
 def test_loop_error(method, params):
@@ -1511,8 +1511,8 @@ def test_CompleteOnVertices():
         Graph([[1, 2], [2, 3]]),
     ],
 )
-def test__input_check_loop(graph):
-    assert graph._input_check_loop() is None
+def test__input_check_no_loop(graph):
+    assert graph._input_check_no_loop() is None
 
 
 @pytest.mark.parametrize(
@@ -1522,9 +1522,9 @@ def test__input_check_loop(graph):
         Graph([[1, 2], [2, 3], [3, 3]]),
     ],
 )
-def test__input_check_loop_error(graph):
+def test__input_check_no_loop_error(graph):
     with pytest.raises(LoopError):
-        graph._input_check_loop()
+        graph._input_check_no_loop()
 
 
 @pytest.mark.parametrize(
@@ -1534,9 +1534,9 @@ def test__input_check_loop_error(graph):
         [[1, 2, 3], [[1, 2], [2, 3], [3, 3]]],
     ],
 )
-def test__input_check_loop_error2(vertices, edges):
+def test__input_check_no_loop_error2(vertices, edges):
     with pytest.raises(LoopError):
-        Graph.from_vertices_and_edges(vertices, edges)._input_check_loop()
+        Graph.from_vertices_and_edges(vertices, edges)._input_check_no_loop()
 
 
 @pytest.mark.parametrize(

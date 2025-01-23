@@ -219,7 +219,7 @@ class Graph(nx.Graph):
         edges = list(combinations(vertices, 2))
         return Graph.from_vertices_and_edges(vertices, edges)
 
-    def _input_check_loop(self) -> None:
+    def _input_check_no_loop(self) -> None:
         """
         Check whether a graph has loops and raise an error in case.
         """
@@ -1226,7 +1226,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_n=0)
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1346,7 +1346,7 @@ class Graph(nx.Graph):
 
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_n=0)
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1472,7 +1472,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_n=0)
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1583,7 +1583,7 @@ class Graph(nx.Graph):
 
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_n=0)
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1676,7 +1676,7 @@ class Graph(nx.Graph):
                 "combinatorial determines the method of rigidity-computation. "
                 "It needs to be a Boolean!"
             )
-        self._input_check_loop()
+        self._input_check_no_loop()
         if combinatorial:
             _input_check.dimension_for_algorithm(
                 dim, [1, 2], "the combinatorial algorithm"
@@ -1759,7 +1759,7 @@ class Graph(nx.Graph):
                 "combinatorial determines the method of rigidity-computation. "
                 "It needs to be a Boolean!"
             )
-        self._input_check_loop()
+        self._input_check_no_loop()
         if combinatorial:
             _input_check.dimension_for_algorithm(
                 dim, [1, 2], "the combinatorial algorithm"
@@ -1844,7 +1844,7 @@ class Graph(nx.Graph):
         `False` with probability less than `prob`, which is 0.0001 by default.
         """  # noqa: E501
         _input_check.dimension(dim)
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         if dim == 1:
             if (self.number_of_nodes() == 2 and self.number_of_edges() == 1) or (
@@ -1970,7 +1970,7 @@ class Graph(nx.Graph):
         Warning: This function uses a randomized algorithm
         """
         _input_check.dimension(dim)
-        self._input_check_loop()
+        self._input_check_no_loop()
         if dim == 1:
             return len(nx.cycle_basis(self)) == 0
 
@@ -2024,7 +2024,7 @@ class Graph(nx.Graph):
         False
         """
         _input_check.dimension(dim)
-        self._input_check_loop()
+        self._input_check_no_loop()
         if dim == 1:
             if not nx.is_connected(self):
                 return False
@@ -2104,7 +2104,7 @@ class Graph(nx.Graph):
         True
         """
         _input_check.dimension(dim)
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         if combinatorial:
             _input_check.dimension_for_algorithm(
@@ -2179,7 +2179,7 @@ class Graph(nx.Graph):
         and :meth:`~.Graph.is_Rd_closed` with its tests accordingly.
         """
         _input_check.dimension(dim)
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         if combinatorial and dim == 1:
             return [list(comp) for comp in nx.connected_components(self)]
@@ -2248,7 +2248,7 @@ class Graph(nx.Graph):
         >>> G.max_rigid_dimension()
         3
         """
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         if not nx.is_connected(self):
             return 0
@@ -2327,7 +2327,7 @@ class Graph(nx.Graph):
                 "The integer representation only works "
                 "for graphs without isolated vertices!"
             )
-        self._input_check_loop()
+        self._input_check_no_loop()
 
         M = self.adjacency_matrix(vertex_order)
         upper_diag = [str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]]

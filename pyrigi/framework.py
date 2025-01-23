@@ -112,7 +112,7 @@ class Framework(object):
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
-        graph._input_check_loop()
+        graph._input_check_no_loop()
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
                 "The length of realization has to be equal to "
