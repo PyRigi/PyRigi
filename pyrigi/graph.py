@@ -648,8 +648,14 @@ class Graph(nx.Graph):
         _input_check.integrality_and_range(K, "K", min_n=1)
         _input_check.integrality_and_range(L, "L", min_n=0)
 
+        if algorithm == "default":
+            try:
+                _input_check.pebble_values(K, L)
+                algorithm = "pebble"
+            except ValueError:
+                algorithm = "subgraph"
+
         if algorithm == "pebble":
-            _input_check.pebble_values(K, L)
             return self._is_pebble_digraph_sparse(
                 K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
@@ -661,21 +667,6 @@ class Graph(nx.Graph):
                     if G.number_of_edges() > K * G.number_of_nodes() - L:
                         return False
             return True
-        if algorithm == "default":
-            try:
-                return self.is_sparse(
-                    K,
-                    L,
-                    "pebble",
-                    use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-                )
-            finally:
-                return self.is_sparse(
-                    K,
-                    L,
-                    "subgraph",
-                    use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-                )
 
         # reaching this position means that the algorithm is unknown
         raise ValueError(
