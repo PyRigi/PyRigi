@@ -78,7 +78,7 @@ A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
 F = frameworks.CompleteBipartite(2,4)
-motion = ApproximateMotion.from_framework(F, 393, chosen_flex=0, step_size=0.15)
+motion = ApproximateMotion(F, 393, chosen_flex=0, step_size=0.15)
 motion.animate(duration=10)
 ```
 
@@ -93,6 +93,6 @@ to the placement of the second vertex. Alternatively, this vector can be specifi
 
 ```{code-cell} ipython3
 F = frameworks.Path(5)
-motion = ApproximateMotion.from_framework(F, 147, chosen_flex=1)
+motion = ApproximateMotion(F, 147, chosen_flex=1)
 motion.animate(fixed_edge=[0,4], fixed_direction=[0,1])
 ```

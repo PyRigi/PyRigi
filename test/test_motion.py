@@ -159,9 +159,11 @@ def test_ParametricMotion_init():
 
 
 def test_ApproximateMotion_init():
-    ApproximateMotion.from_framework(fws.Cycle(4), 10)
+    ApproximateMotion(fws.Cycle(4), 10)
     F = fws.Cycle(5)
-    ApproximateMotion(F.graph(), F.realization(as_points=True, numerical=True), 1, 1)
+    ApproximateMotion.from_graph(
+        F.graph(), F.realization(as_points=True, numerical=True), 1, 1
+    )
 
 
 @pytest.mark.slow_main
@@ -170,7 +172,7 @@ def test_animate():
     Test that the motion actually moves.
     """
     F = fws.Square()
-    M = ApproximateMotion(
+    M = ApproximateMotion.from_graph(
         F.graph(), F.realization(as_points=True, numerical=True), 50, 0.075
     )
 
@@ -185,7 +187,7 @@ def test_animate():
 
 def test_ApproximateMotion_from_framework():
     F = fws.Square()
-    M = ApproximateMotion.from_framework(F, 10, 0.075)
+    M = ApproximateMotion(F, 10, 0.075)
     for sample in M.motion_samples[1:]:
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
@@ -194,7 +196,7 @@ def test_ApproximateMotion_from_framework():
     # Square with a triangle on one of its sides
     F.add_vertex([2, 2])
     F.add_edges([[2, 4], [3, 4]])
-    M = ApproximateMotion.from_framework(F, 10, 0.075)
+    M = ApproximateMotion(F, 10, 0.075)
     for sample in M.motion_samples[1:]:
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
@@ -204,7 +206,7 @@ def test_ApproximateMotion_from_framework():
     F = Framework.Complete([[0, 0], [1, 0], [1, 1], [0, 1]])
     F.add_vertex([2, 2])
     F.add_edge([2, 4])
-    M = ApproximateMotion.from_framework(F, 10, 0.075)
+    M = ApproximateMotion(F, 10, 0.075)
     for sample in M.motion_samples[1:]:
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
@@ -215,4 +217,4 @@ def test_ApproximateMotion_from_framework():
 def test_newton_raises_runtimeerror():
     F = fws.ThreePrism(realization="flexible")
     with pytest.raises(RuntimeError):
-        ApproximateMotion.from_framework(F, 5, 0.1)
+        ApproximateMotion(F, 5, 0.1)

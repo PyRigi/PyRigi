@@ -527,72 +527,83 @@ class ApproximateMotion(Motion):
     --------
     >>> from pyrigi.motion import ApproximateMotion
     >>> from pyrigi import graphDB as graphs
-    >>> motion = ApproximateMotion(
+    >>> motion = ApproximateMotion.from_graph(
     ...     graphs.Cycle(4),
     ...     {0:(0,0), 1:(1,0), 2:(1,1), 3:(0,1)},
     ...     10
     ... )
     >>> motion
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
-    {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (1.0, 1.0), 3: (0.0, 1.0)},
+    {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
+    10 retraction steps and initial step size 0.1.
+
+    >>> F = Framework(graphs.Cycle(4), {0:(0,0), 1:(1,0), 2:(1,1), 3:(0,1)})
+    >>> motion = ApproximateMotion(F, 10)
+    >>> motion
+    ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
+    {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
     10 retraction steps and initial step size 0.1.
     """  # noqa: E501
 
     def __init__(
         self,
-        graph: Graph,
-        starting_realization: dict[Vertex, Point],
+        F: Framework,
         steps: int,
         step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
     ) -> None:
         """
-        Creates an instance.
+        Creates an instance of `ApproximateMotion`.
         """
-        super().__init__(graph)
-
-        if not len(starting_realization) == graph.number_of_nodes():
-            raise ValueError(
-                "The realization does not contain the correct amount of vertices!"
-            )
-
-        self._starting_realization = {
-            v: tuple([float(sp.sympify(pt).evalf(15)) for pt in p])
-            for v, p in starting_realization.items()
-        }
-
-        self._dim = len(list(self._starting_realization.values())[0])
-        for v in graph.nodes:
-            if v not in starting_realization:
-                raise KeyError(f"Vertex {v} is not a key of the given realization!")
-            if len(self._starting_realization[v]) != self._dim:
-                raise ValueError(
-                    f"The point {self._starting_realization[v]} in the parametrization"
-                    f" corresponding to vertex {v} does not have the right dimension."
-                )
-
+        super().__init__(F.graph())
+        self._starting_realization = F.realization(as_points=True, numerical=True)
+        self._dim = F.dim()
         self.steps = steps
         self.chosen_flex = chosen_flex
         self.step_size = step_size
         self._current_step_size = step_size
-        F = Framework(self._graph, self._starting_realization)
         self.edge_lengths = F.edge_lengths(numerical=True)
         self._compute_motion_samples(chosen_flex, turning_threshold)
 
     @classmethod
-    def from_framework(
-        cls, F: Framework, steps: int, step_size: float = 0.1, chosen_flex: int = 0
+    def from_graph(
+        cls,
+        G: Graph,
+        realization: dict[Vertex, Point],
+        steps: int,
+        step_size: float = 0.1,
+        chosen_flex: int = 0,
+        turning_threshold: float = 1.5,
     ):
         """
         Instantiates an ``ApproximateMotion`` from a ``Framework``.
         """
+        if not len(realization) == G.number_of_nodes():
+            raise ValueError(
+                "The realization does not contain the correct amount of vertices!"
+            )
+
+        realization = {
+            v: [float(sp.sympify(pt).evalf(15)) for pt in p]
+            for v, p in realization.items()
+        }
+        p0 = realization[list(realization.keys())[0]]
+        for v in G.nodes:
+            if v not in realization:
+                raise KeyError(f"Vertex {v} is not a key of the given realization!")
+            if len(realization[v]) != len(p0):
+                raise ValueError(
+                    f"The point {realization[v]} in the parametrization"
+                    f" corresponding to vertex {v} does not have the right dimension."
+                )
+        F = Framework(G, realization)
         return ApproximateMotion(
-            F.graph(),
-            F.realization(as_points=True, numerical=True),
+            F,
             steps,
-            step_size,
-            chosen_flex,
+            step_size=step_size,
+            chosen_flex=chosen_flex,
+            turning_threshold=turning_threshold,
         )
 
     def _compute_motion_samples(
