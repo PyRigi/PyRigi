@@ -249,7 +249,8 @@ class Graph(nx.Graph):
 
     def _input_check_edge_format(self, input_pair: Edge) -> None:
         """
-        Check if an input_pair is a pair of distinct vertices of the graph.
+        Check if an input_pair is a pair of distinct vertices of the graph and
+        raise an error otherwise.
         """
         if not isinstance(input_pair, list | tuple) or not len(input_pair) == 2:
             raise TypeError(
@@ -261,7 +262,8 @@ class Graph(nx.Graph):
 
     def _input_check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
         """
-        Check if the given input is an edge of the graph with endvertices in vertices.
+        Check if the given input is an edge of the graph with endvertices in vertices and
+        raise an error otherwise.
 
         Parameters
         ----------
@@ -312,7 +314,7 @@ class Graph(nx.Graph):
         self, vertex_order=Sequence[Vertex], name: str = ""
     ) -> list[Vertex]:
         """
-        Checks whether the provided `vertex_order` contains the same elements
+        Check whether the provided `vertex_order` contains the same elements
         as the graph's vertex set.
 
         Parameters
@@ -343,7 +345,7 @@ class Graph(nx.Graph):
         self, edge_order=Sequence[Edge], name: str = ""
     ) -> list[Edge]:
         """
-        Checks whether the provided `edge_order` contains the same elements
+        Check whether the provided `edge_order` contains the same elements
         as the graph's edge set.
 
         Parameters
@@ -656,6 +658,7 @@ class Graph(nx.Graph):
                 algorithm = "subgraph"
 
         if algorithm == "pebble":
+            _input_check.pebble_values(K, L)
             return self._is_pebble_digraph_sparse(
                 K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )

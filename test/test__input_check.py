@@ -5,7 +5,12 @@ import pytest
 @pytest.mark.parametrize(
     "dim",
     [
-        1, 2, 3, 4, 10, 24,
+        1,
+        2,
+        3,
+        4,
+        10,
+        24,
     ],
 )
 def test_dimension(dim):
@@ -15,7 +20,9 @@ def test_dimension(dim):
 @pytest.mark.parametrize(
     "dim",
     [
-        -10, -1, 0,
+        -10,
+        -1,
+        0,
     ],
 )
 def test_dimension_value_error(dim):
@@ -26,7 +33,13 @@ def test_dimension_value_error(dim):
 @pytest.mark.parametrize(
     "dim",
     [
-        2.2, 3.7, 3/2, "two", [1, 2], 0.0, 2.0,
+        2.2,
+        3.7,
+        3 / 2,
+        "two",
+        [1, 2],
+        0.0,
+        2.0,
     ],
 )
 def test_dimension_type_error(dim):
@@ -36,10 +49,7 @@ def test_dimension_type_error(dim):
 
 @pytest.mark.parametrize(
     "dim, possible",
-    [
-        [1, [1, 2]],
-        [2, [1, 2]]
-    ],
+    [[1, [1, 2]], [2, [1, 2]]],
 )
 def test_dimension_for_algorithm(dim, possible):
     assert _input_check.dimension_for_algorithm(dim, possible) is None
@@ -47,10 +57,7 @@ def test_dimension_for_algorithm(dim, possible):
 
 @pytest.mark.parametrize(
     "dim, possible",
-    [
-        [3, [1, 2]],
-        [-1, [1, 2]]
-    ],
+    [[3, [1, 2]], [-1, [1, 2]]],
 )
 def test_dimension_for_algorithm_value_error(dim, possible):
     with pytest.raises(ValueError):
@@ -115,7 +122,6 @@ def test_integrality_and_range_value_error_min(k, min_k):
 @pytest.mark.parametrize(
     "k, max_k",
     [
-
         [5, 4],
         [1, -5],
         [-1, -3],
@@ -133,9 +139,7 @@ def test_integrality_and_range_value_error_max(k, max_k):
 
 @pytest.mark.parametrize(
     "k",
-    [
-        -10, -1
-    ],
+    [-10, -1],
 )
 def test_integrality_and_range_value_error(k):
     with pytest.raises(ValueError):
@@ -145,7 +149,13 @@ def test_integrality_and_range_value_error(k):
 @pytest.mark.parametrize(
     "k",
     [
-        -2.1, 0.0, 2.3, 2.0, 3/2, "one", [1, 2],
+        -2.1,
+        0.0,
+        2.3,
+        2.0,
+        3 / 2,
+        "one",
+        [1, 2],
     ],
 )
 def test_integrality_and_range_type_error(k):

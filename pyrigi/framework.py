@@ -3632,8 +3632,8 @@ class Framework(object):
 
     def _input_check_underlying_graphs(self, other_framework) -> None:
         """
-        Checks whether the underlying graphs of two frameworks are the same and
-        raises an error otherwise.
+        Check whether the underlying graphs of two frameworks are the same and
+        raise an error otherwise.
         """
         if not nx.utils.graphs_equal(self._graph, other_framework._graph):
             raise ValueError("The underlying graphs are not same!")
@@ -3642,8 +3642,8 @@ class Framework(object):
         self, vertex: Vertex, realization: dict[Vertex, Point] = None
     ) -> None:
         """
-        Checks whether a vertex appears as key in a realization and
-        raises an error otherwise.
+        Check whether a vertex appears as key in a realization and
+        raise an error otherwise.
         """
         if realization is None:
             realization = self._realization
@@ -3652,8 +3652,8 @@ class Framework(object):
 
     def _input_check_point_dimension(self, point: Point) -> None:
         """
-        Checks whether a point has the right dimension and
-        raises an error otherwise.
+        Check whether a point has the right dimension and
+        raise an error otherwise.
         """
         if not len(point) == self.dimension():
             raise IndexError(
