@@ -473,7 +473,6 @@ class Framework(object):
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         total_frames: int = 50,
         delay: int = 75,
-        duration: int = 8,
         rotation_axis: str | Sequence[Number] = None,
         **kwargs
     ) -> Any:
@@ -495,8 +494,6 @@ class Framework(object):
             Total number of frames for the animation sequence.
         delay:
             Delay between frames in milliseconds.
-        duration:
-            The duration of one period of the animation in seconds.
         rotation_axis:
             The user can input a rotation axis or vector. By default, a rotation around
             the z-axis is performed. This can either be done in the form of a char
@@ -572,15 +569,15 @@ class Framework(object):
 
         rotating_realizations = [
             {
-                v: p.dot(rotation_matrix(frame).T).tolist()
+                v: np.dot(p,rotation_matrix(frame).T).tolist()
                 for v, p in realization.items()
             }
             for frame in range(2 * total_frames)
         ]
         
         from pyrigi import Motion
-        M = Motion(self.graph())
-        M.animate3D(rotating_realizations, plot_style=plot_style, edge_coloring=edge_coloring, delay=delay, duration=duration)
+        M = Motion(self.graph(), self.dim())
+        return M.animate3D(rotating_realizations, plot_style=plot_style, edge_coloring=edge_coloring, delay=delay)
 
     @doc_category("Plotting")
     def plot3D(

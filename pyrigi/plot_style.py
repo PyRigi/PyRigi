@@ -197,7 +197,7 @@ class PlotStyle3D(PlotStyle):
         super().__init__(**kwargs)
         self.padding = padding
         if len(axis_scales) != 3 or any(
-            [not isinstance(scale, float) for scale in axis_scales]
+            [not isinstance(scale, float | int) for scale in axis_scales]
         ):
             raise ValueError("The length of `axis_scales` is not 3.")
         self.axis_scales = axis_scales

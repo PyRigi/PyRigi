@@ -79,7 +79,7 @@ from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
 F = frameworks.CompleteBipartite(2,4)
 motion = ApproximateMotion(F, 393, chosen_flex=0, step_size=0.15)
-motion.animate(duration=10)
+motion.animate()
 ```
 
 Only nontrivial motions can be computed in this way, so you don't need to worry about approximating a
@@ -93,6 +93,6 @@ to the placement of the second vertex. Alternatively, this vector can be specifi
 
 ```{code-cell} ipython3
 F = frameworks.Path(5)
-motion = ApproximateMotion(F, 147, chosen_flex=1)
-motion.animate(fixed_edge=[0,4], fixed_direction=[0,1])
+motion = ApproximateMotion(F, 147, chosen_flex=1, fixed_edge=[0,4], fixed_direction=[0,1])
+motion.animate()
 ```
