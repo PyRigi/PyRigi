@@ -166,17 +166,21 @@ def test_ApproximateMotion_init():
 
 @pytest.mark.slow_main
 def test_animate():
+    """
+    Test that (1) the motion actually does something and
+    (2) that it returns to its original configuration.
+    """
     F = fws.Square()
     M = ApproximateMotion(
         F.graph(), F.realization(as_points=True, numerical=True), 50, 0.075
     )
-    # Test that (1) the motion actually does something and
-    # (2) that it returns to its original configuration
 
     for i in range(1, len(M.motion_samples)):
         assert F.is_equivalent_realization(
-            M.motion_samples[i], numerical=True
-        ) and not F.is_congruent_realization(M.motion_samples[i], numerical=True)
+            M.motion_samples[i], numerical=True, tolerance=1e-4
+        ) and not F.is_congruent_realization(
+            M.motion_samples[i], numerical=True, tolerance=1e-4
+        )
     M.animate()
 
 
