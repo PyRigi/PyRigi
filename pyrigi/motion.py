@@ -572,25 +572,49 @@ class ApproximateMotion(Motion):
                     f" corresponding to vertex {v} does not have the right dimension."
                 )
 
-        self.motion_samples = [self._starting_realization]
-        cur_sol = self._starting_realization
         self.steps = steps
         self.chosen_flex = chosen_flex
         self.step_size = step_size
         self._current_step_size = step_size
-        F = Framework(graph, self._starting_realization)
+        F = Framework(self._graph, self._starting_realization)
         self.edge_lengths = F.edge_lengths(numerical=True)
+        self._compute_motion_samples(chosen_flex, turning_threshold)
+
+    @classmethod
+    def from_framework(
+        cls, F: Framework, steps: int, step_size: float = 0.1, chosen_flex: int = 0
+    ):
+        """
+        Instantiates an ``ApproximateMotion`` from a ``Framework``.
+        """
+        return ApproximateMotion(
+            F.graph(),
+            F.realization(as_points=True, numerical=True),
+            steps,
+            step_size,
+            chosen_flex,
+        )
+
+    def _compute_motion_samples(
+        self, chosen_flex: int, turning_threshold: float
+    ) -> None:
+        """
+        Perform path-tracking to compute the attribute `motion_samples`.
+        """
+        F = Framework(self._graph, self._starting_realization)
         cur_inf_flex = normalize_flex(
             F._transform_inf_flex_to_pointwise(F.inf_flexes()[chosen_flex]),
             numerical=True,
         )
 
+        cur_sol = self._starting_realization
+        self.motion_samples = [cur_sol]
         i = 1
         # To avoid an infinite loop, the step size rescaling is reduced if only too large
         # or too small step sizes are found Its value converges to 1.
         step_size_rescaling = 2
         jump_indicator = [False, False]
-        while i < steps:
+        while i < self.steps:
             euler_step, cur_inf_flex = self._euler_step(
                 cur_inf_flex, cur_sol, turning_threshold
             )
@@ -625,21 +649,6 @@ class ApproximateMotion(Motion):
                 continue
             jump_indicator = [False, False]
             i = i + 1
-
-    @classmethod
-    def from_framework(
-        cls, F: Framework, steps: int, step_size: float = 0.1, chosen_flex: int = 0
-    ):
-        """
-        Instantiates an ``ApproximateMotion`` from a ``Framework``.
-        """
-        return ApproximateMotion(
-            F.graph(),
-            F.realization(as_points=True, numerical=True),
-            steps,
-            step_size,
-            chosen_flex,
-        )
 
     def animate(
         self,
@@ -697,6 +706,24 @@ class ApproximateMotion(Motion):
         }, inf_flex
 
     def _newton_steps(self, realization: dict[Vertex, Point]) -> dict[Vertex, Point]:
+        """
+        Computes a sequence of Newton steps to return to the constraint variety.
+
+        Notes
+        -----
+        There are more robust implementations of Newton's method (using damped schemes and
+        preconditioning), but that would blow method out of the current scope. Here, a
+        naive damping scheme is implemented (so that the method is actually guaranteed
+        to converge), but this means that in the case where dim(stresses=flexes), the
+        damping goes to 0. MH has tested this so-called "damped Gauß-Newton scheme"
+        extensively in two other packages. If the equations are randomized first, there
+        are convergence and smoothness guarantees from numerical algebraic geometry,
+        but that is currently out of the scope of the `ApproximateMotion` class.
+
+        Suggested Improvements
+        ----------------------
+        Randomize the bar-length equations.
+        """
         F = Framework(self._graph, realization)
         cur_sol = np.array(
             sum([list(realization[v]) for v in self._graph.vertex_list()], [])
@@ -744,13 +771,15 @@ class ApproximateMotion(Motion):
                 damping = damping * 1.25
             else:
                 damping = damping / 2
+            # If the damping becomes too small, raise an exception.
+
+            if damping < 1e-10:
+                raise RuntimeError("Newton's method did not converge.")
             prev_error = cur_error
 
         return {
-            self._graph.vertex_list()[i]: tuple(
-                cur_sol[(self._dim * i) : (self._dim * (i + 1))]
-            )
-            for i in range(self._graph.number_of_nodes())
+            v: tuple(cur_sol[(self._dim * i) : (self._dim * (i + 1))])
+            for i, v in enumerate(self._graph.vertex_list())
         }
 
     def __str__(self) -> str:

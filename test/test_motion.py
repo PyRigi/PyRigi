@@ -167,8 +167,7 @@ def test_ApproximateMotion_init():
 @pytest.mark.slow_main
 def test_animate():
     """
-    Test that (1) the motion actually does something and
-    (2) that it returns to its original configuration.
+    Test that the motion actually moves.
     """
     F = fws.Square()
     M = ApproximateMotion(
@@ -210,3 +209,10 @@ def test_ApproximateMotion_from_framework():
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
         ) and not F.is_congruent_realization(sample, numerical=True)
+
+
+@pytest.mark.long_local
+def test_newton_raises_runtimeerror():
+    F = fws.ThreePrism(realization="flexible")
+    with pytest.raises(RuntimeError):
+        ApproximateMotion.from_framework(F, 5, 0.1)
