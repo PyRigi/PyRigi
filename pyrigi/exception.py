@@ -3,7 +3,7 @@ class LoopError(ValueError):
         super().__init__(msg, *args, **kwargs)
 
 
-class NonSupportedParameterError(ValueError):
+class NotSupportedParameterError(ValueError):
     def __init__(
         self,
         wrong_param,
@@ -22,4 +22,4 @@ class NonSupportedParameterError(ValueError):
             )
             if method_name is not None:
                 msg_str += f"Call `help({method_name})` for further information"
-        super().__init__(msg_str, *args, **kwargs)
+            super().__init__(msg_str, *args, **kwargs)

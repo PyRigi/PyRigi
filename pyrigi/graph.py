@@ -18,7 +18,7 @@ from random import randint
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 
 from pyrigi.misc import doc_category, generate_category_tables
-from pyrigi.exception import LoopError, NonSupportedParameterError
+from pyrigi.exception import LoopError, NotSupportedParameterError
 import pyrigi._pebble_digraph
 import pyrigi._input_check as _input_check
 
@@ -670,7 +670,7 @@ class Graph(nx.Graph):
             return True
 
         # reaching this position means that the algorithm is unknown
-        raise NonSupportedParameterError(algorithm, "algorithm", "is_sparse")
+        raise NotSupportedParameterError(algorithm, "algorithm", "is_sparse")
 
     @doc_category("Sparseness")
     def is_tight(
@@ -2727,7 +2727,7 @@ class Graph(nx.Graph):
         elif layout_type == "spring":
             return nx.drawing.layout.spring_layout(self)
         else:
-            raise NonSupportedParameterError(layout_type, "layout_type", "layout")
+            raise NotSupportedParameterError(layout_type, "layout_type", "layout")
 
     @doc_category("Other")
     def plot(
