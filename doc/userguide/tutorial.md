@@ -7,5 +7,6 @@
 tutorials/graph_basics
 tutorials/framework_database
 tutorials/plotting
+tutorials/motion
 tutorials/mesh_generation
 :::

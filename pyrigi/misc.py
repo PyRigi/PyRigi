@@ -3,8 +3,9 @@ Module for miscellaneous functions.
 """
 
 import math
-from pyrigi.data_type import Sequence, Number, point_to_vector
+from pyrigi.data_type import Sequence, Number, point_to_vector, InfFlex, Vertex
 from sympy import Matrix
+import sympy as sp
 import numpy as np
 from math import isclose, log10
 
@@ -179,3 +180,68 @@ def eval_sympy_vector(vector: Sequence[Number], tolerance: float = 1e-9) -> list
         float(coord.evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))))
         for coord in point_to_vector(vector)
     ]
+
+
+def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
+    """
+    Divides a vector by its Euclidean norm.
+    """
+    if isinstance(inf_flex, dict):
+        if numerical:
+            _inf_flex = {
+                v: [float(sp.sympify(q).evalf(15)) for q in flex]
+                for v, flex in inf_flex.items()
+            }
+            flex_norm = np.linalg.norm(sum(_inf_flex.values(), []))
+            return {
+                v: tuple([pt / flex_norm for pt in q]) for v, q in _inf_flex.items()
+            }
+        flex_norm = sp.sqrt(sum([q**2 for val in inf_flex.values() for q in val]))
+        return {v: tuple([pt / flex_norm for pt in q]) for v, q in inf_flex.items()}
+    elif isinstance(inf_flex, Sequence):
+        if numerical:
+            _inf_flex = [float(sp.sympify(q).evalf(15)) for q in _inf_flex]
+            flex_norm = np.linalg.norm(_inf_flex)
+            return [q / flex_norm for q in _inf_flex]
+        flex_norm = sp.sqrt(sum([q**2 for q in inf_flex]))
+        return [q / flex_norm for q in inf_flex]
+    else:
+        raise TypeError("`inf_flex` does not have the correct type.")
+
+
+def vector_distance_pointwise(
+    dict1: dict[Vertex, Sequence[Number]],
+    dict2: dict[Vertex, Sequence[Number]],
+    numerical: bool = False,
+) -> float:
+    """
+    Computes the Euclidean distance between two realizations or pointwise vectors.
+
+    This method computes the Euclidean distance from the realization `dict_1`
+    to `dict2`. These dicts need to be based on the same vertex set.
+    """
+    if not set(dict1.keys()) == set(dict2.keys()) or not len(dict1) == len(dict2):
+        raise ValueError("`dict1` and `dict2` are not based on the same vertex set.")
+    if numerical:
+        return np.linalg.norm(
+            [
+                p1 - p2
+                for v in dict1.keys()
+                for p1, p2 in zip(
+                    dict1[v],
+                    dict2[v],
+                )
+            ]
+        )
+    return sp.sqrt(
+        sum(
+            [
+                (p1 - p2) ** 2
+                for v in dict1.keys()
+                for p1, p2 in zip(
+                    dict1[v],
+                    dict2[v],
+                )
+            ]
+        )
+    )
