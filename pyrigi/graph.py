@@ -670,7 +670,7 @@ class Graph(nx.Graph):
             return True
 
         # reaching this position means that the algorithm is unknown
-        raise NotSupportedParameterError(algorithm, "algorithm", "is_sparse")
+        raise NotSupportedParameterError(algorithm, "algorithm", self.is_sparse)
 
     @doc_category("Sparseness")
     def is_tight(
@@ -2727,7 +2727,7 @@ class Graph(nx.Graph):
         elif layout_type == "spring":
             return nx.drawing.layout.spring_layout(self)
         else:
-            raise NotSupportedParameterError(layout_type, "layout_type", "layout")
+            raise NotSupportedParameterError(layout_type, "layout_type", self.layout)
 
     @doc_category("Other")
     def plot(

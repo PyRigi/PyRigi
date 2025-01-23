@@ -8,7 +8,7 @@ class NotSupportedParameterError(ValueError):
         self,
         wrong_param,
         parameter_name: str,
-        method_name: str,
+        method,
         msg: str = None,
         *args,
         **kwargs,
@@ -17,9 +17,10 @@ class NotSupportedParameterError(ValueError):
             super().__init__(msg, *args, **kwargs)
         else:
             msg_str = (
-                f"The specified value of the `{parameter_name}` parameter is '{wrong_param}', "
+                f"The specified value of the `{parameter_name}`"
+                + f"parameter is '{wrong_param}', "
                 + "which is not supported!\n"
             )
-            if method_name is not None:
-                msg_str += f"Call `help({method_name})` for further information"
+            if method is not None:
+                msg_str += f"Call `help({method.__qualname__})` for further information"
             super().__init__(msg_str, *args, **kwargs)
