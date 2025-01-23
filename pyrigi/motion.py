@@ -4,8 +4,8 @@ This module contains functionality related to motions (continuous flexes).
 
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
-from pyrigi.data_type import Vertex, Point, Sequence, InfFlex, Number, DirectedEdge
-from pyrigi.plot_style import PlotStyle, PlotStyle2D
+from pyrigi.data_type import Vertex, Point, Sequence, InfFlex, Number, DirectedEdge, Edge
+from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
 import numpy as np
@@ -14,6 +14,8 @@ from IPython.display import SVG
 from typing import Any
 from copy import deepcopy
 from warnings import warn
+from matplotlib.animation import FuncAnimation
+import matplotlib.pyplot as plt
 
 
 class Motion(object):
@@ -179,7 +181,7 @@ class Motion(object):
             self,
             realizations: Sequence[dict[Vertex, Point]],
             plot_style: PlotStyle,
-            fix_origin: bool = True,
+            edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
             filename: str = None,
             delay: int = 75,
             duration: int = 8,
@@ -199,6 +201,12 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
+        edge_coloring:
+            Optional parameter to specify the coloring of edges. It can be
+            a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
+            or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
+            values are lists of edges.
+            The ommited edges are given the value ``plot_style.edge_color``.
         filename:
             A name used to store the svg. If ``None``, the svg is not saved.
         delay:
@@ -206,6 +214,93 @@ class Motion(object):
         duration:
             The duration of one period of the animation in seconds.
         """
+        if realizations[0][self.vertex_list()[0]] != 3:
+            raise ValueError(
+                f"The Motion is in dimension {realizations[0][self.vertex_list()[0]]}, "
+                + "not 3 as the method `animate3D` requires."
+            )
+        if plot_style is None:
+            # change some PlotStyle default values to fit 3D plotting better
+            plot_style = PlotStyle3D(vertex_size=13.5, edge_width=1.5, dpi=150)
+        else:
+            plot_style = PlotStyle3D.from_plot_style(plot_style)
+
+        # Update the plot_style instance with any passed keyword arguments
+        plot_style.update(**kwargs)
+
+        fig = plt.figure(dpi=plot_style.dpi)
+        ax = fig.add_subplot(111, projection="3d")
+        ax.grid(False)
+        ax.set_axis_off()
+
+        from pyrigi import _plot
+        # Update the plot_style instance with any passed keyword arguments
+        edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
+            self, plot_style.edge_color, edge_coloring
+        )
+        
+        # Limits of the axes
+        vertices = np.array(list(realizations[0].values()))
+        # Initializing points (vertices) and lines (edges) for display
+        (vertices_plot,) = ax.plot(
+            [], [], [], plot_style.vertex_shape, color=plot_style.vertex_color, markersize=plot_style.vertex_size
+        )
+        lines = [
+            ax.plot(
+                [], [], [], c=edge_color_array[i], lw=plot_style.edge_width, linestyle=plot_style.edge_style
+            )[0]
+            for i in range(len(edge_list_ref))
+        ]
+
+        # Animation initialization function.
+        def init():
+            vertices_plot.set_data([], [])  # Initial coordinates of vertices
+            vertices_plot.set_3d_properties([])  # Initial 3D properties of vertices
+            for line in lines:
+                line.set_data([], [])
+                line.set_3d_properties([])
+            return [vertices_plot] + lines
+
+        def update(frame):
+            # Update vertices positions
+            vertices_plot.set_data([realizations[frame][v][0] for v in self._graph.nodes], [realizations[frame][v][1] for v in self._graph.nodes])
+            vertices_plot.set_3d_properties([realizations[frame][v][2] for v in self._graph.nodes])
+
+            # Update the edges
+            for i, (start, end) in enumerate(self._graph.edges):
+                line = lines[i]
+                line.set_data(
+                    [realizations[frame][start][0], realizations[frame][end][0]],
+                    [realizations[frame][start][1], realizations[frame][end][1]],
+                )
+                line.set_3d_properties(
+                    [realizations[frame][start][2], realizations[frame][start][2]]
+                )
+
+            return [vertices_plot] + lines
+        
+        ani = FuncAnimation(
+            fig,
+            update,
+            frames=total_frames * 2,
+            interval=delay,
+            init_func=init,
+            blit=True,
+        )
+
+        plt.tight_layout()
+        # Checking if we are running from the terminal or from a notebook
+        import sys
+
+        if "ipykernel" in sys.modules:
+            from IPython.display import HTML
+
+            plt.close()
+            return HTML(ani.to_jshtml())
+        else:
+            plt.show()
+            return
+
     def animate2D(
         self,
         realizations: Sequence[dict[Vertex, Point]],
@@ -247,7 +342,10 @@ class Motion(object):
             The duration of one period of the animation in seconds.
         """
         if self._dim != 2:
-            raise ValueError("Animations are supported only for motions in 2D.")
+            raise ValueError(
+                "The Framework is in dimension {self._dim}, "
+                + "not 2 as the method `animate2D` requires."
+            )
 
         if plot_style is None:
             plot_style = PlotStyle2D(

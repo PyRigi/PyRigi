@@ -52,7 +52,6 @@ from pyrigi.misc import (
 
 from typing import Any
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
