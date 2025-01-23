@@ -21,12 +21,13 @@ class Motion(object):
     An abstract class representing a continuous flex of a framework.
     """
 
-    def __init__(self, graph: Graph) -> None:
+    def __init__(self, graph: Graph, dim: int) -> None:
         """
         Create an instance of a graph's motion.
         """
 
         self._graph = graph
+        self._dim = dim
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__} of a " + self._graph.__str__()
@@ -174,7 +175,38 @@ class Motion(object):
             realizations_normalized.append(r_norm)
         return realizations_normalized
 
-    def animate(
+    def animate3D(
+            self,
+            realizations: Sequence[dict[Vertex, Point]],
+            plot_style: PlotStyle,
+            fix_origin: bool = True,
+            filename: str = None,
+            delay: int = 75,
+            duration: int = 8,
+            **kwargs
+        ) -> Any:
+        """
+        Animate the continuous motion.
+
+        See :class:`~.PlotStyle2D` for a list of possible visualization keywords.
+        Not necessarily all of them apply (e.g. keywords related to infinitesimal
+        flexes are ignored).
+
+        Parameters
+        ----------
+        realizations:
+            A list of realization samples describing the motion.
+        plot_style:
+            An instance of the ``PlotStyle`` class that defines the visual style
+            for plotting, see :class:`~.PlotStyle` for more details.
+        filename:
+            A name used to store the svg. If ``None``, the svg is not saved.
+        delay:
+            Delay between frames in milliseconds.
+        duration:
+            The duration of one period of the animation in seconds.
+        """
+    def animate2D(
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
@@ -346,7 +378,7 @@ class ParametricMotion(Motion):
         Creates an instance.
         """
 
-        super().__init__(graph)
+        super().__init__(graph, len(point_to_vector(motion[len(motion.keys())[0]])))
 
         if not len(motion) == self._graph.number_of_nodes():
             raise ValueError(
@@ -556,9 +588,8 @@ class ApproximateMotion(Motion):
         """
         Creates an instance of `ApproximateMotion`.
         """
-        super().__init__(F.graph())
+        super().__init__(F.graph(), F.dim())
         self._starting_realization = F.realization(as_points=True, numerical=True)
-        self._dim = F.dim()
         self.steps = steps
         self.chosen_flex = chosen_flex
         self.step_size = step_size

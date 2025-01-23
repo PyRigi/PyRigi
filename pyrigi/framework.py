@@ -468,67 +468,61 @@ class Framework(object):
             )
 
     @doc_category("Plotting")
-    def animate3D(
+    def animate_rotating_framework3D(
         self,
-        vertex_color: str = "#ff8c00",
-        vertex_shape: str = "o",
-        vertex_size: int = 13.5,
-        edge_color: str = "black",
+        plot_style: PlotStyle = None,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        edge_width: float = 1.5,
-        edge_style: str = "solid",
-        equal_aspect_ratio: bool = True,
         total_frames: int = 50,
         delay: int = 75,
+        duration: int = 8,
         rotation_axis: str | Sequence[Number] = None,
-        dpi: int = 150,
+        **kwargs
     ) -> Any:
         """
         Plot this framework in 3D and animate a rotation around an axis.
 
         Parameters
         ----------
-        vertex_color, vertex_shape, vertex_size, edge_color, edge_width, edge_style:
-            The user can choose differen colors etc. both for edges and vertices.
+        plot_style:
+            An instance of the ``PlotStyle`` class that defines the visual style
+            for plotting, see :class:`PlotStyle` for more details.
+        edge_coloring:
+            Optional parameter to specify the coloring of edges. It can be
+            a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
+            or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
+            values are lists of edges.
+            The ommited edges are given the value ``plot_style.edge_color``.
         total_frames:
-            Number of frames used for the animation. The higher this number,
-            the smoother the resulting animation.
-        equal_aspect_ratio:
-            Determines whether the aspect ratio of the plot is equal in all space
-            directions or whether it is adjusted depending on the framework's size
-            in `x`, `y` and `z`-direction individually.
+            Total number of frames for the animation sequence.
         delay:
             Delay between frames in milliseconds.
+        duration:
+            The duration of one period of the animation in seconds.
         rotation_axis:
             The user can input a rotation axis or vector. By default, a rotation around
             the z-axis is performed. This can either be done in the form of a char
             ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
-        dpi:
-            Dots per inch of the produced animation.
 
         Examples
         --------
         >>> from pyrigi import frameworkDB
         >>> F = frameworkDB.Complete(4, dim=3)
-        >>> F.animate3D();
+        >>> F.animate_rotating_framework3D();
         """
         if self._dim != 3:
             raise ValueError(
                 "The Framework is in dimension {self._dim}, "
                 + "not 3 as the method `animate3D` requires."
             )
+        if plot_style is None:
+            # change some PlotStyle default values to fit 3D plotting better
+            plot_style = PlotStyle3D(vertex_size=13.5, edge_width=1.5, dpi=150)
+        else:
+            plot_style = PlotStyle3D.from_plot_style(plot_style)
 
-        # Creation of the figure
-        fig = plt.figure(dpi=dpi)
-        ax = fig.add_subplot(111, projection="3d")
-        ax.grid(False)
-        ax.set_axis_off()
+        # Update the plot_style instance with any passed keyword arguments
+        plot_style.update(**kwargs)
 
-        from pyrigi import _plot
-
-        edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
-            self, edge_color, edge_coloring
-        )
         realization = self.realization(as_points=True, numerical=True)
         centroid_x = sum([p[0] for p in realization.values()]) / len(realization)
         centroid_y = sum([p[1] for p in realization.values()]) / len(realization)
@@ -537,27 +531,6 @@ class Framework(object):
             v: [p[0] - centroid_x, p[1] - centroid_y, p[2] - centroid_z]
             for v, p in realization.items()
         }
-        # Limits of the axes
-        vertices = np.array(list(realization.values()))
-        # Initializing points (vertices) and lines (edges) for display
-        (vertices_plot,) = ax.plot(
-            [], [], [], vertex_shape, color=vertex_color, markersize=vertex_size
-        )
-        lines = [
-            ax.plot(
-                [], [], [], c=edge_color_array[i], lw=edge_width, linestyle=edge_style
-            )[0]
-            for i in range(len(edge_list_ref))
-        ]
-
-        # Animation initialization function.
-        def init():
-            vertices_plot.set_data([], [])  # Initial coordinates of vertices
-            vertices_plot.set_3d_properties([])  # Initial 3D properties of vertices
-            for line in lines:
-                line.set_data([], [])
-                line.set_3d_properties([])
-            return [vertices_plot] + lines
 
         def _rotation_matrix(v, frame):
             # Compute the rotation matrix Q
@@ -598,77 +571,17 @@ class Framework(object):
                         + "types: np.ndarray, list, tuple."
                     )
 
-        rot_vertices = sum(
-            [
-                vertices.dot(rotation_matrix(frame).T).tolist()
-                for frame in range(2 * total_frames)
-            ],
-            [],
-        )
-        if equal_aspect_ratio:
-            min_val = min([min(pt) for pt in rot_vertices]) - 0.01
-            max_val = max([max(pt) for pt in rot_vertices]) + 0.01
-            ax.set_zlim(min_val, max_val)
-            ax.set_ylim(min_val, max_val)
-            ax.set_xlim(min_val, max_val)
-        else:
-            ax.set_zlim(
-                min([pt[2] for pt in rot_vertices]) - 0.01,
-                max([pt[2] for pt in rot_vertices]) + 0.01,
-            )
-            ax.set_ylim(
-                min([pt[1] for pt in rot_vertices]) - 0.01,
-                max([pt[1] for pt in rot_vertices]) + 0.01,
-            )
-            ax.set_xlim(
-                min([pt[0] for pt in rot_vertices]) - 0.01,
-                max([pt[0] for pt in rot_vertices]) + 0.01,
-            )
-
-        # Function to update data at each frame
-        def update(frame):
-            one_rotation_matrix = rotation_matrix(frame)
-            rotated_vertices = vertices.dot(one_rotation_matrix.T)
-
-            # Update vertices positions
-            vertices_plot.set_data(rotated_vertices[:, 0], rotated_vertices[:, 1])
-            vertices_plot.set_3d_properties(rotated_vertices[:, 2])
-
-            # Update the edges
-            for i, (start, end) in enumerate(self._graph.edges):
-                line = lines[i]
-                line.set_data(
-                    [rotated_vertices[start, 0], rotated_vertices[end, 0]],
-                    [rotated_vertices[start, 1], rotated_vertices[end, 1]],
-                )
-                line.set_3d_properties(
-                    [rotated_vertices[start, 2], rotated_vertices[end, 2]]
-                )
-
-            return [vertices_plot] + lines
-
-        # Creating the animation
-        ani = FuncAnimation(
-            fig,
-            update,
-            frames=total_frames * 2,
-            interval=delay,
-            init_func=init,
-            blit=True,
-        )
-
-        plt.tight_layout()
-        # Checking if we are running from the terminal or from a notebook
-        import sys
-
-        if "ipykernel" in sys.modules:
-            from IPython.display import HTML
-
-            plt.close()
-            return HTML(ani.to_jshtml())
-        else:
-            plt.show()
-            return
+        rotating_realizations = [
+            {
+                v: p.dot(rotation_matrix(frame).T).tolist()
+                for v, p in realization.items()
+            }
+            for frame in range(2 * total_frames)
+        ]
+        
+        from pyrigi import Motion
+        M = Motion(self.graph())
+        M.animate3D(rotating_realizations, plot_style=plot_style, edge_coloring=edge_coloring, delay=delay, duration=duration)
 
     @doc_category("Plotting")
     def plot3D(
