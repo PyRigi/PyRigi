@@ -48,7 +48,7 @@ from pyrigi.misc import (
     generate_three_orthonormal_vectors,
     eval_sympy_vector,
 )
-
+from pyrigi.exception import NonSupportedParameterError
 import pyrigi._input_check as _input_check
 
 from typing import Optional, Any
@@ -3763,7 +3763,7 @@ class Framework(object):
                     edge_color_array.append(color)
                     edge_list_ref.append(tuple(e))
         else:
-            raise ValueError("The input color_edge has none of the supported formats!")
+            raise NonSupportedParameterError(edge_color, "edge_color", None)
         for e in edge_list:
             if (e[0], e[1]) not in edge_list_ref and (e[1], e[0]) not in edge_list_ref:
                 edge_color_array.append("black")
