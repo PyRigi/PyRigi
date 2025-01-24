@@ -3763,7 +3763,7 @@ class Framework(object):
                     edge_color_array.append(color)
                     edge_list_ref.append(tuple(e))
         else:
-            raise NotSupportedParameterError(edge_color, "edge_color", None)
+            raise NotSupportedParameterError(edge_color, "edge_color")
         for e in edge_list:
             if (e[0], e[1]) not in edge_list_ref and (e[1], e[0]) not in edge_list_ref:
                 edge_color_array.append("black")

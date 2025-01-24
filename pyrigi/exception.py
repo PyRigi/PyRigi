@@ -17,7 +17,7 @@ class NotSupportedParameterError(ValueError):
         self,
         wrong_param,
         parameter_name: str,
-        method: Callable,
+        method: Callable = None,
         msg: str = None,
         *args,
         **kwargs,
