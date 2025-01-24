@@ -623,7 +623,7 @@ class Graph(nx.Graph):
             f"If specified, the value of the algorithm parameter must be one of "
             f'"pebble", "subgraph", or "default". Instead, it is {algorithm}.'
         )
-    
+
     @doc_category("Sparseness")
     def is_sparse(
         self,
@@ -636,7 +636,6 @@ class Graph(nx.Graph):
         Alias for :meth:`.is_kl_sparse`.
         """
         return self.is_kl_sparse(K, L, algorithm, use_precomputed_pebble_digraph)
-        
 
     @doc_category("Sparseness")
     def is_kl_tight(
@@ -683,7 +682,7 @@ class Graph(nx.Graph):
             )
             and self.number_of_edges() == K * self.number_of_nodes() - L
         )
-    
+
     @doc_category("Sparseness")
     def is_tight(
         self,
@@ -696,11 +695,11 @@ class Graph(nx.Graph):
         Alias for :meth:`~.is_kl_tight`.
         """
         return self.is_kl_tight(
-                K,
-                L,
-                algorithm,
-                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-            )
+            K,
+            L,
+            algorithm,
+            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+        )
 
     @doc_category("Graph manipulation")
     def zero_extension(
