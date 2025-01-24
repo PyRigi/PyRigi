@@ -14,7 +14,7 @@ formatted according to [numpydoc](https://numpydoc.readthedocs.io/en/latest/form
 and parsed using [napoleon](https://sphinxcontrib-napoleon.readthedocs.io/)
 to retrieve the information from type hinting.
 The other documentation source files are written in [MyST](https://myst-parser.readthedocs.io/)
-(see also the [cheatsheet](#cheatsheet)).
+(see also the [cheatsheet](cheatsheet)).
 The following extensions are used:
  - [`myst-nb`](https://myst-nb.readthedocs.io/) - parsing MyST syntax and Jupyter notebooks;
  - [`sphinx-math-dollar`](https://www.sympy.org/sphinx-math-dollar/) - dollar signs to typeset inline and displayed math expressions;
