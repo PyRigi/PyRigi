@@ -1,3 +1,12 @@
+"""
+
+Module for defining exceptions.
+
+"""
+
+from collections.abc import Callable
+
+
 class LoopError(ValueError):
     def __init__(self, msg: str = "The graph needs to be loop-free.", *args, **kwargs):
         super().__init__(msg, *args, **kwargs)
@@ -8,7 +17,7 @@ class NotSupportedParameterError(ValueError):
         self,
         wrong_param,
         parameter_name: str,
-        method,
+        method: Callable,
         msg: str = None,
         *args,
         **kwargs,
