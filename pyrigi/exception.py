@@ -12,7 +12,7 @@ class LoopError(ValueError):
         super().__init__(msg, *args, **kwargs)
 
 
-class NotSupportedParameterError(ValueError):
+class NotSupportedValueError(ValueError):
     def __init__(
         self,
         wrong_param,
