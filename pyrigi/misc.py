@@ -2,7 +2,6 @@
 Module for miscellaneous functions.
 """
 
-
 from pyrigi.data_type import Sequence, Number, point_to_vector, InfFlex, Vertex
 from sympy import Matrix
 import sympy as sp

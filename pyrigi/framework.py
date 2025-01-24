@@ -47,7 +47,6 @@ from pyrigi.misc import (
     generate_three_orthonormal_vectors,
     eval_sympy_vector,
 )
-from pyrigi.exception import NotSupportedValueError
 import pyrigi._input_check as _input_check
 
 from typing import Any
@@ -2975,7 +2974,7 @@ class Framework(object):
                 f"The point {point} does not have the dimension {self.dimension()}!"
             )
 
-            
+
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
     generate_category_tables(
