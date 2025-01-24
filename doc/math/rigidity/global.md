@@ -8,7 +8,7 @@ if for every {prf:ref}`generic <def-gen-realization>` $d$-dimensional {prf:ref}`
 all $d$-dimensional frameworks $(G,p')$ {prf:ref}`equivalent <def-equivalent-framework>` to $(G,p)$
 are {prf:ref}`congruent <def-equivalent-framework>` to $(G,p)$.
 
-{{references}} {cite:p}`Jackson2005`
+{{references}} {cite:p}`JacksonJordan2005`
 
 {meth}`~.Graph.is_globally_rigid`
 :::
@@ -20,7 +20,7 @@ are {prf:ref}`congruent <def-equivalent-framework>` to $(G,p)$.
 A graph $G$ is globally $2$-rigid if and only if it either is a
 complete graph on at most three vertices or it is $3$-connected and {prf:ref}`redundantly rigid<def-redundantly-rigid-graph>`.
 
-{{references}} {cite:p}`Jackson2005{Thm 7.1}`
+{{references}} {cite:p}`JacksonJordan2005{Thm 7.1}`
 :::
 
 :::{prf:theorem}
@@ -28,7 +28,7 @@ complete graph on at most three vertices or it is $3$-connected and {prf:ref}`re
 
 Let $G$ be a $6$-connected {prf:ref}`2-rigid <def-gen-rigid>` graph. Then $G$ is globally $2$-rigid.
 
-{{references}} {cite:p}`Jackson2005{Thm 7.2}`
+{{references}} {cite:p}`JacksonJordan2005{Thm 7.2}`
 :::
 
 :::{prf:definition}
@@ -40,7 +40,7 @@ We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges 
 {prf:ref}`equilibrium stress matrices <def-stress-matrix>` of all 
 {prf:ref}`generic $d$-dimensional frameworks <def-gen-realization>` of $G$.
 
-{{references}} {cite:p}`Gortler2010`
+{{references}} {cite:p}`GortlerHealyThurston2010`
 :::
 
 :::{prf:lemma}
@@ -49,7 +49,7 @@ We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges 
 For {prf:ref}`frameworks <def-framework>` of a graph $G$ with at least $d+1$ vertices, 
 it holds $k_{min}(G,d) \geq d+1$.
 
-{{references}} {cite:p}`Gortler2010`
+{{references}} {cite:p}`GortlerHealyThurston2010`
 :::
 
 :::{prf:definition}
@@ -58,7 +58,7 @@ it holds $k_{min}(G,d) \geq d+1$.
 A graph $G$ has a _minimal {prf:ref}`stress kernel <def-stress-kernel>` in $\mathbb{R}^d$_ 
 if $k_{min}(G,d) = d+1$.
 
-{{references}} {cite:p}`Gortler2010`
+{{references}} {cite:p}`GortlerHealyThurston2010`
 :::
 
 :::{prf:theorem}
@@ -67,7 +67,7 @@ if $k_{min}(G,d) = d+1$.
 If a graph $G$ with $d+2$ or more vertices has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
 in $\mathbb{R}^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $p$ of $G$ are globally rigid.
 
-{{references}} {cite:p}`Gortler2010`
+{{references}} {cite:p}`GortlerHealyThurston2010`
 :::
 
 The converse of this theorem is the following one:
@@ -78,7 +78,7 @@ The converse of this theorem is the following one:
 If a graph $G$ with $d+2$ or more vertices does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
 in $\mathbb{R}^d$, then any {prf:ref}`generic framework <def-gen-realization>` $p$ of $G$ is not globally rigid.
 
-{{references}} {cite:p}`Gortler2010`
+{{references}} {cite:p}`GortlerHealyThurston2010`
 :::
 The method {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid` uses the following randomized algorithm:
 
@@ -105,5 +105,5 @@ In particular, checking for generic global rigidity in $\mathbb{R}^d$ is in $RP$
 the class of randomized polynomial time algorithms.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
-{{references}} {cite:p}`Gortler2010`
+{{references}} {cite:p}`GortlerHealyThurston2010`
 :::

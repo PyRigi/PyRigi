@@ -37,6 +37,7 @@ def test__add__():
         graphs.K33plusEdge(),
         graphs.ThreePrism(),
         graphs.ThreePrismPlusEdge(),
+        graphs.K66MinusPerfectMatching(),
     ],
 )
 def test_is_rigid_d2(graph):
@@ -90,7 +91,8 @@ def test_is_not_rigid_d1(graph):
 
 @pytest.mark.parametrize(
     "graph, dim",
-    [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
+    [[graphs.K66MinusPerfectMatching(), 3]]
+    + [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
 )
 def test_is_rigid(graph, dim):
     assert graph.is_rigid(dim, combinatorial=(dim < 3))
@@ -240,6 +242,33 @@ def test_is_not_min_rigid_d2(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        graphs.Complete(3),
+        graphs.Complete(4),
+        graphs.Octahedral(),
+        graphs.K66MinusPerfectMatching(),
+    ],
+)
+def test_is_min_rigid_d3(graph):
+    assert graph.is_min_rigid(dim=3, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(5),
+        graphs.CubeWithDiagonal(),
+        graphs.CompleteBipartite(5, 5),
+        graphs.DoubleBanana(dim=3),
+        pytest.param(graphs.ThreeConnectedR3Circuit(), marks=pytest.mark.slow_main),
+    ],
+)
+def test_is_not_min_rigid_d3(graph):
+    assert not graph.is_min_rigid(dim=3, combinatorial=False)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
         graphs.Complete(2),
         graphs.Complete(3),
         graphs.Complete(4),
@@ -293,8 +322,8 @@ def read_globally(d_v_):
         [read_globally("D10V14"), 10],
         [read_globally("D19V20"), 19],
         [read_globally("D19V21"), 19],
-        [read_globally("D19V22"), 19],
-        [read_globally("D19V23"), 19],
+        pytest.param(read_globally("D19V22"), 19, marks=pytest.mark.slow_main),
+        pytest.param(read_globally("D19V23"), 19, marks=pytest.mark.slow_main),
     ],
 )
 def test_is_globally_rigid(graph, gdim):
@@ -1909,6 +1938,8 @@ def test_is_3_6_sparse():
     assert G.is_sparse(3, 6)
     G.add_edge(0, 1)
     assert not G.is_sparse(3, 6)
+    G = graphs.K66MinusPerfectMatching()
+    assert G.is_sparse(3, 6)
 
 
 def test_is_tight():
@@ -1916,6 +1947,8 @@ def test_is_tight():
     assert G.is_tight(2, 2)
     G = graphs.CompleteBipartite(4, 4)
     assert not G.is_tight(3, 6)
+    G = graphs.K66MinusPerfectMatching()
+    assert G.is_tight(3, 6)
 
 
 def test_plot():
@@ -2023,6 +2056,7 @@ def test_is_Rd_circuit_d1(graph):
         graphs.CompleteBipartite(1, 3),
         graphs.CompleteBipartite(2, 3),
         graphs.Path(3),
+        graphs.K66MinusPerfectMatching(),
     ],
 )
 def test_is_not_Rd_circuit_d1(graph):
@@ -2052,6 +2086,7 @@ def test_is_Rd_circuit_d2(graph):
         graphs.CompleteBipartite(2, 3),
         graphs.Path(3),
         graphs.Cycle(4),
+        graphs.K66MinusPerfectMatching(),
     ],
 )
 def test_is_not_Rd_circuit_d2(graph):
@@ -2082,6 +2117,7 @@ def test_is_Rd_closed(graph, dim):
         [graphs.Path(4), 1],
         [graphs.ThreePrism(), 2],
         [graphs.ThreePrismPlusEdge(), 2],
+        [graphs.K66MinusPerfectMatching(), 2],
         [graphs.Octahedral(), 3],
         [graphs.DoubleBanana(), 3],
     ],
@@ -2124,6 +2160,7 @@ def test_is_not_Rd_circuit_d3(graph):
         graphs.ThreePrism(),
         graphs.ThreePrismPlusEdge(),
         graphs.CompleteBipartite(2, 3),
+        graphs.K66MinusPerfectMatching(),
     ]
     + [graphs.Cycle(n) for n in range(3, 7)],
 )
@@ -2151,6 +2188,7 @@ def test_is_Rd_independent_d1(graph):
         graphs.K33plusEdge(),
         graphs.Complete(5),
         graphs.CompleteBipartite(3, 4),
+        graphs.K66MinusPerfectMatching(),
     ],
 )
 def test_is_Rd_dependent_d2(graph):
@@ -2190,6 +2228,7 @@ def test_is_Rd_dependent_d3(graph):
         graphs.Cycle(6),
         graphs.ThreePrism(),
         graphs.K33plusEdge(),
+        graphs.K66MinusPerfectMatching(),
     ],
 )
 def test_is_Rd_independent_d3(graph):
@@ -2209,6 +2248,7 @@ def test_is_Rd_independent_d3(graph):
         [graphs.DoubleBanana(), 2],
         [graphs.CompleteMinusOne(5), 3],
         [graphs.Octahedral(), 3],
+        [graphs.K66MinusPerfectMatching(), 3],
     ],
 )
 def test_max_rigid_dimension(graph, k):
