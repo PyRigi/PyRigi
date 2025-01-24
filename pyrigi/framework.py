@@ -471,10 +471,10 @@ class Framework(object):
         self,
         plot_style: PlotStyle = None,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        total_frames: int = 50,
+        total_frames: int = 100,
         delay: int = 75,
         rotation_axis: str | Sequence[Number] = None,
-        **kwargs
+        **kwargs,
     ) -> Any:
         """
         Plot this framework in 3D and animate a rotation around an axis.
@@ -569,15 +569,21 @@ class Framework(object):
 
         rotating_realizations = [
             {
-                v: np.dot(p,rotation_matrix(frame).T).tolist()
+                v: np.dot(p, rotation_matrix(frame).T).tolist()
                 for v, p in realization.items()
             }
             for frame in range(2 * total_frames)
         ]
-        
+
         from pyrigi import Motion
+
         M = Motion(self.graph(), self.dim())
-        return M.animate3D(rotating_realizations, plot_style=plot_style, edge_coloring=edge_coloring, delay=delay)
+        return M.animate3D(
+            rotating_realizations,
+            plot_style=plot_style,
+            edge_coloring=edge_coloring,
+            delay=delay,
+        )
 
     @doc_category("Plotting")
     def plot3D(
