@@ -257,7 +257,7 @@ class Motion(object):
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        delay: int = 75,
+        delay: int = 50,
         **kwargs,
     ) -> Any:
         """
@@ -293,7 +293,7 @@ class Motion(object):
             )
 
         if plot_style is None:
-            plot_style = PlotStyle2D(vertex_size=25)
+            plot_style = PlotStyle2D(vertex_size=15)
         else:
             plot_style = PlotStyle2D.from_plot_style(plot_style)
         # Update the plot_style instance with any passed keyword arguments
@@ -302,6 +302,7 @@ class Motion(object):
         fig, ax = plt.subplots()
         fig.set_figwidth(plot_style.canvas_width)
         fig.set_figheight(plot_style.canvas_height)
+        ax.set_aspect(plot_style.aspect_ratio)
         ax.grid(False)
         ax.set_axis_off()
 
@@ -309,7 +310,6 @@ class Motion(object):
         x_max = max([p[0] for r in realizations for p in r.values()])
         y_min = min([p[1] for r in realizations for p in r.values()])
         y_max = max([p[1] for r in realizations for p in r.values()])
-        print(f"{x_min} {y_min} {x_max} {y_max}")
         ax.scatter(
             [x_min, x_max],
             [y_min, y_max],

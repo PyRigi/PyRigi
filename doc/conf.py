@@ -128,7 +128,7 @@ myst_heading_anchors = 3
 nb_execution_mode = "cache"
 nb_execution_raise_on_error = True
 nb_execution_show_tb = True
-nb_execution_timeout = 60
+nb_execution_timeout = 90
 
 tippy_enable_mathjax = True
 tippy_props = {
