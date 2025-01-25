@@ -647,8 +647,8 @@ class Graph(nx.Graph):
         >>> G.is_sparse(3,6)
         False
         """
-        _input_check.integrality_and_range(K, "K", min_n=1)
-        _input_check.integrality_and_range(L, "L", min_n=0)
+        _input_check.integrality_and_range(K, "K", min_val=1)
+        _input_check.integrality_and_range(L, "L", min_val=0)
 
         if algorithm == "default":
             try:
@@ -888,7 +888,7 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
         """  # noqa: E501
         _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_n=0)
+        _input_check.integrality_and_range(k, "k", min_val=0)
         self._input_check_vertex_members(vertices, "'the vertices'")
         if len(set(vertices)) != dim + k:
             raise ValueError(
@@ -951,7 +951,7 @@ class Graph(nx.Graph):
         not when it is created.
         """
         _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_n=0)
+        _input_check.integrality_and_range(k, "k", min_val=0)
         _input_check.greater_equal(
             self.number_of_nodes(),
             dim + k,
@@ -1216,7 +1216,7 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
         _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_n=0)
+        _input_check.integrality_and_range(k, "k", min_val=0)
         self._input_check_no_loop()
 
         n = self.number_of_nodes()
@@ -1336,7 +1336,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
 
         _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_n=0)
+        _input_check.integrality_and_range(k, "k", min_val=0)
         self._input_check_no_loop()
 
         n = self.number_of_nodes()
@@ -1462,7 +1462,7 @@ class Graph(nx.Graph):
         Improve with pebble games.
         """  # noqa: E501
         _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_n=0)
+        _input_check.integrality_and_range(k, "k", min_val=0)
         self._input_check_no_loop()
 
         n = self.number_of_nodes()
@@ -1573,7 +1573,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
 
         _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_n=0)
+        _input_check.integrality_and_range(k, "k", min_val=0)
         self._input_check_no_loop()
 
         n = self.number_of_nodes()
@@ -2333,7 +2333,7 @@ class Graph(nx.Graph):
         See :meth:`to_int` for the description
         of the integer representation.
         """
-        _input_check.integrality_and_range(N, "parameter n", min_n=1)
+        _input_check.integrality_and_range(N, "parameter n", min_val=1)
 
         L = bin(N)[2:]
         n = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)

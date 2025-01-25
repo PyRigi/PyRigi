@@ -80,8 +80,10 @@ def test_dimension_for_algorithm_value_error(dim, possible):
     ],
 )
 def test_integrality_and_range(k, min_k, max_k):
-    assert _input_check.integrality_and_range(k, "", min_n=min_k, max_n=max_k) is None
-    assert _input_check.integrality_and_range(k, "", min_n=min_k) is None
+    assert (
+        _input_check.integrality_and_range(k, "", min_val=min_k, max_val=max_k) is None
+    )
+    assert _input_check.integrality_and_range(k, "", min_val=min_k) is None
 
 
 @pytest.mark.parametrize(
@@ -101,7 +103,7 @@ def test_integrality_and_range(k, min_k, max_k):
 )
 def test_integrality_and_range_value_error_min_max(k, min_k, max_k):
     with pytest.raises(ValueError):
-        _input_check.integrality_and_range(k, "", min_n=min_k, max_n=max_k)
+        _input_check.integrality_and_range(k, "", min_val=min_k, max_val=max_k)
 
 
 @pytest.mark.parametrize(
@@ -116,7 +118,7 @@ def test_integrality_and_range_value_error_min_max(k, min_k, max_k):
 )
 def test_integrality_and_range_value_error_min(k, min_k):
     with pytest.raises(ValueError):
-        _input_check.integrality_and_range(k, "", min_n=min_k)
+        _input_check.integrality_and_range(k, "", min_val=min_k)
 
 
 @pytest.mark.parametrize(
@@ -134,7 +136,7 @@ def test_integrality_and_range_value_error_min(k, min_k):
 )
 def test_integrality_and_range_value_error_max(k, max_k):
     with pytest.raises(ValueError):
-        _input_check.integrality_and_range(k, "", max_n=max_k)
+        _input_check.integrality_and_range(k, "", max_val=max_k)
 
 
 @pytest.mark.parametrize(
