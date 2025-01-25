@@ -126,7 +126,7 @@ def greater(val1: int, val2: int, name1: str, name2: str = "") -> None:
 
 def smaller_equal(val1: int, val2: int, name1: str, name2: str = "") -> None:
     """
-    Check whether an input parameter val1 is greater than or equal to val2 and
+    Check whether an input parameter val1 is smaller than or equal to val2 and
     raise an error otherwise.
 
     Parameters
