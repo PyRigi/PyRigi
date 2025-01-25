@@ -43,8 +43,8 @@ or {meth}`.Framework.realization`.
 In general, a docstring should contain the following items (in this order):
  - short description (one line, compulsory)
  - longer description (optional)
- - definitions (optional): references to related definitions
- - parameters (optional): description of parameters, types are added automatically from type hinting
+ - definitions (optional, but recommended): references to related definitions
+ - parameters (optional, but recommended): description of parameters, types are added automatically from type hinting
  - examples (highly recommended)
  - notes (optional): implementation details
  - suggested improvements (optional): proposed changes/extensions to the method
@@ -85,10 +85,7 @@ Within the metadata for one reference we keep the following order:
  - `year`
  - `doi`/`eprint` (for published papers the `doi` shall be provided, for preprints an `eprint` identifier is fine)
 
-## Creating tutorials
-
-We appreciate a lot if you can contribute with a notebook that
-illustrates how to use PyRigi, describes a rigidity theory problem, accompanies a paper etc.
+## Tutorials
 
 The [tutorials](#tutorials) section is generated from Jupyter notebooks;
 more precisely, from MyST Markdown mirrors of `.ipynb` notebooks.

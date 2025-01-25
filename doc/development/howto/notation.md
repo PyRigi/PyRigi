@@ -35,5 +35,5 @@ If single-letter variables are part of the input parameters, that should be refl
 Examples of this are {meth}`.Graph.is_kl_sparse` or {meth}`.Graph.is_k_redundantly_rigid`.
 
 Otherwise, single-letter variables should be avoided whenever possible and descriptive variable names should be used instead.
-According to PEP8, the letters ``l`` (lower-case ell), ``O`` (upper-case oh) and ``I`` (upper-cose eye)
+According to PEP8, the letters ``l`` (lower-case ell), ``O`` (upper-case oh) and ``I`` (upper-case eye)
 should generally be avoided due to their similarity to other characters. 
