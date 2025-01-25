@@ -113,7 +113,7 @@ class Motion(object):
         """
         Animate the continuous motion.
 
-        See :class:`~.PlotStyle2D` for a list of possible visualization keywords.
+        See :class:`~.PlotStyle3D` for a list of possible visualization keywords.
         Not necessarily all of them apply (e.g. keywords related to infinitesimal
         flexes are ignored).
 
@@ -590,7 +590,7 @@ class ParametricMotion(Motion):
         Creates an instance.
         """
 
-        super().__init__(graph, len(motion[len(list(motion.values())[0])]))
+        super().__init__(graph, len(list(motion.values())[0]))
 
         if not len(motion) == self._graph.number_of_nodes():
             raise ValueError(
@@ -759,8 +759,8 @@ class ApproximateMotion(Motion):
         of the negative infinitesimal flex, then the latter one is chosen instead.
         If instead the animation is too slow, consider increasing this value.
     fixed_edge:
-        The edge of the underlying graph that should not move during
-        the animation. By default, the first entry is pinned to the origin
+        The edge of the underlying graph that is fixed in the list of realizations.
+        By default, the first entry is pinned to the origin
         and the second is pinned to the `x`-axis.
     fixed_direction:
         Vector to which the first direction is fixed. By default, this is given by
