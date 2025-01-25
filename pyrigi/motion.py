@@ -18,6 +18,7 @@ from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
 import numpy as np
 import sympy as sp
+from IPython.display import SVG
 from typing import Any
 from copy import deepcopy
 from warnings import warn
@@ -252,7 +253,7 @@ class Motion(object):
             plt.show()
             return
 
-    def animate2D(
+    def animate2D_plt(
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
@@ -388,10 +389,123 @@ class Motion(object):
             plt.show()
             return
 
+    def animate2D_svg(
+        self,
+        realizations: Sequence[dict[Vertex, Point]],
+        plot_style: PlotStyle,
+        filename: str = None,
+        duration: int = 8,
+        **kwargs,
+    ) -> Any:
+        """
+        See :class:`~.PlotStyle2D` for a list of possible visualization keywords.
+        Not necessarily all of them apply (e.g. keywords related to infinitesimal
+        flexes are ignored).
+
+        Parameters
+        ----------
+        plot_style:
+            An instance of the ``PlotStyle`` class that defines the visual style
+            for plotting, see :class:`~.PlotStyle` for more details.
+        filename:
+            A name used to store the svg. If ``None``, the svg is not saved.
+        duration:
+            The duration of one period of the animation in seconds.
+
+        Notes
+        -----
+        Picking the value ``plot_style.vertex_size*5/plot_style.edge_width`` for
+        the ``markerWidth`` and ``markerHeight`` ensures that the
+        ``plot_style.edge_width`` does not rescale the vertex size
+        (seems to be an odd, inherent behavior of `.svg`).
+        """
+        if self._dim != 2:
+            raise ValueError("Animations are supported only for motions in 2D.")
+
+        if plot_style is None:
+            plot_style = PlotStyle2D(
+                vertex_size=10, canvas_width=500, canvas_height=500, edge_width=10
+            )
+        else:
+            plot_style = PlotStyle2D.from_plot_style(plot_style)
+        # Update the plot_style instance with any passed keyword arguments
+        plot_style.update(**kwargs)
+
+        width = plot_style.canvas_width
+        height = plot_style.canvas_height
+
+        _realizations = self._normalize_realizations(
+            realizations,
+            width,
+            height,
+            padding=plot_style.vertex_size * 5 / plot_style.edge_width
+            + 2 * plot_style.edge_width,
+        )
+
+        svg = f'<svg width="{width}" height="{height}" version="1.1" '
+        svg += 'baseProfile="full" xmlns="http://www.w3.org/2000/svg" '
+        svg += 'xmlns:xlink="http://www.w3.org/1999/xlink">\n'
+        svg += '<rect width="%" height="100%" fill="white"/>\n'
+
+        v_to_int = {}
+        for i, v in enumerate(self._graph.nodes):
+            v_to_int[v] = i
+            tmp = """<defs>\n"""
+            v_label = str(v)
+            tmp += f'\t<marker id="vertex{i}" viewBox="-2 -2 32 32" '
+            tmp += 'refX="15" refY="15" '
+            tmp += f'markerWidth="{plot_style.vertex_size*5/plot_style.edge_width}" '
+            tmp += f'markerHeight="{plot_style.vertex_size*5/plot_style.edge_width}">\n'
+            tmp += (
+                f'\t<circle cx="15" cy="15" r="13.5" fill="{plot_style.vertex_color}" '
+            )
+            tmp += 'stroke="white" stroke-width="0"/>\n'
+            if plot_style.vertex_labels:
+                tmp += (
+                    '\t<text x="15" y="22" font-size="22.5" font-family="DejaVuSans" '
+                )
+                tmp += f'text-anchor="middle" fill="{plot_style.font_color}">'
+                tmp += f"\n\t\t{v_label}\n\t</text>\n"
+            tmp += "\t</marker>\n</defs>\n"
+            svg = svg + "\n" + tmp
+
+        inital_realization = _realizations[0]
+        for u, v in self._graph.edges:
+            ru = inital_realization[u]
+            rv = inital_realization[v]
+            path = f'<path fill="transparent" stroke="{plot_style.edge_color}" '
+            path += f'stroke-width="{plot_style.edge_width}px" '
+            path += f'id="edge{v_to_int[u]}-{v_to_int[v]}" d="M {ru[0]} {ru[1]} '
+            path += f'L {rv[0]} {rv[1]}" marker-start="url(#vertex{v_to_int[u]})" '
+            path += f'marker-end="url(#vertex{v_to_int[v]})" />'
+            svg = svg + "\n" + path
+        svg = svg + "\n"
+
+        for u, v in self._graph.edges:
+            positions_str = ""
+            for r in _realizations:
+                ru = r[u]
+                rv = r[v]
+                positions_str += f" M {ru[0]} {ru[1]} L {rv[0]} {rv[1]};"
+            animation = f'<animate href="#edge{v_to_int[u]}-{v_to_int[v]}" '
+            animation += f'attributeName="d" dur="{duration}s" '
+            animation += 'repeatCount="indefinite" calcMode="linear" '
+            animation += f'values="{positions_str}"/>'
+            svg = svg + "\n" + animation
+        svg = svg + "\n</svg>"
+
+        if filename is not None:
+            if not filename.endswith(".svg"):
+                filename = filename + ".svg"
+            with open(filename, "wt") as file:
+                file.write(svg)
+        return SVG(data=svg)
+
     def animate(
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
+        svg: bool = True,
         **kwargs,
     ) -> Any:
         """
@@ -401,13 +515,29 @@ class Motion(object):
         This method calls :meth:`.Motion.animate2D`` or
         :meth:`.Framework.animate3D`.
         For various formatting options, see :class:`.PlotStyle`.
+
+        Parameters
+        ----------
+        realizations:
+            A sequence of realizations of the underlying graph describing the motion.
+        plot_style:
+            An instance of the ``PlotStyle`` class that defines the visual style
+            for plotting, see :class:`~.PlotStyle` for more details.
+        svg:
+            In 2 dimensions, the boolean ``svg`` can be set to determine, whether the
+            output is in the `.svg` format or in the `matplotlib` format.
+            The `svg==True`method is documented here: :meth:`~.Motion.animate2D_svg`.
+            The method for `svg==False` is documented here:
+            :meth:`~.Motion.animate2D_plt`.
         """
         if self._dim == 3:
             return self.animate3D(realizations, plot_style=plot_style, **kwargs)
         elif self._dim > 3:
             raise ValueError("This motion is in higher dimension than 3!")
+        elif svg:
+            return self.animate2D_svg(realizations, plot_style=plot_style, **kwargs)
         else:
-            return self.animate2D(realizations, plot_style=plot_style, **kwargs)
+            return self.animate2D_plt(realizations, plot_style=plot_style, **kwargs)
 
 
 class ParametricMotion(Motion):

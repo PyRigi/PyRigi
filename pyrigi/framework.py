@@ -467,7 +467,7 @@ class Framework(object):
             )
 
     @doc_category("Plotting")
-    def animate_rotating_framework3D(
+    def animate3D_rotation(
         self,
         plot_style: PlotStyle = None,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
@@ -503,7 +503,7 @@ class Framework(object):
         --------
         >>> from pyrigi import frameworkDB
         >>> F = frameworkDB.Complete(4, dim=3)
-        >>> F.animate_rotating_framework3D();
+        >>> F.animate3D_rotation();
         """
         if self._dim != 3:
             raise ValueError(
@@ -574,12 +574,21 @@ class Framework(object):
             }
             for frame in range(2 * total_frames)
         ]
+        pinned_vertex = self._graph.vertex_list()[0]
+        _realizations = []
+        for r in rotating_realizations:
+            # Translate the realization to the origin
+            _r = {
+                v: [p[i] - r[pinned_vertex][i] for i in range(len(p))]
+                for v, p in r.items()
+            }
+            _realizations.append(_r)
 
         from pyrigi import Motion
 
         M = Motion(self.graph(), self.dim())
         return M.animate3D(
-            rotating_realizations,
+            _realizations,
             plot_style=plot_style,
             edge_coloring=edge_coloring,
             delay=delay,

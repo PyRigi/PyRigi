@@ -59,13 +59,16 @@ motion = ParametricMotion(
 motion.animate(
     vertex_labels=False,
     edge_color='blue',
-    edge_width=4,
+    edge_width=10,
 )
 ```
 
 Internal checks on the edge lengths are in place to ensure that the specified parametric motion
 never violates the edge-length equations. 
 
+Finally, it is possible to create either a ``.svg`` animation or a ``matplotlib`` animation by
+setting the boolean parameter ``svg``. In doing so, the 2D and 3D animations can be displayed
+in the same way.
 
 ## Approximate Motion
 
