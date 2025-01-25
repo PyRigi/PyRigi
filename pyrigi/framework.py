@@ -96,10 +96,6 @@ class Framework(object):
     [1],
     [2]])
 
-    TODO
-    ----
-    Use :meth:`~.Framework.set_realization` in the constructor.
-
     METHODS
 
     Notes
@@ -124,17 +120,8 @@ class Framework(object):
         else:
             self._dim = 0
 
-        for v in graph.nodes:
-            if v not in realization:
-                raise KeyError(f"Vertex {v} is not contained in the realization.")
-            if not len(realization[v]) == self._dim:
-                raise ValueError(
-                    f"The point {realization[v]} in the realization corresponding to "
-                    f"vertex {v} does not have the right dimension."
-                )
-
-        self._realization = {v: Matrix(realization[v]) for v in graph.nodes}
         self._graph = deepcopy(graph)
+        self.set_realization(realization)
 
     def __str__(self) -> str:
         """Return the string representation."""
@@ -1379,9 +1366,10 @@ class Framework(object):
                 raise KeyError("Vertex {vertex} is not a key of the given realization!")
             if not len(realization[v]) == self.dimension():
                 raise IndexError(
-                    f"The element {realization[v]} does not have "
-                    f"the dimension {self.dimension()}!"
+                    f"The point {realization[v]} in the realization corresponding to "
+                    f"vertex {v} does not have the right dimension."
                 )
+
         self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
     @doc_category("Framework manipulation")
@@ -1896,10 +1884,6 @@ class Framework(object):
         [ 2],
         [ 2],
         [ 1]])]
-
-        TODO
-        ----
-        tests
         """
         return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
 
@@ -2043,10 +2027,6 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
-
-        TODO
-        ----
-        tests
 
         Examples
         --------
