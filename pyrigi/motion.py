@@ -424,7 +424,7 @@ class Motion(object):
 
         if plot_style is None:
             plot_style = PlotStyle2D(
-                vertex_size=10, canvas_width=500, canvas_height=500, edge_width=10
+                vertex_size=7, canvas_width=500, canvas_height=500, edge_width=6
             )
         else:
             plot_style = PlotStyle2D.from_plot_style(plot_style)
