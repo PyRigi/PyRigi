@@ -311,7 +311,7 @@ class Graph(nx.Graph):
             self._input_check_edge_format(pair)
 
     def _input_check_vertex_order(
-        self, vertex_order=Sequence[Vertex], name: str = ""
+        self, vertex_order: Sequence[Vertex], name: str = ""
     ) -> list[Vertex]:
         """
         Check whether the provided `vertex_order` contains the same elements
@@ -342,7 +342,7 @@ class Graph(nx.Graph):
             return list(vertex_order)
 
     def _input_check_edge_order(
-        self, edge_order=Sequence[Edge], name: str = ""
+        self, edge_order: Sequence[Edge], name: str = ""
     ) -> list[Edge]:
         """
         Check whether the provided `edge_order` contains the same elements
