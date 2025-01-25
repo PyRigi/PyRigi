@@ -2970,7 +2970,7 @@ class Framework(object):
         raise an error otherwise.
         """
         if not len(point) == self.dimension():
-            raise IndexError(
+            raise ValueError(
                 f"The point {point} does not have the dimension {self.dimension()}!"
             )
 
