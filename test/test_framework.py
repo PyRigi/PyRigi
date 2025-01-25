@@ -938,7 +938,7 @@ def test__input_check_point_dimension(framework, point):
     ],
 )
 def test__input_check_point_dimension_error(framework, point):
-    with pytest.raises(IndexError):
+    with pytest.raises(ValueError):
         framework._input_check_point_dimension(point)
 
 
