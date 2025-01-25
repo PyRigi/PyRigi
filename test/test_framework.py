@@ -219,7 +219,7 @@ def test_is_dependent(framework):
         fws.Cycle(5, dim=1),
         fws.CompleteBipartite(4, 3),
         fws.CompleteBipartite(4, 4),
-    ]
+    ],
 )
 def test_is_redundantly_rigid(framework):
     assert framework.is_redundantly_rigid()
@@ -241,8 +241,8 @@ def test_is_redundantly_rigid(framework):
         fws.ThreePrism(),
         fws.Complete(3, dim=3),
         fws.Octahedron(),
-        fws.Cube()
-    ]
+        fws.Cube(),
+    ],
 )
 def test_is_not_redundantly_rigid(framework):
     assert not framework.is_redundantly_rigid()
@@ -816,7 +816,7 @@ def test_stresses():
 
     F = fws.Complete(4)
     stresses = F.stresses()
-    assert len(stresses)==1 and all(
+    assert len(stresses) == 1 and all(
         [
             F.is_stress([entry for entry in s.transpose()], numerical=True)
             for s in stresses
@@ -825,7 +825,7 @@ def test_stresses():
 
     F = fws.Complete(5)
     stresses = F.stresses()
-    assert len(stresses)==3 and all(
+    assert len(stresses) == 3 and all(
         [
             F.is_stress([entry for entry in s.transpose()], numerical=True)
             for s in stresses
@@ -834,7 +834,7 @@ def test_stresses():
 
     F = fws.Frustum(3)
     stresses = F.stresses()
-    assert len(stresses)==1 and all(
+    assert len(stresses) == 1 and all(
         [
             F.is_stress([entry for entry in s.transpose()], numerical=True)
             for s in stresses
@@ -843,7 +843,7 @@ def test_stresses():
 
     F = fws.Frustum(4)
     stresses = F.stresses()
-    assert len(stresses)==1 and all(
+    assert len(stresses) == 1 and all(
         [
             F.is_stress([entry for entry in s.transpose()], numerical=True)
             for s in stresses

@@ -1121,7 +1121,11 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
+        self,
+        k: int,
+        dim: int = 2,
+        algorithm: str = "combinatorial",
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
@@ -1254,7 +1258,11 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_min_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
+        self,
+        k: int,
+        dim: int = 2,
+        algorithm: str = "combinatorial",
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally k-vertex redundantly (generically) dim-rigid
@@ -1383,7 +1391,11 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_k_redundantly_rigid(
-        self, k: int, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
+        self,
+        k: int,
+        dim: int = 2,
+        algorithm: str = "combinatorial",
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
@@ -1510,7 +1522,11 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_min_k_redundantly_rigid(
-        self, k: int, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
+        self,
+        k: int,
+        dim: int = 2,
+        algorithm: str = "combinatorial",
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally k-redundantly (generically) dim-rigid
@@ -1669,22 +1685,22 @@ class Graph(nx.Graph):
         elif n <= dim + 1:
             return self.number_of_edges() == math.comb(n, 2)
 
-        elif dim == 1 and algorithm=="combinatorial":
+        elif dim == 1 and algorithm == "combinatorial":
             return nx.is_connected(self)
-        elif dim == 2 and algorithm=="combinatorial":
+        elif dim == 2 and algorithm == "combinatorial":
             deficiency = -(2 * n - 3) + self.number_of_edges()
             if deficiency < 0:
                 return False
             else:
                 self._build_pebble_digraph(2, 3)
                 return self._pebble_digraph.number_of_edges() == 2 * n - 3
-        elif algorithm=="combinatorial":
+        elif algorithm == "combinatorial":
             raise ValueError(
                 f"The Dimension for combinatorial computation must be either 1 or 2, "
                 f"but is {dim}"
             )
-        
-        if algorithm=="randomized":
+
+        if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
                 raise ValueError("The parameter prob is too large.")
@@ -1692,13 +1708,11 @@ class Graph(nx.Graph):
 
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
-        
-        raise ValueError(
-            f"The value of `algorithm` needs to be \"combinatorial\" "
-            f"or \"randomized\" but is {algorithm}."
-        )
 
-        
+        raise ValueError(
+            f'The value of `algorithm` needs to be "combinatorial" '
+            f'or "randomized" but is {algorithm}.'
+        )
 
     @doc_category("Generic rigidity")
     def is_min_rigid(
@@ -1768,16 +1782,16 @@ class Graph(nx.Graph):
         elif n <= dim + 1:
             return self.number_of_edges() == math.comb(n, 2)
 
-        elif dim == 1 and algorithm=="combinatorial":
+        elif dim == 1 and algorithm == "combinatorial":
             return nx.is_tree(self)
-        elif dim == 2 and algorithm=="combinatorial":
+        elif dim == 2 and algorithm == "combinatorial":
             return self.is_tight(
                 2,
                 3,
                 algorithm="pebble",
                 use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
             )
-        elif algorithm=="combinatorial":
+        elif algorithm == "combinatorial":
             raise ValueError(
                 f"The dimension for combinatorial computation must be either 1 or 2, "
                 f"but is {dim}"
@@ -1793,10 +1807,9 @@ class Graph(nx.Graph):
             return F.is_min_inf_rigid()
 
         raise ValueError(
-            f"The value of `algorithm` needs to be \"combinatorial\" "
-            f"or \"randomized\" but is {algorithm}."
+            f'The value of `algorithm` needs to be "combinatorial" '
+            f'or "randomized" but is {algorithm}.'
         )
-
 
     @doc_category("Generic rigidity")
     def is_globally_rigid(self, dim: int = 2, prob: float = 0.0001) -> bool:
@@ -2127,7 +2140,7 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        if algorithm=="combinatorial":
+        if algorithm == "combinatorial":
             if dim == 1:
                 if all(
                     [
@@ -2145,7 +2158,7 @@ class Graph(nx.Graph):
                 f"but is {dim}"
             )
 
-        elif algorithm=="randomized":
+        elif algorithm == "randomized":
             F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
             G = deepcopy(self)
             for e in combinations(self.vertex_list(), 2):
@@ -2159,10 +2172,9 @@ class Graph(nx.Graph):
             return True
 
         raise ValueError(
-            f"The value of `algorithm` needs to be \"combinatorial\" "
-            f"or \"randomized\" but is {algorithm}."
+            f'The value of `algorithm` needs to be "combinatorial" '
+            f'or "randomized" but is {algorithm}.'
         )
-
 
     @doc_category("Generic rigidity")
     def rigid_components(
@@ -2215,25 +2227,23 @@ class Graph(nx.Graph):
         if nx.number_of_selfloops(self) > 0:
             raise LoopError()
 
-        if algorithm=="combinatorial" and dim == 1:
+        if algorithm == "combinatorial" and dim == 1:
             return [list(comp) for comp in nx.connected_components(self)]
 
         if not nx.is_connected(self):
             res = []
             for comp in nx.connected_components(self):
-                res += self.subgraph(comp).rigid_components(
-                    dim, algorithm=algorithm
-                )
+                res += self.subgraph(comp).rigid_components(dim, algorithm=algorithm)
             return res
 
-        if algorithm=="combinatorial":
+        if algorithm == "combinatorial":
             # here will be the implementation using pebble games for dim=2
             raise ValueError(
                 f"The dimension for combinatorial computation must be 1, "
                 f"but is {dim}"
             )
 
-        elif algorithm=="randomized":
+        elif algorithm == "randomized":
             if self.is_rigid(dim, algorithm=algorithm):
                 return [list(self)]
 
@@ -2255,8 +2265,8 @@ class Graph(nx.Graph):
             return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
 
         raise ValueError(
-            f"The value of `algorithm` needs to be \"combinatorial\" "
-            f"or \"randomized\" but is {algorithm}."
+            f'The value of `algorithm` needs to be "combinatorial" '
+            f'or "randomized" but is {algorithm}.'
         )
 
     @doc_category("Generic rigidity")
