@@ -4,6 +4,7 @@ This is a module for providing common types of graphs.
 
 import networkx as nx
 from pyrigi.graph import Graph
+import pyrigi._input_check as _input_check
 
 
 def Cycle(n: int) -> Graph:
@@ -82,12 +83,10 @@ def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     >>> DoubleBanana(dim = 4)
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]]
     """  # noqa: E501
-    if dim < 3:
-        raise ValueError(f"The parameter d must be at least 3, instead it is {dim}.")
-    if t < 2 or t > dim - 1:
-        raise ValueError(
-            f"The parameter t must be 2 <= t <= {dim-1}, instead it is {t}."
-        )
+    _input_check.greater_equal(dim, 3, "dimension")
+    _input_check.greater_equal(t, 2, "parameter t")
+    _input_check.smaller_equal(t, dim - 1, "parameter t", "dim - 1")
+
     r = (dim + 2) - t
     K = Complete(t)
     K1 = K.copy()
