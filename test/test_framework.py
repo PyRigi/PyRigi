@@ -46,19 +46,6 @@ def test_is_inf_rigid(framework):
     assert framework.is_inf_rigid()
 
 
-def test_check_vertex_and_edge_order():
-    F = Framework.Random(Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]))
-    vertex_order = ["a", "#", 0, 1.8]
-    edge_order = [(0, "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
-    assert F._check_vertex_order(vertex_order) and F._check_edge_order(edge_order)
-    vertex_order = ["a", "#", 0, "s"]
-    edge_order = [("#", "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
-    with pytest.raises(ValueError):
-        F._check_vertex_order(vertex_order)
-    with pytest.raises(ValueError):
-        F._check_edge_order(edge_order)
-
-
 @pytest.mark.parametrize(
     "framework",
     [
@@ -503,6 +490,36 @@ def test_loop_error():
         Framework.Random(G)
 
 
+@pytest.mark.parametrize(
+    "param",
+    [
+        0,
+        -2,
+    ],
+)
+def test_dimension_value_error(param):
+    with pytest.raises(ValueError):
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        Framework.Random(G, param)
+    with pytest.raises(ValueError):
+        Framework.Empty(param)
+
+
+@pytest.mark.parametrize(
+    "param",
+    [
+        1.1,
+        3 / 2,
+    ],
+)
+def test_dimension_type_error(param):
+    with pytest.raises(TypeError):
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        Framework.Random(G, param)
+    with pytest.raises(TypeError):
+        Framework.Empty(param)
+
+
 def test_translate():
     G = graphs.Complete(3)
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
@@ -882,20 +899,146 @@ def test_edge_lengths():
     assert all([(v - 1).is_zero for v in F.edge_lengths(numerical=False).values()])
 
 
+@pytest.mark.parametrize(
+    "framework1, framework2",
+    [
+        [
+            fws.Complete(3, dim=2),
+            Framework(Graph.from_int(7), {0: [0, 0], 1: [1, 0], 2: [1, 1]}),
+        ],
+        [
+            fws.Complete(4, dim=2),
+            fws.Complete(4, dim=2),
+        ],
+    ],
+)
+def test__input_check_underlying_graphs(framework1, framework2):
+    assert framework1._input_check_underlying_graphs(framework2) is None
+    assert framework2._input_check_underlying_graphs(framework1) is None
+
+
+@pytest.mark.parametrize(
+    "framework1, framework2",
+    [
+        [
+            fws.Complete(3, dim=2),
+            Framework(Graph.from_int(31), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+        ],
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            Framework(Graph([[0, 1], [1, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]}),
+        ],
+    ],
+)
+def test__input_check_underlying_graphs_error(framework1, framework2):
+    with pytest.raises(ValueError):
+        framework1._input_check_underlying_graphs(framework2)
+
+
+@pytest.mark.parametrize(
+    "framework, realization, v",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            None,
+            1,
+        ],
+        [
+            Framework.Random(Graph([[1, 2], [2, 3]])),
+            {1: [1, 0], 2: [1, 1], 3: [2, 2]},
+            2,
+        ],
+        [
+            Framework.Random(Graph([["a", 2], [2, -3]])),
+            {2: [1, 0], -3: [1, 1], "a": [2, 2]},
+            2,
+        ],
+    ],
+)
+def test__input_check_vertex_key(framework, realization, v):
+    assert framework._input_check_vertex_key(v, realization) is None
+
+
+@pytest.mark.parametrize(
+    "framework, realization, v",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            None,
+            4,
+        ],
+        [Framework.Random(Graph([[1, 2], [2, 3]])), {1: [1, 0], 2: [1, 1]}, 3],
+        [
+            Framework.Random(Graph([["a", 2], [2, -3]])),
+            {2: [1, 0], -3: [1, 1], "a": [2, 2]},
+            "b",
+        ],
+    ],
+)
+def test__input_check_vertex_key_error(framework, realization, v):
+    with pytest.raises(KeyError):
+        framework._input_check_vertex_key(v, realization)
+
+
+@pytest.mark.parametrize(
+    "framework, point",
+    [
+        [Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}), [2, 3]],
+        [Framework.Random(Graph([[1, 2], [2, 3]]), 3), [2, 3, 4]],
+        [Framework.Random(Graph([["a", 2], [2, -3]]), 1), [2]],
+    ],
+)
+def test__input_check_point_dimension(framework, point):
+    assert framework._input_check_point_dimension(point) is None
+
+
+@pytest.mark.parametrize(
+    "framework, point",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            [2, 3, 3],
+        ],
+        [Framework.Random(Graph([[1, 2], [2, 3]]), 3), [2, 3]],
+        [Framework.Random(Graph([["a", 2], [2, -3]]), 1), []],
+    ],
+)
+def test__input_check_point_dimension_error(framework, point):
+    with pytest.raises(ValueError):
+        framework._input_check_point_dimension(point)
+
+
 @pytest.mark.meshing
 def test__generate_stl_bar():
     mesh = Framework._generate_stl_bar(30, 4, 10, 5)
     assert mesh is not None
 
-    with pytest.raises(ValueError):
+
+@pytest.mark.meshing
+@pytest.mark.parametrize(
+    "holes_dist, holes_diam, bar_w, bar_h",
+    [
         # negative values are not allowed
-        Framework._generate_stl_bar(30, 4, 10, -5)
-    with pytest.raises(ValueError):
+        [30, 4, 10, -5],
+        [30, 4, -10, 5],
+        [30, -4, 10, 5],
+        [-30, 4, 10, 5],
+        # zero values are not allowed
+        [30, 4, 10, 0],
+        [30, 4, 0, 5],
+        [30, 0, 10, 5],
+        [0, 4, 10, 5],
         # width must be greater than diameter
-        Framework._generate_stl_bar(30, 4, 3, 5)
+        [30, 4, 3, 5],
+        [30, 4, 4, 5],
+        # holes_distance > 2 * holes_diameter
+        [6, 4, 10, 5],
+        [10, 5, 12, 12],
+    ],
+)
+def test__generate_stl_bar_error(holes_dist, holes_diam, bar_w, bar_h):
     with pytest.raises(ValueError):
-        # holes_distance <= 2 * holes_diameter
-        Framework._generate_stl_bar(6, 4, 10, 5)
+        Framework._generate_stl_bar(holes_dist, holes_diam, bar_w, bar_h)
 
 
 @pytest.mark.meshing

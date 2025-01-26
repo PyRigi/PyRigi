@@ -13,52 +13,34 @@ from pyrigi.data_type import (
     InfFlex,
     Stress,
     Sequence,
+    Number,
     DirectedEdge,
 )
+from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 
-def plot_inf_flex(  # noqa: C901
+def resolve_inf_flex(
     framework: Framework,
-    ax: Axes,
-    inf_flex: Matrix | InfFlex,
+    inf_flex: int | Matrix | InfFlex,
     points: dict[Vertex, Point] = None,
-    flex_width: float = 2.5,
-    flex_length: float = 0.65,
-    flex_color: (
-        str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
-    ) = "limegreen",
-    flex_style: str = "solid",
-    flex_arrowsize: int = 20,
     projection_matrix: Matrix = None,
-    **kwargs,
-) -> None:
+) -> dict[Vertex, Point]:
     """
-    Add an infinitesimal flex based in the `points` as vectors to the axis `ax`.
+    Resolve an infinitesimal flex from various datatypes.
 
     Parameters
     ----------
-    ax:
+    framework:
     inf_flex:
-        Optional parameter for plotting a given infinitesimal flex. It is
-        important to use the same vertex order as the one
-        from :meth:`.Graph.vertex_list`.
-        Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
-        nontrivial infinitesimal flex for plotting.
-        Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
-        maps the vertex labels to vectors (i.e. a sequence of Numbers).
-    flex_width:
-        Width of the infinitesimal flex's arrowtail.
-    flex_length:
-        Length of the displayed flex relative to the total canvas
-        diagonal in percent. By default 15%.
-    flex_color:
-        The color of the infinitesimal flex is by default 'limegreen'.
-    flex_style:
-        Line Style: ``-``/``solid``, ``--``/``dashed``,
-        ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
+        The infinitesimal flex to resolve.
+    points:
+        A realization.
+        If None, the framework's realization is used.
     projection_matrix:
+        A matrix used for projection to a lower dimension.
+
+
     """
-    inf_flex_pointwise = None
     if isinstance(inf_flex, int) and inf_flex >= 0:
         inf_flex_basis = framework.nontrivial_inf_flexes()
         if inf_flex >= len(inf_flex_basis):
@@ -77,15 +59,13 @@ def plot_inf_flex(  # noqa: C901
     ):
         inf_flex_pointwise = inf_flex
     else:
-        raise TypeError(
-            "inf_flex does not have the correct Type or the `int` is too large."
-        )
+        raise TypeError("inf_flex does not have the correct Type.")
 
     if not framework.is_dict_inf_flex(inf_flex_pointwise):
         raise ValueError("The provided `inf_flex` is not an infinitesimal flex.")
-    if framework._dim == 1:
+    if framework.dim() == 1:
         inf_flex_pointwise = {
-            v: [inf_flex_pointwise[v], 0] for v in inf_flex_pointwise.keys()
+            v: [v_flex, 0] for v, v_flex in inf_flex_pointwise.items()
         }
     if projection_matrix is not None:
         inf_flex_pointwise = {
@@ -133,119 +113,150 @@ def plot_inf_flex(  # noqa: C901
         if not all(entry == 0 for entry in inf_flex_pointwise[flex_key])
     }
 
-    if len(inf_flex_pointwise[list(inf_flex_pointwise.keys())[0]]) == 2:
-        x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
-        y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
-        arrow_length = np.sqrt(x_canvas_width**2 + y_canvas_width**2) * flex_length
-        H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex_pointwise.keys()])
-        H_placement = {
-            str(v)
-            + "_flex": np.array(
-                [
-                    points[v][0] + arrow_length * inf_flex_pointwise[v][0],
-                    points[v][1] + arrow_length * inf_flex_pointwise[v][1],
-                ],
-                dtype=float,
-            )
-            for v in inf_flex_pointwise.keys()
-        }
-        H_placement.update(
-            {v: np.array(points[v], dtype=float) for v in inf_flex_pointwise.keys()}
-        )
-        if (
-            not isinstance(flex_color, str | list)
-            or isinstance(flex_color, list)
-            and not len(flex_color) == len(inf_flex_pointwise)
-        ):
-            raise TypeError(
-                "`flex_color` must either be a `str` specifying"
-                + "a color or a list of strings with the same"
-                + "number as the nonzero flexes."
-            )
-        nx.draw(
-            H,
-            pos=H_placement,
-            ax=ax,
-            arrows=True,
-            arrowsize=flex_arrowsize,
-            node_size=0,
-            node_color="white",
-            width=flex_width,
-            edge_color=flex_color,
-            style=flex_style,
-            **kwargs,
-        )
-    elif framework._dim == 3:
-        for v in inf_flex_pointwise.keys():
-            ax.quiver(
-                points[v][0],
-                points[v][1],
-                points[v][2],
-                inf_flex_pointwise[v][0],
-                inf_flex_pointwise[v][1],
-                inf_flex_pointwise[v][2],
-                color=flex_color,
-                lw=flex_width,
-                linestyle=flex_style,
-                length=flex_length,
-                arrow_length_ratio=0.35,
-            )
-    else:
-        raise ValueError(
-            "The dimension of the infinitesimal flex needs to be between 1 and 3."
-        )
+    return inf_flex_pointwise
 
 
-def plot_stress(  # noqa: C901
+def plot_inf_flex2D(
     framework: Framework,
     ax: Axes,
-    stress: Matrix | Stress,
+    inf_flex: int | Matrix | InfFlex,
     points: dict[Vertex, Point] = None,
-    stress_color: str = "orangered",
-    stress_fontsize: int = 10,
-    stress_label_pos: float | dict[DirectedEdge, float] = 0.5,
-    stress_rotate_labels: bool = True,
-    stress_normalization: bool = False,
-    connection_style: float | dict[DirectedEdge, float] = 0.5,
-    curved_edges: bool = False,
-    **kwargs,
+    projection_matrix: Matrix = None,
+    plot_style: PlotStyle2D = None,
 ) -> None:
     """
-    Add an equilibrium stress based in the `edges` as numbers to the axis `ax`.
+    Plot a 2D infinitesimal flex on the canvas.
 
     Parameters
     ----------
+    framework:
     ax:
-    stress:
-        Optional parameter for plotting a given equilibrium stress. The standard
-        input format is a ``Matrix`` that is the output of e.g. the method
-        ``Framework.stresses``. Alternatively, an ``int`` can be specified
-        to directly choose the 0,1,2,...-th equilibrium stress (according
-        to the method ``Framework.stresses``) for plotting.
-        For these input types, is important to use the same edge order as the one
-        from :meth:`.Graph.edge_list`.
-        If the edge order needs to be specified, a ``Dict[Edge, Number]``
-        can be provided, which maps the edges to numbers
-        (i.e. coordinates).
-    points:
-        It is possible to provide an alternative realization.
-    stress_color:
-        Color of the font used to label the edges with stresses.
-    stress_fontsize:
-        Fontsize of the stress labels.
-    stress_label_pos:
-        Position of the stress label along the edge. `float` numbers
-        from the interval `[0,1]` are allowed. `0` represents the head
-        of the edge, `0.5` the center and `1` the edge's tail. The position
-        can either be specified for all edges equally or as a
-        `dict[Edge, float]` of ordered edges. Omitted edges are set to `0.5`.
-    stress_rotate_labels:
-        A boolean indicating whether the stress label should be rotated.
-    stress_normalization:
-        A boolean indicating whether the stress values should be turned into
-        floating point numbers. If ``True``, the stress is automatically normalized.
+        The matplotlib axis on which the flex is drawn.
+    inf_flex:
+        The infinitesimal flex to plot.
+    projection_matrix:
+        A matrix used to project the infinitesimal flex to 2D.
+    plot_style:
     """
-    stress_edgewise = None
+    inf_flex_pointwise = resolve_inf_flex(
+        framework, inf_flex, points, projection_matrix
+    )
+
+    x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
+    y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
+    arrow_length = (
+        np.sqrt(x_canvas_width**2 + y_canvas_width**2) * plot_style.flex_length
+    )
+    H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex_pointwise.keys()])
+    H_placement = {
+        str(v)
+        + "_flex": np.array(
+            [
+                points[v][0] + arrow_length * inf_flex_pointwise[v][0],
+                points[v][1] + arrow_length * inf_flex_pointwise[v][1],
+            ],
+            dtype=float,
+        )
+        for v in inf_flex_pointwise.keys()
+    }
+    H_placement.update(
+        {v: np.array(points[v], dtype=float) for v in inf_flex_pointwise.keys()}
+    )
+    if not isinstance(plot_style.flex_color, str):
+        raise TypeError("`flex_color` must be a `str` specifying a color.")
+    nx.draw(
+        H,
+        pos=H_placement,
+        ax=ax,
+        arrows=True,
+        arrowsize=plot_style.flex_arrow_size,
+        node_size=0,
+        node_color="white",
+        width=plot_style.flex_width,
+        edge_color=plot_style.flex_color,
+        style=plot_style.flex_style,
+    )
+
+
+def plot_inf_flex3D(
+    framework: Framework,
+    ax: Axes,
+    inf_flex: int | Matrix | InfFlex,
+    points: dict[Vertex, Point] = None,
+    projection_matrix: Matrix = None,
+    plot_style: PlotStyle3D = None,
+) -> None:
+    """
+    Plot a 3D infinitesimal flex on the canvas.
+
+    Parameters
+    ----------
+    framework:
+    ax:
+        The matplotlib axis on which the flex is drawn.
+    inf_flex:
+        The infinitesimal flex to plot.
+    projection_matrix:
+        A matrix used to project the infinitesimal flex to 3D.
+    plot_style:
+    """
+    inf_flex_pointwise = resolve_inf_flex(
+        framework, inf_flex, points, projection_matrix
+    )
+    x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
+    y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
+    z_canvas_width = ax.get_zlim()[1] - ax.get_zlim()[0]
+    arrow_length = (
+        np.sqrt(x_canvas_width**2 + y_canvas_width**2 + z_canvas_width**2)
+        * plot_style.flex_length
+    )
+
+    for v in inf_flex_pointwise.keys():
+        ax.quiver(
+            points[v][0],
+            points[v][1],
+            points[v][2],
+            inf_flex_pointwise[v][0],
+            inf_flex_pointwise[v][1],
+            inf_flex_pointwise[v][2],
+            color=plot_style.flex_color,
+            lw=plot_style.flex_width,
+            linestyle=plot_style.flex_style,
+            length=arrow_length,
+            arrow_length_ratio=0.3,
+        )
+
+
+def resolve_stress(
+    framework: Framework,
+    stress: Matrix | Stress,
+    plot_style: PlotStyle,
+    stress_label_positions: dict[DirectedEdge, float] = None,
+) -> tuple[dict[Edge, Number], dict[DirectedEdge, float]]:
+    """
+    Resolve an equilibrium stress from various datatypes and
+    position of the labels on edges.
+
+    Parameters
+    ----------
+    framework:
+    stress:
+        The equilibrium stress to resolve.
+    plot_style:
+    stress_label_positions:
+        A dictionary mapping directed edges
+        to values determining the position of stress labels.
+
+    Returns
+    -------
+    tuple[dict[Edge, Number], dict[DirectedEdge, float]]
+        A tuple with two dictionaries: one for the stress values and another
+        for the label positions.
+    """
+
+    if stress_label_positions is None:
+        stress_label_positions = {}
+
     if isinstance(stress, int) and stress >= 0:
         stresses = framework.stresses()
         if stress >= len(stresses):
@@ -267,10 +278,7 @@ def plot_stress(  # noqa: C901
     if not framework.is_dict_stress(stress_edgewise):
         raise ValueError("The provided `stress` is not an equilibrium stress.")
 
-    if points is None:
-        points = framework.realization(as_points=True, numerical=True)
-
-    if stress_normalization:
+    if plot_style.stress_normalization:
         numerical_stress = {
             edge: float(sympify(w).evalf(10)) for edge, w in stress_edgewise.items()
         }
@@ -280,79 +288,140 @@ def plot_stress(  # noqa: C901
         }
     else:
         _stress = stress_edgewise
-    if isinstance(stress_label_pos, dict):
-        if not all([framework._graph.has_edge(*e) for e in stress_label_pos.keys()]):
-            raise ValueError(
-                "The `stress_label_pos` dictionary must contain the same "
-                + "edges as the stress dictionary."
-            )
-        for edge in framework._graph.edge_list(as_tuples=True):
-            stress_keys = [set(e) for e in stress_label_pos.keys()]
-            if set(edge) not in stress_keys:
-                stress_label_pos[edge] = 0.5
-    elif isinstance(stress_label_pos, float):
-        label_float = stress_label_pos
-        stress_label_pos = {}
-        for edge in framework._graph.edge_list(as_tuples=True):
-            stress_label_pos[edge] = label_float
-    else:
-        raise TypeError("`stress_label_pos` must be either a float or a dictionary.")
-    if len(points[list(points.keys())[0]]) == 2:
-        if curved_edges:
-            newGraph = nx.MultiDiGraph()
-            connection_style = resolve_connection_style(framework, connection_style)
-            for e, style in connection_style.items():
-                newGraph.add_edge(e[0], e[1], weight=style)
-            plt.box(False)  # Manually removes the frame of the plot
-            for e in newGraph.edges(data=True):
-                edge = tuple([e[0], e[1]])
-                nx.draw_networkx_edge_labels(
-                    newGraph,
-                    ax=ax,
-                    pos=points,
-                    edge_labels={edge: _stress[edge]},
-                    font_color=stress_color,
-                    font_size=stress_fontsize,
-                    label_pos=stress_label_pos[edge],
-                    rotate=stress_rotate_labels,
-                    connectionstyle=f"Arc3, rad = {e[2]['weight']}",
-                    **kwargs,
-                )
-        else:
-            for edge in framework._graph.edges:
-                nx.draw_networkx_edge_labels(
-                    framework._graph,
-                    ax=ax,
-                    pos=points,
-                    edge_labels={edge: _stress[edge]},
-                    font_color=stress_color,
-                    font_size=stress_fontsize,
-                    label_pos=stress_label_pos[edge],
-                    rotate=stress_rotate_labels,
-                    **kwargs,
-                )
-    elif len(points[list(points.keys())[0]]) == 3:
-        for edge in stress_label_pos.keys():
-            pos = [
-                points[edge[0]][i]
-                + stress_label_pos[edge] * (points[edge[1]][i] - points[edge[0]][i])
-                for i in range(3)
-            ]
-            ax.text(
-                pos[0],
-                pos[1],
-                pos[2],
-                str(_stress[edge]),
-                color=stress_color,
-                fontsize=stress_fontsize,
-                ha="center",
-                va="center",
-                **kwargs,
-            )
-    else:
+    if not isinstance(stress_label_positions, dict):
+        raise TypeError("`stress_label_positions` must be a dictionary.")
+
+    if not all([framework._graph.has_edge(*e) for e in stress_label_positions.keys()]):
         raise ValueError(
-            "The method `_plot_stress` is currently implemented only"
-            + " for frameworks in 1, 2, and 3 dimensions."
+            "The `stress_label_positions` dictionary must contain the same "
+            + "edges as the stress dictionary."
+        )
+
+    for edge in framework._graph.edge_list(as_tuples=True):
+        if edge in stress_label_positions:
+            stress_label_positions[edge] = stress_label_positions[edge]
+        elif edge[::-1] in stress_label_positions:
+            stress_label_positions[edge] = 1 - stress_label_positions[edge[::-1]]
+        else:
+            stress_label_positions[edge] = 0.5
+
+    return _stress, stress_label_positions
+
+
+def plot_stress2D(
+    framework: Framework,
+    ax: Axes,
+    stress: Matrix | Stress,
+    plot_style: PlotStyle2D,
+    points: dict[Vertex, Point] = None,
+    arc_angles_dict: dict[Edge, float] = None,
+    stress_label_positions: dict[Edge, float] = None,
+) -> None:
+    """
+    Plot a 2D equilibrium stress on the canvas.
+
+    Parameters
+    ----------
+    framework:
+    ax:
+        The matplotlib axis on which the stress is drawn.
+    stress:
+        The equilibrium stress to draw.
+    plot_style:
+    points:
+        A dictionary mapping vertices to their points in the realization.
+    arc_angles_dict:
+        A dictionary specifying arc angles for curved edges.
+    stress_label_positions:
+        A dictionary mapping edges to label position floats.
+    """
+    stress_edgewise, stress_label_positions = resolve_stress(
+        framework, stress, plot_style, stress_label_positions
+    )
+    if plot_style.edges_as_arcs:
+        new_graph = nx.MultiDiGraph()
+        arc_angles = resolve_arc_angles(
+            framework, plot_style.arc_angle, arc_angles_dict
+        )
+        for e, style in arc_angles.items():
+            new_graph.add_edge(e[0], e[1], weight=style)
+        plt.box(False)  # Manually removes the frame of the plot
+        for e in new_graph.edges(data=True):
+            edge = tuple([e[0], e[1]])
+            nx.draw_networkx_edge_labels(
+                new_graph,
+                ax=ax,
+                pos=points,
+                edge_labels={
+                    edge: (
+                        stress_edgewise[edge]
+                        if edge in stress_edgewise
+                        else stress_edgewise[tuple(edge[::-1])]
+                    )
+                },
+                font_color=plot_style.stress_color,
+                font_size=plot_style.stress_fontsize,
+                label_pos=(
+                    stress_label_positions[edge]
+                    if edge in stress_label_positions
+                    else 1.0 - stress_label_positions[tuple(edge[::-1])]
+                ),
+                rotate=plot_style.stress_rotate_labels,
+                connectionstyle=f"Arc3, rad = {e[2]['weight']}",
+            )
+    else:
+        for edge in framework._graph.edges:
+            nx.draw_networkx_edge_labels(
+                framework._graph,
+                ax=ax,
+                pos=points,
+                edge_labels={
+                    edge: (
+                        stress_edgewise[edge]
+                        if edge in stress_edgewise
+                        else stress_edgewise[tuple(edge[::-1])]
+                    )
+                },
+                font_color=plot_style.stress_color,
+                font_size=plot_style.stress_fontsize,
+                label_pos=(
+                    stress_label_positions[edge]
+                    if edge in stress_label_positions
+                    else 1 - stress_label_positions[tuple(edge[::-1])]
+                ),
+                rotate=plot_style.stress_rotate_labels,
+            )
+
+
+def plot_stress3D(
+    framework: Framework,
+    ax: Axes,
+    stress: Matrix | Stress,
+    plot_style: PlotStyle,
+    points: dict[Vertex, Point] = None,
+    stress_label_positions: dict[Edge, float] = None,
+) -> None:
+    stress_edgewise, stress_label_positions = resolve_stress(
+        framework, stress, plot_style, stress_label_positions
+    )
+    for edge, edge_stress in stress_label_positions.items():
+        pos = [
+            points[edge[0]][i] + edge_stress * (points[edge[1]][i] - points[edge[0]][i])
+            for i in range(3)
+        ]
+        ax.text(
+            pos[0],
+            pos[1],
+            pos[2],
+            str(
+                stress_edgewise[edge]
+                if edge in stress_edgewise
+                else stress_edgewise[tuple(edge[::-1])]
+            ),
+            color=plot_style.stress_color,
+            fontsize=plot_style.stress_fontsize,
+            ha="center",
+            va="center",
         )
 
 
@@ -360,188 +429,125 @@ def plot_with_3D_realization(
     framework: Framework,
     ax: Axes,
     realization: dict[Vertex, Point],
-    vertex_color: str = "#ff8c00",
-    vertex_size: int = 200,
-    vertex_shape: str = "o",
-    vertex_labels: bool = True,
-    font_color: str = "whitesmoke",
-    font_size: int = 10,
-    edge_width: float = 2.5,
-    edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = "black",
-    edge_style: str = "solid",
-    equal_aspect_ratio: bool = True,
-    padding: float = 0.01,
+    plot_style: PlotStyle3D,
+    edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
 ) -> None:
     """
-    Plot the graph of the framework with the given realization in the plane.
-
-    For description of other parameters see :meth:`.Framework.plot`.
-
-    Parameters
-    ----------
-    inf_flex:
-        Optional parameter for plotting a given infinitesimal flex. It is
-        important to use the same vertex order as the one
-        from :meth:`.Graph.vertex_list`.
-        Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
-        nontrivial infinitesimal flex for plotting.
-        Lastly, a ``Dict[Vertex, Sequence[Number]]`` can be provided, which
-        maps the vertex labels to vectors (i.e. a sequence of coordinates).
-    projection_matrix:
-        The matrix used for projection.
-        The matrix must have dimensions ``(3, dim)``,
-        where ``dim`` is the dimension of the framework.
-    vertex_color:
-        The color of the vertices. The color can be a string or an rgb (or rgba)
-        tuple of floats from 0-1.
-    vertex_size:
-        The size of the vertices.
-    vertex_shape:
-        The shape of the vertices specified as as matplotlib.scatter
-        marker, one of ``so^>v<dph8``.
-    vertex_labels:
-        If ``True`` (default), vertex labels are displayed.
-    font_size:
-        The size of the font used for the labels.
-    font_color:
-        The color of the font used for the labels.
-    edge_width:
-    edge_color:
-        If a single color is given as a string or rgb (or rgba) tuple
-        of floats from 0-1, then all edges get this color.
-        If a (possibly incomplete) partition of the edges is given,
-        then each part gets a different color.
-        If a dictionary from colors to a list of edge is given,
-        edges are colored accordingly.
-        The edges missing in the partition/dictionary, are colored black.
-    edge_style:
-        Edge line style: ``-``/``solid``, ``--``/``dashed``,
-        ``-.``/``dashdot`` or ``:``/``dotted``. By default '-'.
-    equal_aspect_ratio:
-        Determines whether the aspect ratio of the plot is equal in all space
-        directions or whether it is adjusted depending on the framework's size
-        in `x`, `y` and `z`-direction individually.
-    padding:
-        Specifies the white space around the framework.
-
-    Notes
-    -----
-    The parameters for `inf_flex`-plotting are listed in
-    the API reference.
+    Plot the framework with the given realization in the 3-space.
     """
-    # Create a figure for the rapresentation of the framework
+    # Create a figure for the representation of the framework
 
-    edge_color_array, edge_list_ref = resolve_edge_colors(framework, edge_color)
+    edge_color_array, edge_list_ref = resolve_edge_colors(
+        framework, plot_style.edge_color, edge_coloring
+    )
 
-    # Draw the vertices as points in the 3D enviroment
+    # Center the realization
     x_nodes = [realization[node][0] for node in framework._graph.nodes]
     y_nodes = [realization[node][1] for node in framework._graph.nodes]
     z_nodes = [realization[node][2] for node in framework._graph.nodes]
+    min_val = min(x_nodes + y_nodes + z_nodes) - plot_style.padding
+    max_val = max(x_nodes + y_nodes + z_nodes) + plot_style.padding
+    aspect_ratio = plot_style.axis_scales
+    ax.set_zlim(min_val * aspect_ratio[0], max_val * aspect_ratio[0])
+    ax.set_ylim(min_val * aspect_ratio[1], max_val * aspect_ratio[1])
+    ax.set_xlim(min_val * aspect_ratio[2], max_val * aspect_ratio[2])
     ax.scatter(
         x_nodes,
         y_nodes,
         z_nodes,
-        c=vertex_color,
-        s=vertex_size,
-        marker=vertex_shape,
+        c=plot_style.vertex_color,
+        s=plot_style.vertex_size,
+        marker=plot_style.vertex_shape,
     )
-    if equal_aspect_ratio:
-        min_val = min(x_nodes + y_nodes + z_nodes) - padding
-        max_val = max(x_nodes + y_nodes + z_nodes) + padding
-        ax.set_zlim(min_val, max_val)
-        ax.set_ylim(min_val, max_val)
-        ax.set_xlim(min_val, max_val)
-    else:
-        ax.set_zlim(min(z_nodes) - padding, max(z_nodes) + padding)
-        ax.set_ylim(min(y_nodes) - padding, max(y_nodes) + padding)
-        ax.set_xlim(min(x_nodes) - padding, max(x_nodes) + padding)
 
     for i in range(len(edge_list_ref)):
         edge = edge_list_ref[i]
         x = [realization[edge[0]][0], realization[edge[1]][0]]
         y = [realization[edge[0]][1], realization[edge[1]][1]]
         z = [realization[edge[0]][2], realization[edge[1]][2]]
-        ax.plot(x, y, z, c=edge_color_array[i], lw=edge_width, linestyle=edge_style)
-    for node in framework._graph.nodes:
-        x, y, z, *others = realization[node]
-        # To show the name of the vertex
-        if vertex_labels:
+        ax.plot(
+            x,
+            y,
+            z,
+            c=edge_color_array[i],
+            lw=plot_style.edge_width,
+            linestyle=plot_style.edge_style,
+        )
+    # To show the name of the vertex
+    if plot_style.vertex_labels:
+        for node in framework._graph.nodes:
+            x, y, z, *others = realization[node]
             ax.text(
                 x,
                 y,
                 z,
                 str(node),
-                color=font_color,
-                fontsize=font_size,
+                color=plot_style.font_color,
+                fontsize=plot_style.font_size,
                 ha="center",
                 va="center",
             )
 
 
-def resolve_connection_style(framework: Framework, connection_style: str) -> str:
+def resolve_arc_angles(
+    framework: Framework,
+    arc_angle: float,
+    arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
+) -> dict[Edge, float]:
     """
-    Resolve the connection style for the visualization of the framework.
-
-    Parameters
-    ----------
-    connection_style:
-        The connection style for the visualization of the framework.
+    Resolve the arc angles style for the visualization of the framework.
     """
     G = framework._graph
-    if isinstance(connection_style, float):
-        connection_style = {e: connection_style for e in G.edge_list(as_tuples=True)}
-    elif isinstance(connection_style, list):
-        if not G.number_of_edges() == len(connection_style):
+
+    if arc_angles_dict is None:
+        arc_angles_dict = {}
+
+    if isinstance(arc_angles_dict, list):
+        if not G.number_of_edges() == len(arc_angles_dict):
             raise ValueError(
-                "The provided `connection_style` doesn't have the correct length."
+                "The provided `arc_angles_dict` don't have the correct length."
             )
-        connection_style = {
-            e: style for e, style in zip(G.edge_list(as_tuples=True), connection_style)
+        res = {
+            e: style for e, style in zip(G.edge_list(as_tuples=True), arc_angles_dict)
         }
-    elif isinstance(connection_style, dict):
+    elif isinstance(arc_angles_dict, dict):
         if (
             not all(
                 [
                     isinstance(e, tuple) and len(e) == 2 and isinstance(v, float | int)
-                    for e, v in connection_style.items()
+                    for e, v in arc_angles_dict.items()
                 ]
             )
             or not all(
                 [
                     set(key) in [set([e[0], e[1]]) for e in G.edge_list()]
-                    for key in connection_style.keys()
+                    for key in arc_angles_dict.keys()
                 ]
             )
             or any(
-                [set(key) for key in connection_style.keys()].count(e) > 1
-                for e in [set(key) for key in connection_style.keys()]
+                [set(key) for key in arc_angles_dict.keys()].count(e) > 1
+                for e in [set(key) for key in arc_angles_dict.keys()]
             )
         ):
             raise ValueError(
-                "The provided `connection_style` contains different edges "
+                "The provided `arc_angles_dict` contain different edges "
                 + "than the underlying graph or has an incorrect format."
             )
-        connection_style = {
-            e: 0
-            for e in G.edge_list(as_tuples=True)
-            if not (
-                e in connection_style.keys()
-                or tuple([e[1], e[0]]) in connection_style.keys()
-            )
-        } | {
-            (tuple(e) if e in G.edge_list() else tuple([e[1], e[0]])): style
-            for e, style in connection_style.items()
-        }
+        res = {e: style for e, style in arc_angles_dict.items() if G.has_edge(*e)}
+        for e in G.edges:
+            if not (tuple(e) in res or tuple([e[1], e[0]]) in res):
+                res[tuple(e)] = arc_angle
     else:
         raise TypeError(
-            "The provided `connection_style` does not have the appropriate type."
+            "The provided `arc_angles_dict` do not have the appropriate type."
         )
-    return connection_style
+    return res
 
 
 def resolve_edge_colors(
     framework: Framework,
-    edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]],
+    edge_color: str,
+    edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
 ) -> tuple[list, list]:
     """
     Return the lists of colors and edges in the format for plotting.
@@ -551,10 +557,14 @@ def resolve_edge_colors(
     edge_list_ref = []
     edge_color_array = []
 
-    if isinstance(edge_color, str):
-        return [edge_color for _ in edge_list], edge_list
-    if isinstance(edge_color, list):
-        edges_partition = edge_color
+    if edge_coloring is None:
+        edge_coloring = {}
+
+    if not isinstance(edge_color, str):
+        raise TypeError("The provided `edge_color` is not a string. ")
+
+    if isinstance(edge_coloring, list):
+        edges_partition = edge_coloring
         colors = distinctipy.get_colors(
             len(edges_partition), colorblind_type="Deuteranomaly", pastel_factor=0.2
         )
@@ -564,8 +574,8 @@ def resolve_edge_colors(
                     raise ValueError("The input includes a pair that is not an edge.")
                 edge_color_array.append(colors[i])
                 edge_list_ref.append(tuple(e))
-    elif isinstance(edge_color, dict):
-        color_edges_dict = edge_color
+    elif isinstance(edge_coloring, dict):
+        color_edges_dict = edge_coloring
         for color, edges in color_edges_dict.items():
             for e in edges:
                 if not G.has_edge(e[0], e[1]):
@@ -575,10 +585,10 @@ def resolve_edge_colors(
                 edge_color_array.append(color)
                 edge_list_ref.append(tuple(e))
     else:
-        raise ValueError("The input color_edge has none of the supported formats.")
+        raise ValueError("The input edge_coloring has none of the supported formats.")
     for e in edge_list:
         if (e[0], e[1]) not in edge_list_ref and (e[1], e[0]) not in edge_list_ref:
-            edge_color_array.append("black")
+            edge_color_array.append(edge_color)
             edge_list_ref.append(e)
     if len(edge_list_ref) > G.number_of_edges():
         multiple_colored = [
@@ -601,62 +611,39 @@ def plot_with_2D_realization(
     framework: Framework,
     ax: Axes,
     realization: dict[Vertex, Point],
-    vertex_size: int = 300,
-    vertex_color: str = "#ff8c00",
-    vertex_shape: str = "o",
-    vertex_labels: bool = True,
-    edge_width: float = 2.5,
-    edge_color: str | Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = "black",
-    edge_style: str = "solid",
-    font_size: int = 12,
-    font_color: str = "whitesmoke",
-    curved_edges: bool = False,
-    connection_style: float | Sequence[float] | dict[Edge, float] = np.pi / 6,
-    **kwargs,
+    plot_style: PlotStyle2D,
+    edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
 ) -> None:
     """
     Plot the graph of the framework with the given realization in the plane.
-
-    For description of other parameters see :meth:`.Framework.plot`.
-
-    Parameters
-    ----------
-    realization:
-        The realization in the plane used for plotting.
-    inf_flex:
-        Optional parameter for plotting a given infinitesimal flex. It is
-        important to use the same vertex order as the one
-        from :meth:`.Graph.vertex_list`.
-        Alternatively, an ``int`` can be specified to choose the 0,1,2,...-th
-        nontrivial infinitesimal flex for plotting.
-        Lastly, a ``dict[Vertex, Sequence[Number]]`` can be provided, which
-        maps the vertex labels to vectors (i.e. a sequence of coordinates).
-    stress:
-        Optional parameter for plotting an equilibrium stress. We expect
-        it to have the format `Dict[Edge, Number]`.
     """
-    edge_color_array, edge_list_ref = resolve_edge_colors(framework, edge_color)
+    edge_color_array, edge_list_ref = resolve_edge_colors(
+        framework, plot_style.edge_color, edge_coloring
+    )
 
-    if not curved_edges:
+    if not plot_style.edges_as_arcs:
         nx.draw(
             framework._graph,
             pos=realization,
             ax=ax,
-            node_size=vertex_size,
-            node_color=vertex_color,
-            node_shape=vertex_shape,
-            with_labels=vertex_labels,
-            width=edge_width,
+            node_size=plot_style.vertex_size,
+            node_color=plot_style.vertex_color,
+            node_shape=plot_style.vertex_shape,
+            with_labels=plot_style.vertex_labels,
+            width=plot_style.edge_width,
             edge_color=edge_color_array,
-            font_color=font_color,
-            font_size=font_size,
+            font_color=plot_style.font_color,
+            font_size=plot_style.font_size,
             edgelist=edge_list_ref,
-            style=edge_style,
+            style=plot_style.edge_style,
         )
     else:
         newGraph = nx.MultiDiGraph()
-        connection_style = resolve_connection_style(framework, connection_style)
-        for e, style in connection_style.items():
+        arc_angles = resolve_arc_angles(
+            framework, plot_style.arc_angle, arc_angles_dict
+        )
+        for e, style in arc_angles.items():
             newGraph.add_edge(e[0], e[1], weight=style)
         plt.box(False)  # Manually removes the frame of the plot
         plt.tick_params(
@@ -670,19 +657,23 @@ def plot_with_2D_realization(
             newGraph,
             realization,
             ax=ax,
-            node_size=vertex_size,
-            node_color=vertex_color,
-            node_shape=vertex_shape,
+            node_size=plot_style.vertex_size,
+            node_color=plot_style.vertex_color,
+            node_shape=plot_style.vertex_shape,
         )
         nx.draw_networkx_labels(
-            newGraph, realization, ax=ax, font_color=font_color, font_size=font_size
+            newGraph,
+            realization,
+            ax=ax,
+            font_color=plot_style.font_color,
+            font_size=plot_style.font_size,
         )
         for edge in newGraph.edges(data=True):
             nx.draw_networkx_edges(
                 newGraph,
                 realization,
                 ax=ax,
-                width=edge_width,
+                width=plot_style.edge_width,
                 edge_color=edge_color_array,
                 arrows=True,
                 arrowstyle="-",
