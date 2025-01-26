@@ -38,21 +38,21 @@ from pyrigi.data_type import (
 )
 
 from pyrigi.graph import Graph
-from pyrigi.exception import LoopError
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
     generate_category_tables,
-    check_integrality_and_range,
     is_zero_vector,
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
     eval_sympy_vector,
 )
+import pyrigi._input_check as _input_check
 
 from typing import Any
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
@@ -111,8 +111,7 @@ class Framework(object):
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
-        if nx.number_of_selfloops(graph) > 0:
-            raise LoopError()
+        graph._input_check_no_loop()
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
                 "The length of realization has to be equal to "
@@ -266,7 +265,7 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        self._graph._check_edge_format(edge)
+        self._graph._input_check_edge_format(edge)
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
@@ -512,11 +511,7 @@ class Framework(object):
         >>> F = frameworkDB.Complete(4, dim=3)
         >>> F.animate3D();
         """
-        if self._dim != 3:
-            raise ValueError(
-                "The Framework is in dimension {self._dim}, "
-                + "not 3 as the method `animate3D` requires."
-            )
+        _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
 
         # Creation of the figure
         fig = plt.figure(dpi=dpi)
@@ -1040,10 +1035,7 @@ class Framework(object):
         If ``rand_range=None``, then the range is set to ``(-a,a)`` for
         ``a = 10^4 * n * d``.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        _input_check.dimension(dim)
         if rand_range is None:
             b = 10**4 * graph.number_of_nodes() * dim
             a = -b
@@ -1111,7 +1103,7 @@ class Framework(object):
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
         """
-        check_integrality_and_range(dim, "dimension d", 1)
+        _input_check.dimension(dim)
         return Framework(
             graph,
             {
@@ -1146,7 +1138,7 @@ class Framework(object):
         """
         if dim is None:
             dim = graph.number_of_nodes() - 1
-        check_integrality_and_range(
+        _input_check.integrality_and_range(
             dim, "dimension d", max([1, graph.number_of_nodes() - 1])
         )
         return Framework(
@@ -1176,10 +1168,7 @@ class Framework(object):
         Graph with vertices [] and edges []
         Realization {}
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        _input_check.dimension(dim)
         F = Framework(graph=Graph(), realization={})
         F._dim = dim
         return F
@@ -1207,7 +1196,7 @@ class Framework(object):
         Realization {0:(1,), 1:(2,), 2:(3,), 3:(4,)}
         """  # noqa: E501
         if not points:
-            raise ValueError("The list of points cannot be empty.")
+            raise ValueError("The list of points cannot be empty!")
 
         Kn = CompleteGraph(len(points))
         return Framework(Kn, {v: Matrix(p) for v, p in zip(Kn.nodes, points)})
@@ -1375,13 +1364,9 @@ class Framework(object):
                 "The realization does not contain the correct amount of vertices!"
             )
         for v in self._graph.nodes:
-            if v not in realization:
-                raise KeyError("Vertex {vertex} is not a key of the given realization!")
-            if not len(realization[v]) == self.dimension():
-                raise IndexError(
-                    f"The element {realization[v]} does not have "
-                    f"the dimension {self.dimension()}!"
-                )
+            self._input_check_vertex_key(v, realization)
+            self._input_check_point_dimension(realization[v])
+
         self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
 
     @doc_category("Framework manipulation")
@@ -1398,12 +1383,9 @@ class Framework(object):
         Graph with vertices [0] and edges []
         Realization {0:(6, 2)}
         """
-        if vertex not in self._realization:
-            raise KeyError("Vertex {vertex} is not a key of the given realization!")
-        if not len(point) == self.dimension():
-            raise IndexError(
-                f"The point {point} does not have the dimension {self.dimension()}!"
-            )
+        self._input_check_vertex_key(vertex)
+        self._input_check_point_dimension(point)
+
         self._realization[vertex] = Matrix(point)
 
     @doc_category("Framework manipulation")
@@ -1433,7 +1415,8 @@ class Framework(object):
             raise ValueError("Multiple Vertices with the same name were found!")
         if not len(vertices) == len(points):
             raise IndexError(
-                "The list of vertices does not have the same length as the list of points"
+                "The list of vertices does not have the same length "
+                "as the list of points!"
             )
         self.set_vertex_positions({v: pos for v, pos in zip(vertices, points)})
 
@@ -1491,8 +1474,8 @@ class Framework(object):
         [-1, -3, 0,  0,  1, 3],
         [ 0,  0, 1, -3, -1, 3]])
         """
-        vertex_order = self._check_vertex_order(vertex_order)
-        edge_order = self._check_edge_order(edge_order)
+        vertex_order = self._graph._input_check_vertex_order(vertex_order)
+        edge_order = self._graph._input_check_edge_order(edge_order)
 
         # ``delta`` is responsible for distinguishing the edges (i,j) and (j,i)
         def delta(e, w):
@@ -1544,7 +1527,7 @@ class Framework(object):
         False
         """
         stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
-        self._check_edge_order(stress_edge_list)
+        self._graph._input_check_edge_order(stress_edge_list, "dict_stress")
         graph_edge_list = [tuple(e) for e in self._graph.edge_list()]
         dict_to_list = []
 
@@ -1603,7 +1586,7 @@ class Framework(object):
         >>> F.is_stress(omega1)
         False
         """
-        edge_order = self._check_edge_order(edge_order=edge_order)
+        edge_order = self._graph._input_check_edge_order(edge_order=edge_order)
         return is_zero_vector(
             Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order),
             numerical=numerical,
@@ -1671,8 +1654,8 @@ class Framework(object):
         [  4, -2, -1, -1],
         [  4, -2, -1, -1]])
         """
-        vertex_order = self._check_vertex_order(vertex_order)
-        edge_order = self._check_edge_order(edge_order)
+        vertex_order = self._graph._input_check_vertex_order(vertex_order)
+        edge_order = self._graph._input_check_edge_order(edge_order)
         if not self.is_stress(stress, edge_order=edge_order, numerical=True):
             raise ValueError(
                 "The provided stress does not lie in the cokernel of the rigidity matrix!"
@@ -1731,7 +1714,7 @@ class Framework(object):
         [-2],
         [ 0]])]
         """
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._graph._input_check_vertex_order(vertex_order)
         dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in vertex_order])
@@ -1850,7 +1833,7 @@ class Framework(object):
         [0],
         [0]])]
         """  # noqa: E501
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._graph._input_check_vertex_order(vertex_order)
         if include_trivial:
             return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
         rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
@@ -2086,7 +2069,9 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        self._check_vertex_order(list(other_realization.keys()))
+        self._graph._input_check_vertex_order(
+            list(other_realization.keys()), "other_realization"
+        )
 
         for u, v in combinations(self._graph.nodes, 2):
             edge_vec = (self._realization[u]) - self._realization[v]
@@ -2125,8 +2110,7 @@ class Framework(object):
             Used tolerance when checking numerically.
         """
 
-        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError("Underlying graphs are not same.")
+        self._input_check_underlying_graphs(other_framework)
 
         return self.is_congruent_realization(
             other_framework._realization, numerical, tolerance
@@ -2151,7 +2135,9 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        self._check_vertex_order(list(other_realization.keys()))
+        self._graph._input_check_vertex_order(
+            list(other_realization.keys()), "other_realization"
+        )
 
         for u, v in self._graph.edges:
             edge_vec = self._realization[u] - self._realization[v]
@@ -2190,8 +2176,8 @@ class Framework(object):
             Used tolerance when checking numerically.
         """
 
-        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
-            raise ValueError("Underlying graphs are not same.")
+        self._input_check_underlying_graphs(other_framework)
+
         return self.is_equivalent_realization(
             other_framework._realization, numerical, tolerance
         )
@@ -2214,7 +2200,7 @@ class Framework(object):
         if inplace:
             if vector.shape[0] != self.dim():
                 raise ValueError(
-                    "The dimension of the vector has to be the same as of the framework."
+                    "The dimension of the vector has to be the same as of the framework!"
                 )
 
             for v in self._realization.keys():
@@ -2432,25 +2418,21 @@ class Framework(object):
                 "To create meshes of bars that can be exported as STL files, "
                 "the packages 'trimesh' and 'manifold3d' are required. "
                 "To install PyRigi including trimesh and manifold3d, "
-                "run 'pip install pyrigi[meshing]'"
+                "run 'pip install pyrigi[meshing]'!"
             )
 
-        if (
-            holes_distance <= 0
-            or holes_diameter <= 0
-            or bar_width <= 0
-            or bar_height <= 0
-        ):
-            raise ValueError("Use only positive values for the parameters.")
+        _input_check.greater(holes_distance, 0, "holes_distance")
+        _input_check.greater(holes_diameter, 0, "holes_diameter")
+        _input_check.greater(bar_width, 0, "bar_width")
+        _input_check.greater(bar_height, 0, "bar_height")
 
-        if bar_width <= holes_diameter:
-            raise ValueError("The bar width must be greater than the holes diameter.")
-
-        if holes_distance <= 2 * holes_diameter:
-            raise ValueError(
-                "The distance between the holes must be greater "
-                "than twice the holes diameter."
-            )
+        _input_check.greater(bar_width, holes_diameter, "bar_width", "holes_diameter")
+        _input_check.greater(
+            holes_distance,
+            2 * holes_diameter,
+            "holes_distance",
+            "twice the holes_diameter",
+        )
 
         # Create the main bar as a box
         bar = trimesh_box(extents=[holes_distance, bar_width, bar_height])
@@ -2584,7 +2566,7 @@ class Framework(object):
         {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
         """
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._graph._input_check_vertex_order(vertex_order)
         return {
             vertex_order[i]: [inf_flex[i * self.dim() + j] for j in range(self.dim())]
             for i in range(len(vertex_order))
@@ -2618,7 +2600,7 @@ class Framework(object):
         {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
 
         """
-        edge_order = self._check_edge_order(edge_order)
+        edge_order = self._graph._input_check_edge_order(edge_order)
         return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
 
     @doc_category("Infinitesimal rigidity")
@@ -2666,7 +2648,7 @@ class Framework(object):
         >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
         True
         """
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._graph._input_check_vertex_order(vertex_order)
         return is_zero_vector(
             self.rigidity_matrix(vertex_order=vertex_order) * Matrix(inf_flex),
             numerical=numerical,
@@ -2702,14 +2684,10 @@ class Framework(object):
         >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
         True
         """
-        self._check_vertex_order(list(vert_to_flex.keys()))
-        dict_to_list = []
+        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
+        dict_to_list = []
         for v in self._graph.vertex_list():
-            if v not in vert_to_flex:
-                raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
-                )
             dict_to_list += list(vert_to_flex[v])
 
         return self.is_vector_inf_flex(
@@ -2772,7 +2750,7 @@ class Framework(object):
         >>> F.is_vector_nontrivial_inf_flex(q)
         False
         """
-        vertex_order = self._check_vertex_order(vertex_order)
+        vertex_order = self._graph._input_check_vertex_order(vertex_order)
         if not self.is_vector_inf_flex(
             inf_flex,
             vertex_order=vertex_order,
@@ -2832,14 +2810,10 @@ class Framework(object):
         >>> F.is_dict_nontrivial_inf_flex(q)
         False
         """
-        self._check_vertex_order(list(vert_to_flex.keys()))
-        dict_to_list = []
+        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
+        dict_to_list = []
         for v in self._graph.vertex_list():
-            if v not in vert_to_flex:
-                raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
-                )
             dict_to_list += list(vert_to_flex[v])
 
         return self.is_vector_nontrivial_inf_flex(
@@ -2936,14 +2910,10 @@ class Framework(object):
         >>> F.is_dict_trivial_inf_flex(q)
         True
         """
-        self._check_vertex_order(list(vert_to_flex.keys()))
-        dict_to_list = []
+        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
+        dict_to_list = []
         for v in self._graph.vertex_list():
-            if v not in vert_to_flex:
-                raise ValueError(
-                    f"Vertex {v} must be in the dictionary `vert_to_flex`."
-                )
             dict_to_list += list(vert_to_flex[v])
 
         return self.is_vector_trivial_inf_flex(
@@ -2974,61 +2944,35 @@ class Framework(object):
                 "The `inf_flex` must be specified either by a vector or a dictionary!"
             )
 
-    def _check_vertex_order(self, vertex_order=Sequence[Vertex]) -> list[Vertex]:
+    def _input_check_underlying_graphs(self, other_framework) -> None:
         """
-        Checks whether the provided `vertex_order` contains the same elements
-        as the graph's vertex set.
-
-        Parameters
-        ----------
-        vertex_order:
-            List of vertices in the preferred order
-
-        Notes
-        -----
-        Throws an error if the vertices in `vertex_order` do not agree with the
-        underlying graphs's vertices.
+        Check whether the underlying graphs of two frameworks are the same and
+        raise an error otherwise.
         """
-        if vertex_order is None:
-            return self._graph.vertex_list()
-        else:
-            if not self._graph.number_of_nodes() == len(vertex_order) or not set(
-                self._graph.vertex_list()
-            ) == set(vertex_order):
-                raise ValueError(
-                    "New vertex set must contain exactly "
-                    + "the same vertices as the underlying graph!"
-                )
-            return list(vertex_order)
+        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+            raise ValueError("The underlying graphs are not same!")
 
-    def _check_edge_order(self, edge_order=Sequence[Edge]) -> list[Edge]:
+    def _input_check_vertex_key(
+        self, vertex: Vertex, realization: dict[Vertex, Point] = None
+    ) -> None:
         """
-        Checks whether the provided `edge_order` contains the same elements
-        as the graph's edge set.
-
-        Parameters
-        ----------
-        edge_order:
-            List of edges in the preferred order
-
-        Notes
-        -----
-        Throws an error if the edges in `edge_order` do not agree with the
-        underlying graphs's edges.
+        Check whether a vertex appears as key in a realization and
+        raise an error otherwise.
         """
-        if edge_order is None:
-            return self._graph.edge_list()
-        else:
-            if not self._graph.number_of_edges() == len(edge_order) or not all(
-                [
-                    set(e) in [set(e) for e in edge_order]
-                    for e in self._graph.edge_list()
-                ]
-            ):
-                raise ValueError(
-                    "edge_order must contain exactly the same edges as the graph!"
-                )
-            return list(edge_order)
+        if realization is None:
+            realization = self._realization
+        if vertex not in realization:
+            raise KeyError("Vertex {vertex} is not a key of the given realization!")
+
+    def _input_check_point_dimension(self, point: Point) -> None:
+        """
+        Check whether a point has the right dimension and
+        raise an error otherwise.
+        """
+        if not len(point) == self.dimension():
+            raise ValueError(
+                f"The point {point} does not have the dimension {self.dimension()}!"
+            )
 
 
 Framework.__doc__ = Framework.__doc__.replace(

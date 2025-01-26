@@ -3,6 +3,7 @@ Auxiliary class for directed graph used in pebble game style algorithms.
 """
 
 from pyrigi.data_type import Vertex, DirectedEdge
+import pyrigi._input_check as _input_check
 
 import networkx as nx
 
@@ -22,30 +23,12 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         # We allow not defining them yet
         if K is not None and L is not None:
-            self._check_K_and_L(K, L)
+            _input_check.pebble_values(K, L)
 
         self._K = K
         self._L = L
 
         super().__init__(*args, **kwargs)
-
-    def _check_K_and_L(self, K: int, L: int) -> None:
-        """
-        Check if K and L satisfy the conditions K > 0 and 0 <= L < 2K.
-        """
-        # Check that K and L are integers
-        if not (isinstance(K, int) and isinstance(L, int)):
-            raise TypeError("K and L need to be integers!")
-
-        # Check the conditions
-        if 0 >= K:
-            raise ValueError("K must be positive")
-
-        if 0 > L:
-            raise ValueError("L must be non-negative")
-
-        if L >= 2 * K:
-            raise ValueError("L<2K must hold")
 
     @property
     def K(self) -> int:
@@ -67,7 +50,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         K: K must be integer and 0 < K. Also, L < 2K.
         """
-        self._check_K_and_L(value, self._L)
+        _input_check.pebble_values(value, self._L)
         self._K = value
 
     @property
@@ -90,7 +73,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         L: L must be integer and 0 <= L. Also, L < 2K.
         """
-        self._check_K_and_L(self._K, value)
+        _input_check.pebble_values(self._K, value)
         self._L = value
 
     def set_K_and_L(self, K: int, L: int) -> None:
@@ -105,7 +88,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         L: L is integer and 0 <= L.
         Also, L < 2K.
         """
-        self._check_K_and_L(K, L)
+        _input_check.pebble_values(K, L)
 
         self._K = K
         self._L = L
@@ -210,7 +193,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
             raise ValueError(f"Vertex {u} is not present in the graph.")
 
         if not self.has_node(v):
-            raise ValueError(f"Vertex {u} is not present in the graph.")
+            raise ValueError(f"Vertex {v} is not present in the graph.")
 
         while self.out_degree(u) + self.out_degree(v) > max_degree_u_v_together:
             visited_vertices = {u, v}
