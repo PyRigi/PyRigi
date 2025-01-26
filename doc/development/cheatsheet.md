@@ -1,3 +1,4 @@
+(cheatsheet)=
 # Cheatsheet
 
 While `monospace` is done using `` `monospace` `` in MyST,
