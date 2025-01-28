@@ -498,7 +498,8 @@ class ApproximateMotion(Motion):
 
     Parameters
     ----------
-    graph:
+    F:
+        A framework.
     steps:
         The amount of retraction steps that are performed. This number is equal to the
         amount of ``motion_samples`` that are computed.

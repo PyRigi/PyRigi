@@ -13,6 +13,8 @@ Classes:
 from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox
 from ipycanvas import MultiCanvas, hold_canvas
 from IPython.display import display
+
+from pyrigi.data_type import Edge
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 from ipyevents import Event
@@ -200,7 +202,7 @@ class GraphDrawer(object):
             x, y = event["relativeX"], event["relativeY"]
             self._handle_dblclick(x, y)
 
-    def _assign_pos(self, x, y, place) -> None:
+    def _assign_pos(self, x, y, place) -> list[int]:
         """
         This function converts layout positions which are between -1 and 1
         to canvas positions according to the chosen place by scaling.
@@ -475,7 +477,7 @@ class GraphDrawer(object):
                 return vertex
         return None
 
-    def _collided_edge(self, x, y) -> None:
+    def _collided_edge(self, x, y) -> Edge | None:
         """
         Return the edge containing the point (x,y) on canvas.
         """
@@ -491,7 +493,8 @@ class GraphDrawer(object):
                 return edge
         return None
 
-    def _point_distance_to_segment(self, a, b, p) -> None:
+    @staticmethod
+    def _point_distance_to_segment(a, b, p) -> float:
         """
         Return the distance between point 'p' and line segment given by 'a' and 'b'.
         """
