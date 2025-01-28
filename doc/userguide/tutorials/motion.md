@@ -11,8 +11,6 @@ kernelspec:
   name: python3
 ---
 
-+++ {"editable": true, "slideshow": {"slide_type": ""}}
-
 # Continuous Motions
 
 It is possible to create {prf:ref}`continuous motions <def-motion>` of {prf:ref}`frameworks <def-realization>` in PyRigi.
@@ -72,6 +70,10 @@ Finally, it is possible to create either a ``.svg`` animation or a ``matplotlib`
 setting the boolean parameter ``svg``. In doing so, the 2D and 3D animations can be displayed
 in the same way.
 
+```{code-cell} ipython3
+motion.animate(svg=False)
+```
+
 ## Approximate Motion
 
 However, a parametric motion is not always available. If you still want to get an
@@ -104,12 +106,4 @@ to the placement of the second vertex. Alternatively, this vector can be specifi
 F = frameworks.Path(5)
 motion = ApproximateMotion(F, 147, chosen_flex=1, fixed_edge=[0,4], fixed_direction=[0,1])
 motion.animate() # the output is not displayed since the computation is long
-```
-
-```{code-cell} ipython3
-motion.fixed_edge?
-```
-
-```{code-cell} ipython3
-
 ```
