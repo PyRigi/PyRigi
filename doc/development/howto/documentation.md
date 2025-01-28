@@ -109,9 +109,8 @@ by `poetry shell`, `.md` notebooks can be opened directly.
 If the execution of a cell takes long time, it can be disabled as follows
 ````markdown
 ```{code-cell} ipython3
----
-tags: [skip-execution]
----
+:tags: [skip-execution]
+
 long computation
 # the output is not displayed since the computation is long
 ```
