@@ -11,6 +11,8 @@ kernelspec:
   name: python3
 ---
 
++++ {"editable": true, "slideshow": {"slide_type": ""}}
+
 # Continuous Motions
 
 It is possible to create {prf:ref}`continuous motions <def-motion>` of {prf:ref}`frameworks <def-realization>` in PyRigi.
@@ -78,11 +80,13 @@ the class {class}`~.ApproximateMotion`. As an example, consider the complete bip
 A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 
 ```{code-cell} ipython3
+:tags: [skip-execution]
+
 from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
 F = frameworks.CompleteBipartite(2,4)
 motion = ApproximateMotion(F, 393, chosen_flex=0, step_size=0.15)
-motion.animate()
+motion.animate() # the output is not displayed since the computation is long
 ```
 
 Only nontrivial motions can be computed in this way, so you don't need to worry about approximating a
@@ -95,7 +99,17 @@ to the placement of the second vertex. Alternatively, this vector can be specifi
 ``fixed_direction``.
 
 ```{code-cell} ipython3
+:tags: [skip-execution]
+
 F = frameworks.Path(5)
 motion = ApproximateMotion(F, 147, chosen_flex=1, fixed_edge=[0,4], fixed_direction=[0,1])
-motion.animate()
+motion.animate() # the output is not displayed since the computation is long
+```
+
+```{code-cell} ipython3
+motion.fixed_edge?
+```
+
+```{code-cell} ipython3
+
 ```
