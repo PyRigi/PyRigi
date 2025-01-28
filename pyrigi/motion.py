@@ -140,7 +140,7 @@ class Motion(object):
             )
         if plot_style is None:
             # change some PlotStyle default values to fit 3D plotting better
-            plot_style = PlotStyle3D(vertex_size=13.5, edge_width=1.5, dpi=150)
+            plot_style = PlotStyle3D(vertex_size=13.5, edge_width=1.5, dpi=150, vertex_labels=False)
         else:
             plot_style = PlotStyle3D.from_plot_style(plot_style)
 
@@ -189,6 +189,20 @@ class Motion(object):
             )[0]
             for i in range(len(edge_list_ref))
         ]
+        if plot_style.vertex_labels:
+            annotated_text = [
+                ax.text(
+                    0,
+                    0,
+                    0,
+                    f"{v}",
+                    ha="center",
+                    va="center",
+                    color=plot_style.font_color,
+                    size=plot_style.font_size,
+                )
+                for v in realizations[0].keys()
+            ]
 
         # Animation initialization function.
         def init():
@@ -220,7 +234,18 @@ class Motion(object):
                     [realizations[frame][start][2], realizations[frame][end][2]]
                 )
 
-            return [vertices_plot] + lines
+            if plot_style.vertex_labels:
+                for i in range(len(annotated_text)):
+                    annotated_text[i].set_position(
+                        (
+                            realizations[frame][list(realizations[frame].keys())[i]][0],
+                            realizations[frame][list(realizations[frame].keys())[i]][1],
+                        )
+                    )
+                    annotated_text[i].set_3d_properties(
+                        realizations[frame][list(realizations[frame].keys())[i]][2]
+                    )
+            return lines + [vertices_plot] + annotated_text
 
         ani = FuncAnimation(
             fig,
@@ -335,6 +360,19 @@ class Motion(object):
             color=plot_style.vertex_color,
             markersize=plot_style.vertex_size,
         )
+        if plot_style.vertex_labels:
+            annotated_text = [
+                ax.text(
+                    0,
+                    0,
+                    f"{v}",
+                    ha="center",
+                    va="center",
+                    color=plot_style.font_color,
+                    size=plot_style.font_size,
+                )
+                for v in realizations[0].keys()
+            ]
 
         # Animation initialization function.
         def init():
@@ -357,7 +395,15 @@ class Motion(object):
                 [realizations[frame][v][1] for v in self._graph.nodes],
             )
 
-            return lines + [vertices_plot]
+            if plot_style.vertex_labels:
+                for i in range(len(annotated_text)):
+                    annotated_text[i].set_position(
+                        (
+                            realizations[frame][list(realizations[frame].keys())[i]][0],
+                            realizations[frame][list(realizations[frame].keys())[i]][1],
+                        )
+                    )
+            return lines + [vertices_plot] + annotated_text
 
         ani = FuncAnimation(
             fig,
