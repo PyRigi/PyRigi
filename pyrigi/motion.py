@@ -162,15 +162,6 @@ class Motion(object):
         ax.set_ylim(min_val * aspect_ratio[1], max_val * aspect_ratio[1])
         ax.set_xlim(min_val * aspect_ratio[0], max_val * aspect_ratio[0])
 
-        _realizations = deepcopy(realizations)
-        _realizations = self._normalize_realizations(
-            _realizations,
-            (max_val - min_val) * aspect_ratio[0],
-            (max_val - min_val) * aspect_ratio[1],
-            z_width=(max_val - min_val) * aspect_ratio[2],
-            padding=plot_style.padding,
-        )
-
         from pyrigi import _plot
 
         # Update the plot_style instance with any passed keyword arguments
@@ -211,22 +202,22 @@ class Motion(object):
         def update(frame):
             # Update vertices positions
             vertices_plot.set_data(
-                [_realizations[frame][v][0] for v in self._graph.nodes],
-                [_realizations[frame][v][1] for v in self._graph.nodes],
+                [realizations[frame][v][0] for v in self._graph.nodes],
+                [realizations[frame][v][1] for v in self._graph.nodes],
             )
             vertices_plot.set_3d_properties(
-                [_realizations[frame][v][2] for v in self._graph.nodes]
+                [realizations[frame][v][2] for v in self._graph.nodes]
             )
 
             # Update the edges
             for i, (start, end) in enumerate(self._graph.edges):
                 line = lines[i]
                 line.set_data(
-                    [_realizations[frame][start][0], _realizations[frame][end][0]],
-                    [_realizations[frame][start][1], _realizations[frame][end][1]],
+                    [realizations[frame][start][0], realizations[frame][end][0]],
+                    [realizations[frame][start][1], realizations[frame][end][1]],
                 )
                 line.set_3d_properties(
-                    [_realizations[frame][start][2], _realizations[frame][end][2]]
+                    [realizations[frame][start][2], realizations[frame][end][2]]
                 )
 
             return [vertices_plot] + lines
@@ -234,7 +225,7 @@ class Motion(object):
         ani = FuncAnimation(
             fig,
             update,
-            frames=len(_realizations),
+            frames=len(realizations),
             interval=delay,
             init_func=init,
             blit=True,
