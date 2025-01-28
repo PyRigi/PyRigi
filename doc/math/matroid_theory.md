@@ -43,6 +43,16 @@ For $A\subset E$, the _closure_ of $A$ is the set $\textrm{cl}(A)=\{x\in E: r(A)
 :::
 
 
+:::{prf:definition} Coloop
+:label: def-coloop
+
+Let $\mathcal{M}=(E, \mathcal{I})$ be a matroid. An element in $E$
+that belongs to no {prf:ref}`circuit <def-matroid>` is called a _coloop_.
+Equivalently, an element is a coloop if it belongs to every {prf:ref}`basis <def-matroid>`.
+
+:::
+
+
 :::{prf:definition} $k$-fold circuit
 :label: def-k-circuit
 
@@ -83,7 +93,7 @@ $\mathcal{R}_{d}$-circuits.
 
 Let $k\geq 1$ be an integer and let $G$ be the graphical 2-sum of two graphs $G_1$ and
 $G_2$ along an edge $e$.
-Suppose that $e$ is not a coloop in either $\mathcal{R}_d(G_1)$ or $\mathcal{R}_d(G_2)$.
+Suppose that $e$ is not a {prf:ref}`coloop <def-coloop>` in either $\mathcal{R}_d(G_1)$ or $\mathcal{R}_d(G_2)$.
 Then $G$ is a $k$-fold circuit in $\mathcal{R}_d$ if and only if $G_1$ is a $k_1$-fold
 $\mathcal{R}_d$-circuit and $G_2$ is a $k_2$-fold $\mathcal{R}_d$-circuit for some
 $k_1,k_2\geq 1$ with $k_1+k_2=k+1$.
