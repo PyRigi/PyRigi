@@ -151,9 +151,10 @@ If a partition of the edges is specified, then each part is colored differently.
 P.plot(plot_style, placement=p, edge_coloring=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]])
 ```
 
-If the partition is incomplete, the missing edges are black.
+If the partition is incomplete, the missing edges get `plot_style.edge_color`.
 
 ```{code-cell} ipython3
+plot_style.update(edge_color='green')
 P.plot(plot_style, placement=p, edge_coloring=[[[0, 1], [2, 3]], [[5, 4], [4, 3]]])
 ```
 
@@ -169,7 +170,7 @@ P30.plot(
 )
 ```
 
-Another possibility is to provide a dictionary assigning to a color a list of edges. Missing edges are again black.
+Another possibility is to provide a dictionary assigning to a color a list of edges. Missing edges are again get `plot_style.edge_color`.
 
 ```{code-cell} ipython3
 P.plot(plot_style,
@@ -226,7 +227,7 @@ F.plot(arc_angles_dict={(0,1):0.3, (0,2):0, (0,3):0, (1,2):0.5, (1,3):0, (2,3):-
 We can also enhance the visualization of other configurations using the
 boolean ``edges_as_arcs``. This is particularly useful for visualizing almost or piecewise
 collinear configurations, but of course, it can also be applied to arbitrary frameworks.
-It is possible fewer edges in the ``dict``; the remaining edges are than padded with
+It is possible have fewer edges in the ``dict``; the remaining edges are than padded with
 the default value ``arc_angle=math.pi/6``. Here, we want to have some straight edges, so we
 redefine the ``arc_angle`` as $0$.
 
@@ -341,7 +342,7 @@ F.animate3D_rotation(rotation_axis=[0,0,1], axis_scales=(1,1,1))
 We can return to the usual inline mode using the command `%matplotlib inline`.
 Note that triggering this command after using `%matplotlib widget`
 may cause the jupyter notebook to render additional pictures.
-If this behavior is underirable, we suggest reevaluating the affected cells.
+If this behavior is undesirable, we suggest reevaluating the affected cells.
 
 It is also possible to plot infinitesimal flexes and equilibrium stresses in 3D using the
 `inf_flex` and `stress` keywords, respectively. For details, the entire list of parameters
@@ -360,4 +361,8 @@ F.plot(inf_flex=inf_flex,
        axis_scales=(0.625,0.625,0.625),
        stress_label_positions={e: 0.6 for e in F.graph().edges}
 )
+```
+
+```{code-cell} ipython3
+
 ```
