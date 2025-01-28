@@ -34,7 +34,7 @@ jobs:
     - name: Test with pytest
       run: |
         poetry run pytest --doctest-modules -m 'not slow_main or slow_main'
-        # --doctes-modules overrides the default --doctest-plus
+        # --doctest-modules overrides the default --doctest-plus
     - name: Test doc compilation
       run: |
         sphinx-build . _build
