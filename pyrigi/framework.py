@@ -509,7 +509,7 @@ class Framework(object):
         --------
         >>> from pyrigi import frameworkDB
         >>> F = frameworkDB.Complete(4, dim=3)
-        >>> F.animate3D();
+        >>> F.animate3D()
         """
         _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
 
@@ -1015,6 +1015,8 @@ class Framework(object):
 
         Parameters
         ----------
+        dim:
+            The dimension of the constructed framework.
         graph:
             Graph on which the random realization should be constructed.
         rand_range:
@@ -1092,6 +1094,8 @@ class Framework(object):
 
         Parameters
         ----------
+        dim:
+            The dimension of the constructed framework.
         graph:
             Underlying graph on which the framework is constructed.
 
@@ -1129,10 +1133,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4);
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4)
         >>> F.realization(as_points=True)
         {0: [0, 0, 0, 0], 1: [1, 0, 0, 0], 2: [0, 1, 0, 0], 3: [0, 0, 1, 0]}
-        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]));
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4)
         >>> F.realization(as_points=True)
         {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
@@ -1397,10 +1401,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
-        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]);
+        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
@@ -1427,10 +1431,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
-        >>> F.set_vertex_positions({1:(0,1),3:(1,1)});
+        >>> F.set_vertex_positions({1:(0,1),3:(1,1)})
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
@@ -2791,7 +2795,7 @@ class Framework(object):
 
         Parameters
         ----------
-        inf_flex:
+        vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
         Notes
@@ -2891,7 +2895,7 @@ class Framework(object):
 
         Parameters
         ----------
-        inf_flex:
+        vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
         Notes

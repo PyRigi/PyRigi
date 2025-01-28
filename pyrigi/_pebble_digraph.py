@@ -48,7 +48,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        K: K must be integer and 0 < K. Also, L < 2K.
+        value: value K must be integer and 0 < K. Also, L < 2K.
         """
         _input_check.pebble_values(value, self._L)
         self._K = value
@@ -71,7 +71,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        L: L must be integer and 0 <= L. Also, L < 2K.
+        value: value L must be integer and 0 <= L. Also, L < 2K.
         """
         _input_check.pebble_values(self._K, value)
         self._L = value
