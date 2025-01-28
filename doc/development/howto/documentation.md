@@ -107,11 +107,11 @@ After setting the virtual enviroment in Jupyterlab to the one created
 by `poetry shell`, `.md` notebooks can be opened directly.
 
 If the execution of a cell takes long time, it can be disabled as follows
-````markdown
+````
 ```{code-cell} ipython3
 :tags: [skip-execution]
 
-long computation
+<code of a cell taking more than a second>
 ```
 ````
 The tag is removed before the online documentation is compiled,
