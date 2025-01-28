@@ -112,6 +112,9 @@ If the execution of a cell takes long time, it can be disabled as follows
 :tags: [skip-execution]
 
 long computation
-# the output is not displayed since the computation is long
 ```
 ````
+The tag is removed before the online documentation is compiled,
+hence the output is displayed there.
+Namely, the goal is to avoid long doc compilation on the `dev` branch,
+but to keep it in the online documentation.
