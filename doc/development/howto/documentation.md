@@ -99,11 +99,11 @@ you want to contribute but struggle to get its `.md` version.
 
 
 In case `poetry shell` is used as described above, Jupyterlab and Jupytext
-can be install using
+can be installed using
 ```
 pip install jupyterlab jupytext
 ```
-After setting the virtual enviroment in Jupyterlab to the one created
+After setting the virtual environment in Jupyterlab to the one created
 by `poetry shell`, `.md` notebooks can be opened directly.
 
 If the execution of a cell takes long time, it can be disabled as follows
