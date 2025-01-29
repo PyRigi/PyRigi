@@ -2168,19 +2168,15 @@ class Graph(nx.Graph):
         >>> G = Graph([(0,1),(1,2),(0,2),(3,4)])
         >>> G.is_Rd_closed(dim=1)
         True
-
-        TODO
-        ----
-        Implement using pebble games for dim=2 and adjust the docstring
         """
         _input_check.dimension(dim)
         self._input_check_no_loop()
 
         if algorithm == "combinatorial":
             _input_check.dimension_for_algorithm(
-                dim, [1], "the combinatorial algorithm"
+                dim, [1, 2], "the combinatorial algorithm"
             )
-            if dim == 1:
+            if dim in [1, 2]:
                 if all(
                     [
                         nx.subgraph(self, comp).is_isomorphic(
