@@ -19,7 +19,7 @@ kernelspec:
 
 This notebook illustrates how to use PyRigi for applications in rigidity theory using the
 classes {class}`~.Graph` and {class}`~.Framework`.
-It can be downloaded {download}`here <../../notebooks/rigidity_tutorial.ipynb>`.
+It can be downloaded {download}`here <../../notebooks/rigidity.ipynb>`.
 
 ```{code-cell} ipython3
 # The import will work if the package was installed using pip.
@@ -87,8 +87,8 @@ F2[2]
 
 ### Framework database
 
-Similar to the graph database, there exists a framework database. A detailed tutorial of it can be
-accessed [here](tutorial-framework-database).
+There exists a framework database from which certain frameworks can be imported.
+A detailed tutorial of it can be accessed [here](tutorial-framework-database).
 
 ## Rigidity properties
 
@@ -198,17 +198,12 @@ Again, it can be verified that the stress indeed lies in the cokernel of the rig
 F.is_stress(stress)
 ```
 
-The {prf:ref}`stress matrix <def-stress-matrix>` criterion by Connelly (2005) states that a framework in 
-$\RR^d$ with $n>d+2$ vertices is globally rigid, if it possesses an equilibrium stress $\omega$ such
-that the associated stress matrix $\Omega(\omega)$ has rank $n-d-1$. The stress matrix associated to a
-framework for a given stress can be accessed via the method {meth}`~.Framework.stress_matrix`
+The stress matrix associated to a framework for a given stress can be accessed via
+the method {meth}`~.Framework.stress_matrix`.
 
 ```{code-cell} ipython3
 Omega = F.stress_matrix(stress)
-Omega.rank()
 ```
-
-The $3$-Frustum has $6>3+2$ vertices and its stress matrix has rank 3, so it is globally rigid in $\RR^d$.
 
 ### Generic rigidity
 
@@ -303,3 +298,48 @@ for H in graphs.ThreePrism().all_k_extensions(1, only_non_isomorphic=True):
     assert(H.is_rigid())
 ```
 
+### Sparsity
+
+The {prf:ref}`(k,l)-sparsity <def-kl-sparse-tight>` of a graph can be checked using the method {meth}`~.Graph.is_kl_sparse`.
+
+```{code-cell} ipython3
+G = graphs.CompleteBipartite(3,3)
+G.is_kl_sparse(2, 3)
+```
+
+Famously, the double banana is (3,6)-sparse, but not rigid. 
+
+```{code-cell} ipython3
+G = graphs.DoubleBanana()
+print(G.is_kl_sparse(3, 6))
+print(G.is_rigid(dim=3, combinatorial=False))
+```
+
+Similarly, it can be checked whether a graph is {prf:ref}`(k,l)-tight <def-kl-sparse-tight>`.
+
+```{code-cell} ipython3
+TP = graphs.ThreePrism()
+TP.is_kl_tight(2, 3)
+```
+
+### Matroidal Properties
+
+We can use PyRigi to check properties of graphs in the {prf:ref}`d-dimensional rigidity matroid <def-rigidity-matroid>` as well.
+To check whether a graph is {prf:ref}`(in-)dependent <def-matroid>` in this matroid, we can call
+{meth}`~.Graph.is_Rd_dependent` or {meth}`~.Graph.is_Rd_independent`.
+
+```{code-cell} ipython3
+TP.is_Rd_independent()
+```
+
+It can be checked whether a graph is a {prf:ref}`circuit <def-matroid>` in the d-dimensional rigidity matroid by calling {meth}`~.Graph.is_Rd_circuit`.
+
+```{code-cell} ipython3
+TP.is_Rd_circuit()
+```
+
+Finally, it can be determined whether the graph is {prf:ref}`$R_d$-closed <def-rank-function-closure>` by calling {meth}`~.Graph.is_Rd_closed`.
+
+```{code-cell} ipython3
+TP.is_Rd_closed(dim=1)
+```
