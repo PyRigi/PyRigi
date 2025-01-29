@@ -247,7 +247,9 @@ class Graph(nx.Graph):
                         + f" {to_check} is not a vertex of the graph!"
                     )
 
-    def _input_check_edge_format(self, input_pair: Edge) -> None:
+    def _input_check_edge_format(
+        self, input_pair: Edge, loopfree: bool = False
+    ) -> None:
         """
         Check if an input_pair is a pair of distinct vertices of the graph and
         raise an error otherwise.
@@ -257,7 +259,7 @@ class Graph(nx.Graph):
                 f"The input {input_pair} must be a tuple or list of length 2!"
             )
         self._input_check_vertex_members(input_pair, "the input pair")
-        if input_pair[0] == input_pair[1]:
+        if loopfree and input_pair[0] == input_pair[1]:
             raise LoopError(f"The input {input_pair} must be two distinct vertices.")
 
     def _input_check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
@@ -920,6 +922,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
+        self._input_check_no_loop()
         self._input_check_vertex_members(vertices, "'the vertices'")
         if len(set(vertices)) != dim + k:
             raise ValueError(
@@ -982,6 +985,7 @@ class Graph(nx.Graph):
         not when it is created.
         """
         _input_check.dimension(dim)
+        self._input_check_no_loop()
         _input_check.integrality_and_range(k, "k", min_val=0)
         _input_check.greater_equal(
             self.number_of_nodes(),
@@ -1064,6 +1068,7 @@ class Graph(nx.Graph):
         [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
         """  # noqa: E501
         _input_check.dimension(dim)
+        self._input_check_no_loop()
         if not dim == 2:
             raise NotImplementedError()
         if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
@@ -2408,6 +2413,9 @@ class Graph(nx.Graph):
                 )
             if M[i, j] == 1:
                 edges += [(i, j)]
+        for i in vertices:
+            if M[i, i] == 1:
+                edges += [(i, i)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @doc_category("General graph theoretical properties")
