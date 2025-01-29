@@ -19,8 +19,9 @@ from warnings import warn
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 
 from pyrigi.misc import doc_category, generate_category_tables
-from pyrigi.exception import LoopError
+from pyrigi.exception import LoopError, NotSupportedValueError
 import pyrigi._pebble_digraph
+import pyrigi._input_check as _input_check
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
@@ -176,7 +177,7 @@ class Graph(nx.Graph):
         """
         G = Graph()
         G.add_nodes_from(vertices)
-        G._check_edge_format_list(edges)
+        G._input_check_edge_format_list(edges)
         G.add_edges(edges)
         return G
 
@@ -211,24 +212,51 @@ class Graph(nx.Graph):
         edges = list(combinations(vertices, 2))
         return Graph.from_vertices_and_edges(vertices, edges)
 
-    def _check_edge_format(self, input_pair: Edge) -> None:
+    def _input_check_no_loop(self) -> None:
         """
-        Check if an input_pair is a pair of distinct vertices of the graph.
+        Check whether a graph has loops and raise an error in case.
+        """
+        if nx.number_of_selfloops(self) > 0:
+            raise LoopError()
+
+    def _input_check_vertex_members(
+        self, to_check: Sequence[Vertex] | Vertex, name: str = ""
+    ) -> None:
+        """
+        Check whether the elements of a list are indeed vertices and
+        raise error otherwise.
+        """
+        if not isinstance(to_check, Iterable):
+            if to_check not in self.nodes:
+                raise ValueError(
+                    f"The element {to_check} is not a vertex of the graph!"
+                )
+        else:
+            for vertex in to_check:
+                if vertex not in self.nodes:
+                    raise ValueError(
+                        f"The element {vertex} from "
+                        + name
+                        + f" {to_check} is not a vertex of the graph!"
+                    )
+
+    def _input_check_edge_format(self, input_pair: Edge) -> None:
+        """
+        Check if an input_pair is a pair of distinct vertices of the graph and
+        raise an error otherwise.
         """
         if not isinstance(input_pair, list | tuple) or not len(input_pair) == 2:
             raise TypeError(
-                f"The input {input_pair} must be a tuple or list of length 2."
+                f"The input {input_pair} must be a tuple or list of length 2!"
             )
-        if not input_pair[0] in self.nodes or not input_pair[1] in self.nodes:
-            raise ValueError(
-                f"The elements of the pair {input_pair} are not vertices of the graph."
-            )
+        self._input_check_vertex_members(input_pair, "the input pair")
         if input_pair[0] == input_pair[1]:
-            raise LoopError("The input {input_pair} must be two distinct vertices.")
+            raise LoopError(f"The input {input_pair} must be two distinct vertices.")
 
-    def _check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
+    def _input_check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
         """
-        Check if the given input is an edge of the graph with endvertices in vertices.
+        Check if the given input is an edge of the graph with endvertices in vertices and
+        raise an error otherwise.
 
         Parameters
         ----------
@@ -238,19 +266,19 @@ class Graph(nx.Graph):
             Check if the endvertices of the edge are contained in the list ``vertices``.
             If None, the function considers all vertices of the graph.
         """
-        self._check_edge_format(edge)
+        self._input_check_edge_format(edge)
         if vertices and (not edge[0] in vertices or not edge[1] in vertices):
             raise ValueError(
-                f"The elements of the edge {edge} are not among vertices {vertices}."
+                f"The elements of the edge {edge} are not among vertices {vertices}!"
             )
         if not self.has_edge(edge[0], edge[1]):
-            raise ValueError(f"Edge {edge} is not contained in the graph.")
+            raise ValueError(f"Edge {edge} is not contained in the graph!")
 
-    def _check_edge_list(
+    def _input_check_edge_list(
         self, edges: Sequence[Edge], vertices: Sequence[Vertex] = None
     ) -> None:
         """
-        Apply _check_edge to all edges in a list.
+        Apply _input_check_edge to all edges in a list.
 
         Parameters
         ----------
@@ -261,11 +289,11 @@ class Graph(nx.Graph):
             If None (default), the function considers all vertices of the graph.
         """
         for edge in edges:
-            self._check_edge(edge, vertices)
+            self._input_check_edge(edge, vertices)
 
-    def _check_edge_format_list(self, pairs: Sequence[Edge]) -> None:
+    def _input_check_edge_format_list(self, pairs: Sequence[Edge]) -> None:
         """
-        Apply _check_edge_format to all pairs in a list.
+        Apply _input_check_edge_format to all pairs in a list.
 
         Parameters
         ----------
@@ -273,7 +301,67 @@ class Graph(nx.Graph):
             a list of pairs to be checked
         """
         for pair in pairs:
-            self._check_edge_format(pair)
+            self._input_check_edge_format(pair)
+
+    def _input_check_vertex_order(
+        self, vertex_order: Sequence[Vertex], name: str = ""
+    ) -> list[Vertex]:
+        """
+        Check whether the provided `vertex_order` contains the same elements
+        as the graph's vertex set.
+
+        Parameters
+        ----------
+        vertex_order:
+            List of vertices in the preferred order
+
+        Notes
+        -----
+        Throws an error if the vertices in `vertex_order` do not agree with the
+        underlying graph's vertices.
+        """
+        if vertex_order is None:
+            return self.vertex_list()
+        else:
+            if not self.number_of_nodes() == len(vertex_order) or not set(
+                self.vertex_list()
+            ) == set(vertex_order):
+                raise ValueError(
+                    "The vertices in `"
+                    + name
+                    + "` must be exactly "
+                    + "the same vertices as in the graph!"
+                )
+            return list(vertex_order)
+
+    def _input_check_edge_order(
+        self, edge_order: Sequence[Edge], name: str = ""
+    ) -> list[Edge]:
+        """
+        Check whether the provided `edge_order` contains the same elements
+        as the graph's edge set.
+
+        Parameters
+        ----------
+        edge_order:
+            List of edges in the preferred order
+
+        Notes
+        -----
+        Throws an error if the edges in `edge_order` do not agree with the
+        underlying graph's edges.
+        """
+        if edge_order is None:
+            return self.edge_list()
+        else:
+            if not self.number_of_edges() == len(edge_order) or not all(
+                [set(e) in [set(e) for e in edge_order] for e in self.edge_list()]
+            ):
+                raise ValueError(
+                    "The edges in `" + name + "` must be exactly "
+                    "the same edges as in the graph!"
+                )
+            return list(edge_order)
 
     @doc_category("Attribute getters")
     def vertex_list(self) -> list[Vertex]:
@@ -411,15 +499,8 @@ class Graph(nx.Graph):
         >>> G.degree_sequence()
         [1, 2, 1]
         """
-        if vertex_order is None:
-            vertex_order = self.vertex_list()
-        else:
-            if not set(self.nodes) == set(
-                vertex_order
-            ) or not self.number_of_nodes() == len(vertex_order):
-                raise IndexError(
-                    "The vertex_order must contain the same vertices as the graph!"
-                )
+        vertex_order = self._input_check_vertex_order(vertex_order)
+
         return [self.degree(v) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
@@ -448,20 +529,6 @@ class Graph(nx.Graph):
         """
         return max([self.degree(v) for v in self.nodes])
 
-    @staticmethod
-    def _pebble_values_are_correct(K: int, L: int) -> bool:
-        r"""
-        Check if K and L satisfy pebble game conditions.
-
-        K and L need to be integers that satisfy the conditions
-        K > 0, L >= 0 and L < 2K
-        """
-        if not (isinstance(K, int) and isinstance(L, int)):
-            return False
-        if K <= 0 or L < 0 or L >= 2 * K:
-            return False
-        return True
-
     def _build_pebble_digraph(self, K: int, L: int) -> None:
         r"""
         Build and save the pebble digraph from scratch.
@@ -470,11 +537,7 @@ class Graph(nx.Graph):
         Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
         from the rest of the graph.
         """
-        if not self._pebble_values_are_correct(K, L):
-            raise TypeError(
-                "K and L need to be integers that satisfy the conditions of\
-                 K > 0, L >= 0 and L < 2K."
-            )
+        _input_check.pebble_values(K, L)
 
         dir_graph = pyrigi._pebble_digraph.PebbleDiGraph(K, L)
         dir_graph.add_nodes_from(self.nodes)
@@ -541,7 +604,7 @@ class Graph(nx.Graph):
         return self.number_of_edges() == self._pebble_digraph.number_of_edges()
 
     @doc_category("Sparseness")
-    def is_sparse(
+    def is_kl_sparse(
         self,
         K: int,
         L: int,
@@ -571,25 +634,28 @@ class Graph(nx.Graph):
         ----
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.DoubleBanana()
-        >>> G.is_sparse(3,6)
+        >>> G.is_kl_sparse(3,6)
         True
         >>> G.add_edge(0,1)
-        >>> G.is_sparse(3,6)
+        >>> G.is_kl_sparse(3,6)
         False
         """
-        if not (isinstance(K, int) and isinstance(L, int)):
-            raise TypeError("K and L need to be integers!")
+        _input_check.integrality_and_range(K, "K", min_val=1)
+        _input_check.integrality_and_range(L, "L", min_val=0)
+
+        if algorithm == "default":
+            try:
+                _input_check.pebble_values(K, L)
+                algorithm = "pebble"
+            except ValueError:
+                algorithm = "subgraph"
 
         if algorithm == "pebble":
-            if self._pebble_values_are_correct(K, L):
-                return self._is_pebble_digraph_sparse(
-                    K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
-                )
-            else:
-                raise ValueError(
-                    "K and L with pebble algorithm need to satisfy the\
-                     conditions of K > 0, 0 <= L < 2K."
-                )
+            _input_check.pebble_values(K, L)
+            return self._is_pebble_digraph_sparse(
+                K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+            )
+
         if algorithm == "subgraph":
             for j in range(K, self.number_of_nodes() + 1):
                 for vertex_set in combinations(self.nodes, j):
@@ -597,28 +663,25 @@ class Graph(nx.Graph):
                     if G.number_of_edges() > K * G.number_of_nodes() - L:
                         return False
             return True
-        if algorithm == "default":
-            if self._pebble_values_are_correct(K, L):
-                # use "pebble" if possible
-                algorithm = "pebble"
-            else:
-                # otherwise use "subgraph"
-                algorithm = "subgraph"
-            return self.is_sparse(
-                K,
-                L,
-                algorithm,
-                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-            )
 
         # reaching this position means that the algorithm is unknown
-        raise ValueError(
-            f"If specified, the value of the algorithm parameter must be one of "
-            f'"pebble", "subgraph", or "default". Instead, it is {algorithm}.'
-        )
+        raise NotSupportedValueError(algorithm, "algorithm", self.is_sparse)
 
     @doc_category("Sparseness")
-    def is_tight(
+    def is_sparse(
+        self,
+        K: int,
+        L: int,
+        algorithm: str = "default",
+        use_precomputed_pebble_digraph: bool = False,
+    ) -> bool:
+        r"""
+        Alias for :meth:`.is_kl_sparse`.
+        """
+        return self.is_kl_sparse(K, L, algorithm, use_precomputed_pebble_digraph)
+
+    @doc_category("Sparseness")
+    def is_kl_tight(
         self,
         K: int,
         L: int,
@@ -644,13 +707,13 @@ class Graph(nx.Graph):
             is consistent with the graph.
 
         Examples
-        ----´
+        --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(4)
-        >>> G.is_tight(2,2)
+        >>> G.is_kl_tight(2,2)
         True
         >>> G1 = graphs.CompleteBipartite(4,4)
-        >>> G1.is_tight(3,6)
+        >>> G1.is_kl_tight(3,6)
         False
         """
         return (
@@ -661,6 +724,24 @@ class Graph(nx.Graph):
                 use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
             )
             and self.number_of_edges() == K * self.number_of_nodes() - L
+        )
+
+    @doc_category("Sparseness")
+    def is_tight(
+        self,
+        K: int,
+        L: int,
+        algorithm: str = "default",
+        use_precomputed_pebble_digraph: bool = False,
+    ) -> bool:
+        r"""
+        Alias for :meth:`~.is_kl_tight`.
+        """
+        return self.is_kl_tight(
+            K,
+            L,
+            algorithm,
+            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
         )
 
     @doc_category("Graph manipulation")
@@ -703,7 +784,7 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [2, 5]]
         >>> G
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.zero_extension([0, 1, 2], 5, dim=3, inplace=True);
+        >>> G.zero_extension([0, 1, 2], 5, dim=3, inplace=True)
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
         >>> G
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
@@ -830,20 +911,16 @@ class Graph(nx.Graph):
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        for vertex in vertices:
-            if vertex not in self.nodes:
-                raise ValueError(f"Vertex {vertex} is not contained in the graph")
+        _input_check.dimension(dim)
+        _input_check.integrality_and_range(k, "k", min_val=0)
+        self._input_check_vertex_members(vertices, "'the vertices'")
         if len(set(vertices)) != dim + k:
             raise ValueError(
-                f"List of vertices must contain {dim + k} distinct vertices"
+                f"List of vertices must contain {dim + k} distinct vertices!"
             )
-        self._check_edge_list(edges, vertices)
+        self._input_check_edge_list(edges, vertices)
         if len(edges) != k:
-            raise ValueError(f"List of edges must contain {k} distinct edges")
+            raise ValueError(f"List of edges must contain {k} distinct edges!")
         if new_vertex is None:
             candidate = self.number_of_nodes()
             while candidate in self.nodes:
@@ -890,20 +967,25 @@ class Graph(nx.Graph):
 
         >>> len(list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)))
         2
+
+        Notes
+        -----
+        It turns out that possible errors on bad input paramters are only raised,
+        when the output iterator is actually used,
+        not when it is created.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if self.number_of_nodes() < (dim + k):
-            raise ValueError(
-                f"The number of nodes in the graph needs to be "
-                f"greater or equal than {dim + k}!"
-            )
-        if self.number_of_edges() < k:
-            raise ValueError(
-                f"The number of edges in the graph needs to be greater or equal than {k}!"
-            )
+        _input_check.dimension(dim)
+        _input_check.integrality_and_range(k, "k", min_val=0)
+        _input_check.greater_equal(
+            self.number_of_nodes(),
+            dim + k,
+            "number of vertices in the graph",
+            "dim + k",
+        )
+        _input_check.greater_equal(
+            self.number_of_edges(), k, "number of edges in the graph", "k"
+        )
+
         solutions = []
         for edges in combinations(self.edges, k):
             s = set(self.nodes)
@@ -974,10 +1056,7 @@ class Graph(nx.Graph):
         >>> G.extension_sequence(return_solution=True)
         [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        _input_check.dimension(dim)
         if not dim == 2:
             raise NotImplementedError()
         if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
@@ -1047,7 +1126,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         check_min_rigid:
-            If ``True``, ``ValueError`` is raised if the graph is not minimally 2-rigid
+            If ``True``, a ``ValueError`` is raised if the graph is not minimally 2-rigid
             If ``False``, it is assumed that the user is inputing a minimally rigid graph.
 
         spherical_realizations:
@@ -1079,7 +1158,7 @@ class Graph(nx.Graph):
             import lnumber
 
             if check_min_rigid and not self.is_min_rigid():
-                raise ValueError("The graph must be minimally 2-rigid.")
+                raise ValueError("The graph must be minimally 2-rigid!")
 
             if self.number_of_nodes() == 1:
                 return 1
@@ -1100,7 +1179,7 @@ class Graph(nx.Graph):
             raise ImportError(
                 "For counting the number of realizations, "
                 "the optional package 'lnumber' is used, "
-                "run `pip install pyrigi[realization-counting]`."
+                "run `pip install pyrigi[realization-counting]`!"
             )
 
     @doc_category("Generic rigidity")
@@ -1113,10 +1192,7 @@ class Graph(nx.Graph):
 
         See :meth:`.is_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        _input_check.dimension(dim)
         return self.is_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
 
     @doc_category("Generic rigidity")
@@ -1170,14 +1246,9 @@ class Graph(nx.Graph):
         False
 
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if not isinstance(k, int):
-            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        _input_check.integrality_and_range(k, "k", min_val=0)
+        self._input_check_no_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1250,12 +1321,9 @@ class Graph(nx.Graph):
 
         See :meth:`.is_min_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        _input_check.dimension(dim)
         return self.is_min_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
-
+      
     @doc_category("Generic rigidity")
     def is_min_k_vertex_redundantly_rigid(
         self,
@@ -1305,14 +1373,9 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if not isinstance(k, int):
-            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        _input_check.integrality_and_range(k, "k", min_val=0)
+        self._input_check_no_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1443,14 +1506,9 @@ class Graph(nx.Graph):
         ----------------------
         Improve with pebble games.
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if not isinstance(k, int):
-            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        _input_check.integrality_and_range(k, "k", min_val=0)
+        self._input_check_no_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1514,10 +1572,7 @@ class Graph(nx.Graph):
 
         See :meth:`.is_min_k_redundantly_rigid` (using k = 1) for details.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        _input_check.dimension(dim)
         return self.is_min_k_redundantly_rigid(1, dim, algorithm, prob)
 
     @doc_category("Generic rigidity")
@@ -1569,14 +1624,9 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if not isinstance(k, int):
-            raise TypeError(f"k needs to be a nonnegative integer, but is {k}!")
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        _input_check.integrality_and_range(k, "k", min_val=0)
+        self._input_check_no_loop()
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1665,17 +1715,17 @@ class Graph(nx.Graph):
          * dim>=1: Rigidity Matrix if ``algorithm=="randomized"``
         By default, the graph is in dimension two and a combinatorial check is employed.
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        _input_check.dimension(dim)
         if not isinstance(algorithm, str):
             raise TypeError(
                 "`algorithm`` determines the method of rigidity-computation. "
                 "It needs to be a string."
             )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_no_loop()
+        if combinatorial:
+            _input_check.dimension_for_algorithm(
+                dim, [1, 2], "the combinatorial algorithm"
+            )
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -1703,7 +1753,7 @@ class Graph(nx.Graph):
         if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
-                raise ValueError("The parameter prob is too large.")
+                raise ValueError("The parameter prob is too large!")
             from pyrigi.framework import Framework
 
             F = Framework.Random(self, dim, rand_range=[1, N])
@@ -1761,17 +1811,17 @@ class Graph(nx.Graph):
          * dim=2: Pebble-game/(2,3)-tight
          * dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
+        _input_check.dimension(dim)
         if not isinstance(algorithm, str):
             raise TypeError(
                 "`algorithm`` determines the method of rigidity-computation. "
                 "It needs to be a Boolean."
+                )
+        self._input_check_no_loop()
+        if combinatorial:
+            _input_check.dimension_for_algorithm(
+                dim, [1, 2], "the combinatorial algorithm"
             )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -1800,7 +1850,7 @@ class Graph(nx.Graph):
         if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
-                raise ValueError("The parameter prob is too large.")
+                raise ValueError("The parameter prob is too large!")
             from pyrigi.framework import Framework
 
             F = Framework.Random(self, dim, rand_range=[1, N])
@@ -1819,11 +1869,13 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
-        dim: dimension d for which we test whether the graph is globally $d$-rigid
-        prob: probability of getting a wrong `False` answer
+        dim:
+            dimension d for which we test whether the graph is globally $d$-rigid
+        prob:
+            probability of getting a wrong `False` answer
 
         Definitions
-        -----
+        -----------
         :prf:ref:`Globally d-rigid graph <def-globally-rigid-graph>`
 
         Examples
@@ -1862,14 +1914,10 @@ class Graph(nx.Graph):
         the graph is not generically globally d-rigid, and it will give a wrong answer
         `False` with probability less than `prob`, which is 0.0001 by default.
         """  # noqa: E501
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
 
-        elif dim == 1:
+        if dim == 1:
             if (self.number_of_nodes() == 2 and self.number_of_edges() == 1) or (
                 self.number_of_nodes() == 1 or self.number_of_nodes() == 0
             ):
@@ -1907,7 +1955,7 @@ class Graph(nx.Graph):
                 return F.stress_matrix(omega).rank() == n - dim - 1
             else:
                 raise ValueError(
-                    "There must be at least one stress but none was found."
+                    "There must be at least one stress but none was found!"
                 )
 
     @doc_category("Rigidity Matroid")
@@ -1988,12 +2036,8 @@ class Graph(nx.Graph):
         >>> G.is_Rd_independent()
         True
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
         if dim == 1:
             return len(nx.cycle_basis(self)) == 0
 
@@ -2035,7 +2079,7 @@ class Graph(nx.Graph):
          * dim=2: It is not sparse, but remove any edge and it becomes sparse
                   Fundamental circuit is the whole graph
          * Not combinatorially:
-         * dim>=3: Dependent + Remove every edge and compute the rigidity matrix' rank
+         * dim>=3: Dependent + Remove every edge and compute the rigidity matrix rank
 
         Examples
         --------
@@ -2047,12 +2091,8 @@ class Graph(nx.Graph):
         >>> G.is_Rd_circuit()
         False
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
         if dim == 1:
             if not nx.is_connected(self):
                 return False
@@ -2133,14 +2173,13 @@ class Graph(nx.Graph):
         ----
         Implement using pebble games for dim=2 and adjust the docstring
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
 
         if algorithm == "combinatorial":
+            _input_check.dimension_for_algorithm(
+                dim, [1], "the combinatorial algorithm"
+            )
             if dim == 1:
                 if all(
                     [
@@ -2220,12 +2259,8 @@ class Graph(nx.Graph):
         ----
         Implement using pebble games for dim=2 and adjust the docstring
         """
-        if not isinstance(dim, int) or dim < 1:
-            raise TypeError(
-                f"The dimension needs to be a positive integer, but is {dim}!"
-            )
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
 
         if algorithm == "combinatorial" and dim == 1:
             return [list(comp) for comp in nx.connected_components(self)]
@@ -2238,9 +2273,8 @@ class Graph(nx.Graph):
 
         if algorithm == "combinatorial":
             # here will be the implementation using pebble games for dim=2
-            raise ValueError(
-                f"The dimension for combinatorial computation must be 1, "
-                f"but is {dim}"
+            _input_check.dimension_for_algorithm(
+                dim, [1], "the combinatorial algorithm"
             )
 
         elif algorithm == "randomized":
@@ -2298,8 +2332,8 @@ class Graph(nx.Graph):
         >>> G.max_rigid_dimension()
         3
         """
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
+        self._input_check_no_loop()
+
         if not nx.is_connected(self):
             return 0
 
@@ -2368,24 +2402,17 @@ class Graph(nx.Graph):
         ---------------------
         Implement taking canonical before computing the integer representation.
         """
-        if self.number_of_edges() == 0:
-            raise ValueError(
-                "The integer representation is only defined "
-                "for graphs with at least one edge."
-            )
+        _input_check.greater_equal(self.number_of_edges(), 1, "number of edges")
         if self.min_degree() == 0:
             raise ValueError(
                 "The integer representation only works "
-                "for graphs without isolated vertices."
+                "for graphs without isolated vertices!"
             )
-        if nx.number_of_selfloops(self) == 0:
-            M = self.adjacency_matrix(vertex_order)
-            upper_diag = [
-                str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]
-            ]
-            return int("".join(upper_diag), 2)
-        else:
-            raise LoopError()
+        self._input_check_no_loop()
+
+        M = self.adjacency_matrix(vertex_order)
+        upper_diag = [str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]]
+        return int("".join(upper_diag), 2)
 
     @classmethod
     @doc_category("Class methods")
@@ -2396,10 +2423,8 @@ class Graph(nx.Graph):
         See :meth:`to_int` for the description
         of the integer representation.
         """
-        if not isinstance(N, int):
-            raise TypeError(f"The parameter n has to be an integer, not {type(N)}.")
-        if N <= 0:
-            raise ValueError(f"The parameter n has to be positive, not {N}.")
+        _input_check.integrality_and_range(N, "parameter n", min_val=1)
+
         L = bin(N)[2:]
         n = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)
         rows = []
@@ -2427,16 +2452,16 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1] and edges [[0, 1]]
         """
         if not M.is_square:
-            raise TypeError("The matrix is not square!")
+            raise ValueError("The matrix is not square!")
         if not M.is_symmetric():
-            raise TypeError("The matrix is not symmetric.")
+            raise ValueError("The matrix is not symmetric!")
 
         vertices = range(M.cols)
         edges = []
         for i, j in combinations(vertices, 2):
             if not (M[i, j] == 0 or M[i, j] == 1):
-                raise TypeError(
-                    "The provided adjacency matrix contains entries other than 0 and 1"
+                raise ValueError(
+                    "The provided adjacency matrix contains entries other than 0 and 1!"
                 )
             if M[i, j] == 1:
                 edges += [(i, j)]
@@ -2469,15 +2494,7 @@ class Graph(nx.Graph):
         :func:`networkx.linalg.graphmatrix.adjacency_matrix`
         requires `scipy`. To avoid unnecessary imports, the method is implemented here.
         """
-        if vertex_order is None:
-            vertex_order = self.vertex_list()
-        else:
-            if not set(self.nodes) == set(
-                vertex_order
-            ) or not self.number_of_nodes() == len(vertex_order):
-                raise IndexError(
-                    "The vertex_order must contain the same vertices as the graph!"
-                )
+        vertex_order = self._input_check_vertex_order(vertex_order)
 
         row_list = [
             [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order
@@ -2520,7 +2537,7 @@ class Graph(nx.Graph):
         placement:
             If ``placement`` is not specified,
             then it is generated depending on parameter ``layout``.
-        layout:
+        layout_type:
             The possibilities are ``spring`` (default), ``circular``,
             ``random`` or ``planar``, see also :meth:`~Graph.layout`.
         vertex_style:
@@ -2567,7 +2584,7 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(placement = [[0, 0], [1, 1], [2, 2], [3, 3]])) # doctest: +NORMALIZE_WHITESPACE
+        >>> print(G.to_tikz(placement = {0:[0, 0], 1:[1, 1], 2:[2, 2], 3:[3, 3]})) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (0, 0) {};
             \node[gvertex] (1) at (1, 1) {};
@@ -2726,7 +2743,7 @@ class Graph(nx.Graph):
         t: integer, default value 2
 
         Definitions
-        -----
+        -----------
         :prf:ref:`t-sum <def-t-sum>`
 
         Examples
@@ -2738,12 +2755,12 @@ class Graph(nx.Graph):
         """
         if edge not in self.edges or edge not in G2.edges:
             raise ValueError(
-                f"The edge {edge} is not in the intersection of the graphs."
+                f"The edge {edge} is not in the intersection of the graphs!"
             )
         # check if the intersection is a t-complete graph
         if not self.intersection(G2).is_isomorphic(nx.complete_graph(t)):
             raise ValueError(
-                f"The intersection of the graphs must be a {t}-complete graph."
+                f"The intersection of the graphs must be a {t}-complete graph!"
             )
         G = self + G2
         G.remove_edge(edge[0], edge[1])
@@ -2781,7 +2798,7 @@ class Graph(nx.Graph):
         """
         Generate a placement of the vertices.
 
-        This method a is wrapper for the functions
+        This method is a wrapper for the functions
         :func:`~networkx.drawing.layout.spring_layout`,
         :func:`~networkx.drawing.layout.random_layout`,
         :func:`~networkx.drawing.layout.circular_layout`
@@ -2802,7 +2819,7 @@ class Graph(nx.Graph):
         elif layout_type == "spring":
             return nx.drawing.layout.spring_layout(self)
         else:
-            raise ValueError(f"layout_type {layout_type} is not supported.")
+            raise NotSupportedValueError(layout_type, "layout_type", self.layout)
 
     @doc_category("Other")
     def plot(
@@ -2877,7 +2894,7 @@ class Graph(nx.Graph):
                 ]
             )
         ):
-            raise TypeError("The placement does not have the correct format")
+            raise TypeError("The placement does not have the correct format!")
         from pyrigi import Framework
 
         Framework(self, placement).plot(plot_style=plot_style, **kwargs)
