@@ -1305,7 +1305,7 @@ def test_dimension_combinatorial_error(method, params):
     with pytest.raises(ValueError):
         G = graphs.DoubleBanana()
         func = getattr(G, method)
-        func(*params, combinatorial=True)
+        func(*params, algorithm="combinatorial")
 
 
 def test_k_extension():

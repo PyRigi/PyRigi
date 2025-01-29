@@ -1323,7 +1323,7 @@ class Graph(nx.Graph):
         """
         _input_check.dimension(dim)
         return self.is_min_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
-      
+
     @doc_category("Generic rigidity")
     def is_min_k_vertex_redundantly_rigid(
         self,
@@ -1722,7 +1722,7 @@ class Graph(nx.Graph):
                 "It needs to be a string."
             )
         self._input_check_no_loop()
-        if combinatorial:
+        if algorithm == "combinatorial":
             _input_check.dimension_for_algorithm(
                 dim, [1, 2], "the combinatorial algorithm"
             )
@@ -1816,9 +1816,9 @@ class Graph(nx.Graph):
             raise TypeError(
                 "`algorithm`` determines the method of rigidity-computation. "
                 "It needs to be a Boolean."
-                )
+            )
         self._input_check_no_loop()
-        if combinatorial:
+        if algorithm == "combinatorial":
             _input_check.dimension_for_algorithm(
                 dim, [1, 2], "the combinatorial algorithm"
             )
