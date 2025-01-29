@@ -14,6 +14,16 @@ and whose edge set is $E_1 \cup E_2$.
 {{pyrigi_crossref}} {meth}`~.Graph.__add__`
 :::
 
+
+:::{prf:definition} t-sum
+:label: def-t-sum
+
+Given three graphs $G=(V,E)$, $G_1=(V_1,E_1)$, and $G_2=(V_2,E_2)$, we say that
+$G$ is a _$t$-sum_ of $G_1,G_2$ along an edge $e$ if $G=(G_1\cup G_2)-e$,
+$G_1\cap G_2=K_t$ and $e\in E_1\cap E_2$.
+:::
+
+
 ## Sparse and tight graphs
 
 :::{prf:definition} $(k, \ell)$-sparse and $(k, \ell)$-tight
