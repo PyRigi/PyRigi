@@ -34,5 +34,5 @@ howto/git
 howto/dependencies
 howto/documentation
 howto/notation
-howto/input-checks
+howto/input_checks
 :::

@@ -1,4 +1,4 @@
-(input-checks)=
+(input_checks)=
 # Input Checks
 
 To unify to a certain extent error messages there are two ways.
