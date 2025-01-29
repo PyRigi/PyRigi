@@ -1,4 +1,4 @@
-(style-guide)=
+(style_guide)=
 # Style Guide
 
 We follow [PEP8](https://peps.python.org/pep-0008/) guidelines concerning the Python coding standard.
