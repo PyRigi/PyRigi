@@ -1,5 +1,6 @@
 ---
 jupytext:
+  formats: md:myst,ipynb
   text_representation:
     extension: .md
     format_name: myst
@@ -14,39 +15,35 @@ kernelspec:
 (rigidity-tutorial)=
 # Using PyRigi for Rigidity Theory
 
-```{code-cell} ipython3
-# The import will work if:
-#     - the tutorial is in the root folder of the package, or
-#     - the package was installed using poetry,
-#       see https://pyrigi.github.io/PyRigi/development/howto.html#dependencies, or
-#     - the package is added to the sys.path using the following with the correct
-#       path to the pyrigi root folder
-import os, sys
-sys.path.insert(0, os.path.abspath("../../.."))
-from pyrigi import Graph
-```
++++
 
-## Framework construction
+This notebook illustrates how to use PyRigi for applications in rigidity theory using the
+classes {class}`~.Graph` and {class}`~.Framework`.
+It can be downloaded {download}`here <../../notebooks/rigidity_tutorial.ipynb>`.
 
 ```{code-cell} ipython3
-from pyrigi import Framework
+# The import will work if the package was installed using pip.
+import pyrigi.frameworkDB as frameworks
+import pyrigi.graphDB as graphs
+from pyrigi import Graph, Framework
 ```
 
-### Specifying realization
 
-One way to construct a framework is to provide a graph and a realization to the constructor
-``Framework``. For instance, a framework ``F1`` on the complete graph on 4 vertices $K_4$
+## Framework Construction
+
+One way to construct a {prf:ref}`framework <def-framework>` is to provide a graph and a 
+{prf:ref}`realization <def-realization>` to the constructor
+{class}`~.Framework`. For instance, a framework ``F1`` on the complete graph on 4 vertices $K_4$
 can be constructed in the following way.
 
 ```{code-cell} ipython3
-from pyrigi import graphDB as graphs
 K4 = graphs.Complete(4)
 
 F1 = Framework(K4, {0:[1,2], 1:[0,5], 2:[-1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
 F1
 ```
 
-The framework can then be visualized by calling the method ``plot`` on ``F1``.
+The framework can then be visualized by calling the method {meth}`~.Framework.plot` on ``F1``.
 
 ```{code-cell} ipython3
 F1.plot()
@@ -60,7 +57,7 @@ F1[2]
 
 ### Class methods
 
-Alternatively, the realization can be specified by using a class method. For instance, ``Simplicial`` creates
+Alternatively, the realization can be specified by using a class method. For instance, {meth}`~.Framework.Simplicial` creates
 a realization on the ``d``-simplex. 
 
 ```{code-cell} ipython3
@@ -68,7 +65,7 @@ F2 = Framework.Simplicial(K4, 3)
 F2
 ```
 
-The dimension of a framework can be accessed via the ``dim`` method.
+The dimension that a framework is embedded in can be accessed via the {meth}`~.Framework.dim` method.
 
 ```{code-cell} ipython3
 F2.dim()
@@ -78,7 +75,7 @@ F2.dim()
 F2[2]
 ```
 
-The framework can be translated using the ``translate`` method.
+The framework can be translated using the {meth}`~.Framework.translate` method.
 
 ```{code-cell} ipython3
 F2.translate([3,4,5])
@@ -91,13 +88,7 @@ F2[2]
 ### Framework database
 
 Similar to the graph database, there exists a framework database. A detailed tutorial of it can be
-accessed [here](tutorial-framework-database). The framework database can be imported via
-
-the following command:
-```{code-cell} ipython3
-from pyrigi import frameworkDB as frameworks
-```
-
+accessed [here](tutorial-framework-database).
 
 ## Rigidity properties
 
@@ -106,7 +97,8 @@ from pyrigi import frameworkDB as frameworks
 ### Infinitesimal rigidity
 
 One of the main applications of PyRigi is to determine whether a framework is
-infinitesimally rigid. Take for example a generic realization of the 3-prism. 
+{prf:ref}`infinitesimally rigid <def-inf-rigid-framework>`. Take for example the following realization of the 3-prism.
+We can determine whether it is infinitesimally rigid using the method {meth}`~.Framework.is_inf_rigid()`.
 
 ```{code-cell} ipython3
 TP_rigid = frameworks.ThreePrism()
@@ -114,8 +106,7 @@ TP_rigid.plot()
 TP_rigid.is_inf_rigid()
 ```
 
-We can also create an infinitesimally flexible, but continuously rigid realization
-of the 3-prism using the parameter ``'parallel'``.
+We can also create an {prf:ref}`infinitesimally flexible <def-inf-rigid-framework>`, but {prf:ref}`continuously rigid <def-cont-rigid-framework>` realization of the 3-prism using the parameter ``'parallel'``.
 
 ```{code-cell} ipython3
 TP_parallel = frameworks.ThreePrism('parallel')
@@ -123,7 +114,8 @@ TP_parallel.plot()
 TP_parallel.is_inf_rigid()
 ```
 
-Finally, a continuously flexible realization can be created using the keyword ``'flexible'``.
+We check its rigidity using the method {meth}`~.Framework.is_inf_rigid`.
+Finally, a {prf:ref}`continuously flexible <def-cont-rigid-framework>` realization can be created using the keyword ``'flexible'``.
 
 ```{code-cell} ipython3
 TP_flexible = frameworks.ThreePrism('flexible')
@@ -139,38 +131,51 @@ TP_e.plot()
 TP_e.is_inf_rigid()
 ```
 
-In particular, the resulting framework is not minimally infinitesimally rigid anymore, even though the 3-prism was.
+In particular, the resulting framework is not {prf:ref}`minimally infinitesimally rigid <def-min-rigid-framework>`
+anymore, even though the 3-prism was.
 
 ```{code-cell} ipython3
 print(TP_rigid.is_min_inf_rigid())
 print(TP_e.is_min_inf_rigid())
 ```
 
-To investigate further properties of the framework, PyRigi can be used for computing the corresponding rigidity matrix
-using the method ``rigidity_matrix``. 
+To investigate further properties of the framework, PyRigi can be used for computing the corresponding
+{prf:ref}`rigidity matrix <def-rigidity-matrix>` using the method {meth}`~.Framework.rigidity_matrix`. 
 
 ```{code-cell} ipython3
 TP_flexible.rigidity_matrix()
 ```
 
 If you do not want to compute the infinitesimal flexes on your own, you can ask PyRigi to do it. The method
-``nontrivial_inf_flexes`` returns a list of infinitesimal flexes that all in the format of a matrix. 
+{meth}`~.Framework.nontrivial_inf_flexes` returns a list of {prf:ref}`nontrivial infinitesimal flexes <def-trivial-inf-flex>`
+that all in the format of a matrix. 
 
 ```{code-cell} ipython3
 inf_flexes = TP_flexible.nontrivial_inf_flexes()
 inf_flexes[0]
 ```
 
-We can verify that an infinitesimal flex is indeed a flex by calling
+We can verify that a vector is indeed an nontrivial infinitesimal flexes by calling the method
+{meth}`~.Framework.is_nontrivial_flex`.
 
 ```{code-cell} ipython3
 print(TP_flexible.is_nontrivial_flex(inf_flexes[0]))
 print(TP_rigid.is_nontrivial_flex(inf_flexes[0]))
 ```
 
+The list of {prf:ref}`trivial infinitesimal flexes <def-trivial-inf-flex>` can be accessed via the method
+{meth}`~.Framework.trivial_inf_flexes`.
+
+```{code-cell} ipython3
+inf_flexes = TP_flexible.trivial_inf_flexes()
+inf_flexes[0]
+```
+
+
 ### Equilibrium Stresses
 
-PyRigi can also be used to compute equilibrium stresses. 
+PyRigi can also be used to compute {prf:ref}`equilibrium stresses <def-equilibrium-stress>`.
+This is done via the method {meth}`~.Framework.stresses`.
 
 ```{code-cell} ipython3
 F = frameworks.Frustum(3)
@@ -187,13 +192,16 @@ F.plot(inf_flex=inf_flex, stress=stress)
 ```
 
 Again, it can be verified that the stress indeed lies in the cokernel of the rigidity matrix by calling
+{meth}`~.Framework.is_stress`.
 
 ```{code-cell} ipython3
 F.is_stress(stress)
 ```
 
-The stress matrix criterion by Connelly (2005) states that a framework in $\RR^d$ with $n>d+2$ vertices is globally
-rigid, if it possesses an equilibrium stress $\omega$ such that the associated stress matrix $\Omega(\omega)$ has rank $n-d-1$.
+The {prf:ref}`stress matrix <def-stress-matrix>` criterion by Connelly (2005) states that a framework in 
+$\RR^d$ with $n>d+2$ vertices is globally rigid, if it possesses an equilibrium stress $\omega$ such
+that the associated stress matrix $\Omega(\omega)$ has rank $n-d-1$. The stress matrix associated to a
+framework for a given stress can be accessed via the method {meth}`~.Framework.stress_matrix`
 
 ```{code-cell} ipython3
 Omega = F.stress_matrix(stress)
@@ -204,15 +212,18 @@ The $3$-Frustum has $6>3+2$ vertices and its stress matrix has rank 3, so it is 
 
 ### Generic rigidity
 
-We can also use PyRigi to investigate the (generic) infinitesimal and global rigidity of graphs.
+We can also use PyRigi to investigate the (generic) {prf:ref}`infinitesimal <def-gen-rigid>` and
+{prf:ref}`global <def-globally-rigid-graph>` rigidity of graphs. The underlying graph can be accessed
+via the method {meth}`~.Framework.graph` and the rigidity of this graph can be determined via
+{meth}`~.Graph.is_rigid`.
 
 ```{code-cell} ipython3
 G_TP = TP_rigid.graph()
 G_TP.is_rigid()
 ```
 
-Since the graph does come with a natural embedding, the dimension where its rigidity is supposed to be investigated
-can be specified via the ``dim`` keyword.
+Since the graph does come with a natural embedding, the dimension in which its rigidity
+is supposed to be investigated can be specified via the ``dim`` keyword.
 
 ```{code-cell} ipython3
 G_TP.is_rigid(dim=1)
@@ -225,20 +236,21 @@ randomized coordinates can be created using the command
 G_TP.is_rigid(dim=3, combinatorial=False)
 ```
 
-In fact, we can compute the maximal dimension, in which a graph is rigid.
+In fact, we can compute the maximal dimension, in which a graph is rigid using the method {meth}`~.Graph.max_rigid_dimension`.
 
 ```{code-cell} ipython3
 G_TP.max_rigid_dimension()
 ```
 
-Furthermore, we can compute the rigid components of a graph, which is returned as a partition of vertices.
+Furthermore, we can compute the rigid components of a graph using {meth}`~.Graph.rigid_components`,
+which is returned as a partition of vertices.
 
 ```{code-cell} ipython3
 G = graphs.DoubleBanana()
 G.rigid_components(dim=3, combinatorial=False)
 ```
 
-We can also investigate the (generic) global rigidity of a graph:
+We can also investigate the (generic) global rigidity of a graph using the method {meth}`~.Graph.is_globally_rigid`:
 
 ```{code-cell} ipython3
 G_TP.is_globally_rigid()
@@ -252,9 +264,9 @@ G4.plot()
 G4.is_globally_rigid()
 ```
 
-To distinguish graphs from frameworks in the ``plot`` method, the vertices are colored differently by default.
+To distinguish graphs from frameworks in the {meth}`~.Graph.plot` method, the vertices are colored differently by default.
 The graph ``G4`` obtained by adding an edge to the 3-prism is globally rigid because it is 3-connected and
-redundantly rigid:
+redundantly rigid. The redundant rigidity of a graph can be checked via {meth}`~.Graph.is_redundantly_rigid`.
 
 ```{code-cell} ipython3
 G4.is_redundantly_rigid()
@@ -267,14 +279,14 @@ G_TP.is_globally_rigid(dim=1)
 ```
 
 Finally, it may be useful to generate an extension sequence, which can be done for the 3-prism
-using the method ``extension_sequence``.
+using the method {meth}`~.Graph.extension_sequence`.
 
 ```{code-cell} ipython3
 for H in G_TP.extension_sequence(return_solution=True):
     H.plot(canvas_height=2)
 ```
 
-We can obtain all non-isomorphic k-extensions of a graph using the method ``all_k_extensions``.
+We can obtain all non-isomorphic k-extensions of a graph using the method {meth}`~.Graph.all_k_extensions`.
 For the 3-prism we ensure that all of the 0-extensions are rigid:
 
 ```{code-cell} ipython3
