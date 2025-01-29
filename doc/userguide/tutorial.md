@@ -9,4 +9,5 @@ tutorials/framework_database
 tutorials/plotting
 tutorials/motion
 tutorials/mesh_generation
+tutorials/rigidity_tutorial
 :::
