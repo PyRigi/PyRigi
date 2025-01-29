@@ -2795,29 +2795,40 @@ class Graph(nx.Graph):
         {0, 1, 2}
 
         """  # noqa: E501
+        
+        for v in V:
+            if v not in self.nodes:
+                raise ValueError(f"The node {v} is not a node of the graph.")
+                
         res = set()
         for v in V:
-            if v in self.nodes():
+            if v in self.nodes:
                 res.update(self.neighbors(v))
         return res.difference(V)
 
     @doc_category("Generic rigidity")
-    def clique(self, X: list[Vertex] | set[Vertex]):
+    def make_outside_neighbors_clique(self, X: list[Vertex] | set[Vertex]):
         """
-        Return the clique graph of self with respect of the set of vertices X.
-
+        Consider the subgraph of self induced by X, contract each connected components of self 
+        minus X  to a single vertex. Make their neighbors in X into a clique.
+        
+        Definitions
+        -----------
+        def of clique
+        def of this operation
+        
         Parameters
-        --------
+        ----------
         X:
             set or list of vertices
 
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 3], [0, 4], [1, 2], [1, 5], [2, 3], [2, 4], [3, 5]])
-        >>> G.clique([0,1,2,3])
+        >>> G.make_outside_neighbors_clique([0,1,2,3])
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]])
-        >>> G.clique([0,1,4,5,6,7,8,11,12])
+        >>> G.make_outside_neighbors_clique([0,1,4,5,6,7,8,11,12])
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
 
         """  # noqa: E501
@@ -2871,7 +2882,7 @@ class Graph(nx.Graph):
             B = augmented_G.subgraph(V_B)
             return B
 
-    def fundamental_circuit(self, u: Vertex, v: Vertex):
+    def R2_fundamental_circuit(self, u: Vertex, v: Vertex):
         """
         Return an R2_circuit of self + uv, i.e., it
         contains the edge uv.
@@ -2887,7 +2898,7 @@ class Graph(nx.Graph):
         --------
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
         >>> H = G.block_3(0,11)
-        >>> H.fundamental_circuit(0,11)
+        >>> H.R2_fundamental_circuit(0,11)
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
         """  # noqa: E501
 
@@ -2940,7 +2951,7 @@ class Graph(nx.Graph):
         B = self.block_3(u, v)
         B._build_pebble_digraph(K=2, L=3)
         V_0 = B._pebble_digraph.fundamental_circuit(u, v)
-        return B.clique(V_0).is_globally_rigid()
+        return B.make_outside_neighbors_clique(V_0).is_globally_rigid()
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:
