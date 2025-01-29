@@ -4,6 +4,7 @@ import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
 from pyrigi.data_type import point_to_vector
+import matplotlib.pyplot as plt
 
 from copy import deepcopy
 
@@ -14,16 +15,16 @@ from sympy import Matrix, pi, sqrt, sympify
 @pytest.mark.parametrize(
     "framework",
     [
-        fws.Complete(2, d=1),
-        fws.Complete(3, d=1),
-        fws.Complete(4, d=1),
-        fws.Cycle(4, d=1),
-        fws.Cycle(5, d=1),
-        fws.Path(3, d=1),
-        fws.Path(4, d=1),
-        fws.Complete(2, d=2),
-        fws.Complete(3, d=2),
-        fws.Complete(4, d=2),
+        fws.Complete(2, dim=1),
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=1),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
+        fws.Path(3, dim=1),
+        fws.Path(4, dim=1),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
+        fws.Complete(4, dim=2),
         fws.CompleteBipartite(3, 3),
         fws.CompleteBipartite(3, 4),
         fws.CompleteBipartite(4, 4),
@@ -31,80 +32,72 @@ from sympy import Matrix, pi, sqrt, sympify
         fws.K33plusEdge(),
         fws.ThreePrism(),
         fws.ThreePrismPlusEdge(),
-        fws.Complete(3, d=3),
-        fws.Complete(4, d=3),
+        fws.Complete(3, dim=3),
+        fws.Complete(4, dim=3),
+        fws.Octahedron(),
     ]
-    + [fws.Complete(2, d=n) for n in range(1, 10)]
-    + [fws.Complete(3, d=n) for n in range(1, 10)]
-    + [fws.Complete(n - 1, d=n) for n in range(2, 10)]
-    + [fws.Complete(n, d=n) for n in range(1, 10)]
-    + [fws.Complete(n + 1, d=n) for n in range(1, 10)],
+    + [fws.Complete(2, dim=n) for n in range(1, 10)]
+    + [fws.Complete(3, dim=n) for n in range(1, 10)]
+    + [fws.Complete(n - 1, dim=n) for n in range(2, 10)]
+    + [fws.Complete(n, dim=n) for n in range(1, 10)]
+    + [fws.Complete(n + 1, dim=n) for n in range(1, 10)],
 )
-def test_inf_rigid(framework):
+def test_is_inf_rigid(framework):
     assert framework.is_inf_rigid()
-
-
-def test_check_vertex_and_edge_order():
-    F = Framework.Random(Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]))
-    vertex_order = ["a", "#", 0, 1.8]
-    edge_order = [(0, "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
-    assert F._check_vertex_order(vertex_order) and F._check_edge_order(edge_order)
-    vertex_order = ["a", "#", 0, "s"]
-    edge_order = [("#", "#"), ("a", 1.8), (0, 1.8), ("#", "a")]
-    with pytest.raises(ValueError):
-        F._check_vertex_order(vertex_order)
-    with pytest.raises(ValueError):
-        F._check_edge_order(edge_order)
 
 
 @pytest.mark.parametrize(
     "framework",
     [
         Framework.from_points([[i] for i in range(4)]),
-        Framework.Collinear(graphs.Complete(3), d=2),
+        Framework.Collinear(graphs.Complete(3), dim=2),
         fws.CompleteBipartite(1, 3),
         fws.CompleteBipartite(2, 3),
         fws.CompleteBipartite(3, 3, "dixonI"),
-        fws.Cycle(4, d=2),
-        fws.Cycle(5, d=2),
-        fws.Path(3, d=2),
-        fws.Path(4, d=2),
+        fws.Cycle(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
         fws.ThreePrism("flexible"),
         fws.ThreePrism("parallel"),
-        fws.Cycle(4, d=3),
-        fws.Path(3, d=3),
-        fws.Path(4, d=3),
+        fws.Cycle(4, dim=3),
+        fws.Path(3, dim=3),
+        fws.Path(4, dim=3),
         fws.Frustum(3),
+        fws.Cube(),
+        fws.Octahedron(realization="Bricard_line"),
+        fws.Octahedron(realization="Bricard_plane"),
     ]
-    + [fws.Cycle(n - 1, d=n) for n in range(5, 10)]
-    + [fws.Cycle(n, d=n) for n in range(4, 10)]
-    + [fws.Cycle(n + 1, d=n) for n in range(3, 10)],
+    + [fws.Cycle(n - 1, dim=n) for n in range(5, 10)]
+    + [fws.Cycle(n, dim=n) for n in range(4, 10)]
+    + [fws.Cycle(n + 1, dim=n) for n in range(3, 10)],
 )
-def test_not_inf_rigid(framework):
+def test_is_not_inf_rigid(framework):
     assert not framework.is_inf_rigid()
 
 
 @pytest.mark.parametrize(
     "framework",
     [
-        fws.Complete(2, d=1),
-        fws.Path(3, d=1),
-        fws.Path(4, d=1),
-        fws.Complete(2, d=2),
-        fws.Complete(3, d=2),
+        fws.Complete(2, dim=1),
+        fws.Path(3, dim=1),
+        fws.Path(4, dim=1),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
         fws.CompleteBipartite(3, 3),
         fws.Diamond(),
         fws.ThreePrism(),
-        fws.Complete(3, d=3),
-        fws.Complete(4, d=3),
+        fws.Complete(3, dim=3),
+        fws.Complete(4, dim=3),
+        fws.Octahedron(),
     ]
-    + [fws.Complete(2, d=n) for n in range(1, 7)]
-    + [fws.Complete(3, d=n) for n in range(2, 7)]
-    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
-    + [fws.Complete(n, d=n) for n in range(1, 7)]
-    + [fws.Complete(n + 1, d=n) for n in range(1, 7)],
+    + [fws.Complete(2, dim=n) for n in range(1, 7)]
+    + [fws.Complete(3, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n, dim=n) for n in range(1, 7)]
+    + [fws.Complete(n + 1, dim=n) for n in range(1, 7)],
 )
-def test_inf_min_rigid(framework):
+def test_is_min_inf_rigid(framework):
     assert framework.is_min_inf_rigid()
 
 
@@ -114,66 +107,69 @@ def test_inf_min_rigid(framework):
         fws.K33plusEdge(),
         fws.ThreePrismPlusEdge(),
         Framework.from_points([[i] for i in range(4)]),
-        fws.Complete(3, d=1),
-        fws.Complete(4, d=1),
-        fws.Cycle(4, d=1),
-        fws.Cycle(5, d=1),
-        Framework.Collinear(graphs.Complete(3), d=2),
-        fws.Complete(4, d=2),
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=1),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
+        Framework.Collinear(graphs.Complete(3), dim=2),
+        fws.Complete(4, dim=2),
         fws.CompleteBipartite(1, 3),
         fws.CompleteBipartite(2, 3),
         fws.CompleteBipartite(3, 3, "dixonI"),
         fws.CompleteBipartite(3, 4),
         fws.CompleteBipartite(4, 4),
-        fws.Cycle(4, d=2),
-        fws.Cycle(5, d=2),
-        fws.Path(3, d=2),
-        fws.Path(4, d=2),
+        fws.Cycle(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
         fws.ThreePrism("flexible"),
         fws.ThreePrism("parallel"),
-        fws.Cycle(4, d=3),
-        fws.Path(3, d=3),
-        fws.Path(4, d=3),
+        fws.Cycle(4, dim=3),
+        fws.Path(3, dim=3),
+        fws.Path(4, dim=3),
+        fws.Cube(),
+        fws.Octahedron(realization="Bricard_line"),
+        fws.Octahedron(realization="Bricard_plane"),
     ]
-    + [fws.Cycle(n - 1, d=n) for n in range(5, 7)]
-    + [fws.Cycle(n, d=n) for n in range(4, 7)]
-    + [fws.Cycle(n + 1, d=n) for n in range(3, 7)],
+    + [fws.Cycle(n - 1, dim=n) for n in range(5, 7)]
+    + [fws.Cycle(n, dim=n) for n in range(4, 7)]
+    + [fws.Cycle(n + 1, dim=n) for n in range(3, 7)],
 )
-def test_not_min_inf_rigid(framework):
+def test_is_not_min_inf_rigid(framework):
     assert not framework.is_min_inf_rigid()
 
 
 @pytest.mark.parametrize(
     "framework",
     [
-        fws.Complete(2, d=1),
-        fws.Complete(2, d=2),
-        fws.Complete(3, d=2),
-        fws.Complete(3, d=3),
-        fws.Complete(4, d=3),
+        fws.Complete(2, dim=1),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
+        fws.Complete(3, dim=3),
+        fws.Complete(4, dim=3),
         fws.CompleteBipartite(3, 3),
         fws.CompleteBipartite(1, 3),
         fws.CompleteBipartite(2, 3),
         fws.Diamond(),
         fws.ThreePrism(),
         Framework.from_points([[i] for i in range(4)]),
-        fws.Cycle(4, d=2),
-        fws.Cycle(5, d=2),
-        fws.Cycle(4, d=2),
-        fws.Path(3, d=1),
-        fws.Path(3, d=2),
-        fws.Path(4, d=2),
-        fws.Path(3, d=3),
-        fws.Path(4, d=3),
+        fws.Cycle(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Cycle(4, dim=2),
+        fws.Path(3, dim=1),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
+        fws.Path(3, dim=3),
+        fws.Path(4, dim=3),
     ]
-    + [fws.Complete(2, d=n) for n in range(1, 7)]
-    + [fws.Complete(3, d=n) for n in range(2, 7)]
-    + [fws.Complete(n - 1, d=n) for n in range(2, 7)]
-    + [fws.Complete(n, d=n) for n in range(1, 7)]
-    + [fws.Complete(n + 1, d=n) for n in range(1, 7)]
-    + [fws.Cycle(n - 1, d=n) for n in range(5, 7)]
-    + [fws.Cycle(n, d=n) for n in range(4, 7)]
-    + [fws.Cycle(n + 1, d=n) for n in range(3, 7)],
+    + [fws.Complete(2, dim=n) for n in range(1, 7)]
+    + [fws.Complete(3, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n, dim=n) for n in range(1, 7)]
+    + [fws.Complete(n + 1, dim=n) for n in range(1, 7)]
+    + [fws.Cycle(n - 1, dim=n) for n in range(5, 7)]
+    + [fws.Cycle(n, dim=n) for n in range(4, 7)]
+    + [fws.Cycle(n + 1, dim=n) for n in range(3, 7)],
 )
 def test_is_independent(framework):
     assert framework.is_independent()
@@ -184,17 +180,17 @@ def test_is_independent(framework):
     [
         fws.K33plusEdge(),
         fws.ThreePrismPlusEdge(),
-        Framework.Collinear(graphs.Complete(3), d=2),
-        fws.Complete(3, d=1),
-        fws.Complete(4, d=1),
-        fws.Complete(4, d=2),
+        Framework.Collinear(graphs.Complete(3), dim=2),
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=1),
+        fws.Complete(4, dim=2),
         fws.CompleteBipartite(3, 3, "dixonI"),
         fws.CompleteBipartite(3, 4),
         fws.CompleteBipartite(4, 4),
         fws.ThreePrism("flexible"),
         fws.ThreePrism("parallel"),
-        fws.Cycle(4, d=1),
-        fws.Cycle(5, d=1),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
     ]
     + [Framework.Random(graphs.Complete(n), dim=n - 2) for n in range(3, 8)],
 )
@@ -415,7 +411,7 @@ def test_is_quasi_injective():
     assert F6.is_quasi_injective()
 
 
-def test_framework_loops():
+def test_loop_error():
     with pytest.raises(LoopError):
         G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
         F = Framework(G, {1: (0, 0), 2: (1, 1), 3: (2, 0)})
@@ -426,6 +422,36 @@ def test_framework_loops():
     with pytest.raises(LoopError):
         G = Graph([[1, 2], [2, 3], [1, 3], [2, 2]])
         Framework.Random(G)
+
+
+@pytest.mark.parametrize(
+    "param",
+    [
+        0,
+        -2,
+    ],
+)
+def test_dimension_value_error(param):
+    with pytest.raises(ValueError):
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        Framework.Random(G, param)
+    with pytest.raises(ValueError):
+        Framework.Empty(param)
+
+
+@pytest.mark.parametrize(
+    "param",
+    [
+        1.1,
+        3 / 2,
+    ],
+)
+def test_dimension_type_error(param):
+    with pytest.raises(TypeError):
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        Framework.Random(G, param)
+    with pytest.raises(TypeError):
+        Framework.Empty(param)
 
 
 def test_translate():
@@ -603,8 +629,8 @@ def test_is_congruent():
 @pytest.mark.parametrize(
     "realization",
     [
-        {0: [0, 0, 0], 1: [1, 1, 1]},
-        {0: [0, 0, 1], 1: [1, 1, 1]},
+        {0: [0, 0, 0, 0], 1: [1, 1, 1, 1]},
+        {0: [0, 0, 1, 0], 1: [1, 1, 1, 1]},
         {0: [0, 0, 0, 0], 1: [0, 0, 0, 0]},
     ],
 )
@@ -613,18 +639,83 @@ def test_plot_error(realization):
     with pytest.raises(ValueError):
         F.plot()
 
+    plt.close()
 
-def test_plot2D_error():
+
+def test_plot():
+    F = Framework(graphs.Complete(2), {0: [1, 0], 1: [0, 1]})
+    F.plot()
+
+    F = Framework(graphs.Complete(2), {0: [1, 0, 0], 1: [0, 1, 1]})
+    F.plot()
+
+    plt.close("all")
+
+
+def test_plot2D():
     F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
     with pytest.raises(ValueError):
         F.plot2D(projection_matrix=[[1, 0], [0, 1], [0, 0]])
+    F.plot2D(projection_matrix=[[1, 0, 0, 0], [0, 1, 0, 0]])
 
     F = Framework(graphs.Complete(2), {0: [0, 0, 0], 1: [1, 0, 0]})
     with pytest.raises(ValueError):
         F.plot2D(projection_matrix=[[1, 0], [0, 1]])
+    F.plot2D()
 
+    F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
     with pytest.raises(ValueError):
-        F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0]})
+        F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0], 2: [0, 0, 0]})
+    F.plot2D(inf_flex=0)
+
+    F = fws.Complete(4)
+    F.plot2D(stress=0)
+
+    F = fws.Complete(4, dim=1)
+    F.plot2D(stress=0)
+
+    plt.close("all")
+
+
+def test_plot3D():
+    F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1], [0, 0, 0]])
+    F.plot3D()
+
+    F = Framework(graphs.Complete(2), {0: [0, 0, 0, 0], 1: [1, 0, 0, 0]})
+    with pytest.raises(ValueError):
+        F.plot3D(projection_matrix=[[1, 0, 0], [0, 0, 1]])
+    F.plot3D(projection_matrix=[[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]])
+
+    F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
+    F.plot3D(inf_flex=0)
+
+    F = fws.Octahedron(realization="Bricard_plane")
+    F.plot3D(inf_flex=0, stress=0)
+
+    F = fws.Complete(4)
+    F.plot3D(stress=0)
+
+    F = fws.Complete(4, dim=1)
+    F.plot3D(stress=0)
+
+    plt.close("all")
+
+
+def test_animate3D():
+    F = fws.Complete(4, dim=3)
+    F.animate3D()
+
+    F = fws.Complete(3)
+    with pytest.raises(ValueError):
+        F.animate3D()
+
+    F = fws.Complete(5, dim=4)
+    with pytest.raises(ValueError):
+        F.animate3D()
+
+    plt.close("all")
 
 
 def test_rigidity_matrix():
@@ -634,10 +725,10 @@ def test_rigidity_matrix():
     F = fws.Path(3)
     assert F.rigidity_matrix() == Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])
 
-    F = fws.Complete(3, d=1)
+    F = fws.Complete(3, dim=1)
     assert F.rigidity_matrix() == Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])
 
-    F = fws.Complete(4, d=3)
+    F = fws.Complete(4, dim=3)
     assert F.rigidity_matrix().shape == (6, 12)
 
     G = Graph([(0, "a"), ("b", "a"), ("b", 1.9), (1.9, 0)])
@@ -742,20 +833,146 @@ def test_edge_lengths():
     assert all([(v - 1).is_zero for v in F.edge_lengths(numerical=False).values()])
 
 
+@pytest.mark.parametrize(
+    "framework1, framework2",
+    [
+        [
+            fws.Complete(3, dim=2),
+            Framework(Graph.from_int(7), {0: [0, 0], 1: [1, 0], 2: [1, 1]}),
+        ],
+        [
+            fws.Complete(4, dim=2),
+            fws.Complete(4, dim=2),
+        ],
+    ],
+)
+def test__input_check_underlying_graphs(framework1, framework2):
+    assert framework1._input_check_underlying_graphs(framework2) is None
+    assert framework2._input_check_underlying_graphs(framework1) is None
+
+
+@pytest.mark.parametrize(
+    "framework1, framework2",
+    [
+        [
+            fws.Complete(3, dim=2),
+            Framework(Graph.from_int(31), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+        ],
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            Framework(Graph([[0, 1], [1, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]}),
+        ],
+    ],
+)
+def test__input_check_underlying_graphs_error(framework1, framework2):
+    with pytest.raises(ValueError):
+        framework1._input_check_underlying_graphs(framework2)
+
+
+@pytest.mark.parametrize(
+    "framework, realization, v",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            None,
+            1,
+        ],
+        [
+            Framework.Random(Graph([[1, 2], [2, 3]])),
+            {1: [1, 0], 2: [1, 1], 3: [2, 2]},
+            2,
+        ],
+        [
+            Framework.Random(Graph([["a", 2], [2, -3]])),
+            {2: [1, 0], -3: [1, 1], "a": [2, 2]},
+            2,
+        ],
+    ],
+)
+def test__input_check_vertex_key(framework, realization, v):
+    assert framework._input_check_vertex_key(v, realization) is None
+
+
+@pytest.mark.parametrize(
+    "framework, realization, v",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            None,
+            4,
+        ],
+        [Framework.Random(Graph([[1, 2], [2, 3]])), {1: [1, 0], 2: [1, 1]}, 3],
+        [
+            Framework.Random(Graph([["a", 2], [2, -3]])),
+            {2: [1, 0], -3: [1, 1], "a": [2, 2]},
+            "b",
+        ],
+    ],
+)
+def test__input_check_vertex_key_error(framework, realization, v):
+    with pytest.raises(KeyError):
+        framework._input_check_vertex_key(v, realization)
+
+
+@pytest.mark.parametrize(
+    "framework, point",
+    [
+        [Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}), [2, 3]],
+        [Framework.Random(Graph([[1, 2], [2, 3]]), 3), [2, 3, 4]],
+        [Framework.Random(Graph([["a", 2], [2, -3]]), 1), [2]],
+    ],
+)
+def test__input_check_point_dimension(framework, point):
+    assert framework._input_check_point_dimension(point) is None
+
+
+@pytest.mark.parametrize(
+    "framework, point",
+    [
+        [
+            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
+            [2, 3, 3],
+        ],
+        [Framework.Random(Graph([[1, 2], [2, 3]]), 3), [2, 3]],
+        [Framework.Random(Graph([["a", 2], [2, -3]]), 1), []],
+    ],
+)
+def test__input_check_point_dimension_error(framework, point):
+    with pytest.raises(ValueError):
+        framework._input_check_point_dimension(point)
+
+
 @pytest.mark.meshing
 def test__generate_stl_bar():
     mesh = Framework._generate_stl_bar(30, 4, 10, 5)
     assert mesh is not None
 
-    with pytest.raises(ValueError):
+
+@pytest.mark.meshing
+@pytest.mark.parametrize(
+    "holes_dist, holes_diam, bar_w, bar_h",
+    [
         # negative values are not allowed
-        Framework._generate_stl_bar(30, 4, 10, -5)
-    with pytest.raises(ValueError):
+        [30, 4, 10, -5],
+        [30, 4, -10, 5],
+        [30, -4, 10, 5],
+        [-30, 4, 10, 5],
+        # zero values are not allowed
+        [30, 4, 10, 0],
+        [30, 4, 0, 5],
+        [30, 0, 10, 5],
+        [0, 4, 10, 5],
         # width must be greater than diameter
-        Framework._generate_stl_bar(30, 4, 3, 5)
+        [30, 4, 3, 5],
+        [30, 4, 4, 5],
+        # holes_distance > 2 * holes_diameter
+        [6, 4, 10, 5],
+        [10, 5, 12, 12],
+    ],
+)
+def test__generate_stl_bar_error(holes_dist, holes_diam, bar_w, bar_h):
     with pytest.raises(ValueError):
-        # holes_distance <= 2 * holes_diameter
-        Framework._generate_stl_bar(6, 4, 10, 5)
+        Framework._generate_stl_bar(holes_dist, holes_diam, bar_w, bar_h)
 
 
 @pytest.mark.meshing

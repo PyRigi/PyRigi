@@ -1,5 +1,7 @@
-from pyrigi.motion import ParametricMotion
+from pyrigi import Framework
+from pyrigi.motion import ParametricMotion, ApproximateMotion
 import pyrigi.graphDB as graphs
+import pyrigi.frameworkDB as fws
 import sympy as sp
 import pytest
 
@@ -81,7 +83,7 @@ def test_realization():
         },
         [-sp.oo, sp.oo],
     )
-    R = mot.realization(0, numeric=False)
+    R = mot.realization(0, numerical=False)
     tmp = R[0]
     assert tmp[0] == 0
     assert tmp[1] == 0
@@ -98,7 +100,7 @@ def test_realization():
     assert tmp[0] == 1
     assert tmp[1] == 0
 
-    R = mot.realization("2/3", numeric=False)
+    R = mot.realization("2/3", numerical=False)
     tmp = R[2]
     assert tmp[0] == sp.sympify("-7/5")
     assert tmp[1] == sp.sympify("9/5")
@@ -107,7 +109,7 @@ def test_realization():
     assert tmp[0] == sp.sympify("-16/65")
     assert tmp[1] == sp.sympify("-63/65")
 
-    R = mot.realization(2 / 3, numeric=True)
+    R = mot.realization(2 / 3, numerical=True)
     tmp = R[2]
     assert abs(tmp[0] - (-7 / 5)) < 1e-9
     assert abs(tmp[1] - 9 / 5) < 1e-9
@@ -117,7 +119,7 @@ def test_realization():
     assert abs(tmp[1] - (-63 / 65)) < 1e-9
 
 
-def test_parmot_init():
+def test_ParametricMotion_init():
     mot = {
         0: ("k", "0"),
         1: ("1", "0"),
@@ -154,3 +156,65 @@ def test_parmot_init():
     }
     with pytest.raises(ValueError):
         ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
+
+
+def test_ApproximateMotion_init():
+    ApproximateMotion(fws.Cycle(4), 10)
+    F = fws.Cycle(5)
+    ApproximateMotion.from_graph(
+        F.graph(), F.realization(as_points=True, numerical=True), 1, 1
+    )
+
+
+@pytest.mark.slow_main
+def test_animate():
+    """
+    Test that the motion actually moves.
+    """
+    F = fws.Square()
+    M = ApproximateMotion.from_graph(
+        F.graph(), F.realization(as_points=True, numerical=True), 50, 0.075
+    )
+
+    for i in range(1, len(M.motion_samples)):
+        assert F.is_equivalent_realization(
+            M.motion_samples[i], numerical=True, tolerance=1e-4
+        ) and not F.is_congruent_realization(
+            M.motion_samples[i], numerical=True, tolerance=1e-4
+        )
+    M.animate()
+
+
+def test_ApproximateMotion_from_framework():
+    F = fws.Square()
+    M = ApproximateMotion(F, 10, 0.075)
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+
+    # Square with a triangle on one of its sides
+    F.add_vertex([2, 2])
+    F.add_edges([[2, 4], [3, 4]])
+    M = ApproximateMotion(F, 10, 0.075)
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+
+    # overconstrained flexible framework
+    F = Framework.Complete([[0, 0], [1, 0], [1, 1], [0, 1]])
+    F.add_vertex([2, 2])
+    F.add_edge([2, 4])
+    M = ApproximateMotion(F, 10, 0.075)
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+
+
+@pytest.mark.long_local
+def test_newton_raises_runtimeerror():
+    F = fws.ThreePrism(realization="flexible")
+    with pytest.raises(RuntimeError):
+        ApproximateMotion(F, 5, 0.1)
