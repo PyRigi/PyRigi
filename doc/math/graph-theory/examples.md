@@ -1,5 +1,7 @@
 # Examples of Graphs
 
+Here we list some examples of graphs relevant for Rigidity Theory.
+
 ## Generalized Double Bananas
 
 :::{prf:definition} Generalized double banana
