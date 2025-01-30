@@ -18,7 +18,6 @@ from copy import deepcopy
 from itertools import combinations
 from random import randrange
 
-import networkx as nx
 import sympy as sp
 import numpy as np
 import functools
