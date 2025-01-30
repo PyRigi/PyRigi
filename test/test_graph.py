@@ -919,13 +919,10 @@ def test_rigid_components():
     assert rigid_components[0] == [0, 1, 2, 3, 4, 5]
     G.remove_edge(2, 3)
     rigid_components = G.rigid_components(dim=1)
-    assert [set(H) for H in rigid_components] == [
-        set([0, 1, 2]),
-        set([3, 4, 5]),
-    ] or [set(H) for H in rigid_components] == [
-        set([3, 4, 5]),
-        set([0, 1, 2]),
-    ]
+    assert {frozenset(H) for H in rigid_components} == {
+        frozenset([0, 1, 2]),
+        frozenset([3, 4, 5]),
+    }
 
     G = graphs.Path(5)
     rigid_components = G.rigid_components(algorithm="randomized")
@@ -953,30 +950,25 @@ def test_rigid_components():
         ]
     )
     rigid_components = G.rigid_components(algorithm="randomized")
-    assert [set(H) for H in rigid_components] == [
-        set([0, "a", "b"]),
-        set([0, 1, 2, 3, 4, 5]),
-    ] or [set(H) for H in rigid_components] == [
-        set([0, 1, 2, 3, 4, 5]),
-        set([0, "a", "b"]),
-    ]
+    assert {frozenset(H) for H in rigid_components} == {
+        frozenset([0, "a", "b"]),
+        frozenset([0, 1, 2, 3, 4, 5]),
+    }
 
     G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
     rigid_components = G.rigid_components(algorithm="randomized")
-    assert [set(H) for H in rigid_components] == [
-        set([0, 1, 2]),
-        set([3, 4, 5]),
-    ] or [set(H) for H in rigid_components] == [
-        set([3, 4, 5]),
-        set([0, 1, 2]),
-    ]
+    assert {frozenset(H) for H in rigid_components} == {
+        frozenset([0, 1, 2]),
+        frozenset([3, 4, 5]),
+    }
 
     G = graphs.Complete(3)
     G.add_vertex(3)
     rigid_components = G.rigid_components(algorithm="randomized")
-    assert [set(H) for H in rigid_components] == [set([0, 1, 2]), set([3])] or [
-        set(H) for H in rigid_components
-    ] == [set([3]), set([0, 1, 2])]
+    assert {frozenset(H) for H in rigid_components} == {
+        frozenset([0, 1, 2]),
+        frozenset([3]),
+    }
 
     G = graphs.ThreePrism()
     rigid_components = G.rigid_components(algorithm="randomized")
@@ -985,22 +977,19 @@ def test_rigid_components():
     G = graphs.ThreeConnectedR3Circuit()
     G.remove_node(0)
     rigid_components = G.rigid_components(algorithm="randomized")
-    assert sorted([sorted(H) for H in rigid_components]) == [
-        [1, 2, 3, 4],
-        [1, 10, 11, 12],
-        [4, 5, 6, 7],
-        [7, 8, 9, 10],
-    ]
+    assert {frozenset(H) for H in rigid_components} == {
+        frozenset([1, 2, 3, 4]),
+        frozenset([1, 10, 11, 12]),
+        frozenset([4, 5, 6, 7]),
+        frozenset([7, 8, 9, 10]),
+    }
 
     G = graphs.DoubleBanana()
     rigid_components = G.rigid_components(dim=3, algorithm="randomized")
-    assert [set(H) for H in rigid_components] == [
-        set([0, 1, 2, 3, 4]),
-        set([0, 1, 5, 6, 7]),
-    ] or [set(H) for H in rigid_components] == [
-        set([0, 1, 5, 6, 7]),
-        set([0, 1, 2, 3, 4]),
-    ]
+    assert {frozenset(H) for H in rigid_components} == {
+        frozenset([0, 1, 2, 3, 4]),
+        frozenset([0, 1, 5, 6, 7]),
+    }
 
 
 def test__str__():
@@ -1020,12 +1009,10 @@ def test_vertex_and_edge_lists():
     assert G.vertex_list() == [1, 2, 3]
     assert G.edge_list() == [[1, 2], [2, 3]]
     G = Graph([(chr(i + 67), i + 1) for i in range(3)] + [(i, i + 1) for i in range(3)])
-    assert set(G.vertex_list()) == set(["C", 1, "D", 2, "E", 3, 0])
-    assert set(G.edge_list()) == set(
-        [("C", 1), (1, 0), (1, 2), ("D", 2), (2, 3), ("E", 3)]
-    )
+    assert set(G.vertex_list()) == {"C", 1, "D", 2, "E", 3, 0}
+    assert set(G.edge_list()) == {("C", 1), (1, 0), (1, 2), ("D", 2), (2, 3), ("E", 3)}
     G = Graph.from_vertices(["C", 1, "D", 2, "E", 3, 0])
-    assert set(G.vertex_list()) == set(["C", 2, "E", 1, "D", 3, 0])
+    assert set(G.vertex_list()) == {"C", 2, "E", 1, "D", 3, 0}
     assert G.edge_list() == []
 
 
@@ -1746,7 +1733,7 @@ def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
     "graph, edge",
     [
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,)],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), 1],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1, 2, 3]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
@@ -1766,7 +1753,7 @@ def test__input_check_edge_type_error(graph, edge):
     "graph, edge, vertices",
     [
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,), [1, 2, 3]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1), [1, 2, 3]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), 1, [1, 2, 3]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1], [1, 2, 3]],
         [Graph([(1, 2), (2, 3)]), [1, 2, 3], [1, 2, 3]],
         [
@@ -1855,9 +1842,9 @@ def test__input_check_edge_list_value_error(graph, edge):
     "graph, edge",
     [
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,)],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1)],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), 1],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1,)]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1)]],
+        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
         [Graph([[1, 2], [2, 3]]), "12"],
         [Graph.from_int(7), [0, 1]],
