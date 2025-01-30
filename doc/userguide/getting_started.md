@@ -59,7 +59,7 @@ F
 
 Notice that in order to keep the coordinates symbolic, they must be entered as strings (or SymPy expressions).
 
-We can plot frameworks and graphs, see also tutorial [Plotting](plotting-tutorial). 
+We can plot frameworks and graphs, see also the [Plotting](plotting-tutorial) tutorial. 
 
 ```{code-cell} ipython3
 F.plot()
@@ -119,7 +119,7 @@ G_TP.is_rigid(dim=1)
 ```
 
 ```{code-cell} ipython3
-G_TP.is_rigid(dim=3, combinatorial=False)
+G_TP.is_rigid(dim=3, algorithm="randomized")
 ```
 
 ```{code-cell} ipython3

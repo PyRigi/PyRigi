@@ -18,7 +18,6 @@ from copy import deepcopy
 from itertools import combinations
 from random import randrange
 
-import networkx as nx
 import sympy as sp
 import numpy as np
 import functools
@@ -96,10 +95,6 @@ class Framework(object):
     [1],
     [2]])
 
-    TODO
-    ----
-    Use :meth:`~.Framework.set_realization` in the constructor.
-
     METHODS
 
     Notes
@@ -123,17 +118,8 @@ class Framework(object):
         else:
             self._dim = 0
 
-        for v in graph.nodes:
-            if v not in realization:
-                raise KeyError(f"Vertex {v} is not contained in the realization.")
-            if not len(realization[v]) == self._dim:
-                raise ValueError(
-                    f"The point {realization[v]} in the realization corresponding to "
-                    f"vertex {v} does not have the right dimension."
-                )
-
-        self._realization = {v: Matrix(realization[v]) for v in graph.nodes}
         self._graph = deepcopy(graph)
+        self.set_realization(realization)
 
     def __str__(self) -> str:
         """Return the string representation."""
@@ -265,7 +251,7 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        self._graph._input_check_edge_format(edge)
+        self._graph._input_check_edge_format(edge, loopfree=True)
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
@@ -1883,10 +1869,6 @@ class Framework(object):
         [ 2],
         [ 2],
         [ 1]])]
-
-        TODO
-        ----
-        tests
         """
         return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
 
@@ -2030,10 +2012,6 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
-
-        TODO
-        ----
-        tests
 
         Examples
         --------
@@ -2953,7 +2931,7 @@ class Framework(object):
         Check whether the underlying graphs of two frameworks are the same and
         raise an error otherwise.
         """
-        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+        if self._graph != other_framework._graph:
             raise ValueError("The underlying graphs are not same!")
 
     def _input_check_vertex_key(
