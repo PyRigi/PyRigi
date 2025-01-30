@@ -434,7 +434,7 @@ def test_is_quasi_injective():
     F4.set_realization(F4.realization(numerical=True))
     assert F4.is_quasi_injective(numerical=True)
 
-    # test numerically not quasi-injective, but symbolicaly quasi-injective framework
+    # test numerically not quasi-injective, but symbolically quasi-injective framework
     F5 = deepcopy(F3)
     F5.set_vertex_pos(0, F5[1] + point_to_vector([1e-10, 1e-10]))
     assert not F5.is_quasi_injective(numerical=True, tolerance=1e-8)
