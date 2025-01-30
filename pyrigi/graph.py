@@ -2933,7 +2933,7 @@ class Graph(nx.Graph):
             # for [u,v] and for [v,u]
             return True  # they are actually globally linked, not just weakly
         # check (u,v) are linked pair
-        if not list(filter(lambda x: u in x and v in x, self.rigid_components())):
+        if not list(filter(lambda x: u in x and v in x, self.rigid_components(combinatorial=False))):
             return False
 
         # check (u,v) are such that kappa_self(u,v) > 2
