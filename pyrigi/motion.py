@@ -15,6 +15,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from pyrigi import _plot
+import pyrigi._input_check as _input_check
 from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
 import numpy as np
@@ -134,11 +135,7 @@ class Motion(object):
         duration:
             The duration of one period of the animation in seconds.
         """
-        if self._dim != 3:
-            raise ValueError(
-                f"The Motion is in dimension {self._dim}, "
-                + "not 3 as the method `animate3D` requires."
-            )
+        _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
         if plot_style is None:
             # change some PlotStyle default values to fit 3D plotting better
             plot_style = PlotStyle3D(
@@ -306,11 +303,7 @@ class Motion(object):
         """
         if self._dim == 1:
             realizations = [{v: [p[0], 0] for p, v in r} for r in realizations]
-        if self._dim not in [1, 2]:
-            raise ValueError(
-                "The Framework is in dimension {self._dim}, "
-                + "not 2 as the method `animate2D` requires."
-            )
+        _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_plt")
 
         delay = int(round(duration / len(realizations) * 1000))  # Set the delay in ms
 
@@ -459,8 +452,9 @@ class Motion(object):
         ``plot_style.edge_width`` does not rescale the vertex size
         (seems to be an odd, inherent behavior of `.svg`).
         """
-        if self._dim != 2:
-            raise ValueError("Animations are supported only for motions in 2D.")
+        if self._dim == 1:
+            realizations = [{v: [p[0], 0] for p, v in r} for r in realizations]
+        _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_svg")
 
         if plot_style is None:
             plot_style = PlotStyle2D(
@@ -572,9 +566,9 @@ class Motion(object):
         """
         if self._dim == 3:
             return self.animate3D(realizations, plot_style=plot_style, **kwargs)
-        elif self._dim > 3:
-            raise ValueError("This motion is in higher dimension than 3!")
-        elif format == "svg":
+        _input_check.dimension_for_algorithm(self._dim, [1, 2, 3], "animate3D")
+
+        if format == "svg":
             return self.animate2D_svg(realizations, plot_style=plot_style, **kwargs)
         elif format == "matplotlib":
             return self.animate2D_plt(realizations, plot_style=plot_style, **kwargs)
