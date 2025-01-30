@@ -27,7 +27,7 @@ for some suggestions about what the maintainers would be happy to have in PyRigi
 
 ## Further Topics
 :::{toctree}
-:maxdepth: 
+:maxdepth: 2
 howto/style_guide
 howto/testing
 howto/git
