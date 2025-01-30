@@ -14,12 +14,13 @@ from pyrigi.data_type import (
     Edge,
 )
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
+from pyrigi import _plot
 from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
 import numpy as np
 import sympy as sp
 from IPython.display import SVG
-from typing import Any
+from typing import Any, Literal
 from copy import deepcopy
 from warnings import warn
 from matplotlib.animation import FuncAnimation
@@ -107,7 +108,7 @@ class Motion(object):
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        delay: int = 75,
+        duration: float = 8,
         **kwargs,
     ) -> Any:
         """
@@ -130,8 +131,8 @@ class Motion(object):
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
             The ommited edges are given the value ``plot_style.edge_color``.
-        delay:
-            Delay between frames in milliseconds.
+        duration:
+            The duration of one period of the animation in seconds.
         """
         if self._dim != 3:
             raise ValueError(
@@ -149,6 +150,8 @@ class Motion(object):
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
 
+        delay = int(round(duration / len(realizations) * 1000))  # Set the delay in ms
+
         fig = plt.figure(dpi=plot_style.dpi)
         ax = fig.add_subplot(111, projection="3d")
         ax.grid(False)
@@ -163,8 +166,6 @@ class Motion(object):
         ax.set_zlim(min_val * aspect_ratio[2], max_val * aspect_ratio[2])
         ax.set_ylim(min_val * aspect_ratio[1], max_val * aspect_ratio[1])
         ax.set_xlim(min_val * aspect_ratio[0], max_val * aspect_ratio[0])
-
-        from pyrigi import _plot
 
         # Update the plot_style instance with any passed keyword arguments
         edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
@@ -276,7 +277,7 @@ class Motion(object):
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        delay: int = 50,
+        duration: float = 8,
         **kwargs,
     ) -> Any:
         """
@@ -300,8 +301,8 @@ class Motion(object):
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
             The ommited edges are given the value ``plot_style.edge_color``.
-        delay:
-            Delay between frames in milliseconds.
+        duration:
+            The duration of one period of the animation in seconds.
         """
         if self._dim == 1:
             realizations = [{v: [p[0], 0] for p, v in r} for r in realizations]
@@ -310,6 +311,8 @@ class Motion(object):
                 "The Framework is in dimension {self._dim}, "
                 + "not 2 as the method `animate2D` requires."
             )
+
+        delay = int(round(duration / len(realizations) * 1000))  # Set the delay in ms
 
         if plot_style is None:
             plot_style = PlotStyle2D(vertex_size=15)
@@ -336,8 +339,6 @@ class Motion(object):
             s=plot_style.vertex_size,
             marker=plot_style.vertex_shape,
         )
-
-        from pyrigi import _plot
 
         # Update the plot_style instance with any passed keyword arguments
         edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
@@ -433,7 +434,7 @@ class Motion(object):
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
         filename: str = None,
-        duration: int = 8,
+        duration: float = 8,
         **kwargs,
     ) -> Any:
         """
@@ -544,7 +545,7 @@ class Motion(object):
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
-        svg: bool = True,
+        format: Literal["svg", "matplotlib"] = "svg",
         **kwargs,
     ) -> Any:
         """
@@ -562,21 +563,25 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
-        svg:
-            In 2 dimensions, the boolean ``svg`` can be set to determine, whether the
+        format:
+            In 2 dimensions, the Literal ``format`` can be set to determine, whether the
             output is in the `.svg` format or in the `matplotlib` format.
-            The `svg==True`method is documented here: :meth:`~.Motion.animate2D_svg`.
-            The method for `svg==False` is documented here:
+            The `"svg"` method is documented here: :meth:`~.Motion.animate2D_svg`.
+            The method for `"matplotlib"` is documented here:
             :meth:`~.Motion.animate2D_plt`.
         """
         if self._dim == 3:
             return self.animate3D(realizations, plot_style=plot_style, **kwargs)
         elif self._dim > 3:
             raise ValueError("This motion is in higher dimension than 3!")
-        elif svg:
+        elif format == "svg":
             return self.animate2D_svg(realizations, plot_style=plot_style, **kwargs)
-        else:
+        elif format == "matplotlib":
             return self.animate2D_plt(realizations, plot_style=plot_style, **kwargs)
+        else:
+            raise ValueError(
+                "The Literal `format` needs to be " + 'either "svg" or "matplotlib".'
+            )
 
 
 class ParametricMotion(Motion):
@@ -798,14 +803,16 @@ class ApproximateMotion(Motion):
         distance is at least ``turning_threshold`` times as large as the distance
         of the negative infinitesimal flex, then the latter one is chosen instead.
         If instead the animation is too slow, consider increasing this value.
-    fixed_edge:
-        The edge of the underlying graph that is fixed in the list of realizations.
+    fixed_pair:
+        Two vertices of the underlying graph that are fixed in the list of realizations.
         By default, the first entry is pinned to the origin
-        and the second is pinned to the `x`-axis.
+        and the second is pinned to the ``x``-axis.
     fixed_direction:
         Vector to which the first direction is fixed. By default, this is given by
-        the first and second entry.
+        the first and second entry of ``fixed_pair``.
     pin_vertex:
+        If the keyword ``fixed_pair`` is not set, we can use the keyword ``pin_vertex``
+        to pin one of the vertices to the origin instead during the motion.
 
     Attributes
     ----------
@@ -843,7 +850,7 @@ class ApproximateMotion(Motion):
         step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
-        fixed_edge: DirectedEdge = None,
+        fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
     ) -> None:
@@ -858,7 +865,7 @@ class ApproximateMotion(Motion):
         self._current_step_size = step_size
         self.edge_lengths = F.edge_lengths(numerical=True)
         self._compute_motion_samples(chosen_flex, turning_threshold)
-        if fixed_edge is not None:
+        if fixed_pair is not None:
             if fixed_direction is None:
                 fixed_direction = [1] + [0 for _ in range(self._dim - 1)]
             if len(fixed_direction) != self._dim:
@@ -867,11 +874,11 @@ class ApproximateMotion(Motion):
                     + f" motion's dimension, which is {self._dim}."
                 )
             self.motion_samples = self._fix_edge(
-                self.motion_samples, fixed_edge, fixed_direction
+                self.motion_samples, fixed_pair, fixed_direction
             )
         elif pin_vertex is not None:
             self.motion_samples = self._pin_origin(self.motion_samples, pin_vertex)
-        self.fixed_edge = fixed_edge
+        self.fixed_pair = fixed_pair
         self.fixed_direction = fixed_direction
         self.pin_vertex = pin_vertex
 
@@ -884,7 +891,7 @@ class ApproximateMotion(Motion):
         step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
-        fixed_edge: DirectedEdge = None,
+        fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
     ):
@@ -916,7 +923,7 @@ class ApproximateMotion(Motion):
             step_size=step_size,
             chosen_flex=chosen_flex,
             turning_threshold=turning_threshold,
-            fixed_edge=fixed_edge,
+            fixed_pair=fixed_pair,
             fixed_direction=fixed_direction,
             pin_vertex=pin_vertex,
         )
@@ -1009,27 +1016,27 @@ class ApproximateMotion(Motion):
     @staticmethod
     def _fix_edge(
         realizations: Sequence[dict[Vertex, Point]],
-        fixed_edge: DirectedEdge,
+        fixed_pair: DirectedEdge,
         fixed_direction: Sequence[Number],
     ) -> list[dict[Vertex, Point]]:
         """
-        Fix the edge ``fixed_edge`` for every entry of ``realizations``.
+        Fix the two vertices in ``fixed_pair`` for every entry of ``realizations``.
 
         Parameters
         ----------
         realizations:
             A list of realization samples describing the motion.
-        fixed_edge:
-            The edge of the underlying graph that should not move during
+        fixed_pair:
+            Two vertices of the underlying graph that should not move during
             the animation. By default, the first entry is pinned to the origin
             and the second is pinned to the `x`-axis.
         fixed_direction:
             Vector to which the first direction is fixed. By default, this is given by
             the first and second entry.
         """
-        if len(fixed_edge) != 2:
-            raise TypeError("The length of `fixed_edge` is not 2.")
-        (v1, v2) = (fixed_edge[0], fixed_edge[1])
+        if len(fixed_pair) != 2:
+            raise TypeError("The length of `fixed_pair` is not 2.")
+        (v1, v2) = (fixed_pair[0], fixed_pair[1])
         if not (v1 in realizations[0] and v2 in realizations[0]):
             raise ValueError(
                 "The vertices of the edge {realizations} are not part of the graph."
@@ -1046,7 +1053,7 @@ class ApproximateMotion(Motion):
             ]
             if np.isclose(np.linalg.norm(fixed_direction), 0, rtol=1e-6):
                 warn(
-                    f"The entries of the edge {fixed_edge} are too close to each "
+                    f"The entries of the edge {fixed_pair} are too close to each "
                     + "other. Thus, `fixed_direction=(1,0)` is chosen instead."
                 )
                 fixed_direction = [1] + [

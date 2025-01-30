@@ -582,11 +582,12 @@ class Framework(object):
         from pyrigi import Motion
 
         M = Motion(self.graph(), self.dim())
+        duration = 2 * total_frames * delay / 1000
         return M.animate3D(
             _realizations,
             plot_style=plot_style,
             edge_coloring=edge_coloring,
-            delay=delay,
+            duration=duration,
         )
 
     @doc_category("Plotting")
