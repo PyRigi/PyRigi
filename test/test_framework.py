@@ -834,37 +834,25 @@ def test_stresses():
     F = fws.Complete(4)
     stresses = F.stresses()
     assert len(stresses) == 1 and all(
-        [
-            F.is_stress([entry for entry in s.transpose()], numerical=True)
-            for s in stresses
-        ]
+        [F.is_stress(s, numerical=True) for s in stresses]
     )
 
     F = fws.Complete(5)
     stresses = F.stresses()
     assert len(stresses) == 3 and all(
-        [
-            F.is_stress([entry for entry in s.transpose()], numerical=True)
-            for s in stresses
-        ]
+        [F.is_stress(s, numerical=True) for s in stresses]
     )
 
     F = fws.Frustum(3)
     stresses = F.stresses()
     assert len(stresses) == 1 and all(
-        [
-            F.is_stress([entry for entry in s.transpose()], numerical=True)
-            for s in stresses
-        ]
+        [F.is_stress(s, numerical=True) for s in stresses]
     )
 
     F = fws.Frustum(4)
     stresses = F.stresses()
     assert len(stresses) == 1 and all(
-        [
-            F.is_stress([entry for entry in s.transpose()], numerical=True)
-            for s in stresses
-        ]
+        [F.is_stress(s, numerical=True) for s in stresses]
     )
 
 
