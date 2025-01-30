@@ -27,6 +27,43 @@ __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 from pyrigi.plot_style import PlotStyle
 
 
+def focus_on_3_components(G: Graph):
+    separating_pairs = list(nx.all_node_cuts(G))
+    sep_list = [list(i) for i in separating_pairs]
+    G.add_edges(sep_list)
+    dizio = nx.k_components(G)
+    lista_3_comp = []
+    # per ogni 2-componente
+    for B in dizio[2]:
+        # se non ci sono s-separators
+        if not separating_pairs or len(separating_pairs[0]) != 2:
+            lista_3_comp.append(B)
+            continue
+        lista = []
+        # se ci sono degli vertici i cui vicini sono solo i 2-separators
+        for v in B:
+            if set(nx.neighbors(G, v)) in separating_pairs:
+                lista.append(v)
+        for v in lista:
+            B.remove(v)
+
+        pila_sub = []
+        for s, p in separating_pairs:
+            Q = B.copy()
+            Q.remove(s), Q.remove(p)
+            pila_sub.append(nx.subgraph(G, Q))
+        pila_TF = [nx.is_connected(subgraph) for subgraph in pila_sub]
+        if False in pila_TF:
+            for i in list(nx.connected_components(pila_sub[pila_TF.index(False)])):
+                i.update(separating_pairs[pila_TF.index(False)])
+                lista_3_comp.append(i)
+
+        else:
+            lista_3_comp.append(B)
+
+    return lista_3_comp
+
+
 class Graph(nx.Graph):
     """
     Class representing a graph.
@@ -2795,11 +2832,11 @@ class Graph(nx.Graph):
         {0, 1, 2}
 
         """  # noqa: E501
-        
+
         for v in V:
             if v not in self.nodes:
                 raise ValueError(f"The node {v} is not a node of the graph.")
-                
+
         res = set()
         for v in V:
             if v in self.nodes:
@@ -2809,14 +2846,14 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def make_outside_neighbors_clique(self, X: list[Vertex] | set[Vertex]):
         """
-        Consider the subgraph of self induced by X, contract each connected components of self 
+        Consider the subgraph of self induced by X, contract each connected components of self
         minus X  to a single vertex. Make their neighbors in X into a clique.
-        
+
         Definitions
         -----------
         def of clique
         def of this operation
-        
+
         Parameters
         ----------
         X:
@@ -2877,8 +2914,13 @@ class Graph(nx.Graph):
             augmented_G = self.copy()
             cutsets = list(nx.all_node_cuts(self))
             augmented_G.add_edges(cutsets)
-            tricomp = nx.k_components(augmented_G)[3]
-            V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
+            try:
+                tricomp = nx.k_components(augmented_G)[3]
+                V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
+            except Exception:
+                tricomp = focus_on_3_components(augmented_G)
+                V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
+
             B = augmented_G.subgraph(V_B)
             return B
 
@@ -2933,7 +2975,11 @@ class Graph(nx.Graph):
             # for [u,v] and for [v,u]
             return True  # they are actually globally linked, not just weakly
         # check (u,v) are linked pair
-        if not list(filter(lambda x: u in x and v in x, self.rigid_components(combinatorial=False))):
+        if not list(
+            filter(
+                lambda x: u in x and v in x, self.rigid_components(combinatorial=False)
+            )
+        ):
             return False
 
         # check (u,v) are such that kappa_self(u,v) > 2
