@@ -434,7 +434,7 @@ def test_is_quasi_injective():
     F4.set_realization(F4.realization(numerical=True))
     assert F4.is_quasi_injective(numerical=True)
 
-    # test numerically not quasi-injective, but symbollicaly quasi-injective framework
+    # test numerically not quasi-injective, but symbolicaly quasi-injective framework
     F5 = deepcopy(F3)
     F5.set_vertex_pos(0, F5[1] + point_to_vector([1e-10, 1e-10]))
     assert not F5.is_quasi_injective(numerical=True, tolerance=1e-8)
@@ -1035,5 +1035,4 @@ def test_generate_stl_bars():
     fr = Framework(
         gr, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]}
     )
-    n = fr.generate_stl_bars(scale=20, filename_prefix="mybar")
-    assert n is None
+    assert fr.generate_stl_bars(scale=20, filename_prefix="mybar") is None

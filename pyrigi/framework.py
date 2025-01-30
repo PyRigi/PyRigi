@@ -2932,7 +2932,7 @@ class Framework(object):
         Check whether the underlying graphs of two frameworks are the same and
         raise an error otherwise.
         """
-        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+        if self._graph != other_framework._graph:
             raise ValueError("The underlying graphs are not same!")
 
     def _input_check_vertex_key(
