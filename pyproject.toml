@@ -67,7 +67,7 @@ doctest_plus = "enabled"
 pythonpath = [
   "."
 ]
-addopts = "-m 'not slow_main and not long_local'" # deselect large tests by default
+addopts = "-m 'not slow_main and not long_local' -p no:warnings" # deselect large tests by default
 # you can run all tests with -m 'not slow_main or slow_main'
 markers = [
     "slow_main: marks slower tests run at merge to main",
