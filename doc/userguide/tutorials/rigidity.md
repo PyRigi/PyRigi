@@ -229,7 +229,7 @@ For dimensions greater than 2, no combinatorial rigidity criterion is known.
 To still get a result, a randomized algorithm can be called using the command:
 
 ```{code-cell} ipython3
-G_TP.is_rigid(dim=3, combinatorial=False)
+G_TP.is_rigid(dim=3, algorithm="randomized")
 ```
 
 In fact, we can compute the maximal dimension, in which a graph is rigid using the method {meth}`~.Graph.max_rigid_dimension`.
@@ -243,7 +243,7 @@ which is returned as a partition of vertices.
 
 ```{code-cell} ipython3
 G = graphs.DoubleBanana()
-G.rigid_components(dim=3, combinatorial=False)
+G.rigid_components(dim=3, algorithm="randomized")
 ```
 
 We can also investigate the (generic) ({prf:ref}`global <def-globally-rigid-graph>`)
@@ -314,7 +314,7 @@ Famously, the double banana is (3,6)-sparse, but not rigid.
 ```{code-cell} ipython3
 G = graphs.DoubleBanana()
 print(G.is_kl_sparse(3, 6))
-print(G.is_rigid(dim=3, combinatorial=False))
+print(G.is_rigid(dim=3, algorithm="randomized"))
 ```
 
 Similarly, it can be checked whether a graph is {prf:ref}`(k,l)-tight <def-kl-sparse-tight>`.

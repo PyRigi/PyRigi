@@ -119,7 +119,7 @@ G_TP.is_rigid(dim=1)
 ```
 
 ```{code-cell} ipython3
-G_TP.is_rigid(dim=3, combinatorial=False)
+G_TP.is_rigid(dim=3, algorithm="randomized")
 ```
 
 ```{code-cell} ipython3

@@ -1780,7 +1780,7 @@ class Graph(nx.Graph):
             See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
             the randomized check returns a correct result.
         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2`` and ``combinatorial=True``.
+            Only relevant if ``dim=2`` and ``algorithm="combinatorial"``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
