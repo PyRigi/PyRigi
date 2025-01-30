@@ -44,6 +44,10 @@ class GraphDrawer(object):
     graph:
         (optional) A graph without loops which is to be drawn on canvas
         when the object is created. The non-integer labels are relabeled
+    size:
+        (optional) [width, height] of the canvas, defaults to [600,600]
+        width and height will be arranged so that they are multiples of 100
+        with minimum value 300 and maximum value 1000.
     layout_type:
         Layout type to visualise the ``graph``.
         For supported layout types see :meth:`.Graph.layout`.
@@ -75,7 +79,7 @@ class GraphDrawer(object):
     """  # noqa: E501
 
     def __init__(
-        self, graph: Graph = None, layout_type: str = "spring", place: str = "all"
+        self, graph: Graph = None,size:list=[600,600], layout_type: str = "spring", place: str = "all"
     ) -> None:
         """
         Constructor of the class.
@@ -97,7 +101,15 @@ class GraphDrawer(object):
         self._out = Output()  # can later be used to represent some properties
 
         # setting multicanvas properties
-        self._mcanvas = MultiCanvas(4, width=600, height=600)
+
+        # arrange width and height of the canvas so that they are in [300,1000]
+        for i in range(2):
+            if size[i]<300: size[i]=300
+            if size[i]>1000 : size[i]=1000
+        # convert members of size to closest multiple of 100
+        size = [int(round(x/100)*100) for x in size]
+
+        self._mcanvas = MultiCanvas(4, width=size[0], height=size[1])
         self._mcanvas[0].stroke_rect(0, 0, self._mcanvas.width, self._mcanvas.height)
         self._mcanvas[2].font = "12px serif"
         self._mcanvas[2].text_align = "center"
@@ -706,14 +718,14 @@ class GraphDrawer(object):
         H.add_edges_from(self._graph.edges)
         return H
 
-    def framework(self, grid=False) -> Framework:
+    def framework(self, grid:bool=False) -> Framework:
         """
         Return a copy of the current 2D framework on the multicanvas.
 
         Parameters
         ---------
         grid:
-            (boolean) When set True and the `Stick Vertices to Corners' is checked the vertices that lie on the
+            When set True and the `Stick Vertices to Corners' is checked the vertices that lie on the
             grid corners will be mapped (in the realisation map) to lattice points corresponding to the grid corners.
             The vertices that do not lie on the grid corners will be mapped (in the realisation map) to the canvas points in pixels where
             the origin is the center of the canvas.
