@@ -91,7 +91,6 @@ class GraphDrawer(object):
         self._e_color = "black"  # default color for edges
 
         self._selected_vertex = None  # this determines what vertex to update on canvas
-        self._next_vertex_label = 0  # label for next vertex
         self._show_vlabels = True
         self._mouse_down = False
         self._vertexmove_on = False
@@ -321,7 +320,6 @@ class GraphDrawer(object):
         for edge in graph.edges:
             self._graph.add_edge(edge[0], edge[1], color=self._e_color)
 
-        self._next_vertex_label = max(self._graph.nodes) + 1
         if len(vertex_map) != 0:
             with self._out:
                 print("relabeled vertices:", vertex_map)
@@ -437,11 +435,11 @@ class GraphDrawer(object):
         if self._selected_vertex is None and self._collided_edge(x, y) is None:
             # add a new vertex if no vertex is selected and
             # no edge contains the mouse pointer position
+            vertex = self._least_available_label()
             self._graph.add_node(
-                self._next_vertex_label, color=self._v_color, pos=location
+                vertex, color=self._v_color, pos=location
             )
-            self._selected_vertex = self._next_vertex_label
-            self._next_vertex_label += 1
+            self._selected_vertex = vertex
         with hold_canvas():
             # redraw graph and send the edges incident with selected vertex to layer 1
             # and the selected vertex to layer 3 for possible continuous update.
@@ -474,11 +472,10 @@ class GraphDrawer(object):
         if vertex is None:
             # if there is no existing vertex containing the mouse pointer position,
             # add a new vertex and an edge between the new vertex and the selected vertex
-            vertex = self._next_vertex_label
+            vertex = self._least_available_label()
 
             self._graph.add_node(vertex, color=self._v_color, pos=location)
             self._graph.add_edge(vertex, s_vertex, color=self._e_color)
-            self._next_vertex_label += 1
         elif vertex is not None and vertex is not s_vertex:
             # if there is a vertex containing mouse pointer position other than
             # the selected vertex, add / remove edge between these two vertices.
@@ -708,6 +705,17 @@ class GraphDrawer(object):
         elif grid_y > (self._mcanvas.height/2)/self._grid_size:
             grid_y += -1
         return [grid_x, grid_y]
+    def _least_available_label(self):
+        """
+        Returns the least non-negative integer available for the new vertex label.
+        """
+        if self._graph.number_of_nodes() == 0:
+            return 0
+        
+        # the following is enough as there has to be an available label from 0 to the number of vertices.
+        for i in range(self._graph.number_of_nodes()+1):
+            if not self._graph.has_node(i):
+                return i
 
     def graph(self) -> Graph:
         """
@@ -725,7 +733,7 @@ class GraphDrawer(object):
         Parameters
         ---------
         grid:
-            When set True and the `Stick Vertices to Corners' is checked the vertices that lie on the
+            When set True and the ``Stick Vertices to Corners`` is checked the vertices that lie on the
             grid corners will be mapped (in the realisation map) to lattice points corresponding to the grid corners.
             The vertices that do not lie on the grid corners will be mapped (in the realisation map) to the canvas points in pixels where
             the origin is the center of the canvas.
