@@ -59,7 +59,7 @@ F
 
 Notice that in order to keep the coordinates symbolic, they must be entered as strings (or SymPy expressions).
 
-We can plot frameworks and graphs, see also tutorial [Plotting](plotting-tutorial). 
+We can plot frameworks and graphs, see also the [Plotting](plotting-tutorial) tutorial. 
 
 ```{code-cell} ipython3
 F.plot()
