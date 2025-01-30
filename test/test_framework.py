@@ -155,7 +155,6 @@ def test_is_not_min_inf_rigid(framework):
         Framework.from_points([[i] for i in range(4)]),
         fws.Cycle(4, dim=2),
         fws.Cycle(5, dim=2),
-        fws.Cycle(4, dim=2),
         fws.Path(3, dim=1),
         fws.Path(3, dim=2),
         fws.Path(4, dim=2),
@@ -196,6 +195,44 @@ def test_is_independent(framework):
 )
 def test_is_dependent(framework):
     assert framework.is_dependent()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=2),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
+        fws.CompleteBipartite(4, 3),
+        fws.CompleteBipartite(4, 4),
+    ],
+)
+def test_is_redundantly_rigid(framework):
+    assert framework.is_redundantly_rigid()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Complete(2, dim=1),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
+        fws.Complete(4, dim=3),
+        fws.CompleteBipartite(3, 3),
+        fws.K33plusEdge(),
+        fws.Diamond(),
+        fws.ThreePrism(),
+        fws.Complete(3, dim=3),
+        fws.Octahedron(),
+        fws.Cube(),
+    ],
+)
+def test_is_not_redundantly_rigid(framework):
+    assert not framework.is_redundantly_rigid()
 
 
 def test_dimension():
@@ -793,12 +830,29 @@ def test_stresses():
     )
     Q2 = Matrix.hstack(*(fws.CompleteBipartite(4, 4).stresses()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
+
+    F = fws.Complete(4)
+    stresses = F.stresses()
+    assert len(stresses) == 1 and all(
+        [F.is_stress(s, numerical=True) for s in stresses]
+    )
+
     F = fws.Complete(5)
-    assert all(
-        [
-            F.is_stress([entry for entry in s.transpose()], numerical=True)
-            for s in F.stresses()
-        ]
+    stresses = F.stresses()
+    assert len(stresses) == 3 and all(
+        [F.is_stress(s, numerical=True) for s in stresses]
+    )
+
+    F = fws.Frustum(3)
+    stresses = F.stresses()
+    assert len(stresses) == 1 and all(
+        [F.is_stress(s, numerical=True) for s in stresses]
+    )
+
+    F = fws.Frustum(4)
+    stresses = F.stresses()
+    assert len(stresses) == 1 and all(
+        [F.is_stress(s, numerical=True) for s in stresses]
     )
 
 
