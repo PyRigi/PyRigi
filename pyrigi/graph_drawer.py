@@ -13,6 +13,8 @@ Classes:
 from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox
 from ipycanvas import MultiCanvas, hold_canvas
 from IPython.display import display
+
+from pyrigi.data_type import Edge
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 from ipyevents import Event
@@ -234,7 +236,7 @@ class GraphDrawer(object):
         with self._out:
             print("press and hold ctrl key to move vertices around with mouse.")
 
-    def _handle_event(self, event):
+    def _handle_event(self, event) -> None:
         """
         This function handles keyboard events and double click event using ``ipyevents``.
         """
@@ -246,7 +248,7 @@ class GraphDrawer(object):
             x, y = event["relativeX"], event["relativeY"]
             self._handle_dblclick(x, y)
 
-    def _assign_pos(self, x, y, place):
+    def _assign_pos(self, x, y, place) -> list[int]:
         """
         This function converts layout positions which are between -1 and 1
         to canvas positions according to the chosen place by scaling.
@@ -302,7 +304,7 @@ class GraphDrawer(object):
                 int(height * 3 / 4 + y * (height / 4 - r - 3)),
             ]
 
-    def _set_graph(self, graph: Graph, layout_type, place):
+    def _set_graph(self, graph: Graph, layout_type, place) -> None:
         vertex_map = {}
         for vertex in graph:
             if not isinstance(vertex, int) or vertex < 0:
@@ -447,7 +449,7 @@ class GraphDrawer(object):
             self._mcanvas.width / 2, self._mcanvas.height / 2, 2
         )
 
-    def _handle_mouse_down(self, x, y):
+    def _handle_mouse_down(self, x, y) -> None:
         """
         Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_down`.
 
@@ -477,7 +479,7 @@ class GraphDrawer(object):
 
         self._mouse_down = True
 
-    def _handle_mouse_up(self, x, y):
+    def _handle_mouse_up(self, x, y) -> None:
         """
         Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_up`.
 
@@ -520,7 +522,7 @@ class GraphDrawer(object):
             self._redraw_graph()
         self._mouse_down = False
 
-    def _handle_dblclick(self, x, y):
+    def _handle_dblclick(self, x, y) -> None:
         """
         This function is the handler for double click event (using ipyevents).
 
@@ -538,7 +540,7 @@ class GraphDrawer(object):
             self._redraw_graph()
         self._selected_vertex = None
 
-    def _handle_mouse_move(self, x, y):
+    def _handle_mouse_move(self, x, y) -> None:
         """
         Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_move`.
 
@@ -578,12 +580,13 @@ class GraphDrawer(object):
                 self._mcanvas[3].clear()
                 self._redraw_vertex(vertex)
 
-    def _handle_mouse_out(self, x, y):
+    def _handle_mouse_out(self, x, y) -> None:
         """
         Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_out`.
 
         It determines what to do when the mouse leaves multicanvas.
         """
+        _, _ = x, y  # To avoid unused variable warning
         self._selected_vertex = None
         self._vertexmove_on = False
         with hold_canvas():
@@ -603,7 +606,7 @@ class GraphDrawer(object):
                 return vertex
         return None
 
-    def _collided_edge(self, x, y):
+    def _collided_edge(self, x, y) -> Edge | None:
         """
         Return the edge containing the point (x,y) on canvas.
         """
@@ -619,7 +622,8 @@ class GraphDrawer(object):
                 return edge
         return None
 
-    def _point_distance_to_segment(self, a, b, p):
+    @staticmethod
+    def _point_distance_to_segment(a, b, p) -> float:
         """
         Return the distance between point 'p' and line segment given by 'a' and 'b'.
         """
@@ -633,7 +637,7 @@ class GraphDrawer(object):
         closest_point = a + t * ab
         return np.linalg.norm(p - closest_point)
 
-    def _redraw_vertex(self, vertex):
+    def _redraw_vertex(self, vertex) -> None:
         """
         Update the position of a specific vertex and its incident edges
 

@@ -12,7 +12,12 @@ kernelspec:
   name: python3
 ---
 
+(tutorial-framework-database)=
 # Database of frameworks
+
++++
+
+This notebook can be downloaded {download}`here <../../notebooks/framework_database.ipynb>`.
 
 +++
 
@@ -34,15 +39,15 @@ frameworks.Complete(2)
 ```
 
 ```{code-cell} ipython3
-frameworks.Complete(3, d=1)
+frameworks.Complete(3, dim=1)
 ```
 
 ```{code-cell} ipython3
-frameworks.Complete(4, d=3)
+frameworks.Complete(4, dim=3)
 ```
 
 ```{code-cell} ipython3
-K4 = frameworks.Complete(4, d=2)
+K4 = frameworks.Complete(4, dim=2)
 print(K4)
 K4.plot()
 ```
@@ -51,7 +56,7 @@ Currently, for $d\geq 3$, the number of vertices must be at most $d+1$ so the gr
 
 ```{code-cell} ipython3
 try:
-    frameworks.Complete(5, d=3)
+    frameworks.Complete(5, dim=3)
 except ValueError as e:
     print(e)
 ```
@@ -63,17 +68,17 @@ except ValueError as e:
 {func}`~.frameworkDB.CompleteBipartite` returns 2-dimensional complete bipartite frameworks.
 
 ```{code-cell} ipython3
-K34 = frameworks.CompleteBipartite(3,3)
-K34.plot()
-K34.is_inf_rigid()
+K33 = frameworks.CompleteBipartite(3, 3)
+K33.plot()
+K33.is_inf_rigid()
 ```
 
 The first construction of a flexible realization by Dixon places one part on the $x$-axis and the other part on the $y$-axis.
 
 ```{code-cell} ipython3
-K34_dixonI = frameworks.CompleteBipartite(3,3,'dixonI')
-K34_dixonI.plot()
-K34_dixonI.is_inf_flexible()
+K33_dixonI = frameworks.CompleteBipartite(3, 3, 'dixonI')
+K33_dixonI.plot()
+K33_dixonI.is_inf_flexible()
 ```
 
 ## Cycle frameworks
@@ -90,11 +95,11 @@ C5.plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.Cycle(5,d=1)
+frameworks.Cycle(5, dim=1)
 ```
 
 ```{code-cell} ipython3
-frameworks.Cycle(5,d=4)
+frameworks.Cycle(5, dim=4)
 ```
 
 ## Path frameworks
@@ -111,11 +116,11 @@ P5.plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.Path(5,d=1)
+frameworks.Path(5, dim=1)
 ```
 
 ```{code-cell} ipython3
-frameworks.Path(5,d=4)
+frameworks.Path(5, dim=4)
 ```
 
 ## 3-prism
@@ -166,4 +171,16 @@ frameworks.K33plusEdge().plot()
 
 ```{code-cell} ipython3
 frameworks.ThreePrismPlusEdge().plot()
+```
+
+```{code-cell} ipython3
+frameworks.Frustum(3).plot()
+```
+
+```{code-cell} ipython3
+frameworks.CnSymmetricFourRegular(10).plot()
+```
+
+```{code-cell} ipython3
+frameworks.CnSymmetricFourRegularWithFixedVertex(8).plot()
 ```

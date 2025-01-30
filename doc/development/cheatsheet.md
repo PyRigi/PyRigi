@@ -1,3 +1,4 @@
+(cheatsheet)=
 # Cheatsheet
 
 While `monospace` is done using `` `monospace` `` in MyST,
@@ -18,9 +19,9 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 :delim: ;
 `` {prf:ref}`def-framework` ``; {prf:ref}`def-framework`
 `` {prf:ref}`Framework <def-framework>` ``; {prf:ref}`Framework <def-framework>`
-`` {cite:p}`Geiringer1927` ``; {cite:p}`Geiringer1927`
+`` {cite:p}`PollaczekGeiringer1927` ``; {cite:p}`PollaczekGeiringer1927`
 `` {cite:p}`Laman1970{Thm 5.6}` ``; {cite:p}`Laman1970{Thm 5.6}`
-`` {cite:p}`Geiringer1927,Laman1970` ``; {cite:p}`Geiringer1927,Laman1970` 
+`` {cite:p}`PollaczekGeiringer1927,Laman1970` ``; {cite:p}`PollaczekGeiringer1927,Laman1970` 
 :::
 ::::
 
@@ -31,9 +32,9 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 :delim: ;
 `` :prf:ref:`def-framework` `` ; {prf:ref}`def-framework`
 `` :prf:ref:`Framework <def-framework>` `` ; {prf:ref}`Framework <def-framework>`
-`` :cite:p:`Geiringer1927` `` ; {cite:p}`Geiringer1927`
+`` :cite:p:`PollaczekGeiringer1927` `` ; {cite:p}`PollaczekGeiringer1927`
 `` :cite:p:`Laman1970{Thm 5.6}` ``; {cite:p}`Laman1970{Thm 5.6}`
-`` :cite:p:`Geiringer1927,Laman1970` ``; {cite:p}`Geiringer1927,Laman1970` 
+`` :cite:p:`PollaczekGeiringer1927,Laman1970` ``; {cite:p}`PollaczekGeiringer1927,Laman1970` 
 :::
 ::::
 
@@ -57,7 +58,6 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 `` {meth}`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` {meth}`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
 `` {func}`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
-`` {doc}`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::
 
@@ -72,6 +72,38 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 `` :meth:`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` :meth:`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
 `` :func:`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
+:::
+::::
+
+:::::
+
+
+
+### Cross-references to pages
+For creating a label on a page use ``(label)=`` before a section title.
+This label is used together with ``ref`` for internal references, see below.
+
+For references to ``networkx`` we use ``doc`` instead provided by the setting ``intersphinx_mapping``
+in ``conf.py``. This is also available for references to ``python`` and ``sympy``.
+
+:::::{tab-set}
+
+::::{tab-item} MyST (`.md` files)
+:sync: myst
+
+:::{csv-table}
+`` {ref}`installation-guide` ``, {ref}`installation-guide`
+`` {ref}`Link to Instalation Guide<installation-guide>` ``, {ref}`Link to Instalation Guide<installation-guide>`
+`` {doc}`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
+:::
+::::
+
+::::{tab-item} reST  (docstrings)
+:sync: rest
+
+:::{csv-table}
+`` :ref:`installation-guide` ``, {ref}`installation-guide`
+`` :ref:`Link to Instalation Guide<installation-guide>` ``, {ref}`Link to Instalation Guide<installation-guide>`
 `` :doc:`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::
@@ -96,7 +128,7 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 {meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 % list of related references, no separating commas
 :::
 ````
@@ -115,7 +147,7 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 {meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 % list of related references, no separating commas
 :::
 

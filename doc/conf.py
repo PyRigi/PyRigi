@@ -26,9 +26,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "0.2"
+version = "0.4"
 # The full version, including alpha/beta/rc tags
-release = "0.2.0"
+release = "0.4.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -80,13 +80,17 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_preprocess_types = True
-napoleon_custom_sections = ["Definitions", "Methods"]
+napoleon_custom_sections = ["Definitions", "Methods", "Suggested Improvements"]
 
 autodoc_type_aliases = {
     "Vertex": "Vertex",
     "Edge": "Edge",
+    "DirectedEdge": "DirectedEdge",
     "Point": "Point",
-    "Coordinate": "Coordinate",
+    "Number": "Number",
+    "Stress": "Stress",
+    "InfFlex": "InfFlex",
+    "Inf": "Inf",
 }
 napoleon_attr_annotations = True
 
@@ -122,6 +126,9 @@ myst_substitutions = {
 myst_heading_anchors = 3
 
 nb_execution_mode = "cache"
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
+nb_execution_timeout = 60
 
 tippy_enable_mathjax = True
 tippy_props = {
@@ -175,7 +182,14 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "userguide/tutorials/*.ipynb"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "userguide/tutorials/*.ipynb",
+    "notebooks/*.ipynb",
+    "userguide/*.ipynb",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
@@ -223,7 +237,7 @@ html_title = "PyRigi"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-html_css_files = ["tippy.css"]
+html_css_files = ["tippy.css", "thm.css"]
 
 
 # Custom sidebar templates, must be a dictionary that maps document names

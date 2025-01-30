@@ -1,5 +1,12 @@
-from pyrigi.misc import is_zero_vector
+import pytest
+from pyrigi.misc import (
+    is_zero_vector,
+    generate_two_orthonormal_vectors,
+    eval_sympy_vector,
+)
 from pyrigi.data_type import point_to_vector
+import numpy as np
+from random import randint
 
 
 def test_is_zero_vector():
@@ -28,3 +35,24 @@ def test_is_zero_vector():
     V6 = point_to_vector([1e-8, 1e-8])
     assert not is_zero_vector(V6)
     assert not is_zero_vector(V6, numerical=True, tolerance=1e-9)
+
+
+def test_generate_two_orthonormal_vectors():
+    for _ in range(15):
+        m = generate_two_orthonormal_vectors(randint(2, 10))
+        assert abs(np.dot(m[:, 0], m[:, 1])) < 1e-9
+        assert abs(np.linalg.norm(m[:, 0])) - 1 < 1e-9
+        assert abs(np.linalg.norm(m[:, 1])) - 1 < 1e-9
+
+
+def test_eval_sympy_vector():
+    with pytest.raises(TypeError):
+        eval_sympy_vector("12mkcd")
+    with pytest.raises(ValueError):
+        eval_sympy_vector(["sin(pi)^"])
+    assert eval_sympy_vector(["cos(0)", "sin(pi)"]) == [1, 0]
+    assert eval_sympy_vector(["sqrt(2)^2", "0.123123123123123123123123123123123"]) == [
+        2,
+        0.12312312312312312,
+    ]
+    assert eval_sympy_vector(["1/4", -1]) == [0.25, -1]

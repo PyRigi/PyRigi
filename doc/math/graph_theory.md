@@ -1,6 +1,28 @@
 # Graph Theory
 
-Here we introduce graph theoretical concepts related to Rigidity Theory. 
+Here we introduce graph theoretical concepts related to Rigidity Theory.
+
+## General notions
+
+:::{prf:definition} Union
+:label: def-union-graph
+
+Let $G_1 = (V_1, E_1)$ and $G_2 = (V_2, E_2)$ be simple graphs.
+The _union_ of $G_1$ and $G_2$ is the simple graph whose vertex set is $V_1 \cup V_2$
+and whose edge set is $E_1 \cup E_2$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.__add__`
+:::
+
+
+:::{prf:definition} t-sum
+:label: def-t-sum
+
+Given three graphs $G=(V,E)$, $G_1=(V_1,E_1)$, and $G_2=(V_2,E_2)$, we say that
+$G$ is a _$t$-sum_ of $G_1,G_2$ along an edge $e$ if $G=(G_1\cup G_2)-e$,
+$G_1\cap G_2=K_t$ and $e\in E_1\cap E_2$.
+:::
+
 
 ## Sparse and tight graphs
 
@@ -14,7 +36,7 @@ The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and 
 {{pyrigi_crossref}} {meth}`~.Graph.is_sparse`
 {meth}`~.Graph.is_tight`
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 :::
 
 
@@ -45,3 +67,8 @@ is called a $d$-dimensional _k-extension_ of $G$.
 {meth}`~.Graph.all_k_extensions`
 {meth}`~.Graph.extension_sequence`
 :::
+
+
+:::{toctree}
+:maxdepth: 2
+graph-theory/examples

@@ -40,20 +40,81 @@ Note, that the word generically is often omitted when talking about graphs.
 Let $G$ be a graph, let $d, k \in \NN$.
 The graph $G$ is called
 
-* _minimally_redundantly (generically) $d$-rigid_ if it is {prf:ref}`redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not redundantly (generically) $d$-rigid any more.
-* _minimally_vertex_redundantly (generically) $d$-rigid_ if it is {prf:ref}`vertex_redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not vertex_redundantly (generically) $d$-rigid any more.
-* _minimally_k_redundantly (generically) $d$-rigid_ if it is {prf:ref}`k_redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_redundantly (generically) $d$-rigid any more.
-* _minimally_k_vertex_redundantly (generically) $d$-rigid_ if it is {prf:ref}`k_vertex_redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not k_vertex_redundantly (generically) $d$-rigid any more.
+* _minimally redundantly (generically) $d$-rigid_ if it is {prf:ref}`redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not redundantly (generically) $d$-rigid any more.
+* _minimally vertex redundantly (generically) $d$-rigid_ if it is {prf:ref}`vertex redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not vertex redundantly (generically) $d$-rigid any more.
+* _minimally $k$-redundantly (generically) $d$-rigid_ if it is {prf:ref}`k-redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not $k$-redundantly (generically) $d$-rigid any more.
+* _minimally $k$-vertex redundantly (generically) $d$-rigid_ if it is {prf:ref}`k-vertex redundantly (generically) d-rigid<def-redundantly-rigid-graph>` and there is an edge such that the graph obtained by deleting this edge is not $k$-vertex redundantly (generically) $d$-rigid any more.
 
 Note, that the word generically is often omitted when talking about graphs.
 
-{{pyrigi_crossref}} {meth}`~.Graph.is_minimally_redundantly_rigid`
-{meth}`~.Graph.is_minimally_vertex_redundantly_rigid`
-{meth}`~.Graph.is_minimally_k_redundantly_rigid`
-{meth}`~.Graph.is_minimally_k_vertex_redundantly_rigid`
+{{pyrigi_crossref}} {meth}`~.Graph.is_min_redundantly_rigid`
+{meth}`~.Graph.is_min_vertex_redundantly_rigid`
+{meth}`~.Graph.is_min_k_redundantly_rigid`
+{meth}`~.Graph.is_min_k_vertex_redundantly_rigid`
+:::
+
+## (Edge) Redundancy
+:::{prf:theorem}
+:label: thm-k-edge-redundant-edge-bound-dim2
+
+Let $G = (V, E)$ be a {prf:ref}`k-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 6 (k + 1) + 23$ and let $k \geq 3$. Then
+\begin{equation*}
+  |E| \geq \left\lceil \frac{k + 2}{2} |V| \right\rceil \,.
+\end{equation*}
+
+{{references}} {cite:p}`Jordan2021{Thm 6}`
 :::
 
 
+:::{prf:theorem}
+:label: thm-2-edge-redundant-edge-bound-dim2
+
+Let $G = (V, E)$ be a {prf:ref}`2-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 5$. Then
+\begin{equation*}
+  |E| \geq 2 |V| \,.
+\end{equation*}
+
+{{references}} compare  {cite:p}`Jordan2021{Thm 7}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-2-edge-redundant-edge-bound-dim3
+
+Let $G = (V, E)$ be a {prf:ref}`2-redundantly 3-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 14$. Then
+\begin{equation*}
+  |E| \geq 3 |V| - 4 \,.
+\end{equation*}
+
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 4.5}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-k-edge-redundant-edge-bound-dim3
+
+Let $G = (V, E)$ be a {prf:ref}`k-redundantly 3-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 12 (k + 1) + 10$ where $|V|$ is even and $k \geq 4$. Then
+\begin{equation*}
+  |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
+\end{equation*}
+
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 4.9}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-minimal-1-edge-redundant-upper-edge-bound-dim2
+
+Let $G = (V, E)$ be a {prf:ref}`minimally 1-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V| \geq 7$. Then
+\begin{equation*}
+  |E| \leq 3 |V| - 9 \,.
+\end{equation*}
+
+{{references}} {cite:p}`Jordan2016`
+:::
+
+
+## Vertex Redundancy
 :::{prf:theorem}
 :label: thm-k-vertex-redundant-edge-bound-general
 
@@ -62,7 +123,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-ri
   |E| \geq d |V| - \binom{d + 1}{2} + k d + max \left\{ 0, \left\lceil k - \frac{d + 1}{2} \right\rceil \right\} \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 5}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 5}`
 :::
 
 
@@ -74,7 +135,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-ri
   |E| \geq \left\lceil \frac{d + k}{2} |V| \right\rceil \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 6}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 6}`
 :::
 
 
@@ -87,7 +148,7 @@ Let $G = (V, E)$ be a {prf:ref}`1-vertex-redundantly 2-rigid <def-redundantly-ri
 \end{equation*}
 
 {{references}} {cite:p}`Servatius1989`
-{cite:p}`Summers2008{Lem 1}`
+{cite:p}`SummersYuAnderson2008{Lem 1}`
 :::
 
 
@@ -99,7 +160,7 @@ Let $G = (V, E)$ be a {prf:ref}`2-vertex-redundantly 2-rigid <def-redundantly-ri
   |E| \geq 2 |V| + 2 \,.
 \end{equation*}
 
-{{references}} {cite:p}`AlirezaMotevallian2014{Lem 4.9}`
+{{references}} {cite:p}`MotevallianYuAnderson2014{Lem 4.9}`
 :::
 
 
@@ -123,7 +184,7 @@ Let $G = (V, E)$ be a {prf:ref}`3-vertex-redundantly 3-rigid <def-redundantly-ri
   |E| \geq 3 |V| + 5 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Thm 2.12}`
+{{references}} {cite:p}`JordanPostonRoach2022{Lem 2.12}`
 :::
 
 
@@ -135,55 +196,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly 3-rigid <def-redundantly-ri
   |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Thm 3.3}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-k-edge-redundant-edge-bound-dim2
-
-Let $G = (V, E)$ be a {prf:ref}`k-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 6 (k + 1) + 23$ and let $k \geq 3$. Then
-\begin{equation*}
-  |E| \geq \left\lceil \frac{k + 2}{2} |V| \right\rceil \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2021{Thm 6}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-1-edge-redundant-edge-bound-dim2
-
-Let $G = (V, E)$ be a {prf:ref}`1-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 5$. Then
-\begin{equation*}
-  |E| \geq 2 |V| \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2021{Thm 7}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-2-edge-redundant-edge-bound-dim3
-
-Let $G = (V, E)$ be a {prf:ref}`2-redundantly 3-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 14$. Then
-\begin{equation*}
-  |E| \geq 3 |V| - 4 \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2022{Thm 4.5}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-k-edge-redundant-edge-bound-dim3
-
-Let $G = (V, E)$ be a {prf:ref}`k-redundantly 3-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 12 (k + 1) + 10$ where $|V|$ is even and $k \geq 4$. Then
-\begin{equation*}
-  |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2022{Thm 4.9}`
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 3.3}`
 :::
 
 
@@ -195,7 +208,7 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly d-rigid <def-redu
   |E| \leq (d + k) |V| - \binom{d + k + 1}{2} \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 7}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 7}`
 :::
 
 
@@ -207,18 +220,6 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly 1-rigid <def-redu
   |E| \leq (k + 1) |V| - (k + 1)^2 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 8}`
-:::
-
-
-:::{prf:theorem}
-:label: thm-minimal-1-edge-redundant-upper-edge-bound-dim2
-
-Let $G = (V, E)$ be a {prf:ref}`minimally 1-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V| \geq 7$. Then
-\begin{equation*}
-  |E| \leq 3 |V| - 9 \,.
-\end{equation*}
-
-{{references}} {cite:p}`Jordan2016`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 8}`
 :::
 
