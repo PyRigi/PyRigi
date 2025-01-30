@@ -18,7 +18,6 @@ from copy import deepcopy
 from itertools import combinations
 from random import randrange
 
-import networkx as nx
 import sympy as sp
 import numpy as np
 import functools
@@ -2932,7 +2931,7 @@ class Framework(object):
         Check whether the underlying graphs of two frameworks are the same and
         raise an error otherwise.
         """
-        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+        if self._graph != other_framework._graph:
             raise ValueError("The underlying graphs are not same!")
 
     def _input_check_vertex_key(
