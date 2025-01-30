@@ -4,9 +4,10 @@
 
 :::{toctree}
 :maxdepth: 2
+tutorials/rigidity
 tutorials/graph_basics
-tutorials/framework_database
 tutorials/plotting
+tutorials/framework_database
 tutorials/motion
 tutorials/mesh_generation
 :::

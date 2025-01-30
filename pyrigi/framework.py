@@ -264,7 +264,7 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        self._graph._input_check_edge_format(edge)
+        self._graph._input_check_edge_format(edge, loopfree=True)
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
@@ -502,7 +502,7 @@ class Framework(object):
         --------
         >>> from pyrigi import frameworkDB
         >>> F = frameworkDB.Complete(4, dim=3)
-        >>> F.animate3D_rotation();
+        >>> F.animate3D_rotation()
         """
         _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
         if plot_style is None:
@@ -939,6 +939,8 @@ class Framework(object):
 
         Parameters
         ----------
+        dim:
+            The dimension of the constructed framework.
         graph:
             Graph on which the random realization should be constructed.
         rand_range:
@@ -1016,6 +1018,8 @@ class Framework(object):
 
         Parameters
         ----------
+        dim:
+            The dimension of the constructed framework.
         graph:
             Underlying graph on which the framework is constructed.
 
@@ -1053,10 +1057,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4);
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4)
         >>> F.realization(as_points=True)
         {0: [0, 0, 0, 0], 1: [1, 0, 0, 0], 2: [0, 1, 0, 0], 3: [0, 0, 1, 0]}
-        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]));
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]))
         >>> F.realization(as_points=True)
         {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
@@ -1321,10 +1325,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
-        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]);
+        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
@@ -1351,10 +1355,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
-        >>> F.set_vertex_positions({1:(0,1),3:(1,1)});
+        >>> F.set_vertex_positions({1:(0,1),3:(1,1)})
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
@@ -2715,7 +2719,7 @@ class Framework(object):
 
         Parameters
         ----------
-        inf_flex:
+        vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
         Notes
@@ -2759,7 +2763,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list | tuple):
+        if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_nontrivial_inf_flex(inf_flex, **kwargs)
@@ -2815,7 +2819,7 @@ class Framework(object):
 
         Parameters
         ----------
-        inf_flex:
+        vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
         Notes
@@ -2859,7 +2863,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list | tuple):
+        if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_trivial_inf_flex(inf_flex, **kwargs)

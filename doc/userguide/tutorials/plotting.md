@@ -11,6 +11,7 @@ kernelspec:
   name: python3
 ---
 
+(plotting-tutorial)=
 # Plotting
 
 +++

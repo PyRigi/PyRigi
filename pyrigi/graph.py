@@ -247,9 +247,11 @@ class Graph(nx.Graph):
                         + f" {to_check} is not a vertex of the graph!"
                     )
 
-    def _input_check_edge_format(self, input_pair: Edge) -> None:
+    def _input_check_edge_format(
+        self, input_pair: Edge, loopfree: bool = False
+    ) -> None:
         """
-        Check if an input_pair is a pair of distinct vertices of the graph and
+        Check if an input_pair is a pair of (distinct) vertices of the graph and
         raise an error otherwise.
         """
         if not isinstance(input_pair, list | tuple) or not len(input_pair) == 2:
@@ -257,7 +259,7 @@ class Graph(nx.Graph):
                 f"The input {input_pair} must be a tuple or list of length 2!"
             )
         self._input_check_vertex_members(input_pair, "the input pair")
-        if input_pair[0] == input_pair[1]:
+        if loopfree and input_pair[0] == input_pair[1]:
             raise LoopError(f"The input {input_pair} must be two distinct vertices.")
 
     def _input_check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
@@ -325,7 +327,7 @@ class Graph(nx.Graph):
         Notes
         -----
         Throws an error if the vertices in `vertex_order` do not agree with the
-        underlying graphs's vertices.
+        underlying graph's vertices.
         """
         if vertex_order is None:
             return self.vertex_list()
@@ -356,7 +358,7 @@ class Graph(nx.Graph):
         Notes
         -----
         Throws an error if the edges in `edge_order` do not agree with the
-        underlying graphs's edges.
+        underlying graph's edges.
         """
         if edge_order is None:
             return self.edge_list()
@@ -714,7 +716,7 @@ class Graph(nx.Graph):
             is consistent with the graph.
 
         Examples
-        ----´
+        --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(4)
         >>> G.is_kl_tight(2,2)
@@ -791,7 +793,7 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [2, 5]]
         >>> G
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.zero_extension([0, 1, 2], 5, dim=3, inplace=True);
+        >>> G.zero_extension([0, 1, 2], 5, dim=3, inplace=True)
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
         >>> G
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
@@ -920,6 +922,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
+        self._input_check_no_loop()
         self._input_check_vertex_members(vertices, "'the vertices'")
         if len(set(vertices)) != dim + k:
             raise ValueError(
@@ -982,6 +985,7 @@ class Graph(nx.Graph):
         not when it is created.
         """
         _input_check.dimension(dim)
+        self._input_check_no_loop()
         _input_check.integrality_and_range(k, "k", min_val=0)
         _input_check.greater_equal(
             self.number_of_nodes(),
@@ -1064,6 +1068,7 @@ class Graph(nx.Graph):
         [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
         """  # noqa: E501
         _input_check.dimension(dim)
+        self._input_check_no_loop()
         if not dim == 2:
             raise NotImplementedError()
         if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
@@ -1822,11 +1827,13 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
-        dim: dimension d for which we test whether the graph is globally $d$-rigid
-        prob: probability of getting a wrong `False` answer
+        dim:
+            dimension d for which we test whether the graph is globally $d$-rigid
+        prob:
+            probability of getting a wrong `False` answer
 
         Definitions
-        -----
+        -----------
         :prf:ref:`Globally d-rigid graph <def-globally-rigid-graph>`
 
         Examples
@@ -2033,7 +2040,7 @@ class Graph(nx.Graph):
          * dim=2: It is not sparse, but remove any edge and it becomes sparse
                   Fundamental circuit is the whole graph
          * Not combinatorially:
-         * dim>=3: Dependent + Remove every edge and compute the rigidity matrix' rank
+         * dim>=3: Dependent + Remove every edge and compute the rigidity matrix rank
 
         Examples
         --------
@@ -2217,7 +2224,7 @@ class Graph(nx.Graph):
         if combinatorial:
             # here will be the implementation using pebble games for dim=2
             _input_check.dimension_for_algorithm(
-                dim, [1], "the combinatinatorial algorithm"
+                dim, [1], "the combinatorial algorithm"
             )
 
         else:
@@ -2406,6 +2413,9 @@ class Graph(nx.Graph):
                 )
             if M[i, j] == 1:
                 edges += [(i, j)]
+        for i in vertices:
+            if M[i, i] == 1:
+                edges += [(i, i)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @doc_category("General graph theoretical properties")
@@ -2478,7 +2488,7 @@ class Graph(nx.Graph):
         placement:
             If ``placement`` is not specified,
             then it is generated depending on parameter ``layout``.
-        layout:
+        layout_type:
             The possibilities are ``spring`` (default), ``circular``,
             ``random`` or ``planar``, see also :meth:`~Graph.layout`.
         vertex_style:
@@ -2525,7 +2535,7 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(placement = [[0, 0], [1, 1], [2, 2], [3, 3]])) # doctest: +NORMALIZE_WHITESPACE
+        >>> print(G.to_tikz(placement = {0:[0, 0], 1:[1, 1], 2:[2, 2], 3:[3, 3]})) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
             \node[gvertex] (0) at (0, 0) {};
             \node[gvertex] (1) at (1, 1) {};
@@ -2684,7 +2694,7 @@ class Graph(nx.Graph):
         t: integer, default value 2
 
         Definitions
-        -----
+        -----------
         :prf:ref:`t-sum <def-t-sum>`
 
         Examples
@@ -2739,7 +2749,7 @@ class Graph(nx.Graph):
         """
         Generate a placement of the vertices.
 
-        This method a is wrapper for the functions
+        This method is a wrapper for the functions
         :func:`~networkx.drawing.layout.spring_layout`,
         :func:`~networkx.drawing.layout.random_layout`,
         :func:`~networkx.drawing.layout.circular_layout`
