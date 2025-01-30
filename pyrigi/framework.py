@@ -2839,7 +2839,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list | tuple):
+        if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_nontrivial_inf_flex(inf_flex, **kwargs)
@@ -2939,7 +2939,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list | tuple):
+        if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_trivial_inf_flex(inf_flex, **kwargs)
