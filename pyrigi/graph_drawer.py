@@ -67,7 +67,7 @@ class GraphDrawer(object):
     --------
     >>> from pyrigi import GraphDrawer
     >>> Drawer = GraphDrawer()
-    HBox(children=(MultiCanvas(height=600, width=600), VBox(children=(ColorPicker(value='blue', description='V-Color'), ColorPicker(value='black', description='E-Color'), IntSlider(value=10, description='V-Size:', max=20, min=8), IntSlider(value=2, description='E-Size:', max=10, min=1), Checkbox(value=True, description='Show V-Labels', indent=False)))))
+    HBox(children=(MultiCanvas(height=600, width=600), VBox(children=(ColorPicker(value='blue', description='V-Color'), ColorPicker(value='black', description='E-Color'), IntSlider(value=10, description='V-Size:', max=20, min=8), IntSlider(value=2, description='E-Size:', max=10, min=1), Checkbox(value=True, description='Show V-Labels', indent=False), Checkbox(value=False, description='Show Grid', indent=False), Checkbox(value=False, description='Stick Vertices to Corners', disabled=True, indent=False), IntSlider(value=20, description='Grid Size:', disabled=True, max=50, min=10, step=5)))))
     Output()
     press and hold ctrl key to move vertices around with mouse.
     >>> Drawer.graph()
