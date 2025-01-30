@@ -265,7 +265,7 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        self._graph._input_check_edge_format(edge)
+        self._graph._input_check_edge_format(edge, loopfree=True)
         self._graph.add_edge(*(edge))
 
     @doc_category("Framework manipulation")
