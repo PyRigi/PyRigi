@@ -43,7 +43,8 @@ F1 = Framework(K4, {0:[1,2], 1:[0,5], 2:[-1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
 F1
 ```
 
-The framework can then be visualized by calling the method {meth}`~.Framework.plot` on ``F1``.
+The framework can then be visualized by calling the method {meth}`~.Framework.plot` on ``F1``,
+see also tutorial [Plotting](plotting-tutorial).
 
 ```{code-cell} ipython3
 F1.plot()
@@ -58,7 +59,7 @@ F1[2]
 ### Class methods
 
 Alternatively, the realization can be specified by using a class method. For instance, {meth}`~.Framework.Simplicial` creates
-a realization on the ``d``-simplex. 
+a realization on the $d$-simplex. 
 
 ```{code-cell} ipython3
 F2 = Framework.Simplicial(K4, 3)
@@ -207,8 +208,8 @@ Omega = F.stress_matrix(stress)
 
 ### Generic rigidity
 
-We can also use PyRigi to investigate the (generic) {prf:ref}`infinitesimal <def-gen-rigid>` and
-{prf:ref}`global <def-globally-rigid-graph>` rigidity of graphs. The underlying graph can be accessed
+We can also use PyRigi to investigate the {prf:ref}`generic rigidity<def-gen-rigid>` of graphs.
+The underlying graph of a framework can be accessed
 via the method {meth}`~.Framework.graph` and the rigidity of this graph can be determined via
 {meth}`~.Graph.is_rigid`.
 
@@ -217,15 +218,15 @@ G_TP = TP_rigid.graph()
 G_TP.is_rigid()
 ```
 
-Since the graph does come with a natural embedding, the dimension in which its rigidity
+The dimension in which its rigidity
 is supposed to be investigated can be specified via the ``dim`` keyword.
 
 ```{code-cell} ipython3
 G_TP.is_rigid(dim=1)
 ```
 
-For dimensions greater than 2, there is not a combinatorial rigidity criterion yet. To still get a result, a framework with
-randomized coordinates can be created using the command
+For dimensions greater than 2, no combinatorial rigidity criterion is known.
+To still get a result, a randomized algorithm can be called using the command:
 
 ```{code-cell} ipython3
 G_TP.is_rigid(dim=3, combinatorial=False)
@@ -245,7 +246,8 @@ G = graphs.DoubleBanana()
 G.rigid_components(dim=3, combinatorial=False)
 ```
 
-We can also investigate the (generic) global rigidity of a graph using the method {meth}`~.Graph.is_globally_rigid`:
+We can also investigate the (generic) ({prf:ref}`global <def-globally-rigid-graph>`)
+rigidity of a graph using the method {meth}`~.Graph.is_globally_rigid`:
 
 ```{code-cell} ipython3
 G_TP.is_globally_rigid()
@@ -267,21 +269,21 @@ redundantly rigid. The redundant rigidity of a graph can be checked via {meth}`~
 G4.is_redundantly_rigid()
 ```
 
-And can also investigate the global rigidity for other dimensions, too.
+We can also investigate the global rigidity for other dimensions, too.
 
 ```{code-cell} ipython3
 G_TP.is_globally_rigid(dim=1)
 ```
 
-Finally, it may be useful to generate an extension sequence, which can be done for the 3-prism
-using the method {meth}`~.Graph.extension_sequence`.
+Finally, it may be useful to check whether a graph can be constructed via an {prf:ref}`extension sequence <def-k-extension>`,
+which can be done using the method {meth}`~.Graph.extension_sequence`.
 
 ```{code-cell} ipython3
 for H in G_TP.extension_sequence(return_solution=True):
     H.plot(canvas_height=2)
 ```
 
-We can obtain all non-isomorphic k-extensions of a graph using the method {meth}`~.Graph.all_k_extensions`.
+We can obtain all non-isomorphic $k$-{prf:ref}`extensions <def-k-extension>` of a graph using the method {meth}`~.Graph.all_k_extensions`.
 For the 3-prism we ensure that all of the 0-extensions are rigid:
 
 ```{code-cell} ipython3
@@ -338,7 +340,7 @@ It can be checked whether a graph is a {prf:ref}`circuit <def-matroid>` in the d
 TP.is_Rd_circuit()
 ```
 
-Finally, it can be determined whether the graph is {prf:ref}`$R_d$-closed <def-rank-function-closure>` by calling {meth}`~.Graph.is_Rd_closed`.
+Finally, it can be determined whether the graph is $R_d$-{prf:ref}`closed <def-rank-function-closure>` by calling {meth}`~.Graph.is_Rd_closed`.
 
 ```{code-cell} ipython3
 TP.is_Rd_closed(dim=1)
