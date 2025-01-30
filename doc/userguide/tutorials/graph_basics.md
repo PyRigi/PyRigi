@@ -121,6 +121,7 @@ Graph.from_adjacency_matrix(Matrix([
     [1,0,0]])).plot()
 ```
 
+(graph-drawer-tutorial)=
 ## Graph drawer
 
 PyRigi comes with a graph drawer that lets the user input a graph by specifying the vertices
