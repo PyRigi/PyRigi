@@ -706,16 +706,31 @@ class GraphDrawer(object):
         H.add_edges_from(self._graph.edges)
         return H
 
-    def framework(self) -> Framework:
+    def framework(self, grid=False) -> Framework:
         """
         Return a copy of the current 2D framework on the multicanvas.
+
+        Parameters
+        ---------
+        grid:
+            (boolean) When set True and the `Stick Vertices to Corners' is checked the vertices that lie on the
+            grid corners will be mapped (in the realisation map) to lattice points corresponding to the grid corners.
+            The vertices that do not lie on the grid corners will be mapped (in the realisation map) to the canvas points in pixels where
+            the origin is the center of the canvas.
         """
         H = self.graph()
+        # create the realisation map where the origin is the center of the canvas
         posdict = {
             v: [
-                self._graph.nodes[v]["pos"][0] - int(self._mcanvas.width / 2),
-                int(self._mcanvas.height / 2) - self._graph.nodes[v]["pos"][1],
+                int(self._graph.nodes[v]["pos"][0]) - int(self._mcanvas.width / 2),
+                int(self._mcanvas.height / 2) - int(self._graph.nodes[v]["pos"][1]),
             ]
             for v in H.nodes
         }
+        # when grid is True update (assing grid coordinates) the positions of the vertices that are at grid corners
+        # note that this will not update the positions of the vertices that are not on grid corners
+        if self._grid_sticky_checkbox.value and grid is True:
+            for v in H.nodes:
+                if posdict[v][0]%self._grid_size == 0 and posdict[v][1]%self._grid_size==0:
+                    posdict[v]=[int(x/self._grid_size) for x in posdict[v]]
         return Framework(graph=H, realization=posdict)
