@@ -251,7 +251,7 @@ class Graph(nx.Graph):
         self, input_pair: Edge, loopfree: bool = False
     ) -> None:
         """
-        Check if an input_pair is a pair of distinct vertices of the graph and
+        Check if an input_pair is a pair of (distinct) vertices of the graph and
         raise an error otherwise.
         """
         if not isinstance(input_pair, list | tuple) or not len(input_pair) == 2:

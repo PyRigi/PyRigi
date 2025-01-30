@@ -1710,10 +1710,10 @@ def test__input_check_edge_value_error(graph, edge):
         [Graph([[1, 2], [1, 1]]), [1, 1]],
     ],
 )
-def test__input_check_edge_format_loopfree_value_error(graph, edge):
+def test__input_check_edge_format_loopfree_loop_error(graph, edge):
     assert graph._input_check_edge_format(edge, loopfree=False) is None
     assert graph._input_check_edge_format(edge) is None
-    with pytest.raises(ValueError):
+    with pytest.raises(LoopError):
         graph._input_check_edge_format(edge, loopfree=True)
 
 
