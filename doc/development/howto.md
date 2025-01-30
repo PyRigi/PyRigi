@@ -28,10 +28,11 @@ for some suggestions about what the maintainers would be happy to have in PyRigi
 ## Further Topics
 :::{toctree}
 :maxdepth: 
-howto/style-guide
+howto/style_guide
 howto/testing
 howto/git
 howto/dependencies
 howto/documentation
 howto/notation
+howto/input_checks
 :::
