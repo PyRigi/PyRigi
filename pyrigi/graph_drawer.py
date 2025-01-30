@@ -411,12 +411,17 @@ class GraphDrawer(object):
         It determines what to do when mouse button is pressed.
         """
         location = [int(x),int(y)]
-        if self._grid_sticky_checkbox.value is True:
-                gridpoint = self._closest_grid_coordinate(x,y)
-                location = self._grid_to_canvas_point(gridpoint[0],gridpoint[1])
         self._selected_vertex = self._collided_vertex(
             location[0],location[1]
-        )  # select the vertex containing the mouse pointer position
+        )
+        # if there is no vertex at pointer pos and grid stick is on
+        # check if there is a vertex at the closest grid corner.
+        if self._grid_sticky_checkbox.value is True and self._selected_vertex is None:
+            gridpoint = self._closest_grid_coordinate(x,y)
+            location = self._grid_to_canvas_point(gridpoint[0],gridpoint[1])
+            self._selected_vertex = self._collided_vertex(
+                location[0],location[1]
+            )  # select the vertex containing the mouse pointer position
         if self._selected_vertex is None and self._collided_edge(x, y) is None:
             # add a new vertex if no vertex is selected and
             # no edge contains the mouse pointer position
@@ -440,10 +445,13 @@ class GraphDrawer(object):
         It determines what to do when mouse button is released.
         """
         location = [int(x),int(y)]
-        if self._grid_sticky_checkbox.value is True:
-                gridpoint = self._closest_grid_coordinate(x,y)
-                location = self._grid_to_canvas_point(gridpoint[0],gridpoint[1])
         vertex = self._collided_vertex(location[0],location[1])
+        # if there is no vertex at the pointer pos and grid stick is on
+        # check if there is a vertex at the closest grid corner.
+        if self._grid_sticky_checkbox.value is True and vertex is None:
+            gridpoint = self._closest_grid_coordinate(x,y)
+            location = self._grid_to_canvas_point(gridpoint[0],gridpoint[1])
+            vertex = self._collided_vertex(location[0],location[1])
         
         s_vertex = self._selected_vertex
 
