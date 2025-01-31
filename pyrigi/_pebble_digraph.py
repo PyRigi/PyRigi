@@ -108,7 +108,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         vertex: Vertex, whose indegree we want to know.
         TODO check if vertex exists
         """
-        return super().in_degree(vertex)
+        return int(super().in_degree(vertex))
 
     def out_degree(self, vertex: Vertex) -> int:
         """
@@ -119,7 +119,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         vertex: Vertex, whose outdegree we want to know.
         TODO check if vertex exists
         """
-        return super().out_degree(vertex)
+        return int(super().out_degree(vertex))
 
     def redirect_edge_to_head(self, edge: DirectedEdge, vertex_to: Vertex) -> None:
         """

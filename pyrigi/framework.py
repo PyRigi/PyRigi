@@ -119,6 +119,7 @@ class Framework(object):
             self._dim = 0
 
         self._graph = deepcopy(graph)
+        self._realization = {}
         self.set_realization(realization)
 
     def __str__(self) -> str:
@@ -204,7 +205,7 @@ class Framework(object):
 
     @doc_category("Framework manipulation")
     def add_vertices(
-        self, points: Sequence[Point], vertices: Sequence[Vertex] = []
+        self, points: Sequence[Point], vertices: Sequence[Vertex] = None
     ) -> None:
         r"""
         Add a list of vertices to the framework.
@@ -233,7 +234,7 @@ class Framework(object):
         -----
         For each vertex that has to be added, :meth:`add_vertex` is called.
         """
-        if not (len(points) == len(vertices) or not vertices):
+        if vertices and not len(points) == len(vertices):
             raise IndexError("The vertex list does not have the correct length!")
         if not vertices:
             for point in points:
@@ -252,7 +253,7 @@ class Framework(object):
         This method only alters the graph attribute.
         """
         self._graph._input_check_edge_format(edge, loopfree=True)
-        self._graph.add_edge(*(edge))
+        self._graph.add_edge(*edge)
 
     @doc_category("Framework manipulation")
     def add_edges(self, edges: Sequence[Edge]) -> None:
@@ -1027,15 +1028,17 @@ class Framework(object):
         if rand_range is None:
             b = 10**4 * graph.number_of_nodes() * dim
             a = -b
-        if isinstance(rand_range, list | tuple):
+        elif isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
                 raise ValueError("If `rand_range` is a list, it must be of length 2.")
             a, b = rand_range
-        if isinstance(rand_range, int):
+        elif isinstance(rand_range, int):
             if rand_range <= 0:
                 raise ValueError("If `rand_range` is an int, it must be positive")
             b = rand_range
             a = -b
+        else:
+            raise TypeError("`rand_range` must be either a list or a single int.")
 
         realization = {
             vertex: [randrange(a, b) for _ in range(dim)] for vertex in graph.nodes
@@ -1189,7 +1192,7 @@ class Framework(object):
             raise ValueError("The list of points cannot be empty!")
 
         Kn = CompleteGraph(len(points))
-        return Framework(Kn, {v: Matrix(p) for v, p in zip(Kn.nodes, points)})
+        return Framework(Kn, {v: p for v, p in zip(Kn.nodes, points)})
 
     @doc_category("Framework manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -1224,7 +1227,7 @@ class Framework(object):
     @doc_category("Attribute getters")
     def realization(
         self, as_points: bool = False, numerical: bool = False
-    ) -> dict[Vertex, Point]:
+    ) -> dict[Vertex, Point] | dict[Vertex, Matrix]:
         """
         Return a copy of the realization.
 
@@ -1357,7 +1360,7 @@ class Framework(object):
             self._input_check_vertex_key(v, realization)
             self._input_check_point_dimension(realization[v])
 
-        self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
+        self._realization = {v: Matrix(pos) for v, pos in realization.items()}
 
     @doc_category("Framework manipulation")
     def set_vertex_pos(self, vertex: Vertex, point: Point) -> None:
@@ -1832,7 +1835,6 @@ class Framework(object):
         trivial_inf_flexes = self.trivial_inf_flexes(vertex_order=vertex_order)
         s = len(trivial_inf_flexes)
         extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
-        tmp_matrix = Matrix.hstack(*trivial_inf_flexes)
         for v in all_inf_flexes:
             r = extend_basis_matrix.rank()
             tmp_matrix = Matrix.hstack(extend_basis_matrix, v)
@@ -2035,7 +2037,7 @@ class Framework(object):
     @doc_category("Framework properties")
     def is_congruent_realization(
         self,
-        other_realization: dict[Vertex, Point],
+        other_realization: dict[Vertex, Point] | dict[Vertex, Matrix],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2101,7 +2103,7 @@ class Framework(object):
     @doc_category("Framework properties")
     def is_equivalent_realization(
         self,
-        other_realization: dict[Vertex, Point],
+        other_realization: dict[Vertex, Point] | dict[Vertex, Matrix],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2165,7 +2167,9 @@ class Framework(object):
         )
 
     @doc_category("Framework manipulation")
-    def translate(self, vector: Point, inplace: bool = True) -> None | Framework:
+    def translate(
+        self, vector: Point | Matrix, inplace: bool = True
+    ) -> None | Framework:
         """
         Translate the framework.
 

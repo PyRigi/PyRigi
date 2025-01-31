@@ -17,7 +17,9 @@ def doc_category(category):
     return decorator_doc_category
 
 
-def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
+def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
+    if cat_order is None:
+        cat_order = []
     categories = {}
     for func in dir(cls):
         if callable(getattr(cls, func)) and func[:2] != "__":
@@ -148,7 +150,9 @@ def is_zero_vector(
         )
 
 
-def eval_sympy_vector(vector: Sequence[Number], tolerance: float = 1e-9) -> list[float]:
+def eval_sympy_vector(
+    vector: Sequence[Number] | Matrix, tolerance: float = 1e-9
+) -> list[float]:
     """
     Converts a sympy vector to a (numerical) list of floats.
 
@@ -211,15 +215,17 @@ def vector_distance_pointwise(
     if not set(dict1.keys()) == set(dict2.keys()) or not len(dict1) == len(dict2):
         raise ValueError("`dict1` and `dict2` are not based on the same vertex set.")
     if numerical:
-        return np.linalg.norm(
-            [
-                p1 - p2
-                for v in dict1.keys()
-                for p1, p2 in zip(
-                    dict1[v],
-                    dict2[v],
-                )
-            ]
+        return float(
+            np.linalg.norm(
+                [
+                    p1 - p2
+                    for v in dict1.keys()
+                    for p1, p2 in zip(
+                        dict1[v],
+                        dict2[v],
+                    )
+                ]
+            )
         )
     return sp.sqrt(
         sum(
