@@ -13,7 +13,7 @@ Classes:
 from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
 from ipycanvas import MultiCanvas, hold_canvas
 from IPython.display import display
-from sympy import fraction
+from sympy import Rational
 from pyrigi.data_type import Edge
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
@@ -815,5 +815,5 @@ class GraphDrawer(object):
         # of the vertices
         if self._grid_checkbox.value and grid:
             for v in H.nodes:
-                posdict[v] = [fraction(x , self._grid_size) for x in posdict[v]]
+                posdict[v] = [Rational(x , self._grid_size) for x in posdict[v]]
         return Framework(graph=H, realization=posdict)
