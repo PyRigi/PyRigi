@@ -2832,7 +2832,7 @@ class Graph(nx.Graph):
             raise ValueError("The input graph must be 2-connected.")
         H = self.copy()
         H.delete_vertices([u, v])
-        return (not nx.is_connected(H))
+        return not nx.is_connected(H)
 
     @doc_category("Generic rigidity")
     def neighbors_of_set(self, V: list[Vertex] | set[Vertex]):
@@ -2972,7 +2972,9 @@ class Graph(nx.Graph):
         F = Graph(self._pebble_digraph.to_undirected())
         return nx.subgraph(F, set_nodes)
 
-    def is_weakly_globally_linked(self, u: Vertex, v: Vertex, algorithm="combinatorial"):
+    def is_weakly_globally_linked(
+        self, u: Vertex, v: Vertex, algorithm="combinatorial"
+    ):
         """
         Return True if the graph is weakly globally linked.
         TODO
