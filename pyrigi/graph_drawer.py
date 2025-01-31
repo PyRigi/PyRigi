@@ -10,7 +10,7 @@ Classes:
     GraphDrawer
 """
 
-from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox
+from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
 from ipycanvas import MultiCanvas, hold_canvas
 from IPython.display import display
 
@@ -67,9 +67,7 @@ class GraphDrawer(object):
     --------
     >>> from pyrigi import GraphDrawer
     >>> Drawer = GraphDrawer()
-    HBox(children=(MultiCanvas(height=600, width=600), VBox(children=(ColorPicker(value='blue', description='V-Color'), ColorPicker(value='black', description='E-Color'), IntSlider(value=10, description='V-Size:', max=20, min=8), IntSlider(value=2, description='E-Size:', max=10, min=1), Checkbox(value=True, description='Show V-Labels', indent=False), Checkbox(value=False, description='Show Grid', indent=False), Checkbox(value=False, description='Stick Vertices to Corners', disabled=True, indent=False), IntSlider(value=20, description='Grid Size:', disabled=True, max=50, min=10, step=5)))))
-    Output()
-    press and hold ctrl key to move vertices around with mouse.
+    HBox(children=(MultiCanvas(height=600, width=600), VBox(children=(ColorPicker(value='blue', description='V-Color'), ColorPicker(value='black', description='E-Color'), IntSlider(value=10, description='V-Size:', max=20, min=8), IntSlider(value=2, description='E-Size:', max=10, min=1), Checkbox(value=True, description='Show V-Labels', indent=False), Checkbox(value=False, description='Show Grid', indent=False), Checkbox(value=False, description='Grid Snapping', disabled=True, indent=False), IntSlider(value=50, description='Grid Size:', disabled=True, max=50, min=10, step=5), HBox(children=(Label(value='- Add vertex:'), Label(value='Mouse press'))), HBox(children=(Label(value='- Add edge:'), Label(value='Drag between endpoints'))), HBox(children=(Label(value='- Remove Edge-1:'), Label(value='Double click'))), HBox(children=(Label(value='- Remove Edge-2:'), Label(value='Drag between endpoints'))), HBox(children=(Label(value='- Remove Vertex'), Label(value='Double click'))), HBox(children=(Label(value='- Move vertex'), Label(value='Hold ctrl and drag')))))))
     >>> Drawer.graph()
     Graph with vertices [] and edges []
 
@@ -100,7 +98,7 @@ class GraphDrawer(object):
         self._show_vlabels = True
         self._mouse_down = False
         self._vertexmove_on = False
-        self._grid_size = 20
+        self._grid_size = 50
 
         self._graph = Graph()  # the graph on canvas
         self._out = Output()  # can later be used to represent some properties
@@ -116,7 +114,7 @@ class GraphDrawer(object):
         # convert members of size to closest multiple of 100
         size = [int(round(x / 100) * 100) for x in size]
 
-        self._mcanvas = MultiCanvas(4, width=size[0], height=size[1])
+        self._mcanvas = MultiCanvas(5, width=size[0], height=size[1])
         self._mcanvas[0].stroke_rect(0, 0, self._mcanvas.width, self._mcanvas.height)
         self._mcanvas[2].font = "12px serif"
         self._mcanvas[2].text_align = "center"
@@ -189,9 +187,9 @@ class GraphDrawer(object):
         )
         self._grid_checkbox.observe(self._on_grid_checkbox_change)
 
-        self._grid_sticky_checkbox = Checkbox(
+        self._grid_snap_checkbox = Checkbox(
             value=False,
-            description="Stick Vertices to Corners",
+            description="Grid Snapping",
             disabled=True,
             indent=False,
         )
@@ -209,6 +207,7 @@ class GraphDrawer(object):
             readout_format="d",
         )
         self._grid_size_slider.observe(self._on_grid_size_change)
+
         # combining the menu and canvas
         right_box = VBox(
             [
@@ -218,10 +217,25 @@ class GraphDrawer(object):
                 self._ewidth_slider,
                 self._vlabel_checkbox,
                 self._grid_checkbox,
-                self._grid_sticky_checkbox,
+                self._grid_snap_checkbox,
                 self._grid_size_slider,
             ]
         )
+        # instructions
+        instruction_dict = {
+            "- Add vertex:": "Mouse press",
+            "- Add edge:": "Drag between endpoints",
+            "- Remove Edge-1:": "Double click",
+            "- Remove Edge-2:": "Drag between endpoints",
+            "- Remove Vertex": "Double click",
+            "- Move vertex": "Hold ctrl and drag",
+        }
+        for instruction in instruction_dict:
+            label_action = Label(value=instruction)
+            label_description = Label(value=instruction_dict[instruction])
+            box = HBox([label_action, label_description])
+            right_box.children += (box,)
+
         box = HBox([self._mcanvas, right_box])
 
         if isinstance(graph, Graph) and graph.number_of_nodes() > 0:
@@ -232,9 +246,7 @@ class GraphDrawer(object):
 
         # displaying the combined menu and canvas, and the output
         display(box)
-        display(self._out)
-        with self._out:
-            print("press and hold ctrl key to move vertices around with mouse.")
+        # display(self._out)
 
     def _handle_event(self, event) -> None:
         """
@@ -245,7 +257,16 @@ class GraphDrawer(object):
         elif event["event"] == "keyup":
             self._vertexmove_on = event["ctrlKey"]
         elif event["event"] == "dblclick":
-            x, y = event["relativeX"], event["relativeY"]
+            x = (
+                (event["clientX"] - event["boundingRectLeft"])
+                / (event["boundingRectRight"] - event["boundingRectLeft"])
+                * self._mcanvas.width
+            )
+            y = (
+                (event["clientY"] - event["boundingRectTop"])
+                / (event["boundingRectBottom"] - event["boundingRectTop"])
+                * self._mcanvas.height
+            )
             self._handle_dblclick(x, y)
 
     def _assign_pos(self, x, y, place) -> list[int]:
@@ -342,10 +363,10 @@ class GraphDrawer(object):
         """
         if change["type"] == "change" and change["name"] == "value":
             self._update_background(change["new"])
-            self._grid_sticky_checkbox.disabled = change["old"]
+            self._grid_snap_checkbox.disabled = change["old"]
             self._grid_size_slider.disabled = change["old"]
             if change["new"] is False:
-                self._grid_sticky_checkbox.value = False
+                self._grid_snap_checkbox.value = False
 
     def _on_grid_size_change(self, change) -> None:
         """
@@ -457,9 +478,9 @@ class GraphDrawer(object):
         """
         location = [int(x), int(y)]
         self._selected_vertex = self._collided_vertex(location[0], location[1])
-        # if there is no vertex at pointer pos and grid stick is on
+        # if there is no vertex at pointer pos and grid snap is on
         # check if there is a vertex at the closest grid corner.
-        if self._grid_sticky_checkbox.value is True and self._selected_vertex is None:
+        if self._grid_snap_checkbox.value is True and self._selected_vertex is None:
             gridpoint = self._closest_grid_coordinate(x, y)
             location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
             self._selected_vertex = self._collided_vertex(
@@ -487,9 +508,9 @@ class GraphDrawer(object):
         """
         location = [int(x), int(y)]
         vertex = self._collided_vertex(location[0], location[1])
-        # if there is no vertex at the pointer pos and grid stick is on
+        # if there is no vertex at the pointer pos and grid snap is on
         # check if there is a vertex at the closest grid corner.
-        if self._grid_sticky_checkbox.value is True and vertex is None:
+        if self._grid_snap_checkbox.value is True and vertex is None:
             gridpoint = self._closest_grid_coordinate(x, y)
             location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
             vertex = self._collided_vertex(location[0], location[1])
@@ -548,9 +569,21 @@ class GraphDrawer(object):
         """
 
         vertex = self._selected_vertex
+        location = [int(x), int(y)]
+        collided_vertex = self._collided_vertex(x, y)
+        self._mcanvas[4].clear()
+        if self._grid_snap_checkbox.value is True and (
+            collided_vertex is None or collided_vertex is vertex
+        ):
+            gridpoint = self._closest_grid_coordinate(x, y)
+            location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
 
         if vertex is None or not self._mouse_down:
             # do nothing if no vertex is selected or mouse button is not down
+            if self._grid_snap_checkbox.value is True:
+                with hold_canvas():
+                    self._mcanvas[4].fill_style = "cyan"
+                    self._mcanvas[4].fill_circle(location[0], location[1], 3)
             return
 
         if not self._vertexmove_on:
@@ -563,17 +596,13 @@ class GraphDrawer(object):
                 self._mcanvas[1].stroke_line(
                     self._graph.nodes[vertex]["pos"][0],
                     self._graph.nodes[vertex]["pos"][1],
-                    x,
-                    y,
+                    location[0],
+                    location[1],
                 )
                 self._redraw_vertex(vertex)
         else:
             # move vertex to mouse pointer position
             # and update layer 1 and 3 of multicanvas
-            location = [int(x), int(y)]
-            if self._grid_sticky_checkbox.value is True:
-                gridpoint = self._closest_grid_coordinate(x, y)
-                location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
             self._graph.nodes[vertex]["pos"] = location
             with hold_canvas():
                 self._mcanvas[1].clear()
@@ -768,13 +797,10 @@ class GraphDrawer(object):
         Parameters
         ---------
         grid:
-            When set True and the ``Stick Vertices to Corners``
+            When set True and the ``Grid Snapping``
             is checked the vertices that lie on the grid corners
             will be mapped (in the realisation map) to lattice points
-            corresponding to the grid corners. The vertices that do not
-            lie on the grid corners will be mapped (in the realisation map)
-            to the canvas points in pixels where the origin is the center
-            of the canvas.
+            corresponding to the grid corners.
         """
         H = self.graph()
         # create the realisation map where the origin is the center of the canvas
@@ -786,14 +812,8 @@ class GraphDrawer(object):
             for v in H.nodes
         }
         # when grid is True update (assing grid coordinates) the positions
-        # of the vertices that are at grid corners
-        # note that this will not update the positions of the vertices
-        # that are not on grid corners
-        if self._grid_sticky_checkbox.value and grid is True:
+        # of the vertices
+        if self._grid_snap_checkbox.value and grid is True:
             for v in H.nodes:
-                if (
-                    posdict[v][0] % self._grid_size == 0
-                    and posdict[v][1] % self._grid_size == 0
-                ):
-                    posdict[v] = [int(x / self._grid_size) for x in posdict[v]]
+                posdict[v] = [x / self._grid_size for x in posdict[v]]
         return Framework(graph=H, realization=posdict)
