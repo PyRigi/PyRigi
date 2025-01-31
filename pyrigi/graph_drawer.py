@@ -32,7 +32,8 @@ class GraphDrawer(object):
 
     - Press mouse button on an empty place on canvas:
         Add a vertex at the pointer position.
-    - Press mouse button on an existing vertex (or empty space) and release the mouse button on another vertex (or empty space):
+    - Press mouse button on an existing vertex (or empty space) and
+        release the mouse button on another vertex (or empty space):
         Add/remove an edge between the two vertices.
     - Drag a vertex with ``Ctrl`` is being pressed:
         Reposition the vertex.
@@ -67,21 +68,15 @@ class GraphDrawer(object):
     --------
     >>> from pyrigi import GraphDrawer
     >>> Drawer = GraphDrawer()
-    HBox(children=(MultiCanvas(height=600, width=600), VBox(children=(ColorPicker(value='blue', description='V-Color'), ColorPicker(value='black', description='E-Color'), IntSlider(value=10, description='V-Size:', max=20, min=8), IntSlider(value=2, description='E-Size:', max=10, min=1), Checkbox(value=True, description='Show V-Labels', indent=False), Checkbox(value=False, description='Show Grid', indent=False), Checkbox(value=False, description='Grid Snapping', disabled=True, indent=False), IntSlider(value=50, description='Grid Size:', disabled=True, max=50, min=10, step=5), HBox(children=(Label(value='- Add vertex:'), Label(value='Mouse press'))), HBox(children=(Label(value='- Add edge:'), Label(value='Drag between endpoints'))), HBox(children=(Label(value='- Remove Edge-1:'), Label(value='Double click'))), HBox(children=(Label(value='- Remove Edge-2:'), Label(value='Drag between endpoints'))), HBox(children=(Label(value='- Remove Vertex'), Label(value='Double click'))), HBox(children=(Label(value='- Move vertex'), Label(value='Hold ctrl and drag')))))))
+    HBox(children=(MultiCanvas(height=600, width=600)...
     >>> Drawer.graph()
     Graph with vertices [] and edges []
-
-    TODO
-    ----
-    - Add width/height parameters to canvas. Currently width=600 and height=600 are fixed.
-    - Add a background grid option.
-
-    """  # noqa: E501
+    """
 
     def __init__(
         self,
         graph: Graph = None,
-        size: list = [600, 600],
+        size: list[int] = [600, 600],
         layout_type: str = "spring",
         place: str = "all",
     ) -> None:
@@ -227,8 +222,8 @@ class GraphDrawer(object):
             "- Add edge:": "Drag between endpoints",
             "- Remove Edge-1:": "Double click",
             "- Remove Edge-2:": "Drag between endpoints",
-            "- Remove Vertex": "Double click",
-            "- Move vertex": "Hold ctrl and drag",
+            "- Remove Vertex:": "Double click",
+            "- Move vertex:": "Hold ctrl and drag",
         }
         for instruction in instruction_dict:
             label_action = Label(value=instruction)
@@ -770,7 +765,7 @@ class GraphDrawer(object):
 
     def _least_available_label(self):
         """
-        Returns the least non-negative integer available for the new vertex label.
+        Return the least non-negative integer available for the new vertex label.
         """
         if self._graph.number_of_nodes() == 0:
             return 0
@@ -797,10 +792,9 @@ class GraphDrawer(object):
         Parameters
         ---------
         grid:
-            When set True and the ``Grid Snapping``
-            is checked the vertices that lie on the grid corners
-            will be mapped (in the realisation map) to lattice points
-            corresponding to the grid corners.
+            If ``True`` and ``Grid Snapping`` is checked,
+            the realization will be scaled so that the grid points
+            correspond to integral points.
         """
         H = self.graph()
         # create the realisation map where the origin is the center of the canvas
@@ -815,5 +809,5 @@ class GraphDrawer(object):
         # of the vertices
         if self._grid_checkbox.value and grid:
             for v in H.nodes:
-                posdict[v] = [Rational(x , self._grid_size) for x in posdict[v]]
+                posdict[v] = [Rational(x, self._grid_size) for x in posdict[v]]
         return Framework(graph=H, realization=posdict)
