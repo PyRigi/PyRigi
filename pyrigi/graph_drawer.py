@@ -100,6 +100,8 @@ class GraphDrawer(object):
 
         # setting multicanvas properties
 
+        if not isinstance(size, list) or not len(size) == 2:
+            raise ValueError("The parameter `size` must be a list of two integers")
         # arrange width and height of the canvas so that they are in [300,1000]
         for i in range(2):
             if size[i] < 300:
