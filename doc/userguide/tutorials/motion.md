@@ -23,7 +23,7 @@ using the following sequence of commands:
 
 ```{code-cell} ipython3
 from pyrigi import graphDB as graphs
-from pyrigi.motion import ParametricMotion
+from pyrigi import ParametricMotion
 import sympy as sp
 motion = ParametricMotion(
     graphs.Cycle(4),
@@ -75,7 +75,7 @@ the class {class}`~.ApproximateMotion`. As an example, consider the complete bip
 A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 
 ```{code-cell} ipython3
-from pyrigi.motion import ApproximateMotion
+from pyrigi import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
 F = frameworks.CompleteBipartite(2,4)
 motion = ApproximateMotion(F, 393, chosen_flex=0, step_size=0.15)

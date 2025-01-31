@@ -139,9 +139,9 @@ class Motion(object):
     @staticmethod
     def _normalize_realizations(
         realizations: Sequence[dict[Vertex, Point]],
-        width: int,
-        height: int,
-        spacing: int,
+        width: int | float,
+        height: int | float,
+        spacing: int | float,
     ) -> list[dict[Vertex, Point]]:
         """
         Normalize a given list of realizations
@@ -315,7 +315,7 @@ class ParametricMotion(Motion):
 
     Examples
     --------
-    >>> from pyrigi.motion import ParametricMotion
+    >>> from pyrigi import ParametricMotion
     >>> import sympy as sp
     >>> from pyrigi import graphDB as graphs
     >>> motion = ParametricMotion(
@@ -526,7 +526,7 @@ class ApproximateMotion(Motion):
 
     Examples
     --------
-    >>> from pyrigi.motion import ApproximateMotion
+    >>> from pyrigi import ApproximateMotion
     >>> from pyrigi import graphDB as graphs
     >>> motion = ApproximateMotion.from_graph(
     ...     graphs.Cycle(4),
