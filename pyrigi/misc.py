@@ -242,17 +242,16 @@ def is_isomorphic_graph_list(list1, list2):
     if len(list1) != len(list2):
         return False
     for graph1 in list1:
-            count_copies = 0
-            for grapht in list1:
-                if graph1.is_isomorphic(grapht):
-                    count_copies += 1
-            count_found = 0
-            for graph2 in list2:
-                if graph1.is_isomorphic(graph2):
-                    count_found += 1
-                    if count_found==count_copies:
-                        break
-            else:
-                return False
+        count_copies = 0
+        for grapht in list1:
+            if graph1.is_isomorphic(grapht):
+                count_copies += 1
+        count_found = 0
+        for graph2 in list2:
+            if graph1.is_isomorphic(graph2):
+                count_found += 1
+                if count_found == count_copies:
+                    break
+        else:
+            return False
     return True
-

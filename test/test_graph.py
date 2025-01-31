@@ -1091,9 +1091,9 @@ def test_integer_representation_error():
         ["is_Rd_closed", []],
         ["rigid_components", []],
         ["_input_check_no_loop", []],
-        ["k_extension", [0, [1,2], []]],
-        ["zero_extension", [[1,2], []]],
-        ["one_extension", [[1,2,3], [1,2]]]
+        ["k_extension", [0, [1, 2], []]],
+        ["zero_extension", [[1, 2], []]],
+        ["one_extension", [[1, 2, 3], [1, 2]]],
     ],
 )
 def test_loop_error(method, params):
@@ -1105,6 +1105,7 @@ def test_loop_error(method, params):
         G = Graph([[1, 1]])
         func = getattr(G, method)
         func(*params)
+
 
 @pytest.mark.parametrize(
     "method, params",
@@ -1394,14 +1395,21 @@ def test_all_k_extensions():
         [Graph.from_int(254), 1, 2, [3934, 4011, 6891, 7672, 7916]],
         [Graph.from_int(31), 0, 2, [223, 239, 254]],
         [Graph.from_int(63), 0, 3, [511]],
-        [Graph.from_int(511), 0,1, [1535, 8703]]
-    ]
+        [Graph.from_int(511), 0, 1, [1535, 8703]],
+        [
+            Graph.from_int(16350),
+            2,
+            3,
+            [257911, 260603, 376807, 384943, 1497823, 1973983],
+        ],
+    ],
 )
 def test_all_k_extensions2(graph, k, dim, sol):
-    assert (
-        misc.is_isomorphic_graph_list(list(graph.all_k_extensions(k, dim, only_non_isomorphic=True)), [Graph.from_int(igraph) for igraph in sol])
-
+    assert misc.is_isomorphic_graph_list(
+        list(graph.all_k_extensions(k, dim, only_non_isomorphic=True)),
+        [Graph.from_int(igraph) for igraph in sol],
     )
+
 
 @pytest.mark.parametrize(
     "graph, k, vertices, edges, dim",
@@ -1410,8 +1418,8 @@ def test_all_k_extensions2(graph, k, dim, sol):
         [graphs.Complete(6), 2, [0, 1, 6], [[0, 1], [0, 6]], 1],
         [graphs.Complete(6), 2, [0, 1, 2], [[0, 1]], 1],
         [graphs.Complete(3), -1, [0], [], 2],
-        [graphs.CompleteBipartite(2, 3), 2, [0, 1, 2], [[0, 1], [0, 2]], 1]
-    ]
+        [graphs.CompleteBipartite(2, 3), 2, [0, 1, 2], [[0, 1], [0, 2]], 1],
+    ],
 )
 def test_k_extension_dim_error(graph, k, vertices, edges, dim):
     with pytest.raises(ValueError):
@@ -1421,15 +1429,20 @@ def test_k_extension_dim_error(graph, k, vertices, edges, dim):
 @pytest.mark.parametrize(
     "graph, k, vertices, edges",
     [
-        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3], [3, 3]]), 1, [1, 2, 3], [[3, 3]]],
-        [graphs.Complete(6), 2,[1,2,3,4],[[1,2],[1,2]]],
-        [graphs.Complete(6), 2,[1,2,3,4],[[1,2],[2,1]]],
-        [graphs.Complete(6), 2,[1,2,3,4],[(1,2),[1,2]]],
-        [graphs.Complete(6), 2,[1,2,3,4],[(1,2),[2,1]]],
-        [graphs.Complete(6), 2,[1,2,3,4],[(1,2),(1,2)]],
-        [graphs.Complete(6), 2,[1,2,3,4],[(1,2),(2,1)]],
-        [graphs.Complete(6), 3,[1,2,3,4,5],[[1,2],[2,3],[1,2]]]
-    ]
+        [
+            Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3], [3, 3]]),
+            1,
+            [1, 2, 3],
+            [[3, 3]],
+        ],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [[1, 2], [1, 2]]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [[1, 2], [2, 1]]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [(1, 2), [1, 2]]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [(1, 2), [2, 1]]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [(1, 2), (1, 2)]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [(1, 2), (2, 1)]],
+        [graphs.Complete(6), 3, [1, 2, 3, 4, 5], [[1, 2], [2, 3], [1, 2]]],
+    ],
 )
 def test_k_extension_error(graph, k, vertices, edges):
     with pytest.raises(ValueError):
