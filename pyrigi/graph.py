@@ -2832,10 +2832,7 @@ class Graph(nx.Graph):
             raise ValueError("The input graph must be 2-connected.")
         H = self.copy()
         H.delete_vertices([u, v])
-        if not nx.is_connected(H):
-            return True
-        else:
-            return False
+        return (not nx.is_connected(H))
 
     @doc_category("Generic rigidity")
     def neighbors_of_set(self, V: list[Vertex] | set[Vertex]):
@@ -2867,8 +2864,7 @@ class Graph(nx.Graph):
 
         res = set()
         for v in V:
-            if v in self.nodes:
-                res.update(self.neighbors(v))
+            res.update(self.neighbors(v))
         return res.difference(V)
 
     @doc_category("Generic rigidity")
@@ -2899,11 +2895,10 @@ class Graph(nx.Graph):
         """  # noqa: E501
         H = self.copy()
         H.delete_vertices(X)
-        vert_conn_comp = list(nx.connected_components(H))
         H = self.copy()
         import pyrigi.graphDB as graphs
 
-        for V in vert_conn_comp:
+        for V in nx.connected_components(H):
             H.delete_vertices(V)
             K = graphs.Complete(self.neighbors_of_set(V))
             H += K
@@ -2939,8 +2934,7 @@ class Graph(nx.Graph):
             return self
         else:
             augmented_G = self.copy()
-            cutsets = list(nx.all_node_cuts(self))
-            augmented_G.add_edges(cutsets)
+            augmented_G.add_edges(nx.all_node_cuts(self))
             try:
                 tricomp = nx.k_components(augmented_G)[3]
                 V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
@@ -2978,7 +2972,7 @@ class Graph(nx.Graph):
         F = Graph(self._pebble_digraph.to_undirected())
         return nx.subgraph(F, set_nodes)
 
-    def is_weakly_globally_linked(self, u: Vertex, v: Vertex):
+    def is_weakly_globally_linked(self, u: Vertex, v: Vertex, algorithm="combinatorial"):
         """
         Return True if the graph is weakly globally linked.
         TODO
@@ -2996,7 +2990,7 @@ class Graph(nx.Graph):
         # check (u,v) are linked pair
         if not list(
             filter(
-                lambda x: u in x and v in x, self.rigid_components(algorithm="randomized")
+                lambda x: u in x and v in x, self.rigid_components(algorithm=algorithm)
             )
         ):
             return False
