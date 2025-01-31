@@ -2996,7 +2996,7 @@ class Graph(nx.Graph):
         # check (u,v) are linked pair
         if not list(
             filter(
-                lambda x: u in x and v in x, self.rigid_components(combinatorial=False)
+                lambda x: u in x and v in x, self.rigid_components(algorithm="randomized")
             )
         ):
             return False
