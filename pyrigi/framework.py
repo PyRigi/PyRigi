@@ -359,7 +359,7 @@ class Framework(object):
         >>> from pyrigi import Graph, Framework
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3), (0,2), (1,3), (0,4)])
         >>> F = Framework(G, {0:(0,0), 1:(1,0), 2:(1,2), 3:(0,1), 4:(-1,0)})
-        >>> from pyrigi.plot_style import PlotStyle2D
+        >>> from pyrigi import PlotStyle2D
         >>> style = PlotStyle2D(vertex_color="green", edge_color="blue")
         >>> F.plot2D(plot_style=style)
 
@@ -729,7 +729,7 @@ class Framework(object):
         >>> F = frameworkDB.Octahedron(realization="Bricard_plane")
         >>> F.plot3D()
 
-        >>> from pyrigi.plot_style import PlotStyle3D
+        >>> from pyrigi import PlotStyle3D
         >>> style = PlotStyle3D(vertex_color="green", edge_color="blue")
         >>> F.plot3D(plot_style=style)
 
