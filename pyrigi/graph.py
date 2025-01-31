@@ -704,20 +704,26 @@ class Graph(nx.Graph):
             return True
 
         # reaching this position means that the algorithm is unknown
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_sparse)
+        raise NotSupportedValueError(algorithm, "algorithm", self.is_kl_sparse)
 
     @doc_category("Sparseness")
-    def is_sparse(
-        self,
-        K: int,
-        L: int,
-        algorithm: str = "default",
-        use_precomputed_pebble_digraph: bool = False,
-    ) -> bool:
+    def is_sparse(self) -> bool:
         r"""
-        Alias for :meth:`.is_kl_sparse`.
+        Return whether the graph is :prf:ref:`(2,3)-sparse <def-kl-sparse-tight>`.
+
+        For general $(k,\ell)$-sparsity, see :meth:`.is_kl_sparse`.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> graphs.Path(3).is_sparse()
+        True
+        >>> graphs.Complete(4).is_sparse()
+        False
+        >>> graphs.ThreePrism().is_sparse()
+        True
         """
-        return self.is_kl_sparse(K, L, algorithm, use_precomputed_pebble_digraph)
+        return self.is_kl_sparse(2, 3, algorithm="pebble")
 
     @doc_category("Sparseness")
     def is_kl_tight(
@@ -756,7 +762,7 @@ class Graph(nx.Graph):
         False
         """
         return (
-            self.is_sparse(
+            self.is_kl_sparse(
                 K,
                 L,
                 algorithm,
@@ -766,22 +772,21 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Sparseness")
-    def is_tight(
-        self,
-        K: int,
-        L: int,
-        algorithm: str = "default",
-        use_precomputed_pebble_digraph: bool = False,
-    ) -> bool:
+    def is_tight(self) -> bool:
         r"""
-        Alias for :meth:`~.is_kl_tight`.
+        Return whether the graph is :prf:ref:`(2,3)-tight <def-kl-sparse-tight>`.
+
+        For general $(k,\ell)$-tightness, see :meth:`.is_kl_tight`.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> graphs.Path(4).is_tight()
+        False
+        >>> graphs.ThreePrism().is_tight()
+        True
         """
-        return self.is_kl_tight(
-            K,
-            L,
-            algorithm,
-            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-        )
+        return self.is_kl_tight(2, 3, algorithm="pebble")
 
     @doc_category("Graph manipulation")
     def zero_extension(
@@ -1859,7 +1864,7 @@ class Graph(nx.Graph):
             if dim == 1:
                 return nx.is_tree(self)
             elif dim == 2:
-                return self.is_tight(
+                return self.is_kl_tight(
                     2,
                     3,
                     algorithm="pebble",
@@ -2058,7 +2063,7 @@ class Graph(nx.Graph):
             return len(nx.cycle_basis(self)) == 0
 
         if dim == 2:
-            return self.is_sparse(
+            self.is_kl_sparse(
                 2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
 

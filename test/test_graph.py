@@ -115,8 +115,9 @@ def test_is_rigid(graph, dim):
     ],
 )
 def test_is_2_3_sparse(graph):
-    assert graph.is_sparse(2, 3, algorithm="subgraph")
-    assert graph.is_sparse(2, 3, algorithm="pebble")
+    assert graph.is_kl_sparse(2, 3, algorithm="subgraph")
+    assert graph.is_kl_sparse(2, 3, algorithm="pebble")
+    assert graph.is_sparse()
 
 
 @pytest.mark.parametrize(
@@ -130,8 +131,9 @@ def test_is_2_3_sparse(graph):
     ],
 )
 def test_is_not_2_3_sparse(graph):
-    assert not graph.is_sparse(2, 3, algorithm="subgraph")
-    assert not graph.is_sparse(2, 3, algorithm="pebble")
+    assert not graph.is_kl_sparse(2, 3, algorithm="subgraph")
+    assert not graph.is_kl_sparse(2, 3, algorithm="pebble")
+    assert not graph.is_sparse()
 
 
 @pytest.mark.parametrize(
@@ -145,8 +147,9 @@ def test_is_not_2_3_sparse(graph):
     ],
 )
 def test_is_2_3_tight(graph):
-    assert graph.is_tight(2, 3, algorithm="pebble")
-    assert graph.is_tight(2, 3, algorithm="subgraph")
+    assert graph.is_kl_tight(2, 3, algorithm="pebble")
+    assert graph.is_kl_tight(2, 3, algorithm="subgraph")
+    assert graph.is_tight()
 
 
 @pytest.mark.parametrize(
@@ -166,8 +169,9 @@ def test_is_2_3_tight(graph):
     ],
 )
 def test_is_not_2_3_tight(graph):
-    assert not graph.is_tight(2, 3, algorithm="subgraph")
-    assert not graph.is_tight(2, 3, algorithm="pebble")
+    assert not graph.is_kl_tight(2, 3, algorithm="subgraph")
+    assert not graph.is_kl_tight(2, 3, algorithm="pebble")
+    assert not graph.is_tight()
 
 
 @pytest.mark.parametrize(
@@ -1927,20 +1931,20 @@ def test_from_vertices_and_edges():
 def test_is_3_6_sparse():
     """The Double Banana is (3,6)-tight."""
     G = graphs.DoubleBanana()
-    assert G.is_sparse(3, 6)
+    assert G.is_kl_sparse(3, 6)
     G.add_edge(0, 1)
-    assert not G.is_sparse(3, 6)
+    assert not G.is_kl_sparse(3, 6)
     G = graphs.K66MinusPerfectMatching()
-    assert G.is_sparse(3, 6)
+    assert G.is_kl_sparse(3, 6)
 
 
-def test_is_tight():
+def test_is_kl_tight():
     G = graphs.Complete(4)
-    assert G.is_tight(2, 2)
+    assert G.is_kl_tight(2, 2)
     G = graphs.CompleteBipartite(4, 4)
-    assert not G.is_tight(3, 6)
+    assert not G.is_kl_tight(3, 6)
     G = graphs.K66MinusPerfectMatching()
-    assert G.is_tight(3, 6)
+    assert G.is_kl_tight(3, 6)
 
 
 def test_plot():
