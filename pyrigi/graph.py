@@ -924,6 +924,11 @@ class Graph(nx.Graph):
         self._input_check_edge_list(edges, vertices)
         if len(edges) != k:
             raise ValueError(f"List of edges must contain {k} distinct edges!")
+        for edge in edges:
+            count=edges.count(list(edge))+edges.count(list(edge)[::-1])
+            count+=edges.count(tuple(edge))+edges.count(tuple(edge)[::-1])
+            if count > 1:
+                raise ValueError(f"List of edges must contain distinct edges, but {edge} appears {count} times!")
         if new_vertex is None:
             candidate = self.number_of_nodes()
             while candidate in self.nodes:

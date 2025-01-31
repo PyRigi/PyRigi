@@ -3,10 +3,12 @@ from pyrigi.misc import (
     is_zero_vector,
     generate_two_orthonormal_vectors,
     eval_sympy_vector,
+    is_isomorphic_graph_list,
 )
 from pyrigi.data_type import point_to_vector
 import numpy as np
 from random import randint
+from pyrigi.graph import Graph
 
 
 def test_is_zero_vector():
@@ -56,3 +58,29 @@ def test_eval_sympy_vector():
         0.12312312312312312,
     ]
     assert eval_sympy_vector(["1/4", -1]) == [0.25, -1]
+
+
+@pytest.mark.parametrize(
+    "list1, list2",
+    [
+        [[239,254,254], [254,254,239]],
+        [[239,254], [254,239]],
+        [[31],[31]],
+        [[254],[947]],
+    ]
+)
+def test_is_isomorphic_graph_list_true(list1, list2):
+    assert is_isomorphic_graph_list([Graph.from_int(g) for g in list1],[Graph.from_int(g) for g in list2])
+
+
+@pytest.mark.parametrize(
+    "list1, list2",
+    [
+        [[239,254,254], [254,31,239]],
+        [[239,254,254], [254,239,239]],
+        [[239,254,254], [254,239]],
+        [[239,254], [31,239]],
+    ]
+)
+def test_is_isomorphic_graph_list_false(list1, list2):
+    assert not is_isomorphic_graph_list([Graph.from_int(g) for g in list1],[Graph.from_int(g) for g in list2])
