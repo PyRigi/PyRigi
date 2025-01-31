@@ -2242,7 +2242,7 @@ class Graph(nx.Graph):
                 return [list(comp) for comp in nx.connected_components(self)]
             # here will be the implementation using pebble games for dim=2
 
-        elif algorithm == "randomized":
+        elif algorithm == "randomized" or (dim == 2 and algorithm == "combinatorial"):
             if not nx.is_connected(self):
                 res = []
                 for comp in nx.connected_components(self):
