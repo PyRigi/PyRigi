@@ -2858,9 +2858,7 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        for v in V:
-            if v not in self.nodes:
-                raise ValueError(f"The node {v} is not a node of the graph.")
+        self._input_check_vertex_members(V)
 
         res = set()
         for v in V:
@@ -2928,11 +2926,10 @@ class Graph(nx.Graph):
         if not nx.is_biconnected(self):
             raise ValueError("The graph must be 2-connected.")
 
+        self._input_check_vertex_members([u, v])
         # u and v must be a non-adjacent pair
-        if [u, v] in self.edges() or u not in self.nodes() or v not in self.nodes():
-            raise ValueError(
-                "u and v must be a non-adjacent pair of vertices of the graph."
-            )
+        if [u, v] in self.edges():
+            raise ValueError("u and v must be non-adjacent.")
         if nx.node_connectivity(self) >= 3:
             return self
         else:
@@ -2969,15 +2966,8 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
         """  # noqa: E501
 
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
-        if (
-            not isinstance(u, Vertex)
-            or not isinstance(v, Vertex)
-            or u not in self.nodes()
-            or v not in self.nodes()
-        ):
-            raise TypeError("u and v need to be a vertices of the graph.")
+        self._input_check_no_loop()
+        self._input_check_vertex_members([u, v])
         self._build_pebble_digraph(K=2, L=3)
         set_nodes = self._pebble_digraph.fundamental_circuit(u, v)
         F = Graph(self._pebble_digraph.to_undirected())
@@ -2992,8 +2982,7 @@ class Graph(nx.Graph):
         # self must be a 2-connected graph
         if not nx.is_biconnected(self):
             raise ValueError("The input graph must be 2-connected.")
-        if u not in self.nodes() or v not in self.nodes():
-            raise ValueError("u and v must be vertices of the graph.")
+        self._input_check_vertex_members([u, v])
         # check (u,v) are non adjacent
         if [u, v] in self.edges():
             # in self.edges() edges are not oriented, so this works both
