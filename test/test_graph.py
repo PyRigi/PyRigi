@@ -2,6 +2,7 @@ from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
 from pyrigi.exception import (
     LoopError,
+    NotSupportedError,
 )
 import matplotlib.pyplot as plt
 
@@ -1470,8 +1471,8 @@ def test_all_k_extension_error():
         Graph.from_int(173090142),
     ],
 )
-def test_extension_sequence(graph):
-    assert graph.extension_sequence()
+def test_has_extension_sequence(graph):
+    assert graph.has_extension_sequence()
 
 
 @pytest.mark.parametrize(
@@ -1489,16 +1490,16 @@ def test_extension_sequence(graph):
         Graph.from_vertices([]),
     ],
 )
-def test_extension_sequence_false(graph):
-    assert not graph.extension_sequence()
+def test_has_extension_sequence_false(graph):
+    assert not graph.has_extension_sequence()
 
 
 def test_extension_sequence_solution():
-    assert graphs.Complete(2).extension_sequence(return_solution=True) == [
+    assert graphs.Complete(2).extension_sequence(return_type="graphs") == [
         Graph([[0, 1]]),
     ]
 
-    assert graphs.Complete(3).extension_sequence(return_solution=True) == [
+    assert graphs.Complete(3).extension_sequence(return_type="graphs") == [
         Graph([[1, 2]]),
         Graph([[0, 1], [0, 2], [1, 2]]),
     ]
@@ -1513,7 +1514,7 @@ def test_extension_sequence_solution():
         ),
     ]
     assert (
-        graphs.CompleteBipartite(3, 3).extension_sequence(return_solution=True)
+        graphs.CompleteBipartite(3, 3).extension_sequence(return_type="graphs")
         == solution
     )
 
@@ -1529,13 +1530,13 @@ def test_extension_sequence_solution():
         if i < len(solution_ext):
             G.k_extension(*solution_ext[i], dim=2, inplace=True)
 
-    assert graphs.Diamond().extension_sequence(return_solution=True) == [
+    assert graphs.Diamond().extension_sequence(return_type="graphs") == [
         Graph([[2, 3]]),
         Graph([[0, 2], [0, 3], [2, 3]]),
         Graph([[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]),
     ]
 
-    result = graphs.ThreePrism().extension_sequence(return_solution=True)
+    result = graphs.ThreePrism().extension_sequence(return_type="graphs")
     solution = [
         Graph([[4, 5]]),
         Graph([[3, 4], [3, 5], [4, 5]]),
@@ -1557,6 +1558,55 @@ def test_extension_sequence_solution():
         assert result[i] == G
         if i < len(solution_ext):
             G.k_extension(*solution_ext[i], dim=2, inplace=True)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Diamond(),
+        graphs.ThreePrism(),
+        graphs.CubeWithDiagonal(),
+        Graph.from_int(6462968),
+        Graph.from_int(69380589),
+        Graph.from_int(19617907),
+        Graph.from_int(170993054),
+        Graph.from_int(173090142),
+    ],
+)
+def test_extension_sequence(graph):
+    ext = graph.extension_sequence(return_type="both")
+    assert ext is not None
+    current = ext[0]
+    for i in range(1, len(ext)):
+        current = current.k_extension(*ext[i][1])
+        assert current == ext[i][0]
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(3),
+        graphs.CompleteBipartite(1, 2),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.K33plusEdge(),
+        graphs.ThreePrismPlusEdge(),
+        Graph.from_int(2269176),
+        Graph.from_int(19650659),
+        Graph.from_vertices([0]),
+        Graph.from_vertices([]),
+    ],
+)
+def test_extension_sequence_none(graph):
+    assert graph.extension_sequence() is None
+
+
+def test_extension_sequence_error(graph):
+    with pytest.raises(NotSupportedError):
+        graphs.Complete(3).extension_sequence(return_type="Test")
 
 
 def test_CompleteOnVertices():

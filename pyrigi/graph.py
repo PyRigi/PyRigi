@@ -1023,8 +1023,106 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def extension_sequence(
-        self, dim: int = 2, return_solution: bool = False
-    ) -> list[Graph] | bool | None:
+        self, dim: int = 2, return_type: str = "extensions"
+    ) -> list[Graph] | list | None:
+        """
+        Compute a sequence of
+        :prf:ref:`0 and 1-extensions <def-k-extension>`
+        if it extists.
+
+        The method returns a sequence of graphs,
+        data on the extension or both.
+
+        Parameters
+        ----------
+        dim:
+            The dimension in which the extensions are created.
+            Currently implemented only for ``dim==2``.
+        return_type:
+            Can have values "graphs", "extensions" or "both".
+
+            "graphs": the sequence of graphs obtained from the extensions.
+
+            "extensions": an initial graph and a sequence of extensions
+            of the form [k, vertices, edges, new_vertex] as needed for the input of `k_extension`
+
+            "both": an initial graph and a sequence of pairs [graph, extension],
+            where the latter has the form from above
+
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G.extension_sequence(return_type="graphs")
+        [Graph with vertices [1, 2] and edges [[1, 2]], Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]]
+        >>> G = graphs.Diamond()
+        >>> G
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
+        >>> G.extension_sequence(return_type="graphs")
+        [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
+        >>> G.extension_sequence(return_type="extensions")
+        [Graph with vertices [2, 3] and edges [[2, 3]], [0, [3, 2], [], 0], [0, [0, 2], [], 1]]
+        """  # noqa: E501
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
+        if not dim == 2:
+            raise NotImplementedError()
+        if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
+            return None
+        if self.number_of_nodes() == 2:
+            return [self]
+        degrees = sorted(self.degree, key=lambda node: node[1])
+        if degrees[0][1] < 2 or degrees[0][1] > 3:
+            return None
+        if degrees[0][1] == 2:
+            G = deepcopy(self)
+            neighbors = list(self.neighbors(degrees[0][0]))
+            G.remove_node(degrees[0][0])
+            branch = G.extension_sequence(dim, return_type)
+            extension = [0, neighbors, [], degrees[0][0]]
+            if branch is not None:
+                if return_type == "extensions":
+                    return branch + [extension]
+                elif return_type == "graphs":
+                    return branch + [self]
+                elif return_type == "both":
+                    return branch + [[self, extension]]
+                else:
+                    raise NotSupportedValueError(
+                        return_type, "return_type", self.extension_sequence
+                    )
+            return branch
+        if degrees[0][1] == 3:
+            neighbors = list(self.neighbors(degrees[0][0]))
+            G = deepcopy(self)
+            G.remove_node(degrees[0][0])
+            for i, j in [[0, 1], [0, 2], [1, 2]]:
+                if not G.has_edge(neighbors[i], neighbors[j]):
+                    G.add_edge(neighbors[i], neighbors[j])
+                    branch = G.extension_sequence(dim, return_type)
+                    if branch is not None:
+                        edge = [neighbors[i], neighbors[j]]
+                        extension = [1, neighbors, [edge], degrees[0][0]]
+                        if return_type == "extensions":
+                            return branch + [extension]
+                        elif return_type == "graphs":
+                            return branch + [self]
+                        elif return_type == "both":
+                            return branch + [[self, extension]]
+                        else:
+                            raise NotSupportedValueError(
+                                return_type, "return_type", self.extension_sequence
+                            )
+                    G.remove_edge(neighbors[i], neighbors[j])
+        return None
+
+    @doc_category("Generic rigidity")
+    def has_extension_sequence(
+        self, dim: int = 2, return_type: str = "extensions"
+    ) -> list[Graph] | list | None:
         """
         Check the existence of a sequence of
         :prf:ref:`0 and 1-extensions <def-k-extension>`.
@@ -1037,11 +1135,6 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the extensions are created.
             Currently implemented only for ``dim==2``.
-        return_solution:
-            If False, a boolean value indicating if the graph can be
-            created by a sequence of extensions is returned.
-            If True, an extension sequence of graphs that creates the graph
-            is returned, or None if no such extension sequence exists.
 
         Examples
         --------
@@ -1049,58 +1142,15 @@ class Graph(nx.Graph):
         >>> G = graphs.ThreePrism()
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-        >>> G.extension_sequence()
+        >>> G.has_extension_sequence()
         True
         >>> G = graphs.CompleteBipartite(1, 2)
         >>> G
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2]]
-        >>> G.extension_sequence()
+        >>> G.has_extension_sequence()
         False
-        >>> G = graphs.Complete(3)
-        >>> G
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.extension_sequence(return_solution=True)
-        [Graph with vertices [1, 2] and edges [[1, 2]], Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]]
-        >>> G = graphs.Diamond()
-        >>> G
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
-        >>> G.extension_sequence(return_solution=True)
-        [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
         """  # noqa: E501
-        _input_check.dimension(dim)
-        self._input_check_no_loop()
-        if not dim == 2:
-            raise NotImplementedError()
-        if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
-            return None if return_solution else False
-        if self.number_of_nodes() == 2:
-            return [self] if return_solution else True
-        degrees = sorted(self.degree, key=lambda node: node[1])
-        if degrees[0][1] < 2 or degrees[0][1] > 3:
-            return None if return_solution else False
-        if degrees[0][1] == 2:
-            G = deepcopy(self)
-            G.remove_node(degrees[0][0])
-            branch = G.extension_sequence(dim, return_solution)
-            if return_solution:
-                if branch is not None:
-                    return branch + [self]
-                return None
-            return branch
-        if degrees[0][1] == 3:
-            neighbors = list(self.neighbors(degrees[0][0]))
-            G = deepcopy(self)
-            G.remove_node(degrees[0][0])
-            for i, j in [[0, 1], [0, 2], [1, 2]]:
-                if not G.has_edge(neighbors[i], neighbors[j]):
-                    G.add_edge(neighbors[i], neighbors[j])
-                    branch = G.extension_sequence(dim, return_solution)
-                    if return_solution and branch is not None:
-                        return branch + [self]
-                    elif branch:
-                        return True
-                    G.remove_edge(neighbors[i], neighbors[j])
-        return None if return_solution else False
+        return self.extension_sequence(dim) is not None
 
     @doc_category("Generic rigidity")
     def number_of_realizations(
