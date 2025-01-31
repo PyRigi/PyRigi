@@ -105,8 +105,8 @@ class GraphDrawer(object):
             raise ValueError("The parameter `size` must be a list of two integers")
         # arrange width and height of the canvas so that they are in [300,1000]
         for i in range(2):
-            if size[i] < 300:
-                size[i] = 300
+            if size[i] < 400:
+                size[i] = 400
             if size[i] > 1000:
                 size[i] = 1000
         # convert members of size to closest multiple of 100
