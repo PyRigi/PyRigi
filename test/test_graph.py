@@ -2,7 +2,7 @@ from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
 from pyrigi.exception import (
     LoopError,
-    NotSupportedError,
+    NotSupportedValueError,
 )
 import matplotlib.pyplot as plt
 
@@ -217,6 +217,7 @@ def test_is_not_min_rigid_d1(graph):
 )
 def test_is_min_rigid_d2(graph):
     assert graph.is_min_rigid(dim=2, algorithm="combinatorial")
+    assert graph.is_min_rigid(dim=2, algorithm="extension_sequence")
     assert graph.is_min_rigid(dim=2, algorithm="randomized")
 
 
@@ -238,6 +239,7 @@ def test_is_min_rigid_d2(graph):
 )
 def test_is_not_min_rigid_d2(graph):
     assert not graph.is_min_rigid(dim=2, algorithm="combinatorial")
+    assert not graph.is_min_rigid(dim=2, algorithm="extension_sequence")
     assert not graph.is_min_rigid(dim=2, algorithm="randomized")
 
 
@@ -1605,7 +1607,7 @@ def test_extension_sequence_none(graph):
 
 
 def test_extension_sequence_error(graph):
-    with pytest.raises(NotSupportedError):
+    with pytest.raises(NotSupportedValueError):
         graphs.Complete(3).extension_sequence(return_type="Test")
 
 

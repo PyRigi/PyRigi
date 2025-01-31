@@ -1836,6 +1836,10 @@ class Graph(nx.Graph):
             used (``"randomized"``) that may give false negatives.
             See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
             the randomized check returns a correct result.
+
+            Other options for comparison are "extension_sequence",
+            which checks, whether there exists a sequence of rigidity presvering extensions
+            (only available for dim=2).
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2`` and ``algorithm="combinatorial"``.
             If ``True``, the pebble digraph present in the cache is used.
@@ -1885,6 +1889,13 @@ class Graph(nx.Graph):
                     algorithm="pebble",
                     use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
                 )
+
+        if algorithm == "extension_sequence":
+            _input_check.dimension_for_algorithm(
+                dim, [2], "the algorithm using extension sequences"
+            )
+            if dim == 2:
+                return self.has_extension_sequence()
 
         if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
