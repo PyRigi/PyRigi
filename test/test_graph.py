@@ -183,6 +183,7 @@ def test_is_not_2_3_tight(graph):
 )
 def test_is_min_rigid_d1(graph):
     assert graph.is_min_rigid(dim=1, algorithm="combinatorial")
+    assert graph.is_min_rigid(dim=1, algorithm="extension_sequence")
     assert graph.is_min_rigid(dim=1, algorithm="randomized")
 
 
@@ -202,6 +203,7 @@ def test_is_min_rigid_d1(graph):
 )
 def test_is_not_min_rigid_d1(graph):
     assert not graph.is_min_rigid(dim=1, algorithm="combinatorial")
+    assert not graph.is_min_rigid(dim=1, algorithm="extension_sequence")
     assert not graph.is_min_rigid(dim=1, algorithm="randomized")
 
 
@@ -1588,6 +1590,36 @@ def test_extension_sequence(graph):
 
 
 @pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [graphs.Complete(2), 2],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 2],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 2],
+        [graphs.CubeWithDiagonal(), 2],
+        [Graph.from_int(6462968), 2],
+        [Graph.from_int(69380589), 2],
+        [Graph.from_int(19617907), 2],
+        [Graph.from_int(170993054), 2],
+        [Graph.from_int(173090142), 2],
+        [graphs.Complete(2), 1],
+        [Graph.from_int(75), 1],
+        [Graph.from_int(77), 1],
+        [Graph.from_int(77), 1],
+        [Graph.from_int(86), 1],
+    ],
+)
+def test_extension_sequence_dim(graph, dim):
+    ext = graph.extension_sequence(dim=dim, return_type="both")
+    assert ext is not None
+    current = ext[0]
+    for i in range(1, len(ext)):
+        current = current.k_extension(*ext[i][1], dim=dim)
+        assert current == ext[i][0]
+
+
+@pytest.mark.parametrize(
     "graph",
     [
         graphs.Path(3),
@@ -1606,7 +1638,7 @@ def test_extension_sequence_none(graph):
     assert graph.extension_sequence() is None
 
 
-def test_extension_sequence_error(graph):
+def test_extension_sequence_error():
     with pytest.raises(NotSupportedValueError):
         graphs.Complete(3).extension_sequence(return_type="Test")
 

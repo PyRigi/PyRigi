@@ -1068,16 +1068,18 @@ class Graph(nx.Graph):
         """  # noqa: E501
         _input_check.dimension(dim)
         self._input_check_no_loop()
-        if not dim == 2:
+        if not dim == 2 and not dim == 1:
             raise NotImplementedError()
-        if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
+        if not self.number_of_edges() == dim * self.number_of_nodes() - math.comb(
+            dim + 1, 2
+        ):
             return None
-        if self.number_of_nodes() == 2:
+        if self.number_of_nodes() == dim:
             return [self]
         degrees = sorted(self.degree, key=lambda node: node[1])
-        if degrees[0][1] < 2 or degrees[0][1] > 3:
+        if degrees[0][1] < dim or degrees[0][1] > 2 * dim - 1:
             return None
-        if degrees[0][1] == 2:
+        if degrees[0][1] == dim:
             G = deepcopy(self)
             neighbors = list(self.neighbors(degrees[0][0]))
             G.remove_node(degrees[0][0])
@@ -1095,7 +1097,7 @@ class Graph(nx.Graph):
                         return_type, "return_type", self.extension_sequence
                     )
             return branch
-        if degrees[0][1] == 3:
+        if dim == 2 and degrees[0][1] == 3:
             neighbors = list(self.neighbors(degrees[0][0]))
             G = deepcopy(self)
             G.remove_node(degrees[0][0])
@@ -1892,10 +1894,9 @@ class Graph(nx.Graph):
 
         if algorithm == "extension_sequence":
             _input_check.dimension_for_algorithm(
-                dim, [2], "the algorithm using extension sequences"
+                dim, [1, 2], "the algorithm using extension sequences"
             )
-            if dim == 2:
-                return self.has_extension_sequence()
+            return self.has_extension_sequence(dim=dim)
 
         if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
