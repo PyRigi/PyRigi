@@ -1028,15 +1028,17 @@ class Framework(object):
         if rand_range is None:
             b = 10**4 * graph.number_of_nodes() * dim
             a = -b
-        if isinstance(rand_range, list | tuple):
+        elif isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
                 raise ValueError("If `rand_range` is a list, it must be of length 2.")
             a, b = rand_range
-        if isinstance(rand_range, int):
+        elif isinstance(rand_range, int):
             if rand_range <= 0:
                 raise ValueError("If `rand_range` is an int, it must be positive")
             b = rand_range
             a = -b
+        else:
+            raise TypeError("`rand_range` must be either a list or a single int.")
 
         realization = {
             vertex: [randrange(a, b) for _ in range(dim)] for vertex in graph.nodes
