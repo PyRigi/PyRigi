@@ -1263,7 +1263,7 @@ class Framework(object):
             }
         else:
             if not as_points:
-                {
+                return {
                     vertex: Matrix([float(p) for p in position])
                     for vertex, position in self._realization.items()
                 }
