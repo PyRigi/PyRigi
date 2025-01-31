@@ -645,6 +645,10 @@ def plot_with_2D_realization(
         )
         for e, style in arc_angles.items():
             newGraph.add_edge(e[0], e[1], weight=style)
+        edge_to_color = {
+            frozenset(edge): color
+            for edge, color in zip(edge_list_ref, edge_color_array)
+        }
         plt.box(False)  # Manually removes the frame of the plot
         plt.tick_params(
             left=False,
@@ -674,7 +678,7 @@ def plot_with_2D_realization(
                 realization,
                 ax=ax,
                 width=plot_style.edge_width,
-                edge_color=edge_color_array,
+                edge_color=edge_to_color[frozenset(edge[0:2])],
                 arrows=True,
                 arrowstyle="-",
                 edgelist=[(edge[0], edge[1])],
