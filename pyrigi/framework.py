@@ -2309,10 +2309,11 @@ class Framework(object):
                     + f" only in dimension 2 or 3. {proj_dim} was given instead."
                 )
             projection_matrix = projection_matrix.T
-
         return (
             {
-                vertex: tuple(np.dot(projection_matrix, np.array(position)))
+                vertex: tuple(
+                    [float(s[0]) for s in np.dot(projection_matrix, np.array(position))]
+                )
                 for vertex, position in self.realization(
                     as_points=False, numerical=True
                 ).items()
