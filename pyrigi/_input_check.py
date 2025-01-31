@@ -68,7 +68,9 @@ def integrality_and_range(
         )
 
 
-def greater_equal(val1: int, val2: int, name1: str, name2: str = "") -> None:
+def greater_equal(
+    val1: int | float, val2: int | float, name1: str, name2: str = ""
+) -> None:
     """
     Check whether an input parameter val1 is greater than or equal to val2 and
     raise an error otherwise.
@@ -96,7 +98,7 @@ def greater_equal(val1: int, val2: int, name1: str, name2: str = "") -> None:
         )
 
 
-def greater(val1: int, val2: int, name1: str, name2: str = "") -> None:
+def greater(val1: int | float, val2: int | float, name1: str, name2: str = "") -> None:
     """
     Check whether an input parameter val1 is greater than or equal to val2 and
     raise an error otherwise.
@@ -124,7 +126,9 @@ def greater(val1: int, val2: int, name1: str, name2: str = "") -> None:
         )
 
 
-def smaller_equal(val1: int, val2: int, name1: str, name2: str = "") -> None:
+def smaller_equal(
+    val1: int | float, val2: int | float, name1: str, name2: str = ""
+) -> None:
     """
     Check whether an input parameter val1 is smaller than or equal to val2 and
     raise an error otherwise.

@@ -503,7 +503,7 @@ class Graph(nx.Graph):
         """
         vertex_order = self._input_check_vertex_order(vertex_order)
 
-        return [self.degree(v) for v in vertex_order]
+        return [int(self.degree(v)) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
     def min_degree(self) -> int:
@@ -516,7 +516,7 @@ class Graph(nx.Graph):
         >>> G.min_degree()
         1
         """
-        return min([self.degree(v) for v in self.nodes])
+        return min([int(self.degree(v)) for v in self.nodes])
 
     @doc_category("General graph theoretical properties")
     def max_degree(self) -> int:
@@ -529,7 +529,7 @@ class Graph(nx.Graph):
         >>> G.max_degree()
         2
         """
-        return max([self.degree(v) for v in self.nodes])
+        return max([int(self.degree(v)) for v in self.nodes])
 
     def _build_pebble_digraph(self, K: int, L: int) -> None:
         r"""
@@ -577,7 +577,7 @@ class Graph(nx.Graph):
         ):
             self._build_pebble_digraph(K, L)
 
-        return self._pebble_digraph.to_undirected()
+        return Graph(self._pebble_digraph.to_undirected())
 
     def _is_pebble_digraph_sparse(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
