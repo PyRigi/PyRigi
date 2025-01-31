@@ -813,7 +813,7 @@ class GraphDrawer(object):
         }
         # when grid is True update (assing grid coordinates) the positions
         # of the vertices
-        if self._grid_snap_checkbox.value and grid is True:
+        if self._grid_checkbox.value and grid is True:
             for v in H.nodes:
                 posdict[v] = [x / self._grid_size for x in posdict[v]]
         return Framework(graph=H, realization=posdict)
