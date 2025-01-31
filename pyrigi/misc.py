@@ -17,7 +17,9 @@ def doc_category(category):
     return decorator_doc_category
 
 
-def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
+def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
+    if cat_order is None:
+        cat_order = []
     categories = {}
     for func in dir(cls):
         if callable(getattr(cls, func)) and func[:2] != "__":

@@ -119,6 +119,7 @@ class Framework(object):
             self._dim = 0
 
         self._graph = deepcopy(graph)
+        self._realization = {}
         self.set_realization(realization)
 
     def __str__(self) -> str:
@@ -204,7 +205,7 @@ class Framework(object):
 
     @doc_category("Framework manipulation")
     def add_vertices(
-        self, points: Sequence[Point], vertices: Sequence[Vertex] = []
+        self, points: Sequence[Point], vertices: Sequence[Vertex] = None
     ) -> None:
         r"""
         Add a list of vertices to the framework.
@@ -233,7 +234,7 @@ class Framework(object):
         -----
         For each vertex that has to be added, :meth:`add_vertex` is called.
         """
-        if not (len(points) == len(vertices) or not vertices):
+        if vertices and not len(points) == len(vertices):
             raise IndexError("The vertex list does not have the correct length!")
         if not vertices:
             for point in points:

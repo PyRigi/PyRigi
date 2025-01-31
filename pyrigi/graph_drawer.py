@@ -10,6 +10,7 @@ Classes:
     GraphDrawer
 """
 
+from collections.abc import Sequence
 from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
 from ipycanvas import MultiCanvas, hold_canvas
 from IPython.display import display
@@ -76,7 +77,7 @@ class GraphDrawer(object):
     def __init__(
         self,
         graph: Graph = None,
-        size: list[int] = [600, 600],
+        size: Sequence[int] = (600, 600),
         layout_type: str = "spring",
         place: str = "all",
     ) -> None:
@@ -100,7 +101,7 @@ class GraphDrawer(object):
 
         # setting multicanvas properties
 
-        if not isinstance(size, list) or not len(size) == 2:
+        if not isinstance(size, Sequence) or not len(size) == 2:
             raise ValueError("The parameter `size` must be a list of two integers")
         # arrange width and height of the canvas so that they are in [300,1000]
         for i in range(2):
