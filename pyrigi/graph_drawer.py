@@ -430,34 +430,34 @@ class GraphDrawer(object):
 
         # add lines from center to sides so that center
         # of the canvas is always at a corner
-        for n in range(0, int(self._mcanvas.width / 2), size):
+        for i in range(0, int(self._mcanvas.width / 2), size):
             self._mcanvas[0].stroke_line(
-                self._mcanvas.width / 2 + n,
+                self._mcanvas.width / 2 + i,
                 0,
-                self._mcanvas.width / 2 + n,
+                self._mcanvas.width / 2 + i,
                 self._mcanvas.height,
             )
-            if n != 0:
+            if i != 0:
                 self._mcanvas[0].stroke_line(
-                    self._mcanvas.width / 2 - n,
+                    self._mcanvas.width / 2 - i,
                     0,
-                    self._mcanvas.width / 2 - n,
+                    self._mcanvas.width / 2 - i,
                     self._mcanvas.height,
                 )
 
-        for n in range(0, int(self._mcanvas.height / 2), size):
+        for i in range(0, int(self._mcanvas.height / 2), size):
             self._mcanvas[0].stroke_line(
                 0,
-                self._mcanvas.height / 2 + n,
+                self._mcanvas.height / 2 + i,
                 self._mcanvas.width,
-                self._mcanvas.height / 2 + n,
+                self._mcanvas.height / 2 + i,
             )
-            if n != 0:
+            if i != 0:
                 self._mcanvas[0].stroke_line(
                     0,
-                    self._mcanvas.height / 2 - n,
+                    self._mcanvas.height / 2 - i,
                     self._mcanvas.width,
-                    self._mcanvas.height / 2 - n,
+                    self._mcanvas.height / 2 - i,
                 )
         # add a red dot at the origin
         self._mcanvas[0].fill_style = "red"
@@ -702,17 +702,17 @@ class GraphDrawer(object):
         self._mcanvas[1].line_width = self._ewidth
         self._mcanvas[2].line_width = self._ewidth
         for u, v in self._graph.edges:
-            # n below is the index of the layer to be used.
+            # i below is the index of the layer to be used.
             # if the edge is incident with hvertex,
             # draw this edge on layer 1 of multicanvas.
             # otherwise draw it on layer 2.
             if hvertex in [u, v]:
-                n = 1
+                i = 1
             else:
-                n = 2
+                i = 2
 
-            self._mcanvas[n].stroke_style = self._graph[u][v]["color"]
-            self._mcanvas[n].stroke_line(
+            self._mcanvas[i].stroke_style = self._graph[u][v]["color"]
+            self._mcanvas[i].stroke_line(
                 self._graph.nodes[u]["pos"][0],
                 self._graph.nodes[u]["pos"][1],
                 self._graph.nodes[v]["pos"][0],
@@ -720,19 +720,19 @@ class GraphDrawer(object):
             )
 
         for vertex in self._graph.nodes:
-            # n below is the index of the layer to be used.
+            # i below is the index of the layer to be used.
             # draw hvertex on layer 3 and other vertices on layer 2
             # so that moving vertex (hvertex) will show up above others.
             if hvertex == vertex:
-                n = 3
+                i = 3
             else:
-                n = 2
-            self._mcanvas[n].fill_style = self._graph.nodes[vertex]["color"]
+                i = 2
+            self._mcanvas[i].fill_style = self._graph.nodes[vertex]["color"]
             x, y = self._graph.nodes[vertex]["pos"]
-            self._mcanvas[n].fill_circle(x, y, self._radius)
+            self._mcanvas[i].fill_circle(x, y, self._radius)
             if self._show_vlabels:
-                self._mcanvas[n].fill_style = "white"
-                self._mcanvas[n].fill_text(str(vertex), x, y)
+                self._mcanvas[i].fill_style = "white"
+                self._mcanvas[i].fill_text(str(vertex), x, y)
 
     def _grid_to_canvas_point(self, x, y):
         """
