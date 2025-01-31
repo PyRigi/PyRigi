@@ -480,7 +480,7 @@ class GraphDrawer(object):
         self._selected_vertex = self._collided_vertex(location[0], location[1])
         # if there is no vertex at pointer pos and grid snap is on
         # check if there is a vertex at the closest grid corner.
-        if self._grid_snap_checkbox.value is True and self._selected_vertex is None:
+        if self._grid_snap_checkbox.value and self._selected_vertex is None:
             gridpoint = self._closest_grid_coordinate(x, y)
             location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
             self._selected_vertex = self._collided_vertex(
@@ -510,7 +510,7 @@ class GraphDrawer(object):
         vertex = self._collided_vertex(location[0], location[1])
         # if there is no vertex at the pointer pos and grid snap is on
         # check if there is a vertex at the closest grid corner.
-        if self._grid_snap_checkbox.value is True and vertex is None:
+        if self._grid_snap_checkbox.value and vertex is None:
             gridpoint = self._closest_grid_coordinate(x, y)
             location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
             vertex = self._collided_vertex(location[0], location[1])
@@ -572,7 +572,7 @@ class GraphDrawer(object):
         location = [int(x), int(y)]
         collided_vertex = self._collided_vertex(x, y)
         self._mcanvas[4].clear()
-        if self._grid_snap_checkbox.value is True and (
+        if self._grid_snap_checkbox.value and (
             collided_vertex is None or collided_vertex is vertex
         ):
             gridpoint = self._closest_grid_coordinate(x, y)
@@ -580,7 +580,7 @@ class GraphDrawer(object):
 
         if vertex is None or not self._mouse_down:
             # do nothing if no vertex is selected or mouse button is not down
-            if self._grid_snap_checkbox.value is True:
+            if self._grid_snap_checkbox.value:
                 with hold_canvas():
                     self._mcanvas[4].fill_style = "cyan"
                     self._mcanvas[4].fill_circle(location[0], location[1], 3)
@@ -813,7 +813,7 @@ class GraphDrawer(object):
         }
         # when grid is True update (assing grid coordinates) the positions
         # of the vertices
-        if self._grid_checkbox.value and grid is True:
+        if self._grid_checkbox.value and grid:
             for v in H.nodes:
                 posdict[v] = [x / self._grid_size for x in posdict[v]]
         return Framework(graph=H, realization=posdict)
