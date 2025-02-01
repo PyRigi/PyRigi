@@ -2827,6 +2827,9 @@ class Graph(nx.Graph):
         >>> H.is_separating_pair(1,3)
         True
         """
+        
+        self._input_check_vertex_members([u,v])
+        
         # self must be a 2-connected graph
         if not nx.is_biconnected(self):
             raise ValueError("The input graph must be 2-connected.")
@@ -2893,12 +2896,16 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
 
         """  # noqa: E501
+        
+        self._input_check_vertex_members(X)
+        
         H = self.copy()
         H.delete_vertices(X)
+        vert_conn_comp = nx.connected_components(H)
         H = self.copy()
         import pyrigi.graphDB as graphs
 
-        for V in nx.connected_components(H):
+        for V in vert_conn_comp:
             H.delete_vertices(V)
             K = graphs.Complete(self.neighbors_of_set(V))
             H += K
@@ -2928,7 +2935,7 @@ class Graph(nx.Graph):
 
         self._input_check_vertex_members([u, v])
         # u and v must be a non-adjacent pair
-        if [u, v] in self.edges():
+        if [u, v] in self.edges:
             raise ValueError("u and v must be non-adjacent.")
         if nx.node_connectivity(self) >= 3:
             return self
@@ -2985,8 +2992,8 @@ class Graph(nx.Graph):
             raise ValueError("The input graph must be 2-connected.")
         self._input_check_vertex_members([u, v])
         # check (u,v) are non adjacent
-        if [u, v] in self.edges():
-            # in self.edges() edges are not oriented, so this works both
+        if [u, v] in self.edges:
+            # in self.edges edges are not oriented, so this works both
             # for [u,v] and for [v,u]
             return True  # they are actually globally linked, not just weakly
         # check (u,v) are linked pair
