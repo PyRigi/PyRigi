@@ -1626,6 +1626,34 @@ def test_extension_sequence_dim(graph, dim):
 
 
 @pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [graphs.Complete(2), 2],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 2],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 2],
+        [graphs.CubeWithDiagonal(), 2],
+        [Graph.from_int(6462968), 2],
+        [Graph.from_int(69380589), 2],
+        [Graph.from_int(19617907), 2],
+        [Graph.from_int(170993054), 2],
+        [Graph.from_int(173090142), 2],
+        [graphs.Complete(2), 1],
+        [Graph.from_int(75), 1],
+        [Graph.from_int(77), 1],
+        [Graph.from_int(86), 1],
+        [graphs.Complete(1), 1],
+    ],
+)
+def test_extension_sequence_min_rigid(graph, dim):
+    ext = graph.extension_sequence(dim=dim, return_type="graphs")
+    assert ext is not None
+    for current in ext:
+        assert current.is_min_rigid(dim)
+
+
+@pytest.mark.parametrize(
     "graph",
     [
         graphs.Path(3),

@@ -1031,8 +1031,8 @@ class Graph(nx.Graph):
         if it extists, where k goes from 0 to ``2 * dim - 1``.
         The sequence then starts from a complete graph on ``dim`` vertices.
 
-        The method returns a sequence of graphs,
-        data on the extension or both.
+        The method returns either a sequence of graphs,
+        data on the extension, or both.
 
         Note that for dimesions larger than two, the
         extensions are not always preserving rigidity.
