@@ -189,6 +189,7 @@ class Motion(object):
             )[0]
             for i in range(len(edge_list_ref))
         ]
+        annotated_text = []
         if plot_style.vertex_labels:
             annotated_text = [
                 ax.text(
@@ -356,6 +357,7 @@ class Motion(object):
             color=plot_style.vertex_color,
             markersize=plot_style.vertex_size,
         )
+        annotated_text = []
         if plot_style.vertex_labels:
             annotated_text = [
                 ax.text(
