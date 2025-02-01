@@ -1407,6 +1407,7 @@ def test_all_k_extensions():
             3,
             [257911, 260603, 376807, 384943, 1497823, 1973983],
         ],
+        [Graph.from_int(511), 2, 3, [4095, 7679, 7935, 8187]],
     ],
 )
 def test_all_k_extensions2(graph, k, dim, sol):
@@ -1606,8 +1607,13 @@ def test_extension_sequence(graph):
         [graphs.Complete(2), 1],
         [Graph.from_int(75), 1],
         [Graph.from_int(77), 1],
-        [Graph.from_int(77), 1],
         [Graph.from_int(86), 1],
+        [graphs.Complete(1), 1],
+        [Graph.from_int(63), 3],
+        [Graph.from_int(511), 3],
+        [Graph.from_int(16350), 3],
+        [Graph.from_int(4095), 3],
+        [graphs.DoubleBanana(), 3],
     ],
 )
 def test_extension_sequence_dim(graph, dim):
@@ -1636,6 +1642,28 @@ def test_extension_sequence_dim(graph, dim):
 )
 def test_extension_sequence_none(graph):
     assert graph.extension_sequence() is None
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [graphs.Path(3), 2],
+        [graphs.CompleteBipartite(1, 2), 2],
+        [graphs.Complete(4), 2],
+        [graphs.Cycle(6), 2],
+        [graphs.K33plusEdge(), 2],
+        [graphs.ThreePrismPlusEdge(), 2],
+        [Graph.from_int(2269176), 2],
+        [Graph.from_int(19650659), 2],
+        [Graph.from_vertices([0]), 2],
+        [Graph.from_vertices([]), 2],
+        [graphs.Cycle(3), 1],
+        [graphs.Complete(4), 1],
+        [graphs.Complete(6), 3],
+    ],
+)
+def test_extension_sequence_dim_none(graph, dim):
+    assert graph.extension_sequence(dim) is None
 
 
 def test_extension_sequence_error():

@@ -1027,17 +1027,19 @@ class Graph(nx.Graph):
     ) -> list[Graph] | list | None:
         """
         Compute a sequence of
-        :prf:ref:`0 and 1-extensions <def-k-extension>`
-        if it extists.
+        :prf:ref:`k-extensions <def-k-extension>`
+        if it extists, where k goes from 0 to ``2 * dim - 1``.
 
         The method returns a sequence of graphs,
         data on the extension or both.
+
+        Note that for dimesions larger than two, the
+        extensions are not always preserving rigidity.
 
         Parameters
         ----------
         dim:
             The dimension in which the extensions are created.
-            Currently implemented only for ``dim==2``.
         return_type:
             Can have values "graphs", "extensions" or "both".
 
@@ -1068,8 +1070,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
         _input_check.dimension(dim)
         self._input_check_no_loop()
-        if not dim == 2 and not dim == 1:
-            raise NotImplementedError()
+
         if not self.number_of_edges() == dim * self.number_of_nodes() - math.comb(
             dim + 1, 2
         ):
@@ -1077,48 +1078,60 @@ class Graph(nx.Graph):
         if self.number_of_nodes() == dim:
             return [self]
         degrees = sorted(self.degree, key=lambda node: node[1])
-        if degrees[0][1] < dim or degrees[0][1] > 2 * dim - 1:
+        degrees = [deg for deg in degrees if deg[1] >= dim and deg[1] <= 2 * dim - 1]
+        if len(degrees) == 0:
             return None
-        if degrees[0][1] == dim:
-            G = deepcopy(self)
-            neighbors = list(self.neighbors(degrees[0][0]))
-            G.remove_node(degrees[0][0])
-            branch = G.extension_sequence(dim, return_type)
-            extension = [0, neighbors, [], degrees[0][0]]
-            if branch is not None:
-                if return_type == "extensions":
-                    return branch + [extension]
-                elif return_type == "graphs":
-                    return branch + [self]
-                elif return_type == "both":
-                    return branch + [[self, extension]]
-                else:
-                    raise NotSupportedValueError(
-                        return_type, "return_type", self.extension_sequence
-                    )
-            return branch
-        if dim == 2 and degrees[0][1] == 3:
-            neighbors = list(self.neighbors(degrees[0][0]))
-            G = deepcopy(self)
-            G.remove_node(degrees[0][0])
-            for i, j in [[0, 1], [0, 2], [1, 2]]:
-                if not G.has_edge(neighbors[i], neighbors[j]):
-                    G.add_edge(neighbors[i], neighbors[j])
-                    branch = G.extension_sequence(dim, return_type)
-                    if branch is not None:
-                        edge = [neighbors[i], neighbors[j]]
-                        extension = [1, neighbors, [edge], degrees[0][0]]
-                        if return_type == "extensions":
-                            return branch + [extension]
-                        elif return_type == "graphs":
-                            return branch + [self]
-                        elif return_type == "both":
-                            return branch + [[self, extension]]
-                        else:
-                            raise NotSupportedValueError(
-                                return_type, "return_type", self.extension_sequence
-                            )
-                    G.remove_edge(neighbors[i], neighbors[j])
+
+        for deg in degrees:
+            if deg[1] == dim:
+                G = deepcopy(self)
+                neighbors = list(self.neighbors(deg[0]))
+                G.remove_node(deg[0])
+                branch = G.extension_sequence(dim, return_type)
+                extension = [0, neighbors, [], deg[0]]
+                if branch is not None:
+                    if return_type == "extensions":
+                        return branch + [extension]
+                    elif return_type == "graphs":
+                        return branch + [self]
+                    elif return_type == "both":
+                        return branch + [[self, extension]]
+                    else:
+                        raise NotSupportedValueError(
+                            return_type, "return_type", self.extension_sequence
+                        )
+                return branch
+            else:
+                neighbors = list(self.neighbors(deg[0]))
+                G = deepcopy(self)
+                G.remove_node(deg[0])
+                for k_possible_edges in combinations(
+                    combinations(neighbors, 2), deg[1] - dim
+                ):
+
+                    if all([not G.has_edge(*edge) for edge in k_possible_edges]):
+                        for edge in k_possible_edges:
+                            G.add_edge(*edge)
+                        branch = G.extension_sequence(dim, return_type)
+                        if branch is not None:
+                            extension = [
+                                deg[1] - dim,
+                                neighbors,
+                                k_possible_edges,
+                                deg[0],
+                            ]
+                            if return_type == "extensions":
+                                return branch + [extension]
+                            elif return_type == "graphs":
+                                return branch + [self]
+                            elif return_type == "both":
+                                return branch + [[self, extension]]
+                            else:
+                                raise NotSupportedValueError(
+                                    return_type, "return_type", self.extension_sequence
+                                )
+                        for edge in k_possible_edges:
+                            G.remove_edge(*edge)
         return None
 
     @doc_category("Generic rigidity")
