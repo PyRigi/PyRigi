@@ -2894,7 +2894,6 @@ class Graph(nx.Graph):
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]])
         >>> G.make_outside_neighbors_clique([0,1,4,5,6,7,8,11,12])
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
-
         """  # noqa: E501
 
         self._input_check_vertex_members(X)
@@ -2917,7 +2916,7 @@ class Graph(nx.Graph):
         Return the 3-block of {u,v}.
 
         Parameters
-        --------
+        ----------
         u:
             vertex
         v:
@@ -2952,6 +2951,40 @@ class Graph(nx.Graph):
             B = augmented_G.subgraph(V_B)
             return B
 
+    @doc_category("Generic rigidity")
+    def block_3_2(self, u: Vertex, v: Vertex):
+        """
+        Return the 3-block of {u,v}, getting it by cleaving operations.
+
+        Parameters
+        --------
+        u:
+            vertex
+        v:
+            vertex
+            
+        Examples
+        --------
+        >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
+        >>> G.block_3_2(0,11)
+        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]  
+        """ # noqa: E501
+        cut = next(nx.all_node_cuts(self))
+        if len(cut) >= 3:
+            return self
+        H = self.copy()
+        H.delete_vertices(cut)
+        calc_comp = nx.connected_components(H)
+        while calc_comp:
+            conn_comp = next(calc_comp)
+            conn_comp.update(cut)
+            if u in conn_comp and v in conn_comp:
+                break
+        B = nx.subgraph(self, conn_comp).copy()
+        B.add_edge(*(cut))
+        return B.block_3_2(u, v)
+ 
+    @doc_category("Rigidity Matroid") 
     def R2_fundamental_circuit(self, u: Vertex, v: Vertex):
         """
         Return an R2_circuit of self + uv, i.e., it
@@ -2979,11 +3012,12 @@ class Graph(nx.Graph):
         F = Graph(self._pebble_digraph.to_undirected())
         return nx.subgraph(F, set_nodes)
 
+    @doc_category("Generic rigidity")
     def is_weakly_globally_linked(
         self, u: Vertex, v: Vertex, algorithm="combinatorial"
     ):
         """
-        Return True if the graph is weakly globally linked.
+        Return if the graph is weakly globally linked.
         TODO
         add reference to Theorem 5.8
         """
@@ -3016,7 +3050,7 @@ class Graph(nx.Graph):
             return True
         # OR
         # elif Clique(B,V_0) is globally rigid
-        B = self.block_3(u, v)
+        B = self.block_3_2(u, v)
         B._build_pebble_digraph(K=2, L=3)
         V_0 = B._pebble_digraph.fundamental_circuit(u, v)
         return B.make_outside_neighbors_clique(V_0).is_globally_rigid()
