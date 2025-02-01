@@ -1029,6 +1029,7 @@ class Graph(nx.Graph):
         Compute a sequence of
         :prf:ref:`k-extensions <def-k-extension>`
         if it extists, where k goes from 0 to ``2 * dim - 1``.
+        The sequence then starts from a complete graph on ``dim`` vertices.
 
         The method returns a sequence of graphs,
         data on the extension or both.
