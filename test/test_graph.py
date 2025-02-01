@@ -1461,6 +1461,64 @@ def test_all_k_extension_error():
 
 
 @pytest.mark.parametrize(
+    "graph, dim, sol",
+    [
+        [Graph.from_int(254), 2, [3326, 3934, 4011, 6891, 7672, 7916, 10479, 12511]],
+        [Graph.from_int(31), 2, [223, 239, 254]],
+        [Graph.from_int(63), 3, [511]],
+        [Graph.from_int(511), 1, [1535, 8703]],
+        [
+            Graph.from_int(16350),
+            3,
+            [257911, 260603, 376807, 384943, 515806, 981215, 1497823, 1973983],
+        ],
+        [Graph.from_int(511), 3, [4095, 7679, 7935, 8187, 16350]],
+    ],
+)
+def test_all_extensions(graph, dim, sol):
+    assert misc.is_isomorphic_graph_list(
+        list(graph.all_extensions(dim, only_non_isomorphic=True)),
+        [Graph.from_int(igraph) for igraph in sol],
+    )
+
+
+@pytest.mark.parametrize(
+    "graph, dim, k_min, k_max",
+    [
+        [Graph.from_int(31), 2, -1, 0],
+        [Graph.from_int(7916), 2, 0, -1],
+        [Graph.from_int(31), 2, 2, 1],
+        [Graph.from_int(31), 2, 3, None],
+        [Graph.from_int(63), 3, -2, -1],
+        [Graph.from_int(511), 1, 5, 4],
+        [Graph.from_int(7), 3, 5, None],
+    ],
+)
+def test_all_extensions_value_error(graph, dim, k_min, k_max):
+    with pytest.raises(ValueError):
+        list(graph.all_extensions(dim=dim, k_min=k_min, k_max=k_max))
+
+
+@pytest.mark.parametrize(
+    "graph, dim, k_min, k_max",
+    [
+        [Graph.from_int(31), 2, 0, 1.4],
+        [Graph.from_int(31), 2, 0.2, 2],
+        [Graph.from_int(31), 1.2, 2, 1],
+        [Graph.from_int(31), "2", 2, 1],
+        [Graph.from_int(31), 1, 2, "1"],
+        [Graph.from_int(31), 2, 3 / 2, None],
+        [Graph.from_int(31), 2, "2", None],
+        [Graph.from_int(31), None, 2, 1],
+        [Graph.from_int(31), 1, None, 1],
+    ],
+)
+def test_all_extensions_type_error(graph, dim, k_min, k_max):
+    with pytest.raises(TypeError):
+        list(graph.all_extensions(dim=dim, k_min=k_min, k_max=k_max))
+
+
+@pytest.mark.parametrize(
     "graph",
     [
         graphs.Complete(2),

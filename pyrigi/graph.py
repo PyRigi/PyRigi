@@ -955,7 +955,8 @@ class Graph(nx.Graph):
     ) -> Iterable[Graph]:
         """
         Return an iterator over all possible
-        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`.
+        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`
+        for a given ``k``.
 
         Parameters
         ----------
@@ -1020,6 +1021,74 @@ class Graph(nx.Graph):
                         yield current
                 else:
                     yield current
+
+    @doc_category("Graph manipulation")
+    def all_extensions(
+        self,
+        dim: int = 2,
+        only_non_isomorphic: bool = False,
+        k_min: int = 0,
+        k_max: int | None = None,
+    ) -> Iterable[Graph]:
+        """
+        Return an iterator over all possible
+        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`
+        for all possible ``0 <= k <= dim - 1``.
+
+        Parameters
+        ----------
+        dim
+        only_non_isomorphic:
+            If True, only one graph per isomorphism class is included.
+        k_min
+            Minimal value of ``k`` for the k-extensions (default 0).
+        k_max
+            Maximal value of ``k`` for the k-extensions (default dim - 1).
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> type(G.all_extensions())
+        <class 'generator'>
+        >>> len(list(G.all_extensions()))
+        6
+        >>> len(list(G.all_extensions(only_non_isomorphic=True)))
+        1
+
+        >>> list(graphs.Diamond().all_extensions(2, only_non_isomorphic=True, k_min=1, k_max=1)) == list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True))
+        True
+
+        Notes
+        -----
+        It turns out that possible errors on bad input paramters are only raised,
+        when the output iterator is actually used,
+        not when it is created.
+        """
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
+        _input_check.integrality_and_range(k_min, "k_min", min_val=0)
+        if k_max is None:
+            k_max = dim - 1
+        _input_check.integrality_and_range(k_max, "k_max", min_val=0)
+        _input_check.greater_equal(k_max, k_min, "k_max", "k_min")
+
+        extensions = []
+        for k in range(k_min, k_max + 1):
+            if self.number_of_nodes() >= dim + k and self.number_of_edges() >= k:
+                extensions.extend(self.all_k_extensions(k, dim, only_non_isomorphic))
+
+        solutions = []
+        for current in extensions:
+            if only_non_isomorphic:
+                for other in solutions:
+                    if current.is_isomorphic(other):
+                        break
+                else:
+                    solutions.append(current)
+                    yield current
+            else:
+                yield current
 
     @doc_category("Generic rigidity")
     def extension_sequence(
