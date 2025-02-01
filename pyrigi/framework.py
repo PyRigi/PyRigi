@@ -2028,6 +2028,7 @@ class Framework(object):
         -----
         The implementation details are specified in
         the section on second-order rigiditiy.
+        This method only properly works for symbolic coordinates.
         """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
@@ -2064,19 +2065,34 @@ class Framework(object):
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
             stress = stresses[0].transpose().tolist()[0]
             stress_energy = 0
-            for j in range(len(inf_flexes)):
-                flex = self._transform_inf_flex_to_pointwise(inf_flexes[j])
-                stress_energy += sum(
-                    [
-                        sum(
-                            [
-                                stress[i] * (a[j] * (v - w)) ** 2
-                                for v, w in zip(flex[edges[i][0]], flex[edges[i][1]])
-                            ]
-                        )
-                        for i in range(self._graph.number_of_edges())
-                    ]
-                )
+            flexes = [
+                self._transform_inf_flex_to_pointwise(inf_flexes[j])
+                for j in range(len(inf_flexes))
+            ]
+            stress_energy += sum(
+                [
+                    sum(
+                        [
+                            stress[i]
+                            * (
+                                sum(
+                                    [
+                                        a[j]
+                                        * (
+                                            flexes[j][edges[i][0]][k]
+                                            - flexes[j][edges[i][1]][k]
+                                        )
+                                        for j in range(len(flexes))
+                                    ]
+                                )
+                                ** 2
+                            )
+                            for k in range(self._dim)
+                        ]
+                    )
+                    for i in range(self._graph.number_of_edges())
+                ]
+            )
             coefficients = {
                 (i, j): sp.Poly(stress_energy, a).coeff_monomial(a[i] * a[j])
                 for i in range(len(inf_flexes))
@@ -2088,24 +2104,17 @@ class Framework(object):
             return all(
                 [
                     (
-                        (
-                            sp.sign(coefficients[(i, i)])
-                            == sp.sign(coefficients[(j, j)])
-                            or sp.sign(coefficients[(i, i)]) == 0
-                            or sp.sign(coefficients[(j, j)]) == 0
-                        )
+                        (sp.sign(coefficients[(i, i)]) == sp.sign(coefficients[(j, j)]))
                         and (
-                            -coefficients[(i, j)]
-                            if sp.sign(coefficients[(i, j)]) == -1
-                            else coefficients[(i, j)]
+                            sp.sign(coefficients[(i, j)]) * coefficients[(i, j)]
+                            < sp.sqrt(4 * coefficients[(i, i)] * coefficients[(j, j)])
                         )
-                        <= sp.sqrt(4 * coefficients[(i, i)] * coefficients[(j, j)])
                     )
                     for i in range(len(inf_flexes))
                     for j in range(i + 1, len(inf_flexes))
                 ]
             ) and not all(
-                [sp.sign(coefficients[(i, i)]) == 0 for i in range(len(inf_flexes))]
+                [coefficients[(i, i)].is_zero for i in range(len(inf_flexes))]
             )
 
         raise ValueError(
@@ -2138,6 +2147,7 @@ class Framework(object):
         -----
         The implementation details are specified in
         the section on second-order rigiditiy.
+        This method only properly works for symbolic coordinates.
         """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
