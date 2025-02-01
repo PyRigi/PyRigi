@@ -2078,7 +2078,7 @@ class Framework(object):
                     ]
                 )
             coefficients = {
-                (i, j): sp.Poly(stress_energy).coeff_monomial(a[i] * a[j])
+                (i, j): sp.Poly(stress_energy, a).coeff_monomial(a[i] * a[j])
                 for i in range(len(inf_flexes))
                 for j in range(i, len(inf_flexes))
             }
