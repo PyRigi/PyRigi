@@ -2962,13 +2962,13 @@ class Graph(nx.Graph):
             vertex
         v:
             vertex
-            
+
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
         >>> G.block_3_2(0,11)
-        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]  
-        """ # noqa: E501
+        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]
+        """  # noqa: E501
         cut = next(nx.all_node_cuts(self))
         if len(cut) >= 3:
             return self
@@ -2983,8 +2983,8 @@ class Graph(nx.Graph):
         B = nx.subgraph(self, conn_comp).copy()
         B.add_edge(*(cut))
         return B.block_3_2(u, v)
- 
-    @doc_category("Rigidity Matroid") 
+
+    @doc_category("Rigidity Matroid")
     def R2_fundamental_circuit(self, u: Vertex, v: Vertex):
         """
         Return an R2_circuit of self + uv, i.e., it
