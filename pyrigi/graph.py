@@ -2827,9 +2827,9 @@ class Graph(nx.Graph):
         >>> H.is_separating_pair(1,3)
         True
         """
-        
-        self._input_check_vertex_members([u,v])
-        
+
+        self._input_check_vertex_members([u, v])
+
         # self must be a 2-connected graph
         if not nx.is_biconnected(self):
             raise ValueError("The input graph must be 2-connected.")
@@ -2896,9 +2896,9 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
 
         """  # noqa: E501
-        
+
         self._input_check_vertex_members(X)
-        
+
         H = self.copy()
         H.delete_vertices(X)
         vert_conn_comp = nx.connected_components(H)
