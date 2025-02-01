@@ -541,7 +541,7 @@ class Motion(object):
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
-        format: Literal["svg", "matplotlib"] = "svg",
+        animation_format: Literal["svg", "matplotlib"] = "svg",
         **kwargs,
     ) -> Any:
         """
@@ -559,9 +559,9 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
-        format:
-            In 2 dimensions, the Literal ``format`` can be set to determine, whether the
-            output is in the `.svg` format or in the `matplotlib` format.
+        animation_format:
+            In 2 dimensions, the Literal ``animation_format`` can be set to determine,
+            whether the output is in the `.svg` format or in the `matplotlib` format.
             The `"svg"` method is documented here: :meth:`~.Motion.animate2D_svg`.
             The method for `"matplotlib"` is documented here:
             :meth:`~.Motion.animate2D_plt`.
@@ -570,13 +570,14 @@ class Motion(object):
             return self.animate3D(realizations, plot_style=plot_style, **kwargs)
         _input_check.dimension_for_algorithm(self._dim, [1, 2, 3], "animate3D")
 
-        if format == "svg":
+        if animation_format == "svg":
             return self.animate2D_svg(realizations, plot_style=plot_style, **kwargs)
-        elif format == "matplotlib":
+        elif animation_format == "matplotlib":
             return self.animate2D_plt(realizations, plot_style=plot_style, **kwargs)
         else:
             raise ValueError(
-                "The Literal `format` needs to be " + 'either "svg" or "matplotlib".'
+                "The Literal `animation_format` needs to be "
+                + 'either "svg" or "matplotlib".'
             )
 
 
