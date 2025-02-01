@@ -33,8 +33,10 @@ Let $G = (V, E)$ be a (multi)graph and let $k, \ell \in \NN$.
 The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices with $k\leq n' \leq |V|$ spans at most $kn' - \ell$ edges.
 The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $k|V| - \ell = |E|$.
 
-{{pyrigi_crossref}} {meth}`~.Graph.is_sparse`
+{{pyrigi_crossref}} {meth}`~.Graph.is_kl_sparse`
+{meth}`~.Graph.is_sparse`
 {meth}`~.Graph.is_tight`
+{meth}`~.Graph.is_kl_tight`
 
 {{references}} {cite:p}`LeeStreinu2008`
 :::

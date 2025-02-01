@@ -35,6 +35,22 @@ or
 make latexpdf
 ```
 
+To clean and remove all the created files, run in the folder `doc`
+```
+make clean
+```
+Cleaning is necessary especially to get the documentation updated
+after a change in docstrings.
+
+If you do not have `make` installed, run Sphinx in the root folder by
+```
+sphinx-build -M html doc doc/_build/html
+```
+To clean and remove all the created files, run in the root folder
+```
+sphinx-build -M clean doc doc/_build/html
+```
+
 ## Docstrings
 
 For an example how a docstring should look like,
@@ -56,13 +72,6 @@ Run in the `doc` folder (with poetry shell activated):
 ```
 sphinx-autobuild . _build/html --open-browser
 ```
-To recompile everything, stop the previous command and run
-```
-make clean
-make html
-```
-Cleaning is necessary especially to get the documentation updated
-after a change in docstrings.
 
 ## References
 We use a bib file to collect the metadata of references (`refs.bib`).

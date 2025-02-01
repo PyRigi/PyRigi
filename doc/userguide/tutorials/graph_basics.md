@@ -129,7 +129,7 @@ PyRigi comes with a graph drawer that lets the user input a graph by specifying 
 releasing the click on the tail vertex. Doing so will create an undirected edge.
 
 ```{code-cell} ipython3
-from pyrigi.graph_drawer import GraphDrawer
+from pyrigi import GraphDrawer
 Drawer = GraphDrawer()
 ```
 

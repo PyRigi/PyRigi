@@ -100,7 +100,7 @@ we can create an instance of class {class}`~.PlotStyle` (see also {class}`~.Plot
 and pass it to each plot.
 
 ```{code-cell} ipython3
-from pyrigi.plot_style import PlotStyle
+from pyrigi import PlotStyle
 ```
 
 ```{code-cell} ipython3

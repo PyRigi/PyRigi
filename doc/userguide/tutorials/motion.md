@@ -23,7 +23,7 @@ using the following sequence of commands:
 
 ```{code-cell} ipython3
 from pyrigi import graphDB as graphs
-from pyrigi.motion import ParametricMotion
+from pyrigi import ParametricMotion
 import sympy as sp
 motion = ParametricMotion(
     graphs.Cycle(4),

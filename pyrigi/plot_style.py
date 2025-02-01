@@ -148,7 +148,7 @@ class PlotStyle2D(PlotStyle):
         Only if ``edges_as_arcs=True``:
         the pitch of the edge arcs in radians.
         For setting different values for individual edges,
-        see ``arc_angles_dict` in :meth:`.Framework.plot2D`.
+        see ``arc_angles_dict`` in :meth:`.Framework.plot2D`.
     """
 
     def __init__(

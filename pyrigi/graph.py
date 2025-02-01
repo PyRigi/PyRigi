@@ -14,6 +14,7 @@ from sympy import Matrix, oo, zeros
 
 import math
 from random import randint
+from warnings import warn
 
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 
@@ -48,14 +49,6 @@ class Graph(nx.Graph):
     >>> G.add_edges([(0,7), (2,5)])
     >>> print(G)
     Graph with vertices [0, 2, 5, 7, 'a'] and edges [[0, 7], [2, 5]]
-
-    TODO
-    ----
-    Refactor plotting.
-    Describe in the documentation when an output
-    of a randomized algorithm is guaranteed to be correct.
-    Switch from  parameter `combinatorial=True/False`
-    to `algorithm='combinatorial'/'randomized'...`
 
     METHODS
 
@@ -510,7 +503,7 @@ class Graph(nx.Graph):
         """
         vertex_order = self._input_check_vertex_order(vertex_order)
 
-        return [self.degree(v) for v in vertex_order]
+        return [int(self.degree(v)) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
     def min_degree(self) -> int:
@@ -523,7 +516,7 @@ class Graph(nx.Graph):
         >>> G.min_degree()
         1
         """
-        return min([self.degree(v) for v in self.nodes])
+        return min([int(self.degree(v)) for v in self.nodes])
 
     @doc_category("General graph theoretical properties")
     def max_degree(self) -> int:
@@ -536,7 +529,7 @@ class Graph(nx.Graph):
         >>> G.max_degree()
         2
         """
-        return max([self.degree(v) for v in self.nodes])
+        return max([int(self.degree(v)) for v in self.nodes])
 
     def _build_pebble_digraph(self, K: int, L: int) -> None:
         r"""
@@ -584,7 +577,7 @@ class Graph(nx.Graph):
         ):
             self._build_pebble_digraph(K, L)
 
-        return self._pebble_digraph.to_undirected()
+        return Graph(self._pebble_digraph.to_undirected())
 
     def _is_pebble_digraph_sparse(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
@@ -674,20 +667,26 @@ class Graph(nx.Graph):
             return True
 
         # reaching this position means that the algorithm is unknown
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_sparse)
+        raise NotSupportedValueError(algorithm, "algorithm", self.is_kl_sparse)
 
     @doc_category("Sparseness")
-    def is_sparse(
-        self,
-        K: int,
-        L: int,
-        algorithm: str = "default",
-        use_precomputed_pebble_digraph: bool = False,
-    ) -> bool:
+    def is_sparse(self) -> bool:
         r"""
-        Alias for :meth:`.is_kl_sparse`.
+        Return whether the graph is :prf:ref:`(2,3)-sparse <def-kl-sparse-tight>`.
+
+        For general $(k,\ell)$-sparsity, see :meth:`.is_kl_sparse`.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> graphs.Path(3).is_sparse()
+        True
+        >>> graphs.Complete(4).is_sparse()
+        False
+        >>> graphs.ThreePrism().is_sparse()
+        True
         """
-        return self.is_kl_sparse(K, L, algorithm, use_precomputed_pebble_digraph)
+        return self.is_kl_sparse(2, 3, algorithm="pebble")
 
     @doc_category("Sparseness")
     def is_kl_tight(
@@ -726,7 +725,7 @@ class Graph(nx.Graph):
         False
         """
         return (
-            self.is_sparse(
+            self.is_kl_sparse(
                 K,
                 L,
                 algorithm,
@@ -736,22 +735,21 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Sparseness")
-    def is_tight(
-        self,
-        K: int,
-        L: int,
-        algorithm: str = "default",
-        use_precomputed_pebble_digraph: bool = False,
-    ) -> bool:
+    def is_tight(self) -> bool:
         r"""
-        Alias for :meth:`~.is_kl_tight`.
+        Return whether the graph is :prf:ref:`(2,3)-tight <def-kl-sparse-tight>`.
+
+        For general $(k,\ell)$-tightness, see :meth:`.is_kl_tight`.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> graphs.Path(4).is_tight()
+        False
+        >>> graphs.ThreePrism().is_tight()
+        True
         """
-        return self.is_kl_tight(
-            K,
-            L,
-            algorithm,
-            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-        )
+        return self.is_kl_tight(2, 3, algorithm="pebble")
 
     @doc_category("Graph manipulation")
     def zero_extension(
@@ -1196,7 +1194,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_vertex_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
@@ -1205,11 +1203,15 @@ class Graph(nx.Graph):
         See :meth:`.is_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
         _input_check.dimension(dim)
-        return self.is_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
+        return self.is_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
 
     @doc_category("Generic rigidity")
     def is_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self,
+        k: int,
+        dim: int = 2,
+        algorithm: str = "combinatorial",
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-vertex redundantly (generically) dim-rigid
@@ -1231,10 +1233,13 @@ class Graph(nx.Graph):
             level of redundancy
         dim:
             dimension
-        combinatorial:
-            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
-            Otherwise a probabilistic check is used that may give false results.
-            See :meth:`~.Graph.is_rigid` for details.
+        algorithm:
+            "combinatorial" or "randomized"
+            Determines whether a combinatorial algorithm (``"combinatorial"``) is
+            used in rigidity checking. Otherwise a probabilistic check is
+            used (``"randomized"``) that may give false results.
+            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
+            the randomized check returns a correct result.
         prob:
             bound on the probability for false negatives of the rigidity testing
             Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
@@ -1306,7 +1311,7 @@ class Graph(nx.Graph):
         for vertex_set in combinations(self.nodes, k):
             adj = [[v, list(G.neighbors(v))] for v in vertex_set]
             G.delete_vertices(vertex_set)
-            if not G.is_rigid(dim, combinatorial, prob):
+            if not G.is_rigid(dim, algorithm, prob):
                 return False
             # add vertices and edges back
             G.add_vertices(vertex_set)
@@ -1317,7 +1322,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def is_min_vertex_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is
@@ -1327,11 +1332,15 @@ class Graph(nx.Graph):
         See :meth:`.is_min_k_vertex_redundantly_rigid` (using k = 1) for details.
         """
         _input_check.dimension(dim)
-        return self.is_min_k_vertex_redundantly_rigid(1, dim, combinatorial, prob)
+        return self.is_min_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
 
     @doc_category("Generic rigidity")
     def is_min_k_vertex_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self,
+        k: int,
+        dim: int = 2,
+        algorithm: str = "combinatorial",
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally k-vertex redundantly (generically) dim-rigid
@@ -1348,10 +1357,13 @@ class Graph(nx.Graph):
             level of redundancy
         dim:
             dimension
-        combinatorial:
-            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
-            Otherwise a probabilistic check is used that may give false results.
-            See :meth:`~.Graph.is_rigid` for details.
+        algorithm:
+            "combinatorial" or "randomized"
+            Determines whether a combinatorial algorithm (``"combinatorial"``) is
+            used in rigidity checking. Otherwise a probabilistic check is
+            used (``"randomized"``) that may give false results.
+            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
+            the randomized check returns a correct result.
         prob:
             bound on the probability for false negatives of the rigidity testing
             Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
@@ -1385,7 +1397,7 @@ class Graph(nx.Graph):
             if n >= 3 * (k + 1) - 1 and m > (k + 1) * n - (k + 1) * (k + 1):
                 return False
 
-        if not self.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
+        if not self.is_k_vertex_redundantly_rigid(k, dim, algorithm, prob):
             return False
 
         # for the following we need to know that the graph is k-vertex-redundantly rigid
@@ -1433,14 +1445,14 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for e in self.edges:
             G.delete_edge(e)
-            if G.is_k_vertex_redundantly_rigid(k, dim, combinatorial, prob):
+            if G.is_k_vertex_redundantly_rigid(k, dim, algorithm, prob):
                 return False
             G.add_edge(*e)
         return True
 
     @doc_category("Generic rigidity")
     def is_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
@@ -1448,11 +1460,15 @@ class Graph(nx.Graph):
 
         See :meth:`.is_k_redundantly_rigid` (using k = 1) for details.
         """
-        return self.is_k_redundantly_rigid(1, dim, combinatorial, prob)
+        return self.is_k_redundantly_rigid(1, dim, algorithm, prob)
 
     @doc_category("Generic rigidity")
     def is_k_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self,
+        k: int,
+        dim: int = 2,
+        algorithm: str = "combinatorial",
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
@@ -1473,10 +1489,13 @@ class Graph(nx.Graph):
             level of redundancy
         dim:
             dimension
-        combinatorial:
-            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
-            Otherwise a probabilistic check is used that may give false results.
-            See :meth:`~.Graph.is_rigid` for details.
+        algorithm:
+            "combinatorial" or "randomized"
+            Determines whether a combinatorial algorithm (``"combinatorial"``) is
+            used in rigidity checking. Otherwise a probabilistic check is
+            used (``"randomized"``) that may give false results.
+            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
+            the randomized check returns a correct result.
         prob:
             bound on the probability for false negatives of the rigidity testing
             Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
@@ -1548,14 +1567,14 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
             G.delete_edges(edge_set)
-            if not G.is_rigid(dim, combinatorial, prob):
+            if not G.is_rigid(dim, algorithm, prob):
                 return False
             G.add_edges(edge_set)
         return True
 
     @doc_category("Generic rigidity")
     def is_min_redundantly_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally redundantly (generically) dim-rigid
@@ -1564,11 +1583,15 @@ class Graph(nx.Graph):
         See :meth:`.is_min_k_redundantly_rigid` (using k = 1) for details.
         """
         _input_check.dimension(dim)
-        return self.is_min_k_redundantly_rigid(1, dim, combinatorial, prob)
+        return self.is_min_k_redundantly_rigid(1, dim, algorithm, prob)
 
     @doc_category("Generic rigidity")
     def is_min_k_redundantly_rigid(
-        self, k: int, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self,
+        k: int,
+        dim: int = 2,
+        algorithm: str = "combinatorial",
+        prob: float = 0.0001,
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`minimally k-redundantly (generically) dim-rigid
@@ -1584,10 +1607,13 @@ class Graph(nx.Graph):
             level of redundancy
         dim:
             dimension
-        combinatorial:
-            determines whether a combinatinatorial algorithm shall be used in rigidity checking.
-            Otherwise a probabilistic check is used that may give false results.
-            See :meth:`~.Graph.is_rigid` for details.
+        algorithm:
+            "combinatorial" or "randomized"
+            Determines whether a combinatorial algorithm (``"combinatorial"``) is
+            used in rigidity checking. Otherwise a probabilistic check is
+            used (``"randomized"``) that may give false results.
+            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
+            the randomized check returns a correct result.
         prob:
             bound on the probability for false negatives of the rigidity testing
             Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
@@ -1620,7 +1646,7 @@ class Graph(nx.Graph):
                 if n >= 7 and m > 3 * n - 9:
                     return False
 
-        if not self.is_k_redundantly_rigid(k, dim, combinatorial, prob):
+        if not self.is_k_redundantly_rigid(k, dim, algorithm, prob):
             return False
 
         # for the following we need to know that the graph is k-redundantly rigid
@@ -1657,14 +1683,14 @@ class Graph(nx.Graph):
         G = deepcopy(self)
         for e in self.edge_list():
             G.delete_edge(e)
-            if G.is_k_redundantly_rigid(k, dim, combinatorial, prob):
+            if G.is_k_redundantly_rigid(k, dim, algorithm, prob):
                 return False
             G.add_edge(*e)
         return True
 
     @doc_category("Generic rigidity")
     def is_rigid(
-        self, dim: int = 2, combinatorial: bool = True, prob: float = 0.0001
+        self, dim: int = 2, algorithm: str = "combinatorial", prob: float = 0.0001
     ) -> bool:
         """
         Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
@@ -1673,11 +1699,13 @@ class Graph(nx.Graph):
         ----------
         dim:
             dimension
-        combinatorial:
-            determines whether a combinatinatorial algorithm shall be used
-            If combinatorial is true, a pebble game algorithm is used.
-            Otherwise a probabilistic check is used that may give false negatives
-            (see :prf:ref:`thm-probabilistic-rigidity-check`).
+        algorithm:
+            "combinatorial" or "randomized"
+            Determines whether a combinatorial algorithm (``"combinatorial"``) is
+            used in rigidity checking. Otherwise a probabilistic check is used
+            that may give false negatives.
+            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
+            the randomized check returns a correct result.
         prob:
             bound on the probability of a randomized algorithm to yield false negatives
 
@@ -1694,20 +1722,11 @@ class Graph(nx.Graph):
         -----
          * dim=1: Connectivity
          * dim=2: Pebble-game/(2,3)-rigidity
-         * dim>=1: Rigidity Matrix if ``combinatorial==False``
+         * dim>=1: Rigidity Matrix if ``algorithm=="randomized"``
         By default, the graph is in dimension two and a combinatorial check is employed.
         """
         _input_check.dimension(dim)
-        if not isinstance(combinatorial, bool):
-            raise TypeError(
-                "combinatorial determines the method of rigidity-computation. "
-                "It needs to be a Boolean!"
-            )
         self._input_check_no_loop()
-        if combinatorial:
-            _input_check.dimension_for_algorithm(
-                dim, [1, 2], "the combinatorial algorithm"
-            )
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -1717,16 +1736,21 @@ class Graph(nx.Graph):
         elif n <= dim + 1:
             return self.number_of_edges() == math.comb(n, 2)
 
-        elif dim == 1 and combinatorial:
-            return nx.is_connected(self)
-        elif dim == 2 and combinatorial:
-            deficiency = -(2 * n - 3) + self.number_of_edges()
-            if deficiency < 0:
-                return False
-            else:
-                self._build_pebble_digraph(2, 3)
-                return self._pebble_digraph.number_of_edges() == 2 * n - 3
-        elif not combinatorial:
+        if algorithm == "combinatorial":
+            _input_check.dimension_for_algorithm(
+                dim, [1, 2], "the combinatorial algorithm"
+            )
+            if dim == 1:
+                return nx.is_connected(self)
+            elif dim == 2:
+                deficiency = -(2 * n - 3) + self.number_of_edges()
+                if deficiency < 0:
+                    return False
+                else:
+                    self._build_pebble_digraph(2, 3)
+                    return self._pebble_digraph.number_of_edges() == 2 * n - 3
+
+        if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
                 raise ValueError("The parameter prob is too large!")
@@ -1735,11 +1759,13 @@ class Graph(nx.Graph):
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
 
+        raise NotSupportedValueError(algorithm, "algorithm", self.is_rigid)
+
     @doc_category("Generic rigidity")
     def is_min_rigid(
         self,
         dim: int = 2,
-        combinatorial: bool = True,
+        algorithm: str = "combinatorial",
         use_precomputed_pebble_digraph: bool = False,
         prob: float = 0.0001,
     ) -> bool:
@@ -1751,13 +1777,15 @@ class Graph(nx.Graph):
         ----------
         dim:
             dimension
-        combinatorial:
-            determines whether a combinatinatorial algorithm shall be used
-            If combinatorial is true, a pebble game algorithm is used.
-            Otherwise a probabilistic check is used that may give false negatives
-            (see :prf:ref:`thm-probabilistic-rigidity-check`).
+        algorithm:
+            "combinatorial" or "randomized"
+            Determines whether a combinatorial algorithm (``"combinatorial"``) is
+            used in rigidity checking. Otherwise a probabilistic check is
+            used (``"randomized"``) that may give false negatives.
+            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
+            the randomized check returns a correct result.
         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2`` and ``combinatorial=True``.
+            Only relevant if ``dim=2`` and ``algorithm="combinatorial"``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
@@ -1781,16 +1809,7 @@ class Graph(nx.Graph):
          * dim>=1: Probabilistic Rigidity Matrix (maybe symbolic?)
         """
         _input_check.dimension(dim)
-        if not isinstance(combinatorial, bool):
-            raise TypeError(
-                "combinatorial determines the method of rigidity-computation. "
-                "It needs to be a Boolean!"
-            )
         self._input_check_no_loop()
-        if combinatorial:
-            _input_check.dimension_for_algorithm(
-                dim, [1, 2], "the combinatorial algorithm"
-            )
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -1801,16 +1820,21 @@ class Graph(nx.Graph):
         elif n <= dim + 1:
             return self.number_of_edges() == math.comb(n, 2)
 
-        elif dim == 1 and combinatorial:
-            return nx.is_tree(self)
-        elif dim == 2 and combinatorial:
-            return self.is_tight(
-                2,
-                3,
-                algorithm="pebble",
-                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+        if algorithm == "combinatorial":
+            _input_check.dimension_for_algorithm(
+                dim, [1, 2], "the combinatorial algorithm"
             )
-        elif not combinatorial:
+            if dim == 1:
+                return nx.is_tree(self)
+            elif dim == 2:
+                return self.is_kl_tight(
+                    2,
+                    3,
+                    algorithm="pebble",
+                    use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+                )
+
+        if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
             if N < 1:
                 raise ValueError("The parameter prob is too large!")
@@ -1818,6 +1842,8 @@ class Graph(nx.Graph):
 
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_min_inf_rigid()
+
+        raise NotSupportedValueError(algorithm, "algorithm", self.is_min_rigid)
 
     @doc_category("Generic rigidity")
     def is_globally_rigid(self, dim: int = 2, prob: float = 0.0001) -> bool:
@@ -1993,10 +2019,6 @@ class Graph(nx.Graph):
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
         >>> G.is_Rd_independent()
         True
-
-        TODO
-        -----
-        Warning: This function uses a randomized algorithm
         """
         _input_check.dimension(dim)
         self._input_check_no_loop()
@@ -2004,10 +2026,11 @@ class Graph(nx.Graph):
             return len(nx.cycle_basis(self)) == 0
 
         if dim == 2:
-            self.is_sparse(
+            self.is_kl_sparse(
                 2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
 
+        warn("This method uses a randomized algorithm!")
         F = self.random_framework(dim=dim)
         return len(F.stresses()) == 0
 
@@ -2103,7 +2126,7 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Rigidity Matroid")
-    def is_Rd_closed(self, dim: int = 2, combinatorial: bool = True) -> bool:
+    def is_Rd_closed(self, dim: int = 2, algorithm: str = "combinatorial") -> bool:
         """
         Return whether the edge set is closed in the generic dim-rigidity matroid.
 
@@ -2116,15 +2139,13 @@ class Graph(nx.Graph):
         ---------
         dim:
             Dimension of the rigidity matroid
-        combinatorial:
-            If ``True``, each rigid component computed using
-            :meth:`~.Graph.rigid_components(combinatorial=True) is checked to be complete.
-            Otherwise, the closure is computed using randomized
-            :meth:`~.Graph.is_rigid(combinatorial=False)`.
-
-        TODO
-        ----
-        The check for dim>=3 uses a `random_framework`.
+        algorithm:
+            "combinatorial" or "randomized"
+            Determines whether a combinatorial algorithm (``"combinatorial"``) is
+            used in rigidity checking. Otherwise a probabilistic check is
+            used (``"randomized"``) that may give false results.
+            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
+            the randomized check returns a correct result.
 
         Examples
         --------
@@ -2135,11 +2156,11 @@ class Graph(nx.Graph):
         _input_check.dimension(dim)
         self._input_check_no_loop()
 
-        if combinatorial:
+        if algorithm == "combinatorial":
             _input_check.dimension_for_algorithm(
-                dim, [1], "the combinatorial algorithm"
+                dim, [1, 2], "the combinatorial algorithm"
             )
-            if dim <= 1:
+            if dim in [1, 2]:
                 if all(
                     [
                         nx.subgraph(self, comp).is_isomorphic(
@@ -2150,7 +2171,8 @@ class Graph(nx.Graph):
                 ):
                     return True
                 return False
-        else:
+
+        elif algorithm == "randomized":
             F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
             G = deepcopy(self)
             for e in combinations(self.vertex_list(), 2):
@@ -2163,9 +2185,11 @@ class Graph(nx.Graph):
                 G.remove_edge(*e)
             return True
 
+        raise NotSupportedValueError(algorithm, "algorithm", self.is_Rd_closed)
+
     @doc_category("Generic rigidity")
     def rigid_components(
-        self, dim: int = 2, combinatorial: bool = True
+        self, dim: int = 2, algorithm: str = "combinatorial"
     ) -> list[list[Vertex]]:
         """
         List the vertex sets inducing vertex-maximal rigid subgraphs.
@@ -2178,12 +2202,13 @@ class Graph(nx.Graph):
         ---------
         dim:
             The dimension that is used for the rigidity check.
-        combinatorial:
-            Boolean determining whether a combinatorial algorithm shall be used:
-            connectivity for ``dim=1`` and pebble games for ``dim=2``.
-            If ``combinatorial`` is ``False``, all subraphs
-            are checked using :meth:`~.Graph.is_rigid(combinatorial=False)`.
-
+        algorithm:
+            "combinatorial" or "randomized"
+            Determines whether a combinatorial algorithm (``"combinatorial"``) is
+            used in rigidity checking. Otherwise a probabilistic check is
+            used (``"randomized"``) that may give false results.
+            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
+            the randomized check returns a correct result.
         Notes
         -----
         If the graph itself is rigid, it is clearly maximal and is returned.
@@ -2193,49 +2218,47 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.rigid_components(combinatorial=False)
+        >>> G.rigid_components(algorithm="randomized")
         [[0, 1], [0, 3], [1, 2], [2, 3]]
 
         >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
         >>> G.is_rigid()
         False
-        >>> G.rigid_components(combinatorial=False)
+        >>> G.rigid_components(algorithm="randomized")
         [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
 
         TODO
         ----
-        Implement using pebble games for dim=2 and adjust the docstring, tests
-        and :meth:`~.Graph.is_Rd_closed` with its tests accordingly.
+        Implement using pebble games for dim=2 and adjust the docstring
         """
         _input_check.dimension(dim)
         self._input_check_no_loop()
 
-        if combinatorial and dim == 1:
-            return [list(comp) for comp in nx.connected_components(self)]
-
-        if not nx.is_connected(self):
-            res = []
-            for comp in nx.connected_components(self):
-                res += self.subgraph(comp).rigid_components(
-                    dim, combinatorial=combinatorial
-                )
-            return res
-
-        if combinatorial:
-            # here will be the implementation using pebble games for dim=2
+        if algorithm == "combinatorial":
             _input_check.dimension_for_algorithm(
                 dim, [1], "the combinatorial algorithm"
             )
+            if dim == 1:
+                return [list(comp) for comp in nx.connected_components(self)]
+            # here will be the implementation using pebble games for dim=2
 
-        else:
-            if self.is_rigid(dim, combinatorial=False):
+        elif algorithm == "randomized" or (dim == 2 and algorithm == "combinatorial"):
+            if not nx.is_connected(self):
+                res = []
+                for comp in nx.connected_components(self):
+                    res += self.subgraph(comp).rigid_components(
+                        dim, algorithm=algorithm
+                    )
+                return res
+
+            if self.is_rigid(dim, algorithm=algorithm):
                 return [list(self)]
 
             rigid_subgraphs = {
                 tuple(vertex_subset): True
                 for r in range(2, self.number_of_nodes() - 1)
                 for vertex_subset in combinations(self.nodes, r)
-                if self.subgraph(vertex_subset).is_rigid(dim, combinatorial=False)
+                if self.subgraph(vertex_subset).is_rigid(dim, algorithm=algorithm)
             }
 
             sorted_rigid_subgraphs = sorted(
@@ -2247,6 +2270,8 @@ class Graph(nx.Graph):
                         if set(H2).issubset(set(H1)):
                             rigid_subgraphs[H2] = False
             return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
+
+        raise NotSupportedValueError(algorithm, "algorithm", self.rigid_components)
 
     @doc_category("Generic rigidity")
     def max_rigid_dimension(self) -> int | Inf:
@@ -2292,8 +2317,9 @@ class Graph(nx.Graph):
             math.floor(0.5 * (2 * n + math.sqrt((1 - 2 * n) ** 2 - 8 * m) - 1))
         )
 
+        warn("This method uses a randomized algorithm.")
         for dim in range(max_dim, 0, -1):
-            if self.is_rigid(dim, combinatorial=False):
+            if self.is_rigid(dim, algorithm="randomized"):
                 return dim
 
     @doc_category("General graph theoretical properties")
@@ -2341,10 +2367,6 @@ class Graph(nx.Graph):
         [0, 1, 0]])
         >>> G.to_int()
         5
-
-        TODO
-        ----
-        Tests.
 
         Suggested Improvements
         ---------------------
@@ -2812,7 +2834,7 @@ class Graph(nx.Graph):
         >>> G.plot(vertex_color="#FF0000", edge_color="black", vertex_size=50)
 
         Specifying a custom plot style
-        >>> from pyrigi.plot_style import PlotStyle
+        >>> from pyrigi import PlotStyle
         >>> plot_style = PlotStyle(vertex_color="#FF0000")
         >>> G.plot(plot_style)
 
