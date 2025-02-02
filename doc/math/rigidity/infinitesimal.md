@@ -123,7 +123,7 @@ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigi
 :label: def-equilibrium-stress
 
 Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` with $G=(V,E)$.
-An _equilibrium stress_ of $(G,p)$ is a map $\omega\colon E\rightarrow \RR$ such that for every $v\in V$
+An _equilibrium stress_ (or just a _stress_) of $(G,p)$ is a map $\omega\colon E\rightarrow \RR$ such that for every $v\in V$
 \begin{equation*}
  \sum_{vw\in E}\omega(vw)(p(v)-p(w)) = 0.
 \end{equation*}

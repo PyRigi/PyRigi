@@ -155,7 +155,6 @@ def test_is_not_min_inf_rigid(framework):
         Framework.from_points([[i] for i in range(4)]),
         fws.Cycle(4, dim=2),
         fws.Cycle(5, dim=2),
-        fws.Cycle(4, dim=2),
         fws.Path(3, dim=1),
         fws.Path(3, dim=2),
         fws.Path(4, dim=2),
@@ -262,6 +261,44 @@ def test_is_second_order_rigid_error(framework):
 )
 def test_is_dependent(framework):
     assert framework.is_dependent()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=2),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
+        fws.CompleteBipartite(4, 3),
+        fws.CompleteBipartite(4, 4),
+    ],
+)
+def test_is_redundantly_rigid(framework):
+    assert framework.is_redundantly_rigid()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Complete(2, dim=1),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
+        fws.Complete(4, dim=3),
+        fws.CompleteBipartite(3, 3),
+        fws.K33plusEdge(),
+        fws.Diamond(),
+        fws.ThreePrism(),
+        fws.Complete(3, dim=3),
+        fws.Octahedron(),
+        fws.Cube(),
+    ],
+)
+def test_is_not_redundantly_rigid(framework):
+    assert not framework.is_redundantly_rigid()
 
 
 def test_dimension():
@@ -463,7 +500,7 @@ def test_is_quasi_injective():
     F4.set_realization(F4.realization(numerical=True))
     assert F4.is_quasi_injective(numerical=True)
 
-    # test numerically not quasi-injective, but symbollicaly quasi-injective framework
+    # test numerically not quasi-injective, but symbolically quasi-injective framework
     F5 = deepcopy(F3)
     F5.set_vertex_pos(0, F5[1] + point_to_vector([1e-10, 1e-10]))
     assert not F5.is_quasi_injective(numerical=True, tolerance=1e-8)
@@ -783,17 +820,17 @@ def test_plot3D():
     plt.close("all")
 
 
-def test_animate3D():
+def test_animate3D_rotation():
     F = fws.Complete(4, dim=3)
-    F.animate3D()
+    F.animate3D_rotation()
 
     F = fws.Complete(3)
     with pytest.raises(ValueError):
-        F.animate3D()
+        F.animate3D_rotation()
 
     F = fws.Complete(5, dim=4)
     with pytest.raises(ValueError):
-        F.animate3D()
+        F.animate3D_rotation()
 
     plt.close("all")
 
@@ -873,12 +910,29 @@ def test_stresses():
     )
     Q2 = Matrix.hstack(*(fws.CompleteBipartite(4, 4).stresses()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
+
+    F = fws.Complete(4)
+    stresses = F.stresses()
+    assert len(stresses) == 1 and all(
+        [F.is_stress(s, numerical=True) for s in stresses]
+    )
+
     F = fws.Complete(5)
-    assert all(
-        [
-            F.is_stress([entry for entry in s.transpose()], numerical=True)
-            for s in F.stresses()
-        ]
+    stresses = F.stresses()
+    assert len(stresses) == 3 and all(
+        [F.is_stress(s, numerical=True) for s in stresses]
+    )
+
+    F = fws.Frustum(3)
+    stresses = F.stresses()
+    assert len(stresses) == 1 and all(
+        [F.is_stress(s, numerical=True) for s in stresses]
+    )
+
+    F = fws.Frustum(4)
+    stresses = F.stresses()
+    assert len(stresses) == 1 and all(
+        [F.is_stress(s, numerical=True) for s in stresses]
     )
 
 
@@ -1061,5 +1115,4 @@ def test_generate_stl_bars():
     fr = Framework(
         gr, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]}
     )
-    n = fr.generate_stl_bars(scale=20, filename_prefix="mybar")
-    assert n is None
+    assert fr.generate_stl_bars(scale=20, filename_prefix="mybar") is None

@@ -39,7 +39,7 @@ Once the package is installed, the basic classes can be imported as follows:
 from pyrigi import Graph, Framework
 ```
 
-We can specify a graph by its list of edges.
+We can specify a graph by its list of edges, see [this tutorial](graph-tutorial) for more options.
 
 ```{code-cell} ipython3
 G = Graph([(0,1), (1,2), (2,3), (0,3)])
@@ -58,6 +58,8 @@ F
 ```
 
 Notice that in order to keep the coordinates symbolic, they must be entered as strings (or SymPy expressions).
+
+We can plot frameworks and graphs, see also the [Plotting](plotting-tutorial) tutorial. 
 
 ```{code-cell} ipython3
 F.plot()
@@ -80,11 +82,14 @@ TP_flex = frameworks.ThreePrism('parallel')
 TP_flex.plot()
 ```
 
+There is also a possibility to [draw a graph using mouse](graph-drawer-tutorial).  
+
 ## Rigidity properties
 
 +++
 
 Various rigidity properties can be checked by calling class methods, some examples are below.
+See also [this tutorial](rigidity-tutorial). 
 
 +++
 
@@ -114,7 +119,7 @@ G_TP.is_rigid(dim=1)
 ```
 
 ```{code-cell} ipython3
-G_TP.is_rigid(dim=3, combinatorial=False)
+G_TP.is_rigid(dim=3, algorithm="randomized")
 ```
 
 ```{code-cell} ipython3
@@ -127,25 +132,4 @@ G_TP.is_globally_rigid(dim=1)
 
 ```{code-cell} ipython3
 G_TP.is_redundantly_rigid()
-```
-
-### Graph drawer
-
-+++
-
-A graph can be also drawn using mouse: when executed in JupyterLab, the following code displays a canvas.
-
-```{code-cell} ipython3
-from pyrigi import GraphDrawer
-Drawer = GraphDrawer()
-```
-
-At any moment, the currently drawn graph can be retrieved and used further.
-
-```{code-cell} ipython3
-Drawer.graph()
-```
-
-```{code-cell} ipython3
-
 ```
