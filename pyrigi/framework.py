@@ -2032,6 +2032,11 @@ class Framework(object):
         """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
+        inf_flexes = [
+            self._transform_inf_flex_to_pointwise(inf_flexes[j])
+            for j in range(len(inf_flexes))
+        ]
+
         edges = self._graph.edge_list()
         if self.is_inf_rigid():
             return True
@@ -2039,7 +2044,6 @@ class Framework(object):
             return False
 
         if len(inf_flexes) == 1:
-            flex = self._transform_inf_flex_to_pointwise(inf_flexes[0])
             stress_energy_list = []
             for j in range(len(stresses)):
                 stress = stresses[j].transpose().tolist()[0]
@@ -2049,9 +2053,9 @@ class Framework(object):
                             sum(
                                 v
                                 for v in [
-                                    stress[i] * ((v - w)) ** 2
+                                    stress[i] * (v - w) ** 2
                                     for v, w in zip(
-                                        flex[edges[i][0]], flex[edges[i][1]]
+                                        inf_flexes[0][edges[i][0]], inf_flexes[0][edges[i][1]]
                                     )
                                 ]
                             )
@@ -2065,10 +2069,6 @@ class Framework(object):
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
             stress = stresses[0].transpose().tolist()[0]
             stress_energy = 0
-            flexes = [
-                self._transform_inf_flex_to_pointwise(inf_flexes[j])
-                for j in range(len(inf_flexes))
-            ]
             stress_energy += sum(
                 [
                     sum(
@@ -2079,10 +2079,10 @@ class Framework(object):
                                     [
                                         a[j]
                                         * (
-                                            flexes[j][edges[i][0]][k]
-                                            - flexes[j][edges[i][1]][k]
+                                            inf_flexes[j][edges[i][0]][k]
+                                            - inf_flexes[j][edges[i][1]][k]
                                         )
-                                        for j in range(len(flexes))
+                                        for j in range(len(inf_flexes))
                                     ]
                                 )
                                 ** 2
