@@ -2366,7 +2366,8 @@ class Framework(object):
             If True (default), then this framework is translated.
             Otherwise, a new translated framework is returned.
         """
-
+        if isinstance(factor, str):
+            factor = sp.sympify(factor)
         if inplace:
             for v in self._realization.keys():
                 self._realization[v] = self._realization[v] * factor
