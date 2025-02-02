@@ -2055,7 +2055,8 @@ class Framework(object):
                                 for v in [
                                     stress[i] * (v - w) ** 2
                                     for v, w in zip(
-                                        inf_flexes[0][edges[i][0]], inf_flexes[0][edges[i][1]]
+                                        inf_flexes[0][edges[i][0]],
+                                        inf_flexes[0][edges[i][1]],
                                     )
                                 ]
                             )
