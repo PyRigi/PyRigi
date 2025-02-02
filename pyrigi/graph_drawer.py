@@ -51,7 +51,7 @@ class GraphDrawer(object):
     size:
         (optional) [width, height] of the canvas, defaults to [600,600]
         width and height will be arranged so that they are multiples of 100
-        with minimum value 300 and maximum value 1000.
+        with minimum value 400 and maximum value 1000.
     layout_type:
         Layout type to visualise the ``graph``.
         For supported layout types see :meth:`.Graph.layout`.
@@ -244,7 +244,7 @@ class GraphDrawer(object):
 
         # displaying the combined menu and canvas, and the output
         display(box)
-        # display(self._out)
+        display(self._out)
 
     def _handle_event(self, event) -> None:
         """
