@@ -2354,6 +2354,29 @@ class Framework(object):
         return new_framework
 
     @doc_category("Framework manipulation")
+    def rescale(self, factor: Number, inplace: bool = True) -> None | Framework:
+        """
+        Scale the framework.
+
+        Parameters
+        ----------
+        factor:
+            Scaling factor
+        inplace:
+            If True (default), then this framework is translated.
+            Otherwise, a new translated framework is returned.
+        """
+
+        if inplace:
+            for v in self._realization.keys():
+                self._realization[v] = self._realization[v] * factor
+            return
+
+        new_framework = deepcopy(self)
+        new_framework.rescale(factor, True)
+        return new_framework
+
+    @doc_category("Framework manipulation")
     def rotate2D(self, angle: float, inplace: bool = True) -> None | Framework:
         """
         Rotate the planar framework counter clockwise.

@@ -535,6 +535,20 @@ def test_translate():
     assert newF[2].equals(F[2] + translation)
 
 
+def test_rescale():
+    G = graphs.Complete(4)
+    F = Framework(G, {0: (-1, 0), 1: (2, 0), 2: (1, 1), 3:(3,-2)})
+
+    newF = F.rescale(1, False)
+    for v, pos in newF.realization().items():
+        assert pos.equals(F[v])
+
+    newF = F.rescale(2, False)
+    assert newF[0].equals(Matrix([p * 2 for p in F[0]]))
+    assert newF[1].equals(Matrix([p * 2 for p in F[1]]))
+    assert newF[2].equals(Matrix([p * 2 for p in F[2]]))
+
+
 def test_rotate2D():
     G = graphs.Complete(3)
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
