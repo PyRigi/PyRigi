@@ -537,7 +537,7 @@ def test_translate():
 
 def test_rescale():
     G = graphs.Complete(4)
-    F = Framework(G, {0: (-1, 0), 1: (2, 0), 2: (1, 1), 3:(3,-2)})
+    F = Framework(G, {0: (-1, 0), 1: (2, 0), 2: (1, 1), 3: (3, -2)})
 
     newF = F.rescale(1, False)
     for v, pos in newF.realization().items():
