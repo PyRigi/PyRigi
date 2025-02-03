@@ -7,9 +7,9 @@ from sympy import Matrix
 import sympy as sp
 import numpy as np
 from math import isclose, log10
-import os
 
-if "IPython" in os.environ:
+
+try:
     from IPython.core.magic import register_cell_magic
 
     @register_cell_magic
@@ -17,6 +17,9 @@ if "IPython" in os.environ:
         print("This cell has been skipped since the execution takes long time.")
         print("Remove the cell magic `%%long_cell` to run it.")
         return
+
+except NameError:
+    pass
 
 
 def doc_category(category):
