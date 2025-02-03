@@ -4,12 +4,13 @@
 
 import glob
 import os
-path = os.path.join(os.path.dirname(__file__), 'userguide/tutorials/')
 
-for filename in glob.iglob(path + '**/*.md', recursive=True):
-    with open(filename, 'r') as file:
+path = os.path.join(os.path.dirname(__file__), "userguide/tutorials/")
+
+for filename in glob.iglob(path + "**/*.md", recursive=True):
+    with open(filename, "r") as file:
         lines = file.readlines()
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         for line in lines:
-            if 'skip-execution' not in line:
+            if "skip-execution" not in line:
                 file.write(line)

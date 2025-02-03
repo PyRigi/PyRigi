@@ -45,6 +45,8 @@ It is also possible to provide trivial motions in a similar manner.
 The animation can be formatted using some parameters from {class}`~.PlotStyle` as keyword arguments.
 
 ```{code-cell} ipython3
+:tags: [skip-execution]
+
 motion = ParametricMotion(
     graphs.Complete(5),
     {
@@ -67,11 +69,13 @@ Internal checks on the edge lengths are in place to ensure that the specified pa
 never violates the edge-length equations. 
 
 Finally, it is possible to create either a ``.svg`` animation or a ``matplotlib`` animation by
-setting the parameter ``format`` to be either ``"svg"`` or ``"matplotlib"``. In doing so, the
+setting the parameter ``animation_format`` to be either ``"svg"`` or ``"matplotlib"``. In doing so, the
 2D and 3D animations can be displayed.
 
 ```{code-cell} ipython3
-motion.animate(format="svg")
+:tags: [skip-execution]
+
+motion.animate(animation_format="matplotlib")
 ```
 
 ## Approximate Motion
@@ -88,7 +92,7 @@ from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
 F = frameworks.CompleteBipartite(2,4)
 motion = ApproximateMotion(F, 393, chosen_flex=0, step_size=0.15)
-motion.animate() # the output is not displayed since the computation is long
+motion.animate()
 ```
 
 Only nontrivial motions can be computed in this way, so you don't need to worry about approximating a
@@ -105,5 +109,5 @@ to the placement of the second vertex. Alternatively, this vector can be specifi
 
 F = frameworks.Path(5)
 motion = ApproximateMotion(F, 147, chosen_flex=1, fixed_pair=[0,4], fixed_direction=[0,1])
-motion.animate() # the output is not displayed since the computation is long
+motion.animate()
 ```
