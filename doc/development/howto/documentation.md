@@ -119,13 +119,13 @@ If the execution of a cell takes long time,
 then import the cell magic
 
 ```python
-from pyrigi.misc import skip
+from pyrigi.misc import skip_execution
 ```
 
 and use it to skip a cell in the documentation compilation as follows
 
 ```python
-%%skip
+%%skip_execution
 # code of a cell taking more than a second
 ```
 

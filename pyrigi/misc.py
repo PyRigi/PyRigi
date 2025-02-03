@@ -13,11 +13,11 @@ try:
     from IPython.core.magic import register_cell_magic
 
     @register_cell_magic
-    def skip(line, cell):
+    def skip_execution(line, cell):
         print(
             "This cell was marked to be skipped (probably due to its long execution time."
         )
-        print("Remove the cell magic `%%skip` to run it.")
+        print("Remove the cell magic `%%skip_execution` to run it.")
         return
 
 except NameError:
