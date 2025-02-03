@@ -279,7 +279,7 @@ Finally, it may be useful to check whether a graph can be constructed via an {pr
 which can be done using the method {meth}`~.Graph.extension_sequence`.
 
 ```{code-cell} ipython3
-for H in G_TP.extension_sequence(return_solution=True):
+for H in G_TP.extension_sequence(return_type="graphs"):
     H.plot(canvas_height=2)
 ```
 
