@@ -24,7 +24,9 @@ using the following sequence of commands:
 ```{code-cell} ipython3
 from pyrigi import graphDB as graphs
 from pyrigi import ParametricMotion
+from pyrigi.misc import long_cell
 import sympy as sp
+
 motion = ParametricMotion(
     graphs.Cycle(4),
     {
@@ -47,6 +49,7 @@ The animation can be formatted using some parameters from {class}`~.PlotStyle` a
 ```{code-cell} ipython3
 :tags: [skip-execution]
 
+%%long_cell
 motion = ParametricMotion(
     graphs.Complete(5),
     {
