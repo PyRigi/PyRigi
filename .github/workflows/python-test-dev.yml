@@ -27,7 +27,7 @@ jobs:
         python-version: "3.10"
         cache: 'poetry'
     - name: Install dependencies
-      run: poetry install --all-extras
+      run: poetry install --with doc --all-extras
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
