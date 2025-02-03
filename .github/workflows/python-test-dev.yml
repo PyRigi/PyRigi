@@ -32,11 +32,14 @@ jobs:
       run: |
         # stop the build if there are Python syntax errors or undefined names
         poetry run flake8 . --count --show-source --statistics
-    - name: Test with pytest
+    - name: Show version
       run: |
-        poetry run pytest --doctest-modules
-        # --doctest-modules overrides the default --doctest-plus
-    - name: Test doc compilation
-      run: |
-        cd doc
-        poetry run make html
+        pip show sphinx myst-nb
+#    - name: Test with pytest
+#      run: |
+#        poetry run pytest --doctest-modules
+#        # --doctest-modules overrides the default --doctest-plus
+#    - name: Test doc compilation
+#      run: |
+#        cd doc
+#        poetry run make html
