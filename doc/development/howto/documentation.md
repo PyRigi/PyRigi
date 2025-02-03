@@ -116,16 +116,20 @@ After setting the virtual environment in Jupyterlab to the one created
 by `poetry shell`, `.md` notebooks can be opened directly.
 
 If the execution of a cell takes long time,
-it can be skipped in the documentation compilation as follows
-````
-```{code-cell} ipython3
-:tags: [skip-execution]
+then import the cell magic
 
-<code of a cell taking more than a second>
+```python
+from pyrigi.misc import skip
 ```
-````
-The tag is removed before the online documentation is compiled,
+
+and use it to skip a cell in the documentation compilation as follows
+
+```python
+%%skip
+# code of a cell taking more than a second
+```
+
+Both the import and cell magic are removed before the online documentation is compiled,
 hence the output is displayed there.
 Namely, the goal is to avoid long doc compilation on the `dev` branch,
 but to keep it in the online documentation.
-When evaluating the notebook in Jupyter, the tag has no effect.

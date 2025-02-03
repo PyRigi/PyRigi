@@ -13,9 +13,9 @@ try:
     from IPython.core.magic import register_cell_magic
 
     @register_cell_magic
-    def long_cell(line, cell):
-        print("This cell has been skipped since the execution takes long time.")
-        print("Remove the cell magic `%%long_cell` to run it.")
+    def skip(line, cell):
+        print("This cell was marked to be skipped (probably due to itslong execution time.")
+        print("Remove the cell magic `%%skip` to run it.")
         return
 
 except NameError:

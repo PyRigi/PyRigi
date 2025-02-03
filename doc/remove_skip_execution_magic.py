@@ -12,5 +12,5 @@ for filename in glob.iglob(path + "**/*.md", recursive=True):
         lines = file.readlines()
     with open(filename, "w") as file:
         for line in lines:
-            if "skip-execution" not in line:
+            if "%%skip" not in line and "import skip" not in line:
                 file.write(line)

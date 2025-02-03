@@ -27,7 +27,7 @@ jobs:
         poetry install --without dev --all-extras
     - name: Remove skip-execution tag
       run: |
-        python3 doc/remove_skip_execution_tag.py
+        python3 doc/remove_skip_execution_magic.py
     - name: Convert notebooks from md to ipynb
       run: |
         cd doc/userguide/tutorials/
