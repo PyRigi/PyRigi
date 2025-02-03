@@ -929,7 +929,8 @@ class Graph(nx.Graph):
             count += edges.count(tuple(edge)) + edges.count(tuple(edge)[::-1])
             if count > 1:
                 raise ValueError(
-                    f"List of edges must contain distinct edges, but {edge} appears {count} times!"
+                    "List of edges must contain distinct edges, "
+                    f"but {edge} appears {count} times!"
                 )
         if new_vertex is None:
             candidate = self.number_of_nodes()
@@ -1064,7 +1065,7 @@ class Graph(nx.Graph):
         It turns out that possible errors on bad input paramters are only raised,
         when the output iterator is actually used,
         not when it is created.
-        """
+        """  # noqa: E501
         _input_check.dimension(dim)
         self._input_check_no_loop()
         _input_check.integrality_and_range(k_min, "k_min", min_val=0)
@@ -1923,7 +1924,8 @@ class Graph(nx.Graph):
             the randomized check returns a correct result.
 
             Other options for comparison are "extension_sequence",
-            which checks, whether there exists a sequence of rigidity presvering extensions
+            which checks, whether there exists a sequence
+            of rigidity presvering extensions
             (only available for dim=2).
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2`` and ``algorithm="combinatorial"``.
