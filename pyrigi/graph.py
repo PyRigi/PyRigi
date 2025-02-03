@@ -1092,7 +1092,7 @@ class Graph(nx.Graph):
                 yield current
 
     @doc_category("Generic rigidity")
-    def extension_sequence(  +# noqa: C901
+    def extension_sequence(  # noqa: C901
         self, dim: int = 2, return_type: str = "extensions"
     ) -> list[Graph] | list | None:
         """
