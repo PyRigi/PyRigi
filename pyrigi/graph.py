@@ -1092,13 +1092,13 @@ class Graph(nx.Graph):
                 yield current
 
     @doc_category("Generic rigidity")
-    def extension_sequence(  # noqa: C901
+    def extension_sequence(  +# noqa: C901
         self, dim: int = 2, return_type: str = "extensions"
     ) -> list[Graph] | list | None:
         """
         Compute a sequence of
         :prf:ref:`k-extensions <def-k-extension>`
-        if it extists, where k goes from 0 to ``2 * dim - 1``.
+        if it exists, where k goes from 0 to ``2 * dim - 1``.
         The sequence then starts from a complete graph on ``dim`` vertices.
 
         The method returns either a sequence of graphs,
