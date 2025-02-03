@@ -1,4 +1,4 @@
-# this script removes the tag 'skip-execution'
+# this script removes the cell magic 'skip_execution'
 # from all tutorial notebooks so these cells
 # appear in the online documentation
 
@@ -12,5 +12,5 @@ for filename in glob.iglob(path + "**/*.md", recursive=True):
         lines = file.readlines()
     with open(filename, "w") as file:
         for line in lines:
-            if "%%skip_execution" not in line:
+            if "%%skip_executon" not in line:
                 file.write(line)
