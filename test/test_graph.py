@@ -2,6 +2,7 @@ from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
 from pyrigi.exception import (
     LoopError,
+    NotSupportedValueError,
 )
 import matplotlib.pyplot as plt
 
@@ -10,6 +11,7 @@ from sympy import Matrix
 import math
 import networkx as nx
 from random import randint
+import pyrigi.misc as misc
 
 
 def test__add__():
@@ -185,6 +187,7 @@ def test_is_not_2_3_tight(graph):
 )
 def test_is_min_rigid_d1(graph):
     assert graph.is_min_rigid(dim=1, algorithm="combinatorial")
+    assert graph.is_min_rigid(dim=1, algorithm="extension_sequence")
     assert graph.is_min_rigid(dim=1, algorithm="randomized")
 
 
@@ -204,6 +207,7 @@ def test_is_min_rigid_d1(graph):
 )
 def test_is_not_min_rigid_d1(graph):
     assert not graph.is_min_rigid(dim=1, algorithm="combinatorial")
+    assert not graph.is_min_rigid(dim=1, algorithm="extension_sequence")
     assert not graph.is_min_rigid(dim=1, algorithm="randomized")
 
 
@@ -219,6 +223,7 @@ def test_is_not_min_rigid_d1(graph):
 )
 def test_is_min_rigid_d2(graph):
     assert graph.is_min_rigid(dim=2, algorithm="combinatorial")
+    assert graph.is_min_rigid(dim=2, algorithm="extension_sequence")
     assert graph.is_min_rigid(dim=2, algorithm="randomized")
 
 
@@ -240,6 +245,7 @@ def test_is_min_rigid_d2(graph):
 )
 def test_is_not_min_rigid_d2(graph):
     assert not graph.is_min_rigid(dim=2, algorithm="combinatorial")
+    assert not graph.is_min_rigid(dim=2, algorithm="extension_sequence")
     assert not graph.is_min_rigid(dim=2, algorithm="randomized")
 
 
@@ -1094,6 +1100,9 @@ def test_integer_representation_error():
         ["is_Rd_closed", []],
         ["rigid_components", []],
         ["_input_check_no_loop", []],
+        ["k_extension", [0, [1, 2], []]],
+        ["zero_extension", [[1, 2], []]],
+        ["one_extension", [[1, 2, 3], [1, 2]]],
     ],
 )
 def test_loop_error(method, params):
@@ -1105,6 +1114,23 @@ def test_loop_error(method, params):
         G = Graph([[1, 1]])
         func = getattr(G, method)
         func(*params)
+
+
+@pytest.mark.parametrize(
+    "method, params",
+    [
+        ["all_k_extensions", [1]],
+    ],
+)
+def test_iterator_loop_error(method, params):
+    with pytest.raises(LoopError):
+        G = Graph([[1, 2], [1, 1], [2, 3], [1, 3]])
+        func = getattr(G, method)
+        next(func(*params))
+    with pytest.raises(LoopError):
+        G = Graph([[1, 1]])
+        func = getattr(G, method)
+        next(func(*params))
 
 
 @pytest.mark.parametrize(
@@ -1372,22 +1398,154 @@ def test_all_k_extensions():
     )
 
 
-def test_k_extension_error():
+@pytest.mark.parametrize(
+    "graph, k, dim, sol",
+    [
+        [Graph.from_int(254), 1, 2, [3934, 4011, 6891, 7672, 7916]],
+        [graphs.Diamond(), 0, 2, [223, 239, 254]],
+        [graphs.Complete(4), 0, 3, [511]],
+        [graphs.CompleteMinusOne(5), 0, 1, [1535, 8703]],
+        [
+            Graph.from_int(16350),
+            2,
+            3,
+            [257911, 260603, 376807, 384943, 1497823, 1973983],
+        ],
+        [graphs.CompleteMinusOne(5), 2, 3, [4095, 7679, 7935, 8187]],
+    ],
+)
+def test_all_k_extensions2(graph, k, dim, sol):
+    assert misc.is_isomorphic_graph_list(
+        list(graph.all_k_extensions(k, dim, only_non_isomorphic=True)),
+        [Graph.from_int(igraph) for igraph in sol],
+    )
+
+
+@pytest.mark.parametrize(
+    "graph, k, vertices, edges, dim",
+    [
+        [graphs.Complete(6), 2, [0, 1, 2], [[0, 1], [0, 2]], -1],
+        [graphs.Complete(6), 2, [0, 1, 6], [[0, 1], [0, 6]], 1],
+        [graphs.Complete(6), 2, [0, 1, 2], [[0, 1]], 1],
+        [graphs.Complete(3), -1, [0], [], 2],
+        [graphs.CompleteBipartite(2, 3), 2, [0, 1, 2], [[0, 1], [0, 2]], 1],
+    ],
+)
+def test_k_extension_dim_error(graph, k, vertices, edges, dim):
     with pytest.raises(ValueError):
-        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1], [0, 2]], dim=-1)
+        graph.k_extension(k, vertices, edges, dim)
+
+
+@pytest.mark.parametrize(
+    "graph, k, vertices, edges",
+    [
+        [
+            Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3], [3, 3]]),
+            1,
+            [1, 2, 3],
+            [[3, 3]],
+        ],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [[1, 2], [1, 2]]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [[1, 2], [2, 1]]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [(1, 2), [1, 2]]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [(1, 2), [2, 1]]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [(1, 2), (1, 2)]],
+        [graphs.Complete(6), 2, [1, 2, 3, 4], [(1, 2), (2, 1)]],
+        [graphs.Complete(6), 3, [1, 2, 3, 4, 5], [[1, 2], [2, 3], [1, 2]]],
+    ],
+)
+def test_k_extension_error(graph, k, vertices, edges):
     with pytest.raises(ValueError):
-        graphs.Complete(6).k_extension(2, [0, 1, 6], [[0, 1], [0, 6]], dim=1)
-    with pytest.raises(ValueError):
-        graphs.Complete(6).k_extension(2, [0, 1, 2], [[0, 1]], dim=1)
-    with pytest.raises(ValueError):
-        graphs.CompleteBipartite(2, 3).k_extension(
-            2, [0, 1, 2], [[0, 1], [0, 2]], dim=1
-        )
+        graph.k_extension(k, vertices, edges)
+
+
+def test_all_k_extension_error():
     with pytest.raises(ValueError):
         list(Graph.from_vertices([0, 1, 2]).all_k_extensions(1, 1))
+
+
+@pytest.mark.parametrize(
+    "graph, dim, sol",
+    [
+        [Graph.from_int(254), 2, [3326, 3934, 4011, 6891, 7672, 7916, 10479, 12511]],
+        [graphs.Diamond(), 2, [223, 239, 254]],
+        [graphs.Complete(4), 3, [511]],
+        [graphs.Complete(1), 1, [1]],
+        [graphs.CompleteMinusOne(5), 1, [1535, 8703]],
+        [
+            Graph.from_int(16350),
+            3,
+            [257911, 260603, 376807, 384943, 515806, 981215, 1497823, 1973983],
+        ],
+        [graphs.CompleteMinusOne(5), 3, [4095, 7679, 7935, 8187, 16350]],
+    ],
+)
+def test_all_extensions(graph, dim, sol):
+    assert misc.is_isomorphic_graph_list(
+        list(graph.all_extensions(dim, only_non_isomorphic=True)),
+        [Graph.from_int(igraph) for igraph in sol],
+    )
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [Graph.from_int(254), 2],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 2],
+        [graphs.Complete(2), 1],
+        [graphs.Complete(1), 1],
+        [graphs.CompleteMinusOne(5), 1],
+        [Graph.from_int(16350), 3],
+        [graphs.CompleteMinusOne(5), 3],
+    ],
+)
+def test_all_extensions_single(graph, dim):
+    for k in range(0, dim):
+        assert misc.is_isomorphic_graph_list(
+            list(graph.all_extensions(dim, only_non_isomorphic=True, k_min=k, k_max=k)),
+            list(graph.all_k_extensions(k, dim, only_non_isomorphic=True)),
+        )
+        assert misc.is_isomorphic_graph_list(
+            list(graph.all_extensions(dim, k_min=k, k_max=k)),
+            list(graph.all_k_extensions(k, dim)),
+        )
+
+
+@pytest.mark.parametrize(
+    "graph, dim, k_min, k_max",
+    [
+        [graphs.Diamond(), 2, -1, 0],
+        [graphs.ThreePrism(), 2, 0, -1],
+        [graphs.Diamond(), 2, 2, 1],
+        [graphs.Diamond(), 2, 3, None],
+        [graphs.Complete(4), 3, -2, -1],
+        [graphs.CompleteMinusOne(5), 1, 5, 4],
+        [graphs.Complete(3), 3, 5, None],
+    ],
+)
+def test_all_extensions_value_error(graph, dim, k_min, k_max):
     with pytest.raises(ValueError):
-        G = Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3], [3, 3]])
-        G.k_extension(1, [1, 2, 3], [[3, 3]])
+        list(graph.all_extensions(dim=dim, k_min=k_min, k_max=k_max))
+
+
+@pytest.mark.parametrize(
+    "graph, dim, k_min, k_max",
+    [
+        [graphs.Diamond(), 2, 0, 1.4],
+        [graphs.Diamond(), 2, 0.2, 2],
+        [graphs.Diamond(), 1.2, 2, 1],
+        [graphs.Diamond(), "2", 2, 1],
+        [graphs.Diamond(), 1, 2, "1"],
+        [graphs.Diamond(), 2, 3 / 2, None],
+        [graphs.Diamond(), 2, "2", None],
+        [graphs.Diamond(), None, 2, 1],
+        [graphs.Diamond(), 1, None, 1],
+    ],
+)
+def test_all_extensions_type_error(graph, dim, k_min, k_max):
+    with pytest.raises(TypeError):
+        list(graph.all_extensions(dim=dim, k_min=k_min, k_max=k_max))
 
 
 @pytest.mark.parametrize(
@@ -1406,8 +1564,8 @@ def test_k_extension_error():
         Graph.from_int(173090142),
     ],
 )
-def test_extension_sequence(graph):
-    assert graph.extension_sequence()
+def test_has_extension_sequence(graph):
+    assert graph.has_extension_sequence()
 
 
 @pytest.mark.parametrize(
@@ -1425,16 +1583,16 @@ def test_extension_sequence(graph):
         Graph.from_vertices([]),
     ],
 )
-def test_extension_sequence_false(graph):
-    assert not graph.extension_sequence()
+def test_has_not_extension_sequence(graph):
+    assert not graph.has_extension_sequence()
 
 
 def test_extension_sequence_solution():
-    assert graphs.Complete(2).extension_sequence(return_solution=True) == [
+    assert graphs.Complete(2).extension_sequence(return_type="graphs") == [
         Graph([[0, 1]]),
     ]
 
-    assert graphs.Complete(3).extension_sequence(return_solution=True) == [
+    assert graphs.Complete(3).extension_sequence(return_type="graphs") == [
         Graph([[1, 2]]),
         Graph([[0, 1], [0, 2], [1, 2]]),
     ]
@@ -1449,7 +1607,7 @@ def test_extension_sequence_solution():
         ),
     ]
     assert (
-        graphs.CompleteBipartite(3, 3).extension_sequence(return_solution=True)
+        graphs.CompleteBipartite(3, 3).extension_sequence(return_type="graphs")
         == solution
     )
 
@@ -1465,13 +1623,13 @@ def test_extension_sequence_solution():
         if i < len(solution_ext):
             G.k_extension(*solution_ext[i], dim=2, inplace=True)
 
-    assert graphs.Diamond().extension_sequence(return_solution=True) == [
+    assert graphs.Diamond().extension_sequence(return_type="graphs") == [
         Graph([[2, 3]]),
         Graph([[0, 2], [0, 3], [2, 3]]),
         Graph([[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]),
     ]
 
-    result = graphs.ThreePrism().extension_sequence(return_solution=True)
+    result = graphs.ThreePrism().extension_sequence(return_type="graphs")
     solution = [
         Graph([[4, 5]]),
         Graph([[3, 4], [3, 5], [4, 5]]),
@@ -1493,6 +1651,140 @@ def test_extension_sequence_solution():
         assert result[i] == G
         if i < len(solution_ext):
             G.k_extension(*solution_ext[i], dim=2, inplace=True)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.CompleteBipartite(3, 3),
+        graphs.Diamond(),
+        graphs.ThreePrism(),
+        graphs.CubeWithDiagonal(),
+        Graph.from_int(6462968),
+        Graph.from_int(69380589),
+        Graph.from_int(19617907),
+        Graph.from_int(170993054),
+        Graph.from_int(173090142),
+    ],
+)
+def test_extension_sequence(graph):
+    ext = graph.extension_sequence(return_type="both")
+    assert ext is not None
+    current = ext[0]
+    for i in range(1, len(ext)):
+        current = current.k_extension(*ext[i][1])
+        assert current == ext[i][0]
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [graphs.Complete(2), 2],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 2],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 2],
+        [graphs.CubeWithDiagonal(), 2],
+        [Graph.from_int(6462968), 2],
+        [Graph.from_int(69380589), 2],
+        [Graph.from_int(19617907), 2],
+        [Graph.from_int(170993054), 2],
+        [Graph.from_int(173090142), 2],
+        [graphs.Complete(2), 1],
+        [Graph.from_int(75), 1],
+        [Graph.from_int(77), 1],
+        [Graph.from_int(86), 1],
+        [graphs.Complete(1), 1],
+        [graphs.Complete(4), 3],
+        [graphs.CompleteMinusOne(5), 3],
+        [Graph.from_int(16350), 3],
+        [Graph.from_int(4095), 3],
+        [graphs.DoubleBanana(), 3],
+    ],
+)
+def test_extension_sequence_dim(graph, dim):
+    ext = graph.extension_sequence(dim=dim, return_type="both")
+    assert ext is not None
+    current = ext[0]
+    for i in range(1, len(ext)):
+        current = current.k_extension(*ext[i][1], dim=dim)
+        assert current == ext[i][0]
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [graphs.Complete(2), 2],
+        [graphs.Complete(3), 2],
+        [graphs.CompleteBipartite(3, 3), 2],
+        [graphs.Diamond(), 2],
+        [graphs.ThreePrism(), 2],
+        [graphs.CubeWithDiagonal(), 2],
+        [Graph.from_int(6462968), 2],
+        [Graph.from_int(69380589), 2],
+        [Graph.from_int(19617907), 2],
+        [Graph.from_int(170993054), 2],
+        [Graph.from_int(173090142), 2],
+        [graphs.Complete(2), 1],
+        [Graph.from_int(75), 1],
+        [Graph.from_int(77), 1],
+        [Graph.from_int(86), 1],
+        [graphs.Complete(1), 1],
+    ],
+)
+def test_extension_sequence_min_rigid(graph, dim):
+    ext = graph.extension_sequence(dim=dim, return_type="graphs")
+    assert ext is not None
+    for current in ext:
+        assert current.is_min_rigid(dim)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(3),
+        graphs.CompleteBipartite(1, 2),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.K33plusEdge(),
+        graphs.ThreePrismPlusEdge(),
+        Graph.from_int(2269176),
+        Graph.from_int(19650659),
+        Graph.from_vertices([0]),
+        Graph.from_vertices([]),
+    ],
+)
+def test_extension_sequence_none(graph):
+    assert graph.extension_sequence() is None
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [graphs.Path(3), 2],
+        [graphs.CompleteBipartite(1, 2), 2],
+        [graphs.Complete(4), 2],
+        [graphs.Cycle(6), 2],
+        [graphs.K33plusEdge(), 2],
+        [graphs.ThreePrismPlusEdge(), 2],
+        [Graph.from_int(2269176), 2],
+        [Graph.from_int(19650659), 2],
+        [Graph.from_vertices([0]), 2],
+        [Graph.from_vertices([]), 2],
+        [graphs.Cycle(3), 1],
+        [graphs.Complete(4), 1],
+        [graphs.Complete(6), 3],
+    ],
+)
+def test_extension_sequence_dim_none(graph, dim):
+    assert graph.extension_sequence(dim) is None
+
+
+def test_extension_sequence_error():
+    with pytest.raises(NotSupportedValueError):
+        graphs.Complete(3).extension_sequence(return_type="Test")
 
 
 def test_CompleteOnVertices():
@@ -1555,14 +1847,14 @@ def test__input_check_no_loop_error2(vertices, edges):
         [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), 3],
         [Graph([[1, 2], [2, 3]]), 2],
         [Graph([[1, 2], [1, 1]]), 1],
-        [Graph.from_int(7), 0],
-        [Graph.from_int(31), 3],
+        [graphs.Complete(3), 0],
+        [graphs.Diamond(), 3],
         [Graph.from_vertices([1]), [1]],
         [Graph.from_vertices([1, 2, 3]), [2, 3]],
         [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), [1, 3]],
         [Graph([[1, 2], [2, 3]]), [2, 2]],
-        [Graph.from_int(7), [0, 1]],
-        [Graph.from_int(31), [1, 3]],
+        [graphs.Complete(3), [0, 1]],
+        [graphs.Diamond(), [1, 3]],
         [Graph([["a", "b"], ["b", 3]]), "a"],
         [Graph([["a", "b"], ["b", 3]]), ["a", "b"]],
         [Graph([["a", "b"], ["b", 3]]), ["a", 3]],
@@ -1584,14 +1876,14 @@ def test__input_check_vertex_members(graph, vertex):
         [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), -1],
         [Graph([[1, 2], [2, 3]]), 0],
         [Graph([[1, 2], [1, 1]]), 3],
-        [Graph.from_int(7), "a"],
-        [Graph.from_int(31), 10],
+        [graphs.Complete(3), "a"],
+        [graphs.Diamond(), 10],
         [Graph.from_vertices([1]), [2]],
         [Graph.from_vertices([1, 2, 3]), [3, 4]],
         [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), [5, 6]],
         [Graph([[1, 2], [2, 3]]), [2, 2, 4]],
-        [Graph.from_int(7), [0, 4]],
-        [Graph.from_int(31), [1, 2, 12]],
+        [graphs.Complete(3), [0, 4]],
+        [graphs.Diamond(), [1, 2, 12]],
         [Graph([["a", "b"], ["b", 3]]), "c"],
         [Graph([["a", "b"], ["b", 3]]), ["a", "c"]],
         [Graph([["a", "b"], ["b", 3]]), ["a", 4]],
@@ -1612,8 +1904,8 @@ def test__input_check_vertex_members_error(graph, vertex):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 2]],
         [Graph([[1, 2], [2, 3]]), [1, 2]],
         [Graph([[1, 2], [1, 1]]), [1, 1]],
-        [Graph.from_int(7), [0, 1]],
-        [Graph.from_int(31), [1, 2]],
+        [graphs.Complete(3), [0, 1]],
+        [graphs.Diamond(), [1, 2]],
         [Graph([["a", "b"], ["b", 3]]), ["a", "b"]],
         [Graph([["a", "b"], ["b", 3]]), (3, "b")],
         [Graph([["a", "b"], ["b", 3]]), ["b", "a"]],
@@ -1637,8 +1929,8 @@ def test__input_check_edge(graph, edge):
         [Graph([[1, 2], [1, 1]]), [1, 1], [1, 2]],
         [Graph([[1, 2], [1, 1]]), [1, 1], [1, 1]],
         [Graph([[1, 2], [1, 1]]), [1, 1], [1]],
-        [Graph.from_int(7), [0, 1], [0, 1, 2, 3, 4]],
-        [Graph.from_int(31), [1, 2], [1, 2, 3]],
+        [graphs.Complete(3), [0, 1], [0, 1, 2, 3, 4]],
+        [graphs.Diamond(), [1, 2], [1, 2, 3]],
         [Graph([["a", "b"], ["b", 3]]), ["a", "b"], ["a", "b"]],
         [Graph([["a", "b"], ["b", 3]]), (3, "b"), ["a", "b", 3]],
         [Graph([["a", "b"], ["b", 3]]), ["b", "a"], ["a", "b", 3]],
@@ -1658,8 +1950,8 @@ def test__input_check_edge_on_vertices(graph, edge, vertices):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 3)],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 1]],
         [Graph([[1, 2], [2, 3]]), [1, 3]],
-        [Graph.from_int(7), [0, 4]],
-        [Graph.from_int(31), [1, -2]],
+        [graphs.Complete(3), [0, 4]],
+        [graphs.Diamond(), [1, -2]],
         [Graph([["a", "b"], ["b", 3]]), ["a", "c"]],
         [Graph([["a", "b"], ["b", 3]]), (3, "a")],
         [Graph([["a", "b"], ["b", 3]]), ["3", "a"]],
@@ -1701,8 +1993,8 @@ def test__input_check_edge_format_loopfree_loop_error(graph, edge):
         [Graph([[1, 2], [1, 1]]), [1, 1], [2, 2]],
         [Graph([[1, 2], [1, 1]]), [1, 1], [2, 3]],
         [Graph([[1, 2], [1, 1]]), [1, 1], [0]],
-        [Graph.from_int(7), [0, 1], [1, 2, 3, 4]],
-        [Graph.from_int(31), [1, 2], [1, 3]],
+        [graphs.Complete(3), [0, 1], [1, 2, 3, 4]],
+        [graphs.Diamond(), [1, 2], [1, 3]],
         [Graph([["a", "b"], ["b", 3]]), ["a", "b"], ["a", "c"]],
         [Graph([["a", "b"], ["b", 3]]), (3, "b"), ["a", "b", 2]],
         [Graph([["a", "b"], ["b", 3]]), ["b", "a"], ["a"]],
@@ -1725,8 +2017,8 @@ def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1, 2, 3]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
         [Graph([[1, 2], [2, 3]]), "12"],
-        [Graph.from_int(7), [[0, 1]]],
-        [Graph.from_int(31), [[1, 2], [2, 3]]],
+        [graphs.Complete(3), [[0, 1]]],
+        [graphs.Diamond(), [[1, 2], [2, 3]]],
     ],
 )
 def test__input_check_edge_type_error(graph, edge):
@@ -1749,8 +2041,8 @@ def test__input_check_edge_type_error(graph, edge):
             [1, 2, 3],
         ],
         [Graph([[1, 2], [2, 3]]), "12", [1, 2, 3]],
-        [Graph.from_int(7), [[0, 1]], [1, 2, 3]],
-        [Graph.from_int(31), [[1, 2], [2, 3]], [1, 2, 3]],
+        [graphs.Complete(3), [[0, 1]], [1, 2, 3]],
+        [graphs.Diamond(), [[1, 2], [2, 3]], [1, 2, 3]],
         [Graph([[1, 2], [2, 3]]), [1, 2], "1"],
         [Graph([[1, 2], [2, 3]]), [1, 2], 1],
     ],
@@ -1767,8 +2059,8 @@ def test__input_check_edge_on_vertices_type_error(graph, edge, vertices):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2]]],
         [Graph([[1, 2], [2, 3]]), [[1, 2]]],
         # [Graph([[1, 2], [1, 1]]), [[1, 1]]],
-        [Graph.from_int(7), [[0, 1]]],
-        [Graph.from_int(31), [[1, 2]]],
+        [graphs.Complete(3), [[0, 1]]],
+        [graphs.Diamond(), [[1, 2]]],
         [Graph([["a", "b"], ["b", 3]]), [["a", "b"]]],
         [Graph([["a", "b"], ["b", 3]]), [(3, "b")]],
         [Graph([["a", "b"], ["b", 3]]), [["b", "a"]]],
@@ -1778,8 +2070,8 @@ def test__input_check_edge_on_vertices_type_error(graph, edge, vertices):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 2), (3, 2)]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2], [1, 2]]],
         [Graph([[1, 2], [2, 3]]), [[1, 2], (2, 3)]],
-        [Graph.from_int(7), [[0, 1], [1, 2]]],
-        [Graph.from_int(31), [[1, 2], [2, 3]]],
+        [graphs.Complete(3), [[0, 1], [1, 2]]],
+        [graphs.Diamond(), [[1, 2], [2, 3]]],
         [Graph([["a", "b"], ["b", 3]]), [["a", "b"], ["b", 3]]],
         [Graph([["a", "b"], ["b", 3]]), [(3, "b"), ("a", "b")]],
         [Graph([["a", "b"], ["b", 3]]), [["b", "a"], (3, "b")]],
@@ -1799,8 +2091,8 @@ def test__input_check_edge_list(graph, edge):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 3)]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 1]]],
         [Graph([[1, 2], [2, 3]]), [[1, 3]]],
-        [Graph.from_int(7), [[0, 4]]],
-        [Graph.from_int(31), [[1, -2]]],
+        [graphs.Complete(3), [[0, 4]]],
+        [graphs.Diamond(), [[1, -2]]],
         [Graph([["a", "b"], ["b", 3]]), [["a", "c"]]],
         [Graph([["a", "b"], ["b", 3]]), [(3, "a")]],
         [Graph([["a", "b"], ["b", 3]]), [["3", "a"]]],
@@ -1810,8 +2102,8 @@ def test__input_check_edge_list(graph, edge):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 2), (3, 3)]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2], [1, 3]]],
         [Graph([[1, 2], [2, 3]]), [[1, 2], (2, 4)]],
-        [Graph.from_int(7), [[0, 1], [1, -2]]],
-        [Graph.from_int(31), [[1, 5], [2, 3]]],
+        [graphs.Complete(3), [[0, 1], [1, -2]]],
+        [graphs.Diamond(), [[1, 5], [2, 3]]],
         [Graph([["a", "b"], ["b", 3]]), [["a", "c"], ["b", 3]]],
         [Graph([["a", "b"], ["b", 3]]), [(3, "b"), ("a", "d")]],
         [Graph([["a", "b"], ["b", 3]]), [["b", "3"], (3, "b")]],
@@ -1834,9 +2126,9 @@ def test__input_check_edge_list_value_error(graph, edge):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1]],
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
         [Graph([[1, 2], [2, 3]]), "12"],
-        [Graph.from_int(7), [0, 1]],
-        [Graph.from_int(31), (1, 2)],
-        [Graph.from_int(31), [[[1, 2], [2, 3]]]],
+        [graphs.Complete(3), [0, 1]],
+        [graphs.Diamond(), (1, 2)],
+        [graphs.Diamond(), [[[1, 2], [2, 3]]]],
     ],
 )
 def test__input_check_edge_list_type_error(graph, edge):
@@ -1852,7 +2144,7 @@ def test__input_check_edge_list_type_error(graph, edge):
         [Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]), ["a", "#", 0, 1.8]],
         [Graph([[1, 2], [2, 3]]), [1, 2, 3]],
         [Graph([[1, 2], [2, 3]]), [1, 3, 2]],
-        [Graph.from_int(7), [0, 1, 2]],
+        [graphs.Complete(3), [0, 1, 2]],
     ],
 )
 def test__input_check_vertex_order(graph, vertex_order):
@@ -1867,7 +2159,7 @@ def test__input_check_vertex_order(graph, vertex_order):
         [Graph([[1, 2], [2, 3]]), [1, 2, 2]],
         [Graph([[1, 2], [2, 3]]), [1, 2, 2, 3]],
         [Graph([[1, 2], [2, 3]]), [1, 2, 3, 4]],
-        [Graph.from_int(7), [1, 2, 3]],
+        [graphs.Complete(3), [1, 2, 3]],
     ],
 )
 def test__input_check_vertex_order_error(graph, vertex_order):
@@ -1885,7 +2177,7 @@ def test__input_check_vertex_order_error(graph, vertex_order):
         [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3]]],
         [Graph([[1, 2], [2, 3]]), [[2, 1], [3, 2]]],
         [Graph([[1, 2], [2, 3]]), [[2, 3], [1, 2]]],
-        [Graph.from_int(7), [[0, 1], [1, 2], [2, 0]]],
+        [graphs.Complete(3), [[0, 1], [1, 2], [2, 0]]],
     ],
 )
 def test__input_check_edge_order(graph, edge_order):
@@ -1902,7 +2194,7 @@ def test__input_check_edge_order(graph, edge_order):
         [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 4]]],
         [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3], [1, 3]]],
         [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3], [1, 2]]],
-        [Graph.from_int(7), [[0, 1], [1, 2], [1, 2]]],
+        [graphs.Complete(3), [[0, 1], [1, 2], [1, 2]]],
     ],
 )
 def test__input_check_edge_order_error(graph, edge_order):
