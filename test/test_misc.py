@@ -84,7 +84,7 @@ def test_is_isomorphic_graph_list_true(list1, list2):
         [[239, 254], [31, 239]],
     ],
 )
-def test_is_isomorphic_graph_list_false(list1, list2):
+def test_is_not_isomorphic_graph_list(list1, list2):
     assert not is_isomorphic_graph_list(
         [Graph.from_int(g) for g in list1], [Graph.from_int(g) for g in list2]
     )
