@@ -127,6 +127,60 @@ def Octahedron(realization: str = "regular") -> Framework:
     raise ValueError(f"The parameter `realization` cannot be {realization}.")
 
 
+def Icosahedron() -> Framework:
+    """Return the graph given by the skeleton of the regular icosahedron in $R^3$."""
+    phi = sp.sympify("(1+sqrt(5))/2")
+    F = Framework(
+        graphs.Icosahedral(),
+        {
+            0: (phi, 1, 0),
+            1: (1, 0, phi),
+            2: (-1, 0, phi),
+            9: (-phi, 1, 0),
+            4: (0, -phi, -1),
+            5: (phi, -1, 0),
+            6: (0, -phi, 1),
+            7: (0, phi, -1),
+            8: (0, phi, 1),
+            3: (-phi, -1, 0),
+            10: (-1, 0, -phi),
+            11: (1, 0, -phi),
+        },
+    )
+    return F
+
+
+def Dodecahedron() -> Framework:
+    """Return the graph given by the skeleton of the regular dodecahedron in $R^3$."""
+    phi = sp.sympify("(1+sqrt(5))/2")
+    F = Framework(
+        graphs.Dodecahedral(),
+        {
+            0: (1, 1, 1),
+            1: (-1, 1, 1),
+            2: (1, -1, 1),
+            3: (1, 1, -1),
+            4: (-1, -1, 1),
+            5: (-1, 1, -1),
+            6: (1, -1, -1),
+            7: (-1, -1, -1),
+            8: (0, phi, 1 / phi),
+            9: (0, phi, -1 / phi),
+            10: (0, -phi, 1 / phi),
+            11: (0, -phi, -1 / phi),
+            12: (1 / phi, 0, phi),
+            13: (-1 / phi, 0, phi),
+            14: (1 / phi, 0, -phi),
+            15: (-1 / phi, 0, -phi),
+            16: (phi, 1 / phi, 0),
+            17: (phi, -1 / phi, 0),
+            18: (-phi, 1 / phi, 0),
+            19: (-phi, -1 / phi, 0),
+        },
+    )
+    return F
+
+
 def K33plusEdge() -> Framework:
     """
     Return a framework of the complete bipartite graph on 3+3 vertices plus an edge.

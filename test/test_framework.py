@@ -35,6 +35,7 @@ from sympy import Matrix, pi, sqrt, sympify
         fws.Complete(3, dim=3),
         fws.Complete(4, dim=3),
         fws.Octahedron(),
+        fws.Icosahedron(),
     ]
     + [fws.Complete(2, dim=n) for n in range(1, 10)]
     + [fws.Complete(3, dim=n) for n in range(1, 10)]
@@ -67,6 +68,7 @@ def test_is_inf_rigid(framework):
         fws.Cube(),
         fws.Octahedron(realization="Bricard_line"),
         fws.Octahedron(realization="Bricard_plane"),
+        fws.Dodecahedron()
     ]
     + [fws.Cycle(n - 1, dim=n) for n in range(5, 10)]
     + [fws.Cycle(n, dim=n) for n in range(4, 10)]
@@ -90,6 +92,7 @@ def test_is_not_inf_rigid(framework):
         fws.Complete(3, dim=3),
         fws.Complete(4, dim=3),
         fws.Octahedron(),
+        fws.Icosahedron(),
     ]
     + [fws.Complete(2, dim=n) for n in range(1, 7)]
     + [fws.Complete(3, dim=n) for n in range(2, 7)]
@@ -130,6 +133,7 @@ def test_is_min_inf_rigid(framework):
         fws.Cube(),
         fws.Octahedron(realization="Bricard_line"),
         fws.Octahedron(realization="Bricard_plane"),
+        fws.Dodecahedron()
     ]
     + [fws.Cycle(n - 1, dim=n) for n in range(5, 7)]
     + [fws.Cycle(n, dim=n) for n in range(4, 7)]

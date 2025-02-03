@@ -125,6 +125,49 @@ def Octahedral() -> Graph:
     )
 
 
+def Icosahedral() -> Graph:
+    """Return the graph given by the skeleton of an icosahedron."""
+    return Graph(nx.icosahedral_graph().edges)
+
+
+def Dodecahedral() -> Graph:
+    """Return the graph given by the skeleton of an dodecahedron."""
+    return Graph(
+        [
+            (0, 8),
+            (0, 12),
+            (0, 16),
+            (1, 8),
+            (1, 13),
+            (1, 18),
+            (2, 10),
+            (2, 12),
+            (2, 17),
+            (3, 9),
+            (3, 14),
+            (3, 16),
+            (4, 10),
+            (4, 13),
+            (4, 19),
+            (5, 9),
+            (5, 15),
+            (5, 18),
+            (6, 11),
+            (6, 14),
+            (6, 17),
+            (7, 11),
+            (7, 15),
+            (7, 19),
+            (8, 9),
+            (10, 11),
+            (12, 13),
+            (14, 15),
+            (16, 17),
+            (18, 19),
+        ]
+    )
+
+
 def Frustum(n: int) -> Graph:
     """Return the :prf:ref:`n-Frustum graph <def-n-frustum>`"""
     return Graph(

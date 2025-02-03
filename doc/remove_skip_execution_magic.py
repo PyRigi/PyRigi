@@ -7,7 +7,7 @@ import os
 
 path = os.path.join(os.path.dirname(__file__), "userguide/tutorials/")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for filename in glob.iglob(path + "**/*.md", recursive=True):
         with open(filename, "r") as file:
             lines = file.readlines()
