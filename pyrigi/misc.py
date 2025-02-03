@@ -3,18 +3,20 @@ Module for miscellaneous functions.
 """
 
 from pyrigi.data_type import Sequence, Number, point_to_vector, InfFlex, Vertex
-from IPython.core.magic import register_cell_magic
 from sympy import Matrix
 import sympy as sp
 import numpy as np
 from math import isclose, log10
+import os
 
+if "IPython" in os.environ:
+    from IPython.core.magic import register_cell_magic
 
-@register_cell_magic
-def long_cell(line, cell):
-    print("This cell has been skipped since the execution takes long time.")
-    print("Remove the cell magic `%%long_cell` to run it.")
-    return
+    @register_cell_magic
+    def long_cell(line, cell):
+        print("This cell has been skipped since the execution takes long time.")
+        print("Remove the cell magic `%%long_cell` to run it.")
+        return
 
 
 def doc_category(category):
