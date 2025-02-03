@@ -14,7 +14,9 @@ try:
 
     @register_cell_magic
     def skip(line, cell):
-        print("This cell was marked to be skipped (probably due to itslong execution time.")
+        print(
+            "This cell was marked to be skipped (probably due to its long execution time."
+        )
         print("Remove the cell magic `%%skip` to run it.")
         return
 
