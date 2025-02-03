@@ -13,5 +13,5 @@ if __name__ == '__main__':
             lines = file.readlines()
         with open(filename, "w") as file:
             for line in lines:
-                if "%%skip_execution" not in line:
+                if "skip_execution" not in line:
                     file.write(line)
