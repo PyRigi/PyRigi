@@ -39,4 +39,4 @@ jobs:
     - name: Test doc compilation
       run: |
         cd doc
-        poetry run sphinx-build . _build
+        poetry run make html
