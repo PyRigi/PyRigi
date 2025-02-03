@@ -67,13 +67,17 @@ doctest_plus = "enabled"
 pythonpath = [
   "."
 ]
-addopts = "-m 'not slow_main and not long_local' -p no:warnings" # deselect large tests by default
+addopts = "-m 'not slow_main and not long_local'" # deselect large tests by default
 # you can run all tests with -m 'not slow_main or slow_main'
 markers = [
     "slow_main: marks slower tests run at merge to main",
     "long_local: marks long tests run locally",
     "realization_counting: marks tests using extra realization-counting",
     "meshing: marks tests using extra meshing"
+]
+filterwarnings = [
+    'ignore:This method uses a randomized algorithm!:UserWarning',
+    'ignore:FigureCanvasAgg is non-interactive, and thus cannot be shown:UserWarning'
 ]
 
 [tool.jupytext]

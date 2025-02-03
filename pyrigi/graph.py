@@ -14,7 +14,7 @@ from sympy import Matrix, oo, zeros
 
 import math
 from random import randint
-from warnings import warn
+import warnings
 
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 
@@ -2025,7 +2025,7 @@ class Graph(nx.Graph):
                 2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
 
-        warn("This method uses a randomized algorithm!")
+        warnings.warn("This method uses a randomized algorithm!")
         F = self.random_framework(dim=dim)
         return len(F.stresses()) == 0
 
@@ -2312,7 +2312,7 @@ class Graph(nx.Graph):
             math.floor(0.5 * (2 * n + math.sqrt((1 - 2 * n) ** 2 - 8 * m) - 1))
         )
 
-        warn("This method uses a randomized algorithm.")
+        warnings.warn("This method uses a randomized algorithm!")
         for dim in range(max_dim, 0, -1):
             if self.is_rigid(dim, algorithm="randomized"):
                 return dim
