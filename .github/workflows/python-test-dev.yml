@@ -34,7 +34,7 @@ jobs:
         poetry run flake8 . --count --show-source --statistics
     - name: Show version
       run: |
-        poetry pip show sphinx myst-nb
+        poetry show
 #    - name: Test with pytest
 #      run: |
 #        poetry run pytest --doctest-modules
