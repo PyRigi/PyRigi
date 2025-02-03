@@ -35,6 +35,7 @@ jobs:
     - name: Show version
       run: |
         poetry show
+        less doc/userguide/tutorials/motion.md
 #    - name: Test with pytest
 #      run: |
 #        poetry run pytest --doctest-modules
