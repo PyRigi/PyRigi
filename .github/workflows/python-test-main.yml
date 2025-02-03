@@ -37,4 +37,5 @@ jobs:
         # --doctest-modules overrides the default --doctest-plus
     - name: Test doc compilation
       run: |
+        cd doc
         poetry run sphinx-build . _build
