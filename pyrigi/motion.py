@@ -14,12 +14,14 @@ from pyrigi.data_type import (
     Edge,
 )
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
+from pyrigi import _plot
+import pyrigi._input_check as _input_check
 from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
 import numpy as np
 import sympy as sp
 from IPython.display import SVG
-from typing import Any
+from typing import Any, Literal
 from copy import deepcopy
 from warnings import warn
 from matplotlib.animation import FuncAnimation
@@ -107,7 +109,7 @@ class Motion(object):
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        delay: int = 75,
+        duration: float = 8,
         **kwargs,
     ) -> Any:
         """
@@ -130,22 +132,22 @@ class Motion(object):
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
             The ommited edges are given the value ``plot_style.edge_color``.
-        delay:
-            Delay between frames in milliseconds.
+        duration:
+            The duration of one period of the animation in seconds.
         """
-        if self._dim != 3:
-            raise ValueError(
-                f"The Motion is in dimension {self._dim}, "
-                + "not 3 as the method `animate3D` requires."
-            )
+        _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
         if plot_style is None:
             # change some PlotStyle default values to fit 3D plotting better
-            plot_style = PlotStyle3D(vertex_size=13.5, edge_width=1.5, dpi=150)
+            plot_style = PlotStyle3D(
+                vertex_size=13.5, edge_width=1.5, dpi=150, vertex_labels=False
+            )
         else:
             plot_style = PlotStyle3D.from_plot_style(plot_style)
 
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
+
+        delay = int(round(duration / len(realizations) * 1000))  # Set the delay in ms
 
         fig = plt.figure(dpi=plot_style.dpi)
         ax = fig.add_subplot(111, projection="3d")
@@ -161,17 +163,6 @@ class Motion(object):
         ax.set_zlim(min_val * aspect_ratio[2], max_val * aspect_ratio[2])
         ax.set_ylim(min_val * aspect_ratio[1], max_val * aspect_ratio[1])
         ax.set_xlim(min_val * aspect_ratio[0], max_val * aspect_ratio[0])
-
-        _realizations = deepcopy(realizations)
-        _realizations = self._normalize_realizations(
-            _realizations,
-            (max_val - min_val) * aspect_ratio[0],
-            (max_val - min_val) * aspect_ratio[1],
-            z_width=(max_val - min_val) * aspect_ratio[2],
-            padding=plot_style.padding,
-        )
-
-        from pyrigi import _plot
 
         # Update the plot_style instance with any passed keyword arguments
         edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
@@ -198,6 +189,21 @@ class Motion(object):
             )[0]
             for i in range(len(edge_list_ref))
         ]
+        annotated_text = []
+        if plot_style.vertex_labels:
+            annotated_text = [
+                ax.text(
+                    0,
+                    0,
+                    0,
+                    f"{v}",
+                    ha="center",
+                    va="center",
+                    color=plot_style.font_color,
+                    size=plot_style.font_size,
+                )
+                for v in realizations[0].keys()
+            ]
 
         # Animation initialization function.
         def init():
@@ -211,30 +217,41 @@ class Motion(object):
         def update(frame):
             # Update vertices positions
             vertices_plot.set_data(
-                [_realizations[frame][v][0] for v in self._graph.nodes],
-                [_realizations[frame][v][1] for v in self._graph.nodes],
+                [realizations[frame][v][0] for v in self._graph.nodes],
+                [realizations[frame][v][1] for v in self._graph.nodes],
             )
             vertices_plot.set_3d_properties(
-                [_realizations[frame][v][2] for v in self._graph.nodes]
+                [realizations[frame][v][2] for v in self._graph.nodes]
             )
 
             # Update the edges
             for i, (start, end) in enumerate(self._graph.edges):
                 line = lines[i]
                 line.set_data(
-                    [_realizations[frame][start][0], _realizations[frame][end][0]],
-                    [_realizations[frame][start][1], _realizations[frame][end][1]],
+                    [realizations[frame][start][0], realizations[frame][end][0]],
+                    [realizations[frame][start][1], realizations[frame][end][1]],
                 )
                 line.set_3d_properties(
-                    [_realizations[frame][start][2], _realizations[frame][end][2]]
+                    [realizations[frame][start][2], realizations[frame][end][2]]
                 )
 
-            return [vertices_plot] + lines
+            if plot_style.vertex_labels:
+                for i in range(len(annotated_text)):
+                    annotated_text[i].set_position(
+                        (
+                            realizations[frame][list(realizations[frame].keys())[i]][0],
+                            realizations[frame][list(realizations[frame].keys())[i]][1],
+                        )
+                    )
+                    annotated_text[i].set_3d_properties(
+                        realizations[frame][list(realizations[frame].keys())[i]][2]
+                    )
+            return lines + [vertices_plot] + annotated_text
 
         ani = FuncAnimation(
             fig,
             update,
-            frames=len(_realizations),
+            frames=len(realizations),
             interval=delay,
             init_func=init,
             blit=True,
@@ -258,7 +275,7 @@ class Motion(object):
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
         edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        delay: int = 50,
+        duration: float = 8,
         **kwargs,
     ) -> Any:
         """
@@ -282,16 +299,14 @@ class Motion(object):
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
             The ommited edges are given the value ``plot_style.edge_color``.
-        delay:
-            Delay between frames in milliseconds.
+        duration:
+            The duration of one period of the animation in seconds.
         """
         if self._dim == 1:
             realizations = [{v: [p[0], 0] for p, v in r} for r in realizations]
-        if self._dim not in [1, 2]:
-            raise ValueError(
-                "The Framework is in dimension {self._dim}, "
-                + "not 2 as the method `animate2D` requires."
-            )
+        _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_plt")
+
+        delay = int(round(duration / len(realizations) * 1000))  # Set the delay in ms
 
         if plot_style is None:
             plot_style = PlotStyle2D(vertex_size=15)
@@ -319,8 +334,6 @@ class Motion(object):
             marker=plot_style.vertex_shape,
         )
 
-        from pyrigi import _plot
-
         # Update the plot_style instance with any passed keyword arguments
         edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
             self, plot_style.edge_color, edge_coloring
@@ -344,6 +357,20 @@ class Motion(object):
             color=plot_style.vertex_color,
             markersize=plot_style.vertex_size,
         )
+        annotated_text = []
+        if plot_style.vertex_labels:
+            annotated_text = [
+                ax.text(
+                    0,
+                    0,
+                    f"{v}",
+                    ha="center",
+                    va="center",
+                    color=plot_style.font_color,
+                    size=plot_style.font_size,
+                )
+                for v in realizations[0].keys()
+            ]
 
         # Animation initialization function.
         def init():
@@ -366,7 +393,15 @@ class Motion(object):
                 [realizations[frame][v][1] for v in self._graph.nodes],
             )
 
-            return lines + [vertices_plot]
+            if plot_style.vertex_labels:
+                for i in range(len(annotated_text)):
+                    annotated_text[i].set_position(
+                        (
+                            realizations[frame][list(realizations[frame].keys())[i]][0],
+                            realizations[frame][list(realizations[frame].keys())[i]][1],
+                        )
+                    )
+            return lines + [vertices_plot] + annotated_text
 
         ani = FuncAnimation(
             fig,
@@ -394,7 +429,7 @@ class Motion(object):
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
         filename: str = None,
-        duration: int = 8,
+        duration: float = 8,
         **kwargs,
     ) -> Any:
         """
@@ -419,8 +454,9 @@ class Motion(object):
         ``plot_style.edge_width`` does not rescale the vertex size
         (seems to be an odd, inherent behavior of `.svg`).
         """
-        if self._dim != 2:
-            raise ValueError("Animations are supported only for motions in 2D.")
+        if self._dim == 1:
+            realizations = [{v: [p[0], 0] for p, v in r} for r in realizations]
+        _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_svg")
 
         if plot_style is None:
             plot_style = PlotStyle2D(
@@ -505,7 +541,7 @@ class Motion(object):
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
-        svg: bool = True,
+        animation_format: Literal["svg", "matplotlib"] = "svg",
         **kwargs,
     ) -> Any:
         """
@@ -523,21 +559,26 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
-        svg:
-            In 2 dimensions, the boolean ``svg`` can be set to determine, whether the
-            output is in the `.svg` format or in the `matplotlib` format.
-            The `svg==True`method is documented here: :meth:`~.Motion.animate2D_svg`.
-            The method for `svg==False` is documented here:
+        animation_format:
+            In 2 dimensions, the Literal ``animation_format`` can be set to determine,
+            whether the output is in the `.svg` format or in the `matplotlib` format.
+            The `"svg"` method is documented here: :meth:`~.Motion.animate2D_svg`.
+            The method for `"matplotlib"` is documented here:
             :meth:`~.Motion.animate2D_plt`.
         """
         if self._dim == 3:
             return self.animate3D(realizations, plot_style=plot_style, **kwargs)
-        elif self._dim > 3:
-            raise ValueError("This motion is in higher dimension than 3!")
-        elif svg:
+        _input_check.dimension_for_algorithm(self._dim, [1, 2, 3], "animate3D")
+
+        if animation_format == "svg":
             return self.animate2D_svg(realizations, plot_style=plot_style, **kwargs)
-        else:
+        elif animation_format == "matplotlib":
             return self.animate2D_plt(realizations, plot_style=plot_style, **kwargs)
+        else:
+            raise ValueError(
+                "The Literal `animation_format` needs to be "
+                + 'either "svg" or "matplotlib".'
+            )
 
 
 class ParametricMotion(Motion):
@@ -559,7 +600,7 @@ class ParametricMotion(Motion):
 
     Examples
     --------
-    >>> from pyrigi.motion import ParametricMotion
+    >>> from pyrigi import ParametricMotion
     >>> import sympy as sp
     >>> from pyrigi import graphDB as graphs
     >>> motion = ParametricMotion(
@@ -741,7 +782,8 @@ class ApproximateMotion(Motion):
 
     Parameters
     ----------
-    graph:
+    F:
+        A framework.
     steps:
         The amount of retraction steps that are performed. This number is equal to the
         amount of ``motion_samples`` that are computed.
@@ -758,14 +800,16 @@ class ApproximateMotion(Motion):
         distance is at least ``turning_threshold`` times as large as the distance
         of the negative infinitesimal flex, then the latter one is chosen instead.
         If instead the animation is too slow, consider increasing this value.
-    fixed_edge:
-        The edge of the underlying graph that is fixed in the list of realizations.
+    fixed_pair:
+        Two vertices of the underlying graph that are fixed in the list of realizations.
         By default, the first entry is pinned to the origin
-        and the second is pinned to the `x`-axis.
+        and the second is pinned to the ``x``-axis.
     fixed_direction:
         Vector to which the first direction is fixed. By default, this is given by
-        the first and second entry.
+        the first and second entry of ``fixed_pair``.
     pin_vertex:
+        If the keyword ``fixed_pair`` is not set, we can use the keyword ``pin_vertex``
+        to pin one of the vertices to the origin instead during the motion.
 
     Attributes
     ----------
@@ -776,7 +820,7 @@ class ApproximateMotion(Motion):
 
     Examples
     --------
-    >>> from pyrigi.motion import ApproximateMotion
+    >>> from pyrigi import ApproximateMotion
     >>> from pyrigi import graphDB as graphs
     >>> motion = ApproximateMotion.from_graph(
     ...     graphs.Cycle(4),
@@ -803,7 +847,7 @@ class ApproximateMotion(Motion):
         step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
-        fixed_edge: DirectedEdge = None,
+        fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
     ) -> None:
@@ -818,7 +862,7 @@ class ApproximateMotion(Motion):
         self._current_step_size = step_size
         self.edge_lengths = F.edge_lengths(numerical=True)
         self._compute_motion_samples(chosen_flex, turning_threshold)
-        if fixed_edge is not None:
+        if fixed_pair is not None:
             if fixed_direction is None:
                 fixed_direction = [1] + [0 for _ in range(self._dim - 1)]
             if len(fixed_direction) != self._dim:
@@ -827,11 +871,11 @@ class ApproximateMotion(Motion):
                     + f" motion's dimension, which is {self._dim}."
                 )
             self.motion_samples = self._fix_edge(
-                self.motion_samples, fixed_edge, fixed_direction
+                self.motion_samples, fixed_pair, fixed_direction
             )
         elif pin_vertex is not None:
             self.motion_samples = self._pin_origin(self.motion_samples, pin_vertex)
-        self.fixed_edge = fixed_edge
+        self.fixed_pair = fixed_pair
         self.fixed_direction = fixed_direction
         self.pin_vertex = pin_vertex
 
@@ -844,7 +888,7 @@ class ApproximateMotion(Motion):
         step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
-        fixed_edge: DirectedEdge = None,
+        fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
     ):
@@ -876,7 +920,7 @@ class ApproximateMotion(Motion):
             step_size=step_size,
             chosen_flex=chosen_flex,
             turning_threshold=turning_threshold,
-            fixed_edge=fixed_edge,
+            fixed_pair=fixed_pair,
             fixed_direction=fixed_direction,
             pin_vertex=pin_vertex,
         )
@@ -969,27 +1013,27 @@ class ApproximateMotion(Motion):
     @staticmethod
     def _fix_edge(
         realizations: Sequence[dict[Vertex, Point]],
-        fixed_edge: DirectedEdge,
+        fixed_pair: DirectedEdge,
         fixed_direction: Sequence[Number],
     ) -> list[dict[Vertex, Point]]:
         """
-        Fix the edge ``fixed_edge`` for every entry of ``realizations``.
+        Fix the two vertices in ``fixed_pair`` for every entry of ``realizations``.
 
         Parameters
         ----------
         realizations:
             A list of realization samples describing the motion.
-        fixed_edge:
-            The edge of the underlying graph that should not move during
+        fixed_pair:
+            Two vertices of the underlying graph that should not move during
             the animation. By default, the first entry is pinned to the origin
             and the second is pinned to the `x`-axis.
         fixed_direction:
             Vector to which the first direction is fixed. By default, this is given by
             the first and second entry.
         """
-        if len(fixed_edge) != 2:
-            raise TypeError("The length of `fixed_edge` is not 2.")
-        (v1, v2) = (fixed_edge[0], fixed_edge[1])
+        if len(fixed_pair) != 2:
+            raise TypeError("The length of `fixed_pair` is not 2.")
+        (v1, v2) = (fixed_pair[0], fixed_pair[1])
         if not (v1 in realizations[0] and v2 in realizations[0]):
             raise ValueError(
                 "The vertices of the edge {realizations} are not part of the graph."
@@ -1006,7 +1050,7 @@ class ApproximateMotion(Motion):
             ]
             if np.isclose(np.linalg.norm(fixed_direction), 0, rtol=1e-6):
                 warn(
-                    f"The entries of the edge {fixed_edge} are too close to each "
+                    f"The entries of the edge {fixed_pair} are too close to each "
                     + "other. Thus, `fixed_direction=(1,0)` is chosen instead."
                 )
                 fixed_direction = [1] + [

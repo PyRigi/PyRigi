@@ -15,7 +15,7 @@ Depending on your operating system, the installation of the `PyRigi` package dif
 
 In this tutorial, we assume a clean Windows without Python installed. In case that you have `pip` already installed, you can skip the first 3 steps. This can be checked using the command `python -m pip -v`. Otherwise, we recommend uninstalling any existing Python installation in the "Add or Delete Programs" settings menu first.
 
-1. Download Python with a Version >= 3.10 from the website https://www.python.org/downloads/.
+1. Download Python with a version >= 3.10 from the website [https://www.python.org/downloads/](https://www.python.org/downloads/).
 2. When installing, make sure that you tick the box "add to path variables" on the first installation page. You may need to tick the box that you run the installation as an Administrator as well.
 3. As soon as your installation is successful, go to the Windows command line tool by following Windows key > type "cmd" > Enter. You can check if your Python Installation has been added to the environment variables by typing `python -v`. This command opens Python. It can be closed again with the command `exit()`.
 4. Install PyRigi by typing `python -m pip install pyrigi`.

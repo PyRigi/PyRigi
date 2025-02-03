@@ -18,7 +18,6 @@ from copy import deepcopy
 from itertools import combinations
 from random import randrange
 
-import networkx as nx
 import sympy as sp
 import numpy as np
 import functools
@@ -95,10 +94,6 @@ class Framework(object):
     [1],
     [2]])
 
-    TODO
-    ----
-    Use :meth:`~.Framework.set_realization` in the constructor.
-
     METHODS
 
     Notes
@@ -122,17 +117,9 @@ class Framework(object):
         else:
             self._dim = 0
 
-        for v in graph.nodes:
-            if v not in realization:
-                raise KeyError(f"Vertex {v} is not contained in the realization.")
-            if not len(realization[v]) == self._dim:
-                raise ValueError(
-                    f"The point {realization[v]} in the realization corresponding to "
-                    f"vertex {v} does not have the right dimension."
-                )
-
-        self._realization = {v: Matrix(realization[v]) for v in graph.nodes}
         self._graph = deepcopy(graph)
+        self._realization = {}
+        self.set_realization(realization)
 
     def __str__(self) -> str:
         """Return the string representation."""
@@ -217,7 +204,7 @@ class Framework(object):
 
     @doc_category("Framework manipulation")
     def add_vertices(
-        self, points: Sequence[Point], vertices: Sequence[Vertex] = []
+        self, points: Sequence[Point], vertices: Sequence[Vertex] = None
     ) -> None:
         r"""
         Add a list of vertices to the framework.
@@ -246,7 +233,7 @@ class Framework(object):
         -----
         For each vertex that has to be added, :meth:`add_vertex` is called.
         """
-        if not (len(points) == len(vertices) or not vertices):
+        if vertices and not len(points) == len(vertices):
             raise IndexError("The vertex list does not have the correct length!")
         if not vertices:
             for point in points:
@@ -264,8 +251,8 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        self._graph._input_check_edge_format(edge)
-        self._graph.add_edge(*(edge))
+        self._graph._input_check_edge_format(edge, loopfree=True)
+        self._graph.add_edge(*edge)
 
     @doc_category("Framework manipulation")
     def add_edges(self, edges: Sequence[Edge]) -> None:
@@ -372,7 +359,7 @@ class Framework(object):
         >>> from pyrigi import Graph, Framework
         >>> G = Graph([(0,1), (1,2), (2,3), (0,3), (0,2), (1,3), (0,4)])
         >>> F = Framework(G, {0:(0,0), 1:(1,0), 2:(1,2), 3:(0,1), 4:(-1,0)})
-        >>> from pyrigi.plot_style import PlotStyle2D
+        >>> from pyrigi import PlotStyle2D
         >>> style = PlotStyle2D(vertex_color="green", edge_color="blue")
         >>> F.plot2D(plot_style=style)
 
@@ -502,7 +489,7 @@ class Framework(object):
         --------
         >>> from pyrigi import frameworkDB
         >>> F = frameworkDB.Complete(4, dim=3)
-        >>> F.animate3D_rotation();
+        >>> F.animate3D_rotation()
         """
         _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
         if plot_style is None:
@@ -582,11 +569,12 @@ class Framework(object):
         from pyrigi import Motion
 
         M = Motion(self.graph(), self.dim())
+        duration = 2 * total_frames * delay / 1000
         return M.animate3D(
             _realizations,
             plot_style=plot_style,
             edge_coloring=edge_coloring,
-            delay=delay,
+            duration=duration,
         )
 
     @doc_category("Plotting")
@@ -667,7 +655,7 @@ class Framework(object):
         >>> F = frameworkDB.Octahedron(realization="Bricard_plane")
         >>> F.plot3D()
 
-        >>> from pyrigi.plot_style import PlotStyle3D
+        >>> from pyrigi import PlotStyle3D
         >>> style = PlotStyle3D(vertex_color="green", edge_color="blue")
         >>> F.plot3D(plot_style=style)
 
@@ -939,6 +927,8 @@ class Framework(object):
 
         Parameters
         ----------
+        dim:
+            The dimension of the constructed framework.
         graph:
             Graph on which the random realization should be constructed.
         rand_range:
@@ -963,15 +953,17 @@ class Framework(object):
         if rand_range is None:
             b = 10**4 * graph.number_of_nodes() * dim
             a = -b
-        if isinstance(rand_range, list | tuple):
+        elif isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
                 raise ValueError("If `rand_range` is a list, it must be of length 2.")
             a, b = rand_range
-        if isinstance(rand_range, int):
+        elif isinstance(rand_range, int):
             if rand_range <= 0:
                 raise ValueError("If `rand_range` is an int, it must be positive")
             b = rand_range
             a = -b
+        else:
+            raise TypeError("`rand_range` must be either a list or a single int.")
 
         realization = {
             vertex: [randrange(a, b) for _ in range(dim)] for vertex in graph.nodes
@@ -1016,6 +1008,8 @@ class Framework(object):
 
         Parameters
         ----------
+        dim:
+            The dimension of the constructed framework.
         graph:
             Underlying graph on which the framework is constructed.
 
@@ -1053,10 +1047,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4);
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]), 4)
         >>> F.realization(as_points=True)
         {0: [0, 0, 0, 0], 1: [1, 0, 0, 0], 2: [0, 1, 0, 0], 3: [0, 0, 1, 0]}
-        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]));
+        >>> F = Framework.Simplicial(Graph([(0,1), (1,2), (2,3), (0,3)]))
         >>> F.realization(as_points=True)
         {0: [0, 0, 0], 1: [1, 0, 0], 2: [0, 1, 0], 3: [0, 0, 1]}
         """
@@ -1123,7 +1117,7 @@ class Framework(object):
             raise ValueError("The list of points cannot be empty!")
 
         Kn = CompleteGraph(len(points))
-        return Framework(Kn, {v: Matrix(p) for v, p in zip(Kn.nodes, points)})
+        return Framework(Kn, {v: p for v, p in zip(Kn.nodes, points)})
 
     @doc_category("Framework manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -1158,7 +1152,7 @@ class Framework(object):
     @doc_category("Attribute getters")
     def realization(
         self, as_points: bool = False, numerical: bool = False
-    ) -> dict[Vertex, Point]:
+    ) -> dict[Vertex, Point] | dict[Vertex, Matrix]:
         """
         Return a copy of the realization.
 
@@ -1197,7 +1191,7 @@ class Framework(object):
             }
         else:
             if not as_points:
-                {
+                return {
                     vertex: Matrix([float(p) for p in position])
                     for vertex, position in self._realization.items()
                 }
@@ -1291,7 +1285,7 @@ class Framework(object):
             self._input_check_vertex_key(v, realization)
             self._input_check_point_dimension(realization[v])
 
-        self._realization = {v: Matrix(realization[v]) for v in realization.keys()}
+        self._realization = {v: Matrix(pos) for v, pos in realization.items()}
 
     @doc_category("Framework manipulation")
     def set_vertex_pos(self, vertex: Vertex, point: Point) -> None:
@@ -1321,10 +1315,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
-        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)]);
+        >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
@@ -1351,10 +1345,10 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)]);
+        >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
-        >>> F.set_vertex_positions({1:(0,1),3:(1,1)});
+        >>> F.set_vertex_positions({1:(0,1),3:(1,1)})
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
 
@@ -1766,7 +1760,6 @@ class Framework(object):
         trivial_inf_flexes = self.trivial_inf_flexes(vertex_order=vertex_order)
         s = len(trivial_inf_flexes)
         extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
-        tmp_matrix = Matrix.hstack(*trivial_inf_flexes)
         for v in all_inf_flexes:
             r = extend_basis_matrix.rank()
             tmp_matrix = Matrix.hstack(extend_basis_matrix, v)
@@ -1803,10 +1796,6 @@ class Framework(object):
         [ 2],
         [ 2],
         [ 1]])]
-
-        TODO
-        ----
-        tests
         """
         return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
 
@@ -1951,10 +1940,6 @@ class Framework(object):
         -----------
         :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
 
-        TODO
-        ----
-        tests
-
         Examples
         --------
         >>> F = Framework.Empty(dim=2)
@@ -1977,7 +1962,7 @@ class Framework(object):
     @doc_category("Framework properties")
     def is_congruent_realization(
         self,
-        other_realization: dict[Vertex, Point],
+        other_realization: dict[Vertex, Point] | dict[Vertex, Matrix],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2043,7 +2028,7 @@ class Framework(object):
     @doc_category("Framework properties")
     def is_equivalent_realization(
         self,
-        other_realization: dict[Vertex, Point],
+        other_realization: dict[Vertex, Point] | dict[Vertex, Matrix],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
@@ -2107,7 +2092,9 @@ class Framework(object):
         )
 
     @doc_category("Framework manipulation")
-    def translate(self, vector: Point, inplace: bool = True) -> None | Framework:
+    def translate(
+        self, vector: Point | Matrix, inplace: bool = True
+    ) -> None | Framework:
         """
         Translate the framework.
 
@@ -2251,10 +2238,11 @@ class Framework(object):
                     + f" only in dimension 2 or 3. {proj_dim} was given instead."
                 )
             projection_matrix = projection_matrix.T
-
         return (
             {
-                vertex: tuple(np.dot(projection_matrix, np.array(position)))
+                vertex: tuple(
+                    [float(s[0]) for s in np.dot(projection_matrix, np.array(position))]
+                )
                 for vertex, position in self.realization(
                     as_points=False, numerical=True
                 ).items()
@@ -2715,7 +2703,7 @@ class Framework(object):
 
         Parameters
         ----------
-        inf_flex:
+        vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
         Notes
@@ -2759,7 +2747,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list | tuple):
+        if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_nontrivial_inf_flex(inf_flex, **kwargs)
@@ -2815,7 +2803,7 @@ class Framework(object):
 
         Parameters
         ----------
-        inf_flex:
+        vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
         Notes
@@ -2859,7 +2847,7 @@ class Framework(object):
         We distinguish between instances of ``list`` and instances of ``dict`` to
         call one of the alias methods.
         """
-        if isinstance(inf_flex, list | tuple):
+        if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
         elif isinstance(inf_flex, dict):
             return self.is_dict_trivial_inf_flex(inf_flex, **kwargs)
@@ -2873,7 +2861,7 @@ class Framework(object):
         Check whether the underlying graphs of two frameworks are the same and
         raise an error otherwise.
         """
-        if not nx.utils.graphs_equal(self._graph, other_framework._graph):
+        if self._graph != other_framework._graph:
             raise ValueError("The underlying graphs are not same!")
 
     def _input_check_vertex_key(

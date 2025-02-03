@@ -59,7 +59,7 @@ Let $G = (V, E)$ be a graph with $|V|\leq d+1$. Then $G$ is minimally (generical
 Let $G = (V, E)$ be a graph and let $F=(G,p)$ be a framework with a random parametrization $p$ with coordinates between 1 and some $N$.
 If $F$ is (minimally) infinitesimally $d$-rigid, then $G$ is (minimally) $d$-rigid.
 If $F$ is not (minimally) infinitesimally $d$-rigid, then $G$ is not (minimally) $d$-rigid with probability $1-(dn-\binom{d+1}{2})/N$.
-In other words the probability of a false negative is $(dn-\binom{d+1}{2})/N$.
+In other words, the probability of a false negative is $(dn-\binom{d+1}{2})/N$.
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
 
