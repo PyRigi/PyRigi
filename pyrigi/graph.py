@@ -2975,8 +2975,7 @@ class Graph(nx.Graph):
         H = self.copy()
         H.delete_vertices(cut)
         calc_comp = nx.connected_components(H)
-        while calc_comp:
-            conn_comp = next(calc_comp)
+        for conn_comp in calc_comp:
             conn_comp.update(cut)
             if u in conn_comp and v in conn_comp:
                 break
