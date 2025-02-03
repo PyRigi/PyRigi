@@ -1579,7 +1579,7 @@ def test_has_extension_sequence(graph):
         Graph.from_vertices([]),
     ],
 )
-def test_has_extension_sequence_false(graph):
+def test_has_not_extension_sequence(graph):
     assert not graph.has_extension_sequence()
 
 
