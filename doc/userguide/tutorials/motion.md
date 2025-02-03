@@ -71,7 +71,7 @@ setting the parameter ``format`` to be either ``"svg"`` or ``"matplotlib"``. In 
 2D and 3D animations can be displayed.
 
 ```{code-cell} ipython3
-motion.animate(format="svg")
+motion.animate(animation_format="svg")
 ```
 
 ## Approximate Motion
