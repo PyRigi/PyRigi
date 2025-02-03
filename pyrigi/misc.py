@@ -9,6 +9,21 @@ import numpy as np
 from math import isclose, log10
 
 
+try:
+    from IPython.core.magic import register_cell_magic
+
+    @register_cell_magic
+    def skip_execution(line, cell):
+        print(
+            "This cell was marked to be skipped (probably due to its long execution time."
+        )
+        print("Remove the cell magic `%%skip_execution` to run it.")
+        return
+
+except NameError:
+    pass
+
+
 def doc_category(category):
     def decorator_doc_category(func):
         setattr(func, "_doc_category", category)
