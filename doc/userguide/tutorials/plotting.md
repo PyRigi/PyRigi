@@ -334,8 +334,7 @@ F.plot3D()
 In addition, it is possible to animate a rotation sequence around a specified axis:
 
 ```{code-cell} ipython3
-:tags: [skip-execution]
-
+%%long_cell
 G = graphs.DoubleBanana()
 F = Framework(G, realization={0:(0,0,-2), 1:(0,0,3), 2:(1.25,1,0.5), 3:(1.25,-1,0.5), 4:(3,0,0.5), 
                               5:(-1.25,-1,0.5), 6:(-1.2,1,0.5), 7:(-3,0,0.5)})

@@ -47,8 +47,6 @@ It is also possible to provide trivial motions in a similar manner.
 The animation can be formatted using some parameters from {class}`~.PlotStyle` as keyword arguments.
 
 ```{code-cell} ipython3
-:tags: [skip-execution]
-
 %%long_cell
 motion = ParametricMotion(
     graphs.Complete(5),
@@ -76,8 +74,7 @@ setting the parameter ``animation_format`` to be either ``"svg"`` or ``"matplotl
 2D and 3D animations can be displayed.
 
 ```{code-cell} ipython3
-:tags: [skip-execution]
-
+%%long_cell
 motion.animate(animation_format="matplotlib")
 ```
 
@@ -89,8 +86,7 @@ the class {class}`~.ApproximateMotion`. As an example, consider the complete bip
 A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 
 ```{code-cell} ipython3
-:tags: [skip-execution]
-
+%%long_cell
 from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
 F = frameworks.CompleteBipartite(2,4)
@@ -108,8 +104,7 @@ to the placement of the second vertex. Alternatively, this vector can be specifi
 ``fixed_direction``.
 
 ```{code-cell} ipython3
-:tags: [skip-execution]
-
+%%long_cell
 F = frameworks.Path(5)
 motion = ApproximateMotion(F, 147, chosen_flex=1, fixed_pair=[0,4], fixed_direction=[0,1])
 motion.animate()
