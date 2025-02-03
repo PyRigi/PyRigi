@@ -38,4 +38,5 @@ jobs:
     - name: Test doc compilation
       run: |
         cd doc
+        python3 doc/remove_skip_execution_magic.py
         poetry run make html
