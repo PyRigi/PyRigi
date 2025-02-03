@@ -108,19 +108,28 @@ you want to contribute but struggle to get its `.md` version.
 
 
 In case `poetry shell` is used as described above, Jupyterlab and Jupytext
-can be install using
+can be installed using
 ```
 pip install jupyterlab jupytext
 ```
-After setting the virtual enviroment in Jupyterlab to the one created
+After setting the virtual environment in Jupyterlab to the one created
 by `poetry shell`, `.md` notebooks can be opened directly.
 
-If the execution of a cell takes long time, it can be disabled as follows
-````markdown
-```{code-cell} ipython3
-:tags: [skip-execution]
+If the execution of a cell takes long time,
+then import the cell magic
 
-long computation
-# the output is not displayed since the computation is long
+```python
+from pyrigi.misc import skip_execution
 ```
-````
+
+and use it to skip a cell in the documentation compilation as follows
+
+```python
+%%skip_execution
+# code of a cell taking more than a second
+```
+
+Both the import and cell magic are removed before the online documentation is compiled,
+hence the output is displayed there.
+Namely, the goal is to avoid long doc compilation on the `dev` branch,
+but to keep it in the online documentation.
