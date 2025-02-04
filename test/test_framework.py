@@ -68,7 +68,7 @@ def test_is_inf_rigid(framework):
         fws.Cube(),
         fws.Octahedron(realization="Bricard_line"),
         fws.Octahedron(realization="Bricard_plane"),
-        fws.Dodecahedron()
+        fws.Dodecahedron(),
     ]
     + [fws.Cycle(n - 1, dim=n) for n in range(5, 10)]
     + [fws.Cycle(n, dim=n) for n in range(4, 10)]
@@ -133,7 +133,7 @@ def test_is_min_inf_rigid(framework):
         fws.Cube(),
         fws.Octahedron(realization="Bricard_line"),
         fws.Octahedron(realization="Bricard_plane"),
-        fws.Dodecahedron()
+        fws.Dodecahedron(),
     ]
     + [fws.Cycle(n - 1, dim=n) for n in range(5, 7)]
     + [fws.Cycle(n, dim=n) for n in range(4, 7)]
