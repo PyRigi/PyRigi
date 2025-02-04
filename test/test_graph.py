@@ -2357,7 +2357,8 @@ def test_is_not_Rd_circuit_d1(graph):
         graphs.Complete(4),
         graphs.ThreePrismPlusEdge(),
         graphs.K33plusEdge(),
-    ],
+    ]
+    + [graphs.Wheel(n) for n in range(3, 7)],
 )
 def test_is_Rd_circuit_d2(graph):
     assert graph.is_Rd_circuit(dim=2)
@@ -2477,7 +2478,8 @@ def test_is_Rd_independent_d1(graph):
         graphs.Complete(5),
         graphs.CompleteBipartite(3, 4),
         graphs.K66MinusPerfectMatching(),
-    ],
+    ]
+    + [graphs.Wheel(n) for n in range(3, 8)],
 )
 def test_is_Rd_dependent_d2(graph):
     assert graph.is_Rd_dependent(dim=2)
@@ -2541,3 +2543,93 @@ def test_is_Rd_independent_d3(graph):
 )
 def test_max_rigid_dimension(graph, k):
     assert graph.max_rigid_dimension() == k
+
+
+@pytest.mark.parametrize(
+    "graph, k, bool",
+    [
+        [graphs.Cycle(4), 0, True],
+        [graphs.Diamond(), 0, True],
+        [graphs.Complete(4), 0, True],
+        [Graph([(0, 1), (2, 3)]), 0, True],
+        [graphs.Complete(5), 0, False],
+        [graphs.Complete(5), 1, True],
+        [graphs.Frustum(3), 0, True],
+        [graphs.ThreePrism(), 0, True],
+        [graphs.DoubleBanana(), 0, False],
+        [graphs.DoubleBanana(), 1, True],
+        [graphs.Octahedral(), 0, True],
+    ]
+    + [[graphs.Wheel(n).cone(), 0, False] for n in range(3, 8)]
+    + [[graphs.Wheel(n).cone(), 1, True] for n in range(3, 8)],
+)
+def test_k_vertex_apex(graph, k, bool):
+    assert graph.is_k_vertex_apex(k) == bool
+
+
+@pytest.mark.parametrize(
+    "graph, k, bool",
+    [
+        [graphs.Cycle(4), 0, True],
+        [graphs.Diamond(), 0, True],
+        [graphs.Complete(4), 0, True],
+        [Graph([(0, 1), (2, 3)]), 0, True],
+        [graphs.Complete(5), 0, False],
+        [graphs.Complete(5), 1, True],
+        [graphs.Frustum(3), 0, True],
+        [graphs.ThreePrism(), 0, True],
+        [graphs.DoubleBanana(), 1, False],
+        [graphs.DoubleBanana(), 2, True],
+        [graphs.Octahedral(), 0, True],
+        [graphs.K66MinusPerfectMatching(), 0, False],
+    ]
+    + [[graphs.Wheel(n).cone(), 0, False] for n in range(3, 8)]
+    + [[graphs.Wheel(n).cone(), 1, True] for n in range(3, 8)],
+)
+def test_k_edge_apex(graph, k, bool):
+    assert graph.is_k_edge_apex(k) == bool
+
+
+@pytest.mark.parametrize(
+    "graph, k, bool",
+    [
+        [graphs.Cycle(4), 0, True],
+        [graphs.Diamond(), 0, True],
+        [graphs.Complete(4), 0, True],
+        [Graph([(0, 1), (2, 3)]), 0, True],
+        [graphs.Complete(5), 0, False],
+        [graphs.Complete(5), 1, True],
+        [graphs.Frustum(3), 0, True],
+        [graphs.ThreePrism(), 0, True],
+        [graphs.DoubleBanana(), 2, False],
+        [graphs.DoubleBanana(), 3, True],
+        [graphs.Octahedral(), 0, True],
+        [graphs.K66MinusPerfectMatching(), 0, False],
+    ]
+    + [[graphs.Wheel(n).cone(), 0, False] for n in range(3, 8)]
+    + [[graphs.Wheel(n).cone(), 1, True] for n in range(3, 8)],
+)
+def test_critical_k_vertex_apex(graph, k, bool):
+    assert graph.is_critical_k_vertex_apex(k) == bool
+
+
+@pytest.mark.parametrize(
+    "graph, k, bool",
+    [
+        [graphs.Cycle(4), 0, True],
+        [graphs.Diamond(), 0, True],
+        [graphs.Complete(4), 0, True],
+        [Graph([(0, 1), (2, 3)]), 0, True],
+        [graphs.Complete(5), 0, False],
+        [graphs.Complete(5), 1, True],
+        [graphs.Frustum(3), 0, True],
+        [graphs.ThreePrism(), 0, True],
+        [graphs.DoubleBanana(), 7, False],
+        [graphs.DoubleBanana(), 8, True],
+        [graphs.Octahedral(), 0, True],
+    ]
+    + [[graphs.Wheel(n).cone(), 0 if n == 3 else 2 * n - 4, False] for n in range(3, 6)]
+    + [[graphs.Wheel(n).cone(), 1 if n == 3 else 2 * n - 3, True] for n in range(3, 6)],
+)
+def test_critical_k_edge_apex(graph, k, bool):
+    assert graph.is_critical_k_edge_apex(k) == bool

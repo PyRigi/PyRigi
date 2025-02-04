@@ -1243,6 +1243,45 @@ class Graph(nx.Graph):
         """  # noqa: E501
         return self.extension_sequence(dim) is not None
 
+    @doc_category("Graph manipulation")
+    def cone(self, inplace: bool = False) -> Graph:
+        """
+        Return a coned version of the graph.
+
+        A coned graph is a base graph G with an additional vertex that is adjacent
+        to all other vertices. No additional edges are added.
+
+        Parameters
+        ----------
+        inplace:
+            If True, the graph will be modified,
+            otherwise a new modified graph will be created,
+            while the original graph remains unchanged (default).
+
+        Definition
+        ----------
+        :prf:ref:`Cone graph <def-cone-graph>`
+
+        Examples
+        --------
+        >>> G = Graph([(0,1)]).cone()
+        >>> G.is_isomorphic(Graph([(0,1),(1,2),(0,2)]))
+        True
+        """
+        v = 0
+        if not inplace:
+            G = deepcopy(self)
+        while True:
+            if v not in self.nodes:
+                if inplace:
+                    self.add_edges([(u, v) for u in self.nodes])
+                    return self
+                else:
+                    G.add_edges([(u, v) for u in G.nodes])
+                    return G
+                break
+            v += 1
+
     @doc_category("Generic rigidity")
     def number_of_realizations(
         self,
@@ -2892,6 +2931,116 @@ class Graph(nx.Graph):
         G = self + G2
         G.remove_edge(edge[0], edge[1])
         return G
+
+    @doc_category("General graph theoretical properties")
+    def is_k_vertex_apex(self, k: int):
+        """
+        Checks whether the removal of some set of k vertices creates a planar graph.
+
+        Definitions
+        -----------
+        :prf:ref:`k-vertex apex graph <def-apex-graph>`
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.is_k_vertex_apex(1)
+        True
+        """
+        _input_check.integrality_and_range(
+            k, "k", min_val=0, max_val=self.number_of_nodes()
+        )
+        _G = deepcopy(self)
+        for vertex_list in combinations(self.nodes, k):
+            incident_edges = list(_G.edges(vertex_list))
+            _G.delete_vertices(vertex_list)
+            if nx.is_planar(_G):
+                return True
+            _G.add_edges(incident_edges)
+        return False
+
+    @doc_category("General graph theoretical properties")
+    def is_k_edge_apex(self, k: int):
+        """
+        Checks whether the removal of some set of k edges creates a planar graph.
+
+        Definitions
+        -----------
+        :prf:ref:`k-edge apex graph <def-apex-graph>`
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.is_k_edge_apex(1)
+        True
+        """
+        _input_check.integrality_and_range(
+            k, "k", min_val=0, max_val=self.number_of_edges()
+        )
+        _G = deepcopy(self)
+        for edge_list in combinations(self.edges, k):
+            _G.delete_edges(edge_list)
+            if nx.is_planar(_G):
+                return True
+            _G.add_edges(edge_list)
+        return False
+
+    @doc_category("General graph theoretical properties")
+    def is_critical_k_vertex_apex(self, k: int):
+        """
+        Checks whether the removal of all choices of k vertices creates a planar graph.
+
+        Definitions
+        -----------
+        :prf:ref:`critical k-vertex apex graph <def-apex-graph>`
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.is_critical_k_vertex_apex(1)
+        True
+        """
+        _input_check.integrality_and_range(
+            k, "k", min_val=0, max_val=self.number_of_nodes()
+        )
+        _G = deepcopy(self)
+        for vertex_list in combinations(self.nodes, k):
+            incident_edges = list(_G.edges(vertex_list))
+            _G.delete_vertices(vertex_list)
+            if not nx.is_planar(_G):
+                return False
+            _G.add_edges(incident_edges)
+        return True
+
+    @doc_category("General graph theoretical properties")
+    def is_critical_k_edge_apex(self, k: int):
+        """
+        Checks whether the removal of all choices of k edges creates a planar graph.
+
+        Definitions
+        -----------
+        :prf:ref:`critical k-edge apex graph <def-apex-graph>`
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.is_critical_k_edge_apex(1)
+        True
+        """
+        _input_check.integrality_and_range(
+            k, "k", min_val=0, max_val=self.number_of_edges()
+        )
+        _G = deepcopy(self)
+        for edge_list in combinations(self.edges, k):
+            _G.delete_edges(edge_list)
+            if not nx.is_planar(_G):
+                return False
+            _G.add_edges(edge_list)
+        return True
 
     @doc_category("Graph manipulation")
     def intersection(self, G2: Graph):

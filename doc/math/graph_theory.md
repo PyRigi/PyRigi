@@ -71,6 +71,38 @@ is called a $d$-dimensional _k-extension_ of $G$.
 :::
 
 
+## Coning
+
+:::{prf:definition} Cone graph
+:label: def-cone-graph
+
+Let $G=(V,E)$ be a graph. _Coning a graph_ adds a new vertex $v^*\notin V$ and adds edges $(u,v^*)$
+for all vertices $u\in V$ so that $E^*=E\cup \{(u,v^*)\,:\, u\in V\}$,
+creating the _cone graph_ $G*\{v^*\} = (V\cup \{v^*\}, E^*)$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.cone`
+:::
+
+
+## Apex Graphs
+
+:::{prf:definition} Apex graphs
+:label: def-apex-graph
+
+Let $G=(V,E)$ be a graph and let $k$ be an integer. If the removal of some set of $k$ vertices from $G$
+results in a planar graph, we call $G$ a or _$k$-apex graph_ or _$k$-vertex apex graph_. Similarly, if the removal of some set
+of $k$ edges from $G$ results in a planar graph, we call $G$ a _$k$-edge apex graph_.
+
+Moreover, if one of these properties hold for all choices of $k$ vertices or edges, we call the graph a
+_critical $k$-vertex apex graph_ or _critical $k$-edge apex graph_, respectively.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_k_vertex_apex`
+{meth}`~.Graph.is_k_edge_apex`
+{meth}`~.Graph.is_critical_k_vertex_apex`
+{meth}`~.Graph.is_critical_k_edge_apex`
+:::
+
+
 :::{toctree}
 :maxdepth: 2
 graph-theory/examples
