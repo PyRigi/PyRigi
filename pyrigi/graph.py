@@ -2202,7 +2202,7 @@ class Graph(nx.Graph):
                 return len(nx.cycle_basis(self)) == 0
 
             if dim == 2:
-                return self.is_sparse(
+                return self.is_kl_sparse(
                     2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
                 )
         elif algorithm == "randomized":
