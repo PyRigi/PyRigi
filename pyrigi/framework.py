@@ -1944,69 +1944,66 @@ class Framework(object):
         This method only properly works for symbolic coordinates.
         """
         stresses = self.stresses()
-        inf_flexes = self.inf_flexes()
         inf_flexes = [
-            self._transform_inf_flex_to_pointwise(inf_flexes[j])
-            for j in range(len(inf_flexes))
+            self._transform_inf_flex_to_pointwise(q) for q in self.inf_flexes()
         ]
 
-        edges = self._graph.edge_list()
+        edges = self._graph.edge_list(as_tuples=True)
         if self.is_inf_rigid():
             return True
-        if len(inf_flexes) == 0 or len(stresses) == 0:
+        if len(stresses) == 0:
             return False
 
         if len(inf_flexes) == 1:
+            q = inf_flexes[0]
             stress_energy_list = []
-            for j in range(len(stresses)):
-                stress = stresses[j].transpose().tolist()[0]
+            for stress in stresses:
+                _stress = self._transform_stress_to_edgewise(stress, edge_order=edges)
                 stress_energy_list.append(
                     sum(
                         [
-                            sum(
-                                v
-                                for v in [
-                                    stress[i] * (v - w) ** 2
-                                    for v, w in zip(
-                                        inf_flexes[0][edges[i][0]],
-                                        inf_flexes[0][edges[i][1]],
+                            _stress[(u, v)]
+                            * sum(
+                                [
+                                    (q1 - q2) ** 2
+                                    for q1, q2 in zip(
+                                        q[u],
+                                        q[v],
                                     )
                                 ]
                             )
-                            for i in range(self._graph.number_of_edges())
+                            for u, v in edges
                         ]
                     )
                 )
-            return not all([sp.sympify(Q).is_zero for Q in stress_energy_list])
+            return any([not sp.sympify(Q).is_zero for Q in stress_energy_list])
 
         if len(stresses) == 1:
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
-            stress = stresses[0].transpose().tolist()[0]
+            stress = self._transform_stress_to_edgewise(stresses[0], edge_order=edges)
             stress_energy = 0
             stress_energy += sum(
                 [
-                    sum(
+                    stress[(u, v)]
+                    * sum(
                         [
-                            stress[i]
-                            * (
+                            (
                                 sum(
                                     [
-                                        a[j]
-                                        * (
-                                            inf_flexes[j][edges[i][0]][k]
-                                            - inf_flexes[j][edges[i][1]][k]
-                                        )
-                                        for j in range(len(inf_flexes))
+                                        a[i]
+                                        * (inf_flexes[i][u][j] - inf_flexes[i][v][j])
+                                        for i in range(len(inf_flexes))
                                     ]
                                 )
                                 ** 2
                             )
-                            for k in range(self._dim)
+                            for j in range(self._dim)
                         ]
                     )
-                    for i in range(self._graph.number_of_edges())
+                    for u, v in edges
                 ]
             )
+
             coefficients = {
                 (i, j): sp.Poly(stress_energy, a).coeff_monomial(a[i] * a[j])
                 for i in range(len(inf_flexes))
@@ -2027,8 +2024,6 @@ class Framework(object):
                     for i in range(len(inf_flexes))
                     for j in range(i + 1, len(inf_flexes))
                 ]
-            ) and not all(
-                [coefficients[(i, i)].is_zero for i in range(len(inf_flexes))]
             )
 
         raise ValueError(
