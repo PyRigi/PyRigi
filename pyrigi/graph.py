@@ -504,7 +504,7 @@ class Graph(nx.Graph):
         """
         vertex_order = self._input_check_vertex_order(vertex_order)
 
-        return [self.degree(v) for v in vertex_order]
+        return [int(self.degree(v)) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
     def min_degree(self) -> int:
@@ -517,7 +517,7 @@ class Graph(nx.Graph):
         >>> G.min_degree()
         1
         """
-        return min([self.degree(v) for v in self.nodes])
+        return min([int(self.degree(v)) for v in self.nodes])
 
     @doc_category("General graph theoretical properties")
     def max_degree(self) -> int:
@@ -530,7 +530,7 @@ class Graph(nx.Graph):
         >>> G.max_degree()
         2
         """
-        return max([self.degree(v) for v in self.nodes])
+        return max([int(self.degree(v)) for v in self.nodes])
 
     def _build_pebble_digraph(self, K: int, L: int) -> None:
         r"""
@@ -578,7 +578,7 @@ class Graph(nx.Graph):
         ):
             self._build_pebble_digraph(K, L)
 
-        return self._pebble_digraph.to_undirected()
+        return Graph(self._pebble_digraph.to_undirected())
 
     def _is_pebble_digraph_sparse(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
@@ -668,20 +668,26 @@ class Graph(nx.Graph):
             return True
 
         # reaching this position means that the algorithm is unknown
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_sparse)
+        raise NotSupportedValueError(algorithm, "algorithm", self.is_kl_sparse)
 
     @doc_category("Sparseness")
-    def is_sparse(
-        self,
-        K: int,
-        L: int,
-        algorithm: str = "default",
-        use_precomputed_pebble_digraph: bool = False,
-    ) -> bool:
+    def is_sparse(self) -> bool:
         r"""
-        Alias for :meth:`.is_kl_sparse`.
+        Return whether the graph is :prf:ref:`(2,3)-sparse <def-kl-sparse-tight>`.
+
+        For general $(k,\ell)$-sparsity, see :meth:`.is_kl_sparse`.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> graphs.Path(3).is_sparse()
+        True
+        >>> graphs.Complete(4).is_sparse()
+        False
+        >>> graphs.ThreePrism().is_sparse()
+        True
         """
-        return self.is_kl_sparse(K, L, algorithm, use_precomputed_pebble_digraph)
+        return self.is_kl_sparse(2, 3, algorithm="pebble")
 
     @doc_category("Sparseness")
     def is_kl_tight(
@@ -720,7 +726,7 @@ class Graph(nx.Graph):
         False
         """
         return (
-            self.is_sparse(
+            self.is_kl_sparse(
                 K,
                 L,
                 algorithm,
@@ -730,22 +736,21 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Sparseness")
-    def is_tight(
-        self,
-        K: int,
-        L: int,
-        algorithm: str = "default",
-        use_precomputed_pebble_digraph: bool = False,
-    ) -> bool:
+    def is_tight(self) -> bool:
         r"""
-        Alias for :meth:`~.is_kl_tight`.
+        Return whether the graph is :prf:ref:`(2,3)-tight <def-kl-sparse-tight>`.
+
+        For general $(k,\ell)$-tightness, see :meth:`.is_kl_tight`.
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> graphs.Path(4).is_tight()
+        False
+        >>> graphs.ThreePrism().is_tight()
+        True
         """
-        return self.is_kl_tight(
-            K,
-            L,
-            algorithm,
-            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-        )
+        return self.is_kl_tight(2, 3, algorithm="pebble")
 
     @doc_category("Graph manipulation")
     def zero_extension(
@@ -925,6 +930,14 @@ class Graph(nx.Graph):
         self._input_check_edge_list(edges, vertices)
         if len(edges) != k:
             raise ValueError(f"List of edges must contain {k} distinct edges!")
+        for edge in edges:
+            count = edges.count(list(edge)) + edges.count(list(edge)[::-1])
+            count += edges.count(tuple(edge)) + edges.count(tuple(edge)[::-1])
+            if count > 1:
+                raise ValueError(
+                    "List of edges must contain distinct edges, "
+                    f"but {edge} appears {count} times!"
+                )
         if new_vertex is None:
             candidate = self.number_of_nodes()
             while candidate in self.nodes:
@@ -949,7 +962,8 @@ class Graph(nx.Graph):
     ) -> Iterable[Graph]:
         """
         Return an iterator over all possible
-        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`.
+        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`
+        for a given ``k``.
 
         Parameters
         ----------
@@ -1015,10 +1029,192 @@ class Graph(nx.Graph):
                 else:
                     yield current
 
+    @doc_category("Graph manipulation")
+    def all_extensions(
+        self,
+        dim: int = 2,
+        only_non_isomorphic: bool = False,
+        k_min: int = 0,
+        k_max: int | None = None,
+    ) -> Iterable[Graph]:
+        """
+        Return an iterator over all possible
+        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`
+        for all possible ``0 <= k <= dim - 1``.
+
+        Parameters
+        ----------
+        dim
+        only_non_isomorphic:
+            If True, only one graph per isomorphism class is included.
+        k_min
+            Minimal value of ``k`` for the k-extensions (default 0).
+        k_max
+            Maximal value of ``k`` for the k-extensions (default dim - 1).
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> type(G.all_extensions())
+        <class 'generator'>
+        >>> len(list(G.all_extensions()))
+        6
+        >>> len(list(G.all_extensions(only_non_isomorphic=True)))
+        1
+
+        >>> list(graphs.Diamond().all_extensions(2, only_non_isomorphic=True, k_min=1, k_max=1)) == list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True))
+        True
+
+        Notes
+        -----
+        It turns out that possible errors on bad input paramters are only raised,
+        when the output iterator is actually used,
+        not when it is created.
+        """  # noqa: E501
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
+        _input_check.integrality_and_range(k_min, "k_min", min_val=0)
+        if k_max is None:
+            k_max = dim - 1
+        _input_check.integrality_and_range(k_max, "k_max", min_val=0)
+        _input_check.greater_equal(k_max, k_min, "k_max", "k_min")
+
+        extensions = []
+        for k in range(k_min, k_max + 1):
+            if self.number_of_nodes() >= dim + k and self.number_of_edges() >= k:
+                extensions.extend(self.all_k_extensions(k, dim, only_non_isomorphic))
+
+        solutions = []
+        for current in extensions:
+            if only_non_isomorphic:
+                for other in solutions:
+                    if current.is_isomorphic(other):
+                        break
+                else:
+                    solutions.append(current)
+                    yield current
+            else:
+                yield current
+
     @doc_category("Generic rigidity")
-    def extension_sequence(
-        self, dim: int = 2, return_solution: bool = False
-    ) -> list[Graph] | bool | None:
+    def extension_sequence(  # noqa: C901
+        self, dim: int = 2, return_type: str = "extensions"
+    ) -> list[Graph] | list | None:
+        """
+        Compute a sequence of
+        :prf:ref:`k-extensions <def-k-extension>`
+        if it exists, where k goes from 0 to ``2 * dim - 1``.
+        The sequence then starts from a complete graph on ``dim`` vertices.
+
+        The method returns either a sequence of graphs,
+        data on the extension, or both.
+
+        Note that for dimesions larger than two, the
+        extensions are not always preserving rigidity.
+
+        Parameters
+        ----------
+        dim:
+            The dimension in which the extensions are created.
+        return_type:
+            Can have values "graphs", "extensions" or "both".
+
+            "graphs": the sequence of graphs obtained from the extensions.
+
+            "extensions": an initial graph and a sequence of extensions
+            of the form [k, vertices, edges, new_vertex] as needed for the input of `k_extension`
+
+            "both": an initial graph and a sequence of pairs [graph, extension],
+            where the latter has the form from above
+
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(3)
+        >>> G
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        >>> G.extension_sequence(return_type="graphs")
+        [Graph with vertices [1, 2] and edges [[1, 2]], Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]]
+        >>> G = graphs.Diamond()
+        >>> G
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
+        >>> G.extension_sequence(return_type="graphs")
+        [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
+        >>> G.extension_sequence(return_type="extensions")
+        [Graph with vertices [2, 3] and edges [[2, 3]], [0, [3, 2], [], 0], [0, [0, 2], [], 1]]
+        """  # noqa: E501
+        _input_check.dimension(dim)
+        self._input_check_no_loop()
+
+        if not self.number_of_edges() == dim * self.number_of_nodes() - math.comb(
+            dim + 1, 2
+        ):
+            return None
+        if self.number_of_nodes() == dim:
+            return [self]
+        degrees = sorted(self.degree, key=lambda node: node[1])
+        degrees = [deg for deg in degrees if deg[1] >= dim and deg[1] <= 2 * dim - 1]
+        if len(degrees) == 0:
+            return None
+
+        for deg in degrees:
+            if deg[1] == dim:
+                G = deepcopy(self)
+                neighbors = list(self.neighbors(deg[0]))
+                G.remove_node(deg[0])
+                branch = G.extension_sequence(dim, return_type)
+                extension = [0, neighbors, [], deg[0]]
+                if branch is not None:
+                    if return_type == "extensions":
+                        return branch + [extension]
+                    elif return_type == "graphs":
+                        return branch + [self]
+                    elif return_type == "both":
+                        return branch + [[self, extension]]
+                    else:
+                        raise NotSupportedValueError(
+                            return_type, "return_type", self.extension_sequence
+                        )
+                return branch
+            else:
+                neighbors = list(self.neighbors(deg[0]))
+                G = deepcopy(self)
+                G.remove_node(deg[0])
+                for k_possible_edges in combinations(
+                    combinations(neighbors, 2), deg[1] - dim
+                ):
+
+                    if all([not G.has_edge(*edge) for edge in k_possible_edges]):
+                        for edge in k_possible_edges:
+                            G.add_edge(*edge)
+                        branch = G.extension_sequence(dim, return_type)
+                        if branch is not None:
+                            extension = [
+                                deg[1] - dim,
+                                neighbors,
+                                k_possible_edges,
+                                deg[0],
+                            ]
+                            if return_type == "extensions":
+                                return branch + [extension]
+                            elif return_type == "graphs":
+                                return branch + [self]
+                            elif return_type == "both":
+                                return branch + [[self, extension]]
+                            else:
+                                raise NotSupportedValueError(
+                                    return_type, "return_type", self.extension_sequence
+                                )
+                        for edge in k_possible_edges:
+                            G.remove_edge(*edge)
+        return None
+
+    @doc_category("Generic rigidity")
+    def has_extension_sequence(
+        self, dim: int = 2, return_type: str = "extensions"
+    ) -> list[Graph] | list | None:
         """
         Check the existence of a sequence of
         :prf:ref:`0 and 1-extensions <def-k-extension>`.
@@ -1031,11 +1227,6 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the extensions are created.
             Currently implemented only for ``dim==2``.
-        return_solution:
-            If False, a boolean value indicating if the graph can be
-            created by a sequence of extensions is returned.
-            If True, an extension sequence of graphs that creates the graph
-            is returned, or None if no such extension sequence exists.
 
         Examples
         --------
@@ -1043,58 +1234,15 @@ class Graph(nx.Graph):
         >>> G = graphs.ThreePrism()
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-        >>> G.extension_sequence()
+        >>> G.has_extension_sequence()
         True
         >>> G = graphs.CompleteBipartite(1, 2)
         >>> G
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2]]
-        >>> G.extension_sequence()
+        >>> G.has_extension_sequence()
         False
-        >>> G = graphs.Complete(3)
-        >>> G
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.extension_sequence(return_solution=True)
-        [Graph with vertices [1, 2] and edges [[1, 2]], Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]]
-        >>> G = graphs.Diamond()
-        >>> G
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
-        >>> G.extension_sequence(return_solution=True)
-        [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
         """  # noqa: E501
-        _input_check.dimension(dim)
-        self._input_check_no_loop()
-        if not dim == 2:
-            raise NotImplementedError()
-        if not self.number_of_edges() == 2 * self.number_of_nodes() - 3:
-            return None if return_solution else False
-        if self.number_of_nodes() == 2:
-            return [self] if return_solution else True
-        degrees = sorted(self.degree, key=lambda node: node[1])
-        if degrees[0][1] < 2 or degrees[0][1] > 3:
-            return None if return_solution else False
-        if degrees[0][1] == 2:
-            G = deepcopy(self)
-            G.remove_node(degrees[0][0])
-            branch = G.extension_sequence(dim, return_solution)
-            if return_solution:
-                if branch is not None:
-                    return branch + [self]
-                return None
-            return branch
-        if degrees[0][1] == 3:
-            neighbors = list(self.neighbors(degrees[0][0]))
-            G = deepcopy(self)
-            G.remove_node(degrees[0][0])
-            for i, j in [[0, 1], [0, 2], [1, 2]]:
-                if not G.has_edge(neighbors[i], neighbors[j]):
-                    G.add_edge(neighbors[i], neighbors[j])
-                    branch = G.extension_sequence(dim, return_solution)
-                    if return_solution and branch is not None:
-                        return branch + [self]
-                    elif branch:
-                        return True
-                    G.remove_edge(neighbors[i], neighbors[j])
-        return None if return_solution else False
+        return self.extension_sequence(dim) is not None
 
     @doc_category("Generic rigidity")
     def number_of_realizations(
@@ -1780,6 +1928,11 @@ class Graph(nx.Graph):
             used (``"randomized"``) that may give false negatives.
             See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
             the randomized check returns a correct result.
+
+            Other options for comparison are "extension_sequence",
+            which checks, whether there exists a sequence
+            of rigidity presvering extensions
+            (only available for dim=2).
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2`` and ``algorithm="combinatorial"``.
             If ``True``, the pebble digraph present in the cache is used.
@@ -1823,12 +1976,18 @@ class Graph(nx.Graph):
             if dim == 1:
                 return nx.is_tree(self)
             elif dim == 2:
-                return self.is_tight(
+                return self.is_kl_tight(
                     2,
                     3,
                     algorithm="pebble",
                     use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
                 )
+
+        if algorithm == "extension_sequence":
+            _input_check.dimension_for_algorithm(
+                dim, [1, 2], "the algorithm using extension sequences"
+            )
+            return self.has_extension_sequence(dim=dim)
 
         if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
@@ -2037,7 +2196,7 @@ class Graph(nx.Graph):
         if algorithm == "combinatorial":
             _input_check.dimension_for_algorithm(
                 dim, [1, 2], "the combinatorial algorithm"
-            )
+
             if dim == 1:
                 return len(nx.cycle_basis(self)) == 0
 
@@ -2259,7 +2418,7 @@ class Graph(nx.Graph):
                 return [list(comp) for comp in nx.connected_components(self)]
             # here will be the implementation using pebble games for dim=2
 
-        elif algorithm == "randomized":
+        elif algorithm == "randomized" or (dim == 2 and algorithm == "combinatorial"):
             if not nx.is_connected(self):
                 res = []
                 for comp in nx.connected_components(self):
@@ -2860,7 +3019,7 @@ class Graph(nx.Graph):
         >>> G.plot(vertex_color="#FF0000", edge_color="black", vertex_size=50)
 
         Specifying a custom plot style
-        >>> from pyrigi.plot_style import PlotStyle
+        >>> from pyrigi import PlotStyle
         >>> plot_style = PlotStyle(vertex_color="#FF0000")
         >>> G.plot(plot_style)
 

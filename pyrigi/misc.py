@@ -9,6 +9,21 @@ import numpy as np
 from math import isclose, log10
 
 
+try:
+    from IPython.core.magic import register_cell_magic
+
+    @register_cell_magic
+    def skip_execution(line, cell):
+        print(
+            "This cell was marked to be skipped (probably due to its long execution time."
+        )
+        print("Remove the cell magic `%%skip_execution` to run it.")
+        return
+
+except NameError:
+    pass
+
+
 def doc_category(category):
     def decorator_doc_category(func):
         setattr(func, "_doc_category", category)
@@ -17,7 +32,9 @@ def doc_category(category):
     return decorator_doc_category
 
 
-def generate_category_tables(cls, tabs, cat_order=[], include_all=False) -> str:
+def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
+    if cat_order is None:
+        cat_order = []
     categories = {}
     for func in dir(cls):
         if callable(getattr(cls, func)) and func[:2] != "__":
@@ -148,7 +165,9 @@ def is_zero_vector(
         )
 
 
-def eval_sympy_vector(vector: Sequence[Number], tolerance: float = 1e-9) -> list[float]:
+def eval_sympy_vector(
+    vector: Sequence[Number] | Matrix, tolerance: float = 1e-9
+) -> list[float]:
     """
     Converts a sympy vector to a (numerical) list of floats.
 
@@ -188,7 +207,7 @@ def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
         return {v: tuple([pt / flex_norm for pt in q]) for v, q in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
         if numerical:
-            _inf_flex = [float(sp.sympify(q).evalf(15)) for q in _inf_flex]
+            _inf_flex = [float(sp.sympify(q).evalf(15)) for q in inf_flex]
             flex_norm = np.linalg.norm(_inf_flex)
             return [q / flex_norm for q in _inf_flex]
         flex_norm = sp.sqrt(sum([q**2 for q in inf_flex]))
@@ -211,15 +230,17 @@ def vector_distance_pointwise(
     if not set(dict1.keys()) == set(dict2.keys()) or not len(dict1) == len(dict2):
         raise ValueError("`dict1` and `dict2` are not based on the same vertex set.")
     if numerical:
-        return np.linalg.norm(
-            [
-                p1 - p2
-                for v in dict1.keys()
-                for p1, p2 in zip(
-                    dict1[v],
-                    dict2[v],
-                )
-            ]
+        return float(
+            np.linalg.norm(
+                [
+                    p1 - p2
+                    for v in dict1.keys()
+                    for p1, p2 in zip(
+                        dict1[v],
+                        dict2[v],
+                    )
+                ]
+            )
         )
     return sp.sqrt(
         sum(
@@ -233,3 +254,25 @@ def vector_distance_pointwise(
             ]
         )
     )
+
+
+def is_isomorphic_graph_list(list1, list2):
+    """
+    Check whether two lists of graphs are the same up to graph isomorphism.
+    """
+    if len(list1) != len(list2):
+        return False
+    for graph1 in list1:
+        count_copies = 0
+        for grapht in list1:
+            if graph1.is_isomorphic(grapht):
+                count_copies += 1
+        count_found = 0
+        for graph2 in list2:
+            if graph1.is_isomorphic(graph2):
+                count_found += 1
+                if count_found == count_copies:
+                    break
+        else:
+            return False
+    return True

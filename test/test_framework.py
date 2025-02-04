@@ -740,17 +740,17 @@ def test_plot3D():
     plt.close("all")
 
 
-def test_animate3D():
+def test_animate3D_rotation():
     F = fws.Complete(4, dim=3)
-    F.animate3D()
+    F.animate3D_rotation()
 
     F = fws.Complete(3)
     with pytest.raises(ValueError):
-        F.animate3D()
+        F.animate3D_rotation()
 
     F = fws.Complete(5, dim=4)
     with pytest.raises(ValueError):
-        F.animate3D()
+        F.animate3D_rotation()
 
     plt.close("all")
 

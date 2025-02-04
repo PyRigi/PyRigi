@@ -23,8 +23,10 @@ using the following sequence of commands:
 
 ```{code-cell} ipython3
 from pyrigi import graphDB as graphs
-from pyrigi.motion import ParametricMotion
+from pyrigi import ParametricMotion
+from pyrigi.misc import skip_execution
 import sympy as sp
+
 motion = ParametricMotion(
     graphs.Cycle(4),
     {
@@ -45,6 +47,7 @@ It is also possible to provide trivial motions in a similar manner.
 The animation can be formatted using some parameters from {class}`~.PlotStyle` as keyword arguments.
 
 ```{code-cell} ipython3
+%%skip_execution
 motion = ParametricMotion(
     graphs.Complete(5),
     {
@@ -59,13 +62,21 @@ motion = ParametricMotion(
 motion.animate(
     vertex_labels=False,
     edge_color='blue',
-    edge_width=4,
+    edge_width=10,
 )
 ```
 
 Internal checks on the edge lengths are in place to ensure that the specified parametric motion
 never violates the edge-length equations. 
 
+Finally, it is possible to create either a ``.svg`` animation or a ``matplotlib`` animation by
+setting the parameter ``animation_format`` to be either ``"svg"`` or ``"matplotlib"``. In doing so, the
+2D and 3D animations can be displayed.
+
+```{code-cell} ipython3
+%%skip_execution
+motion.animate(animation_format="matplotlib")
+```
 
 ## Approximate Motion
 
@@ -75,24 +86,26 @@ the class {class}`~.ApproximateMotion`. As an example, consider the complete bip
 A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 
 ```{code-cell} ipython3
+%%skip_execution
 from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
 F = frameworks.CompleteBipartite(2,4)
 motion = ApproximateMotion(F, 393, chosen_flex=0, step_size=0.15)
-motion.animate(duration=10)
+motion.animate()
 ```
 
 Only nontrivial motions can be computed in this way, so you don't need to worry about approximating a
 trivial motion here.
 
 Typically, only the origin is fixed during the animation sequence. If a (directed) edge is
-provided in the method {meth}`~.Motion.animate` via the keyword `fixed_edge`, then it is possible to
-pin the first vertex of `fixed_edge` to the origin and the second vertex to the vector from the origin
+provided in the method {meth}`~.Motion.animate` via the keyword `fixed_pair`, then it is possible to
+pin the first vertex of `fixed_pair` to the origin and the second vertex to the vector from the origin
 to the placement of the second vertex. Alternatively, this vector can be specified using the keyword
 ``fixed_direction``.
 
 ```{code-cell} ipython3
+%%skip_execution
 F = frameworks.Path(5)
-motion = ApproximateMotion(F, 147, chosen_flex=1)
-motion.animate(fixed_edge=[0,4], fixed_direction=[0,1])
+motion = ApproximateMotion(F, 147, chosen_flex=1, fixed_pair=[0,4], fixed_direction=[0,1])
+motion.animate()
 ```

@@ -89,4 +89,4 @@ def point_to_vector(point: Point) -> Matrix:
 
     if res.shape[0] != 1 and res.shape[1] != 1:
         raise ValueError("Point could not be interpreted as column vector.")
-    return res if (res.shape[1] == 1) else point.transpose()
+    return res if (res.shape[1] == 1) else res.transpose()

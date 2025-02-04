@@ -10,10 +10,11 @@ Classes:
     GraphDrawer
 """
 
-from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox
+from collections.abc import Sequence
+from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
 from ipycanvas import MultiCanvas, hold_canvas
 from IPython.display import display
-
+from sympy import Rational
 from pyrigi.data_type import Edge
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
@@ -32,7 +33,8 @@ class GraphDrawer(object):
 
     - Press mouse button on an empty place on canvas:
         Add a vertex at the pointer position.
-    - Press mouse button on an existing vertex (or empty space) and release the mouse button on another vertex (or empty space):
+    - Press mouse button on an existing vertex (or empty space) and
+        release the mouse button on another vertex (or empty space):
         Add/remove an edge between the two vertices.
     - Drag a vertex with ``Ctrl`` is being pressed:
         Reposition the vertex.
@@ -46,6 +48,10 @@ class GraphDrawer(object):
     graph:
         (optional) A graph without loops which is to be drawn on canvas
         when the object is created. The non-integer labels are relabeled
+    size:
+        (optional) [width, height] of the canvas, defaults to [600,600]
+        width and height will be arranged so that they are multiples of 100
+        with minimum value 400 and maximum value 1000.
     layout_type:
         Layout type to visualise the ``graph``.
         For supported layout types see :meth:`.Graph.layout`.
@@ -63,21 +69,17 @@ class GraphDrawer(object):
     --------
     >>> from pyrigi import GraphDrawer
     >>> Drawer = GraphDrawer()
-    HBox(children=(MultiCanvas(height=600, width=600), VBox(children=(ColorPicker(value='blue', description='V-Color'), ColorPicker(value='black', description='E-Color'), IntSlider(value=10, description='V-Size:', max=20, min=8), IntSlider(value=2, description='E-Size:', max=10, min=1), Checkbox(value=True, description='Show V-Labels', indent=False)))))
-    Output()
-    press and hold ctrl key to move vertices around with mouse.
+    HBox(children=(MultiCanvas(height=600, width=600)...
     >>> Drawer.graph()
     Graph with vertices [] and edges []
-
-    TODO
-    ----
-    - Add width/height parameters to canvas. Currently width=600 and height=600 are fixed.
-    - Add a background grid option.
-
-    """  # noqa: E501
+    """
 
     def __init__(
-        self, graph: Graph = None, layout_type: str = "spring", place: str = "all"
+        self,
+        graph: Graph = None,
+        size: Sequence[int] = (600, 600),
+        layout_type: str = "spring",
+        place: str = "all",
     ) -> None:
         """
         Constructor of the class.
@@ -89,16 +91,28 @@ class GraphDrawer(object):
         self._e_color = "black"  # default color for edges
 
         self._selected_vertex = None  # this determines what vertex to update on canvas
-        self._next_vertex_label = 0  # label for next vertex
         self._show_vlabels = True
         self._mouse_down = False
         self._vertexmove_on = False
+        self._grid_size = 50
 
         self._graph = Graph()  # the graph on canvas
         self._out = Output()  # can later be used to represent some properties
 
         # setting multicanvas properties
-        self._mcanvas = MultiCanvas(4, width=600, height=600)
+
+        if not isinstance(size, Sequence) or not len(size) == 2:
+            raise ValueError("The parameter `size` must be a list of two integers")
+        # arrange width and height of the canvas so that they are in [300,1000]
+        for i in range(2):
+            if size[i] < 400:
+                size[i] = 400
+            if size[i] > 1000:
+                size[i] = 1000
+        # convert members of size to closest multiple of 100
+        size = [int(round(x / 100) * 100) for x in size]
+
+        self._mcanvas = MultiCanvas(5, width=size[0], height=size[1])
         self._mcanvas[0].stroke_rect(0, 0, self._mcanvas.width, self._mcanvas.height)
         self._mcanvas[2].font = "12px serif"
         self._mcanvas[2].text_align = "center"
@@ -166,6 +180,32 @@ class GraphDrawer(object):
         )
         self._vlabel_checkbox.observe(self._on_show_vlabel_change)
 
+        self._grid_checkbox = Checkbox(
+            value=False, description="Show Grid", disabled=False, indent=False
+        )
+        self._grid_checkbox.observe(self._on_grid_checkbox_change)
+
+        self._grid_snap_checkbox = Checkbox(
+            value=False,
+            description="Grid Snapping",
+            disabled=True,
+            indent=False,
+        )
+
+        self._grid_size_slider = IntSlider(
+            value=self._grid_size,
+            min=10,
+            max=50,
+            step=5,
+            description="Grid Size:",
+            disabled=True,
+            continuous_update=True,
+            orientation="horizontal",
+            readout=True,
+            readout_format="d",
+        )
+        self._grid_size_slider.observe(self._on_grid_size_change)
+
         # combining the menu and canvas
         right_box = VBox(
             [
@@ -174,8 +214,26 @@ class GraphDrawer(object):
                 self._vradius_slider,
                 self._ewidth_slider,
                 self._vlabel_checkbox,
+                self._grid_checkbox,
+                self._grid_snap_checkbox,
+                self._grid_size_slider,
             ]
         )
+        # instructions
+        instruction_dict = {
+            "- Add vertex:": "Mouse press",
+            "- Add edge:": "Drag between endpoints",
+            "- Remove Edge-1:": "Double click",
+            "- Remove Edge-2:": "Drag between endpoints",
+            "- Remove Vertex:": "Double click",
+            "- Move vertex:": "Hold ctrl and drag",
+        }
+        for instruction in instruction_dict:
+            label_action = Label(value=instruction)
+            label_description = Label(value=instruction_dict[instruction])
+            box = HBox([label_action, label_description])
+            right_box.children += (box,)
+
         box = HBox([self._mcanvas, right_box])
 
         if isinstance(graph, Graph) and graph.number_of_nodes() > 0:
@@ -187,8 +245,6 @@ class GraphDrawer(object):
         # displaying the combined menu and canvas, and the output
         display(box)
         display(self._out)
-        with self._out:
-            print("press and hold ctrl key to move vertices around with mouse.")
 
     def _handle_event(self, event) -> None:
         """
@@ -199,7 +255,16 @@ class GraphDrawer(object):
         elif event["event"] == "keyup":
             self._vertexmove_on = event["ctrlKey"]
         elif event["event"] == "dblclick":
-            x, y = event["relativeX"], event["relativeY"]
+            x = (
+                (event["clientX"] - event["boundingRectLeft"])
+                / (event["boundingRectRight"] - event["boundingRectLeft"])
+                * self._mcanvas.width
+            )
+            y = (
+                (event["clientY"] - event["boundingRectTop"])
+                / (event["boundingRectBottom"] - event["boundingRectTop"])
+                * self._mcanvas.height
+            )
             self._handle_dblclick(x, y)
 
     def _assign_pos(self, x, y, place) -> list[int]:
@@ -285,10 +350,29 @@ class GraphDrawer(object):
         for edge in graph.edges:
             self._graph.add_edge(edge[0], edge[1], color=self._e_color)
 
-        self._next_vertex_label = max(self._graph.nodes) + 1
         if len(vertex_map) != 0:
             with self._out:
                 print("relabeled vertices:", vertex_map)
+
+    def _on_grid_checkbox_change(self, change) -> None:
+        """
+        Handler of the grid checkbox.
+
+        """
+        if change["type"] == "change" and change["name"] == "value":
+            self._update_background(change["new"])
+            self._grid_snap_checkbox.disabled = change["old"]
+            self._grid_size_slider.disabled = change["old"]
+            if change["new"] is False:
+                self._grid_snap_checkbox.value = False
+
+    def _on_grid_size_change(self, change) -> None:
+        """
+        Handler of the grid size slider.
+        """
+        if change["type"] == "change" and change["name"] == "value":
+            self._grid_size = change["new"]
+            self._update_background(grid_on=self._grid_checkbox.value)
 
     def _on_vcolor_change(self, change) -> None:
         """
@@ -336,24 +420,76 @@ class GraphDrawer(object):
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
+    def _update_background(self, grid_on):
+        self._mcanvas[0].clear()
+        self._mcanvas[0].line_width = 1
+        self._mcanvas[0].stroke_style = "black"
+        self._mcanvas[0].stroke_rect(0, 0, self._mcanvas.width, self._mcanvas.height)
+        self._mcanvas[0].stroke_style = "grey"
+        if not grid_on:
+            return
+        size = self._grid_size
+        # self._mcanvas[0].set_line_dash([2,2])
+
+        # add lines from center to sides so that center
+        # of the canvas is always at a corner
+        for i in range(0, int(self._mcanvas.width / 2), size):
+            self._mcanvas[0].stroke_line(
+                self._mcanvas.width / 2 + i,
+                0,
+                self._mcanvas.width / 2 + i,
+                self._mcanvas.height,
+            )
+            if i != 0:
+                self._mcanvas[0].stroke_line(
+                    self._mcanvas.width / 2 - i,
+                    0,
+                    self._mcanvas.width / 2 - i,
+                    self._mcanvas.height,
+                )
+
+        for i in range(0, int(self._mcanvas.height / 2), size):
+            self._mcanvas[0].stroke_line(
+                0,
+                self._mcanvas.height / 2 + i,
+                self._mcanvas.width,
+                self._mcanvas.height / 2 + i,
+            )
+            if i != 0:
+                self._mcanvas[0].stroke_line(
+                    0,
+                    self._mcanvas.height / 2 - i,
+                    self._mcanvas.width,
+                    self._mcanvas.height / 2 - i,
+                )
+        # add a red dot at the origin
+        self._mcanvas[0].fill_style = "red"
+        self._mcanvas[0].fill_circle(
+            self._mcanvas.width / 2, self._mcanvas.height / 2, 2
+        )
+
     def _handle_mouse_down(self, x, y) -> None:
         """
         Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_down`.
 
         It determines what to do when mouse button is pressed.
         """
-
-        self._selected_vertex = self._collided_vertex(
-            x, y
-        )  # select the vertex containing the mouse pointer position
+        location = [int(x), int(y)]
+        self._selected_vertex = self._collided_vertex(location[0], location[1])
+        # if there is no vertex at pointer pos and grid snap is on
+        # check if there is a vertex at the closest grid corner.
+        if self._grid_snap_checkbox.value and self._selected_vertex is None:
+            gridpoint = self._closest_grid_coordinate(x, y)
+            location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
+            self._selected_vertex = self._collided_vertex(
+                location[0], location[1]
+            )  # select the vertex containing the mouse pointer position
         if self._selected_vertex is None and self._collided_edge(x, y) is None:
             # add a new vertex if no vertex is selected and
             # no edge contains the mouse pointer position
-            self._graph.add_node(
-                self._next_vertex_label, color=self._v_color, pos=[int(x), int(y)]
-            )
-            self._selected_vertex = self._next_vertex_label
-            self._next_vertex_label += 1
+            vertex = self._least_available_label()
+            self._graph.add_node(vertex, color=self._v_color, pos=location)
+            self._selected_vertex = vertex
         with hold_canvas():
             # redraw graph and send the edges incident with selected vertex to layer 1
             # and the selected vertex to layer 3 for possible continuous update.
@@ -368,7 +504,15 @@ class GraphDrawer(object):
 
         It determines what to do when mouse button is released.
         """
-        vertex = self._collided_vertex(x, y)
+        location = [int(x), int(y)]
+        vertex = self._collided_vertex(location[0], location[1])
+        # if there is no vertex at the pointer pos and grid snap is on
+        # check if there is a vertex at the closest grid corner.
+        if self._grid_snap_checkbox.value and vertex is None:
+            gridpoint = self._closest_grid_coordinate(x, y)
+            location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
+            vertex = self._collided_vertex(location[0], location[1])
+
         s_vertex = self._selected_vertex
 
         if s_vertex is None:
@@ -378,10 +522,10 @@ class GraphDrawer(object):
         if vertex is None:
             # if there is no existing vertex containing the mouse pointer position,
             # add a new vertex and an edge between the new vertex and the selected vertex
-            vertex = self._next_vertex_label
-            self._graph.add_node(vertex, color=self._v_color, pos=[int(x), int(y)])
+            vertex = self._least_available_label()
+
+            self._graph.add_node(vertex, color=self._v_color, pos=location)
             self._graph.add_edge(vertex, s_vertex, color=self._e_color)
-            self._next_vertex_label += 1
         elif vertex is not None and vertex is not s_vertex:
             # if there is a vertex containing mouse pointer position other than
             # the selected vertex, add / remove edge between these two vertices.
@@ -423,9 +567,21 @@ class GraphDrawer(object):
         """
 
         vertex = self._selected_vertex
+        location = [int(x), int(y)]
+        collided_vertex = self._collided_vertex(x, y)
+        self._mcanvas[4].clear()
+        if self._grid_snap_checkbox.value and (
+            collided_vertex is None or collided_vertex is vertex
+        ):
+            gridpoint = self._closest_grid_coordinate(x, y)
+            location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
 
         if vertex is None or not self._mouse_down:
             # do nothing if no vertex is selected or mouse button is not down
+            if self._grid_snap_checkbox.value:
+                with hold_canvas():
+                    self._mcanvas[4].fill_style = "cyan"
+                    self._mcanvas[4].fill_circle(location[0], location[1], 3)
             return
 
         if not self._vertexmove_on:
@@ -438,14 +594,14 @@ class GraphDrawer(object):
                 self._mcanvas[1].stroke_line(
                     self._graph.nodes[vertex]["pos"][0],
                     self._graph.nodes[vertex]["pos"][1],
-                    x,
-                    y,
+                    location[0],
+                    location[1],
                 )
                 self._redraw_vertex(vertex)
         else:
             # move vertex to mouse pointer position
             # and update layer 1 and 3 of multicanvas
-            self._graph.nodes[vertex]["pos"] = [int(x), int(y)]
+            self._graph.nodes[vertex]["pos"] = location
             with hold_canvas():
                 self._mcanvas[1].clear()
                 self._mcanvas[3].clear()
@@ -549,17 +705,17 @@ class GraphDrawer(object):
         self._mcanvas[1].line_width = self._ewidth
         self._mcanvas[2].line_width = self._ewidth
         for u, v in self._graph.edges:
-            # n below is the index of the layer to be used.
+            # i below is the index of the layer to be used.
             # if the edge is incident with hvertex,
             # draw this edge on layer 1 of multicanvas.
             # otherwise draw it on layer 2.
             if hvertex in [u, v]:
-                n = 1
+                i = 1
             else:
-                n = 2
+                i = 2
 
-            self._mcanvas[n].stroke_style = self._graph[u][v]["color"]
-            self._mcanvas[n].stroke_line(
+            self._mcanvas[i].stroke_style = self._graph[u][v]["color"]
+            self._mcanvas[i].stroke_line(
                 self._graph.nodes[u]["pos"][0],
                 self._graph.nodes[u]["pos"][1],
                 self._graph.nodes[v]["pos"][0],
@@ -567,19 +723,61 @@ class GraphDrawer(object):
             )
 
         for vertex in self._graph.nodes:
-            # n below is the index of the layer to be used.
+            # i below is the index of the layer to be used.
             # draw hvertex on layer 3 and other vertices on layer 2
             # so that moving vertex (hvertex) will show up above others.
             if hvertex == vertex:
-                n = 3
+                i = 3
             else:
-                n = 2
-            self._mcanvas[n].fill_style = self._graph.nodes[vertex]["color"]
+                i = 2
+            self._mcanvas[i].fill_style = self._graph.nodes[vertex]["color"]
             x, y = self._graph.nodes[vertex]["pos"]
-            self._mcanvas[n].fill_circle(x, y, self._radius)
+            self._mcanvas[i].fill_circle(x, y, self._radius)
             if self._show_vlabels:
-                self._mcanvas[n].fill_style = "white"
-                self._mcanvas[n].fill_text(str(vertex), x, y)
+                self._mcanvas[i].fill_style = "white"
+                self._mcanvas[i].fill_text(str(vertex), x, y)
+
+    def _grid_to_canvas_point(self, x, y):
+        """
+        Return the canvas coordinates for the given grid point (x,y)
+        """
+        # gridpoint = self._closest_grid_coordinate(x,y)
+
+        return [
+            self._mcanvas.width / 2 + x * self._grid_size,
+            self._mcanvas.height / 2 - y * self._grid_size,
+        ]
+
+    def _closest_grid_coordinate(self, x, y):
+        """
+        Return the closest grid coordinates on canvas of the given point (x,y)
+        """
+        grid_x = int(round((x - self._mcanvas.width / 2) / self._grid_size))
+        grid_y = int(round((self._mcanvas.height / 2 - y) / self._grid_size))
+
+        # make sure that the coordinates do not exceed canvas size
+        if grid_x < -1 * (self._mcanvas.width / 2) / self._grid_size:
+            grid_x += 1
+        elif grid_x > (self._mcanvas.width / 2) / self._grid_size:
+            grid_x += -1
+        if grid_y < -1 * (self._mcanvas.height / 2) / self._grid_size:
+            grid_y += 1
+        elif grid_y > (self._mcanvas.height / 2) / self._grid_size:
+            grid_y += -1
+        return [grid_x, grid_y]
+
+    def _least_available_label(self):
+        """
+        Return the least non-negative integer available for the new vertex label.
+        """
+        if self._graph.number_of_nodes() == 0:
+            return 0
+
+        # the following is enough as there has to be
+        # an available label from 0 to the number of vertices.
+        for i in range(self._graph.number_of_nodes() + 1):
+            if not self._graph.has_node(i):
+                return i
 
     def graph(self) -> Graph:
         """
@@ -590,16 +788,29 @@ class GraphDrawer(object):
         H.add_edges_from(self._graph.edges)
         return H
 
-    def framework(self) -> Framework:
+    def framework(self, grid: bool = False) -> Framework:
         """
         Return a copy of the current 2D framework on the multicanvas.
+
+        Parameters
+        ---------
+        grid:
+            If ``True`` and ``Grid Snapping`` is checked,
+            the realization will be scaled so that the grid points
+            correspond to integral points.
         """
         H = self.graph()
+        # create the realisation map where the origin is the center of the canvas
         posdict = {
             v: [
-                self._graph.nodes[v]["pos"][0] - int(self._mcanvas.width / 2),
-                int(self._mcanvas.height / 2) - self._graph.nodes[v]["pos"][1],
+                int(self._graph.nodes[v]["pos"][0]) - int(self._mcanvas.width / 2),
+                int(self._mcanvas.height / 2) - int(self._graph.nodes[v]["pos"][1]),
             ]
             for v in H.nodes
         }
+        # when grid is True update (assing grid coordinates) the positions
+        # of the vertices
+        if self._grid_checkbox.value and grid:
+            for v in H.nodes:
+                posdict[v] = [Rational(x, self._grid_size) for x in posdict[v]]
         return Framework(graph=H, realization=posdict)
