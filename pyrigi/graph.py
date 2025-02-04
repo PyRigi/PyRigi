@@ -2196,6 +2196,7 @@ class Graph(nx.Graph):
         if algorithm == "combinatorial":
             _input_check.dimension_for_algorithm(
                 dim, [1, 2], "the combinatorial algorithm"
+            )
 
             if dim == 1:
                 return len(nx.cycle_basis(self)) == 0
