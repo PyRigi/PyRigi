@@ -1,8 +1,8 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
-from pyrigi.exception import (
-    LoopError,
-)
+from pyrigi.exception import LoopError
+from pyrigi.warning import RandomizedAlgorithmWarning
+
 import matplotlib.pyplot as plt
 
 import pytest
@@ -2229,7 +2229,7 @@ def test_is_Rd_independent_d3(graph):
 
 def test_is_Rd_independent_d3_warning():
     G = graphs.K33plusEdge()
-    with pytest.warns(UserWarning):
+    with pytest.warns(RandomizedAlgorithmWarning):
         G.is_Rd_independent(dim=3)
 
 
@@ -2255,5 +2255,5 @@ def test_max_rigid_dimension(graph, k):
 
 def test_max_rigid_dimension_warning():
     G = graphs.K66MinusPerfectMatching()
-    with pytest.warns(UserWarning):
+    with pytest.warns(RandomizedAlgorithmWarning):
         G.max_rigid_dimension()

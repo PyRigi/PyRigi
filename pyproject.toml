@@ -76,7 +76,7 @@ markers = [
     "meshing: marks tests using extra meshing"
 ]
 filterwarnings = [
-    'ignore:This method uses a randomized algorithm!:UserWarning',
+    'ignore::pyrigi.warning.RandomizedAlgorithmWarning',
     'ignore:FigureCanvasAgg is non-interactive, and thus cannot be shown:UserWarning'
 ]
 
