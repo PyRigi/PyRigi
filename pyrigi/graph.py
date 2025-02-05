@@ -775,7 +775,7 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified,
+            If ``True``, the graph is modified,
             otherwise a new modified graph will be created,
             while the original graph remains unchanged (default).
 

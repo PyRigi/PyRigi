@@ -93,7 +93,7 @@ Let $G=(V,E)$ be a graph and let $k$ be an integer. If the removal of some set o
 results in a planar graph, we call $G$ a or _$k$-apex graph_ or _$k$-vertex apex graph_. Similarly, if the removal of some set
 of $k$ edges from $G$ results in a planar graph, we call $G$ a _$k$-edge apex graph_.
 
-Moreover, if one of these properties hold for all choices of $k$ vertices or edges, we call the graph a
+Moreover, if one of these properties holds for all choices of $k$ vertices or edges, we call the graph a
 _critical $k$-vertex apex graph_ or _critical $k$-edge apex graph_, respectively.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_k_vertex_apex`
