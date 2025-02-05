@@ -340,7 +340,7 @@ class Framework(object):
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
         edge_colors_custom:
-            Optional parameter to specify the coloring of edges. It can be
+            Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
@@ -376,7 +376,7 @@ class Framework(object):
         Use both stress and infinitesimal flex
         >>> F.plot2D(stress=0, inf_flex=0)
 
-        Use edge coloring
+        Use custom edge colors
         >>> edge_colors = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
         >>> F.plot2D(edge_colors_custom=edge_colors)
 
@@ -471,7 +471,7 @@ class Framework(object):
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`PlotStyle` for more details.
         edge_colors_custom:
-            Optional parameter to specify the coloring of edges. It can be
+            Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
@@ -640,7 +640,7 @@ class Framework(object):
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
         edge_colors_custom:
-            Optional parameter to specify the coloring of edges. It can be
+            Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
@@ -674,7 +674,7 @@ class Framework(object):
         Use both stress and infinitesimal flex
         >>> F.plot3D(stress=0, inf_flex=0)
 
-        Use edge coloring
+        Use custom edge colors
         >>> edge_colors = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
         >>> F.plot3D(edge_colors_custom=edge_colors)
 

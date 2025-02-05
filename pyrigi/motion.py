@@ -127,7 +127,7 @@ class Motion(object):
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
         edge_colors_custom:
-            Optional parameter to specify the coloring of edges. It can be
+            Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
@@ -294,7 +294,7 @@ class Motion(object):
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
         edge_colors_custom:
-            Optional parameter to specify the coloring of edges. It can be
+            Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
