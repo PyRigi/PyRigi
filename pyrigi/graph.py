@@ -1272,14 +1272,10 @@ class Graph(nx.Graph):
         True
         """
         if vertex in self.nodes:
-            raise ValueError(
-                f"The given vertex name {vertex} is " + "already a vertex in the graph."
-            )
+            raise KeyError(f"Vertex {vertex} is already a vertex of the graph!")
         if vertex is None:
-            vertex = 0
-            while True:
-                if vertex not in self.nodes:
-                    break
+            vertex = self.number_of_nodes()
+            while vertex in self.nodes:
                 vertex += 1
 
         if inplace:
