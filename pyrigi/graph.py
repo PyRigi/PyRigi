@@ -1244,7 +1244,7 @@ class Graph(nx.Graph):
         return self.extension_sequence(dim) is not None
 
     @doc_category("Graph manipulation")
-    def cone(self, inplace: bool = False) -> Graph:
+    def cone(self, inplace: bool = False, vertex: Vertex = None) -> Graph:
         """
         Return a coned version of the graph.
 
@@ -1257,6 +1257,9 @@ class Graph(nx.Graph):
             If True, the graph will be modified,
             otherwise a new modified graph will be created,
             while the original graph remains unchanged (default).
+        vertex:
+            It is possible to give the added cone vertex a name using
+            the keyword ``vertex``.
 
         Definition
         ----------
@@ -1268,19 +1271,24 @@ class Graph(nx.Graph):
         >>> G.is_isomorphic(Graph([(0,1),(1,2),(0,2)]))
         True
         """
-        v = 0
-        if not inplace:
+        if vertex in self.nodes:
+            raise ValueError(
+                f"The given vertex name {vertex} is " + "already a vertex in the graph."
+            )
+        if vertex is None:
+            vertex = 0
+            while True:
+                if vertex not in self.nodes:
+                    break
+                vertex += 1
+
+        if inplace:
+            self.add_edges([(u, vertex) for u in self.nodes])
+            return self
+        else:
             G = deepcopy(self)
-        while True:
-            if v not in self.nodes:
-                if inplace:
-                    self.add_edges([(u, v) for u in self.nodes])
-                    return self
-                else:
-                    G.add_edges([(u, v) for u in G.nodes])
-                    return G
-                break
-            v += 1
+            G.add_edges([(u, vertex) for u in G.nodes])
+            return G
 
     @doc_category("Generic rigidity")
     def number_of_realizations(
