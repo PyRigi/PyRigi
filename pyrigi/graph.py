@@ -16,7 +16,7 @@ import math
 from random import randint
 from warnings import warn
 
-from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
+from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence, DirectedEdge
 
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError, NotSupportedValueError
