@@ -266,7 +266,7 @@ def test_PlotStyle3D():
     assert isinstance(plot_style_3d, PlotStyle)
 
     # invalid axis_scales should raise ValueError
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         PlotStyle3D(axis_scales=("invalid", 1, "invalid"))
 
     # Create instance of PlotStyle3D

@@ -109,27 +109,27 @@ class PlotStyle(object):
         canvas_height: float | int = 4.8,
         dpi: int = 175,
     ):
-        self._vertex_size = vertex_size
-        self._vertex_color = vertex_color
-        self._vertex_labels = vertex_labels
-        self._vertex_shape = vertex_shape
-        self._edge_width = edge_width
-        self._edge_color = edge_color
-        self._edge_style = edge_style
-        self._flex_width = flex_width
-        self._flex_length = flex_length
-        self._flex_color = flex_color
-        self._flex_style = flex_style
-        self._flex_arrow_size = flex_arrow_size
-        self._stress_color = stress_color
-        self._stress_fontsize = stress_fontsize
-        self._stress_rotate_labels = stress_rotate_labels
-        self._stress_normalization = stress_normalization
-        self._font_size = font_size
-        self._font_color = font_color
-        self._canvas_width = canvas_width
-        self._canvas_height = canvas_height
-        self._dpi = dpi
+        self.vertex_size = vertex_size
+        self.vertex_color = vertex_color
+        self.vertex_labels = vertex_labels
+        self.vertex_shape = vertex_shape
+        self.edge_width = edge_width
+        self.edge_color = edge_color
+        self.edge_style = edge_style
+        self.flex_width = flex_width
+        self.flex_length = flex_length
+        self.flex_color = flex_color
+        self.flex_style = flex_style
+        self.flex_arrow_size = flex_arrow_size
+        self.stress_color = stress_color
+        self.stress_fontsize = stress_fontsize
+        self.stress_rotate_labels = stress_rotate_labels
+        self.stress_normalization = stress_normalization
+        self.font_size = font_size
+        self.font_color = font_color
+        self.canvas_width = canvas_width
+        self.canvas_height = canvas_height
+        self.dpi = dpi
 
     def update(self, **kwargs):
         """
@@ -503,11 +503,7 @@ class PlotStyle3D(PlotStyle):
     ):
         super().__init__(**kwargs)
         self.padding = padding
-        if len(axis_scales) != 3 or any(
-            [not isinstance(scale, float | int) for scale in axis_scales]
-        ):
-            raise ValueError("The length of `axis_scales` is not 3.")
-        self._axis_scales = axis_scales
+        self.axis_scales = axis_scales
 
     @property
     def padding(self):
