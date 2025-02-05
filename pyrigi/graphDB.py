@@ -131,7 +131,7 @@ def Icosahedral() -> Graph:
 
 
 def Dodecahedral() -> Graph:
-    """Return the graph given by the skeleton of an dodecahedron."""
+    """Return the graph given by the skeleton of a dodecahedron."""
     return Graph(
         [
             (0, 8),

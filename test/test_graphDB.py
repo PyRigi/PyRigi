@@ -137,3 +137,13 @@ def test_CnSymmetricFourRegularWithFixedVertex():
             and G.number_of_edges() == 10 * i
             and all([G.degree[v] in [4, 5, 2 * i] for v in G.nodes])
         )
+
+
+def test_Icosahedral():
+    G = graphs.Icosahedral()
+    assert G.number_of_nodes() == 12 and G.number_of_edges() == 30
+
+
+def test_Dodecahedron():
+    G = graphs.Dodecahedron()
+    assert G.number_of_nodes() == 20 and G.number_of_edges() == 30
