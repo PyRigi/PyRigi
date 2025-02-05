@@ -293,7 +293,7 @@ def test_CnSymmetricFourRegularWithFixedVertex():
 
 def test_Icosahedron():
     F = fws.Icosahedron()
-    G = graphs.Icosahedral
+    G = graphs.Icosahedral()
     assert G.is_isomorphic(F._graph)
     edge_lengths = list(F.edge_lengths().values())
     for length in edge_lengths:
