@@ -29,7 +29,7 @@ class PlotStyle(object):
         The color of all edges given as a string
         (name like ``"green"`` or  hex ``"#00ff00"``).
         For specifying a different color for each edge,
-        see parameter ``edge_coloring`` in :meth:`.Framework.plot2D`.
+        see parameter ``edge_colors_custom`` in :meth:`.Framework.plot2D`.
     edge_style:
         Edge line style: ``-``/``solid``, ``--``/``dashed``,
         ``-.``/``dashdot`` or ``:``/``dotted``.

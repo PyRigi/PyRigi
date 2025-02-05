@@ -288,7 +288,7 @@ class Framework(object):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
-        edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
         **kwargs,
@@ -339,7 +339,7 @@ class Framework(object):
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
-        edge_coloring:
+        edge_colors_custom:
             Optional parameter to specify the coloring of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
@@ -377,8 +377,8 @@ class Framework(object):
         >>> F.plot2D(stress=0, inf_flex=0)
 
         Use edge coloring
-        >>> edge_coloring = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
-        >>> F.plot2D(edge_coloring=edge_coloring)
+        >>> edge_colors = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
+        >>> F.plot2D(edge_colors_custom=edge_colors)
 
         The following is just to close all figures after running the example:
         >>> import matplotlib.pyplot
@@ -428,7 +428,7 @@ class Framework(object):
             ax,
             placement,
             plot_style=plot_style,
-            edge_coloring=edge_coloring,
+            edge_colors_custom=edge_colors_custom,
             arc_angles_dict=arc_angles_dict,
         )
 
@@ -456,7 +456,7 @@ class Framework(object):
     def animate3D_rotation(
         self,
         plot_style: PlotStyle = None,
-        edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         total_frames: int = 100,
         delay: int = 75,
         rotation_axis: str | Sequence[Number] = None,
@@ -470,7 +470,7 @@ class Framework(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`PlotStyle` for more details.
-        edge_coloring:
+        edge_colors_custom:
             Optional parameter to specify the coloring of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
@@ -573,7 +573,7 @@ class Framework(object):
         return M.animate3D(
             _realizations,
             plot_style=plot_style,
-            edge_coloring=edge_coloring,
+            edge_colors_custom=edge_colors_custom,
             duration=duration,
         )
 
@@ -586,7 +586,9 @@ class Framework(object):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
-        edge_coloring: Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = None,
+        edge_colors_custom: (
+            Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         **kwargs,
     ) -> None:
@@ -637,7 +639,7 @@ class Framework(object):
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
-        edge_coloring:
+        edge_colors_custom:
             Optional parameter to specify the coloring of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
@@ -673,8 +675,8 @@ class Framework(object):
         >>> F.plot3D(stress=0, inf_flex=0)
 
         Use edge coloring
-        >>> edge_coloring = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
-        >>> F.plot3D(edge_coloring=edge_coloring)
+        >>> edge_colors = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
+        >>> F.plot3D(edge_colors_custom=edge_colors)
 
         The following is just to close all figures after running the example:
         >>> import matplotlib.pyplot
@@ -728,7 +730,7 @@ class Framework(object):
             ax,
             _placement,
             plot_style,
-            edge_coloring=edge_coloring,
+            edge_colors_custom=edge_colors_custom,
         )
 
         if inf_flex is not None:

@@ -108,7 +108,7 @@ class Motion(object):
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
-        edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
         **kwargs,
     ) -> Any:
@@ -126,7 +126,7 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
-        edge_coloring:
+        edge_colors_custom:
             Optional parameter to specify the coloring of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
@@ -166,7 +166,7 @@ class Motion(object):
 
         # Update the plot_style instance with any passed keyword arguments
         edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
-            self, plot_style.edge_color, edge_coloring
+            self, plot_style.edge_color, edge_colors_custom
         )
 
         # Initializing points (vertices) and lines (edges) for display
@@ -274,7 +274,7 @@ class Motion(object):
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
-        edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
         **kwargs,
     ) -> Any:
@@ -293,7 +293,7 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
-        edge_coloring:
+        edge_colors_custom:
             Optional parameter to specify the coloring of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
@@ -336,7 +336,7 @@ class Motion(object):
 
         # Update the plot_style instance with any passed keyword arguments
         edge_color_array, edge_list_ref = _plot.resolve_edge_colors(
-            self, plot_style.edge_color, edge_coloring
+            self, plot_style.edge_color, edge_colors_custom
         )
 
         # Initializing points (vertices) and lines (edges) for display
