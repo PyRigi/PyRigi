@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 import numpy as np
 
 
@@ -83,11 +85,11 @@ class PlotStyle(object):
         vertex_color: str = "#ff8c00",
         vertex_labels: bool = True,
         vertex_shape: str = "o",
-        edge_width: float = 2.5,
+        edge_width: float | int = 2.5,
         edge_color: str = "black",
         edge_style: str = "solid",
-        flex_width: float = 1.5,
-        flex_length: float = 0.15,
+        flex_width: float | int = 1.5,
+        flex_length: float | int = 0.15,
         flex_color: str = "limegreen",
         flex_style: str = "solid",
         flex_arrow_size: int = 20,
@@ -97,31 +99,31 @@ class PlotStyle(object):
         stress_normalization: bool = False,
         font_size: int = 12,
         font_color: str = "whitesmoke",
-        canvas_width: float = 6.4,
-        canvas_height: float = 4.8,
+        canvas_width: float | int = 6.4,
+        canvas_height: float | int = 4.8,
         dpi: int = 175,
     ):
-        self.vertex_size = vertex_size
-        self.vertex_color = vertex_color
-        self.vertex_labels = vertex_labels
-        self.vertex_shape = vertex_shape
-        self.edge_width = edge_width
-        self.edge_color = edge_color
-        self.edge_style = edge_style
-        self.flex_width = flex_width
-        self.flex_length = flex_length
-        self.flex_color = flex_color
-        self.flex_style = flex_style
-        self.flex_arrow_size = flex_arrow_size
-        self.stress_color = stress_color
-        self.stress_fontsize = stress_fontsize
-        self.stress_rotate_labels = stress_rotate_labels
-        self.stress_normalization = stress_normalization
-        self.font_size = font_size
-        self.font_color = font_color
-        self.canvas_width = canvas_width
-        self.canvas_height = canvas_height
-        self.dpi = dpi
+        self._vertex_size = vertex_size
+        self._vertex_color = vertex_color
+        self._vertex_labels = vertex_labels
+        self._vertex_shape = vertex_shape
+        self._edge_width = edge_width
+        self._edge_color = edge_color
+        self._edge_style = edge_style
+        self._flex_width = flex_width
+        self._flex_length = flex_length
+        self._flex_color = flex_color
+        self._flex_style = flex_style
+        self._flex_arrow_size = flex_arrow_size
+        self._stress_color = stress_color
+        self._stress_fontsize = stress_fontsize
+        self._stress_rotate_labels = stress_rotate_labels
+        self._stress_normalization = stress_normalization
+        self._font_size = font_size
+        self._font_color = font_color
+        self._canvas_width = canvas_width
+        self._canvas_height = canvas_height
+        self._dpi = dpi
 
     def update(self, **kwargs):
         """
@@ -132,6 +134,237 @@ class PlotStyle(object):
                 setattr(self, key, value)
             else:
                 raise ValueError(f"PlotStyle does not have the attribute {key}.")
+
+    @property
+    def vertex_size(self):
+        return self._vertex_size
+
+    @vertex_size.setter
+    def vertex_size(self, value):
+        if isinstance(value, int):
+            self._vertex_size = value
+        else:
+            raise TypeError("vertex_size must be an integer.")
+
+    @property
+    def vertex_color(self):
+        return self._vertex_color
+
+    @vertex_color.setter
+    def vertex_color(self, value):
+        if isinstance(value, str):
+            self._vertex_color = value
+        else:
+            raise TypeError("vertex_color must be a string.")
+
+    @property
+    def vertex_labels(self):
+        return self._vertex_labels
+
+    @vertex_labels.setter
+    def vertex_labels(self, value):
+        if isinstance(value, bool):
+            self._vertex_labels = value
+        else:
+            raise TypeError("vertex_labels must be a boolean.")
+
+    @property
+    def vertex_shape(self):
+        return self._vertex_shape
+
+    @vertex_shape.setter
+    def vertex_shape(self, value):
+        if isinstance(value, str):
+            self._vertex_shape = value
+        else:
+            raise TypeError("vertex_shape must be a string.")
+
+    @property
+    def edge_width(self):
+        return self._edge_width
+
+    @edge_width.setter
+    def edge_width(self, value):
+        if isinstance(value, float | int):
+            self._edge_width = value
+        else:
+            raise TypeError("edge_width must be a float or integer.")
+
+    @property
+    def edge_color(self):
+        return self._edge_color
+
+    @edge_color.setter
+    def edge_color(self, value):
+        if isinstance(value, str):
+            self._edge_color = value
+        else:
+            raise TypeError("edge_color must be a string.")
+
+    @property
+    def edge_style(self):
+        return self._edge_style
+
+    @edge_style.setter
+    def edge_style(self, value):
+        if isinstance(value, str):
+            self._edge_style = value
+        else:
+            raise TypeError("edge_style must be a string.")
+
+    @property
+    def flex_width(self):
+        return self._flex_width
+
+    @flex_width.setter
+    def flex_width(self, value):
+        if isinstance(value, float | int):
+            self._flex_width = value
+        else:
+            raise TypeError("flex_width must be a float or integer.")
+
+    @property
+    def flex_length(self):
+        return self._flex_length
+
+    @flex_length.setter
+    def flex_length(self, value):
+        if isinstance(value, float | int):
+            self._flex_length = value
+        else:
+            raise TypeError("flex_length must be a float or integer.")
+
+    @property
+    def flex_color(self):
+        return self._flex_color
+
+    @flex_color.setter
+    def flex_color(self, value):
+        if isinstance(value, str):
+            self._flex_color = value
+        else:
+            raise TypeError("flex_color must be a string.")
+
+    @property
+    def flex_style(self):
+        return self._flex_style
+
+    @flex_style.setter
+    def flex_style(self, value):
+        if isinstance(value, str):
+            self._flex_style = value
+        else:
+            raise TypeError("flex_style must be a string.")
+
+    @property
+    def flex_arrow_size(self):
+        return self._flex_arrow_size
+
+    @flex_arrow_size.setter
+    def flex_arrow_size(self, value):
+        if isinstance(value, int):
+            self._flex_arrow_size = value
+        else:
+            raise TypeError("flex_arrow_size must be an int.")
+
+    @property
+    def stress_color(self):
+        return self._stress_color
+
+    @stress_color.setter
+    def stress_color(self, value):
+        if isinstance(value, str):
+            self._stress_color = value
+        else:
+            raise TypeError("stress_color must be a string.")
+
+    @property
+    def stress_fontsize(self):
+        return self._stress_fontsize
+
+    @stress_fontsize.setter
+    def stress_fontsize(self, value):
+        if isinstance(value, int):
+            self._stress_fontsize = value
+        else:
+            raise TypeError("stress_fontsize must be an int.")
+
+    @property
+    def stress_rotate_labels(self):
+        return self._stress_rotate_labels
+
+    @stress_rotate_labels.setter
+    def stress_rotate_labels(self, value):
+        if isinstance(value, bool):
+            self._stress_rotate_labels = value
+        else:
+            raise TypeError("stress_rotate_labels must be a boolean.")
+
+    @property
+    def stress_normalization(self):
+        return self._stress_normalization
+
+    @stress_normalization.setter
+    def stress_normalization(self, value):
+        if isinstance(value, bool):
+            self._stress_normalization = value
+        else:
+            raise TypeError("stress_normalization must be a boolean.")
+
+    @property
+    def font_size(self):
+        return self._font_size
+
+    @font_size.setter
+    def font_size(self, value):
+        if isinstance(value, int):
+            self._font_size = value
+        else:
+            raise TypeError("font_size must be an int.")
+
+    @property
+    def font_color(self):
+        return self._font_color
+
+    @font_color.setter
+    def font_color(self, value):
+        if isinstance(value, str):
+            self._font_color = value
+        else:
+            raise TypeError("font_color must be a string.")
+
+    @property
+    def canvas_width(self):
+        return self._canvas_width
+
+    @canvas_width.setter
+    def canvas_width(self, value):
+        if isinstance(value, float | int):
+            self._canvas_width = value
+        else:
+            raise TypeError("canvas_width must be a float or integer.")
+
+    @property
+    def canvas_height(self):
+        return self._canvas_height
+
+    @canvas_height.setter
+    def canvas_height(self, value):
+        if isinstance(value, float | int):
+            self._canvas_height = value
+        else:
+            raise TypeError("canvas_height must be a float or integer.")
+
+    @property
+    def dpi(self):
+        return self._dpi
+
+    @dpi.setter
+    def dpi(self, value):
+        if isinstance(value, int):
+            self._dpi = value
+        else:
+            raise TypeError("dpi must be an int.")
 
 
 class PlotStyle2D(PlotStyle):
@@ -149,19 +382,68 @@ class PlotStyle2D(PlotStyle):
         the pitch of the edge arcs in radians.
         For setting different values for individual edges,
         see ``arc_angles_dict`` in :meth:`.Framework.plot2D`.
+
+    Examples
+    --------
+    >>> from pyrigi import Framework, PlotStyle2D
+    >>> F = Framework.Complete([(0,1), (1,2), (0,2)])
+    >>> plot_style_2d = PlotStyle2D(aspect_ratio=1, edges_as_arcs=True, arc_angle=np.pi/6)
+    >>> F.plot2D(plot_style_2d)
+
+    To update the plot style, you assign to the attributes:
+    >>> plot_style_2d.aspect_ratio = 0.75
+    >>> plot_style_2d.edges_as_arcs = False
+    >>> F.plot2D(plot_style_2d)
+
+    Or use the :meth:`.update` method:
+    >>> plot_style_2d.update(aspect_ratio=1.0, edges_as_arcs=True, arc_angle=np.pi/4)
+    >>> F.plot2D(plot_style_2d)
     """
 
     def __init__(
         self,
-        aspect_ratio: float = 1.0,
+        aspect_ratio: float | int = 1.0,
         edges_as_arcs: bool = False,
-        arc_angle: float = np.pi / 6,
+        arc_angle: float | int = np.pi / 6,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self.aspect_ratio = aspect_ratio
         self.edges_as_arcs = edges_as_arcs
         self.arc_angle = arc_angle
+
+    @property
+    def aspect_ratio(self):
+        return self._aspect_ratio
+
+    @aspect_ratio.setter
+    def aspect_ratio(self, value):
+        if isinstance(value, (float, int)):
+            self._aspect_ratio = value
+        else:
+            raise TypeError("aspect_ratio must be a float or an int.")
+
+    @property
+    def edges_as_arcs(self):
+        return self._edges_as_arcs
+
+    @edges_as_arcs.setter
+    def edges_as_arcs(self, value):
+        if isinstance(value, bool):
+            self._edges_as_arcs = value
+        else:
+            raise TypeError("edges_as_arcs must be a boolean.")
+
+    @property
+    def arc_angle(self):
+        return self._arc_angle
+
+    @arc_angle.setter
+    def arc_angle(self, value):
+        if isinstance(value, float | int):
+            self._arc_angle = value
+        else:
+            raise TypeError("arc_angle must be a float or integer.")
 
     @classmethod
     def from_plot_style(cls, plot_style: PlotStyle):
@@ -173,7 +455,7 @@ class PlotStyle2D(PlotStyle):
         plot_style: PlotStyle
             The PlotStyle instance to copy attributes from.
         """
-        return cls(**plot_style.__dict__)
+        return cls(**{k[1:]: v for k, v in plot_style.__dict__.items()})
 
 
 class PlotStyle3D(PlotStyle):
@@ -186,12 +468,27 @@ class PlotStyle3D(PlotStyle):
         A triple indicating the scaling of the three axes.
     padding:
         Padding value for the plot.
+
+    Examples
+    --------
+    >>> from pyrigi import Framework, PlotStyle3D
+    >>> F = Framework.Complete([(0,1,2), (1,2,3), (2,3,0), (0,3,1)])
+    >>> plot_style_3d = PlotStyle3D(padding=0.05, axis_scales=(2.0, 2.0, 2.0))
+    >>> F.plot(plot_style_3d)
+
+    To update the plot style, you assign to the attributes:
+    >>> plot_style_3d.padding = 0.10
+    >>> plot_style_3d.axis_scales = (1.0, 2, 1.0)
+    >>> F.plot(plot_style_3d)
+
+    Or use the :meth:`.update` method:
+    >>> plot_style_3d.update(padding=0.15, axis_scales=(1.0, 1.0, 3))
     """
 
     def __init__(
         self,
-        padding: float = 0.01,
-        axis_scales: tuple[float, float, float] = (1.0, 1.0, 1.0),
+        padding: float | int = 0.01,
+        axis_scales: Sequence[float | int] = (1.0, 1.0, 1.0),
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -200,7 +497,35 @@ class PlotStyle3D(PlotStyle):
             [not isinstance(scale, float | int) for scale in axis_scales]
         ):
             raise ValueError("The length of `axis_scales` is not 3.")
-        self.axis_scales = axis_scales
+        self._axis_scales = axis_scales
+
+    @property
+    def padding(self):
+        return self._padding
+
+    @padding.setter
+    def padding(self, value):
+        if not isinstance(value, float | int):
+            raise TypeError("Padding must be a float or integer.")
+        self._padding = value
+
+    @property
+    def axis_scales(self):
+        return self._axis_scales
+
+    @axis_scales.setter
+    def axis_scales(self, scales):
+        if not isinstance(scales, (tuple, list)):
+            raise TypeError(
+                f"Axis_scales must be a tuple or a list, not {type(scales).__name__}."
+            )
+        if len(scales) != 3:
+            raise ValueError(
+                f"Axis_scales must contain exactly three elements, not {len(scales)}."
+            )
+        if not all(isinstance(scale, (int, float)) for scale in scales):
+            raise TypeError("All elements of axis_scales must be of type int or float.")
+        self._axis_scales = scales
 
     @classmethod
     def from_plot_style(cls, plot_style: PlotStyle):
@@ -212,4 +537,4 @@ class PlotStyle3D(PlotStyle):
         plot_style: PlotStyle
             The PlotStyle instance to copy attributes from.
         """
-        return cls(**plot_style.__dict__)
+        return cls(**{k[1:]: v for k, v in plot_style.__dict__.items()})

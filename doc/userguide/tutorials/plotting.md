@@ -122,15 +122,23 @@ G.plot(plot_style, placement=p, vertex_shape='>', edge_style=':')
 G.plot(plot_style, placement=p, vertex_shape='v', edge_style='solid')
 ```
 
-We can also change some values of `plot_style`:
+We can also change some values of `plot_style` in two different ways.
+The first is using method `update`.
 
 ```{code-cell} ipython3
 plot_style.update(vertex_color='green')
 G.plot(plot_style, placement=p, vertex_shape='<', edge_style='dashed')
 G.plot(plot_style, placement=p, vertex_shape='d', edge_style='dashdot')
 G.plot(plot_style, placement=p, vertex_shape='p', edge_style='dotted')
-G.plot(plot_style, placement=p, vertex_shape='h', edge_width=3)
-G.plot(plot_style, placement=p, vertex_shape='8', edge_width=5)
+```
+
+The second is a direct assignment to an attribute.
+
+```{code-cell} ipython3
+plot_style.vertex_shape = 'h'
+G.plot(plot_style, placement=p, edge_width=3)
+plot_style.vertex_shape = '8'
+G.plot(plot_style, placement=p, edge_width=5)
 ```
 
 ## Edge coloring
