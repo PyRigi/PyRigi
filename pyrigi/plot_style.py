@@ -75,7 +75,13 @@ class PlotStyle(object):
     >>> G.plot(plot_style)
 
     To change the plot style later, use the :meth:`.update` method:
+
     >>> plot_style.update(vertex_color="#00FF00")
+    >>> G.plot(plot_style)
+
+    Or assign to the attributes:
+
+    >>> plot_style.vertex_color = "blue"
     >>> G.plot(plot_style)
     """
 
@@ -390,12 +396,14 @@ class PlotStyle2D(PlotStyle):
     >>> plot_style_2d = PlotStyle2D(aspect_ratio=1, edges_as_arcs=True, arc_angle=np.pi/6)
     >>> F.plot2D(plot_style_2d)
 
-    To update the plot style, you assign to the attributes:
+    To update the plot style, you can assign to the attributes:
+
     >>> plot_style_2d.aspect_ratio = 0.75
     >>> plot_style_2d.edges_as_arcs = False
     >>> F.plot2D(plot_style_2d)
 
     Or use the :meth:`.update` method:
+
     >>> plot_style_2d.update(aspect_ratio=1.0, edges_as_arcs=True, arc_angle=np.pi/4)
     >>> F.plot2D(plot_style_2d)
     """
@@ -476,12 +484,14 @@ class PlotStyle3D(PlotStyle):
     >>> plot_style_3d = PlotStyle3D(padding=0.05, axis_scales=(2.0, 2.0, 2.0))
     >>> F.plot(plot_style_3d)
 
-    To update the plot style, you assign to the attributes:
+    To update the plot style, you can assign to the attributes:
+
     >>> plot_style_3d.padding = 0.10
     >>> plot_style_3d.axis_scales = (1.0, 2, 1.0)
     >>> F.plot(plot_style_3d)
 
     Or use the :meth:`.update` method:
+
     >>> plot_style_3d.update(padding=0.15, axis_scales=(1.0, 1.0, 3))
     """
 
