@@ -2664,7 +2664,7 @@ def test_is_not_critical_k_vertex_apex(graph, k):
         pytest.param(graphs.Complete(6), 7, marks=pytest.mark.slow_main),
         [graphs.Frustum(3), 0],
         [graphs.ThreePrism(), 0],
-        [graphs.DoubleBanana(), 8],
+        pytest.param(graphs.DoubleBanana(), 8, marks=pytest.mark.slow_main),
         [graphs.Octahedral(), 0],
     ]
     + [[graphs.Wheel(n).cone(), 1 if n == 3 else 2 * n - 3] for n in range(3, 6)],
