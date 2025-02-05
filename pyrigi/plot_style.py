@@ -87,7 +87,7 @@ class PlotStyle(object):
 
     def __init__(
         self,
-        vertex_size: int = 300,
+        vertex_size: float | int = 300,
         vertex_color: str = "#ff8c00",
         vertex_labels: bool = True,
         vertex_shape: str = "o",
@@ -147,10 +147,10 @@ class PlotStyle(object):
 
     @vertex_size.setter
     def vertex_size(self, value):
-        if isinstance(value, int):
+        if isinstance(value, float | int):
             self._vertex_size = value
         else:
-            raise TypeError("vertex_size must be an integer.")
+            raise TypeError("vertex_size must be a float or integer.")
 
     @property
     def vertex_color(self):
