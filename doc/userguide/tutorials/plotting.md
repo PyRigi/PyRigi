@@ -150,14 +150,14 @@ P.plot(plot_style, placement=p, edge_color='red')
 If a partition of the edges is specified, then each part is colored differently.
 
 ```{code-cell} ipython3
-P.plot(plot_style, placement=p, edge_coloring=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]])
+P.plot(plot_style, placement=p, edge_colors_custom=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]])
 ```
 
 If the partition is incomplete, the missing edges get `plot_style.edge_color`.
 
 ```{code-cell} ipython3
 plot_style.update(edge_color='green')
-P.plot(plot_style, placement=p, edge_coloring=[[[0, 1], [2, 3]], [[5, 4], [4, 3]]])
+P.plot(plot_style, placement=p, edge_colors_custom=[[[0, 1], [2, 3]], [[5, 4], [4, 3]]])
 ```
 
 Visually distinct colors are generated using the package [`distinctipy`](https://pypi.org/project/distinctipy/).
@@ -167,7 +167,7 @@ P30 = graphs.Path(30)
 P30.plot( 
     vertex_size=15,
     vertex_labels=False,
-    edge_coloring=[[e] for e in P30.edge_list()],
+    edge_colors_custom=[[e] for e in P30.edge_list()],
     edge_width=3
 )
 ```
@@ -177,7 +177,7 @@ Another possibility is to provide a dictionary assigning to a color a list of ed
 ```{code-cell} ipython3
 P.plot(plot_style,
        placement=p,
-        edge_coloring={
+        edge_colors_custom={
             "yellow": [[0, 1], [2, 3]],
             "#ABCDEF": [[5, 4], [4, 3]]
         },
@@ -203,7 +203,7 @@ F.plot(
     vertex_color='#A2B4C6',
     edge_style='dashed',
     edge_width=2,
-    edge_coloring={"pink": [[0,1],[3,6]], "lightgreen": [[2, 3], [3, 5]]}
+    edge_colors_custom={"pink": [[0,1],[3,6]], "lightgreen": [[2, 3], [3, 5]]}
 )
 ```
 
