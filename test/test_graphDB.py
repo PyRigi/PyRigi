@@ -145,5 +145,5 @@ def test_Icosahedral():
 
 
 def test_Dodecahedron():
-    G = graphs.Dodecahedron()
+    G = graphs.Dodecahedral()
     assert G.number_of_nodes() == 20 and G.number_of_edges() == 30
