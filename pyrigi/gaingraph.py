@@ -95,7 +95,7 @@ class GainGraph(nx.MultiDiGraph):
                 raise ValueError("Loops cannot have the identity element as gain.")
         for edge1, gain_list1 in _gains.items():
             for edge2, gain_list_2 in _gains.items():
-                if edge1[0] == edge2[1] and edge1[1] == edge2[1][0]:
+                if edge1[0] == edge2[1] and edge1[1] == edge2[0] and not edge1[0]==edge1[1]:
                     for gain in gain_list1:
                         if (-gain) % group_order in gain_list_2:
                             raise ValueError(
@@ -224,7 +224,7 @@ class GainGraph(nx.MultiDiGraph):
                 width=plot_style.edge_width,
                 edge_color=edge_to_color[frozenset(edge[0:2])],
                 arrows=True,
-                arrowstyle="-",
+                arrowstyle="->",
                 edgelist=[(edge[0], edge[1])],
                 connectionstyle=f"Arc3, rad = {edge[2]['weight']}",
             )
