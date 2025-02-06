@@ -12,8 +12,10 @@ class GainGraph(nx.MultiDiGraph):
 
     Parameters
     ----------
-    group_order:
-        Order of the underlying group.
+    group:
+        Tupel of a ``str`` representing the group and a sequence of
+        ``int`` that describe an atomic isomorphic group (Chinese
+        Remainder Theorem).
     vertex_partition:
         Partition of the vertex set.
 
@@ -69,9 +71,9 @@ class GainGraph(nx.MultiDiGraph):
                 ):
                     raise ValueError("The gains do not have the correct format.")
                 if tuple(gain[0]) in _gains:
-                    _gains[tuple(gain[0])] += [gain[0] % group_order]
+                    _gains[tuple(gain[0])] += [gain[1] % group_order]
                 else:
-                    _gains[tuple(gain[0])] = [gain[0] % group_order]
+                    _gains[tuple(gain[0])] = [gain[1] % group_order]
         elif isinstance(gains, dict):
             _gains = gains
             for e in _gains.keys():
@@ -95,7 +97,11 @@ class GainGraph(nx.MultiDiGraph):
                 raise ValueError("Loops cannot have the identity element as gain.")
         for edge1, gain_list1 in _gains.items():
             for edge2, gain_list_2 in _gains.items():
-                if edge1[0] == edge2[1] and edge1[1] == edge2[0] and not edge1[0]==edge1[1]:
+                if (
+                    edge1[0] == edge2[1]
+                    and edge1[1] == edge2[0]
+                    and not edge1[0] == edge1[1]
+                ):
                     for gain in gain_list1:
                         if (-gain) % group_order in gain_list_2:
                             raise ValueError(
@@ -105,7 +111,7 @@ class GainGraph(nx.MultiDiGraph):
         G = GainGraph()
         for edge, gain in _gains.items():
             G.add_edges_from([(edge[0], edge[1], {"gain": val}) for val in gain])
-        G.group_order = group_order
+        G.group = ("Z_k", group_order)
 
         if vertex_partition is not None:
             if len(vertex_partition) != 2:
@@ -131,9 +137,120 @@ class GainGraph(nx.MultiDiGraph):
 
             G.vertex_partition = vertex_partition
         else:
-            G.vertex_partition = [list(G.nodes),[]]
+            G.vertex_partition = [list(G.nodes), []]
 
         return G
+    
+    @classmethod
+    def from_dihedral_group(
+        cls,
+        gains: (
+            Sequence[Sequence[DirectedEdge | Sequence[int]]] | dict[DirectedEdge, Sequence[Sequence[int]]]
+        ),
+        group_order: Sequence[int],
+        vertex_partition: tuple[Sequence[Vertex], Sequence[Vertex]] = None,
+    ):
+        """
+        Create a gain graph for a cyclic group of order ``group_order``
+        """
+        if not insinstance(group_order, list | tuple) or len(group_order) != 2:
+            raise ValueError("The group order of dihedral groups needs to be presented as a "
+                                +f"direct sum of two cyclic groups, but is {group_order}.")
+        _input_check.integrality_and_range(group_order[0], "group_order", 2)
+        _input_check.integrality_and_range(group_order[1], "group_order", 2)
+
+        if isinstance(gains, Sequence):
+            _gains = {}
+            for gain in gains:
+                if (
+                    not len(gain) == 2
+                    or not isinstance(gain[0], tuple | list)
+                    or len(gain[0]) != 2
+                    or not isinstance(gain[1], tuple | list)
+                    or len(gain[1]) != 2
+                ):
+                    raise ValueError("The gains do not have the correct format.")
+                if tuple(gain[0]) in _gains:
+                    _gains[tuple(gain[0])] += [tuple([gain[1][0] % group_order[0], gain[1][1] % group_order[1]])]
+                else:
+                    _gains[tuple(gain[0])] = [tuple([gain[1][0] % group_order[0], gain[1][1] % group_order[1]])]
+        elif isinstance(gains, dict):
+            _gains = gains
+            for e in _gains.keys():
+                if (
+                    not len(e) == 2
+                    or not isinstance(_gains[e], tuple | list)
+                    or not all([isinstance(gain, tuple | list) for gain in _gains[e]])
+                    or not all([len(gain[1]) == 2 for gain in _gains[e]])
+                ):
+                    raise ValueError("The gains do not have the correct format.")
+                _gains[e] = [tuple([gain[0] % group_order[0], gain[1] % group_order[1]]) for gain in _gains[e]]
+        else:
+            raise TypeError(
+                f"The gains have the type {type(gains)}, "
+                + "even though we expect a `list` or a `dict`."
+            )
+
+        for edge, gain_list in _gains.items():
+            if len(gain_list) != len(set(gain_list)):
+                raise ValueError("The gains are not unique on parallel edges.")
+            if edge[0] == edge[1] and tuple([0,0]) in gain_list:
+                raise ValueError("Loops cannot have the identity element as gain.")
+        for edge1, gain_list1 in _gains.items():
+            for edge2, gain_list_2 in _gains.items():
+                if (
+                    edge1[0] == edge2[1]
+                    and edge1[1] == edge2[0]
+                    and not edge1[0] == edge1[1]
+                ):
+                    for gain in gain_list1:
+                        if (-gain[0]) % group_order[0] in [g[0] for g in gain_list_2] or (-gain[1]) % group_order[1] in [g[1] for g in gain_list_2]:
+                            raise ValueError(
+                                "Parallel edges cannot have inverse gains."
+                            )
+
+        G = GainGraph()
+        for edge, gain in _gains.items():
+            G.add_edges_from([(edge[0], edge[1], {"gain": val}) for val in gain])
+        G.group = ("D_k", group_order)
+
+        if vertex_partition is not None:
+            if len(vertex_partition) != 2:
+                raise ValueError("`vertex_partition` does not have the correct length.")
+            if any(
+                [
+                    len(vertex_partition[i]) != len(set(vertex_partition[i]))
+                    for i in range(2)
+                ]
+            ):
+                raise ValueError(
+                    "There are duplicate vertices in the `vertex_partition`."
+                )
+            for v in G.nodes:
+                if v not in vertex_partition[0] + vertex_partition[1]:
+                    raise ValueError(
+                        "The `vertex_partition` does not "
+                        + "cover all of the multigraph's vertices."
+                    )
+            for v in vertex_partition[0] + vertex_partition[1]:
+                if v not in G.nodes:
+                    G.add_node(v)
+
+            G.vertex_partition = vertex_partition
+        else:
+            G.vertex_partition = [list(G.nodes), []]
+
+        return G
+    
+    def is_balanced(self):
+        """
+        Checks whether the gain graph is balanced.
+        
+        Definitions
+        -----------
+        :prf:ref:`Balanced Gain Graph <def-gain-graph>`
+        """
+
 
     def plot(
         self,
@@ -142,11 +259,14 @@ class GainGraph(nx.MultiDiGraph):
         arc_angles_dict: (
             Sequence[float] | dict[Sequence[DirectedEdge, int], float]
         ) = None,
-        edge_colors_custom: Sequence[Sequence[DirectedEdge, int]] | dict[Sequence[DirectedEdge, int], str] = None,
+        edge_colors_custom: (
+            Sequence[Sequence[DirectedEdge, int]]
+            | dict[Sequence[DirectedEdge, int], str]
+        ) = None,
         **kwargs,
     ):
         if plot_style is None:
-            plot_style = PlotStyle2D(vertex_color="#4169E1")
+            plot_style = PlotStyle2D(vertex_color="#4169E1", stress_fontsize=9)
         plot_style.update(**kwargs)
 
         if placement is None:
@@ -166,9 +286,7 @@ class GainGraph(nx.MultiDiGraph):
         edge_color_array, edge_list_ref = self.resolve_edge_colors(
             plot_style.edge_color, edge_colors_custom
         )
-        arc_angles = self.resolve_arc_angles(
-            plot_style.arc_angle, arc_angles_dict
-        )
+        arc_angles = self.resolve_arc_angles(plot_style.arc_angle, arc_angles_dict)
 
         fig, ax = plt.subplots()
         ax.set_adjustable("datalim")
@@ -229,24 +347,30 @@ class GainGraph(nx.MultiDiGraph):
                 connectionstyle=f"Arc3, rad = {edge[2]['weight']}",
             )
         labels = {
-            tuple((edge[0],edge[1],edge[2])): edge[3]
+            tuple((edge[0], edge[1], edge[2])): edge[3]
             for edge in self.edges(data="gain", keys=True)
         }
-        for e in newGraph.edges(data=True,keys=True):
+        for e in newGraph.edges(data=True, keys=True):
             nx.draw_networkx_edge_labels(
                 newGraph,
                 placement,
-                {(e[0],e[1],e[2]): labels[(e[0],e[1],e[2])]},
-                connectionstyle=f"Arc3, rad = {e[3]['weight']}" ,
+                {(e[0], e[1], e[2]): labels[(e[0], e[1], e[2])]},
+                connectionstyle=f"Arc3, rad = {e[3]['weight']}",
                 font_color=plot_style.stress_color,
-                font_size=plot_style.font_size,
+                font_size=plot_style.stress_fontsize,
                 ax=ax,
+                label_pos = 0.1 if e[0]==e[1] else 0.5,
+                verticalalignment="center",
+                horizontalalignment="center"
             )
 
     def resolve_edge_colors(
         self,
         edge_color: str,
-        edge_colors_custom: Sequence[Sequence[DirectedEdge, int]] | dict[Sequence[DirectedEdge, int], str] = None,
+        edge_colors_custom: (
+            Sequence[Sequence[DirectedEdge, int]]
+            | dict[Sequence[DirectedEdge, int], str]
+        ) = None,
     ) -> tuple[list, list]:
         """
         Return the lists of colors and edges in the format for plotting.
@@ -269,7 +393,9 @@ class GainGraph(nx.MultiDiGraph):
             for i, part in enumerate(edges_partition):
                 for e in part:
                     if not self.has_edge(e[0], e[1]):
-                        raise ValueError("The input includes a pair that is not an edge.")
+                        raise ValueError(
+                            "The input includes a pair that is not an edge."
+                        )
                     edge_color_array.append(colors[i])
                     edge_list_ref.append(tuple(e))
         elif isinstance(edge_colors_custom, dict):
@@ -304,12 +430,14 @@ class GainGraph(nx.MultiDiGraph):
                 f"was specified multiple times: {duplicates}."
             )
         return edge_color_array, edge_list_ref
-    
+
     def resolve_arc_angles(
         self,
         arc_angle: float,
-        arc_angles_dict: Sequence[float] | dict[Sequence[DirectedEdge,int], float] = None,
-    ) -> dict[Sequence[DirectedEdge,int], float]:
+        arc_angles_dict: (
+            Sequence[float] | dict[Sequence[DirectedEdge, int], float]
+        ) = None,
+    ) -> dict[Sequence[DirectedEdge, int], float]:
         """
         Resolve the arc angles style for the visualization of the framework.
         """
@@ -322,19 +450,28 @@ class GainGraph(nx.MultiDiGraph):
                     "The provided `arc_angles_dict` don't have the correct length."
                 )
             res = {
-            e: style for e, style in zip(self.edges(data="gain", keys=False), arc_angles_dict)
+                e: style
+                for e, style in zip(
+                    self.edges(data="gain", keys=False), arc_angles_dict
+                )
             }
         elif isinstance(arc_angles_dict, dict):
             if (
                 not all(
                     [
-                        isinstance(e, tuple) and len(e) == 3 and isinstance(v, float | int)
+                        isinstance(e, tuple)
+                        and len(e) == 3
+                        and isinstance(v, float | int)
                         for e, v in arc_angles_dict.items()
                     ]
                 )
                 or not all(
                     [
-                        set(key) in [set([e[0], e[1], e[2]]) for e in self.edges(data="gain", keys=False)]
+                        set(key)
+                        in [
+                            set([e[0], e[1], e[2]])
+                            for e in self.edges(data="gain", keys=False)
+                        ]
                         for key in arc_angles_dict.keys()
                     ]
                 )
@@ -347,9 +484,11 @@ class GainGraph(nx.MultiDiGraph):
                     "The provided `arc_angles_dict` contain different edges "
                     + "than the underlying graph or has an incorrect format."
                 )
-            res = {e: style for e, style in arc_angles_dict.items() if self.has_edge(*e)}
+            res = {
+                e: style for e, style in arc_angles_dict.items() if self.has_edge(*e)
+            }
             for e in self.edges(data="gain", keys=False):
-                if not (tuple(e) in res or tuple([e[1], e[0],e[2]]) in res):
+                if not (tuple(e) in res or tuple([e[1], e[0], e[2]]) in res):
                     res[tuple(e)] = arc_angle
         else:
             raise TypeError(
