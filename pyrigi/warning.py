@@ -31,7 +31,7 @@ class RandomizedAlgorithmWarning(UserWarning):
             if class_off is not None:
                 msg_str += (
                     "\nTo switch off all RandomizedAlgorithmWarnings"
-                    + f"for the class {class_off.__name__},"
+                    + f"for the class {class_off.__name__} and all its subclasses,"
                     + f" use `{class_off.__name__}.silence_rand_alg_warns=True`."
                 )
             msg_str += "\n"
