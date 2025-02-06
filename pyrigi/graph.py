@@ -4,6 +4,7 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from copy import deepcopy
 from itertools import combinations
 from typing import Iterable
@@ -91,6 +92,8 @@ class Graph(nx.Graph):
     Graph names.
     __repr__ output for larger graphs?
     """
+
+    silence_rand_alg_warns = False
 
     def __str__(self) -> str:
         """
@@ -365,6 +368,18 @@ class Graph(nx.Graph):
                     "the same edges as in the graph!"
                 )
             return list(edge_order)
+
+    @classmethod
+    def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None):
+        """
+        Raise a warning if a randomized algorithm is called without specifying it.
+        """
+        if not cls.silence_rand_alg_warns:
+            warnings.warn(
+                RandomizedAlgorithmWarning(
+                    method, explicit_call=explicit_call, class_off=cls
+                )
+            )
 
     @doc_category("Attribute getters")
     def vertex_list(self) -> list[Vertex]:
@@ -2189,8 +2204,8 @@ class Graph(nx.Graph):
                 algorithm = "combinatorial"
             else:
                 algorithm = "randomized"
-                warnings.warn(
-                    RandomizedAlgorithmWarning(suppression="algorithm='randomized'")
+                self._warn_randomized_alg(
+                    self.is_Rd_independent, explicit_call="algorithm='randomized"
                 )
 
         if algorithm == "combinatorial":
@@ -2451,7 +2466,7 @@ class Graph(nx.Graph):
         raise NotSupportedValueError(algorithm, "algorithm", self.rigid_components)
 
     @doc_category("Generic rigidity")
-    def max_rigid_dimension(self, random_aware: bool = False) -> int | Inf:
+    def max_rigid_dimension(self) -> int | Inf:
         """
         Compute the maximum dimension, in which a graph is
         :prf:ref:`generically rigid <def-gen-rigid>`.
@@ -2502,8 +2517,7 @@ class Graph(nx.Graph):
         max_dim = int(
             math.floor(0.5 * (2 * n + math.sqrt((1 - 2 * n) ** 2 - 8 * m) - 1))
         )
-        if not random_aware:
-            warnings.warn(RandomizedAlgorithmWarning(suppression="random_aware=True"))
+        self._warn_randomized_alg(self.max_rigid_dimension)
         for dim in range(max_dim, 0, -1):
             if self.is_rigid(dim, algorithm="randomized"):
                 return dim
