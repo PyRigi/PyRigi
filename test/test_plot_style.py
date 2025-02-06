@@ -55,7 +55,6 @@ def test_PlotStyle():
 
 
 def test_update():
-    # proper attribute update
     plot_style = PlotStyle(vertex_color="blue", edge_color="red")
     assert plot_style.vertex_color == "blue"
     assert plot_style.edge_color == "red"
@@ -71,7 +70,6 @@ def test_update():
 
 
 def test_PlotStyle_getters_setters():
-    # Instantiate a PlotStyle object
     plot_style = PlotStyle(vertex_color="red")
 
     # Test vertex_size property
@@ -204,7 +202,6 @@ def test_PlotStyle2D():
     assert issubclass(PlotStyle2D, PlotStyle)
     assert isinstance(plot_style_2d, PlotStyle)
 
-    # Create instance of PlotStyle2D including an inherited argument
     plot_style_2d = PlotStyle2D(
         aspect_ratio=1.5, edges_as_arcs=True, arc_angle=np.pi / 4, edge_color="blue"
     )
@@ -214,7 +211,6 @@ def test_PlotStyle2D():
     assert plot_style_2d.arc_angle == np.pi / 4
     assert plot_style_2d.edge_color == "blue"
 
-    # Test method from_plot_style
     plot_style = PlotStyle(vertex_color="red")
     converted_plot_style = PlotStyle2D.from_plot_style(plot_style)
 
@@ -223,7 +219,6 @@ def test_PlotStyle2D():
 
 
 def test_PlotStyle2D_getters_setters():
-    # Instantiate a PlotStyle2D object
     plot_style = PlotStyle2D(
         vertex_size=400,
         vertex_color="red",
@@ -287,7 +282,6 @@ def test_PlotStyle3D():
 
 
 def test_PlotStyle3D_setters_and_getters():
-    # Create instance of PlotStyle3D
     plot_style_3d = PlotStyle3D(padding=0.02, axis_scales=(2.0, 2.0, 2.0))
 
     # Check initial attributes are correct
