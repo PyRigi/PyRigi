@@ -372,7 +372,7 @@ class Graph(nx.Graph):
     @classmethod
     def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None):
         """
-        Raise a warning if a randomized algorithm is called without specifying it.
+        Raise a warning if a randomized algorithm is silently called.
         """
         if not cls.silence_rand_alg_warns:
             warnings.warn(
@@ -2473,12 +2473,6 @@ class Graph(nx.Graph):
 
         For checking rigidity, the method uses a randomized algorithm,
         see :meth:`~.is_rigid` for details.
-
-        Parameters
-        ----------
-        random_aware:
-            If ``True``, the warning that randomization
-            is used is suppresed.
 
         Notes
         -----
