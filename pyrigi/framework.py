@@ -2017,7 +2017,13 @@ class Framework(object):
                     (
                         (sp.sign(coefficients[(i, i)]) == sp.sign(coefficients[(j, j)]))
                         and (
-                            sp.sign(sp.sign(coefficients[(i, j)]) * coefficients[(i, j)] - sp.sqrt(4 * coefficients[(i, i)] * coefficients[(j, j)])) == -1
+                            sp.sign(
+                                sp.sign(coefficients[(i, j)]) * coefficients[(i, j)]
+                                - sp.sqrt(
+                                    4 * coefficients[(i, i)] * coefficients[(j, j)]
+                                )
+                            )
+                            == -1
                         )
                     )
                     for i in range(len(inf_flexes))
