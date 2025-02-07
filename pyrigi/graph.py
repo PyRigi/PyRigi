@@ -4,6 +4,7 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from copy import deepcopy
 from itertools import combinations
 from typing import Iterable
@@ -14,12 +15,13 @@ from sympy import Matrix, oo, zeros
 
 import math
 from random import randint
-from warnings import warn
+import warnings
 
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 
 from pyrigi.misc import doc_category, generate_category_tables
 from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.warning import RandomizedAlgorithmWarning
 import pyrigi._pebble_digraph
 import pyrigi._input_check as _input_check
 
@@ -90,6 +92,8 @@ class Graph(nx.Graph):
     Graph names.
     __repr__ output for larger graphs?
     """
+
+    silence_rand_alg_warns = False
 
     def __str__(self) -> str:
         """
@@ -364,6 +368,18 @@ class Graph(nx.Graph):
                     "the same edges as in the graph!"
                 )
             return list(edge_order)
+
+    @classmethod
+    def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None):
+        """
+        Raise a warning if a randomized algorithm is silently called.
+        """
+        if not cls.silence_rand_alg_warns:
+            warnings.warn(
+                RandomizedAlgorithmWarning(
+                    method, explicit_call=explicit_call, class_off=cls
+                )
+            )
 
     @doc_category("Attribute getters")
     def vertex_list(self) -> list[Vertex]:
@@ -2138,7 +2154,10 @@ class Graph(nx.Graph):
 
     @doc_category("Rigidity Matroid")
     def is_Rd_independent(
-        self, dim: int = 2, use_precomputed_pebble_digraph: bool = False
+        self,
+        dim: int = 2,
+        algorithm: str = None,
+        use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
         """
         Return whether the edge set is independent in the generic dim-rigidity matroid.
@@ -2152,6 +2171,9 @@ class Graph(nx.Graph):
         ---------
         dim:
             Dimension of the rigidity matroid
+        algorithm:
+            A `"combinatorial"` (default for ``dim==1`` or ``2``)
+            or `"randomized"` (default for ``dim>=3``) algorithm can be used.
         use_precomputed_pebble_digraph:
             Only relevant if ``dim=2``.
             If ``True``, the pebble digraph present in the cache is used.
@@ -2176,17 +2198,33 @@ class Graph(nx.Graph):
         """
         _input_check.dimension(dim)
         self._input_check_no_loop()
-        if dim == 1:
-            return len(nx.cycle_basis(self)) == 0
 
-        if dim == 2:
-            self.is_kl_sparse(
-                2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+        if algorithm is None:
+            if dim in [1, 2]:
+                algorithm = "combinatorial"
+            else:
+                algorithm = "randomized"
+                self._warn_randomized_alg(
+                    self.is_Rd_independent, explicit_call="algorithm='randomized"
+                )
+
+        if algorithm == "combinatorial":
+            _input_check.dimension_for_algorithm(
+                dim, [1, 2], "the combinatorial algorithm"
             )
 
-        warn("This method uses a randomized algorithm!")
-        F = self.random_framework(dim=dim)
-        return len(F.stresses()) == 0
+            if dim == 1:
+                return len(nx.cycle_basis(self)) == 0
+
+            if dim == 2:
+                return self.is_kl_sparse(
+                    2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+                )
+        elif algorithm == "randomized":
+            F = self.random_framework(dim=dim)
+            return len(F.stresses()) == 0
+
+        raise NotSupportedValueError(algorithm, "algorithm", self.is_Rd_independent)
 
     @doc_category("Rigidity Matroid")
     def is_Rd_circuit(
@@ -2433,6 +2471,9 @@ class Graph(nx.Graph):
         Compute the maximum dimension, in which a graph is
         :prf:ref:`generically rigid <def-gen-rigid>`.
 
+        For checking rigidity, the method uses a randomized algorithm,
+        see :meth:`~.is_rigid` for details.
+
         Notes
         -----
         This is done by taking the dimension predicted by the Maxwell count
@@ -2470,8 +2511,7 @@ class Graph(nx.Graph):
         max_dim = int(
             math.floor(0.5 * (2 * n + math.sqrt((1 - 2 * n) ** 2 - 8 * m) - 1))
         )
-
-        warn("This method uses a randomized algorithm.")
+        self._warn_randomized_alg(self.max_rigid_dimension)
         for dim in range(max_dim, 0, -1):
             if self.is_rigid(dim, algorithm="randomized"):
                 return dim

@@ -1,9 +1,8 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
-from pyrigi.exception import (
-    LoopError,
-    NotSupportedValueError,
-)
+from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.warning import RandomizedAlgorithmWarning
+
 import matplotlib.pyplot as plt
 
 import pytest
@@ -2518,16 +2517,22 @@ def test_is_Rd_dependent_d3(graph):
 @pytest.mark.parametrize(
     "graph",
     [
-        graphs.Path(5),
         graphs.Complete(4),
         graphs.Cycle(6),
         graphs.ThreePrism(),
         graphs.K33plusEdge(),
         graphs.K66MinusPerfectMatching(),
+        graphs.Path(5),
     ],
 )
 def test_is_Rd_independent_d3(graph):
     assert graph.is_Rd_independent(dim=3)
+
+
+def test_is_Rd_independent_d3_warning():
+    G = graphs.K33plusEdge()
+    with pytest.warns(RandomizedAlgorithmWarning):
+        G.is_Rd_independent(dim=3)
 
 
 @pytest.mark.parametrize(
@@ -2548,3 +2553,9 @@ def test_is_Rd_independent_d3(graph):
 )
 def test_max_rigid_dimension(graph, k):
     assert graph.max_rigid_dimension() == k
+
+
+def test_max_rigid_dimension_warning():
+    G = graphs.K66MinusPerfectMatching()
+    with pytest.warns(RandomizedAlgorithmWarning):
+        G.max_rigid_dimension()
