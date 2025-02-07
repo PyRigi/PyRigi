@@ -842,7 +842,7 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified,
+            If ``True``, the graph is modified,
             otherwise a new modified graph will be created,
             while the original graph remains unchanged (default).
 
@@ -903,7 +903,7 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the k-extension is created.
         inplace:
-            If True, the graph will be modified,
+            If ``True``, the graph is modified,
             otherwise a new modified graph will be created,
             while the original graph remains unchanged (default).
 
@@ -985,7 +985,7 @@ class Graph(nx.Graph):
         k
         dim
         only_non_isomorphic:
-            If True, only one graph per isomorphism class is included.
+            If ``True``, only one graph per isomorphism class is included.
 
         Examples
         --------
@@ -1061,7 +1061,7 @@ class Graph(nx.Graph):
         ----------
         dim
         only_non_isomorphic:
-            If True, only one graph per isomorphism class is included.
+            If ``True``, only one graph per isomorphism class is included.
         k_min
             Minimal value of ``k`` for the k-extensions (default 0).
         k_max
@@ -1270,7 +1270,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         inplace:
-            If True, the graph will be modified,
+            If ``True``, the graph is modified,
             otherwise a new modified graph will be created,
             while the original graph remains unchanged (default).
         vertex:
