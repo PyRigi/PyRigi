@@ -2979,7 +2979,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_k_vertex_apex(self, k: int):
         """
-        Checks whether the removal of some set of k vertices creates a planar graph.
+        Check whether the removal of some set of k vertices creates a planar graph.
 
         Definitions
         -----------
@@ -3007,7 +3007,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_k_edge_apex(self, k: int):
         """
-        Checks whether the removal of some set of k edges creates a planar graph.
+        Check whether the removal of some set of k edges creates a planar graph.
 
         Definitions
         -----------
@@ -3034,7 +3034,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_critical_k_vertex_apex(self, k: int):
         """
-        Checks whether the removal of all choices of k vertices creates a planar graph.
+        Check whether the removal of all choices of k vertices creates a planar graph.
 
         Definitions
         -----------
@@ -3062,7 +3062,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_critical_k_edge_apex(self, k: int):
         """
-        Checks whether the removal of all choices of k edges creates a planar graph.
+        Check whether the removal of all choices of k edges creates a planar graph.
 
         Definitions
         -----------
