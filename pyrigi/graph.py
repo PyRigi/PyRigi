@@ -1394,6 +1394,7 @@ class Graph(nx.Graph):
             for checking rigidity in this method.
         prob:
             bound on the probability for false negatives of the rigidity testing
+            when ``algorithm="randomized"``.
             Warning: this is not the probability of wrong results in this method
             but is just passed on to rigidity testing
 
@@ -1515,6 +1516,7 @@ class Graph(nx.Graph):
             for checking rigidity in this method.
         prob:
             bound on the probability for false negatives of the rigidity testing
+            when ``algorithm="randomized"``.
             Warning: this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing
 
@@ -1644,6 +1646,7 @@ class Graph(nx.Graph):
             for checking rigidity in this method.
         prob:
             bound on the probability for false negatives of the rigidity testing
+            when ``algorithm="randomized"``.
             Warning: this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
@@ -1759,6 +1762,7 @@ class Graph(nx.Graph):
             for checking rigidity in this method.
         prob:
             bound on the probability for false negatives of the rigidity testing
+            when ``algorithm="randomized"``.
             Warning: this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
@@ -2493,6 +2497,7 @@ class Graph(nx.Graph):
             ``"subgraphs-pebble"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
         prob:
             bound on the probability for false negatives of the rigidity testing
+            when ``algorithm="randomized"``.
             Warning: this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
