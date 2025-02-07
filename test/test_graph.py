@@ -2561,7 +2561,7 @@ def test_max_rigid_dimension_warning():
     G = graphs.K66MinusPerfectMatching()
     with pytest.warns(RandomizedAlgorithmWarning):
         G.max_rigid_dimension()
-      
+
 
 def test_cone():
     G = graphs.Complete(5).cone()
