@@ -1956,7 +1956,7 @@ class Graph(nx.Graph):
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``
             and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2`` and ``algorithm="sparsity"``.
+            Only relevant if ``algorithm="sparsity"``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
@@ -2286,7 +2286,7 @@ class Graph(nx.Graph):
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
             ``"sparsity"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
         use_precomputed_pebble_digraph:
-            Only relevant if ``dim=2``.
+            Only relevant if ``algorithm="sparsity"``.
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
@@ -2387,7 +2387,7 @@ class Graph(nx.Graph):
         dim:
             Dimension of the rigidity matroid
         algorithm:
-            See :meth:`.is_Rd_closed` for details.
+            See :meth:`.Rd_closure` for the options.
 
         Examples
         --------
@@ -3151,24 +3151,30 @@ class Graph(nx.Graph):
 
         Using keyword arguments for customizing the plot style,
         see :class:`.PlotStyle` and :class:`.PlotStyle2D` for all possible options.
+
         >>> G.plot(vertex_color="#FF0000", edge_color="black", vertex_size=50)
 
         Specifying a custom plot style
+
         >>> from pyrigi import PlotStyle
         >>> plot_style = PlotStyle(vertex_color="#FF0000")
         >>> G.plot(plot_style)
 
         Using different layout
+
         >>> G.plot(layout="circular")
 
         Using custom placement for vertices
+
         >>> placement = {0: (1,2), 1: (2,3), 2: (3,4), 3: (4,5)}
         >>> G.plot(placement=placement)
 
         Combining different customizations
+
         >>> G.plot(plot_style, layout="random", placement=placement)
 
         The following is just to close all figures after running the example:
+
         >>> import matplotlib.pyplot
         >>> matplotlib.pyplot.close("all")
         """
