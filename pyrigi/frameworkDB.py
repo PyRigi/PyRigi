@@ -295,8 +295,8 @@ def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
         the other on the y-axis is returned.
         Otherwise (default), a "general" realization is returned.
 
-    Todo
-    ----
+    Suggested Improvements
+    ----------------------
     Implement realization in higher dimensions.
     """
     _input_check.integrality_and_range(m, "size m", 1)
