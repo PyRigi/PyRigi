@@ -1515,7 +1515,8 @@ class Graph(nx.Graph):
             for checking rigidity in this method.
         prob:
             bound on the probability for false negatives of the rigidity testing
-            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
+            Warning: this is not the probability of wrong results in this method,
+            but is just passed on to rigidity testing
 
         Examples
         --------
@@ -1643,7 +1644,8 @@ class Graph(nx.Graph):
             for checking rigidity in this method.
         prob:
             bound on the probability for false negatives of the rigidity testing
-            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
+            Warning: this is not the probability of wrong results in this method,
+            but is just passed on to rigidity testing.
 
         Examples
         --------
@@ -1757,7 +1759,8 @@ class Graph(nx.Graph):
             for checking rigidity in this method.
         prob:
             bound on the probability for false negatives of the rigidity testing
-            Warning: this is not the probability of wrong results in this method but is just passed on to rigidity testing
+            Warning: this is not the probability of wrong results in this method,
+            but is just passed on to rigidity testing.
 
 
         Examples
@@ -1850,9 +1853,9 @@ class Graph(nx.Graph):
             :prf:ref:`thm-2-gen-rigidity` are used.
 
             If ``"randomized"``, a probabilistic check is performed
-            that may give false negatives.
-            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
-            the randomized check returns a correct result.
+            that may give false negatives, but no false positives.
+            See :prf:ref:`thm-probabilistic-rigidity-check` and ``prob``
+            for the probability that the randomized check returns a correct result.
 
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``
             and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
@@ -2076,7 +2079,7 @@ class Graph(nx.Graph):
         True
         >>> C.is_globally_rigid(dim=3)
         False
-        """  # noqa: E501
+        """
         _input_check.dimension(dim)
         self._input_check_no_loop()
 
@@ -2462,7 +2465,7 @@ class Graph(nx.Graph):
 
     @doc_category("Generic rigidity")
     def rigid_components(
-        self, dim: int = 2, algorithm: str = "default"
+        self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> list[list[Vertex]]:
         """
         List the vertex sets inducing vertex-maximal rigid subgraphs.
@@ -2488,6 +2491,10 @@ class Graph(nx.Graph):
 
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
             ``"subgraphs-pebble"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method,
+            but is just passed on to rigidity testing.
 
         Notes
         -----
@@ -2548,14 +2555,16 @@ class Graph(nx.Graph):
             else:
                 alg_is_rigid = "randomized"
 
-            if self.is_rigid(dim, algorithm=alg_is_rigid):
+            if self.is_rigid(dim, algorithm=alg_is_rigid, prob=prob):
                 return [list(self)]
 
             rigid_subgraphs = {
                 tuple(vertex_subset): True
                 for r in range(2, self.number_of_nodes() - 1)
                 for vertex_subset in combinations(self.nodes, r)
-                if self.subgraph(vertex_subset).is_rigid(dim, algorithm=alg_is_rigid)
+                if self.subgraph(vertex_subset).is_rigid(
+                    dim, algorithm=alg_is_rigid, prob=prob
+                )
             }
 
             sorted_rigid_subgraphs = sorted(
@@ -2571,13 +2580,20 @@ class Graph(nx.Graph):
         raise NotSupportedValueError(algorithm, "algorithm", self.rigid_components)
 
     @doc_category("Generic rigidity")
-    def max_rigid_dimension(self) -> int | Inf:
+    def max_rigid_dimension(self, prob: float = 0.0001) -> int | Inf:
         """
         Compute the maximum dimension, in which a graph is
         :prf:ref:`generically rigid <def-gen-rigid>`.
 
         For checking rigidity, the method uses a randomized algorithm,
         see :meth:`~.is_rigid` for details.
+
+        Parameters
+        ----------
+        prob:
+            bound on the probability for false negatives of the rigidity testing
+            Warning: this is not the probability of wrong results in this method,
+            but is just passed on to rigidity testing.
 
         Notes
         -----
@@ -2618,7 +2634,7 @@ class Graph(nx.Graph):
         )
         self._warn_randomized_alg(self.max_rigid_dimension)
         for dim in range(max_dim, 0, -1):
-            if self.is_rigid(dim, algorithm="randomized"):
+            if self.is_rigid(dim, algorithm="randomized", prob=prob):
                 return dim
 
     @doc_category("General graph theoretical properties")
