@@ -1,9 +1,8 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
-from pyrigi.exception import (
-    LoopError,
-    NotSupportedValueError,
-)
+from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.warning import RandomizedAlgorithmWarning
+
 import matplotlib.pyplot as plt
 
 import pytest
@@ -75,6 +74,7 @@ def test_is_not_rigid_d2(graph):
         graphs.CompleteBipartite(2, 3),
         graphs.Cycle(4),
         graphs.Path(3),
+        graphs.Dodecahedral(),
     ],
 )
 def test_is_rigid_d1(graph):
@@ -93,7 +93,10 @@ def test_is_not_rigid_d1(graph):
 
 @pytest.mark.parametrize(
     "graph, dim",
-    [[graphs.K66MinusPerfectMatching(), 3]]
+    [
+        [graphs.K66MinusPerfectMatching(), 3],
+        pytest.param(graphs.Icosahedral(), 3, marks=pytest.mark.slow_main),
+    ]
     + [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
 )
 def test_is_rigid(graph, dim):
@@ -241,6 +244,7 @@ def test_is_min_rigid_d2(graph):
         graphs.Path(3),
         graphs.Path(4),
         graphs.ThreePrismPlusEdge(),
+        pytest.param(graphs.Dodecahedral(), marks=pytest.mark.long_local),
     ],
 )
 def test_is_not_min_rigid_d2(graph):
@@ -256,6 +260,7 @@ def test_is_not_min_rigid_d2(graph):
         graphs.Complete(4),
         graphs.Octahedral(),
         graphs.K66MinusPerfectMatching(),
+        pytest.param(graphs.Icosahedral(), marks=pytest.mark.long_local),
     ],
 )
 def test_is_min_rigid_d3(graph):
@@ -270,6 +275,7 @@ def test_is_min_rigid_d3(graph):
         graphs.CompleteBipartite(5, 5),
         graphs.DoubleBanana(dim=3),
         pytest.param(graphs.ThreeConnectedR3Circuit(), marks=pytest.mark.slow_main),
+        graphs.Dodecahedral(),
     ],
 )
 def test_is_not_min_rigid_d3(graph):
@@ -2513,16 +2519,22 @@ def test_is_Rd_dependent_d3(graph):
 @pytest.mark.parametrize(
     "graph",
     [
-        graphs.Path(5),
         graphs.Complete(4),
         graphs.Cycle(6),
         graphs.ThreePrism(),
         graphs.K33plusEdge(),
         graphs.K66MinusPerfectMatching(),
+        graphs.Path(5),
     ],
 )
 def test_is_Rd_independent_d3(graph):
     assert graph.is_Rd_independent(dim=3)
+
+
+def test_is_Rd_independent_d3_warning():
+    G = graphs.K33plusEdge()
+    with pytest.warns(RandomizedAlgorithmWarning):
+        G.is_Rd_independent(dim=3)
 
 
 @pytest.mark.parametrize(
@@ -2544,6 +2556,12 @@ def test_is_Rd_independent_d3(graph):
 def test_max_rigid_dimension(graph, k):
     assert graph.max_rigid_dimension() == k
 
+
+def test_max_rigid_dimension_warning():
+    G = graphs.K66MinusPerfectMatching()
+    with pytest.warns(RandomizedAlgorithmWarning):
+        G.max_rigid_dimension()
+      
 
 def test_cone():
     G = graphs.Complete(5).cone()
