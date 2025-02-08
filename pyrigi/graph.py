@@ -133,7 +133,7 @@ class Graph(nx.Graph):
         ):
             return False
         for v in self.nodes:
-            if v not in other.nodes:
+            if not other.has_node(v):
                 return False
         for e in self.edges:
             if not other.has_edge(*e):
@@ -955,10 +955,10 @@ class Graph(nx.Graph):
                 )
         if new_vertex is None:
             candidate = self.number_of_nodes()
-            while candidate in self.nodes:
+            while self.has_node(candidate):
                 candidate += 1
             new_vertex = candidate
-        if new_vertex in self.nodes:
+        if self.has_node(new_vertex):
             raise ValueError(f"Vertex {new_vertex} is already a vertex of the graph!")
         G = self
         if not inplace:
@@ -2274,7 +2274,7 @@ class Graph(nx.Graph):
                 return False
 
             # Check if every vertex has degree 2
-            for vertex in self.nodes():
+            for vertex in self.nodes:
                 if self.degree(vertex) != 2:
                     return False
             return True
