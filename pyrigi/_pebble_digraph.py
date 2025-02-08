@@ -2,7 +2,6 @@
 Auxiliary class for directed graph used in pebble game style algorithms.
 """
 
-from collections.abc import Sequence
 from typing import Iterable
 
 from pyrigi.data_type import Vertex, DirectedEdge
