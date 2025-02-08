@@ -565,7 +565,7 @@ class Graph(nx.Graph):
         self._pebble_digraph = dir_graph
 
     @doc_category("Sparseness")
-    def spanning_sparse_subgraph(
+    def spanning_kl_sparse_subgraph(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> Graph:
         r"""
@@ -2284,7 +2284,7 @@ class Graph(nx.Graph):
             # the one last edge
             if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
                 return False
-            max_sparse_subgraph = self.spanning_sparse_subgraph(
+            max_sparse_subgraph = self.spanning_kl_sparse_subgraph(
                 K=2, L=3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:

@@ -2245,6 +2245,26 @@ def test_is_kl_tight():
     assert G.is_kl_tight(3, 6)
 
 
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(2, 4),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.Cycle(5),
+        graphs.Path(4),
+    ],
+)
+def test_spanning_kl_sparse_subgraph(graph):
+    for K in range(1, 3):
+        for L in range(0, 2 * K):
+            spanning_subgraph = graph.spanning_kl_sparse_subgraph(K, L)
+            assert spanning_subgraph.is_kl_sparse(K, L, algorithm="subgraph")
+            assert set(graph.vertex_list()) == set(spanning_subgraph.vertex_list())
+
+
 def test_plot():
     G = graphs.DoubleBanana()
     G.plot(layout="random")
