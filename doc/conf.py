@@ -61,6 +61,9 @@ extensions = [
     "sphinx_design",
     "sphinx_tippy",
 ]
+coverage_modules = ["pyrigi"]
+coverage_statistics_to_stdout = True
+coverage_show_missing_items = True
 
 bibtex_bibfiles = ["refs.bib"]
 

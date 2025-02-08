@@ -65,6 +65,11 @@ In general, a docstring should contain the following items (in this order):
  - notes (optional): implementation details
  - suggested improvements (optional): proposed changes/extensions to the method
 
+To check whether some docstrings are missing, run
+```
+make hmtl coverage
+```
+
 ## Auto-build
 
 If you want that the documentation folder is kept watched and documentation is automatically rebuilt once a change is detected (works only for `.md` files, not docstrings), you can use the Sphinx extension [`sphinx-autobuild`](https://github.com/sphinx-doc/sphinx-autobuild).
