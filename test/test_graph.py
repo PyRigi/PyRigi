@@ -2007,6 +2007,8 @@ def test__input_check_edge_format_loopfree_loop_error(graph, edge):
         [Graph([[-1, -2], [-2, 3]]), [-2, -1], [-3, -2, 0, 1, 2, 3]],
         [Graph([[-1, -2], [-2, 3]]), [-1, -2], [-2, 3]],
         [Graph([[-1, -2], [-2, 3]]), [-2, 3], [3]],
+        [graphs.Diamond(), [[1, 2], [2, 3]], None],
+        [graphs.Diamond(), [[1, 2], [2, 3]], [1, 2, 3]],
     ],
 )
 def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
@@ -2024,7 +2026,6 @@ def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
         [Graph([[1, 2], [2, 3]]), "12"],
         [graphs.Complete(3), [[0, 1]]],
-        [graphs.Diamond(), [[1, 2], [2, 3]]],
     ],
 )
 def test__input_check_edge_type_error(graph, edge):
@@ -2048,7 +2049,6 @@ def test__input_check_edge_type_error(graph, edge):
         ],
         [Graph([[1, 2], [2, 3]]), "12", [1, 2, 3]],
         [graphs.Complete(3), [[0, 1]], [1, 2, 3]],
-        [graphs.Diamond(), [[1, 2], [2, 3]], [1, 2, 3]],
         [Graph([[1, 2], [2, 3]]), [1, 2], "1"],
         [Graph([[1, 2], [2, 3]]), [1, 2], 1],
     ],
@@ -2116,6 +2116,7 @@ def test__input_check_edge_list(graph, edge):
         [Graph([[-1, -2], [-2, 3]]), [[-2, -1], [1, 3]]],
         [Graph([[-1, -2], [-2, 3]]), [[-1, 5], (-2, 3)]],
         [Graph([[-1, -2], [-2, 3]]), [[-2, -3], [-1, -2]]],
+        [graphs.Diamond(), [[[1, 2], [2, 3]]]],
     ],
 )
 def test__input_check_edge_list_value_error(graph, edge):
@@ -2134,7 +2135,6 @@ def test__input_check_edge_list_value_error(graph, edge):
         [Graph([[1, 2], [2, 3]]), "12"],
         [graphs.Complete(3), [0, 1]],
         [graphs.Diamond(), (1, 2)],
-        [graphs.Diamond(), [[[1, 2], [2, 3]]]],
     ],
 )
 def test__input_check_edge_list_type_error(graph, edge):
@@ -2243,6 +2243,26 @@ def test_is_kl_tight():
     assert not G.is_kl_tight(3, 6)
     G = graphs.K66MinusPerfectMatching()
     assert G.is_kl_tight(3, 6)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(2, 4),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.Cycle(5),
+        graphs.Path(4),
+    ],
+)
+def test_spanning_kl_sparse_subgraph(graph):
+    for K in range(1, 3):
+        for L in range(0, 2 * K):
+            spanning_subgraph = graph.spanning_kl_sparse_subgraph(K, L)
+            assert spanning_subgraph.is_kl_sparse(K, L, algorithm="subgraph")
+            assert set(graph.vertex_list()) == set(spanning_subgraph.vertex_list())
 
 
 def test_plot():

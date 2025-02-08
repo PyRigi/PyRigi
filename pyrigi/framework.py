@@ -192,11 +192,11 @@ class Framework(object):
         """
         if vertex is None:
             candidate = self._graph.number_of_nodes()
-            while candidate in self._graph.nodes:
+            while self._graph.has_node(candidate):
                 candidate += 1
             vertex = candidate
 
-        if vertex in self._graph.nodes:
+        if self._graph.has_node(vertex):
             raise KeyError(f"Vertex {vertex} is already a vertex of the graph!")
 
         self._realization[vertex] = Matrix(point)

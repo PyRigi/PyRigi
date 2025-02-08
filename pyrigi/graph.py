@@ -133,7 +133,7 @@ class Graph(nx.Graph):
         ):
             return False
         for v in self.nodes:
-            if v not in other.nodes:
+            if not other.has_node(v):
                 return False
         for e in self.edges:
             if not other.has_edge(*e):
@@ -224,20 +224,20 @@ class Graph(nx.Graph):
             raise LoopError()
 
     def _input_check_vertex_members(
-        self, to_check: Sequence[Vertex] | Vertex, name: str = ""
+        self, to_check: Iterable[Vertex] | Vertex, name: str = ""
     ) -> None:
         """
         Check whether the elements of a list are indeed vertices and
         raise error otherwise.
         """
         if not isinstance(to_check, Iterable):
-            if to_check not in self.nodes:
+            if not self.has_node(to_check):
                 raise ValueError(
                     f"The element {to_check} is not a vertex of the graph!"
                 )
         else:
             for vertex in to_check:
-                if vertex not in self.nodes:
+                if not self.has_node(vertex):
                     raise ValueError(
                         f"The element {vertex} from "
                         + name
@@ -565,7 +565,7 @@ class Graph(nx.Graph):
         self._pebble_digraph = dir_graph
 
     @doc_category("Sparseness")
-    def spanning_sparse_subgraph(
+    def spanning_kl_sparse_subgraph(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> Graph:
         r"""
@@ -955,10 +955,10 @@ class Graph(nx.Graph):
                 )
         if new_vertex is None:
             candidate = self.number_of_nodes()
-            while candidate in self.nodes:
+            while self.has_node(candidate):
                 candidate += 1
             new_vertex = candidate
-        if new_vertex in self.nodes:
+        if self.has_node(new_vertex):
             raise ValueError(f"Vertex {new_vertex} is already a vertex of the graph!")
         G = self
         if not inplace:
@@ -2274,7 +2274,7 @@ class Graph(nx.Graph):
                 return False
 
             # Check if every vertex has degree 2
-            for vertex in self.nodes():
+            for vertex in self.nodes:
                 if self.degree(vertex) != 2:
                     return False
             return True
@@ -2284,7 +2284,7 @@ class Graph(nx.Graph):
             # the one last edge
             if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
                 return False
-            max_sparse_subgraph = self.spanning_sparse_subgraph(
+            max_sparse_subgraph = self.spanning_kl_sparse_subgraph(
                 K=2, L=3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
             )
             if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
