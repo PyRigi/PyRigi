@@ -67,7 +67,7 @@ In general, a docstring should contain the following items (in this order):
 
 To check whether some docstrings are missing, run
 ```
-make hmtl coverage
+make html coverage
 ```
 
 ## Auto-build
