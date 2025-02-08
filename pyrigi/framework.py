@@ -1922,7 +1922,7 @@ class Framework(object):
         return self.is_independent() and self.is_inf_rigid()
 
     @doc_category("Other")
-    def is_prestress_stable(self) -> bool:
+    def is_prestress_stable(self, numerical: bool = False) -> bool:
         """
         Check whether the framework is prestress stable.
 
@@ -1943,26 +1943,37 @@ class Framework(object):
         the section on second-order rigiditiy.
         This method only properly works for symbolic coordinates.
         """
-        stresses = self.stresses()
+        edges = self._graph.edge_list(as_tuples=True)
+        stresses = [
+            self._transform_stress_to_edgewise(stress, edge_order=edges)
+            for stress in self.stresses()
+        ]
         inf_flexes = [
             self._transform_inf_flex_to_pointwise(q) for q in self.inf_flexes()
         ]
 
-        edges = self._graph.edge_list(as_tuples=True)
         if self.is_inf_rigid():
             return True
         if len(stresses) == 0:
             return False
 
+        if numerical:
+            stresses = [
+                {e: float(p.evalf()) for e, p in stress.items()} for stress in stresses
+            ]
+            inf_flexes = [
+                {v: [float(pt.evalf()) for pt in p] for v, p in flex.items()}
+                for flex in inf_flexes
+            ]
+
         if len(inf_flexes) == 1:
             q = inf_flexes[0]
             stress_energy_list = []
             for stress in stresses:
-                _stress = self._transform_stress_to_edgewise(stress, edge_order=edges)
                 stress_energy_list.append(
                     sum(
                         [
-                            _stress[(u, v)]
+                            stress[(u, v)]
                             * sum(
                                 [
                                     (q1 - q2) ** 2
@@ -1976,15 +1987,16 @@ class Framework(object):
                         ]
                     )
                 )
+            if numerical:
+                any([Q != 0 for Q in stress_energy_list])
             return any([not sp.sympify(Q).is_zero for Q in stress_energy_list])
 
         if len(stresses) == 1:
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
-            stress = self._transform_stress_to_edgewise(stresses[0], edge_order=edges)
             stress_energy = 0
             stress_energy += sum(
                 [
-                    stress[(u, v)]
+                    stresses[0][(u, v)]
                     * sum(
                         [
                             (
@@ -2012,6 +2024,25 @@ class Framework(object):
             """
             We then apply the SONC criterion.
             """
+            if numerical:
+                return all(
+                    [
+                        np.sign(float(coefficients[(i, i)].evalf()))
+                        == np.sign(float(coefficients[(j, j)].evalf()))
+                        and (
+                            np.absolute(coefficients[(i, j)])
+                            < np.sqrt(
+                                float(
+                                    (
+                                        4 * coefficients[(i, i)] * coefficients[(j, j)]
+                                    ).evalf()
+                                )
+                            )
+                        )
+                        for i in range(len(inf_flexes))
+                        for j in range(i + 1, len(inf_flexes))
+                    ]
+                )
             return all(
                 [
                     (
