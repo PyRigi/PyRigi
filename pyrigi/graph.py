@@ -224,20 +224,20 @@ class Graph(nx.Graph):
             raise LoopError()
 
     def _input_check_vertex_members(
-        self, to_check: Sequence[Vertex] | Vertex, name: str = ""
+        self, to_check: Iterable[Vertex] | Vertex, name: str = ""
     ) -> None:
         """
         Check whether the elements of a list are indeed vertices and
         raise error otherwise.
         """
         if not isinstance(to_check, Iterable):
-            if to_check not in self.nodes:
+            if not self.has_node(to_check):
                 raise ValueError(
                     f"The element {to_check} is not a vertex of the graph!"
                 )
         else:
             for vertex in to_check:
-                if vertex not in self.nodes:
+                if not self.has_node(vertex):
                     raise ValueError(
                         f"The element {vertex} from "
                         + name

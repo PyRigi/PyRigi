@@ -2,6 +2,9 @@
 Auxiliary class for directed graph used in pebble game style algorithms.
 """
 
+from collections.abc import Sequence
+from typing import Iterable
+
 from pyrigi.data_type import Vertex, DirectedEdge
 import pyrigi._input_check as _input_check
 
@@ -107,8 +110,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         vertex: Vertex, whose indegree we want to know.
         """
-        if not self.has_node(vertex):
-            raise ValueError(f"Vertex {vertex} is not present in the graph.")
+        self._input_check_vertex_members(vertex, "vertex")
         return int(super().in_degree(vertex))
 
     def out_degree(self, vertex: Vertex) -> int:
@@ -119,8 +121,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         vertex: Vertex, whose outdegree we want to know.
         """
-        if not self.has_node(vertex):
-            raise ValueError(f"Vertex {vertex} is not present in the graph.")
+        self._input_check_vertex_members(vertex, "vertex")
         return int(super().out_degree(vertex))
 
     def redirect_edge_to_head(self, edge: DirectedEdge, vertex_to: Vertex) -> None:
@@ -273,3 +274,24 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
+
+    def _input_check_vertex_members(
+        self, to_check: Iterable[Vertex] | Vertex, name: str = ""
+    ) -> None:
+        """
+        Check whether the elements of a list are indeed vertices and
+        raise error otherwise.
+        """
+        if not isinstance(to_check, Iterable):
+            if not self.has_node(to_check):
+                raise ValueError(
+                    f"The element {to_check} is not a vertex of the graph!"
+                )
+        else:
+            for vertex in to_check:
+                if not self.has_node(vertex):
+                    raise ValueError(
+                        f"The element {vertex} from "
+                        + name
+                        + f" {to_check} is not a vertex of the graph!"
+                    )
