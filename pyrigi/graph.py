@@ -1856,15 +1856,16 @@ class Graph(nx.Graph):
             :prf:ref:`(2,3)-tight <def-kl-sparse-tight>` subgraph and
             :prf:ref:`thm-2-gen-rigidity` are used.
 
-            If ``"randomized"``, a probabilistic check is performed
-            that may give false negatives, but no false positives.
-            See :prf:ref:`thm-probabilistic-rigidity-check` and ``prob``
-            for the probability that the randomized check returns a correct result.
+            If ``"randomized"``, a probabilistic check is performed.
+            It may give false negatives (with probability at most ``prob``),
+            but no false positives. See :prf:ref:`thm-probabilistic-rigidity-check`.
 
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``
             and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
         prob:
-            bound on the probability of a randomized algorithm to yield false negatives
+            Only relevant if ``algorithm="randomized"``,
+            It determines the bound on the probability of
+            the randomized algorithm to yield false negatives.
 
         Examples
         --------
@@ -1943,10 +1944,9 @@ class Graph(nx.Graph):
             then :prf:ref:`(2,3)-tightness <def-kl-sparse-tight>` and
             :prf:ref:`thm-2-gen-rigidity` are used.
 
-            If ``"randomized"``, a probabilistic check is performed
-            that may give false negatives.
-            See :prf:ref:`thm-probabilistic-rigidity-check` for the probability that
-            the randomized check returns a correct result.
+            If ``"randomized"``, a probabilistic check is performed.
+            It may give false negatives (with probability at most ``prob``),
+            but no false positives. See :prf:ref:`thm-probabilistic-rigidity-check`.
 
             If ``"extension_sequence"`` (only if ``dim=2``),
             then the existence of a sequence
@@ -1964,7 +1964,7 @@ class Graph(nx.Graph):
         prob:
             Only relevant if ``algorithm="randomized"``,
             It determines the bound on the probability of
-            a randomized algorithm to yield false negatives.
+            the randomized algorithm to yield false negatives.
 
         Examples
         --------
@@ -2046,17 +2046,16 @@ class Graph(nx.Graph):
             If ``"redundancy"`` (only if ``dim=2``),
             then :prf:ref:`thm-globally-redundant-3connected` is used.
 
-            If ``"randomized"``, a probabilistic check is performed,
-            see :prf:ref:`thm-globally-randomize-algorithm`.
-            It answers ``False`` all the time
-            if the graph is not generically globally ``dim``-rigid,
-            and it will give a wrong answer ``False``
-            with probability less than ``prob``.
+            If ``"randomized"``, a probabilistic check is performed.
+            It may give false negatives (with probability at most ``prob``),
+            but no false positives. See :prf:ref:`thm-globally-randomize-algorithm`.
 
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
             ``"redundancy"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
         prob:
-            probability of getting a false negative in the randomized algorithm.
+            Only relevant if ``algorithm="randomized"``,
+            It determines the bound on the probability of
+            the randomized algorithm to yield false negatives.
 
         Definitions
         -----------
