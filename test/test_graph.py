@@ -42,7 +42,7 @@ def test__add__():
     ],
 )
 def test_is_rigid_d2(graph):
-    assert graph.is_rigid(dim=2, algorithm="combinatorial")
+    assert graph.is_rigid(dim=2, algorithm="sparsity")
     assert graph.is_rigid(dim=2, algorithm="randomized")
 
 
@@ -58,7 +58,7 @@ def test_is_rigid_d2(graph):
     ],
 )
 def test_is_not_rigid_d2(graph):
-    assert not graph.is_rigid(dim=2, algorithm="combinatorial")
+    assert not graph.is_rigid(dim=2, algorithm="sparsity")
     assert not graph.is_rigid(dim=2, algorithm="randomized")
 
 
@@ -78,7 +78,7 @@ def test_is_not_rigid_d2(graph):
     ],
 )
 def test_is_rigid_d1(graph):
-    assert graph.is_rigid(dim=1, algorithm="combinatorial")
+    assert graph.is_rigid(dim=1, algorithm="graphic")
     assert graph.is_rigid(dim=1, algorithm="randomized")
 
 
@@ -87,7 +87,7 @@ def test_is_rigid_d1(graph):
     [Graph.from_vertices(range(3)), Graph([[0, 1], [2, 3]])],
 )
 def test_is_not_rigid_d1(graph):
-    assert not graph.is_rigid(dim=1, algorithm="combinatorial")
+    assert not graph.is_rigid(dim=1, algorithm="sparsity")
     assert not graph.is_rigid(dim=1, algorithm="randomized")
 
 
@@ -100,7 +100,7 @@ def test_is_not_rigid_d1(graph):
     + [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
 )
 def test_is_rigid(graph, dim):
-    assert graph.is_rigid(dim, algorithm="combinatorial" if (dim < 3) else "randomized")
+    assert graph.is_rigid(dim, algorithm="sparsity" if (dim < 3) else "randomized")
 
 
 @pytest.mark.parametrize(
@@ -189,7 +189,7 @@ def test_is_not_2_3_tight(graph):
     ],
 )
 def test_is_min_rigid_d1(graph):
-    assert graph.is_min_rigid(dim=1, algorithm="combinatorial")
+    assert graph.is_min_rigid(dim=1, algorithm="graphic")
     assert graph.is_min_rigid(dim=1, algorithm="extension_sequence")
     assert graph.is_min_rigid(dim=1, algorithm="randomized")
 
@@ -209,7 +209,7 @@ def test_is_min_rigid_d1(graph):
     ],
 )
 def test_is_not_min_rigid_d1(graph):
-    assert not graph.is_min_rigid(dim=1, algorithm="combinatorial")
+    assert not graph.is_min_rigid(dim=1, algorithm="sparsity")
     assert not graph.is_min_rigid(dim=1, algorithm="extension_sequence")
     assert not graph.is_min_rigid(dim=1, algorithm="randomized")
 
@@ -225,7 +225,7 @@ def test_is_not_min_rigid_d1(graph):
     ],
 )
 def test_is_min_rigid_d2(graph):
-    assert graph.is_min_rigid(dim=2, algorithm="combinatorial")
+    assert graph.is_min_rigid(dim=2, algorithm="sparsity")
     assert graph.is_min_rigid(dim=2, algorithm="extension_sequence")
     assert graph.is_min_rigid(dim=2, algorithm="randomized")
 
@@ -248,7 +248,7 @@ def test_is_min_rigid_d2(graph):
     ],
 )
 def test_is_not_min_rigid_d2(graph):
-    assert not graph.is_min_rigid(dim=2, algorithm="combinatorial")
+    assert not graph.is_min_rigid(dim=2, algorithm="sparsity")
     assert not graph.is_min_rigid(dim=2, algorithm="extension_sequence")
     assert not graph.is_min_rigid(dim=2, algorithm="randomized")
 
@@ -1326,11 +1326,11 @@ def test_iterator_parameter_value_error(method, params):
         ["is_rigid", [3]],
     ],
 )
-def test_dimension_combinatorial_error(method, params):
+def test_dimension_sparsity_error(method, params):
     with pytest.raises(ValueError):
         G = graphs.DoubleBanana()
         func = getattr(G, method)
-        func(*params, algorithm="combinatorial")
+        func(*params, algorithm="sparsity")
 
 
 def test_k_extension():
@@ -2419,7 +2419,7 @@ def test_is_not_Rd_circuit_d2(graph):
 )
 def test_is_Rd_closed(graph, dim):
     if dim <= 1:
-        assert graph.is_Rd_closed(dim=dim, algorithm="combinatorial")
+        assert graph.is_Rd_closed(dim=dim, algorithm="components")
         assert graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert graph.is_Rd_closed(dim=dim, algorithm="randomized")
@@ -2438,7 +2438,7 @@ def test_is_Rd_closed(graph, dim):
 )
 def test_is_not_Rd_closed(graph, dim):
     if dim <= 1:
-        assert not graph.is_Rd_closed(dim=dim, algorithm="combinatorial")
+        assert not graph.is_Rd_closed(dim=dim, algorithm="components")
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")

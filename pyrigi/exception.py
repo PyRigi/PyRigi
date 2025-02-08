@@ -26,7 +26,7 @@ class NotSupportedValueError(ValueError):
             super().__init__(msg, *args, **kwargs)
         else:
             msg_str = (
-                f"The specified value of the `{parameter_name}`"
+                f"The specified value of the `{parameter_name}` "
                 + f"parameter is '{wrong_param}', "
                 + "which is not supported!\n"
             )
