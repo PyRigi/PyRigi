@@ -33,6 +33,9 @@ If you do not want to run doctests, run
 ```
 pytest -p no:doctestplus
 ```
+
+## Markers
+
 Functionalities requiring optional packages are tested by default;
 if you want to skip some specific optional feature(s), run
 ```
@@ -56,4 +59,15 @@ The command `pytest` executes only standard tests.
 To include also the tests marked `slow_main`, run
 ```
 pytest -m 'not slow_main or slow_main'
+```
+
+## Coverage
+
+To check the coverage by the unit tests, run
+```
+pytest --cov=pyrigi test/ --cov-report html
+```
+The following command includes also the doctests
+```
+pytest --doctest-modules --cov=pyrigi test/ pyrigi/ --cov-report html
 ```

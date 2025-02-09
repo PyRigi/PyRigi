@@ -430,7 +430,7 @@ def plot_with_3D_realization(
     ax: Axes,
     realization: dict[Vertex, Point],
     plot_style: PlotStyle3D,
-    edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
 ) -> None:
     """
     Plot the framework with the given realization in the 3-space.
@@ -438,7 +438,7 @@ def plot_with_3D_realization(
     # Create a figure for the representation of the framework
 
     edge_color_array, edge_list_ref = resolve_edge_colors(
-        framework, plot_style.edge_color, edge_coloring
+        framework, plot_style.edge_color, edge_colors_custom
     )
 
     # Center the realization
@@ -547,7 +547,7 @@ def resolve_arc_angles(
 def resolve_edge_colors(
     framework: Framework,
     edge_color: str,
-    edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
 ) -> tuple[list, list]:
     """
     Return the lists of colors and edges in the format for plotting.
@@ -557,14 +557,14 @@ def resolve_edge_colors(
     edge_list_ref = []
     edge_color_array = []
 
-    if edge_coloring is None:
-        edge_coloring = {}
+    if edge_colors_custom is None:
+        edge_colors_custom = {}
 
     if not isinstance(edge_color, str):
         raise TypeError("The provided `edge_color` is not a string. ")
 
-    if isinstance(edge_coloring, list):
-        edges_partition = edge_coloring
+    if isinstance(edge_colors_custom, list):
+        edges_partition = edge_colors_custom
         colors = distinctipy.get_colors(
             len(edges_partition), colorblind_type="Deuteranomaly", pastel_factor=0.2
         )
@@ -574,8 +574,8 @@ def resolve_edge_colors(
                     raise ValueError("The input includes a pair that is not an edge.")
                 edge_color_array.append(colors[i])
                 edge_list_ref.append(tuple(e))
-    elif isinstance(edge_coloring, dict):
-        color_edges_dict = edge_coloring
+    elif isinstance(edge_colors_custom, dict):
+        color_edges_dict = edge_colors_custom
         for color, edges in color_edges_dict.items():
             for e in edges:
                 if not G.has_edge(e[0], e[1]):
@@ -585,7 +585,9 @@ def resolve_edge_colors(
                 edge_color_array.append(color)
                 edge_list_ref.append(tuple(e))
     else:
-        raise ValueError("The input edge_coloring has none of the supported formats.")
+        raise ValueError(
+            "The input edge_colors_custom has none of the supported formats."
+        )
     for e in edge_list:
         if (e[0], e[1]) not in edge_list_ref and (e[1], e[0]) not in edge_list_ref:
             edge_color_array.append(edge_color)
@@ -612,14 +614,14 @@ def plot_with_2D_realization(
     ax: Axes,
     realization: dict[Vertex, Point],
     plot_style: PlotStyle2D,
-    edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
 ) -> None:
     """
     Plot the graph of the framework with the given realization in the plane.
     """
     edge_color_array, edge_list_ref = resolve_edge_colors(
-        framework, plot_style.edge_color, edge_coloring
+        framework, plot_style.edge_color, edge_colors_custom
     )
 
     if not plot_style.edges_as_arcs:

@@ -39,6 +39,7 @@ pre-commit = "^3.7.1"
 pytest = "^8.2.1"
 sphinx = "^7.3.7"
 pytest-doctestplus = "^1.2.1"
+pytest-cov = "^6.0.0"
 
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.5.6"
@@ -74,6 +75,10 @@ markers = [
     "long_local: marks long tests run locally",
     "realization_counting: marks tests using extra realization-counting",
     "meshing: marks tests using extra meshing"
+]
+filterwarnings = [
+    'ignore::pyrigi.warning.RandomizedAlgorithmWarning',
+    'ignore:FigureCanvasAgg is non-interactive, and thus cannot be shown:UserWarning'
 ]
 
 [tool.jupytext]

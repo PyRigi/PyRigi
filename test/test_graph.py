@@ -1,9 +1,8 @@
 from pyrigi.graph import Graph
 import pyrigi.graphDB as graphs
-from pyrigi.exception import (
-    LoopError,
-    NotSupportedValueError,
-)
+from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.warning import RandomizedAlgorithmWarning
+
 import matplotlib.pyplot as plt
 
 import pytest
@@ -43,7 +42,7 @@ def test__add__():
     ],
 )
 def test_is_rigid_d2(graph):
-    assert graph.is_rigid(dim=2, algorithm="combinatorial")
+    assert graph.is_rigid(dim=2, algorithm="sparsity")
     assert graph.is_rigid(dim=2, algorithm="randomized")
 
 
@@ -59,7 +58,7 @@ def test_is_rigid_d2(graph):
     ],
 )
 def test_is_not_rigid_d2(graph):
-    assert not graph.is_rigid(dim=2, algorithm="combinatorial")
+    assert not graph.is_rigid(dim=2, algorithm="sparsity")
     assert not graph.is_rigid(dim=2, algorithm="randomized")
 
 
@@ -75,10 +74,11 @@ def test_is_not_rigid_d2(graph):
         graphs.CompleteBipartite(2, 3),
         graphs.Cycle(4),
         graphs.Path(3),
+        graphs.Dodecahedral(),
     ],
 )
 def test_is_rigid_d1(graph):
-    assert graph.is_rigid(dim=1, algorithm="combinatorial")
+    assert graph.is_rigid(dim=1, algorithm="graphic")
     assert graph.is_rigid(dim=1, algorithm="randomized")
 
 
@@ -87,17 +87,20 @@ def test_is_rigid_d1(graph):
     [Graph.from_vertices(range(3)), Graph([[0, 1], [2, 3]])],
 )
 def test_is_not_rigid_d1(graph):
-    assert not graph.is_rigid(dim=1, algorithm="combinatorial")
+    assert not graph.is_rigid(dim=1, algorithm="sparsity")
     assert not graph.is_rigid(dim=1, algorithm="randomized")
 
 
 @pytest.mark.parametrize(
     "graph, dim",
-    [[graphs.K66MinusPerfectMatching(), 3]]
+    [
+        [graphs.K66MinusPerfectMatching(), 3],
+        pytest.param(graphs.Icosahedral(), 3, marks=pytest.mark.slow_main),
+    ]
     + [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
 )
 def test_is_rigid(graph, dim):
-    assert graph.is_rigid(dim, algorithm="combinatorial" if (dim < 3) else "randomized")
+    assert graph.is_rigid(dim, algorithm="sparsity" if (dim < 3) else "randomized")
 
 
 @pytest.mark.parametrize(
@@ -186,7 +189,7 @@ def test_is_not_2_3_tight(graph):
     ],
 )
 def test_is_min_rigid_d1(graph):
-    assert graph.is_min_rigid(dim=1, algorithm="combinatorial")
+    assert graph.is_min_rigid(dim=1, algorithm="graphic")
     assert graph.is_min_rigid(dim=1, algorithm="extension_sequence")
     assert graph.is_min_rigid(dim=1, algorithm="randomized")
 
@@ -206,7 +209,7 @@ def test_is_min_rigid_d1(graph):
     ],
 )
 def test_is_not_min_rigid_d1(graph):
-    assert not graph.is_min_rigid(dim=1, algorithm="combinatorial")
+    assert not graph.is_min_rigid(dim=1, algorithm="sparsity")
     assert not graph.is_min_rigid(dim=1, algorithm="extension_sequence")
     assert not graph.is_min_rigid(dim=1, algorithm="randomized")
 
@@ -222,7 +225,7 @@ def test_is_not_min_rigid_d1(graph):
     ],
 )
 def test_is_min_rigid_d2(graph):
-    assert graph.is_min_rigid(dim=2, algorithm="combinatorial")
+    assert graph.is_min_rigid(dim=2, algorithm="sparsity")
     assert graph.is_min_rigid(dim=2, algorithm="extension_sequence")
     assert graph.is_min_rigid(dim=2, algorithm="randomized")
 
@@ -241,10 +244,11 @@ def test_is_min_rigid_d2(graph):
         graphs.Path(3),
         graphs.Path(4),
         graphs.ThreePrismPlusEdge(),
+        pytest.param(graphs.Dodecahedral(), marks=pytest.mark.long_local),
     ],
 )
 def test_is_not_min_rigid_d2(graph):
-    assert not graph.is_min_rigid(dim=2, algorithm="combinatorial")
+    assert not graph.is_min_rigid(dim=2, algorithm="sparsity")
     assert not graph.is_min_rigid(dim=2, algorithm="extension_sequence")
     assert not graph.is_min_rigid(dim=2, algorithm="randomized")
 
@@ -256,6 +260,7 @@ def test_is_not_min_rigid_d2(graph):
         graphs.Complete(4),
         graphs.Octahedral(),
         graphs.K66MinusPerfectMatching(),
+        pytest.param(graphs.Icosahedral(), marks=pytest.mark.long_local),
     ],
 )
 def test_is_min_rigid_d3(graph):
@@ -270,6 +275,7 @@ def test_is_min_rigid_d3(graph):
         graphs.CompleteBipartite(5, 5),
         graphs.DoubleBanana(dim=3),
         pytest.param(graphs.ThreeConnectedR3Circuit(), marks=pytest.mark.slow_main),
+        graphs.Dodecahedral(),
     ],
 )
 def test_is_not_min_rigid_d3(graph):
@@ -1370,11 +1376,11 @@ def test_iterator_parameter_value_error(method, params):
         ["is_rigid", [3]],
     ],
 )
-def test_dimension_combinatorial_error(method, params):
+def test_dimension_sparsity_error(method, params):
     with pytest.raises(ValueError):
         G = graphs.DoubleBanana()
         func = getattr(G, method)
-        func(*params, algorithm="combinatorial")
+        func(*params, algorithm="sparsity")
 
 
 def test_k_extension():
@@ -2051,6 +2057,8 @@ def test__input_check_edge_format_loopfree_loop_error(graph, edge):
         [Graph([[-1, -2], [-2, 3]]), [-2, -1], [-3, -2, 0, 1, 2, 3]],
         [Graph([[-1, -2], [-2, 3]]), [-1, -2], [-2, 3]],
         [Graph([[-1, -2], [-2, 3]]), [-2, 3], [3]],
+        [graphs.Diamond(), [[1, 2], [2, 3]], None],
+        [graphs.Diamond(), [[1, 2], [2, 3]], [1, 2, 3]],
     ],
 )
 def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
@@ -2068,7 +2076,6 @@ def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
         [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
         [Graph([[1, 2], [2, 3]]), "12"],
         [graphs.Complete(3), [[0, 1]]],
-        [graphs.Diamond(), [[1, 2], [2, 3]]],
     ],
 )
 def test__input_check_edge_type_error(graph, edge):
@@ -2092,7 +2099,6 @@ def test__input_check_edge_type_error(graph, edge):
         ],
         [Graph([[1, 2], [2, 3]]), "12", [1, 2, 3]],
         [graphs.Complete(3), [[0, 1]], [1, 2, 3]],
-        [graphs.Diamond(), [[1, 2], [2, 3]], [1, 2, 3]],
         [Graph([[1, 2], [2, 3]]), [1, 2], "1"],
         [Graph([[1, 2], [2, 3]]), [1, 2], 1],
     ],
@@ -2160,6 +2166,7 @@ def test__input_check_edge_list(graph, edge):
         [Graph([[-1, -2], [-2, 3]]), [[-2, -1], [1, 3]]],
         [Graph([[-1, -2], [-2, 3]]), [[-1, 5], (-2, 3)]],
         [Graph([[-1, -2], [-2, 3]]), [[-2, -3], [-1, -2]]],
+        [graphs.Diamond(), [[[1, 2], [2, 3]]]],
     ],
 )
 def test__input_check_edge_list_value_error(graph, edge):
@@ -2178,7 +2185,6 @@ def test__input_check_edge_list_value_error(graph, edge):
         [Graph([[1, 2], [2, 3]]), "12"],
         [graphs.Complete(3), [0, 1]],
         [graphs.Diamond(), (1, 2)],
-        [graphs.Diamond(), [[[1, 2], [2, 3]]]],
     ],
 )
 def test__input_check_edge_list_type_error(graph, edge):
@@ -2287,6 +2293,26 @@ def test_is_kl_tight():
     assert not G.is_kl_tight(3, 6)
     G = graphs.K66MinusPerfectMatching()
     assert G.is_kl_tight(3, 6)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(4),
+        graphs.CompleteBipartite(3, 4),
+        graphs.CompleteBipartite(2, 4),
+        graphs.ThreePrism(),
+        graphs.ThreePrismPlusEdge(),
+        graphs.Cycle(5),
+        graphs.Path(4),
+    ],
+)
+def test_spanning_kl_sparse_subgraph(graph):
+    for K in range(1, 3):
+        for L in range(0, 2 * K):
+            spanning_subgraph = graph.spanning_kl_sparse_subgraph(K, L)
+            assert spanning_subgraph.is_kl_sparse(K, L, algorithm="subgraph")
+            assert set(graph.vertex_list()) == set(spanning_subgraph.vertex_list())
 
 
 def test_plot():
@@ -2443,7 +2469,7 @@ def test_is_not_Rd_circuit_d2(graph):
 )
 def test_is_Rd_closed(graph, dim):
     if dim <= 1:
-        assert graph.is_Rd_closed(dim=dim, algorithm="combinatorial")
+        assert graph.is_Rd_closed(dim=dim, algorithm="components")
         assert graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert graph.is_Rd_closed(dim=dim, algorithm="randomized")
@@ -2462,7 +2488,7 @@ def test_is_Rd_closed(graph, dim):
 )
 def test_is_not_Rd_closed(graph, dim):
     if dim <= 1:
-        assert not graph.is_Rd_closed(dim=dim, algorithm="combinatorial")
+        assert not graph.is_Rd_closed(dim=dim, algorithm="components")
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
@@ -2561,16 +2587,22 @@ def test_is_Rd_dependent_d3(graph):
 @pytest.mark.parametrize(
     "graph",
     [
-        graphs.Path(5),
         graphs.Complete(4),
         graphs.Cycle(6),
         graphs.ThreePrism(),
         graphs.K33plusEdge(),
         graphs.K66MinusPerfectMatching(),
+        graphs.Path(5),
     ],
 )
 def test_is_Rd_independent_d3(graph):
     assert graph.is_Rd_independent(dim=3)
+
+
+def test_is_Rd_independent_d3_warning():
+    G = graphs.K33plusEdge()
+    with pytest.warns(RandomizedAlgorithmWarning):
+        G.is_Rd_independent(dim=3)
 
 
 @pytest.mark.parametrize(
@@ -2591,3 +2623,9 @@ def test_is_Rd_independent_d3(graph):
 )
 def test_max_rigid_dimension(graph, k):
     assert graph.max_rigid_dimension() == k
+
+
+def test_max_rigid_dimension_warning():
+    G = graphs.K66MinusPerfectMatching()
+    with pytest.warns(RandomizedAlgorithmWarning):
+        G.max_rigid_dimension()
