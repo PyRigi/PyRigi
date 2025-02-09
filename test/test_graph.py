@@ -304,6 +304,12 @@ def read_globally(d_v_):
     return read_random_from_graph6("test/input_graphs/globally_rigid/" + d_v_ + ".g6")
 
 
+def read_redundantly(d_v_):
+    return read_random_from_graph6(
+        "test/input_graphs/redundantly_rigid/" + d_v_ + ".g6"
+    )
+
+
 # Examples of globally rigid graphs taken from:
 # Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
 # Zenodo. https://doi.org/10.5281/zenodo.7473052
@@ -405,6 +411,50 @@ def test_is_not_globally_rigid(graph, gdim):
 )
 def test_is_not_globally_d2(graph):
     assert not graph.is_globally_rigid(dim=2)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Complete(2),
+        read_globally("D2V4"),
+        read_globally("D2V5"),
+        read_globally("D2V6"),
+        read_globally("D2V7"),
+        read_globally("D2V8"),
+    ],
+)
+def test_is_weakly_globally_linked_for_globally_rigid_graphs(graph):
+    for u, v in [[x, y] for x in graph.nodes for y in graph.nodes if x < y]:
+        assert graph.is_weakly_globally_linked(u, v, algorithm="randomized")
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        read_redundantly("D2V4"),
+        read_redundantly("D2V5"),
+        read_redundantly("D2V6"),
+        read_redundantly("D2V7"),
+        read_redundantly("D2V8"),
+        read_redundantly("D2V9"),
+    ],
+)
+def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
+    # graph is redundantly rigid, i.e., if we remove any edge, it is rigid
+    for k, l in graph.edges:
+        H = graph.copy()
+        H.remove_edge(k, l)
+        # now H is surely a rigid graph
+        if H.is_globally_rigid():
+            return test_is_weakly_globally_linked_for_globally_rigid_graphs(H)
+        else:
+            counter = 0
+            for a, b in [[x, y] for x in H.nodes for y in H.nodes if x < y]:
+                if not H.is_weakly_globally_linked(a, b, algorithm="randomized"):
+                    counter = 1
+                    break
+            assert counter
 
 
 @pytest.mark.parametrize(
