@@ -3134,7 +3134,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`separating-pair <def-separating-pair>` 
+        :prf:ref:`separating-pair <def-separating-pair>`
 
         Examples
         --------
@@ -3281,7 +3281,7 @@ class Graph(nx.Graph):
             vertex
         v:
             vertex
-            
+
         Definitions
         -----------
         :prf:ref:`3-block <def-block-3>`
@@ -3322,11 +3322,11 @@ class Graph(nx.Graph):
             vertex (optional)
         v:
             vertex (optional)
-        
+
         Definitions
         -----------
         :prf:ref:`R2 circuit <def-matroid>`
-        
+
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
@@ -3343,21 +3343,27 @@ class Graph(nx.Graph):
         return nx.subgraph(F, set_nodes)
 
     @doc_category("Generic rigidity")
-    def is_weakly_globally_linked(
-        self, u: Vertex, v: Vertex, algorithm="combinatorial"
-    ):
+    def is_weakly_globally_linked(self, u: Vertex, v: Vertex, algorithm="default"):
         """
         Return if the graph is weakly globally linked.
-        
+
         Definitions
         -----------
-        :prf:ref:`weakly globally linked pair <def-globally-linked>`        
+        :prf:ref:`weakly globally linked pair <def-globally-linked>`
         :prf:ref:`weakly globally linked theorem <thm-weakly-globally-linked>`
-        
+
         Examples
         --------
-        >>> 
-        """
+        >>> G = Graph([[0,4],[0,6],[0,7],[1,3],[1,6],[1,7],[2,6],[2,7],[3,5],[4,5],[4,7],[5,6],[5,7],[6,7]])
+        >>> G.is_weakly_globally_linked(0,1)
+        True
+        >>> G.is_weakly_globally_linked(1,5)
+        True
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(10)
+        >>> G.is_weakly_globally_linked(0,1)
+        True
+        """  # noqa: E501
         # self must be a 2-connected graph
         if not nx.is_biconnected(self):
             raise ValueError("The input graph must be 2-connected.")
