@@ -19,7 +19,7 @@ poetry install --extras "extra_name"
 These are documented in the [Installation Guide](#optional-packages).
 
 Poetry installs the dependencies and the package to a virtual environment.
-To activate this environment, run `poetry shell`.
+To activate this environment, run `poetry shell` with Poetry 1.8 or consult the [documentation](https://python-poetry.org/docs/managing-environments/#activating-the-environment) for Poetry 2.0.
 You can exit it with `exit` or `Ctrl+D`.
 
 If you want to install dependencies necessary only for the package itself, not for the development, run
