@@ -107,3 +107,92 @@ the class of randomized polynomial time algorithms.
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
+
+:::{prf:definition} globally-linked-p
+:label: def-globally-linked-p
+
+We say that a pair of vertices $\{u,v\}$ in a {prf:ref}`$d$-dimensional framework <def-framework>` 
+$(G,p)$ is _globally linked in $(G,p)$_ if for every equivalent {prf:ref}`$d$-dimensional framework <def-framework>` 
+$(G,q)$ we have $||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
+
+{{references}} {cite:p}`Jackson2006`
+:::
+
+:::{prf:definition} globally-linked
+:label: def-globally-linked
+
+A pair $\{u,v\}$ is _globally linked in $G$_ in $\RR^d$ if it is {prf:ref}`globally linked <def-globally-linked>`
+in all {prf:ref}`generic $d$-dimensional frameworks <def-gen-realization>` $(G,p)$. \\
+We call, instead, a pair $\{u,v\}$ _weakly globally linked in $G$_ in $\RR^d$ if there exists 
+a {prf:ref}`generic $d$-dimensional framework <def-gen-realization>` $(G,p)$ in which $\{u,v\}$ 
+is {prf:ref}`globally linked <def-globally-linked>`.\\
+If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally loose in $G$_.
+
+{{references}} {cite:p}`Jackson2006`
+:::
+
+:::{prf:definition} block-3
+:label: def-block-3
+
+Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a 
+non-adjacent vertex pair in $G$. The unique maximal {prf:ref}`3-connected subgraph <def-k-connected>` 
+$B$ of $G$ with $\{u,v\}\subset V(B)$ is called the _3-block_ of $\{u,v\}$ in $G$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.block_3`
+{{references}} {cite:p}`Jackson2006`
+:::
+
+:::{prf:definition} augmented-graph
+:label: def-augmented-graph
+
+Given a graph $G$, we will denote by $\overline{G}$ the _augmented graph_, which is the graph $G$ 
+with the additional edges between all {prf:ref}`separating pairs <def-separating-pair>`, if they 
+were not already connected by an edge.
+
+:::
+
+
+:::{prf:definition} cleaving-operation
+:label: def-cleaving-operation
+
+Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and $u,v\in V$ such that $\{u,v\}$ 
+is a {prf:ref}`separating pair <def-separating-pair>` of $G$. Let $C$ be a `connected components <def-k-connected>`
+of $G-\{u,v\}$. Then the graph $G[V(C)\cup \{u,v\}]+uv$ is obtained from $G$ by a _cleaving operation_
+along $\{u,v\}$ (if $e$ is already an edge of a graph $G$, we use the convention that $G+e=G$).
+
+:::
+
+
+:::{prf:lemma}
+:label: lem-3-block
+
+Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a 
+non-adjacent vertex pair in $G$ with ${prf:ref}`\kappa_G(u,v) <def-kappa-G-u-v>`\geq 3$. 
+Then either $(u,v)$ is a {prf:ref}`separating pair <def-separating-pair>` in $G$ or there is 
+a unique maximal {prf:ref}`3-connected subgraph <def-k-connected>` $B$ of the 
+{prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ with $\{u,v\} \subset V(B)$. 
+In the latter case the subgraph $B$ can be obtained from $G$ by a sequence of 
+`cleaving operations <def-cleaving-operation>`. 
+Furthermore, $uv \notin E(B)$, and if the pair $\{u,v\}$ is linked in $G$ then it is also 
+linked in $B$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.block_3_2`
+{{references}} {cite:p}`Jackson2006`
+:::
+
+
+:::{prf:theorem}
+:label: thm-weakly-globally-linked
+
+Let $G = (V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be 
+a non-adjacent linked pair of vertices with ${prf:ref}`\kappa_G(u,v) <def-kappa-G-u-v>` \geq 3$. 
+Then $\{u,v\}$ is {prf:ref}`weakly globally linked <def-globally-linked>` in $G$ if and only if either
+* $(u,v)$ is a {prf:ref}`separating pair <def-separating-pair>` in G, or
+* {prf:ref}`Clique$(B,V_0) <def-clique-operation>`$ is {prf:ref}`globally rigid <def-globally-rigid-graph>`,
+
+where $B$ is the {prf:ref}`3-block pair <def-block-3>` of $\{u,v\}$ in $G$, and $B_0 = (V_0,E_0)$ 
+is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an {prf:ref}`$\mathcal{R}_2$-circuit <def-matroid>`.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
+{{references}} {cite:p}`Jackson2006`
+:::

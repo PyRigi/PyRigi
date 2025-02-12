@@ -3133,8 +3133,8 @@ class Graph(nx.Graph):
         v: Vertex
 
         Definitions
-        --------
-        :prf:ref:`separating-pair <def-separating-pair>` TODO
+        -----------
+        :prf:ref:`separating-pair <def-separating-pair>` 
 
         Examples
         --------
@@ -3164,7 +3164,7 @@ class Graph(nx.Graph):
         method ignores it.
 
         Parameters
-        --------
+        ----------
         V:
             set or list of vertices
 
@@ -3197,8 +3197,8 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        def of clique
-        def of this operation
+        :prf:ref:`clique <def-clique>`
+        :prf:ref:`clique operation <def-clique-operation>`
 
         Parameters
         ----------
@@ -3276,11 +3276,16 @@ class Graph(nx.Graph):
         Return the 3-block of {u,v}, getting it by cleaving operations.
 
         Parameters
-        --------
+        ----------
         u:
             vertex
         v:
             vertex
+            
+        Definitions
+        -----------
+        :prf:ref:`3-block <def-block-3>`
+        :prf:ref:`3-block lemma <lem-3-block>`
 
         Examples
         --------
@@ -3312,12 +3317,16 @@ class Graph(nx.Graph):
         contains the edge uv.
 
         Parameters
-        --------
+        ----------
         u:
             vertex (optional)
         v:
             vertex (optional)
-
+        
+        Definitions
+        -----------
+        :prf:ref:`R2 circuit <def-matroid>`
+        
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
@@ -3339,8 +3348,15 @@ class Graph(nx.Graph):
     ):
         """
         Return if the graph is weakly globally linked.
-        TODO
-        add reference to Theorem 5.8
+        
+        Definitions
+        -----------
+        :prf:ref:`weakly globally linked pair <def-globally-linked>`        
+        :prf:ref:`weakly globally linked theorem <thm-weakly-globally-linked>`
+        
+        Examples
+        --------
+        >>> 
         """
         # self must be a 2-connected graph
         if not nx.is_biconnected(self):
