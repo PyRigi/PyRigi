@@ -3,14 +3,14 @@ from pyrigi.graph import Graph
 import networkx as nx
 
 
-# can be run with pytest -m large
+# can be run with pytest -m slow_main
 
 
 def read_from_sparse6(filename):
     return Graph(nx.read_sparse6(filename))
 
 
-@pytest.mark.large
+@pytest.mark.slow_main
 def test_rigid_in_d2():
     graph = read_from_sparse6("test/input_graphs/K4.s6")
     assert graph.is_rigid(dim=2, combinatorial=True)
@@ -20,7 +20,7 @@ def test_rigid_in_d2():
     assert graph.is_tight(K=2, L=3, algorithm="pebble")
 
 
-@pytest.mark.large
+@pytest.mark.slow_main
 def test_big_random_tight_graphs():
     # (6,8)-tight graph on 50 vertices and 292 edges
     graph = read_from_sparse6("test/input_graphs/tight_6_8.s6")
@@ -43,7 +43,7 @@ def test_big_random_tight_graphs():
     assert graph.is_tight(K=2, L=3, algorithm="pebble")
 
 
-@pytest.mark.large
+@pytest.mark.slow_main
 def test_big_random_sparse_graphs():
     # (3,1)-sparse graph on 20 vertices and 58 edges
     graph = read_from_sparse6("test/input_graphs/sparse_3_1.s6")
@@ -65,7 +65,7 @@ def test_big_random_sparse_graphs():
     assert graph.is_sparse(K=2, L=3, algorithm="pebble")
 
 
-@pytest.mark.large
+@pytest.mark.slow_main
 def test_big_random_not_sparse_graphs():
     # Dense graph on 20 vertices
     graph = read_from_sparse6("test/input_graphs/not_sparse_5_2.s6")
@@ -84,7 +84,7 @@ def test_big_random_not_sparse_graphs():
     assert not graph.is_sparse(K=6, L=6, algorithm="pebble")
 
 
-@pytest.mark.large
+@pytest.mark.slow_main
 def test_Rd_circuit_graphs():
     graph = read_from_sparse6("test/input_graphs/K4.s6")
     assert graph.is_Rd_circuit(dim=2)
@@ -102,7 +102,7 @@ def test_Rd_circuit_graphs():
     assert graph.is_Rd_circuit(dim=2)
 
 
-@pytest.mark.large
+@pytest.mark.slow_main
 def test_Rd_not_circuit_graphs():
     graph = read_from_sparse6("test/input_graphs/not_circle_5_7.s6")
     assert not graph.is_Rd_circuit(dim=2)
