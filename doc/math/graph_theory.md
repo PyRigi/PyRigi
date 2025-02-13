@@ -115,7 +115,7 @@ where two paths are internally disjoint if they do not share any edge.
 
 Let $u,v$ be a pair of distinct vertices in a 
 {prf:ref}`2-connected graph <def-k-connected>` $G$.
-Then the set $\{u,v\} is called a _separating pair_ (or _2-separator_) if 
+Then the set $\{u,v\}$ is called a _separating pair_ (or _2-separator_) if 
 $G-\{u,v\}$ is not {prf:ref}`connected <def-connected>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_separating_pair`
@@ -130,13 +130,13 @@ A _clique_ of a graph $G$ is an induced subgraph of $G$ that is complete.
 :::
 
 
-:::{prf:definition} $make\_Clique(G,X)$ graph
+:::{prf:definition} make$\_$Clique(G,X) graph
 :label: def-clique-operation
 
 Let $G=(V,E)$ be a graph and $X\subseteq V$ such that $X \neq\emptyset$. Let 
 $V_1,\dots, V_r$ be the vertex sets of the {prf:ref}`connected components <def-k-connected>` 
 of $G-X$. 
-The graph _$make\_Clique(G,X)$_ is obtained from $G$ by deleting the vertex 
+The graph _make$\_$Clique(G,X)_ is obtained from $G$ by deleting the vertex 
 sets $V_i,$ $1\leq i\leq r$ and adding the edges $xy$ for all pairs 
 $x,y\in N_G(V_i)$ for $1\leq i\leq r$. Here $N_G(V_i)$ denotes 
 the set of nodes of $V-V_i$ that are connected by an edge to some vertex of $V_i$.
