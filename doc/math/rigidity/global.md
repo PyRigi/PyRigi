@@ -111,8 +111,8 @@ the class of randomized polynomial time algorithms.
 :::{prf:definition} 
 :label: def-globally-linked-p
 
-We say that a pair of vertices $\{u,v\}$ in a {prf:ref}`dimensional framework <def-framework>` 
-$(G,p)$ is _globally linked in $(G,p)$_ if for every equivalent {prf:ref}`dimensional framework <def-framework>` 
+We say that a pair of vertices $\{u,v\}$ in a $d$-{prf:ref}`dimensional framework <def-framework>` 
+$(G,p)$ is _globally linked in $(G,p)$_ if for every equivalent $d$-{prf:ref}`dimensional framework <def-framework>` 
 $(G,q)$ we have $||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
 
 {{references}} {cite:p}`Jackson2006`
@@ -122,10 +122,10 @@ $(G,q)$ we have $||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
 :label: def-globally-linked
 
 A pair of vertices $\{u,v\}$ is _globally linked in $G$_ in $\RR^d$ if it is {prf:ref}`globally linked <def-globally-linked>`
-in all {prf:ref}`generic dimensional frameworks <def-gen-realization>` $(G,p)$. 
+in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$. 
 
 A pair $\{u,v\}$ is _weakly globally linked in $G$_ in $\RR^d$ if there exists 
-a {prf:ref}`generic dimensional framework <def-gen-realization>` $(G,p)$ in which $\{u,v\}$ 
+a $d$-dimensional {prf:ref}`generic framework <def-gen-realization>` $(G,p)$ in which $\{u,v\}$ 
 is {prf:ref}`globally linked <def-globally-linked>`.
 
 If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally loose in $G$_.
@@ -147,9 +147,9 @@ by adding an edge between every {prf:ref}`separating pair <def-separating-pair>`
 :label: def-cleaving-operation
 
 Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and $u,v\in V$ such that $\{u,v\}$ 
-is a {prf:ref}`separating pair <def-separating-pair>` of $G$. Let $C$ be a {prf:ref}`connected components <def-k-connected>`
-of $G-\{u,v\}$. Then we say that the graph $G[V(C)\cup \{u,v\}]+uv$ is obtained from $G$ by a _cleaving operation_
-along $\{u,v\}$.
+is a {prf:ref}`separating pair <def-separating-pair>` of $G$. Let $C$ be a {prf:ref}`connected component <def-k-connected>`
+of $G-\{u,v\}$ and let $H$ be the subgraph of $G$ induced by $V(C)\cup \{u,v\}$. Then we say that $H+ uv$ 
+is obtained from $G$ by a _cleaving operation_ along $\{u,v\}$.
 
 :::
 
@@ -158,10 +158,10 @@ along $\{u,v\}$.
 :label: lem-3-block
 
 Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a 
-non-adjacent vertex pair in $G$ with {prf:ref}`\kappa_G(u,v) <def-kappa-G-u-v>`$\geq 3$. 
-Then either $(u,v)$ is a {prf:ref}`separating pair <def-separating-pair>` in $G$ or there is 
-a unique maximal {prf:ref}`3-connected subgraph <def-k-connected>` $B$ of the 
-{prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ with $\{u,v\} \subset V(B)$. 
+non-adjacent vertex pair in $G$ with {prf:ref}`local node connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$. 
+Then either $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-pair>` in $G$ or there is 
+a unique {prf:ref}`3-connected component <def-k-connected>` $B$ of the 
+{prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ such that $\{u,v\} \subset V(B)$. 
 In the latter case the subgraph $B$ can be obtained from $G$ by a sequence of 
 {prf:ref}`cleaving operations <def-cleaving-operation>`. 
 Furthermore, $uv \notin E(B)$ and, in $\RR^2$, if the pair $\{u,v\}$ is linked in $G$ then it is also 
@@ -178,7 +178,7 @@ linked in $B$.
 Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a 
 non-adjacent vertex pair in $G$ which is not a {prf:ref}`separating pair <def-separating-pair>`.
 The unique {prf:ref}`3-connected component <def-k-connected>` 
-$B$ of {prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ with $\{u,v\}\subset V(B)$ 
+$B$ of the {prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ such that $\{u,v\}\subset V(B)$ 
 is called the _3-block_ of $\{u,v\}$ in $G$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.block_3`
@@ -190,10 +190,10 @@ is called the _3-block_ of $\{u,v\}$ in $G$.
 :label: thm-weakly-globally-linked
 
 Let $G = (V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` in $\RR^2$ and let $\{u,v\}$ be 
-a non-adjacent linked pair of vertices with {prf:ref}`\kappa_G(u,v) <def-kappa-G-u-v>` $\geq 3$. 
+a non-adjacent linked pair of vertices with {prf:ref}`local node connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$. 
 Then $\{u,v\}$ is {prf:ref}`weakly globally linked <def-globally-linked>` in $G$ if and only if either
-* $(u,v)$ is a {prf:ref}`separating pair <def-separating-pair>` in G, or
-* {prf:ref}`Clique<def-clique-operation>`$(B,V_0)$ is {prf:ref}`globally rigid <def-globally-rigid-graph>`,
+* $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-pair>` in G, or
+* {prf:ref}`make_Clique<def-clique-operation>`$(B,V_0)$ is {prf:ref}`globally rigid <def-globally-rigid-graph>`,
 
 where $B$ is the {prf:ref}`3-block <def-block-3>` of $\{u,v\}$ in $G$, and $B_0 = (V_0,E_0)$ 
 is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`.
