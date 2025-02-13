@@ -4,6 +4,7 @@ This is a module for providing common types of graphs.
 
 import networkx as nx
 from pyrigi.graph import Graph
+import pyrigi._input_check as _input_check
 
 
 def Cycle(n: int) -> Graph:
@@ -62,14 +63,14 @@ def CubeWithDiagonal() -> Graph:
     )
 
 
-def DoubleBanana(d: int = 3, t: int = 2) -> Graph:
+def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     r"""
     Return the d-dimensional double banana graph.
 
     Parameters
     ----------
-    d: integer, must be at least 3
-    t: integer, must be 2 <= t <= d-1
+    dim: integer, must be at least 3
+    t: integer, must be 2 <= t <= dim-1
 
     Definitions
     -----
@@ -79,20 +80,20 @@ def DoubleBanana(d: int = 3, t: int = 2) -> Graph:
     --------
     >>> DoubleBanana()
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [2, 3], [2, 4], [3, 4], [5, 6], [5, 7], [6, 7]]
-    >>> DoubleBanana(d = 4)
+    >>> DoubleBanana(dim = 4)
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]]
     """  # noqa: E501
-    if d < 3:
-        raise ValueError(f"The parameter d must be at least 3, instead it is {d}.")
-    if t < 2 or t > d - 1:
-        raise ValueError(f"The parameter t must be 2 <= t <= {d-1}, instead it is {t}.")
-    r = (d + 2) - t
+    _input_check.greater_equal(dim, 3, "dimension")
+    _input_check.greater_equal(t, 2, "parameter t")
+    _input_check.smaller_equal(t, dim - 1, "parameter t", "dim - 1")
+
+    r = (dim + 2) - t
     K = Complete(t)
     K1 = K.copy()
-    for i in range(t, d + 2):
+    for i in range(t, dim + 2):
         K1.add_edges([[i, v] for v in K1.nodes])
     K2 = K.copy()
-    for i in range(d + 2, d + 2 + r):
+    for i in range(dim + 2, dim + 2 + r):
         K2.add_edges([[i, v] for v in K2.nodes])
     return K1.sum_t(K2, [0, 1], t)
 
@@ -124,6 +125,49 @@ def Octahedral() -> Graph:
     )
 
 
+def Icosahedral() -> Graph:
+    """Return the graph given by the skeleton of an icosahedron."""
+    return Graph(nx.icosahedral_graph().edges)
+
+
+def Dodecahedral() -> Graph:
+    """Return the graph given by the skeleton of a dodecahedron."""
+    return Graph(
+        [
+            (0, 8),
+            (0, 12),
+            (0, 16),
+            (1, 8),
+            (1, 13),
+            (1, 18),
+            (2, 10),
+            (2, 12),
+            (2, 17),
+            (3, 9),
+            (3, 14),
+            (3, 16),
+            (4, 10),
+            (4, 13),
+            (4, 19),
+            (5, 9),
+            (5, 15),
+            (5, 18),
+            (6, 11),
+            (6, 14),
+            (6, 17),
+            (7, 11),
+            (7, 15),
+            (7, 19),
+            (8, 9),
+            (10, 11),
+            (12, 13),
+            (14, 15),
+            (16, 17),
+            (18, 19),
+        ]
+    )
+
+
 def Frustum(n: int) -> Graph:
     """Return the :prf:ref:`n-Frustum graph <def-n-frustum>`"""
     return Graph(
@@ -138,10 +182,6 @@ def K66MinusPerfectMatching():
     Return a complete bipartite graph minus a perfect matching.
 
     A matching is formed by six non-incident edges.
-
-    TODO
-    ----
-    use in tests
     """
     G = CompleteBipartite(6, 6)
     G.delete_edges([(i, i + 6) for i in range(0, 6)])
@@ -152,14 +192,9 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
     Return a C_n-symmetric graph.
 
-    TODO
-    ----
-    use in tests
-
     Definitions
     -----------
     * :prf:ref:`Example with a free group action <def-Cn-symmetric>`
-
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
@@ -183,10 +218,6 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
 
-    TODO
-    ----
-    use in tests
-
     Definitions
     -----------
     * :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
@@ -208,10 +239,6 @@ def ThreeConnectedR3Circuit():
     Return a 3-connected R_3-circuit.
 
     The returned graph is hypothesized to be the smallest 3-connected R_3-circuit.
-
-    TODO
-    ----
-    use in tests
     """
     return Graph(
         [

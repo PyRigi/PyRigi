@@ -14,6 +14,16 @@ and whose edge set is $E_1 \cup E_2$.
 {{pyrigi_crossref}} {meth}`~.Graph.__add__`
 :::
 
+
+:::{prf:definition} t-sum
+:label: def-t-sum
+
+Given three graphs $G=(V,E)$, $G_1=(V_1,E_1)$, and $G_2=(V_2,E_2)$, we say that
+$G$ is a _$t$-sum_ of $G_1,G_2$ along an edge $e$ if $G=(G_1\cup G_2)-e$,
+$G_1\cap G_2=K_t$ and $e\in E_1\cap E_2$.
+:::
+
+
 ## Sparse and tight graphs
 
 :::{prf:definition} $(k, \ell)$-sparse and $(k, \ell)$-tight
@@ -23,10 +33,12 @@ Let $G = (V, E)$ be a (multi)graph and let $k, \ell \in \NN$.
 The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices with $k\leq n' \leq |V|$ spans at most $kn' - \ell$ edges.
 The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $k|V| - \ell = |E|$.
 
-{{pyrigi_crossref}} {meth}`~.Graph.is_sparse`
+{{pyrigi_crossref}} {meth}`~.Graph.is_kl_sparse`
+{meth}`~.Graph.is_sparse`
 {meth}`~.Graph.is_tight`
+{meth}`~.Graph.is_kl_tight`
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 :::
 
 
@@ -61,5 +73,4 @@ is called a $d$-dimensional _k-extension_ of $G$.
 
 :::{toctree}
 :maxdepth: 2
-graph-theory/known-families
-graph-theory/double-banana
+graph-theory/examples

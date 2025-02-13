@@ -73,11 +73,11 @@ def test_set_K_and_L_check_setup():
 
 
 @pytest.mark.parametrize(
-    "graphs",
+    "graph",
     [DirectedCycle(5, 2, 3), OutStar(5, 2, 3), InStar(5, 2, 3)],
 )
-def test_dir_graph_edges(graphs):
-    assert 5 == graphs.number_of_edges()
+def test_number_of_edges(graph):
+    assert 5 == graph.number_of_edges()
 
 
 def test_in_degree():
@@ -126,7 +126,7 @@ def test_redirect_edge_to_head():
     assert 2 == len(graph.edges)
 
 
-def test_can_add_edge_between_nodes():
+def test_can_add_edge_between_vertices():
     Cycle_graph = DirectedCycle(4, 2, 3)
     for i in range(4):  # we can add cyclicly to any of them in any direction
         assert Cycle_graph.can_add_edge_between_vertices(i, (i + 2) % 4)
@@ -146,7 +146,7 @@ def test_can_add_edge_between_nodes():
         Path_graph.can_add_edge_between_vertices(0, "A")
 
 
-def test_can_not_add_edge_between_nodes():
+def test_cannot_add_edge_between_vertices():
     Cycle_graph = DirectedCycle(4, 2, 3)
 
     for i in range(4):  # we can't add cyclicly to any of them in any direction

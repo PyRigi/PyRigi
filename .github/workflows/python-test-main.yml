@@ -26,11 +26,17 @@ jobs:
       with:
         python-version: "3.10"
     - name: Install dependencies
-      run: poetry install --without doc  --all-extras
+      run: poetry install --all-extras
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         poetry run flake8 . --count --show-source --statistics
     - name: Test with pytest
       run: |
-        poetry run pytest --doctest-modules
+        poetry run pytest --doctest-modules -m 'not slow_main or slow_main'
+        # --doctest-modules overrides the default --doctest-plus
+    - name: Test doc compilation
+      run: |
+        cd doc
+        python3 doc/remove_skip_execution_magic.py
+        poetry run make html

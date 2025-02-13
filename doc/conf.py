@@ -16,6 +16,8 @@ import os
 import sys
 
 from sphinx.application import Sphinx
+from pyrigi import Graph, Framework
+import pyrigi._input_check as _input_check
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -26,9 +28,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "0.3"
+version = "0.4"
 # The full version, including alpha/beta/rc tags
-release = "0.3.0"
+release = "0.4.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -59,6 +61,9 @@ extensions = [
     "sphinx_design",
     "sphinx_tippy",
 ]
+coverage_modules = ["pyrigi"]
+coverage_statistics_to_stdout = True
+coverage_show_missing_items = True
 
 bibtex_bibfiles = ["refs.bib"]
 
@@ -80,13 +85,17 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_preprocess_types = True
-napoleon_custom_sections = ["Definitions", "Methods"]
+napoleon_custom_sections = ["Definitions", "Methods", "Suggested Improvements"]
 
 autodoc_type_aliases = {
     "Vertex": "Vertex",
     "Edge": "Edge",
+    "DirectedEdge": "DirectedEdge",
     "Point": "Point",
-    "Coordinate": "Coordinate",
+    "Number": "Number",
+    "Stress": "Stress",
+    "InfFlex": "InfFlex",
+    "Inf": "Inf",
 }
 napoleon_attr_annotations = True
 
@@ -122,6 +131,9 @@ myst_substitutions = {
 myst_heading_anchors = 3
 
 nb_execution_mode = "cache"
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
+nb_execution_timeout = 120
 
 tippy_enable_mathjax = True
 tippy_props = {
@@ -230,7 +242,7 @@ html_title = "PyRigi"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
-html_css_files = ["tippy.css"]
+html_css_files = ["tippy.css", "thm.css"]
 
 
 # Custom sidebar templates, must be a dictionary that maps document names
@@ -347,3 +359,35 @@ def setup(app: Sphinx):
     from myst_parser._docs import MystLexer
 
     app.add_lexer("myst", MystLexer)
+
+
+input_check_str = ""
+for cls in [Graph, Framework]:
+    methods = [
+        method
+        for method in dir(cls)
+        if method.startswith("_input_check_") and callable(getattr(cls, method))
+    ]
+    input_check_str += (
+        f"""
+Input check methods of {cls.__name__}
+======================={''.join(["=" for _ in range(len(cls.__name__))])}
+
+.. automethod:: {cls.__module__}.{cls.__name__}."""
+        + f"""
+
+.. automethod:: {cls.__module__}.{cls.__name__}.""".join(
+            methods
+        )
+        + "\n\n"
+    )
+
+input_check_str += """
+
+General input check methods
+===========================
+
+
+"""
+
+_input_check.__doc__ = input_check_str

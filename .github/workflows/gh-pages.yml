@@ -24,7 +24,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry config virtualenvs.create false
-        poetry install --without dev
+        poetry install --without dev --all-extras
+    - name: Remove skip-execution cell magic
+      run: |
+        python3 doc/remove_skip_execution_magic.py
     - name: Convert notebooks from md to ipynb
       run: |
         cd doc/userguide/tutorials/
