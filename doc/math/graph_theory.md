@@ -86,45 +86,37 @@ vertices in the graph is connected.
 :::{prf:definition} k-connected
 :label: def-k-connected
 
-A graph $G$ is said _$k$-(vertex-)connected_ if it has 
-more than $k$ vertices and it remains `connected <def-connected>` 
+A graph $G$ is _$k$-(vertex-)connected_ if it has 
+more than $k$ vertices and it remains {prf:ref}`connected <def-connected>` 
 when less than $k$ vertices are removed. In case $k=2$, it is called 
 _biconnected_ and in case $k=3$, it is called _triconnected_.
 
-Given a $k$-connected graph, it decomposes into a tree of 
-_$(k+1)$-vertex-connected components_.
+Given a graph $G$, a _$k$-vertex-connected component_ of $G$ is a 
+$k$-connected subgraph of $G$ that is not strictly contained into any
+other $k$-connected subgraph of $G$.  
+
 :::
 
 
-:::{prf:definition} kappa-G-u-v
+:::{prf:definition} $\kappa_G(u,v)$
 :label: def-kappa-G-u-v
 
 Let $G = (V,E)$ be a graph and $u,v\in V$, we use 
-_$\kappa_G(u,v)$_ to denote the _path number of $u,v$_, which is 
-the maximum number of pairwise openly (or internally) disjoint $uv$-paths in $G$, 
-where two paths are openly disjoint if they do not share any edge.
+_$\kappa_G(u,v)$_ to denote the _local node connectivity of $u,v$_, which is 
+the maximum number of pairwise internally disjoint $uv$-paths in $G$, 
+where two paths are internally disjoint if they do not share any edge.
 
 {{references}} {cite:p}`Jackson2006`
 :::
 
 
-:::{prf:definition} separation-point
-:label: def-separation-point
-
-Given a `connected <def-connected>` graph, if there is a distinct 
-triple $v,w,a\in V$ such that $a$ is on every path from $v$ to $w$, 
-then $a$ is called a _separation point_ of $G$.
-
-:::
-
-
-:::{prf:definition} separating-pair
+:::{prf:definition} separating pair
 :label: def-separating-pair
 
-Let $\{u,v\}$ be a pair of vertices in a 
+Let $u,v$ be a pair of distinct vertices in a 
 {prf:ref}`2-connected graph <def-k-connected>` $G$.
-They are called a _separating pair_ (or _separation pair_ or _2-separator_) if and 
-only if $G-\{u,v\}$ is not `connected <def-connected>`.
+They are called a _separating pair_ (or _2-separator_) if 
+$G-\{u,v\}$ is not {prf:ref}`connected <def-connected>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_separating_pair`
 :::
@@ -133,24 +125,21 @@ only if $G-\{u,v\}$ is not `connected <def-connected>`.
 :::{prf:definition} clique
 :label: def-clique 
 
-A _clique_ is a subset of vertices of a graph such that every two distinct 
-vertices in the clique are adjacent. That is, a clique of a graph $G$ is an
-induced subgraph of $G$ that is complete.
+A _clique_ of a graph $G$ is an induced subgraph of $G$ that is complete.
 
 :::
 
 
-:::{prf:definition} clique-operation
+:::{prf:definition} make$\_Clique(G,X)$ graph
 :label: def-clique-operation
 
 Let $G=(V,E)$ be a graph, $\emptyset \neq X \subseteq V$, and let 
-$V_1,\dots, V_r$ be the vertex sets of the `connected components <def-k-connected>` 
+$V_1,\dots, V_r$ be the vertex sets of the {prf:ref}`connected components <def-k-connected>` 
 of $G-X$. 
-The graph _make Clique$(G,X)$ operation_ consists of deleting the vertex 
+The graph _make$\_Clique(G,X)$_ is obtained from $G$ by deleting the vertex 
 sets $V_i, 1\leq i\leq r$ and adding a new edge $xy$ for all pairs 
-$x,y\in N_G(V_i), xy\notin E$ for $1\leq i\leq r$. Here $N_G(V_i)$ denotes 
-the set of nodes of $G-V_i$ that are connected by an edge to at least one 
-vertex of $V_i$ (and then to $v_i$, by its definition).
+$x,y\in N_G(V_i)$ for $1\leq i\leq r$. Here $N_G(V_i)$ denotes 
+the set of nodes of $V-V_i$ that are connected by an edge to some vertex of $V_i$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.make_outside_neighbors_clique`
 {{references}} {cite:p}`Jackson2006`
