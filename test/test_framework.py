@@ -756,8 +756,6 @@ def test_animate3D_rotation():
     with pytest.raises(ValueError):
         F.animate3D_rotation()
 
-    plt.close("all")
-
 
 def test_rigidity_matrix():
     F = fws.Complete(2)

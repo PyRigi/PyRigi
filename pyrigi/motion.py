@@ -26,6 +26,7 @@ from copy import deepcopy
 from warnings import warn
 from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
+import os
 
 
 class Motion(object):
@@ -267,7 +268,10 @@ class Motion(object):
             plt.close()
             return HTML(ani.to_jshtml())
         else:
-            plt.show()
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                plt.show(block=False)
+            else:
+                plt.show()
             return
 
     def animate2D_plt(
@@ -421,7 +425,10 @@ class Motion(object):
             plt.close()
             return HTML(ani.to_jshtml())
         else:
-            plt.show()
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                plt.show(block=False)
+            else:
+                plt.show()
             return
 
     def animate2D_svg(
