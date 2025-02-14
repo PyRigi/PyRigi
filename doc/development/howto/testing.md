@@ -39,9 +39,9 @@ pytest -p no:doctestplus
 Functionalities requiring optional packages are tested by default;
 if you want to skip some specific optional feature(s), run
 ```
-pytest -m "not optional_feature1_name and not optional_feature2_name"
+pytest -m "not slow_main and not long_local and not opt_feature1 and not opt_feature2"
 ```
-See the file `pyproject.toml` for the markers that specify groups of tests relying on optional packages.
+See the file `pyproject.toml` for the markers that specify groups of tests relying on [optional packages](optional-packages).
 
 We mark tests that take longer time according to the following table:
 
