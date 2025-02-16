@@ -329,6 +329,7 @@ def read_random_from_graph6(filename):
 def read_globally(d_v_):
     return read_random_from_graph6("test/input_graphs/globally_rigid/" + d_v_ + ".g6")
 
+
 def read_sparsity(filename):
     return Graph(nx.read_sparse6("test/input_graphs/sparsity/" + filename + ".s6"))
 
@@ -458,7 +459,9 @@ def test_rigid_in_d2():
         # (13,14)-tight graph on 20 vertices and 246 edges
         pytest.param(read_sparsity("tight_13_14"), 13, 14, marks=pytest.mark.slow_main),
         # (2,3)-tight graph on 1000 vertices and 1997 edges
-        pytest.param(read_sparsity("huge_tight_2_3"), 2, 3, marks=pytest.mark.slow_main)
+        pytest.param(
+            read_sparsity("huge_tight_2_3"), 2, 3, marks=pytest.mark.slow_main
+        ),
     ],
 )
 def test_big_random_tight_graphs(graph, K, L):
@@ -469,17 +472,26 @@ def test_big_random_tight_graphs(graph, K, L):
     "graph, K, L",
     [
         # Dense graph on 20 vertices
-        pytest.param(read_sparsity("not_sparse_5_2"), 5, 2, marks=pytest.mark.slow_main),
+        pytest.param(
+            read_sparsity("not_sparse_5_2"), 5, 2, marks=pytest.mark.slow_main
+        ),
         # (7,7)-tight graph plus one edge on 40 vertices (274 edges)
-        pytest.param(read_sparsity("not_sparse_7_7"), 7, 7, marks=pytest.mark.slow_main),
+        pytest.param(
+            read_sparsity("not_sparse_7_7"), 7, 7, marks=pytest.mark.slow_main
+        ),
         # few edges in graph on 30 vertices, but has a (3,5)-connected circle
-        pytest.param(read_sparsity("not_sparse_3_5"), 3, 5, marks=pytest.mark.slow_main),
+        pytest.param(
+            read_sparsity("not_sparse_3_5"), 3, 5, marks=pytest.mark.slow_main
+        ),
         # random large graph on 70 vertices, not sparse
-        pytest.param(read_sparsity("not_sparse_6_6"), 6, 6, marks=pytest.mark.slow_main)
+        pytest.param(
+            read_sparsity("not_sparse_6_6"), 6, 6, marks=pytest.mark.slow_main
+        ),
     ],
 )
 def test_big_random_not_sparse_graphs(graph, K, L):
     assert not graph.is_kl_sparse(K, L, algorithm="pebble")
+
 
 @pytest.mark.parametrize(
     "graph",
@@ -488,7 +500,7 @@ def test_big_random_not_sparse_graphs(graph, K, L):
         pytest.param(read_sparsity("circle_5_8"), marks=pytest.mark.slow_main),
         pytest.param(read_sparsity("circle_10_18"), marks=pytest.mark.slow_main),
         pytest.param(read_sparsity("circle_20_38"), marks=pytest.mark.slow_main),
-        pytest.param(read_sparsity("circle_30_58"), marks=pytest.mark.slow_main)
+        pytest.param(read_sparsity("circle_30_58"), marks=pytest.mark.slow_main),
     ],
 )
 def test_Rd_circuit_graphs_d2(graph):
@@ -501,7 +513,7 @@ def test_Rd_circuit_graphs_d2(graph):
         pytest.param(read_sparsity("not_circle_5_7"), marks=pytest.mark.slow_main),
         pytest.param(read_sparsity("not_circle_10_18"), marks=pytest.mark.slow_main),
         pytest.param(read_sparsity("not_circle_20_39"), marks=pytest.mark.slow_main),
-        pytest.param(read_sparsity("not_circle_30_58"), marks=pytest.mark.slow_main)
+        pytest.param(read_sparsity("not_circle_30_58"), marks=pytest.mark.slow_main),
     ],
 )
 def test_Rd_not_circuit_graphs_d2(graph):
