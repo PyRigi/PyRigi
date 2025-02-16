@@ -66,6 +66,21 @@ class Motion(object):
         """
         Normalize a given list of realizations
         so they fit exactly to the window with the given dimensions.
+
+        Parameters
+        ----------
+        realizations:
+            ``Sequence`` of realizations.
+        x_width, y_width, z_width:
+            Widths of the underlying canvas.
+        padding:
+            Whitespace added on the boundaries of the canvas.
+
+        Notes
+        -----
+        This is done by scaling the ``realizations`` and adding a
+        padding so that the animation does not leave the predefined
+        canvas.
         """
 
         xmin = ymin = zmin = np.inf
@@ -124,7 +139,7 @@ class Motion(object):
         **kwargs,
     ) -> Any:
         """
-        Animate the continuous motion.
+        Animate the continuous motion in 3D.
 
         See :class:`~.PlotStyle3D` for a list of possible visualization keywords.
         Not necessarily all of them apply (e.g. keywords related to infinitesimal
@@ -293,7 +308,7 @@ class Motion(object):
         **kwargs,
     ) -> Any:
         """
-        Animate the continuous motion.
+        Animate the continuous motion in 2D.
 
         See :class:`~.PlotStyle2D` for a list of possible visualization keywords.
         Not necessarily all of them apply (e.g. keywords related to infinitesimal
@@ -452,6 +467,8 @@ class Motion(object):
         **kwargs,
     ) -> Any:
         """
+        Animate the motion as a ``.svg`` file.
+
         See :class:`~.PlotStyle2D` for a list of possible visualization keywords.
         Not necessarily all of them apply (e.g. keywords related to infinitesimal
         flexes are ignored).
@@ -693,7 +710,6 @@ class ParametricMotion(Motion):
     def check_edge_lengths(self) -> bool:
         """
         Check whether the saved motion preserves edge lengths.
-
         """
 
         for u, v in self._graph.edges:
@@ -745,7 +761,6 @@ class ParametricMotion(Motion):
         """
         Return n realizations for sampled values of the parameter.
         """
-
         realizations = []
         if not use_tan:
             for i in np.linspace(self._interval[0], self._interval[1], n):
@@ -1005,7 +1020,7 @@ class ApproximateMotion(Motion):
         self, realizations: Sequence[dict[Vertex, Point]], pinned_vertex: Vertex = None
     ) -> list[dict[Vertex, Point]]:
         """
-        Pin the first vertex to the origin.
+        Pin a vertex to the origin.
 
         Parameters
         ----------

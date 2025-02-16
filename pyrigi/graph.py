@@ -142,7 +142,7 @@ class Graph(nx.Graph):
 
     def __add__(self, other: Graph):
         r"""
-        Return the union of self and other.
+        Return the union of ``self`` and ``other``.
 
         Definitions
         -----------
@@ -229,6 +229,14 @@ class Graph(nx.Graph):
         """
         Check whether the elements of a list are indeed vertices and
         raise error otherwise.
+
+        Parameters
+        ----------
+        to_check:
+            A vertex or ``Iterable`` of vertices for which the containment in ``self``
+            is checked.
+        name:
+            A name of the ``Iterable`` ``to_check`` can be picked.
         """
         if not isinstance(to_check, Iterable):
             if not self.has_node(to_check):
@@ -248,8 +256,13 @@ class Graph(nx.Graph):
         self, input_pair: Edge, loopfree: bool = False
     ) -> None:
         """
-        Check if an input_pair is a pair of (distinct) vertices of the graph and
+        Check if an ``input_pair`` is a pair of (distinct) vertices of the graph and
         raise an error otherwise.
+
+        Parameters
+        ----------
+        input_pair:
+            Edge for which the containment in the graph ``self`` is checked.
         """
         if not isinstance(input_pair, list | tuple) or not len(input_pair) == 2:
             raise TypeError(
@@ -284,7 +297,7 @@ class Graph(nx.Graph):
         self, edges: Sequence[Edge], vertices: Sequence[Vertex] = None
     ) -> None:
         """
-        Apply _input_check_edge to all edges in a list.
+        Apply :meth:`~Graph._input_check_edge` to all edges in a list.
 
         Parameters
         ----------
@@ -299,7 +312,7 @@ class Graph(nx.Graph):
 
     def _input_check_edge_format_list(self, pairs: Sequence[Edge]) -> None:
         """
-        Apply _input_check_edge_format to all pairs in a list.
+        Apply :meth:`~Graph._input_check_edge_format` to all pairs in a list.
 
         Parameters
         ----------
@@ -373,6 +386,13 @@ class Graph(nx.Graph):
     def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None):
         """
         Raise a warning if a randomized algorithm is silently called.
+
+        Parameters
+        ----------
+        method:
+            Reference to the method that is called.
+        explicit_call:
+            ``str`` quantifying the referenced parameter.
         """
         if not cls.silence_rand_alg_warns:
             warnings.warn(
@@ -554,6 +574,11 @@ class Graph(nx.Graph):
         Adds edges one-by-one, as long as it can.
         Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
         from the rest of the graph.
+
+        Parameters
+        ----------
+        K:
+        L:
         """
         _input_check.pebble_values(K, L)
 
@@ -585,7 +610,13 @@ class Graph(nx.Graph):
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
-        """
+
+        Examples
+        --------
+        >>> G = Graph.CompleteOnVertices([0,1,2,3])
+        >>> G.spanning_kl_sparse_subgraph(2,3)
+        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
+        """  # noqa: E501
         if (
             not use_precomputed_pebble_digraph
             or K != self._pebble_digraph.K
@@ -687,9 +718,13 @@ class Graph(nx.Graph):
     @doc_category("Sparseness")
     def is_sparse(self) -> bool:
         r"""
-        Return whether the graph is :prf:ref:`(2,3)-sparse <def-kl-sparse-tight>`.
+        Return whether the graph is (2,3)-sparse.
 
         For general $(k,\ell)$-sparsity, see :meth:`.is_kl_sparse`.
+
+        Definitions
+        -----------
+        :prf:ref:`(2,3)-sparse <def-kl-sparse-tight>`
 
         Examples
         --------
@@ -712,7 +747,11 @@ class Graph(nx.Graph):
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
         r"""
-        Check whether the graph is :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`.
+        Check whether the graph is (k,l)-tight.
+
+        Definitions
+        -----------
+        :prf:ref:`(K, L)-tight <def-kl-sparse-tight>`
 
         Parameters
         ----------
@@ -749,9 +788,13 @@ class Graph(nx.Graph):
     @doc_category("Sparseness")
     def is_tight(self) -> bool:
         r"""
-        Return whether the graph is :prf:ref:`(2,3)-tight <def-kl-sparse-tight>`.
+        Return whether the graph is (2,3)-tight.
 
         For general $(k,\ell)$-tightness, see :meth:`.is_kl_tight`.
+
+        Definitions
+        -----------
+        :prf:ref:`(2,3)-tight <def-kl-sparse-tight>`
 
         Examples
         --------
@@ -772,7 +815,11 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a :prf:ref:`dim-dimensional 0-extension <def-k-extension>`.
+        Return a ``dim``-dimensional 0-extension.
+
+        Definitions
+        -----------
+        :prf:ref:`0-extension <def-k-extension>`
 
         Parameters
         ----------
@@ -820,7 +867,11 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a :prf:ref:`dim-dimensional 1-extension <def-k-extension>`.
+        Return a ``dim``-dimensional 1-extension.
+
+        Definitions
+        -----------
+        :prf:ref:`1-extension <def-k-extension>`
 
         Parameters
         ----------
@@ -878,7 +929,11 @@ class Graph(nx.Graph):
         inplace: bool = False,
     ) -> Graph:
         """
-        Return a :prf:ref:`dim-dimensional k-extension <def-k-extension>`.
+        Return a ``dim``-dimensional ``k``-extension.
+
+        Definitions
+        -----------
+        :prf:ref:`k-extension <def-k-extension>`
 
         Parameters
         ----------
@@ -973,8 +1028,12 @@ class Graph(nx.Graph):
     ) -> Iterable[Graph]:
         """
         Return an iterator over all possible
-        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`
+        ``dim``-dimensional ``k``-extensions
         for a given ``k``.
+
+        Definitions
+        -----------
+        :prf:ref:`k-extensions <def-k-extension>`
 
         Parameters
         ----------
@@ -1050,8 +1109,12 @@ class Graph(nx.Graph):
     ) -> Iterable[Graph]:
         """
         Return an iterator over all possible
-        :prf:ref:`dim-dimensional k-extensions <def-k-extension>`
+        ``dim``-dimensional ``k``-extensions
         for all possible ``0 <= k <= dim - 1``.
+
+        Definitions
+        -----------
+        :prf:ref:`k-extensions <def-k-extension>`
 
         Parameters
         ----------
@@ -1114,7 +1177,7 @@ class Graph(nx.Graph):
     ) -> list[Graph] | list | None:
         """
         Compute a sequence of
-        :prf:ref:`k-extensions <def-k-extension>`
+        ``dim``-dimensional ``k``-extensions
         if it exists, where k goes from 0 to ``2 * dim - 1``.
         The sequence then starts from a complete graph on ``dim`` vertices.
 
@@ -1123,6 +1186,10 @@ class Graph(nx.Graph):
 
         Note that for dimesions larger than two, the
         extensions are not always preserving rigidity.
+
+        Definitions
+        -----------
+        :prf:ref:`k-extensions <def-k-extension>`
 
         Parameters
         ----------
@@ -1229,10 +1296,14 @@ class Graph(nx.Graph):
     ) -> bool:
         """
         Check the existence of a sequence of
-        :prf:ref:`0 and 1-extensions <def-k-extension>`.
+        ``dim``-dimensional 0- and 1-extensions.
 
         The method returns whether the graph can be constructed
-        by a sequence of 0 and 1-extensions starting from an edge.
+        by a sequence of 0- and 1-extensions starting from an edge.
+
+        Definitions
+        -----------
+        :prf:ref:`0- and 1-extensions <def-k-extension>`.
 
         Parameters
         ----------
@@ -1283,9 +1354,8 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`Number of complex realizations<def-number-of-realizations>`
-
-        :prf:ref:`Number of complex spherical realizations
+        * :prf:ref:`Number of complex realizations<def-number-of-realizations>`
+        * :prf:ref:`Number of complex spherical realizations
         <def-number-of-spherical-realizations>`
 
 
@@ -1353,10 +1423,14 @@ class Graph(nx.Graph):
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`vertex redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>`.
+        Check whether the graph is vertex redundantly (generically) ``dim``-rigid.
 
         See :meth:`.is_k_vertex_redundantly_rigid` (using k = 1) for details.
+
+        Definitions
+        -----------
+        :prf:ref:`vertex redundantly dim-rigid
+        <def-redundantly-rigid-graph>`
         """
         _input_check.dimension(dim)
         return self.is_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
@@ -1480,10 +1554,14 @@ class Graph(nx.Graph):
     ) -> bool:
         """
         Check whether the graph is
-        :prf:ref:`minimally vertex redundantly (generically) dim-rigid
-        <def-min-redundantly-rigid-graph>`.
+        minimally vertex redundantly (generically) ``dim``-rigid.
 
-        See :meth:`.is_min_k_vertex_redundantly_rigid` (using k = 1) for details.
+        See :meth:`.is_min_k_vertex_redundantly_rigid` (using ``k=1``) for details.
+
+        Definitions
+        -----------
+        :prf:ref:`minimally vertex redundantly (generically) dim-rigid
+        <def-min-redundantly-rigid-graph>`
         """
         _input_check.dimension(dim)
         return self.is_min_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
@@ -1607,10 +1685,14 @@ class Graph(nx.Graph):
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>`.
+        Check whether the graph is redundantly (generically) ``dim``-rigid.
 
         See :meth:`.is_k_redundantly_rigid` (using k = 1) for details.
+
+        Definitions
+        -----------
+        :prf:ref:`redundantly (generically) dim-rigid
+        <def-redundantly-rigid-graph>
         """
         return self.is_k_redundantly_rigid(1, dim, algorithm, prob)
 
@@ -1623,8 +1705,7 @@ class Graph(nx.Graph):
         prob: float = 0.0001,
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`k-redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>`.
+        Check whether the graph is ``k``-redundantly (generically) ``dim``-rigid.
 
         Preliminary checks from
         :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`,
@@ -1634,6 +1715,11 @@ class Graph(nx.Graph):
         :prf:ref:`thm-globally-redundant-3connected` and
         :prf:ref:`thm-globally-mindeg6-dim2`.
         are used
+
+        Definitions
+        -----------
+        :prf:ref:`k-redundantly (generically) dim-rigid
+        <def-redundantly-rigid-graph>
 
         Parameters
         ----------
@@ -1727,10 +1813,14 @@ class Graph(nx.Graph):
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`minimally redundantly (generically) dim-rigid
-        <def-min-redundantly-rigid-graph>`.
+        Check whether the graph is minimally redundantly (generically) ``dim``-rigid.
 
         See :meth:`.is_min_k_redundantly_rigid` (using k = 1) for details.
+
+        Definitions
+        -----------
+        :prf:ref:`minimally redundantly (generically) dim-rigid
+        <def-min-redundantly-rigid-graph>`
         """
         _input_check.dimension(dim)
         return self.is_min_k_redundantly_rigid(1, dim, algorithm, prob)
@@ -1744,12 +1834,16 @@ class Graph(nx.Graph):
         prob: float = 0.0001,
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`minimally k-redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>`.
+        Check whether the graph is minimally ``k``-redundantly (generically) ``dim``-rigid.
 
         Preliminary checks from
         :prf:ref:`thm-minimal-1-edge-redundant-upper-edge-bound-dim2`
         are used.
+
+        Definitions
+        -----------
+        :prf:ref:`minimally k-redundantly (generically) dim-rigid
+        <def-redundantly-rigid-graph>`
 
         Parameters
         ----------
@@ -1765,7 +1859,6 @@ class Graph(nx.Graph):
             when ``algorithm="randomized"``.
             Warning: this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
-
 
         Examples
         --------
@@ -1841,7 +1934,11 @@ class Graph(nx.Graph):
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`(generically) dim-rigid <def-gen-rigid>`.
+        Check whether the graph is (generically) ``dim``-rigid.
+
+        Definitions
+        -----------
+        :prf:ref:`(generically) dim-rigid <def-gen-rigid>`
 
         Parameters
         ----------
@@ -1925,8 +2022,12 @@ class Graph(nx.Graph):
         prob: float = 0.0001,
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`minimally (generically) dim-rigid
-        <def-min-rigid-graph>`.
+        Check whether the graph is minimally (generically) ``dim``-rigid.
+
+        Definitions
+        -----------
+        :prf:ref:`minimally (generically) dim-rigid
+        <def-min-rigid-graph>`
 
         Parameters
         ----------
@@ -2029,8 +2130,12 @@ class Graph(nx.Graph):
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
         """
-        Check whether the graph is :prf:ref:`globally dim-rigid
-        <def-globally-rigid-graph>`.
+        Check whether the graph is globally ``dim``-rigid.
+
+        Definitions
+        -----------
+        :prf:ref:`globally dim-rigid
+        <def-globally-rigid-graph>`
 
         Parameters
         ----------
@@ -2145,6 +2250,11 @@ class Graph(nx.Graph):
         Return whether the edge set is dependent in the generic dim-rigidity matroid.
 
         See :meth:`.is_independent` for details.
+
+        Definitions
+        -----------
+        * :prf:ref:`Dependence <def-matroid>`
+        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
 
         Examples
         --------
@@ -2583,10 +2693,14 @@ class Graph(nx.Graph):
     def max_rigid_dimension(self, prob: float = 0.0001) -> int | Inf:
         """
         Compute the maximum dimension, in which a graph is
-        :prf:ref:`generically rigid <def-gen-rigid>`.
+        generically rigid.
 
         For checking rigidity, the method uses a randomized algorithm,
         see :meth:`~.is_rigid` for details.
+
+        Definitions
+        -----------
+        :prf:ref:`generically rigid <def-gen-rigid>`
 
         Parameters
         ----------
@@ -2705,7 +2819,7 @@ class Graph(nx.Graph):
         """
         Return a graph given its integer representation.
 
-        See :meth:`to_int` for the description
+        See :meth:`~Graph.to_int` for the description
         of the integer representation.
         """
         _input_check.integrality_and_range(N, "parameter n", min_val=1)
@@ -3024,15 +3138,15 @@ class Graph(nx.Graph):
         """
         Return the t-sum of self and G2 along the given edge.
 
+        Definitions
+        -----------
+        :prf:ref:`t-sum <def-t-sum>`
+
         Parameters
         ----------
         G2: Graph
         edge: Edge
         t: integer, default value 2
-
-        Definitions
-        -----------
-        :prf:ref:`t-sum <def-t-sum>`
 
         Examples
         --------
