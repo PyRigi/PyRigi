@@ -92,7 +92,7 @@ def test_is_not_inf_rigid(framework):
         fws.Complete(3, dim=3),
         fws.Complete(4, dim=3),
         fws.Octahedron(),
-        fws.Icosahedron(),
+        pytest.param(graphs.Icosahedral(), marks=pytest.mark.slow_main),
     ]
     + [fws.Complete(2, dim=n) for n in range(1, 7)]
     + [fws.Complete(3, dim=n) for n in range(2, 7)]
@@ -199,6 +199,59 @@ def test_is_independent(framework):
 )
 def test_is_dependent(framework):
     assert framework.is_dependent()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Complete(2, dim=1),
+        fws.Complete(2, dim=2),
+        fws.Complete(3, dim=2),
+        fws.Complete(3, dim=3),
+        fws.Complete(4, dim=3),
+        fws.CompleteBipartite(3, 3),
+        fws.Diamond(),
+        fws.ThreePrism(),
+        fws.Path(3, dim=1),
+    ]
+    + [fws.Complete(2, dim=n) for n in range(1, 7)]
+    + [fws.Complete(3, dim=n) for n in range(2, 7)]
+    + [fws.Complete(n - 1, dim=n) for n in range(2, 7)],
+)
+def test_is_isostatic(framework):
+    assert framework.is_isostatic()
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.K33plusEdge(),
+        fws.ThreePrismPlusEdge(),
+        Framework.Collinear(graphs.Complete(3), dim=2),
+        fws.Complete(3, dim=1),
+        fws.Complete(4, dim=1),
+        fws.Complete(4, dim=2),
+        fws.CompleteBipartite(1, 3),
+        fws.CompleteBipartite(2, 3),
+        fws.CompleteBipartite(3, 3, "dixonI"),
+        fws.CompleteBipartite(3, 4),
+        fws.CompleteBipartite(4, 4),
+        Framework.from_points([[i] for i in range(4)]),
+        fws.Cycle(4, dim=2),
+        fws.Cycle(5, dim=2),
+        fws.Path(3, dim=2),
+        fws.Path(4, dim=2),
+        fws.Path(3, dim=3),
+        fws.Path(4, dim=3),
+        fws.ThreePrism("flexible"),
+        fws.ThreePrism("parallel"),
+        fws.Cycle(4, dim=1),
+        fws.Cycle(5, dim=1),
+    ]
+    + [Framework.Random(graphs.Complete(n), dim=n - 2) for n in range(3, 8)],
+)
+def test_is_not_isostatic(framework):
+    assert not framework.is_isostatic()
 
 
 @pytest.mark.parametrize(
@@ -510,6 +563,38 @@ def test_translate():
     assert newF[2].equals(F[2] + translation)
 
 
+def test_projected_realization():
+    F = fws.Complete(4, dim=3)
+    _r = F.projected_realization(
+        proj_dim=2, projection_matrix=Matrix([[0, 1, 1], [1, 0, 1]])
+    )
+    assert (
+        len(_r) == 2
+        and all([len(val) == 2 for val in _r[0].values()])
+        and _r[0][0] == (0, 0)
+        and _r[0][1] == (0, 1)
+        and _r[0][2] == (1, 0)
+        and _r[0][3] == (1, 1)
+    )
+
+    _r = F.projected_realization(
+        proj_dim=3, projection_matrix=Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+    )
+    assert (
+        len(_r) == 2
+        and all([len(val) == 3 for val in _r[0].values()])
+        and F.is_congruent_realization(_r[0])
+    )
+
+    with pytest.raises(ValueError):
+        F.projected_realization(proj_dim=2, projection_matrix=Matrix([[0, 1, 1]]))
+        F.projected_realization(proj_dim=2, projection_matrix=Matrix([[0, 1], [1, 0]]))
+
+    F = fws.Complete(6, dim=5)
+    with pytest.raises(ValueError):
+        F.projected_realization(proj_dim=4)
+
+
 def test_rotate2D():
     G = graphs.Complete(3)
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
@@ -755,8 +840,6 @@ def test_animate3D_rotation():
     F = fws.Complete(5, dim=4)
     with pytest.raises(ValueError):
         F.animate3D_rotation()
-
-    plt.close("all")
 
 
 def test_rigidity_matrix():

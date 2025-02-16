@@ -18,6 +18,7 @@ from pyrigi import _plot
 import pyrigi._input_check as _input_check
 from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
+from math import isclose
 import numpy as np
 import sympy as sp
 from IPython.display import SVG
@@ -26,6 +27,7 @@ from copy import deepcopy
 from warnings import warn
 from matplotlib.animation import FuncAnimation
 import matplotlib.pyplot as plt
+import os
 
 
 class Motion(object):
@@ -77,15 +79,24 @@ class Motion(object):
                 if z_width is not None:
                     zmin = min(zmin, placement[2])
                     zmax = max(zmax, placement[2])
-
-        xnorm = (x_width - padding * 2) / (xmax - xmin)
-        ynorm = (y_width - padding * 2) / (ymax - ymin)
+        if not isclose(xmax - xmin, 0, abs_tol=1e-6):
+            xnorm = (x_width - padding * 2) / (xmax - xmin)
+        else:
+            xnorm = np.inf
+        if not isclose(ymax - ymin, 0, abs_tol=1e-6):
+            ynorm = (y_width - padding * 2) / (ymax - ymin)
+        else:
+            ynorm = np.inf
         if z_width is not None:
-            znorm = (z_width - padding * 2) / (zmax - zmin)
+            if not isclose(zmax - zmin, 0, abs_tol=1e-6):
+                znorm = (z_width - padding * 2) / (zmax - zmin)
+            else:
+                znorm = np.inf
             norm_factor = min(xnorm, ynorm, znorm)
         else:
             norm_factor = min(xnorm, ynorm)
-
+        if norm_factor == np.inf:
+            norm_factor = 1
         realizations_normalized = []
         for r in realizations:
             r_norm = {}
@@ -267,7 +278,10 @@ class Motion(object):
             plt.close()
             return HTML(ani.to_jshtml())
         else:
-            plt.show()
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                plt.show(block=False)
+            else:
+                plt.show()
             return
 
     def animate2D_plt(
@@ -303,7 +317,9 @@ class Motion(object):
             The duration of one period of the animation in seconds.
         """
         if self._dim == 1:
-            realizations = [{v: [p[0], 0] for p, v in r} for r in realizations]
+            realizations = [
+                {v: [p[0, 0], 0] for v, p in r.items()} for r in realizations
+            ]
         _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_plt")
 
         delay = int(round(duration / len(realizations) * 1000))  # Set the delay in ms
@@ -421,7 +437,10 @@ class Motion(object):
             plt.close()
             return HTML(ani.to_jshtml())
         else:
-            plt.show()
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                plt.show(block=False)
+            else:
+                plt.show()
             return
 
     def animate2D_svg(
@@ -455,7 +474,9 @@ class Motion(object):
         (seems to be an odd, inherent behavior of `.svg`).
         """
         if self._dim == 1:
-            realizations = [{v: [p[0], 0] for p, v in r} for r in realizations]
+            realizations = [
+                {v: [p[0, 0], 0] for v, p in r.items()} for r in realizations
+            ]
         _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_svg")
 
         if plot_style is None:

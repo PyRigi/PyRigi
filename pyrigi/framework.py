@@ -575,6 +575,7 @@ class Framework(object):
             plot_style=plot_style,
             edge_colors_custom=edge_colors_custom,
             duration=duration,
+            **kwargs,
         )
 
     @doc_category("Plotting")
