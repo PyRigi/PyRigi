@@ -13,6 +13,7 @@ class RandomizedAlgorithmWarning(UserWarning):
 
     This class inherits the class :class:`warnings.UserWarning`.
     """
+
     def __init__(
         self,
         method: Callable,

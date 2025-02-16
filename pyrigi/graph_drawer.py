@@ -365,7 +365,7 @@ class GraphDrawer(object):
             with self._out:
                 print("relabeled vertices:", vertex_map)
 
-    def _on_grid_checkbox_change(self, change: dict[str,str]) -> None:
+    def _on_grid_checkbox_change(self, change: dict[str, str]) -> None:
         """
         Handler of the grid checkbox.
         """
@@ -376,7 +376,7 @@ class GraphDrawer(object):
             if change["new"] is False:
                 self._grid_snap_checkbox.value = False
 
-    def _on_grid_size_change(self, change: dict[str,str]) -> None:
+    def _on_grid_size_change(self, change: dict[str, str]) -> None:
         """
         Handler of the grid size slider.
         """
@@ -384,21 +384,21 @@ class GraphDrawer(object):
             self._grid_size = change["new"]
             self._update_background(grid_on=self._grid_checkbox.value)
 
-    def _on_vcolor_change(self, change: dict[str,str]) -> None:
+    def _on_vcolor_change(self, change: dict[str, str]) -> None:
         """
         Handler of the color picker for the new vertices.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._v_color = change["new"]
 
-    def _on_ecolor_change(self, change: dict[str,str]) -> None:
+    def _on_ecolor_change(self, change: dict[str, str]) -> None:
         """
         Handler of the color picker for the new edges.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._e_color = change["new"]
 
-    def _on_vradius_change(self, change: dict[str,str]) -> None:
+    def _on_vradius_change(self, change: dict[str, str]) -> None:
         """
         Handler of the vertex size slider.
         """
@@ -408,7 +408,7 @@ class GraphDrawer(object):
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
-    def _on_ewidth_change(self, change: dict[str,str]) -> None:
+    def _on_ewidth_change(self, change: dict[str, str]) -> None:
         """
         Handler of the edge width slider.
         """
@@ -418,7 +418,7 @@ class GraphDrawer(object):
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
-    def _on_show_vlabel_change(self, change: dict[str,str]) -> None:
+    def _on_show_vlabel_change(self, change: dict[str, str]) -> None:
         """
         Handler of the vertex labels checkbox.
         """

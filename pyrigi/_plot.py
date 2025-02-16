@@ -440,6 +440,7 @@ def plot_stress3D(
             va="center",
         )
 
+
 def plot_with_2D_realization(
     framework: Framework,
     ax: Axes,
@@ -532,6 +533,7 @@ def plot_with_2D_realization(
                 edgelist=[(edge[0], edge[1])],
                 connectionstyle=f"Arc3, rad = {edge[2]['weight']}",
             )
+
 
 def plot_with_3D_realization(
     framework: Framework,

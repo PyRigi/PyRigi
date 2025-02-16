@@ -132,7 +132,7 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     random_seed:
         Seed for generating random vectors.
         When the same value is provided, the same vectors are generated.
-    
+
     Notes
     -----
     The vectors are in the columns of the returned matrix. To ensure that the

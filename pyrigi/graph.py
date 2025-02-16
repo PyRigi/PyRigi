@@ -610,13 +610,13 @@ class Graph(nx.Graph):
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
-        
+
         Examples
         --------
         >>> G = Graph.CompleteOnVertices([0,1,2,3])
         >>> G.spanning_kl_sparse_subgraph(2,3)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
-        """
+        """  # noqa: E501
         if (
             not use_precomputed_pebble_digraph
             or K != self._pebble_digraph.K
@@ -1111,7 +1111,7 @@ class Graph(nx.Graph):
         Return an iterator over all possible
         ``dim``-dimensional ``k``-extensions
         for all possible ``0 <= k <= dim - 1``.
-        
+
         Definitions
         -----------
         :prf:ref:`k-extensions <def-k-extension>`
@@ -3141,7 +3141,7 @@ class Graph(nx.Graph):
         Definitions
         -----------
         :prf:ref:`t-sum <def-t-sum>`
-        
+
         Parameters
         ----------
         G2: Graph
