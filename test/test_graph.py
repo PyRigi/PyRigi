@@ -42,8 +42,26 @@ def test__add__():
     ],
 )
 def test_is_rigid_d2(graph):
+    assert graph.is_rigid(dim=2, algorithm="default")
     assert graph.is_rigid(dim=2, algorithm="sparsity")
     assert graph.is_rigid(dim=2, algorithm="randomized")
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(3),
+        graphs.Path(4),
+        graphs.Cycle(4),
+        graphs.Cycle(5),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+    ],
+)
+def test_not_is_rigid_d2(graph):
+    assert not graph.is_rigid(dim=2, algorithm="default")
+    assert not graph.is_rigid(dim=2, algorithm="sparsity")
+    assert not graph.is_rigid(dim=2, algorithm="randomized")
 
 
 @pytest.mark.parametrize(
@@ -78,6 +96,7 @@ def test_is_not_rigid_d2(graph):
     ],
 )
 def test_is_rigid_d1(graph):
+    assert graph.is_rigid(dim=1, algorithm="default")
     assert graph.is_rigid(dim=1, algorithm="graphic")
     assert graph.is_rigid(dim=1, algorithm="randomized")
 
@@ -101,6 +120,7 @@ def test_is_not_rigid_d1(graph):
 )
 def test_is_rigid(graph, dim):
     assert graph.is_rigid(dim, algorithm="sparsity" if (dim < 3) else "randomized")
+    assert graph.is_rigid(dim, algorithm="default")
 
 
 @pytest.mark.parametrize(
@@ -798,6 +818,12 @@ def test_is_not_k_redundantly_rigid_d1(graph, k):
 @pytest.mark.parametrize(
     "graph, k",
     [
+        [
+            Graph(
+                [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 0), (0, 3), (0, 2), (1, 3)]
+            ),
+            1,
+        ],
         [Graph.from_int(255), 1],
         [Graph.from_int(507), 2],
         [Graph.from_int(14917374), 2],
@@ -817,6 +843,10 @@ def test_is_not_k_redundantly_rigid_d2(graph, k):
 @pytest.mark.parametrize(
     "graph, k",
     [
+        [graphs.Cycle(14), 2],
+        [graphs.CnSymmetricFourRegularWithFixedVertex(14), 2],
+        [graphs.DoubleBanana(), 0],
+        [graphs.DoubleBanana(), 1],
         [Graph.from_int(7679), 1],
         [Graph.from_int(16351), 2],
         [Graph.from_int(1048575), 3],
@@ -905,6 +935,7 @@ def test_is_not_min_k_redundantly_rigid_d1(graph, k):
     [
         [graphs.ThreePrism(), 1],
         [Graph.from_int(8191), 1],
+        [graphs.Complete(7), 1],
         pytest.param(Graph.from_int(16351), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048063), 3],
     ],
@@ -2362,6 +2393,7 @@ def test_is_Rd_circuit_d1(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        Graph([(0, 1), (2, 3)]),
         graphs.Complete(2),
         graphs.Diamond(),
         graphs.K33plusEdge(),
@@ -2383,6 +2415,7 @@ def test_is_not_Rd_circuit_d1(graph):
         graphs.Complete(4),
         graphs.ThreePrismPlusEdge(),
         graphs.K33plusEdge(),
+        Graph([(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (3, 0), (3, 1), (2, 4)]),
     ],
 )
 def test_is_Rd_circuit_d2(graph):
@@ -2401,10 +2434,47 @@ def test_is_Rd_circuit_d2(graph):
         graphs.Path(3),
         graphs.Cycle(4),
         graphs.K66MinusPerfectMatching(),
+        Graph(
+            [
+                (0, 1),
+                (1, 2),
+                (2, 3),
+                (3, 4),
+                (4, 5),
+                (5, 0),
+                (0, 3),
+                (0, 2),
+                (1, 3),
+                (3, 5),
+            ]
+        ),
     ],
 )
 def test_is_not_Rd_circuit_d2(graph):
-    assert not graph.is_Rd_circuit(dim=2)
+    assert not graph.is_Rd_circuit(dim=2, algorithm="default")
+    assert not graph.is_Rd_circuit(dim=2, algorithm="randomized")
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
+)
+def test_is_Rd_circuit_d3(graph):
+    assert graph.is_Rd_circuit(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(5),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.ThreePrism(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_is_not_Rd_circuit_d3(graph):
+    assert not graph.is_Rd_circuit(dim=3)
 
 
 @pytest.mark.parametrize(
@@ -2442,28 +2512,6 @@ def test_is_not_Rd_closed(graph, dim):
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
-
-
-@pytest.mark.parametrize(
-    "graph",
-    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
-)
-def test_is_Rd_circuit_d3(graph):
-    assert graph.is_Rd_circuit(dim=3)
-
-
-@pytest.mark.parametrize(
-    "graph",
-    [
-        graphs.Path(5),
-        graphs.Complete(4),
-        graphs.Cycle(6),
-        graphs.ThreePrism(),
-        graphs.K33plusEdge(),
-    ],
-)
-def test_is_not_Rd_circuit_d3(graph):
-    assert not graph.is_Rd_circuit(dim=3)
 
 
 @pytest.mark.parametrize(
