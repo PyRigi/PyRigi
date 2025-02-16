@@ -247,6 +247,10 @@ class Framework(object):
         """
         Add an edge to the framework.
 
+        Parameters
+        ----------
+        edge:
+
         Notes
         -----
         This method only alters the graph attribute.
@@ -258,6 +262,11 @@ class Framework(object):
     def add_edges(self, edges: Sequence[Edge]) -> None:
         """
         Add a list of edges to the framework.
+
+        Parameters
+        ----------
+        edges:
+            ``Sequence`` of edges.
 
         Notes
         -----
@@ -1474,7 +1483,7 @@ class Framework(object):
         tolerance=1e-9,
     ) -> bool:
         r"""
-        Return whether a vector is a stress.
+        Return whether a vector is an equilibrium stress.
 
         Definitions
         -----------
@@ -1603,7 +1612,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
+        :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
 
         Parameters
         ----------
@@ -2455,7 +2464,7 @@ class Framework(object):
         self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
     ) -> dict[Vertex, list[Number]]:
         r"""
-        Transform the natural data type of a flex (Matrix) to a
+        Transform the natural data type of a flex (``Matrix``) to a
         dictionary that maps a vertex to a Sequence of coordinates
         (i.e. a vector).
 
@@ -2491,7 +2500,7 @@ class Framework(object):
         self, stress: Matrix, edge_order: Sequence[Edge] = None
     ) -> dict[Edge, Number]:
         r"""
-        Transform the natural data type of a stress (Matrix) to a
+        Transform the natural data type of a stress (``Matrix``) to a
         dictionary that maps an edge to a coordinate.
 
         Parameters
@@ -2531,8 +2540,8 @@ class Framework(object):
 
         Definitions
         -----------
-        :prf:ref:`Infinitesimal Flex <def-inf-flex>`
-        :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
+        * :prf:ref:`Infinitesimal Flex <def-inf-flex>`
+        * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
 
         Parameters
         ----------
@@ -2745,6 +2754,10 @@ class Framework(object):
         Alias for :meth:`Framework.is_vector_nontrivial_inf_flex` and
         :meth:`Framework.is_dict_nontrivial_inf_flex`.
 
+        Definitions
+        -----------
+        :prf:ref:`Nontrivial infinitesimal flex <def-trivial-inf-flex>`
+
         Notes
         -----
         We distinguish between instances of ``list`` and instances of ``dict`` to
@@ -2844,6 +2857,10 @@ class Framework(object):
         """
         Alias for :meth:`Framework.is_vector_trivial_inf_flex` and
         :meth:`Framework.is_dict_trivial_inf_flex`.
+
+        Definitions
+        -----------
+        :prf:ref:`Trivial infinitesimal flex <def-trivial-inf-flex>`
 
         Notes
         -----

@@ -33,6 +33,23 @@ def doc_category(category):
 
 
 def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
+    """
+    Generate a formatted string that categorizes methods of a given class.
+
+    Parameters
+    ----------
+    cls:
+        Represents the class.
+    tabs:
+        Specifies the number of indentation levels that are applied to
+        the output.
+    cat_order:
+        Optional list specifying the the order in which categories appear
+        in the output.
+    include_all:
+        Optional boolean determining whether methods without a specific category
+        should be included. Defaults to ``False``.
+    """
     if cat_order is None:
         cat_order = []
     categories = {}
@@ -108,12 +125,6 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     """
     Generate three random numeric orthonormal vectors in the given dimension.
 
-    Notes
-    -----
-    The vectors are in the columns of the returned matrix. To ensure that the
-    vectors are uniformly distributed over the Stiefel manifold, we need to
-    ensure that the triangular matrix `R` has positive diagonal elements.
-
     Parameters
     ----------
     dim:
@@ -121,6 +132,12 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     random_seed:
         Seed for generating random vectors.
         When the same value is provided, the same vectors are generated.
+    
+    Notes
+    -----
+    The vectors are in the columns of the returned matrix. To ensure that the
+    vectors are uniformly distributed over the Stiefel manifold, we need to
+    ensure that the triangular matrix `R` has positive diagonal elements.
     """
 
     if random_seed is not None:
