@@ -189,9 +189,20 @@ def eval_sympy_vector(
     ]
 
 
-def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
+def normalize_flex(
+    inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-12
+) -> InfFlex:
     """
     Divides a vector by its Euclidean norm.
+
+    Parameters
+    ----------
+    inf_flex:
+        The infinitesimal flex that is supposed to be normalized.
+    numerical:
+        Determines whether a numerical or symbolic normalization is performed.
+    tolerance:
+        Intended level of numerical accuracy.
     """
     if isinstance(inf_flex, dict):
         if numerical:
@@ -200,17 +211,25 @@ def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
                 for v, flex in inf_flex.items()
             }
             flex_norm = np.linalg.norm(sum(_inf_flex.values(), []))
+            if isclose(flex_norm, 0, abs_tol=tolerance):
+                raise ValueError("The norm of this flex is almost zero.")
             return {
                 v: tuple([pt / flex_norm for pt in q]) for v, q in _inf_flex.items()
             }
         flex_norm = sp.sqrt(sum([q**2 for val in inf_flex.values() for q in val]))
+        if flex_norm.is_zero:
+            raise ValueError("The norm of this flex is zero.")
         return {v: tuple([pt / flex_norm for pt in q]) for v, q in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
         if numerical:
             _inf_flex = [float(sp.sympify(q).evalf(15)) for q in inf_flex]
             flex_norm = np.linalg.norm(_inf_flex)
+            if isclose(flex_norm, 0, abs_tol=tolerance):
+                raise ValueError("The norm of this flex is almost zero.")
             return [q / flex_norm for q in _inf_flex]
         flex_norm = sp.sqrt(sum([q**2 for q in inf_flex]))
+        if flex_norm.is_zero:
+            raise ValueError("The norm of this flex is zero.")
         return [q / flex_norm for q in inf_flex]
     else:
         raise TypeError("`inf_flex` does not have the correct type.")
@@ -226,6 +245,13 @@ def vector_distance_pointwise(
 
     This method computes the Euclidean distance from the realization `dict_1`
     to `dict2`. These dicts need to be based on the same vertex set.
+
+    Parameters
+    ----------
+    dict1, dict2:
+        The dictionaries that are used for the distance computation.
+    numerical:
+        Determines whether a numerical or symbolic normalization is performed.
     """
     if not set(dict1.keys()) == set(dict2.keys()) or not len(dict1) == len(dict2):
         raise ValueError("`dict1` and `dict2` are not based on the same vertex set.")

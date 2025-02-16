@@ -3,6 +3,8 @@ from pyrigi.motion import ParametricMotion, ApproximateMotion
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 import sympy as sp
+import numpy as np
+from math import isclose
 import pytest
 
 
@@ -121,6 +123,18 @@ def test_realization():
 
 def test_ParametricMotion_init():
     mot = {
+        0: [
+            "t",
+        ],
+        1: [
+            "t",
+        ],
+    }
+    mot = ParametricMotion(graphs.Path(2), mot, [-10, 10])
+    mot.animate(animation_format="svg")
+    mot.animate(animation_format="matplotlib")
+
+    mot = {
         0: ("k", "0"),
         1: ("1", "0"),
         2: ("4 * (t**2 - 2) / (t**2 + 4)", "12 * t / (t**2 + 4)"),
@@ -154,6 +168,7 @@ def test_ParametricMotion_init():
             6 * (t**3 - 2 * t) / (t**4 + 5 * t**2 + 4),
         ),
     }
+
     with pytest.raises(ValueError):
         ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
 
@@ -182,6 +197,17 @@ def test_animate():
         ) and not F.is_congruent_realization(
             M.motion_samples[i], numerical=True, tolerance=1e-4
         )
+    M.animate(animation_format="svg")
+    M.animate(animation_format="matplotlib")
+
+
+def test_animate3D():
+    F = fws.Cube()
+    M = ApproximateMotion(F, 5, 0.075)
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
     M.animate()
 
 
@@ -211,6 +237,46 @@ def test_ApproximateMotion_from_framework():
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
         ) and not F.is_congruent_realization(sample, numerical=True)
+
+
+def test_normalize_realizations():
+    F = fws.Path(3, dim=2)
+    M = ApproximateMotion(F, 10, 0.075, fixed_pair=(0, 1), fixed_direction=[1, 0])
+    realizations = M._normalize_realizations(M.motion_samples, 2.02, 2.02)
+    for r in realizations:
+        assert (
+            isclose(
+                np.linalg.norm(
+                    [
+                        v - w
+                        for v, w in zip(
+                            r[0], [0.5865084834138097, 0.010000000000002604]
+                        )
+                    ]
+                ),
+                0,
+                abs_tol=1e-2,
+            )
+            and isclose(
+                np.linalg.norm(
+                    [
+                        v - w
+                        for v, w in zip(
+                            r[1], [2.0098612795397743, 0.010000000000002604]
+                        )
+                    ]
+                ),
+                0,
+                abs_tol=1e-2,
+            )
+            and isclose(
+                np.linalg.norm([v - w for v, w in zip(r[1], r[2])]),
+                2.012924828323006,
+                abs_tol=1e-2,
+            )
+            and np.linalg.norm(r[2][0]) <= 2.02
+            and np.linalg.norm(r[2][1]) <= 2.02
+        )
 
 
 @pytest.mark.long_local

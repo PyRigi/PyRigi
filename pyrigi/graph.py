@@ -1902,12 +1902,8 @@ class Graph(nx.Graph):
 
         if algorithm == "sparsity":
             _input_check.dimension_for_algorithm(dim, [2], "the sparsity algorithm")
-            deficiency = -(2 * n - 3) + self.number_of_edges()
-            if deficiency < 0:
-                return False
-            else:
-                self._build_pebble_digraph(2, 3)
-                return self._pebble_digraph.number_of_edges() == 2 * n - 3
+            self._build_pebble_digraph(2, 3)
+            return self._pebble_digraph.number_of_edges() == 2 * n - 3
 
         if algorithm == "randomized":
             N = int((n * dim - math.comb(dim + 1, 2)) / prob)
