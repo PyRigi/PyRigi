@@ -401,6 +401,22 @@ def plot_stress3D(
     points: dict[Vertex, Point] = None,
     stress_label_positions: dict[Edge, float] = None,
 ) -> None:
+    """
+    Plot a 3D equilibrium stress on the canvas.
+
+    Parameters
+    ----------
+    framework:
+    ax:
+        The matplotlib axis on which the stress is drawn.
+    stress:
+        The equilibrium stress to draw.
+    plot_style:
+    points:
+        A dictionary mapping vertices to their points in the realization.
+    stress_label_positions:
+        A dictionary mapping edges to label position floats.
+    """
     stress_edgewise, stress_label_positions = resolve_stress(
         framework, stress, plot_style, stress_label_positions
     )
@@ -425,6 +441,100 @@ def plot_stress3D(
         )
 
 
+def plot_with_2D_realization(
+    framework: Framework,
+    ax: Axes,
+    realization: dict[Vertex, Point],
+    plot_style: PlotStyle2D,
+    edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
+) -> None:
+    """
+    Plot the graph of the framework with the given realization in the plane.
+
+    Parameters
+    ----------
+    framework:
+    ax:
+        The matplotlib axis on which the stress is drawn.
+    realization:
+        A dictionary mapping vertices to their points in the realization.
+    plot_style:
+    edge_colors_custom:
+        It is possible to provide custom edge colors through this parameter.
+        They can either be provided through a partition of edges or a
+        dictionary with ``str`` color keywords that map to lists of edges.
+    arc_angles_dict:
+        A dictionary specifying arc angles for curved edges.
+    """
+    edge_color_array, edge_list_ref = resolve_edge_colors(
+        framework, plot_style.edge_color, edge_colors_custom
+    )
+
+    if not plot_style.edges_as_arcs:
+        nx.draw(
+            framework._graph,
+            pos=realization,
+            ax=ax,
+            node_size=plot_style.vertex_size,
+            node_color=plot_style.vertex_color,
+            node_shape=plot_style.vertex_shape,
+            with_labels=plot_style.vertex_labels,
+            width=plot_style.edge_width,
+            edge_color=edge_color_array,
+            font_color=plot_style.font_color,
+            font_size=plot_style.font_size,
+            edgelist=edge_list_ref,
+            style=plot_style.edge_style,
+        )
+    else:
+        newGraph = nx.MultiDiGraph()
+        arc_angles = resolve_arc_angles(
+            framework, plot_style.arc_angle, arc_angles_dict
+        )
+        for e, style in arc_angles.items():
+            newGraph.add_edge(e[0], e[1], weight=style)
+        edge_to_color = {
+            frozenset(edge): color
+            for edge, color in zip(edge_list_ref, edge_color_array)
+        }
+        plt.box(False)  # Manually removes the frame of the plot
+        plt.tick_params(
+            left=False,
+            right=False,
+            labelleft=False,
+            labelbottom=False,
+            bottom=False,
+        )  # Removes the ticks
+        nx.draw_networkx_nodes(
+            newGraph,
+            realization,
+            ax=ax,
+            node_size=plot_style.vertex_size,
+            node_color=plot_style.vertex_color,
+            node_shape=plot_style.vertex_shape,
+        )
+        nx.draw_networkx_labels(
+            newGraph,
+            realization,
+            ax=ax,
+            font_color=plot_style.font_color,
+            font_size=plot_style.font_size,
+        )
+        for edge in newGraph.edges(data=True):
+            nx.draw_networkx_edges(
+                newGraph,
+                realization,
+                ax=ax,
+                width=plot_style.edge_width,
+                edge_color=edge_to_color[frozenset(edge[0:2])],
+                arrows=True,
+                arrowstyle="-",
+                edgelist=[(edge[0], edge[1])],
+                connectionstyle=f"Arc3, rad = {edge[2]['weight']}",
+            )
+
+
 def plot_with_3D_realization(
     framework: Framework,
     ax: Axes,
@@ -434,6 +544,19 @@ def plot_with_3D_realization(
 ) -> None:
     """
     Plot the framework with the given realization in the 3-space.
+
+    Parameters
+    ----------
+    framework:
+    ax:
+        The matplotlib axis on which the stress is drawn.
+    realization:
+        A dictionary mapping vertices to their points in the realization.
+    plot_style:
+    edge_colors_custom:
+        It is possible to provide custom edge colors through this parameter.
+        They can either be provided through a partition of edges or a
+        dictionary with ``str`` color keywords that map to lists of edges.
     """
     # Create a figure for the representation of the framework
 
@@ -607,82 +730,3 @@ def resolve_edge_colors(
             f"was specified multiple times: {duplicates}."
         )
     return edge_color_array, edge_list_ref
-
-
-def plot_with_2D_realization(
-    framework: Framework,
-    ax: Axes,
-    realization: dict[Vertex, Point],
-    plot_style: PlotStyle2D,
-    edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-    arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
-) -> None:
-    """
-    Plot the graph of the framework with the given realization in the plane.
-    """
-    edge_color_array, edge_list_ref = resolve_edge_colors(
-        framework, plot_style.edge_color, edge_colors_custom
-    )
-
-    if not plot_style.edges_as_arcs:
-        nx.draw(
-            framework._graph,
-            pos=realization,
-            ax=ax,
-            node_size=plot_style.vertex_size,
-            node_color=plot_style.vertex_color,
-            node_shape=plot_style.vertex_shape,
-            with_labels=plot_style.vertex_labels,
-            width=plot_style.edge_width,
-            edge_color=edge_color_array,
-            font_color=plot_style.font_color,
-            font_size=plot_style.font_size,
-            edgelist=edge_list_ref,
-            style=plot_style.edge_style,
-        )
-    else:
-        newGraph = nx.MultiDiGraph()
-        arc_angles = resolve_arc_angles(
-            framework, plot_style.arc_angle, arc_angles_dict
-        )
-        for e, style in arc_angles.items():
-            newGraph.add_edge(e[0], e[1], weight=style)
-        edge_to_color = {
-            frozenset(edge): color
-            for edge, color in zip(edge_list_ref, edge_color_array)
-        }
-        plt.box(False)  # Manually removes the frame of the plot
-        plt.tick_params(
-            left=False,
-            right=False,
-            labelleft=False,
-            labelbottom=False,
-            bottom=False,
-        )  # Removes the ticks
-        nx.draw_networkx_nodes(
-            newGraph,
-            realization,
-            ax=ax,
-            node_size=plot_style.vertex_size,
-            node_color=plot_style.vertex_color,
-            node_shape=plot_style.vertex_shape,
-        )
-        nx.draw_networkx_labels(
-            newGraph,
-            realization,
-            ax=ax,
-            font_color=plot_style.font_color,
-            font_size=plot_style.font_size,
-        )
-        for edge in newGraph.edges(data=True):
-            nx.draw_networkx_edges(
-                newGraph,
-                realization,
-                ax=ax,
-                width=plot_style.edge_width,
-                edge_color=edge_to_color[frozenset(edge[0:2])],
-                arrows=True,
-                arrowstyle="-",
-                edgelist=[(edge[0], edge[1])],
-                connectionstyle=f"Arc3, rad = {edge[2]['weight']}",
-            )

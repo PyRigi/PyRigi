@@ -64,7 +64,6 @@ class GraphDrawer(object):
         and also ``NE``, ``NW``, ``SE`` and ``SW``.
         If ``graph`` is ``None`` or empty this parameter will not have any effect.
 
-
     Examples
     --------
     >>> from pyrigi import GraphDrawer
@@ -324,6 +323,18 @@ class GraphDrawer(object):
             ]
 
     def _set_graph(self, graph: Graph, layout_type, place) -> None:
+        """
+        Sets up a ``graph`` with specified layout and places it on the canvas.
+
+        Parameters
+        ----------
+        graph:
+            Graph
+        layout_type:
+            Specifies the graph's realization.
+        place:
+            Determines on the canvas.
+        """
         vertex_map = {}
         for vertex in graph:
             if not isinstance(vertex, int) or vertex < 0:
@@ -354,10 +365,9 @@ class GraphDrawer(object):
             with self._out:
                 print("relabeled vertices:", vertex_map)
 
-    def _on_grid_checkbox_change(self, change) -> None:
+    def _on_grid_checkbox_change(self, change: dict[str, str]) -> None:
         """
         Handler of the grid checkbox.
-
         """
         if change["type"] == "change" and change["name"] == "value":
             self._update_background(change["new"])
@@ -366,7 +376,7 @@ class GraphDrawer(object):
             if change["new"] is False:
                 self._grid_snap_checkbox.value = False
 
-    def _on_grid_size_change(self, change) -> None:
+    def _on_grid_size_change(self, change: dict[str, str]) -> None:
         """
         Handler of the grid size slider.
         """
@@ -374,33 +384,31 @@ class GraphDrawer(object):
             self._grid_size = change["new"]
             self._update_background(grid_on=self._grid_checkbox.value)
 
-    def _on_vcolor_change(self, change) -> None:
+    def _on_vcolor_change(self, change: dict[str, str]) -> None:
         """
         Handler of the color picker for the new vertices.
         """
-
         if change["type"] == "change" and change["name"] == "value":
             self._v_color = change["new"]
 
-    def _on_ecolor_change(self, change) -> None:
+    def _on_ecolor_change(self, change: dict[str, str]) -> None:
         """
         Handler of the color picker for the new edges.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._e_color = change["new"]
 
-    def _on_vradius_change(self, change) -> None:
+    def _on_vradius_change(self, change: dict[str, str]) -> None:
         """
         Handler of the vertex size slider.
         """
-
         if change["type"] == "change" and change["name"] == "value":
             self._radius = change["new"]
             with hold_canvas():
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
-    def _on_ewidth_change(self, change) -> None:
+    def _on_ewidth_change(self, change: dict[str, str]) -> None:
         """
         Handler of the edge width slider.
         """
@@ -410,7 +418,7 @@ class GraphDrawer(object):
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
-    def _on_show_vlabel_change(self, change) -> None:
+    def _on_show_vlabel_change(self, change: dict[str, str]) -> None:
         """
         Handler of the vertex labels checkbox.
         """
@@ -420,7 +428,18 @@ class GraphDrawer(object):
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
-    def _update_background(self, grid_on):
+    def _update_background(self, grid_on: bool):
+        """
+        Update the background of a canvas.
+
+        A grid can be added, if desired.
+
+        Parameters
+        ----------
+        grid_on:
+            Boolean determining whether a grid should be added
+            to the canvas.
+        """
         self._mcanvas[0].clear()
         self._mcanvas[0].line_width = 1
         self._mcanvas[0].stroke_style = "black"
@@ -565,7 +584,6 @@ class GraphDrawer(object):
 
         It determines what to do when mouse pointer is moving on multicanvas.
         """
-
         vertex = self._selected_vertex
         location = [int(x), int(y)]
         collided_vertex = self._collided_vertex(x, y)
