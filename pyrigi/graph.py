@@ -2539,8 +2539,14 @@ class Graph(nx.Graph):
             _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
             return [list(comp) for comp in nx.connected_components(self)]
 
-        # here will be the implementation using pebble games for dim=2
-        # if algorithm == "pebble":
+        # simple (not optimised) implementation of the 2D rigid components of a graph, 
+        # using the pebble game algorithm. 
+        # Method: Create a (vertex x vertex) matrix in which we store 
+        # if there exists a rigid component spanning the two vertices. 
+        # Then using this matrix as an adjacency matrix of a graph we find the cliques 
+        # of this graph (note that this graph is necessarily made of edge-disjoint cliques) 
+        #if algorithm == "pebble":
+
 
         if algorithm in ["randomized", "subgraphs-pebble"]:
             if not nx.is_connected(self):
