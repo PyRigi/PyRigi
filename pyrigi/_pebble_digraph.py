@@ -16,7 +16,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     Notes
     -----
-    All nx methods in use need a wrapper - to make future developments easier.
+    All ``networkx`` methods in use need a wrapper - to
+    make future developments easier.
     """
 
     def __init__(self, K: int = None, L: int = None, *args, **kwargs) -> None:
