@@ -56,9 +56,9 @@ The time limits per tests are approximate: it is better to have a longer standar
 Also most of the standard tests should be much faster then the indicated limit.
 
 The command `pytest` executes only standard tests.
-To include also the tests marked `slow_main`, run
+To run the standard tests and those marked `slow_main`, run
 ```
-pytest -m 'not slow_main or slow_main'
+pytest -m 'not long_local'
 ```
 
 ## Coverage
