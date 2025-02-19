@@ -2597,12 +2597,15 @@ class Graph(nx.Graph):
                 return [list(self.nodes())]
             else:
                 # check only the components that can even be part of one
-                for connected_comp in nx.biconnected_components(self):
-                    comp_matrix = self._create_rigid_comp_matrix(connected_comp)
-                    # find cliques
-                    rigid_components += self._calculate_maximal_cliques(
-                        vertices=connected_comp, adj_matrix=comp_matrix
-                    )
+                for connected_comp in nx.connected_components(self):
+                    if len(connected_comp) == 1:
+                        rigid_components += [list(connected_comp)]
+                    else:
+                        comp_matrix = self._create_rigid_comp_matrix(connected_comp)
+                        # find cliques
+                        rigid_components += self._calculate_maximal_cliques(
+                            vertices=connected_comp, adj_matrix=comp_matrix
+                        )
             return rigid_components
 
         if algorithm in ["randomized", "subgraphs-pebble"]:
