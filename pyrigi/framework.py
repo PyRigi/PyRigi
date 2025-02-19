@@ -2314,7 +2314,7 @@ class Framework(object):
         Generate an STL file for a bar.
 
         The method uses Trimesh and Manifold3d packages to create a model of a bar
-        with two holes at the ends. The bar is saved as an STL file.
+        with two holes at the ends. The method returns the bar as a Trimesh object and saves it as an STL file.
 
         Parameters
         ----------
@@ -2328,11 +2328,6 @@ class Framework(object):
             Height of the bar.
         filename : str
             Name of the output STL file.
-
-        Returns
-        -------
-        bar_mesh : trimesh.base.Trimesh
-            The bar as a Trimesh object.
         """
         try:
             from trimesh.creation import box as trimesh_box
