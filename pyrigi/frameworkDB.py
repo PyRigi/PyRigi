@@ -359,8 +359,8 @@ def CnSymmetricFourRegular(n: int = 8) -> Framework:
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this framework, the cyclical group "
-            + "needs to have an even order of at least 8!"
+            "To generate this framework, the cyclic group "
+            + "must have an even order of at least 8!"
         )
     return Framework(
         graphs.CnSymmetricFourRegular(n),
@@ -378,7 +378,7 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
     """
     Return a $C_n$-symmetric framework with a fixed vertex.
 
-    The cyclical group $C_n$ needs to have even order of at least 8.
+    The value ``n`` must be even and at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
@@ -389,8 +389,8 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this framework, the cyclical group "
-            + "needs to have an even order of at least 8!"
+            "To generate this framework, the cyclic group "
+            + "must have an even order of at least 8!"
         )
     return Framework(
         graphs.CnSymmetricFourRegularWithFixedVertex(n),

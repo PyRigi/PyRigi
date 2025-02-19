@@ -200,8 +200,8 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this graph, the cyclical group "
-            + "needs to have an even order of at least 8!"
+            "To generate this graph, the cyclic group "
+            + "must have an even order of at least 8!"
         )
     G = Graph()
     G.add_edges([(0, n - 1), (n - 3, 0), (n - 2, 1), (n - 1, 2)])
@@ -216,7 +216,7 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
     """
     Return a $C_n$-symmetric graph with a fixed vertex.
 
-    The cyclical group $C_n$ needs to have even order of at least 8.
+    The value ``n`` must be even and at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
@@ -227,8 +227,8 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this graph, the cyclical group "
-            + "needs to have an even order of at least 8!"
+            "To generate this graph, the cyclic group "
+            + "must have an even order of at least 8!"
         )
     G = CnSymmetricFourRegular(n)
     G.add_edges([(0, n), (n, 2 * n), (n + 1, 2 * n - 1), (n, 2 * n - 2)])

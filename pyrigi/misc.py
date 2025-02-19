@@ -265,7 +265,7 @@ def vector_distance_pointwise(
     Compute the Euclidean distance between two realizations or pointwise vectors.
 
     This method computes the Euclidean distance from the realization ``dict_1``
-    to ``dict2``. These dicts need to be based on the same vertex set.
+    to ``dict2``. The keys of ``dict1`` and ``dict2`` must be the same.
 
     Parameters
     ----------
