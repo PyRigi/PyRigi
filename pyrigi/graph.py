@@ -2466,6 +2466,43 @@ class Graph(nx.Graph):
 
         raise NotSupportedValueError(algorithm, "algorithm", self.Rd_closure)
 
+    def _create_rigid_comp_matrix(self, connected_comp):
+        # create a nodes by nodes matrix
+        print(connected_comp)
+        comp_matrix = {(u, v): False for u in connected_comp for v in connected_comp}
+        for u in connected_comp:
+            for v in connected_comp:
+                if u != v and comp_matrix[(u, v)] is False:
+                    circuit = self._pebble_digraph.fundamental_circuit(u, v)
+                    if circuit is not None:
+                        for x in circuit:
+                            for y in circuit:
+                                if x != y:
+                                    comp_matrix[(x, y)] = True
+        return comp_matrix
+
+    def _calculate_maximal_cliques(self, vertices, adj_matrix):
+        cliques = []
+
+        # def is_clique(vertex_set):
+        #    for i in vertex_set:
+        #        for j in vertex_set:
+        #            if i != j and adj_matrix[(i,j)] is False:
+        #                return False
+        #    return True
+
+        for u, v in adj_matrix:
+            if adj_matrix[(u, v)] is True:
+                clique = {u, v}
+                for w in vertices:
+                    if w not in clique and all(
+                        adj_matrix[(w, x)] is True for x in clique
+                    ):
+                        clique.add(w)
+                if clique not in cliques:
+                    cliques.append(clique)
+        return [list(c) for c in cliques]
+
     @doc_category("Generic rigidity")
     def rigid_components(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
@@ -2539,14 +2576,34 @@ class Graph(nx.Graph):
             _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
             return [list(comp) for comp in nx.connected_components(self)]
 
-        # simple (not optimised) implementation of the 2D rigid components of a graph, 
-        # using the pebble game algorithm. 
-        # Method: Create a (vertex x vertex) matrix in which we store 
-        # if there exists a rigid component spanning the two vertices. 
-        # Then using this matrix as an adjacency matrix of a graph we find the cliques 
-        # of this graph (note that this graph is necessarily made of edge-disjoint cliques) 
-        #if algorithm == "pebble":
-
+        # simple (not optimised) implementation of the 2D rigid components of a graph,
+        # using the pebble game algorithm.
+        # Method: Create a (vertex x vertex) matrix in which we store
+        # if there exists a rigid component spanning the two vertices.
+        # Then using this matrix as an adjacency matrix of a graph we find the cliques
+        # of this graph (note that this graph is necessarily made of edge-disjoint cliques)
+        if algorithm == "pebble":
+            # first we can split it by connected components,
+            # as no not-connected component can be rigid component
+            # (We could split to 2-connected components, too)
+            _input_check.dimension_for_algorithm(
+                dim, [2], "the rigid component algorithm based on pebble games"
+            )
+            rigid_components = []
+            # build the pebble digraph
+            self._build_pebble_digraph(2, 3)
+            # if rigid, we are done
+            if self._pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
+                return [list(self.nodes())]
+            else:
+                # check only the components that can even be part of one
+                for connected_comp in nx.biconnected_components(self):
+                    comp_matrix = self._create_rigid_comp_matrix(connected_comp)
+                    # find cliques
+                    rigid_components += self._calculate_maximal_cliques(
+                        vertices=connected_comp, adj_matrix=comp_matrix
+                    )
+            return rigid_components
 
         if algorithm in ["randomized", "subgraphs-pebble"]:
             if not nx.is_connected(self):
