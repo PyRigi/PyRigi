@@ -15,7 +15,7 @@ try:
     @register_cell_magic
     def skip_execution(line, cell):
         print(
-            "This cell was marked to be skipped (probably due to its long execution time."
+            "This cell was marked to be skipped (probably due to long execution time)."
         )
         print("Remove the cell magic `%%skip_execution` to run it.")
         return
@@ -25,6 +25,10 @@ except NameError:
 
 
 def doc_category(category):
+    """
+    Decorator for doc categories.
+    """
+
     def decorator_doc_category(func):
         setattr(func, "_doc_category", category)
         return func
@@ -44,7 +48,7 @@ def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> st
         Specifies the number of indentation levels that are applied to
         the output.
     cat_order:
-        Optional list specifying the the order in which categories appear
+        Optional list specifying the order in which categories appear
         in the output.
     include_all:
         Optional boolean determining whether methods without a specific category
@@ -210,7 +214,7 @@ def normalize_flex(
     inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-12
 ) -> InfFlex:
     """
-    Divides a vector by its Euclidean norm.
+    Divide a vector by its Euclidean norm.
 
     Parameters
     ----------
@@ -258,10 +262,10 @@ def vector_distance_pointwise(
     numerical: bool = False,
 ) -> float:
     """
-    Computes the Euclidean distance between two realizations or pointwise vectors.
+    Compute the Euclidean distance between two realizations or pointwise vectors.
 
-    This method computes the Euclidean distance from the realization `dict_1`
-    to `dict2`. These dicts need to be based on the same vertex set.
+    This method computes the Euclidean distance from the realization ``dict_1``
+    to ``dict2``. These dicts need to be based on the same vertex set.
 
     Parameters
     ----------

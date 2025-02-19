@@ -9,9 +9,7 @@ from collections.abc import Callable
 
 class RandomizedAlgorithmWarning(UserWarning):
     """
-    Class representing the warning that is raised for randomized algorithm.
-
-    This class inherits the class :class:`warnings.UserWarning`.
+    Warning raised when randomized algorithm is used without explicit call.
     """
 
     def __init__(

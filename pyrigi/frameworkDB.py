@@ -328,7 +328,7 @@ def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
 
 def Frustum(n: int) -> Framework:
     """
-    Return the n-Frustum with `n` vertices in dimension 2.
+    Return the n-Frustum with ``n`` vertices in dimension 2.
 
     Definitions
     -----------
@@ -351,7 +351,7 @@ def Frustum(n: int) -> Framework:
 
 def CnSymmetricFourRegular(n: int = 8) -> Framework:
     """
-    Return a C_n-symmetric framework.
+    Return a $C_n$-symmetric framework.
 
     Definitions
     -----------
@@ -376,8 +376,9 @@ def CnSymmetricFourRegular(n: int = 8) -> Framework:
 
 def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
     """
-    Return a C_n-symmetric framework with a fixed vertex.
-    The cyclical group C_n needs to have even order of at least 8.
+    Return a $C_n$-symmetric framework with a fixed vertex.
+
+    The cyclical group $C_n$ needs to have even order of at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
