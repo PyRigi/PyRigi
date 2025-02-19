@@ -94,12 +94,12 @@ class Framework(object):
     [1],
     [2]])
 
-    METHODS
-
     Notes
     -----
     Internally, the realization is represented as ``dict[Vertex,Matrix]``.
     However, :meth:`~Framework.realization` can also return ``dict[Vertex,Point]``.
+
+    METHODS
     """
 
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
@@ -660,7 +660,6 @@ class Framework(object):
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
             Ommited edges are given the value ``0.5``.
 
-
         Examples
         --------
         >>> from pyrigi import frameworkDB
@@ -852,6 +851,8 @@ class Framework(object):
            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
+        Notes
+        -----
         For more examples on formatting options, see also :meth:`.Graph.to_tikz`.
         """  # noqa: E501
 
@@ -1274,12 +1275,6 @@ class Framework(object):
         realization:
             a realization of the underlying graph of the framework
 
-        Notes
-        -----
-        It is assumed that the realization contains all vertices from the
-        underlying graph. Furthermore, all points in the realization need
-        to be contained in $\RR^d$ for a fixed $d$.
-
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
@@ -1288,6 +1283,12 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 1), 1:(1, 2), 2:(2, 3)}
+
+        Notes
+        -----
+        It is assumed that the realization contains all vertices from the
+        underlying graph. Furthermore, all points in the realization need
+        to be contained in $\RR^d$ for a fixed $d$.
         """  # noqa: E501
         if not len(realization) == self._graph.number_of_nodes():
             raise IndexError(
@@ -1444,10 +1445,6 @@ class Framework(object):
         dict_stress:
             Dictionary that maps the edge labels to coordinates.
 
-        Notes
-        -----
-        See :meth:`.Framework.is_vector_stress`.
-
         Examples
         --------
         >>> F = Framework.Complete([[0,0], [1,0], ['1/2',0]])
@@ -1455,6 +1452,10 @@ class Framework(object):
         True
         >>> F.is_dict_stress({(0,1):1, (1,2):'-1/2', (0,2):1})
         False
+
+        Notes
+        -----
+        See :meth:`.Framework.is_vector_stress`.
         """
         stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
         self._graph._input_check_edge_order(stress_edge_list, "dict_stress")
@@ -2472,11 +2473,6 @@ class Framework(object):
             If ``None``, the :meth:`.Graph.vertex_list`
             is taken as the vertex order.
 
-        Notes
-        ----
-        For example, this method can be used for generating an
-        infinitesimal flex for plotting purposes.
-
         Examples
         ----
         >>> F = Framework.from_points([(0,0), (1,0), (0,1)])
@@ -2485,6 +2481,10 @@ class Framework(object):
         >>> F._transform_inf_flex_to_pointwise(flex)
         {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
+        Notes
+        ----
+        For example, this method can be used for generating an
+        infinitesimal flex for plotting purposes.
         """
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         return {
@@ -2507,11 +2507,6 @@ class Framework(object):
             If ``None``, the :meth:`.Graph.edge_list`
             is taken as the edge order.
 
-        Notes
-        ----
-        For example, this method can be used for generating an
-        equilibrium stresss for plotting purposes.
-
         Examples
         ----
         >>> F = Framework.Complete([(0,0),(1,0),(1,1),(0,1)])
@@ -2519,6 +2514,10 @@ class Framework(object):
         >>> F._transform_stress_to_edgewise(stress)
         {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
 
+        Notes
+        ----
+        For example, this method can be used for generating an
+        equilibrium stresss for plotting purposes.
         """
         edge_order = self._graph._input_check_edge_order(edge_order)
         return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
@@ -2592,10 +2591,6 @@ class Framework(object):
             Dictionary that maps the vertex labels to
             vectors of the same dimension as the framework is.
 
-        Notes
-        -----
-        See :meth:`.Framework.is_vector_inf_flex`.
-
         Examples
         --------
         >>> F = Framework.Complete([[0,0], [1,1]])
@@ -2603,6 +2598,10 @@ class Framework(object):
         True
         >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
         True
+
+        Notes
+        -----
+        See :meth:`.Framework.is_vector_inf_flex`.
         """
         self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
@@ -2644,19 +2643,6 @@ class Framework(object):
             This parameter is used to determine the number of digits, to which
             accuracy the symbolic expressions are evaluated.
 
-        Notes
-        -----
-        This is done by solving a linear system composed of a matrix `A` whose columns
-        are given by a basis of the trivial flexes and the vector `b` given by the
-        input flex. `b` is trivial if and only if there is a linear combination of
-        the columns in `A` producing `b`. In other words, when there is a solution to
-        `Ax=b`, then `b` is a trivial infinitesimal motion. Otherwise, `b` is
-        nontrivial.
-
-        In the `numerical=True` case we compute a least squares solution `x` of the
-        overdetermined linear system and compare the values in `Ax` to the values
-        in `b`.
-
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2669,6 +2655,19 @@ class Framework(object):
         True
         >>> F.is_vector_nontrivial_inf_flex(q)
         False
+
+        Notes
+        -----
+        This is done by solving a linear system composed of a matrix `A` whose columns
+        are given by a basis of the trivial flexes and the vector `b` given by the
+        input flex. `b` is trivial if and only if there is a linear combination of
+        the columns in `A` producing `b`. In other words, when there is a solution to
+        `Ax=b`, then `b` is a trivial infinitesimal motion. Otherwise, `b` is
+        nontrivial.
+
+        In the `numerical=True` case we compute a least squares solution `x` of the
+        overdetermined linear system and compare the values in `Ax` to the values
+        in `b`.
         """
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         if not self.is_vector_inf_flex(
@@ -2714,11 +2713,6 @@ class Framework(object):
         vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
-        Notes
-        -----
-        See :meth:`Framework.is_vector_nontrivial_inf_flex` for details,
-        particularly concerning the possible parameters.
-
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2729,6 +2723,11 @@ class Framework(object):
         >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
         >>> F.is_dict_nontrivial_inf_flex(q)
         False
+
+        Notes
+        -----
+        See :meth:`Framework.is_vector_nontrivial_inf_flex` for details,
+        particularly concerning the possible parameters.
         """
         self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
@@ -2782,11 +2781,6 @@ class Framework(object):
         inf_flex:
             An infinitesimal flex of the framework.
 
-        Notes
-        -----
-        See :meth:`Framework.is_nontrivial_vector_inf_flex` for details,
-        particularly concerning the possible parameters.
-
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2797,6 +2791,11 @@ class Framework(object):
         >>> q = [1,-1,1,1,-1,1,-1,-1]
         >>> F.is_vector_trivial_inf_flex(q)
         True
+
+        Notes
+        -----
+        See :meth:`Framework.is_nontrivial_vector_inf_flex` for details,
+        particularly concerning the possible parameters.
         """
         if not self.is_vector_inf_flex(inf_flex, **kwargs):
             return False
@@ -2818,11 +2817,6 @@ class Framework(object):
         vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
-        Notes
-        -----
-        See :meth:`Framework.is_vector_trivial_inf_flex` for details,
-        particularly concerning the possible parameters.
-
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2833,6 +2827,11 @@ class Framework(object):
         >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
         >>> F.is_dict_trivial_inf_flex(q)
         True
+
+        Notes
+        -----
+        See :meth:`Framework.is_vector_trivial_inf_flex` for details,
+        particularly concerning the possible parameters.
         """
         self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 

@@ -67,16 +67,16 @@ def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     r"""
     Return the `dim`-dimensional double banana graph.
 
+    Definitions
+    -----
+    * :prf:ref:`Generalized Double Banana <def-generalized-double-banana>`
+
     Parameters
     ----------
     dim:
         An integer greater or equal 3.
     t:
         An integer such that ``2 <= t <= dim-1``.
-
-    Definitions
-    -----
-    :prf:ref:`Generalized Double Banana <def-generalized-double-banana>`
 
     Examples
     --------
