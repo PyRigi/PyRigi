@@ -2397,8 +2397,8 @@ class Framework(object):
         """
         Generate STL files for the bars of the framework.
 
-        Generates STL files for the bars of the framework. The files are generated
-        in the working folder. The naming convention for the files is ``bar_i-j.stl``,
+        The STL files are generated in the working folder.
+        The naming convention for the files is ``bar_i-j.stl``,
         where i and j are the vertices of an edge.
 
         Parameters

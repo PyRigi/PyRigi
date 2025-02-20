@@ -156,7 +156,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
             Run depth first search to find vertices
             that can be reached from u or v.
 
-            Returns whether any of these has outdegree < self._K
+            Return whether any of these has outdegree < self._K
             and the set of reachable vertices.
             It will also turn edges around by this path.
 

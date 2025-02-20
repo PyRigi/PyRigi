@@ -666,7 +666,7 @@ class ParametricMotion(Motion):
         self, graph: Graph, motion: dict[Vertex, Point], interval: tuple
     ) -> None:
         """
-        Creates an instance.
+        Create an instance of ``ParametricMotion``.
         """
 
         super().__init__(graph, len(list(motion.values())[0]))
@@ -888,7 +888,7 @@ class ApproximateMotion(Motion):
         pin_vertex: Vertex = None,
     ) -> None:
         """
-        Creates an instance of `ApproximateMotion`.
+        Create an instance of `ApproximateMotion`.
         """
         super().__init__(F.graph(), F.dim())
         self._starting_realization = F.realization(as_points=True, numerical=True)
