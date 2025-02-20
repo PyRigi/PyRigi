@@ -2473,35 +2473,59 @@ class Graph(nx.Graph):
         for u in connected_comp:
             for v in connected_comp:
                 if u != v and comp_matrix[(u, v)] is False:
-                    circuit = self._pebble_digraph.fundamental_circuit(u, v)
-                    if circuit is not None:
-                        for x in circuit:
-                            for y in circuit:
-                                if x != y:
-                                    comp_matrix[(x, y)] = True
+                    if comp_matrix[(v, u)] is True:
+                        # make it symmetric
+                        comp_matrix[(u, v)] = True
+                    else:
+                        circuit = self._pebble_digraph.fundamental_circuit(u, v)
+                        if circuit is not None:
+                            for x in circuit:
+                                for y in circuit:
+                                    if x != y:
+                                        comp_matrix[(x, y)] = True
+                                    
         return comp_matrix
 
     def _calculate_maximal_cliques(self, vertices, adj_matrix):
         cliques = []
 
-        # def is_clique(vertex_set):
-        #    for i in vertex_set:
-        #        for j in vertex_set:
-        #            if i != j and adj_matrix[(i,j)] is False:
-        #                return False
-        #    return True
-
         for u, v in adj_matrix:
             if adj_matrix[(u, v)] is True:
                 clique = {u, v}
                 for w in vertices:
-                    if w not in clique and all(
-                        adj_matrix[(w, x)] is True for x in clique
+                    if (
+                        (w not in clique)
+                        and (adj_matrix[(w, u)] is True or adj_matrix[(u, w)] is True)
+                        and (adj_matrix[(w, v)] is True or adj_matrix[(v, w)] is True)
                     ):
                         clique.add(w)
                 if clique not in cliques:
                     cliques.append(clique)
         return [list(c) for c in cliques]
+
+    def _get_2D_rigid_components_using_pebble_digraph(self) -> list[list[Vertex]]:
+        # first we can split it by connected components,
+        # as no not-connected component can be rigid component
+        # (We could split to 2-connected components, too)
+            
+        rigid_components = []
+        # build the pebble digraph
+        self._build_pebble_digraph(2, 3)
+        # if rigid, we are done. Easy check
+        if self._pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
+            return [list(self.nodes())]
+        else:
+            # check only the components that can even be part of one
+            for connected_comp in nx.connected_components(self):
+                if len(connected_comp) == 1:
+                    rigid_components += [list(connected_comp)]
+                else:
+                    comp_matrix = self._create_rigid_comp_matrix(connected_comp)
+                    # find cliques
+                    rigid_components += self._calculate_maximal_cliques(
+                        vertices=connected_comp, adj_matrix=comp_matrix
+                    )
+        return rigid_components
 
     @doc_category("Generic rigidity")
     def rigid_components(
@@ -2583,30 +2607,10 @@ class Graph(nx.Graph):
         # Then using this matrix as an adjacency matrix of a graph we find the cliques
         # of this graph (note that this graph is necessarily made of edge-disjoint cliques)
         if algorithm == "pebble":
-            # first we can split it by connected components,
-            # as no not-connected component can be rigid component
-            # (We could split to 2-connected components, too)
             _input_check.dimension_for_algorithm(
                 dim, [2], "the rigid component algorithm based on pebble games"
             )
-            rigid_components = []
-            # build the pebble digraph
-            self._build_pebble_digraph(2, 3)
-            # if rigid, we are done
-            if self._pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
-                return [list(self.nodes())]
-            else:
-                # check only the components that can even be part of one
-                for connected_comp in nx.connected_components(self):
-                    if len(connected_comp) == 1:
-                        rigid_components += [list(connected_comp)]
-                    else:
-                        comp_matrix = self._create_rigid_comp_matrix(connected_comp)
-                        # find cliques
-                        rigid_components += self._calculate_maximal_cliques(
-                            vertices=connected_comp, adj_matrix=comp_matrix
-                        )
-            return rigid_components
+            return self._get_2D_rigid_components_using_pebble_digraph()
 
         if algorithm in ["randomized", "subgraphs-pebble"]:
             if not nx.is_connected(self):
