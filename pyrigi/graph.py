@@ -3339,49 +3339,9 @@ class Graph(nx.Graph):
             H += K
         return H
 
+    
     @doc_category("Generic rigidity")
     def block_3(self, u: Vertex, v: Vertex):
-        """
-        Return the 3-block of {u,v}.
-
-        Parameters
-        ----------
-        u:
-            vertex
-        v:
-            vertex
-
-        Examples
-        --------
-        >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
-        >>> G.block_3(0,11)
-        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]
-        """  # noqa: E501
-        # self must be a 2-connected graph
-        if not nx.is_biconnected(self):
-            raise ValueError("The graph must be 2-connected.")
-
-        self._input_check_vertex_members([u, v])
-        # u and v must be a non-adjacent pair
-        if [u, v] in self.edges:
-            raise ValueError("u and v must be non-adjacent.")
-        if nx.node_connectivity(self) >= 3:
-            return self
-        else:
-            augmented_G = self.copy()
-            augmented_G.add_edges(nx.all_node_cuts(self))
-            try:
-                tricomp = nx.k_components(augmented_G)[3]
-                V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
-            except Exception:
-                tricomp = focus_on_3_components(augmented_G)
-                V_B = list(filter(lambda x: u in x and v in x, tricomp))[0]
-
-            B = augmented_G.subgraph(V_B)
-            return B
-
-    @doc_category("Generic rigidity")
-    def block_3_2(self, u: Vertex, v: Vertex):
         """
         Return the 3-block of {u,v}, getting it by cleaving operations.
 
@@ -3400,7 +3360,7 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
-        >>> G.block_3_2(0,11)
+        >>> G.block_3(0,11)
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]
         """  # noqa: E501
         try:
@@ -3416,7 +3376,7 @@ class Graph(nx.Graph):
                     break
             B = nx.subgraph(self, conn_comp).copy()
             B.add_edge(*(cut))
-            return B.block_3_2(u, v)
+            return B.block_3(u, v)
         except StopIteration:
             return self
 
@@ -3507,7 +3467,7 @@ class Graph(nx.Graph):
             return True
         # OR
         # elif Clique(B,V_0) is globally rigid
-        B = self.block_3_2(u, v)
+        B = self.block_3(u, v)
         B._build_pebble_digraph(K=2, L=3)
         V_0 = B._pebble_digraph.fundamental_circuit(u, v)
         return B.make_outside_neighbors_clique(V_0).is_globally_rigid()
