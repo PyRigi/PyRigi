@@ -30,43 +30,6 @@ __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 from pyrigi.plot_style import PlotStyle
 
 
-def focus_on_3_components(G: Graph):
-    separating_pairs = list(nx.all_node_cuts(G))
-    sep_list = [list(i) for i in separating_pairs]
-    G.add_edges(sep_list)
-    dizio = nx.k_components(G)
-    lista_3_comp = []
-    # per ogni 2-componente
-    for B in dizio[2]:
-        # se non ci sono s-separators
-        if not separating_pairs or len(separating_pairs[0]) != 2:
-            lista_3_comp.append(B)
-            continue
-        lista = []
-        # se ci sono degli vertici i cui vicini sono solo i 2-separators
-        for v in B:
-            if set(nx.neighbors(G, v)) in separating_pairs:
-                lista.append(v)
-        for v in lista:
-            B.remove(v)
-
-        pila_sub = []
-        for s, p in separating_pairs:
-            Q = B.copy()
-            Q.remove(s), Q.remove(p)
-            pila_sub.append(nx.subgraph(G, Q))
-        pila_TF = [nx.is_connected(subgraph) for subgraph in pila_sub]
-        if False in pila_TF:
-            for i in list(nx.connected_components(pila_sub[pila_TF.index(False)])):
-                i.update(separating_pairs[pila_TF.index(False)])
-                lista_3_comp.append(i)
-
-        else:
-            lista_3_comp.append(B)
-
-    return lista_3_comp
-
-
 class Graph(nx.Graph):
     """
     Class representing a graph.
