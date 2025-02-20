@@ -1061,6 +1061,15 @@ def test_rigid_components_pebble():
     rigid_components = G.rigid_components(dim=2, algorithm="pebble")
     assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
 
+    # Two rigid subgraphs, connceted by an edge (2,6)
+    G = Graph([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (4, 5), (5, 6), (6, 7), (7, 4), (5, 7), (2,6)])
+    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
+    assert {frozenset(H) for H in rigid_components} == {
+        frozenset([0, 1, 2, 3]),
+        frozenset([4, 5, 6, 7]),
+        frozenset([2, 6]),
+    }
+
     
 def test__str__():
     G = Graph([[2, 1], [2, 3]])
