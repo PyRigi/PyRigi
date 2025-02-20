@@ -9,8 +9,7 @@ from collections.abc import Callable
 
 class LoopError(ValueError):
     """
-    Error class responsible for throwing an error, when the
-    graph is not loop-free.
+    Error raised when the graph is not loop-free.
     """
 
     def __init__(self, msg: str = "The graph needs to be loop-free.", *args, **kwargs):
@@ -19,8 +18,7 @@ class LoopError(ValueError):
 
 class NotSupportedValueError(ValueError):
     """
-    Error class responsible for throwing an error, when an
-    input value is not supported.
+    Error raised when an input value is not supported.
     """
 
     def __init__(

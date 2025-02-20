@@ -2661,6 +2661,7 @@ def test_is_Rd_circuit_d2(graph):
                 (3, 5),
             ]
         ),
+        graphs.Complete(4) + Graph([(3, 4), (4, 5), (5, 6), (6, 3), (3, 5), (4, 6)]),
     ],
 )
 def test_is_not_Rd_circuit_d2(graph):

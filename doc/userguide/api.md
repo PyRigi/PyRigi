@@ -8,7 +8,8 @@ api/motion
 api/graphDB
 api/frameworkDB
 api/graphdrawer
+api/plot_style
+api/exception
 api/datatype
 api/misc
-api/plot_style
 :::
