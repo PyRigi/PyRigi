@@ -1228,8 +1228,8 @@ class ApproximateMotion(Motion):
         )
         cur_error = prev_error = sum(
             [
-                np.abs(L - self.edge_lengths[e])
-                for e, L in F.edge_lengths(numerical=True).items()
+                np.abs(length - self.edge_lengths[e])
+                for e, length in F.edge_lengths(numerical=True).items()
             ]
         )
         damping = 5e-2
@@ -1245,8 +1245,8 @@ class ApproximateMotion(Motion):
                         )
                     ]
                 )
-                - L
-                for e, L in self.edge_lengths.items()
+                - length
+                for e, length in self.edge_lengths.items()
             ]
             newton_step = np.dot(np.linalg.pinv(rigidity_matrix), equations)
             cur_sol = [
@@ -1261,8 +1261,8 @@ class ApproximateMotion(Motion):
             )
             cur_error = sum(
                 [
-                    np.abs(L - self.edge_lengths[e])
-                    for e, L in F.edge_lengths(numerical=True).items()
+                    np.abs(length - self.edge_lengths[e])
+                    for e, length in F.edge_lengths(numerical=True).items()
                 ]
             )
             if cur_error <= prev_error:

@@ -3136,7 +3136,7 @@ class Graph(nx.Graph):
     @doc_category("Graph manipulation")
     def sum_t(self, G1: Graph, edge: Edge, t: int = 2):
         """
-        Return the t-sum of self and G2 along the given edge.
+        Return the t-sum of ``self`` and ``G1`` along the given edge.
 
         Definitions
         -----------
@@ -3171,7 +3171,7 @@ class Graph(nx.Graph):
     @doc_category("Graph manipulation")
     def intersection(self, G1: Graph):
         """
-        Return the intersection of self and G2.
+        Return the intersection of ``self`` and ``G1``.
 
         Parameters
         ----------
