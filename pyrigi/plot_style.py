@@ -463,7 +463,7 @@ class PlotStyle2D(PlotStyle):
         plot_style: PlotStyle
             The PlotStyle instance to copy attributes from.
         """
-        return cls(**{k[1:]: v for k, v in plot_style.__dict__.items()})
+        return cls(**{key[1:]: val for key, val in plot_style.__dict__.items()})
 
 
 class PlotStyle3D(PlotStyle):
@@ -543,4 +543,4 @@ class PlotStyle3D(PlotStyle):
         plot_style: PlotStyle
             The PlotStyle instance to copy attributes from.
         """
-        return cls(**{k[1:]: v for k, v in plot_style.__dict__.items()})
+        return cls(**{key[1:]: val for key, val in plot_style.__dict__.items()})
