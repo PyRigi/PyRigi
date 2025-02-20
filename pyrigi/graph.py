@@ -3339,7 +3339,6 @@ class Graph(nx.Graph):
             H += K
         return H
 
-    
     @doc_category("Generic rigidity")
     def block_3(self, u: Vertex, v: Vertex):
         """
