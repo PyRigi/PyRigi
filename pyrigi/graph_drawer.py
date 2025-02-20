@@ -247,7 +247,7 @@ class GraphDrawer(object):
 
     def _handle_event(self, event) -> None:
         """
-        This function handles keyboard events and double click event using ``ipyevents``.
+        Handle keyboard events and double click event using ``ipyevents``.
         """
         if event["event"] == "keydown":
             self._vertexmove_on = event["ctrlKey"]
@@ -268,7 +268,7 @@ class GraphDrawer(object):
 
     def _assign_pos(self, x, y, place) -> list[int]:
         """
-        This function converts layout positions which are between -1 and 1
+        Convert layout positions which are between -1 and 1
         to canvas positions according to the chosen place by scaling.
         """
         width = self._mcanvas.width
@@ -324,7 +324,7 @@ class GraphDrawer(object):
 
     def _set_graph(self, graph: Graph, layout_type, place) -> None:
         """
-        Sets up a ``graph`` with specified layout and places it on the canvas.
+        Set up a ``graph`` with specified layout and place it on the canvas.
 
         Parameters
         ----------
@@ -367,7 +367,7 @@ class GraphDrawer(object):
 
     def _on_grid_checkbox_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the grid checkbox.
+        Handle the grid checkbox.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._update_background(change["new"])
@@ -378,7 +378,7 @@ class GraphDrawer(object):
 
     def _on_grid_size_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the grid size slider.
+        Handle the grid size slider.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._grid_size = change["new"]
@@ -386,21 +386,21 @@ class GraphDrawer(object):
 
     def _on_vcolor_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the color picker for the new vertices.
+        Handle the color picker for the new vertices.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._v_color = change["new"]
 
     def _on_ecolor_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the color picker for the new edges.
+        Handle the color picker for the new edges.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._e_color = change["new"]
 
     def _on_vradius_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the vertex size slider.
+        Handle the vertex size slider.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._radius = change["new"]
@@ -410,7 +410,7 @@ class GraphDrawer(object):
 
     def _on_ewidth_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the edge width slider.
+        Handle the edge width slider.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._ewidth = change["new"]
@@ -420,7 +420,7 @@ class GraphDrawer(object):
 
     def _on_show_vlabel_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the vertex labels checkbox.
+        Handle the vertex labels checkbox.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._show_vlabels = change["new"]
@@ -489,7 +489,7 @@ class GraphDrawer(object):
 
     def _handle_mouse_down(self, x, y) -> None:
         """
-        Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_down`.
+        Handle :meth:`ipycanvas.MultiCanvas.on_mouse_down`.
 
         It determines what to do when mouse button is pressed.
         """
@@ -519,7 +519,7 @@ class GraphDrawer(object):
 
     def _handle_mouse_up(self, x, y) -> None:
         """
-        Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_up`.
+        Handle :meth:`ipycanvas.MultiCanvas.on_mouse_up`.
 
         It determines what to do when mouse button is released.
         """
@@ -562,9 +562,9 @@ class GraphDrawer(object):
 
     def _handle_dblclick(self, x, y) -> None:
         """
-        This function is the handler for double click event (using ipyevents).
+        Handle double click event (using ipyevents).
 
-        Double clicking on a vertex or edge will remove the vertex or the edge, resp.
+        Double clicking on a vertex or edge removes the vertex or the edge, respectively.
         """
         edge = self._collided_edge(x, y)
         vertex = self._collided_vertex(x, y)
@@ -580,7 +580,7 @@ class GraphDrawer(object):
 
     def _handle_mouse_move(self, x, y) -> None:
         """
-        Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_move`.
+        Handle :meth:`ipycanvas.MultiCanvas.on_mouse_move`.
 
         It determines what to do when mouse pointer is moving on multicanvas.
         """
@@ -627,7 +627,7 @@ class GraphDrawer(object):
 
     def _handle_mouse_out(self, x, y) -> None:
         """
-        Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_out`.
+        Handle :meth:`ipycanvas.MultiCanvas.on_mouse_out`.
 
         It determines what to do when the mouse leaves multicanvas.
         """
