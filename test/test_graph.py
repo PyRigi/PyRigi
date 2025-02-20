@@ -540,6 +540,7 @@ def test_Rd_not_circuit_graphs_d2(graph):
     ],
 )
 def test_is_weakly_globally_linked_for_globally_rigid_graphs(graph):
+    # in a globally rigid graph, each pair of vertices should be weakly globally linked
     for u, v in [[x, y] for x in graph.nodes for y in graph.nodes if x < y]:
         assert graph.is_weakly_globally_linked(u, v, algorithm="randomized")
 
@@ -564,6 +565,10 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
         if H.is_globally_rigid():
             return test_is_weakly_globally_linked_for_globally_rigid_graphs(H)
         else:
+            # if H is rigid but it is not globally rigid, then we know that there must
+            # be at least one pair of vertices that is not weakly globally linked in 
+            # the graph, so we set the counter and we do a for loop that ends when a
+            # not weakly globally linked pair of vertices is found
             counter = 0
             for a, b in [[x, y] for x in H.nodes for y in H.nodes if x < y]:
                 if not H.is_weakly_globally_linked(a, b, algorithm="randomized"):

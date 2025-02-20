@@ -134,6 +134,25 @@ If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally l
 :::
 
 
+:::{prf:theorem}
+:label: thm-weakly-globally-linked-globally-rigid-graph
+
+A graph $G$ is {prf:ref}`globally rigid <def-globally-rigid-graph>` in $\RR^d$ if and only if every pair of 
+vertices are {prf:ref}`weakly globally linked <def-globally-linked>` in $G$.
+
+{{references}} {cite:p}`Jackson2006`
+:::
+
+
+:::{prf:corollary}
+:label: cor-weakly-globally-linked-rigid-graph
+
+Given a rigid but not globally rigid graph $G$ in $\RR^d$ then there exists at least one pair of vertices
+of $G$ that are not {prf:ref}`weakly globally linked <def-globally-linked>` in $G$.
+
+:::
+
+
 :::{prf:definition} augmented-graph
 :label: def-augmented-graph
 
