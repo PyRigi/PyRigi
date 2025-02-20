@@ -115,7 +115,7 @@ We say that a pair of vertices $\{u,v\}$ in a $d$-{prf:ref}`dimensional framewor
 $(G,p)$ is _globally linked in $(G,p)$_ if for every equivalent $d$-{prf:ref}`dimensional framework <def-framework>` 
 $(G,q)$ we have $||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
 
-{{references}} {cite:p}`Jackson2006`
+{{references}} {cite:p}`Jordan2024`
 :::
 
 :::{prf:definition} globally linked
@@ -130,7 +130,7 @@ is {prf:ref}`globally linked <def-globally-linked>`.
 
 If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally loose in $G$_.
 
-{{references}} {cite:p}`Jackson2006`
+{{references}} {cite:p}`Jordan2024`
 :::
 
 
@@ -140,7 +140,7 @@ If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally l
 A graph $G$ is {prf:ref}`globally rigid <def-globally-rigid-graph>` in $\RR^d$ if and only if every pair of 
 vertices are {prf:ref}`weakly globally linked <def-globally-linked>` in $G$.
 
-{{references}} {cite:p}`Jackson2006`
+{{references}} {cite:p}`Jordan2024`
 :::
 
 
@@ -187,7 +187,7 @@ Furthermore, $uv \notin E(B)$ and, in $\RR^2$, if the pair $\{u,v\}$ is linked i
 linked in $B$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.block_3_2`
-{{references}} {cite:p}`Jackson2006`
+{{references}} {cite:p}`Jordan2024`
 :::
 
 
@@ -201,7 +201,7 @@ $B$ of the {prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ such 
 is called the _3-block_ of $\{u,v\}$ in $G$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.block_3`
-{{references}} {cite:p}`Jackson2006`
+{{references}} {cite:p}`Jordan2024`
 :::
 
 
@@ -218,5 +218,5 @@ where $B$ is the {prf:ref}`3-block <def-block-3>` of $\{u,v\}$ in $G$, and $B_0 
 is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
-{{references}} {cite:p}`Jackson2006`
+{{references}} {cite:p}`Jordan2024`
 :::

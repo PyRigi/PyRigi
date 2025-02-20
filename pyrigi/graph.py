@@ -3473,6 +3473,10 @@ class Graph(nx.Graph):
         >>> G = graphs.Complete(10)
         >>> G.is_weakly_globally_linked(0,1)
         True
+        >>> # The following example is the Figure 1 of the article :cite:p:`Jordan2024`
+        >>> G = Graph([[0,1],[0,2],[0,4],[1,2],[1,4],[2,3],[3,4]])
+        >>> G.is_weakly_globally_linked(2,4)
+        True
         """  # noqa: E501
         # self must be a 2-connected graph
         if not nx.is_biconnected(self):

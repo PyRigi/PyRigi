@@ -330,7 +330,6 @@ def read_globally(d_v_):
     return read_random_from_graph6("test/input_graphs/globally_rigid/" + d_v_ + ".g6")
 
 
-
 def read_redundantly(d_v_):
     return read_random_from_graph6(
         "test/input_graphs/redundantly_rigid/" + d_v_ + ".g6"
@@ -339,7 +338,6 @@ def read_redundantly(d_v_):
 
 def read_sparsity(filename):
     return Graph(nx.read_sparse6("test/input_graphs/sparsity/" + filename + ".s6"))
-
 
 
 # Examples of globally rigid graphs taken from:
@@ -566,7 +564,7 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
             return test_is_weakly_globally_linked_for_globally_rigid_graphs(H)
         else:
             # if H is rigid but it is not globally rigid, then we know that there must
-            # be at least one pair of vertices that is not weakly globally linked in 
+            # be at least one pair of vertices that is not weakly globally linked in
             # the graph, so we set the counter and we do a for loop that ends when a
             # not weakly globally linked pair of vertices is found
             counter = 0
@@ -575,6 +573,77 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
                     counter = 1
                     break
             assert counter
+
+
+@pytest.mark.parametrize(
+    "graph, u, v",
+    [
+        # The following two examples are Figure 2 and Figure 5
+        # of the article :cite:p:`Jordan2024`
+        [
+            Graph(
+                [
+                    [0, 1],
+                    [0, 2],
+                    [0, 3],
+                    [0, 6],
+                    [1, 2],
+                    [1, 3],
+                    [1, 4],
+                    [2, 4],
+                    [2, 5],
+                    [3, 5],
+                    [4, 6],
+                ]
+            ),
+            3,
+            4,
+        ],
+        [
+            Graph(
+                [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4]]
+            ),
+            3,
+            4,
+        ],
+        [
+            Graph(
+                [
+                    [0, 1],
+                    [0, 5],
+                    [0, 7],
+                    [1, 2],
+                    [1, 3],
+                    [1, 7],
+                    [2, 3],
+                    [2, 4],
+                    [3, 4],
+                    [4, 5],
+                    [4, 8],
+                    [4, 11],
+                    [5, 6],
+                    [5, 8],
+                    [5, 13],
+                    [6, 10],
+                    [6, 11],
+                    [6, 12],
+                    [7, 8],
+                    [7, 14],
+                    [8, 12],
+                    [9, 10],
+                    [9, 14],
+                    [10, 13],
+                    [11, 12],
+                    [13, 14],
+                ]
+            ),
+            0,
+            11,
+        ],
+    ],
+)
+def test_is_weakly_globally_linked_articles_graphs(graph, u, v):
+    assert graph.is_weakly_globally_linked(u, v)
 
 
 @pytest.mark.parametrize(
