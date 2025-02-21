@@ -4,30 +4,27 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
+import math
+import warnings
 from collections.abc import Callable
 from copy import deepcopy
 from itertools import combinations
+from random import randint
 from typing import Iterable
 
 import networkx as nx
-
 from sympy import Matrix, oo, zeros
 
-import math
-from random import randint
-import warnings
-
-from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
-
-from pyrigi.misc import doc_category, generate_category_tables
-from pyrigi.exception import LoopError, NotSupportedValueError
-from pyrigi.warning import RandomizedAlgorithmWarning
-import pyrigi._pebble_digraph
 import pyrigi._input_check as _input_check
+import pyrigi._pebble_digraph
+from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
+from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.misc import doc_category, generate_category_tables
+from pyrigi.plot_style import PlotStyle
+from pyrigi.warning import RandomizedAlgorithmWarning
+
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
-
-from pyrigi.plot_style import PlotStyle
 
 
 class Graph(nx.Graph):

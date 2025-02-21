@@ -1,8 +1,8 @@
-import pyrigi.frameworkDB as fws
-import pyrigi.graphDB as graphs
+import pytest
 import sympy as sp
 
-import pytest
+import pyrigi.frameworkDB as fws
+import pyrigi.graphDB as graphs
 
 
 def test_Cycle():
