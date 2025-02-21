@@ -98,15 +98,15 @@ other $k$-connected subgraph of $G$.
 :::
 
 
-:::{prf:definition} local node connectivity
+:::{prf:definition} local connectivity
 :label: def-kappa-G-u-v
 
 Let $G = (V,E)$ be a graph and $u,v\in V$, we use 
-_$\kappa_G(u,v)$_ to denote the _local node connectivity of $u,v$_, which is 
+_$\kappa_G(u,v)$_ to denote the _local connectivity of $u,v$_, which is 
 the maximum number of pairwise internally disjoint paths from $u$ to $v$ in $G$, 
 where two paths are internally disjoint if they do not share any edge.
 
-{{references}} {cite:p}`Jordan2024`
+{{references}} {cite:p}`JordanVillanyi2024`
 :::
 
 
@@ -142,7 +142,7 @@ $x,y\in N_G(V_i)$ for $1\leq i\leq r$. Here $N_G(V_i)$ denotes
 the set of nodes of $V-V_i$ that are connected by an edge to some vertex of $V_i$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.make_outside_neighbors_clique`
-{{references}} {cite:p}`Jordan2024`
+{{references}} {cite:p}`JordanVillanyi2024`
 :::
 
 :::{toctree}

@@ -108,29 +108,31 @@ the class of randomized polynomial time algorithms.
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
 
-:::{prf:definition} 
+:::{prf:definition} globally linked in a framework
 :label: def-globally-linked-p
 
 We say that a pair of vertices $\{u,v\}$ in a $d$-{prf:ref}`dimensional framework <def-framework>` 
-$(G,p)$ is _globally linked in $(G,p)$_ if for every equivalent $d$-{prf:ref}`dimensional framework <def-framework>` 
-$(G,q)$ we have $||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
+$(G,p)$ is _globally linked in $(G,p)$_ if for every {prf:ref}`equivalent <def-equivalent-framework>` 
+$d$-{prf:ref}`dimensional framework <def-framework>` $(G,q)$ we have 
+$||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
 
-{{references}} {cite:p}`Jordan2024`
+{{references}} {cite:p}`JordanVillanyi2024`
 :::
 
-:::{prf:definition} globally linked
+:::{prf:definition} globally linked in a graph
 :label: def-globally-linked
 
-A pair of vertices $\{u,v\}$ is _globally linked in $G$_ in $\RR^d$ if it is {prf:ref}`globally linked <def-globally-linked>`
-in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$. 
+A pair of vertices $\{u,v\}$ is _globally linked in $G$_ in $\RR^d$ if it is 
+{prf:ref}`globally linked <def-globally-linked-p>` in all $d$-dimensional 
+{prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$. 
 
 A pair $\{u,v\}$ is _weakly globally linked in $G$_ in $\RR^d$ if there exists 
 a $d$-dimensional {prf:ref}`generic framework <def-gen-realization>` $(G,p)$ in which $\{u,v\}$ 
-is {prf:ref}`globally linked <def-globally-linked>`.
+is {prf:ref}`globally linked <def-globally-linked-p>`.
 
 If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally loose in $G$_.
 
-{{references}} {cite:p}`Jordan2024`
+{{references}} {cite:p}`JordanVillanyi2024`
 :::
 
 
@@ -140,7 +142,7 @@ If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally l
 A graph $G$ is {prf:ref}`globally rigid <def-globally-rigid-graph>` in $\RR^d$ if and only if every pair of 
 vertices are {prf:ref}`weakly globally linked <def-globally-linked>` in $G$.
 
-{{references}} {cite:p}`Jordan2024`
+{{references}} {cite:p}`JordanVillanyi2024`
 :::
 
 
@@ -153,10 +155,10 @@ of $G$ that are not {prf:ref}`weakly globally linked <def-globally-linked>` in $
 :::
 
 
-:::{prf:definition} augmented-graph
+:::{prf:definition} augmented graph
 :label: def-augmented-graph
 
-Given a graph $G$, we will denote by $\overline{G}$ its _augmented graph_, which is obtained from $G$ 
+Given a graph $G$ its _augmented graph_ is the graph obtained from $G$ 
 by adding an edge between every {prf:ref}`separating pair <def-separating-pair>` of $G$.
 
 :::
@@ -187,7 +189,7 @@ Furthermore, $uv \notin E(B)$ and, in $\RR^2$, if the pair $\{u,v\}$ is linked i
 linked in $B$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.block_3`
-{{references}} {cite:p}`Jordan2024`
+{{references}} {cite:p}`JordanVillanyi2024`
 :::
 
 
@@ -201,7 +203,7 @@ $B$ of the {prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ such 
 is called the _3-block_ of $\{u,v\}$ in $G$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.block_3`
-{{references}} {cite:p}`Jordan2024`
+{{references}} {cite:p}`JordanVillanyi2024`
 :::
 
 
@@ -218,5 +220,5 @@ where $B$ is the {prf:ref}`3-block <def-block-3>` of $\{u,v\}$ in $G$, and $B_0 
 is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
-{{references}} {cite:p}`Jordan2024`
+{{references}} {cite:p}`JordanVillanyi2024`
 :::
