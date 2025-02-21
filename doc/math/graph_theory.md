@@ -113,10 +113,8 @@ where two paths are internally disjoint if they do not share any edge.
 :::{prf:definition} separating set
 :label: def-separating-set
 
-Let $u_1,...,u_m$ be a set of distinct vertices in a 
-{prf:ref}`k-connected graph <def-k-connected>` $G$.
-Then the set $U = \{u_1,...,u_m\}$ is called a _separating set_ (or _k-separator_ or _k-cutset_) if 
-$G-\{u_1,...,u_m\}$ is not {prf:ref}`connected <def-connected>`.
+The set $U = \{u_1,...,u_m\}\subset V$ is called a _separating set_ (or _k-separator_ or _k-cutset_) if 
+$G-U$ is not {prf:ref}`connected <def-connected>`.
 
 In particular, if $m=2$, and so $U = \{u,v\}$, U is called a _separating pair_.
 

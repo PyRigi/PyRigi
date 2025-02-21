@@ -3191,7 +3191,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_separating_set(self, vertices: list[Vertex] | set[Vertex]) -> bool:
         """
-        Check if a set of vertices is a separating (or separation) set for G.
+        Check if a set of vertices is a separating set for G.
 
         Parameters
         ----------
