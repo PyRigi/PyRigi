@@ -21,7 +21,6 @@ This notebook illustrates the basic functionality of {class}`pyrigi.graph.Graph`
 It can be downloaded {download}`here <../../notebooks/graph_basics.ipynb>`.
 
 ```{code-cell} ipython3
-# The import will work if the package was installed using pip.
 from pyrigi import Graph
 ```
 

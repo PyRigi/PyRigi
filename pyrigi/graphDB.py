@@ -3,8 +3,9 @@ This is a module for providing common types of graphs.
 """
 
 import networkx as nx
-from pyrigi.graph import Graph
+
 import pyrigi._input_check as _input_check
+from pyrigi.graph import Graph
 
 
 def Cycle(n: int) -> Graph:

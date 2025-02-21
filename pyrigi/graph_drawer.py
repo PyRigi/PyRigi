@@ -11,16 +11,18 @@ Classes:
 """
 
 from collections.abc import Sequence
-from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
-from ipycanvas import MultiCanvas, hold_canvas
+
+import networkx as nx
+import numpy as np
 from IPython.display import display
+from ipycanvas import MultiCanvas, hold_canvas
+from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
+from ipyevents import Event
 from sympy import Rational
+
 from pyrigi.data_type import Edge
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
-from ipyevents import Event
-import networkx as nx
-import numpy as np
 
 
 class GraphDrawer(object):

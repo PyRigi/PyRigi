@@ -1,4 +1,11 @@
+from math import isclose, pi
+from random import randint
+
 import pytest
+import numpy as np
+import sympy as sp
+
+from pyrigi.graph import Graph
 from pyrigi.misc import (
     is_zero_vector,
     generate_two_orthonormal_vectors,
@@ -8,11 +15,6 @@ from pyrigi.misc import (
     vector_distance_pointwise,
     point_to_vector,
 )
-import numpy as np
-import sympy as sp
-from math import isclose, pi
-from random import randint
-from pyrigi.graph import Graph
 
 
 def test_is_zero_vector():

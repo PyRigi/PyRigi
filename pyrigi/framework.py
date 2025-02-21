@@ -14,16 +14,17 @@ Classes:
 
 from __future__ import annotations
 
+import functools
 from copy import deepcopy
 from itertools import combinations
-from random import randrange
-
-import sympy as sp
-import numpy as np
-import functools
-
-from sympy import Matrix, flatten, binomial
 from math import log10
+from random import randrange
+from typing import Any
+
+import matplotlib.pyplot as plt
+import numpy as np
+import sympy as sp
+from sympy import Matrix, flatten, binomial
 
 from pyrigi.data_type import (
     Vertex,
@@ -35,7 +36,6 @@ from pyrigi.data_type import (
     Number,
     DirectedEdge,
 )
-
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
@@ -48,9 +48,6 @@ from pyrigi.misc import (
     point_to_vector,
 )
 import pyrigi._input_check as _input_check
-
-from typing import Any
-import matplotlib.pyplot as plt
 
 
 __doctest_requires__ = {
