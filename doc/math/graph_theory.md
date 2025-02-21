@@ -113,7 +113,7 @@ where two paths are internally disjoint if they do not share any edge.
 :::{prf:definition} separating set
 :label: def-separating-set
 
-The set $U = \{u_1,...,u_m\}\subset V$ is called a _separating set_ (or _k-separator_ or _k-cutset_) if 
+The set $U\subset V$ is called a _separating set_ if 
 $G-U$ is not {prf:ref}`connected <def-connected>`.
 
 In particular, if $m=2$, and so $U = \{u,v\}$, U is called a _separating pair_.
