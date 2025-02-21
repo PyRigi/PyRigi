@@ -254,7 +254,7 @@ class Graph(nx.Graph):
 
     def _input_check_edge_format(self, edge: Edge, loopfree: bool = False) -> None:
         """
-        Check if an ``input_pair`` is a pair of (distinct) vertices of the graph and
+        Check if an ``edge`` is a pair of (distinct) vertices of the graph and
         raise an error otherwise.
 
         Parameters
@@ -2807,9 +2807,9 @@ class Graph(nx.Graph):
             )
         self._input_check_no_loop()
 
-        adjMatrix = self.adjacency_matrix(vertex_order)
+        adj_matrix = self.adjacency_matrix(vertex_order)
         upper_diag = [
-            str(b) for i, row in enumerate(adjMatrix.tolist()) for b in row[i + 1 :]
+            str(b) for i, row in enumerate(adj_matrix.tolist()) for b in row[i + 1 :]
         ]
         return int("".join(upper_diag), 2)
 
@@ -2834,12 +2834,12 @@ class Graph(nx.Graph):
                 [0 for _ in range(i + 1)] + [int(j) for j in L[s : s + (c - i - 1)]]
             )
             s += c - i - 1
-        adjMatrix = Matrix(rows)
-        return Graph.from_adjacency_matrix(adjMatrix + adjMatrix.transpose())
+        adj_matrix = Matrix(rows)
+        return Graph.from_adjacency_matrix(adj_matrix + adj_matrix.transpose())
 
     @classmethod
     @doc_category("Class methods")
-    def from_adjacency_matrix(cls, adjMatrix: Matrix) -> Graph:
+    def from_adjacency_matrix(cls, adj_matrix: Matrix) -> Graph:
         """
         Create a graph from a given adjacency matrix.
 
@@ -2850,22 +2850,22 @@ class Graph(nx.Graph):
         >>> print(G)
         Graph with vertices [0, 1] and edges [[0, 1]]
         """
-        if not adjMatrix.is_square:
+        if not adj_matrix.is_square:
             raise ValueError("The matrix is not square!")
-        if not adjMatrix.is_symmetric():
+        if not adj_matrix.is_symmetric():
             raise ValueError("The matrix is not symmetric!")
 
-        vertices = range(adjMatrix.cols)
+        vertices = range(adj_matrix.cols)
         edges = []
         for i, j in combinations(vertices, 2):
-            if not (adjMatrix[i, j] == 0 or adjMatrix[i, j] == 1):
+            if not (adj_matrix[i, j] == 0 or adj_matrix[i, j] == 1):
                 raise ValueError(
                     "The provided adjacency matrix contains entries other than 0 and 1!"
                 )
-            if adjMatrix[i, j] == 1:
+            if adj_matrix[i, j] == 1:
                 edges += [(i, j)]
         for i in vertices:
-            if adjMatrix[i, i] == 1:
+            if adj_matrix[i, i] == 1:
                 edges += [(i, i)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
@@ -3134,9 +3134,9 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Graph manipulation")
-    def sum_t(self, G1: Graph, edge: Edge, t: int = 2):
+    def sum_t(self, other_graph: Graph, edge: Edge, t: int = 2):
         """
-        Return the t-sum of ``self`` and ``G1`` along the given edge.
+        Return the t-sum of ``self`` and ``other_graph`` along the given edge.
 
         Definitions
         -----------
@@ -3144,7 +3144,7 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
-        G1: Graph
+        other_graph: Graph
         edge: Edge
         t: integer, default value 2
 
@@ -3155,27 +3155,27 @@ class Graph(nx.Graph):
         >>> H.sum_t(G, [1, 2], 3)
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [1, 3], [2, 3], [3, 4]]
         """
-        if edge not in self.edges or edge not in G1.edges:
+        if edge not in self.edges or edge not in other_graph.edges:
             raise ValueError(
                 f"The edge {edge} is not in the intersection of the graphs!"
             )
         # check if the intersection is a t-complete graph
-        if not self.intersection(G1).is_isomorphic(nx.complete_graph(t)):
+        if not self.intersection(other_graph).is_isomorphic(nx.complete_graph(t)):
             raise ValueError(
                 f"The intersection of the graphs must be a {t}-complete graph!"
             )
-        G = self + G1
+        G = self + other_graph
         G.remove_edge(edge[0], edge[1])
         return G
 
     @doc_category("Graph manipulation")
-    def intersection(self, G1: Graph):
+    def intersection(self, other_graph: Graph):
         """
-        Return the intersection of ``self`` and ``G1``.
+        Return the intersection of ``self`` and ``other_graph``.
 
         Parameters
         ----------
-        G1: Graph
+        other_graph: Graph
 
         Examples
         --------
@@ -3191,8 +3191,8 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [1, 2]]
         """
         return Graph.from_vertices_and_edges(
-            [v for v in self.nodes if v in G1.nodes],
-            [e for e in self.edges if e in G1.edges],
+            [v for v in self.nodes if v in other_graph.nodes],
+            [e for e in self.edges if e in other_graph.edges],
         )
 
     @doc_category("Other")
