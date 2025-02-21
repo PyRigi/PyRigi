@@ -3196,7 +3196,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    def is_separating_pair(self, u: Vertex, v: Vertex):
+    def is_separating_pair(self, u: Vertex, v: Vertex) -> bool:
         """
         Check if a pair of vertices is a separating (or separation) pair for G.
 
@@ -3230,7 +3230,7 @@ class Graph(nx.Graph):
         return not nx.is_connected(H)
 
     @doc_category("Generic rigidity")
-    def neighbors_of_set(self, V: list[Vertex] | set[Vertex]):
+    def neighbors_of_set(self, V: list[Vertex] | set[Vertex]) -> set:
         """
         Return the set of neighbors of a set of vertices of the graph.
         If one of the vertices in V does not appear in self, the
@@ -3263,7 +3263,7 @@ class Graph(nx.Graph):
         return res.difference(V)
 
     @doc_category("Generic rigidity")
-    def make_outside_neighbors_clique(self, X: list[Vertex] | set[Vertex]):
+    def make_outside_neighbors_clique(self, X: list[Vertex] | set[Vertex]) -> Graph:
         """
         Consider the subgraph of self induced by X, contract each connected components of self
         minus X  to a single vertex. Make their neighbors in X into a clique.
@@ -3375,7 +3375,9 @@ class Graph(nx.Graph):
         return nx.subgraph(F, set_nodes)
 
     @doc_category("Generic rigidity")
-    def is_weakly_globally_linked(self, u: Vertex, v: Vertex, algorithm="default"):
+    def is_weakly_globally_linked(
+        self, u: Vertex, v: Vertex, algorithm="default"
+    ) -> bool:
         """
         Return if the graph is weakly globally linked.
 
