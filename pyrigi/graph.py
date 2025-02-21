@@ -3196,47 +3196,47 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    def is_separating_pair(self, u: Vertex, v: Vertex) -> bool:
+    def is_separating_set(self, vertices: list[Vertex] | set[Vertex]) -> bool:
         """
-        Check if a pair of vertices is a separating (or separation) pair for G.
+        Check if a set of vertices is a separating (or separation) set for G.
 
         Parameters
         ----------
-        u: Vertex
-        v: Vertex
+        vertices: list of Vertex
 
         Definitions
         -----------
-        :prf:ref:`separating-pair <def-separating-pair>`
+        :prf:ref:`separating-set <def-separating-set>`
 
         Examples
         --------
-        >>> G = Graph([[0,1],[1,2],[2,0],[2,3],[3,0]])
-        >>> G.is_separating_pair(1,3)
-        False
         >>> import pyrigi.graphDB as graphs
         >>> H = graphs.Cycle(5)
-        >>> H.is_separating_pair(1,3)
+        >>> H.is_separating_set([1,3])
+        True
+        >>> G = Graph([[0,1],[1,2],[2,3],[2,4],[4,3],[4,5]])
+        >>> G.is_separating_set([2])
+        True
+        >>> G.is_separating_set([3])
+        False
+        >>> G.is_separating_set([3,4])
         True
         """
 
-        self._input_check_vertex_members([u, v])
+        self._input_check_vertex_members(vertices)
 
-        # self must be a 2-connected graph
-        if not nx.is_biconnected(self):
-            raise ValueError("The input graph must be 2-connected.")
         H = self.copy()
-        H.delete_vertices([u, v])
+        H.delete_vertices(vertices)
         return not nx.is_connected(H)
 
     @doc_category("Generic rigidity")
-    def neighbors_of_set(self, set_vertices: list[Vertex] | set[Vertex]) -> set:
+    def neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set:
         """
         Return the set of neighbors of a set of vertices of the graph.
 
         Parameters
         ----------
-        set_vertices:
+        vertices:
             set or list of vertices
 
         Examples
@@ -3253,21 +3253,21 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        self._input_check_vertex_members(set_vertices)
+        self._input_check_vertex_members(vertices)
 
         res = set()
-        for v in set_vertices:
+        for v in vertices:
             res.update(self.neighbors(v))
-        return res.difference(set_vertices)
+        return res.difference(vertices)
 
     @doc_category("Generic rigidity")
     def make_outside_neighbors_clique(
-        self, set_vertices: list[Vertex] | set[Vertex]
+        self, vertices: list[Vertex] | set[Vertex]
     ) -> Graph:
         """
-        Consider the subgraph of self induced by set_vertices, contract each connected
-        components of self minus set_vertices to a single vertex. Make their neighbors
-        in set_vertices into a clique.
+        Consider the subgraph of self induced by vertices, contract each connected
+        components of self minus vertices to a single vertex. Make their neighbors
+        in vertices into a clique.
 
         Definitions
         -----------
@@ -3276,7 +3276,7 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
-        set_vertices:
+        vertices:
             set or list of vertices
 
         Examples
@@ -3289,10 +3289,10 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
         """  # noqa: E501
 
-        self._input_check_vertex_members(set_vertices)
+        self._input_check_vertex_members(vertices)
 
         H = self.copy()
-        H.delete_vertices(set_vertices)
+        H.delete_vertices(vertices)
         vert_conn_comp = nx.connected_components(H)
         H = self.copy()
         import pyrigi.graphDB as graphs
@@ -3346,7 +3346,7 @@ class Graph(nx.Graph):
     @doc_category("Rigidity Matroid")
     def Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2):
         """
-        Return an R2_circuit of self + uv, i.e., it
+        Return an Rd_circuit of self + uv, i.e., it
         contains the edge uv.
 
         Parameters
@@ -3364,6 +3364,14 @@ class Graph(nx.Graph):
 
         Examples
         --------
+        >>> H = Graph([[0, 1], [0, 3], [1, 2], [1, 4], [2, 3]])
+        >>> H.Rd_fundamental_circuit(1,4)
+        Graph with vertices [1, 4] and edges [[1, 4]]
+        >>> H.Rd_fundamental_circuit(2,4)
+        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 3], [1, 2], [1, 4], [2, 3]]
+        
+        The following example is the Figure 5 of the article :cite:p:`JordanVillanyi2024`
+        
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
         >>> H = G.block_3(0,11)
         >>> H.Rd_fundamental_circuit(0,11)
@@ -3381,14 +3389,23 @@ class Graph(nx.Graph):
         return nx.subgraph(F, set_nodes)
 
     @doc_category("Generic rigidity")
-    def is_weakly_globally_linked(self, u: Vertex, v: Vertex) -> bool:
+    def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int=2) -> bool:
         """
-        Return if the vertices are weakly globally linked in the graph.
+        Return if the vertices are weakly globally (dim-)linked in the graph.
 
         Definitions
         -----------
         :prf:ref:`weakly globally linked pair <def-globally-linked>`
         :prf:ref:`weakly globally linked theorem <thm-weakly-globally-linked>`
+        
+        Parameters
+        ----------
+        u: 
+            vertex
+        v:
+            vertex
+        dim:
+            dimension
 
         Examples
         --------
@@ -3402,12 +3419,16 @@ class Graph(nx.Graph):
         >>> G.is_weakly_globally_linked(0,1)
         True
 
-        # The following example is the Figure 1 of the article :cite:p:`Jordan2024`
+        The following example is the Figure 1 of the article :cite:p:`JordanVillanyi2024`
 
         >>> G = Graph([[0,1],[0,2],[0,4],[1,2],[1,4],[2,3],[3,4]])
         >>> G.is_weakly_globally_linked(2,4)
         True
         """  # noqa: E501
+        
+        _input_check.dimension_for_algorithm(
+            dim, [2], "the weakly globally linked method"
+        )
         # we must focus on the 2-connected components of the graph
         # and check if the two given vertices are in the same 2-connected component
         if not nx.is_biconnected(self):
@@ -3415,9 +3436,7 @@ class Graph(nx.Graph):
             for bicon_comp in list_biconnected_components:
                 if u in bicon_comp and v in bicon_comp:
                     return self.is_weakly_globally_linked(u, v)
-            raise ValueError(
-                "The input vertices must be in the same 2-connected component of self."
-            )
+            return False
         self._input_check_vertex_members([u, v])
         # check (u,v) are non adjacent
         if self.has_edge(u, v):

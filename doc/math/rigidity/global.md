@@ -38,7 +38,7 @@ Let $G$ be a graph, if $\Omega$ is an {prf:ref}`equilibrium stress matrix <def-s
 its kernel is called _stress kernel_; we denote it by $K(\Omega)$ and its dimension by $k(\Omega)$.
 We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges over all 
 {prf:ref}`equilibrium stress matrices <def-stress-matrix>` of all 
-{prf:ref}`generic $d$-dimensional frameworks <def-gen-realization>` of $G$.
+{prf:ref}`generic d-dimensional frameworks <def-gen-realization>` of $G$.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
@@ -112,7 +112,7 @@ the class of randomized polynomial time algorithms.
 :label: def-globally-linked-p
 
 We say that a pair of vertices $\{u,v\}$ in a $d$-{prf:ref}`dimensional framework <def-framework>` 
-$(G,p)$ is _globally linked in $(G,p)$_ if for every {prf:ref}`equivalent <def-equivalent-framework>` 
+$(G,p)$ is _globally $d$-linked in $(G,p)$_ if for every {prf:ref}`equivalent <def-equivalent-framework>` 
 $d$-{prf:ref}`dimensional framework <def-framework>` $(G,q)$ we have 
 $||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
 
@@ -126,11 +126,11 @@ A pair of vertices $\{u,v\}$ is _globally linked in $G$_ in $\RR^d$ if it is
 {prf:ref}`globally linked <def-globally-linked-p>` in all $d$-dimensional 
 {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$. 
 
-A pair $\{u,v\}$ is _weakly globally linked in $G$_ in $\RR^d$ if there exists 
+A pair $\{u,v\}$ is _weakly globally linked in $G$_ in $\RR^d$ (or _weakly globally $d$-linked_) if there exists 
 a $d$-dimensional {prf:ref}`generic framework <def-gen-realization>` $(G,p)$ in which $\{u,v\}$ 
 is {prf:ref}`globally linked <def-globally-linked-p>`.
 
-If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally loose in $G$_.
+If $\{u,v\}$ is not weakly globally $d$-linked in $G$, then it is called _globally loose in $G$_.
 
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
@@ -140,7 +140,7 @@ If $\{u,v\}$ is not weakly globally linked in $G$, then it is called _globally l
 :label: thm-weakly-globally-linked-globally-rigid-graph
 
 A graph $G$ is {prf:ref}`globally rigid <def-globally-rigid-graph>` in $\RR^d$ if and only if every pair of 
-vertices are {prf:ref}`weakly globally linked <def-globally-linked>` in $G$.
+vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
@@ -150,7 +150,7 @@ vertices are {prf:ref}`weakly globally linked <def-globally-linked>` in $G$.
 :label: cor-weakly-globally-linked-rigid-graph
 
 Given a rigid but not globally rigid graph $G$ in $\RR^d$ then there exists at least one pair of vertices
-of $G$ that are not {prf:ref}`weakly globally linked <def-globally-linked>` in $G$.
+of $G$ that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
 :::
 
@@ -159,7 +159,7 @@ of $G$ that are not {prf:ref}`weakly globally linked <def-globally-linked>` in $
 :label: def-augmented-graph
 
 Given a graph $G$ its _augmented graph_ is the graph obtained from $G$ 
-by adding an edge between every {prf:ref}`separating pair <def-separating-pair>` of $G$.
+by adding an edge between every {prf:ref}`separating pair <def-separating-set>` of $G$.
 
 :::
 
@@ -168,7 +168,7 @@ by adding an edge between every {prf:ref}`separating pair <def-separating-pair>`
 :label: def-cleaving-operation
 
 Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and $u,v\in V$ such that $\{u,v\}$ 
-is a {prf:ref}`separating pair <def-separating-pair>` of $G$. Let $C$ be a {prf:ref}`connected component <def-k-connected>`
+is a {prf:ref}`separating pair <def-separating-set>` of $G$. Let $C$ be a {prf:ref}`connected component <def-k-connected>`
 of $G-\{u,v\}$ and let $H$ be the subgraph of $G$ induced by $V(C)\cup \{u,v\}$. Then we say that $H+ uv$ 
 is obtained from $G$ by a _cleaving operation_ along $\{u,v\}$.
 
@@ -179,10 +179,10 @@ is obtained from $G$ by a _cleaving operation_ along $\{u,v\}$.
 :label: lem-3-block
 
 Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a 
-non-adjacent vertex pair in $G$ with {prf:ref}`local node connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$. 
-Then either $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-pair>` in $G$ or there is 
+non-adjacent vertex pair in $G$ with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$. 
+Then either $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-set>` in $G$ or there is 
 a unique {prf:ref}`3-connected component <def-k-connected>` $B$ of the 
-{prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ such that $\{u,v\} \subset V(B)$. 
+{prf:ref}`augmented graph <def-augmented-graph>` of $G$ such that $\{u,v\} \subset V(B)$. 
 In the latter case the subgraph $B$ can be obtained from $G$ by a sequence of 
 {prf:ref}`cleaving operations <def-cleaving-operation>`. 
 Furthermore, $uv \notin E(B)$ and, in $\RR^2$, if the pair $\{u,v\}$ is linked in $G$ then it is also 
@@ -197,9 +197,9 @@ linked in $B$.
 :label: def-block-3
 
 Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a 
-non-adjacent vertex pair in $G$ which is not a {prf:ref}`separating pair <def-separating-pair>`.
+non-adjacent vertex pair in $G$ which is not a {prf:ref}`separating pair <def-separating-set>`.
 The unique {prf:ref}`3-connected component <def-k-connected>` 
-$B$ of the {prf:ref}`augmented graph <def-augmented-graph>` $\overline{G}$ such that $\{u,v\}\subset V(B)$ 
+$B$ of the {prf:ref}`augmented graph <def-augmented-graph>` of $G$ such that $\{u,v\}\subset V(B)$ 
 is called the _3-block_ of $\{u,v\}$ in $G$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.block_3`
@@ -211,9 +211,9 @@ is called the _3-block_ of $\{u,v\}$ in $G$.
 :label: thm-weakly-globally-linked
 
 Let $G = (V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` in $\RR^2$ and let $\{u,v\}$ be 
-a non-adjacent linked pair of vertices with {prf:ref}`local node connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$. 
-Then $\{u,v\}$ is {prf:ref}`weakly globally linked <def-globally-linked>` in $G$ if and only if either
-* $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-pair>` in G, or
+a non-adjacent linked pair of vertices with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$. 
+Then $\{u,v\}$ is {prf:ref}`weakly globally 2-linked <def-globally-linked>` in $G$ if and only if either
+* $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-set>` in G, or
 * {prf:ref}`make_Clique<def-clique-operation>`$(B,V_0)$ is {prf:ref}`globally rigid <def-globally-rigid-graph>`,
 
 where $B$ is the {prf:ref}`3-block <def-block-3>` of $\{u,v\}$ in $G$, and $B_0 = (V_0,E_0)$ 
