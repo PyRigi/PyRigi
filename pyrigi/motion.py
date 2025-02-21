@@ -437,13 +437,8 @@ class Motion(object):
             )
 
             if plot_style.vertex_labels:
-                for i, v in enumerate(list(realizations[frame].keys())):
-                    annotated_text[i].set_position(
-                        (
-                            realizations[frame][v][0],
-                            realizations[frame][v][1],
-                        )
-                    )
+                for i, (v, pos) in enumerate(realizations[frame].items()):
+                    annotated_text[i].set_position(*pos)
             return lines + [vertices_plot] + annotated_text
 
         ani = FuncAnimation(
@@ -702,7 +697,7 @@ class ParametricMotion(Motion):
             raise ValueError("The given interval is not a valid interval!")
 
         symbols = set()
-        for _, pos in self._parametrization.items():
+        for pos in self._parametrization.values():
             for coord in pos:
                 for symbol in coord.free_symbols:
                     if symbol.is_Symbol:
