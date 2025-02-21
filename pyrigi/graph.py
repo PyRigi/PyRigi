@@ -3369,9 +3369,9 @@ class Graph(nx.Graph):
         Graph with vertices [1, 4] and edges [[1, 4]]
         >>> H.Rd_fundamental_circuit(2,4)
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 3], [1, 2], [1, 4], [2, 3]]
-        
+
         The following example is the Figure 5 of the article :cite:p:`JordanVillanyi2024`
-        
+
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
         >>> H = G.block_3(0,11)
         >>> H.Rd_fundamental_circuit(0,11)
@@ -3389,7 +3389,7 @@ class Graph(nx.Graph):
         return nx.subgraph(F, set_nodes)
 
     @doc_category("Generic rigidity")
-    def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int=2) -> bool:
+    def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
         Return if the vertices are weakly globally (dim-)linked in the graph.
 
@@ -3397,10 +3397,10 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`weakly globally linked pair <def-globally-linked>`
         :prf:ref:`weakly globally linked theorem <thm-weakly-globally-linked>`
-        
+
         Parameters
         ----------
-        u: 
+        u:
             vertex
         v:
             vertex
@@ -3425,7 +3425,7 @@ class Graph(nx.Graph):
         >>> G.is_weakly_globally_linked(2,4)
         True
         """  # noqa: E501
-        
+
         _input_check.dimension_for_algorithm(
             dim, [2], "the weakly globally linked method"
         )
