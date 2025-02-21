@@ -3,8 +3,8 @@ This module contains functionality related to motions (continuous flexes).
 """
 
 import os
-from math import isclose
 from copy import deepcopy
+from math import isclose
 from typing import Any, Literal
 from warnings import warn
 
