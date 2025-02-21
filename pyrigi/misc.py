@@ -2,7 +2,8 @@
 Module for miscellaneous functions.
 """
 
-from pyrigi.data_type import Sequence, Number, point_to_vector, InfFlex, Vertex
+from sympy import MatrixBase
+from pyrigi.data_type import Sequence, Number, InfFlex, Vertex, Point
 from sympy import Matrix
 import sympy as sp
 import numpy as np
@@ -235,23 +236,23 @@ def normalize_flex(
             if isclose(flex_norm, 0, abs_tol=tolerance):
                 raise ValueError("The norm of this flex is almost zero.")
             return {
-                v: tuple([pt / flex_norm for pt in q]) for v, q in _inf_flex.items()
+                v: tuple([q / flex_norm for q in flex]) for v, flex in _inf_flex.items()
             }
-        flex_norm = sp.sqrt(sum([q**2 for val in inf_flex.values() for q in val]))
+        flex_norm = sp.sqrt(sum([q**2 for flex in inf_flex.values() for q in flex]))
         if flex_norm.is_zero:
             raise ValueError("The norm of this flex is zero.")
-        return {v: tuple([pt / flex_norm for pt in q]) for v, q in inf_flex.items()}
+        return {v: tuple([q / flex_norm for q in flex]) for v, flex in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
         if numerical:
-            _inf_flex = [float(sp.sympify(q).evalf(15)) for q in inf_flex]
+            _inf_flex = [float(sp.sympify(flex).evalf(15)) for flex in inf_flex]
             flex_norm = np.linalg.norm(_inf_flex)
             if isclose(flex_norm, 0, abs_tol=tolerance):
                 raise ValueError("The norm of this flex is almost zero.")
-            return [q / flex_norm for q in _inf_flex]
-        flex_norm = sp.sqrt(sum([q**2 for q in inf_flex]))
+            return [flex / flex_norm for flex in _inf_flex]
+        flex_norm = sp.sqrt(sum([flex**2 for flex in inf_flex]))
         if flex_norm.is_zero:
             raise ValueError("The norm of this flex is zero.")
-        return [q / flex_norm for q in inf_flex]
+        return [flex / flex_norm for flex in inf_flex]
     else:
         raise TypeError("`inf_flex` does not have the correct type.")
 
@@ -280,9 +281,9 @@ def vector_distance_pointwise(
         return float(
             np.linalg.norm(
                 [
-                    p1 - p2
+                    x - y
                     for v in dict1.keys()
-                    for p1, p2 in zip(
+                    for x, y in zip(
                         dict1[v],
                         dict2[v],
                     )
@@ -292,9 +293,9 @@ def vector_distance_pointwise(
     return sp.sqrt(
         sum(
             [
-                (p1 - p2) ** 2
+                (x - y) ** 2
                 for v in dict1.keys()
-                for p1, p2 in zip(
+                for x, y in zip(
                     dict1[v],
                     dict2[v],
                 )
@@ -323,3 +324,35 @@ def is_isomorphic_graph_list(list1, list2):
         else:
             return False
     return True
+
+
+def point_to_vector(point: Point) -> Matrix:
+    """
+    Return point as single column sympy Matrix.
+    """
+    if isinstance(point, MatrixBase) or isinstance(point, np.ndarray):
+        if (
+            len(point.shape) > 1 and point.shape[0] != 1 and point.shape[1] != 1
+        ) or len(point.shape) > 2:
+            raise ValueError("Point could not be interpreted as column vector.")
+        if isinstance(point, np.ndarray):
+            point = np.array([point]) if len(point.shape) == 1 else point
+            point = Matrix(
+                [
+                    [float(point[i, j]) for i in range(point.shape[0])]
+                    for j in range(point.shape[1])
+                ]
+            )
+        return point if (point.shape[1] == 1) else point.transpose()
+
+    if not isinstance(point, Sequence) or isinstance(point, str):
+        raise TypeError("The point must be a Sequence of Numbers.")
+
+    try:
+        res = Matrix(point)
+    except Exception as e:
+        raise ValueError("A coordinate could not be interpreted by sympify:\n" + str(e))
+
+    if res.shape[0] != 1 and res.shape[1] != 1:
+        raise ValueError("Point could not be interpreted as column vector.")
+    return res if (res.shape[1] == 1) else res.transpose()

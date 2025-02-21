@@ -2390,7 +2390,7 @@ def test_plot():
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 2],
@@ -2400,12 +2400,12 @@ def test_plot():
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_count_reflection(graph, n):
-    assert graph.number_of_realizations(count_reflection=True) == n
+def test_number_of_realizations_count_reflection(graph, num_of_realizations):
+    assert graph.number_of_realizations(count_reflection=True) == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 1],
@@ -2415,12 +2415,12 @@ def test_number_of_realizations_count_reflection(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations(graph, n):
-    assert graph.number_of_realizations() == n
+def test_number_of_realizations(graph, num_of_realizations):
+    assert graph.number_of_realizations() == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 1],
@@ -2430,12 +2430,12 @@ def test_number_of_realizations(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere(graph, n):
-    assert graph.number_of_realizations(spherical_realizations=True) == n
+def test_number_of_realizations_sphere(graph, num_of_realizations):
+    assert graph.number_of_realizations(spherical=True) == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 2],
@@ -2445,10 +2445,10 @@ def test_number_of_realizations_sphere(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere_count_reflection(graph, n):
+def test_number_of_realizations_sphere_count_reflection(graph, num_of_realizations):
     assert (
-        graph.number_of_realizations(spherical_realizations=True, count_reflection=True)
-        == n
+        graph.number_of_realizations(spherical=True, count_reflection=True)
+        == num_of_realizations
     )
 
 
