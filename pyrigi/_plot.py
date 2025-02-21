@@ -1,11 +1,14 @@
+"""
+Module for plotting functionality.
+"""
+
 import networkx as nx
 import numpy as np
+import distinctipy
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from sympy import Matrix, sympify
-import distinctipy
 
-from pyrigi.framework import Framework
 from pyrigi.data_type import (
     Vertex,
     Edge,
@@ -16,6 +19,7 @@ from pyrigi.data_type import (
     Number,
     DirectedEdge,
 )
+from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 

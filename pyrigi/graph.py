@@ -4,30 +4,27 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
+import math
+import warnings
 from collections.abc import Callable
 from copy import deepcopy
 from itertools import combinations
+from random import randint
 from typing import Iterable
 
 import networkx as nx
-
 from sympy import Matrix, oo, zeros
 
-import math
-from random import randint
-import warnings
-
-from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
-
-from pyrigi.misc import doc_category, generate_category_tables
-from pyrigi.exception import LoopError, NotSupportedValueError
-from pyrigi.warning import RandomizedAlgorithmWarning
-import pyrigi._pebble_digraph
 import pyrigi._input_check as _input_check
+import pyrigi._pebble_digraph
+from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
+from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.misc import doc_category, generate_category_tables
+from pyrigi.plot_style import PlotStyle
+from pyrigi.warning import RandomizedAlgorithmWarning
+
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
-
-from pyrigi.plot_style import PlotStyle
 
 
 class Graph(nx.Graph):
@@ -1351,15 +1348,13 @@ class Graph(nx.Graph):
         Definitions
         -----------
         * :prf:ref:`Number of complex realizations<def-number-of-realizations>`
-        * :prf:ref:`Number of complex spherical realizations
-        <def-number-of-spherical-realizations>`
-
+        * :prf:ref:`Number of complex spherical realizations<def-number-of-spherical-realizations>`
 
         Parameters
         ----------
         check_min_rigid:
             If ``True``, a ``ValueError`` is raised if the graph is not minimally 2-rigid
-            If ``False``, it is assumed that the user is inputing a minimally rigid graph.
+            If ``False``, it is assumed that the user is inputting a minimally rigid graph.
 
         spherical:
             If ``True``, the number of spherical realizations of the graph is returned.
@@ -1385,7 +1380,7 @@ class Graph(nx.Graph):
         >>> G.number_of_realizations() # number of planar realizations
         12
 
-        """
+        """  # noqa: E501
         try:
             import lnumber
 
@@ -1687,8 +1682,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>
+        :prf:ref:`redundantly (generically) dim-rigid<def-redundantly-rigid-graph>`
         """
         return self.is_k_redundantly_rigid(1, dim, algorithm, prob)
 
@@ -1714,8 +1708,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`k-redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>
+        :prf:ref:`k-redundantly (generically) dim-rigid<def-redundantly-rigid-graph>`
 
         Parameters
         ----------

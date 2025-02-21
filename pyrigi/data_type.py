@@ -4,9 +4,10 @@ Module for defining data type used for type hinting.
 
 """
 
-import sympy as sp
-from typing import Hashable
 from collections.abc import Sequence
+from typing import Hashable
+
+import sympy as sp
 
 
 Vertex = Hashable

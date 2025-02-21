@@ -4,10 +4,10 @@ Auxiliary class for directed graph used in pebble game style algorithms.
 
 from typing import Iterable
 
-from pyrigi.data_type import Vertex, DirectedEdge
-import pyrigi._input_check as _input_check
-
 import networkx as nx
+
+import pyrigi._input_check as _input_check
+from pyrigi.data_type import Vertex, DirectedEdge
 
 
 class PebbleDiGraph(nx.MultiDiGraph):

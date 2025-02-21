@@ -2,11 +2,11 @@
 This is a module for providing common types of frameworks.
 """
 
-from pyrigi.framework import Framework
-import pyrigi.graphDB as graphs
-import pyrigi._input_check as _input_check
-
 import sympy as sp
+
+import pyrigi._input_check as _input_check
+import pyrigi.graphDB as graphs
+from pyrigi.framework import Framework
 
 
 def Cycle(n: int, dim: int = 2) -> Framework:
