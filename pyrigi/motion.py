@@ -2,8 +2,21 @@
 This module contains functionality related to motions (continuous flexes).
 """
 
-from pyrigi.graph import Graph
-from pyrigi.framework import Framework
+import os
+from math import isclose
+from copy import deepcopy
+from typing import Any, Literal
+from warnings import warn
+
+import matplotlib.pyplot as plt
+import numpy as np
+import sympy as sp
+from IPython.display import SVG
+from matplotlib.animation import FuncAnimation
+from sympy import simplify
+
+import pyrigi._input_check as _input_check
+from pyrigi import _plot
 from pyrigi.data_type import (
     Vertex,
     Point,
@@ -13,21 +26,10 @@ from pyrigi.data_type import (
     DirectedEdge,
     Edge,
 )
+from pyrigi.graph import Graph
+from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
-from pyrigi import _plot
-import pyrigi._input_check as _input_check
-from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
-from math import isclose
-import numpy as np
-import sympy as sp
-from IPython.display import SVG
-from typing import Any, Literal
-from copy import deepcopy
-from warnings import warn
-from matplotlib.animation import FuncAnimation
-import matplotlib.pyplot as plt
-import os
 
 
 class Motion(object):

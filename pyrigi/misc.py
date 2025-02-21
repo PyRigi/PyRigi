@@ -2,12 +2,13 @@
 Module for miscellaneous functions.
 """
 
-from sympy import MatrixBase
-from pyrigi.data_type import Sequence, Number, InfFlex, Vertex, Point
-from sympy import Matrix
-import sympy as sp
-import numpy as np
 from math import isclose, log10
+
+import numpy as np
+import sympy as sp
+from sympy import Matrix, MatrixBase
+
+from pyrigi.data_type import Sequence, Number, InfFlex, Vertex, Point
 
 
 try:
