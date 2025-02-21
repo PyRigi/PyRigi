@@ -1351,15 +1351,13 @@ class Graph(nx.Graph):
         Definitions
         -----------
         * :prf:ref:`Number of complex realizations<def-number-of-realizations>`
-        * :prf:ref:`Number of complex spherical realizations
-        <def-number-of-spherical-realizations>`
-
+        * :prf:ref:`Number of complex spherical realizations<def-number-of-spherical-realizations>`
 
         Parameters
         ----------
         check_min_rigid:
             If ``True``, a ``ValueError`` is raised if the graph is not minimally 2-rigid
-            If ``False``, it is assumed that the user is inputing a minimally rigid graph.
+            If ``False``, it is assumed that the user is inputting a minimally rigid graph.
 
         spherical:
             If ``True``, the number of spherical realizations of the graph is returned.
@@ -1385,7 +1383,7 @@ class Graph(nx.Graph):
         >>> G.number_of_realizations() # number of planar realizations
         12
 
-        """
+        """  # noqa: E501
         try:
             import lnumber
 
@@ -1687,8 +1685,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>
+        :prf:ref:`redundantly (generically) dim-rigid<def-redundantly-rigid-graph>`
         """
         return self.is_k_redundantly_rigid(1, dim, algorithm, prob)
 
@@ -1714,8 +1711,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`k-redundantly (generically) dim-rigid
-        <def-redundantly-rigid-graph>
+        :prf:ref:`k-redundantly (generically) dim-rigid<def-redundantly-rigid-graph>`
 
         Parameters
         ----------
