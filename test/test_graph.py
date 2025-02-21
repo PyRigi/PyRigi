@@ -541,7 +541,7 @@ def test_Rd_not_circuit_graphs_d2(graph):
 def test_is_weakly_globally_linked_for_globally_rigid_graphs(graph):
     # in a globally rigid graph, each pair of vertices should be weakly globally linked
     for u, v in list(combinations(graph.nodes, 2)):
-        assert graph.is_weakly_globally_linked(u, v, algorithm="randomized")
+        assert graph.is_weakly_globally_linked(u, v)
 
 
 @pytest.mark.parametrize(
@@ -570,7 +570,7 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
             # not weakly globally linked pair of vertices is found
             counter = 0
             for a, b in list(combinations(H.nodes, 2)):
-                if not H.is_weakly_globally_linked(a, b, algorithm="randomized"):
+                if not H.is_weakly_globally_linked(a, b):
                     counter = 1
                     break
             assert counter

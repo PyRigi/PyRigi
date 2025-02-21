@@ -3383,7 +3383,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_weakly_globally_linked(self, u: Vertex, v: Vertex) -> bool:
         """
-        Return if the graph is weakly globally linked.
+        Return if the vertices are weakly globally linked in the graph.
 
         Definitions
         -----------
