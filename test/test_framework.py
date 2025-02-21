@@ -1,15 +1,15 @@
-from pyrigi.graph import Graph
-from pyrigi.framework import Framework
+from copy import deepcopy
+
+import matplotlib.pyplot as plt
+import pytest
+from sympy import Matrix, pi, sqrt, sympify
+
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
+from pyrigi.framework import Framework
+from pyrigi.graph import Graph
 from pyrigi.misc import point_to_vector
-import matplotlib.pyplot as plt
-
-from copy import deepcopy
-
-import pytest
-from sympy import Matrix, pi, sqrt, sympify
 
 
 @pytest.mark.parametrize(

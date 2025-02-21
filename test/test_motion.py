@@ -1,11 +1,12 @@
-from pyrigi import Framework
-from pyrigi.motion import ParametricMotion, ApproximateMotion
-import pyrigi.graphDB as graphs
-import pyrigi.frameworkDB as fws
+from math import isclose
+
 import sympy as sp
 import numpy as np
-from math import isclose
 import pytest
+
+import pyrigi.frameworkDB as fws
+import pyrigi.graphDB as graphs
+from pyrigi import Framework, ParametricMotion, ApproximateMotion
 
 
 def test_check_edge_lengths():

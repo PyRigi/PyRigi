@@ -1,16 +1,16 @@
-from pyrigi.graph import Graph
-import pyrigi.graphDB as graphs
-from pyrigi.exception import LoopError, NotSupportedValueError
-from pyrigi.warning import RandomizedAlgorithmWarning
+from random import randint
 
+import math
 import matplotlib.pyplot as plt
-
+import networkx as nx
 import pytest
 from sympy import Matrix
-import math
-import networkx as nx
-from random import randint
+
+import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
+from pyrigi.graph import Graph
+from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.warning import RandomizedAlgorithmWarning
 
 
 def test__add__():

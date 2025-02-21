@@ -24,7 +24,6 @@ This notebook can be downloaded {download}`here <../../notebooks/framework_datab
 There are several predefined frameworks in {mod}`pyrigi.frameworkDB`.
 
 ```{code-cell} ipython3
-# The import will work if the package was installed using pip.
 import pyrigi.frameworkDB as frameworks
 ```
 

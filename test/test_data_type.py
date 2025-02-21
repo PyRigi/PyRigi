@@ -1,8 +1,8 @@
-from pyrigi.misc import point_to_vector
-
+import numpy as np
 import pytest
 from sympy import Matrix, sqrt, Rational
-import numpy as np
+
+from pyrigi.misc import point_to_vector
 
 
 @pytest.mark.parametrize(
