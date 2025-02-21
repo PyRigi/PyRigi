@@ -1,15 +1,15 @@
-from pyrigi.graph import Graph
-from pyrigi.framework import Framework
+from copy import deepcopy
+
+import matplotlib.pyplot as plt
+import pytest
+from sympy import Matrix, pi, sqrt, sympify
+
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
-from pyrigi.data_type import point_to_vector
-import matplotlib.pyplot as plt
-
-from copy import deepcopy
-
-import pytest
-from sympy import Matrix, pi, sqrt, sympify
+from pyrigi.framework import Framework
+from pyrigi.graph import Graph
+from pyrigi.misc import point_to_vector
 
 
 @pytest.mark.parametrize(
@@ -733,6 +733,9 @@ def test_is_congruent():
     assert not F1.is_congruent(F2)  # equivalent, but not congruent
     assert not F1.is_congruent(F3)  # equivalent, but not congruent
     assert not F2.is_congruent(F3)  # equivalent, but not congruent
+    assert not F1.is_congruent(F2, numerical=True)  # equivalent, but not congruent
+    assert not F1.is_congruent(F3, numerical=True)  # equivalent, but not congruent
+    assert not F2.is_congruent(F3, numerical=True)  # equivalent, but not congruent
 
     F4 = F1.translate((pi, "2/3"), False)
     F5 = F1.rotate2D(pi / 2, False)

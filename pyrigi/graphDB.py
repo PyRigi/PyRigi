@@ -3,8 +3,9 @@ This is a module for providing common types of graphs.
 """
 
 import networkx as nx
-from pyrigi.graph import Graph
+
 import pyrigi._input_check as _input_check
+from pyrigi.graph import Graph
 
 
 def Cycle(n: int) -> Graph:
@@ -22,9 +23,9 @@ def Path(n: int) -> Graph:
     return Graph(nx.path_graph(n))
 
 
-def CompleteBipartite(m: int, n: int) -> Graph:
-    """Return the complete bipartite graph on ``m+n`` vertices."""
-    return Graph(nx.complete_multipartite_graph(m, n))
+def CompleteBipartite(n1: int, n2: int) -> Graph:
+    """Return the complete bipartite graph on ``n1+n2`` vertices."""
+    return Graph(nx.complete_multipartite_graph(n1, n2))
 
 
 def K33plusEdge() -> Graph:
@@ -90,14 +91,14 @@ def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     _input_check.smaller_equal(t, dim - 1, "parameter t", "dim - 1")
 
     r = (dim + 2) - t
-    K = Complete(t)
-    K1 = K.copy()
+    Kt = Complete(t)
+    Kt1 = Kt.copy()
     for i in range(t, dim + 2):
-        K1.add_edges([[i, v] for v in K1.nodes])
-    K2 = K.copy()
+        Kt1.add_edges([[i, v] for v in Kt1.nodes])
+    Kt2 = Kt.copy()
     for i in range(dim + 2, dim + 2 + r):
-        K2.add_edges([[i, v] for v in K2.nodes])
-    return K1.sum_t(K2, [0, 1], t)
+        Kt2.add_edges([[i, v] for v in Kt2.nodes])
+    return Kt1.sum_t(Kt2, [0, 1], t)
 
 
 def CompleteMinusOne(n: int) -> Graph:

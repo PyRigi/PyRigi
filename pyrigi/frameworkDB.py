@@ -2,11 +2,11 @@
 This is a module for providing common types of frameworks.
 """
 
-from pyrigi.framework import Framework
-import pyrigi.graphDB as graphs
-import pyrigi._input_check as _input_check
-
 import sympy as sp
+
+import pyrigi._input_check as _input_check
+import pyrigi.graphDB as graphs
+from pyrigi.framework import Framework
 
 
 def Cycle(n: int, dim: int = 2) -> Framework:
@@ -282,13 +282,13 @@ def ThreePrismPlusEdge() -> Framework:
     return G
 
 
-def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
+def CompleteBipartite(n1: int, n2: int, realization: str = None) -> Framework:
     """
-    Return a complete bipartite framework on m+n vertices in the plane.
+    Return a complete bipartite framework on ``n1+n2`` vertices in the plane.
 
     Parameters
     ----------
-    m,n:
+    n1,n2:
         The sizes of the two parts.
     realization:
         If ``"dixonI"``, a realization with one part on the x-axis and
@@ -299,36 +299,36 @@ def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
     ----------------------
     Implement realization in higher dimensions.
     """
-    _input_check.integrality_and_range(m, "size m", 1)
-    _input_check.integrality_and_range(n, "size n", 1)
+    _input_check.integrality_and_range(n1, "size n1", 1)
+    _input_check.integrality_and_range(n2, "size n2", 1)
     if realization == "dixonI":
         return Framework(
-            graphs.CompleteBipartite(m, n),
-            {i: [0, (i + 1) * (-1) ** i] for i in range(m)}
-            | {i: [(i - m + 1) * (-1) ** i, 0] for i in range(m, m + n)},
+            graphs.CompleteBipartite(n1, n2),
+            {i: [0, (i + 1) * (-1) ** i] for i in range(n1)}
+            | {i: [(i - n1 + 1) * (-1) ** i, 0] for i in range(n1, n1 + n2)},
         )
     return Framework(
-        graphs.CompleteBipartite(m, n),
+        graphs.CompleteBipartite(n1, n2),
         {
             i: [
-                sp.cos(i * sp.pi / max([1, m - 1])),
-                sp.sin(i * sp.pi / max([1, m - 1])),
+                sp.cos(i * sp.pi / max([1, n1 - 1])),
+                sp.sin(i * sp.pi / max([1, n1 - 1])),
             ]
-            for i in range(m)
+            for i in range(n1)
         }
         | {
             i: [
-                1 + 2 * sp.cos((i - m) * sp.pi / max([1, n - 1])),
-                3 + 2 * sp.sin((i - m) * sp.pi / max([1, n - 1])),
+                1 + 2 * sp.cos((i - n1) * sp.pi / max([1, n2 - 1])),
+                3 + 2 * sp.sin((i - n1) * sp.pi / max([1, n2 - 1])),
             ]
-            for i in range(m, m + n)
+            for i in range(n1, n1 + n2)
         },
     )
 
 
 def Frustum(n: int) -> Framework:
     """
-    Return the n-Frustum with ``n`` vertices in dimension 2.
+    Return the n-Frustum with ``2*n`` vertices in dimension 2.
 
     Definitions
     -----------

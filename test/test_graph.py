@@ -1,16 +1,16 @@
-from pyrigi.graph import Graph
-import pyrigi.graphDB as graphs
-from pyrigi.exception import LoopError, NotSupportedValueError
-from pyrigi.warning import RandomizedAlgorithmWarning
+from random import randint
 
+import math
 import matplotlib.pyplot as plt
-
+import networkx as nx
 import pytest
 from sympy import Matrix
-import math
-import networkx as nx
-from random import randint
+
+import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
+from pyrigi.graph import Graph
+from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.warning import RandomizedAlgorithmWarning
 
 
 def test__add__():
@@ -2390,7 +2390,7 @@ def test_plot():
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 2],
@@ -2400,12 +2400,12 @@ def test_plot():
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_count_reflection(graph, n):
-    assert graph.number_of_realizations(count_reflection=True) == n
+def test_number_of_realizations_count_reflection(graph, num_of_realizations):
+    assert graph.number_of_realizations(count_reflection=True) == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 1],
@@ -2415,12 +2415,12 @@ def test_number_of_realizations_count_reflection(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations(graph, n):
-    assert graph.number_of_realizations() == n
+def test_number_of_realizations(graph, num_of_realizations):
+    assert graph.number_of_realizations() == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 1],
@@ -2430,12 +2430,12 @@ def test_number_of_realizations(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere(graph, n):
-    assert graph.number_of_realizations(spherical_realizations=True) == n
+def test_number_of_realizations_sphere(graph, num_of_realizations):
+    assert graph.number_of_realizations(spherical=True) == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 2],
@@ -2445,10 +2445,10 @@ def test_number_of_realizations_sphere(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere_count_reflection(graph, n):
+def test_number_of_realizations_sphere_count_reflection(graph, num_of_realizations):
     assert (
-        graph.number_of_realizations(spherical_realizations=True, count_reflection=True)
-        == n
+        graph.number_of_realizations(spherical=True, count_reflection=True)
+        == num_of_realizations
     )
 
 
@@ -2535,6 +2535,7 @@ def test_is_Rd_circuit_d2(graph):
                 (3, 5),
             ]
         ),
+        graphs.Complete(4) + Graph([(3, 4), (4, 5), (5, 6), (6, 3), (3, 5), (4, 6)]),
     ],
 )
 def test_is_not_Rd_circuit_d2(graph):

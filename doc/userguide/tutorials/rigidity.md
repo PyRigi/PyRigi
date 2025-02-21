@@ -22,7 +22,6 @@ classes {class}`~.Graph` and {class}`~.Framework`.
 It can be downloaded {download}`here <../../notebooks/rigidity.ipynb>`.
 
 ```{code-cell} ipython3
-# The import will work if the package was installed using pip.
 import pyrigi.frameworkDB as frameworks
 import pyrigi.graphDB as graphs
 from pyrigi import Graph, Framework

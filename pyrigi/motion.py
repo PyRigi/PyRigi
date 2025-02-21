@@ -2,8 +2,21 @@
 This module contains functionality related to motions (continuous flexes).
 """
 
-from pyrigi.graph import Graph
-from pyrigi.framework import Framework
+import os
+from copy import deepcopy
+from math import isclose
+from typing import Any, Literal
+from warnings import warn
+
+import matplotlib.pyplot as plt
+import numpy as np
+import sympy as sp
+from IPython.display import SVG
+from matplotlib.animation import FuncAnimation
+from sympy import simplify
+
+import pyrigi._input_check as _input_check
+from pyrigi import _plot
 from pyrigi.data_type import (
     Vertex,
     Point,
@@ -13,21 +26,10 @@ from pyrigi.data_type import (
     DirectedEdge,
     Edge,
 )
+from pyrigi.graph import Graph
+from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
-from pyrigi import _plot
-import pyrigi._input_check as _input_check
-from sympy import simplify
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
-from math import isclose
-import numpy as np
-import sympy as sp
-from IPython.display import SVG
-from typing import Any, Literal
-from copy import deepcopy
-from warnings import warn
-from matplotlib.animation import FuncAnimation
-import matplotlib.pyplot as plt
-import os
 
 
 class Motion(object):
@@ -85,15 +87,12 @@ class Motion(object):
 
         xmin = ymin = zmin = np.inf
         xmax = ymax = zmax = -np.inf
-        for r in realizations:
-            for v, placement in r.items():
-                xmin = min(xmin, placement[0])
-                xmax = max(xmax, placement[0])
-                ymin = min(ymin, placement[1])
-                ymax = max(ymax, placement[1])
+        for realization in realizations:
+            for v, point in realization.items():
+                xmin, xmax = min(xmin, point[0]), max(xmax, point[0])
+                ymin, ymax = min(ymin, point[1]), max(ymax, point[1])
                 if z_width is not None:
-                    zmin = min(zmin, placement[2])
-                    zmax = max(zmax, placement[2])
+                    zmin, zmax = min(zmin, point[2]), max(zmax, point[2])
         if not isclose(xmax - xmin, 0, abs_tol=1e-6):
             xnorm = (x_width - padding * 2) / (xmax - xmin)
         else:
@@ -113,21 +112,21 @@ class Motion(object):
         if norm_factor == np.inf:
             norm_factor = 1
         realizations_normalized = []
-        for r in realizations:
-            r_norm = {}
-            for v, placement in r.items():
+        for realization in realizations:
+            realization_normalized = {}
+            for v, point in realization.items():
                 if z_width is not None:
-                    r_norm[v] = [
-                        (placement[0] - xmin) * norm_factor + padding,
-                        (placement[1] - ymin) * norm_factor + padding,
-                        (placement[2] - zmin) * norm_factor + padding,
+                    realization_normalized[v] = [
+                        (point[0] - xmin) * norm_factor + padding,
+                        (point[1] - ymin) * norm_factor + padding,
+                        (point[2] - zmin) * norm_factor + padding,
                     ]
                 else:
-                    r_norm[v] = [
-                        (placement[0] - xmin) * norm_factor + padding,
-                        (placement[1] - ymin) * norm_factor + padding,
+                    realization_normalized[v] = [
+                        (point[0] - xmin) * norm_factor + padding,
+                        (point[1] - ymin) * norm_factor + padding,
                     ]
-            realizations_normalized.append(r_norm)
+            realizations_normalized.append(realization_normalized)
         return realizations_normalized
 
     def animate3D(
@@ -180,11 +179,16 @@ class Motion(object):
         ax.grid(False)
         ax.set_axis_off()
 
-        x_nodes = [r[node][0] for node in self._graph.nodes for r in realizations]
-        y_nodes = [r[node][1] for node in self._graph.nodes for r in realizations]
-        z_nodes = [r[node][2] for node in self._graph.nodes for r in realizations]
-        min_val = min(x_nodes + y_nodes + z_nodes) - plot_style.padding
-        max_val = max(x_nodes + y_nodes + z_nodes) + plot_style.padding
+        x_coords, y_coords, z_coords = [
+            [
+                realization[v][0]
+                for v in self._graph.nodes
+                for realization in realizations
+            ]
+            for i in range(3)
+        ]
+        min_val = min(x_coords + y_coords + z_coords) - plot_style.padding
+        max_val = max(x_coords + y_coords + z_coords) + plot_style.padding
         aspect_ratio = plot_style.axis_scales
         ax.set_zlim(min_val * aspect_ratio[2], max_val * aspect_ratio[2])
         ax.set_ylim(min_val * aspect_ratio[1], max_val * aspect_ratio[1])
@@ -251,14 +255,14 @@ class Motion(object):
             )
 
             # Update the edges
-            for i, (start, end) in enumerate(self._graph.edges):
+            for i, (u, v) in enumerate(self._graph.edges):
                 line = lines[i]
                 line.set_data(
-                    [realizations[frame][start][0], realizations[frame][end][0]],
-                    [realizations[frame][start][1], realizations[frame][end][1]],
+                    [realizations[frame][u][0], realizations[frame][v][0]],
+                    [realizations[frame][u][1], realizations[frame][v][1]],
                 )
                 line.set_3d_properties(
-                    [realizations[frame][start][2], realizations[frame][end][2]]
+                    [realizations[frame][u][2], realizations[frame][v][2]]
                 )
 
             if plot_style.vertex_labels:
@@ -333,7 +337,8 @@ class Motion(object):
         """
         if self._dim == 1:
             realizations = [
-                {v: [p[0, 0], 0] for v, p in r.items()} for r in realizations
+                {v: [pos[0, 0], 0] for v, pos in realization.items()}
+                for realization in realizations
             ]
         _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_plt")
 
@@ -353,10 +358,19 @@ class Motion(object):
         ax.grid(False)
         ax.set_axis_off()
 
-        x_min = min([p[0] for r in realizations for p in r.values()])
-        x_max = max([p[0] for r in realizations for p in r.values()])
-        y_min = min([p[1] for r in realizations for p in r.values()])
-        y_max = max([p[1] for r in realizations for p in r.values()])
+        x_min, y_min = [
+            min(
+                [pos[i] for realization in realizations for pos in realization.values()]
+            )
+            for i in range(2)
+        ]
+        x_max, y_max = [
+            max(
+                [pos[i] for realization in realizations for pos in realization.values()]
+            )
+            for i in range(2)
+        ]
+
         ax.scatter(
             [x_min, x_max],
             [y_min, y_max],
@@ -412,11 +426,11 @@ class Motion(object):
 
         def update(frame):
             # Update the edges
-            for i, (start, end) in enumerate(self._graph.edges):
+            for i, (u, v) in enumerate(self._graph.edges):
                 line = lines[i]
                 line.set_data(
-                    [realizations[frame][start][0], realizations[frame][end][0]],
-                    [realizations[frame][start][1], realizations[frame][end][1]],
+                    [realizations[frame][u][0], realizations[frame][v][0]],
+                    [realizations[frame][u][1], realizations[frame][v][1]],
                 )
             # Update vertices positions
             vertices_plot.set_data(
@@ -425,13 +439,8 @@ class Motion(object):
             )
 
             if plot_style.vertex_labels:
-                for i in range(len(annotated_text)):
-                    annotated_text[i].set_position(
-                        (
-                            realizations[frame][list(realizations[frame].keys())[i]][0],
-                            realizations[frame][list(realizations[frame].keys())[i]][1],
-                        )
-                    )
+                for i, (v, pos) in enumerate(realizations[frame].items()):
+                    annotated_text[i].set_position(*pos)
             return lines + [vertices_plot] + annotated_text
 
         ani = FuncAnimation(
@@ -492,7 +501,8 @@ class Motion(object):
         """
         if self._dim == 1:
             realizations = [
-                {v: [p[0, 0], 0] for v, p in r.items()} for r in realizations
+                {v: [pos[0, 0], 0] for v, pos in realization.items()}
+                for realization in realizations
             ]
         _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_svg")
 
@@ -543,10 +553,9 @@ class Motion(object):
             tmp += "\t</marker>\n</defs>\n"
             svg = svg + "\n" + tmp
 
-        inital_realization = _realizations[0]
         for u, v in self._graph.edges:
-            ru = inital_realization[u]
-            rv = inital_realization[v]
+            ru = _realizations[0][u]
+            rv = _realizations[0][v]
             path = f'<path fill="transparent" stroke="{plot_style.edge_color}" '
             path += f'stroke-width="{plot_style.edge_width}px" '
             path += f'id="edge{v_to_int[u]}-{v_to_int[v]}" d="M {ru[0]} {ru[1]} '
@@ -676,7 +685,7 @@ class ParametricMotion(Motion):
                 "The realization does not contain the correct amount of vertices!"
             )
 
-        self._parametrization = {i: point_to_vector(v) for i, v in motion.items()}
+        self._parametrization = {v: point_to_vector(pos) for v, pos in motion.items()}
         for v in self._graph.nodes:
             if v not in motion:
                 raise KeyError(f"Vertex {v} is not a key of the given realization!")
@@ -690,8 +699,8 @@ class ParametricMotion(Motion):
             raise ValueError("The given interval is not a valid interval!")
 
         symbols = set()
-        for _, position in self._parametrization.items():
-            for coord in position:
+        for pos in self._parametrization.values():
+            for coord in pos:
                 for symbol in coord.free_symbols:
                     if symbol.is_Symbol:
                         symbols.add(symbol)
@@ -756,14 +765,16 @@ class ParametricMotion(Motion):
         return res
 
     def _realization_sampling(
-        self, n: int, use_tan: bool = False
+        self, number_of_samples: int, use_tan: bool = False
     ) -> list[dict[Vertex, Point]]:
         """
-        Return n realizations for sampled values of the parameter.
+        Return ``number_of_samples`` realizations for sampled values of the parameter.
         """
         realizations = []
         if not use_tan:
-            for i in np.linspace(self._interval[0], self._interval[1], n):
+            for i in np.linspace(
+                self._interval[0], self._interval[1], number_of_samples
+            ):
                 realizations.append(self.realization(i, numerical=True))
             return realizations
 
@@ -771,7 +782,7 @@ class ParametricMotion(Motion):
             sp.atan(self._interval[0]).evalf(),
             sp.atan(self._interval[1]).evalf(),
         ]
-        for i in np.linspace(newinterval[0], newinterval[1], n):
+        for i in np.linspace(newinterval[0], newinterval[1], number_of_samples):
             realizations.append(self.realization(f"tan({i})", numerical=True))
         return realizations
 
@@ -937,14 +948,14 @@ class ApproximateMotion(Motion):
             )
 
         realization = {
-            v: [float(sp.sympify(pt).evalf(15)) for pt in p]
-            for v, p in realization.items()
+            v: [float(sp.sympify(coord).evalf()) for coord in pos]
+            for v, pos in realization.items()
         }
-        p0 = realization[list(realization.keys())[0]]
+        realization_0 = realization[list(realization.keys())[0]]
         for v in G.nodes:
             if v not in realization:
                 raise KeyError(f"Vertex {v} is not a key of the given realization!")
-            if len(realization[v]) != len(p0):
+            if len(realization[v]) != len(realization_0):
                 raise ValueError(
                     f"The point {realization[v]} in the parametrization"
                     f" corresponding to vertex {v} does not have the right dimension."
@@ -1032,18 +1043,18 @@ class ApproximateMotion(Motion):
         _realizations = []
         if pinned_vertex is None:
             pinned_vertex = self._graph.vertex_list()[0]
-        for r in realizations:
-            if pinned_vertex not in r.keys():
+        for realization in realizations:
+            if pinned_vertex not in realization.keys():
                 raise ValueError(
                     "The `pinned_vertex` does not have a value in the provided motion."
                 )
 
             # Translate the realization to the origin
-            _r = {
-                v: [p[i] - r[pinned_vertex][i] for i in range(len(p))]
-                for v, p in r.items()
+            _realization = {
+                v: [pos[i] - realization[pinned_vertex][i] for i in range(len(pos))]
+                for v, pos in realization.items()
             }
-            _realizations.append(_r)
+            _realizations.append(_realization)
         return _realizations
 
     @staticmethod
@@ -1077,12 +1088,15 @@ class ApproximateMotion(Motion):
 
         # Translate the realization to the origin
         _realizations = [
-            {v: [p[i] - r[v1][i] for i in range(len(p))] for v, p in r.items()}
-            for r in realizations
+            {
+                v: [pos[i] - realization[v1][i] for i in range(len(pos))]
+                for v, pos in realization.items()
+            }
+            for realization in realizations
         ]
         if fixed_direction is None:
             fixed_direction = [
-                q - p for p, q in zip(_realizations[0][v1], _realizations[0][v2])
+                x - y for x, y in zip(_realizations[0][v1], _realizations[0][v2])
             ]
             if np.isclose(np.linalg.norm(fixed_direction), 0, rtol=1e-6):
                 warn(
@@ -1097,12 +1111,12 @@ class ApproximateMotion(Motion):
                 ]
             else:
                 fixed_direction = [
-                    p / np.linalg.norm(fixed_direction) for p in fixed_direction
+                    coord / np.linalg.norm(fixed_direction) for coord in fixed_direction
                 ]
 
         output_realizations = []
-        for r in _realizations:
-            if any([len(p) not in [2, 3] for p in r.values()]):
+        for realization in _realizations:
+            if any([len(pos) not in [2, 3] for pos in realization.values()]):
                 raise ValueError(
                     "This method is not implemented for dimensions other than 2 or 3."
                 )
@@ -1112,12 +1126,13 @@ class ApproximateMotion(Motion):
             ):
                 raise ValueError("`fixed_direction` does not have the correct format.")
 
-            v_dist = np.linalg.norm(r[v2])
+            v_dist = np.linalg.norm(realization[v2])
             theta = np.arccos(
-                np.dot([v_dist * t for t in fixed_direction], r[v2]) / v_dist**2
+                np.dot([v_dist * t for t in fixed_direction], realization[v2])
+                / v_dist**2
             )
 
-            if r[v2][0] * r[v2][1] < 0:
+            if realization[v2][0] * realization[v2][1] < 0:
                 rotation_matrix = np.array(
                     [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
                 )
@@ -1126,8 +1141,10 @@ class ApproximateMotion(Motion):
                     [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
                 )
             # Rotate the realization to the `fixed_direction`.
-            r = {v: np.dot(rotation_matrix, p) for v, p in r.items()}
-            output_realizations.append(r)
+            _realization = {
+                v: np.dot(rotation_matrix, pos) for v, pos in realization.items()
+            }
+            output_realizations.append(_realization)
         return output_realizations
 
     def animate(
@@ -1163,7 +1180,7 @@ class ApproximateMotion(Motion):
             F._transform_inf_flex_to_pointwise(F.inf_flexes()[self.chosen_flex]),
             numerical=True,
         )
-        reflected_inf_flex = {v: [-pt for pt in p] for v, p in inf_flex.items()}
+        reflected_inf_flex = {v: [-q for q in flex] for v, flex in inf_flex.items()}
 
         if vector_distance_pointwise(
             inf_flex, old_inf_flex, numerical=True
@@ -1173,15 +1190,15 @@ class ApproximateMotion(Motion):
             numerical=True,
         ):
             inf_flex = reflected_inf_flex
-        point = self.motion_samples[-1]
+        realization = self.motion_samples[-1]
         return {
             v: tuple(
                 [
-                    p[i] + self._current_step_size * inf_flex[v][i]
-                    for i in range(len(point[v]))
+                    pos[i] + self._current_step_size * inf_flex[v][i]
+                    for i in range(len(realization[v]))
                 ]
             )
-            for v, p in point.items()
+            for v, pos in realization.items()
         }, inf_flex
 
     def _newton_steps(self, realization: dict[Vertex, Point]) -> dict[Vertex, Point]:
@@ -1209,27 +1226,27 @@ class ApproximateMotion(Motion):
         )
         cur_error = prev_error = sum(
             [
-                np.abs(L - self.edge_lengths[e])
-                for e, L in F.edge_lengths(numerical=True).items()
+                np.abs(length - self.edge_lengths[e])
+                for e, length in F.edge_lengths(numerical=True).items()
             ]
         )
         damping = 5e-2
         while not cur_error < 1e-4:
-            mat = np.array(F.rigidity_matrix()).astype(np.float64)
+            rigidity_matrix = np.array(F.rigidity_matrix()).astype(np.float64)
             equations = [
                 np.linalg.norm(
                     [
-                        v - w
-                        for v, w in zip(
+                        x - y
+                        for x, y in zip(
                             cur_sol[(self._dim * e[0]) : (self._dim * (e[0] + 1))],
                             cur_sol[(self._dim * e[1]) : (self._dim * (e[1] + 1))],
                         )
                     ]
                 )
-                - self.edge_lengths[e]
-                for e in self.edge_lengths.keys()
+                - length
+                for e, length in self.edge_lengths.items()
             ]
-            newton_step = np.dot(np.linalg.pinv(mat), equations)
+            newton_step = np.dot(np.linalg.pinv(rigidity_matrix), equations)
             cur_sol = [
                 cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
             ]
@@ -1242,8 +1259,8 @@ class ApproximateMotion(Motion):
             )
             cur_error = sum(
                 [
-                    np.abs(L - self.edge_lengths[e])
-                    for e, L in F.edge_lengths(numerical=True).items()
+                    np.abs(length - self.edge_lengths[e])
+                    for e, length in F.edge_lengths(numerical=True).items()
                 ]
             )
             if cur_error <= prev_error:

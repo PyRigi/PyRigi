@@ -1,11 +1,14 @@
+"""
+Module for plotting functionality.
+"""
+
 import networkx as nx
 import numpy as np
+import distinctipy
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from sympy import Matrix, sympify
-import distinctipy
 
-from pyrigi.framework import Framework
 from pyrigi.data_type import (
     Vertex,
     Edge,
@@ -16,13 +19,14 @@ from pyrigi.data_type import (
     Number,
     DirectedEdge,
 )
+from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 
 def resolve_inf_flex(
     framework: Framework,
     inf_flex: int | Matrix | InfFlex,
-    points: dict[Vertex, Point] = None,
+    realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
 ) -> dict[Vertex, Point]:
     """
@@ -33,7 +37,7 @@ def resolve_inf_flex(
     framework:
     inf_flex:
         The infinitesimal flex to resolve.
-    points:
+    realization:
         A realization.
         If None, the framework's realization is used.
     projection_matrix:
@@ -71,14 +75,14 @@ def resolve_inf_flex(
             for v, flex in inf_flex_pointwise.items()
         }
 
-    if points is None:
-        points = framework.realization(as_points=True, numerical=True)
-    elif not isinstance(points, dict):
+    if realization is None:
+        realization = framework.realization(as_points=True, numerical=True)
+    elif not isinstance(realization, dict):
         raise TypeError("Realization has the wrong type!")
     elif not all(
         [
-            len(points[v]) == len(points[list(points.keys())[0]])
-            and len(points[v]) in [2, 3]
+            len(realization[v]) == len(realization[list(realization.keys())[0]])
+            and len(realization[v]) in [2, 3]
             for v in framework._graph.nodes
         ]
     ):
@@ -89,10 +93,12 @@ def resolve_inf_flex(
 
     magnidutes = []
     for flex_key in inf_flex_pointwise.keys():
-        if len(inf_flex_pointwise[flex_key]) != len(points[list(points.keys())[0]]):
+        if len(inf_flex_pointwise[flex_key]) != len(
+            realization[list(realization.keys())[0]]
+        ):
             raise ValueError(
                 "The infinitesimal flex needs to be "
-                + f"in dimension {len(points[list(points.keys())[0]])}."
+                + f"in dimension {len(realization[list(realization.keys())[0]])}."
             )
         inf_flex = [float(x) for x in inf_flex_pointwise[flex_key]]
         magnidutes.append(np.linalg.norm(inf_flex))
@@ -118,7 +124,7 @@ def plot_inf_flex2D(
     framework: Framework,
     ax: Axes,
     inf_flex: int | Matrix | InfFlex,
-    points: dict[Vertex, Point] = None,
+    realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
     plot_style: PlotStyle2D = None,
 ) -> None:
@@ -137,7 +143,7 @@ def plot_inf_flex2D(
     plot_style:
     """
     inf_flex_pointwise = resolve_inf_flex(
-        framework, inf_flex, points, projection_matrix
+        framework, inf_flex, realization, projection_matrix
     )
 
     x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
@@ -146,25 +152,25 @@ def plot_inf_flex2D(
         np.sqrt(x_canvas_width**2 + y_canvas_width**2) * plot_style.flex_length
     )
     H = nx.DiGraph([(v, str(v) + "_flex") for v in inf_flex_pointwise.keys()])
-    H_placement = {
+    H_realization = {
         str(v)
         + "_flex": np.array(
             [
-                points[v][0] + arrow_length * inf_flex_pointwise[v][0],
-                points[v][1] + arrow_length * inf_flex_pointwise[v][1],
+                realization[v][0] + arrow_length * inf_flex_pointwise[v][0],
+                realization[v][1] + arrow_length * inf_flex_pointwise[v][1],
             ],
             dtype=float,
         )
         for v in inf_flex_pointwise.keys()
     }
-    H_placement.update(
-        {v: np.array(points[v], dtype=float) for v in inf_flex_pointwise.keys()}
+    H_realization.update(
+        {v: np.array(realization[v], dtype=float) for v in inf_flex_pointwise.keys()}
     )
     if not isinstance(plot_style.flex_color, str):
         raise TypeError("`flex_color` must be a `str` specifying a color.")
     nx.draw(
         H,
-        pos=H_placement,
+        pos=H_realization,
         ax=ax,
         arrows=True,
         arrowsize=plot_style.flex_arrow_size,
@@ -180,7 +186,7 @@ def plot_inf_flex3D(
     framework: Framework,
     ax: Axes,
     inf_flex: int | Matrix | InfFlex,
-    points: dict[Vertex, Point] = None,
+    realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
     plot_style: PlotStyle3D = None,
 ) -> None:
@@ -199,7 +205,7 @@ def plot_inf_flex3D(
     plot_style:
     """
     inf_flex_pointwise = resolve_inf_flex(
-        framework, inf_flex, points, projection_matrix
+        framework, inf_flex, realization, projection_matrix
     )
     x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
     y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
@@ -211,9 +217,9 @@ def plot_inf_flex3D(
 
     for v in inf_flex_pointwise.keys():
         ax.quiver(
-            points[v][0],
-            points[v][1],
-            points[v][2],
+            realization[v][0],
+            realization[v][1],
+            realization[v][2],
             inf_flex_pointwise[v][0],
             inf_flex_pointwise[v][1],
             inf_flex_pointwise[v][2],
@@ -308,7 +314,7 @@ def plot_stress2D(
     ax: Axes,
     stress: Matrix | Stress,
     plot_style: PlotStyle2D,
-    points: dict[Vertex, Point] = None,
+    realization: dict[Vertex, Point] = None,
     arc_angles_dict: dict[Edge, float] = None,
     stress_label_positions: dict[Edge, float] = None,
 ) -> None:
@@ -323,7 +329,7 @@ def plot_stress2D(
     stress:
         The equilibrium stress to draw.
     plot_style:
-    points:
+    realization:
         A dictionary mapping vertices to their points in the realization.
     arc_angles_dict:
         A dictionary specifying arc angles for curved edges.
@@ -346,7 +352,7 @@ def plot_stress2D(
             nx.draw_networkx_edge_labels(
                 new_graph,
                 ax=ax,
-                pos=points,
+                pos=realization,
                 edge_labels={
                     edge: (
                         stress_edgewise[edge]
@@ -365,24 +371,24 @@ def plot_stress2D(
                 connectionstyle=f"Arc3, rad = {e[2]['weight']}",
             )
     else:
-        for edge in framework._graph.edges:
+        for e in framework._graph.edges:
             nx.draw_networkx_edge_labels(
                 framework._graph,
                 ax=ax,
-                pos=points,
+                pos=realization,
                 edge_labels={
-                    edge: (
-                        stress_edgewise[edge]
-                        if edge in stress_edgewise
-                        else stress_edgewise[tuple(edge[::-1])]
+                    e: (
+                        stress_edgewise[e]
+                        if e in stress_edgewise
+                        else stress_edgewise[tuple(e[::-1])]
                     )
                 },
                 font_color=plot_style.stress_color,
                 font_size=plot_style.stress_fontsize,
                 label_pos=(
-                    stress_label_positions[edge]
-                    if edge in stress_label_positions
-                    else 1 - stress_label_positions[tuple(edge[::-1])]
+                    stress_label_positions[e]
+                    if e in stress_label_positions
+                    else 1 - stress_label_positions[tuple(e[::-1])]
                 ),
                 rotate=plot_style.stress_rotate_labels,
             )
@@ -393,7 +399,7 @@ def plot_stress3D(
     ax: Axes,
     stress: Matrix | Stress,
     plot_style: PlotStyle,
-    points: dict[Vertex, Point] = None,
+    realization: dict[Vertex, Point] = None,
     stress_label_positions: dict[Edge, float] = None,
 ) -> None:
     """
@@ -407,7 +413,7 @@ def plot_stress3D(
     stress:
         The equilibrium stress to draw.
     plot_style:
-    points:
+    realization:
         A dictionary mapping vertices to their points in the realization.
     stress_label_positions:
         A dictionary mapping edges to label position floats.
@@ -416,14 +422,15 @@ def plot_stress3D(
         framework, stress, plot_style, stress_label_positions
     )
     for edge, edge_stress in stress_label_positions.items():
-        pos = [
-            points[edge[0]][i] + edge_stress * (points[edge[1]][i] - points[edge[0]][i])
+        label_pos = [
+            realization[edge[0]][i]
+            + edge_stress * (realization[edge[1]][i] - realization[edge[0]][i])
             for i in range(3)
         ]
         ax.text(
-            pos[0],
-            pos[1],
-            pos[2],
+            label_pos[0],
+            label_pos[1],
+            label_pos[2],
             str(
                 stress_edgewise[edge]
                 if edge in stress_edgewise
@@ -560,19 +567,19 @@ def plot_with_3D_realization(
     )
 
     # Center the realization
-    x_nodes = [realization[node][0] for node in framework._graph.nodes]
-    y_nodes = [realization[node][1] for node in framework._graph.nodes]
-    z_nodes = [realization[node][2] for node in framework._graph.nodes]
-    min_val = min(x_nodes + y_nodes + z_nodes) - plot_style.padding
-    max_val = max(x_nodes + y_nodes + z_nodes) + plot_style.padding
+    x_coords, y_coords, z_coords = [
+        [realization[u][i] for u in framework._graph.nodes] for i in range(3)
+    ]
+    min_coord = min(x_coords + y_coords + z_coords) - plot_style.padding
+    max_coord = max(x_coords + y_coords + z_coords) + plot_style.padding
     aspect_ratio = plot_style.axis_scales
-    ax.set_zlim(min_val * aspect_ratio[0], max_val * aspect_ratio[0])
-    ax.set_ylim(min_val * aspect_ratio[1], max_val * aspect_ratio[1])
-    ax.set_xlim(min_val * aspect_ratio[2], max_val * aspect_ratio[2])
+    ax.set_zlim(min_coord * aspect_ratio[0], max_coord * aspect_ratio[0])
+    ax.set_ylim(min_coord * aspect_ratio[1], max_coord * aspect_ratio[1])
+    ax.set_xlim(min_coord * aspect_ratio[2], max_coord * aspect_ratio[2])
     ax.scatter(
-        x_nodes,
-        y_nodes,
-        z_nodes,
+        x_coords,
+        y_coords,
+        z_coords,
         c=plot_style.vertex_color,
         s=plot_style.vertex_size,
         marker=plot_style.vertex_shape,
@@ -593,13 +600,13 @@ def plot_with_3D_realization(
         )
     # To show the name of the vertex
     if plot_style.vertex_labels:
-        for node in framework._graph.nodes:
-            x, y, z, *others = realization[node]
+        for u in framework._graph.nodes:
+            x, y, z, *others = realization[u]
             ax.text(
                 x,
                 y,
                 z,
-                str(node),
+                str(u),
                 color=plot_style.font_color,
                 fontsize=plot_style.font_size,
                 ha="center",
@@ -638,13 +645,13 @@ def resolve_arc_angles(
             )
             or not all(
                 [
-                    set(key) in [set([e[0], e[1]]) for e in G.edge_list()]
-                    for key in arc_angles_dict.keys()
+                    set(edge) in [set([e[0], e[1]]) for e in G.edge_list()]
+                    for edge in arc_angles_dict.keys()
                 ]
             )
             or any(
-                [set(key) for key in arc_angles_dict.keys()].count(e) > 1
-                for e in [set(key) for key in arc_angles_dict.keys()]
+                [set(edge) for edge in arc_angles_dict.keys()].count(e) > 1
+                for e in [set(edge) for edge in arc_angles_dict.keys()]
             )
         ):
             raise ValueError(
