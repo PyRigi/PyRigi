@@ -356,18 +356,19 @@ class Motion(object):
         ax.grid(False)
         ax.set_axis_off()
 
-        x_min = min(
-            [pos[0] for realization in realizations for pos in realization.values()]
-        )
-        x_max = max(
-            [pos[0] for realization in realizations for pos in realization.values()]
-        )
-        y_min = min(
-            [pos[1] for realization in realizations for pos in realization.values()]
-        )
-        y_max = max(
-            [pos[0] for realization in realizations for pos in realization.values()]
-        )
+        x_min, y_min = [
+            min(
+                [pos[i] for realization in realizations for pos in realization.values()]
+            )
+            for i in range(2)
+        ]
+        x_max, y_max = [
+            max(
+                [pos[i] for realization in realizations for pos in realization.values()]
+            )
+            for i in range(2)
+        ]
+
         ax.scatter(
             [x_min, x_max],
             [y_min, y_max],
