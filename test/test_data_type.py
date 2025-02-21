@@ -1,4 +1,4 @@
-from pyrigi.data_type import point_to_vector
+from pyrigi.misc import point_to_vector
 
 import pytest
 from sympy import Matrix, sqrt, Rational

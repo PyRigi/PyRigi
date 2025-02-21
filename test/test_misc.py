@@ -6,8 +6,8 @@ from pyrigi.misc import (
     is_isomorphic_graph_list,
     normalize_flex,
     vector_distance_pointwise,
+    point_to_vector,
 )
-from pyrigi.data_type import point_to_vector
 import numpy as np
 import sympy as sp
 from math import isclose, pi

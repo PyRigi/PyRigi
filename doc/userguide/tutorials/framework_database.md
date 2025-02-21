@@ -57,8 +57,8 @@ Currently, for $d\geq 3$, the number of vertices must be at most $d+1$ so the gr
 ```{code-cell} ipython3
 try:
     frameworks.Complete(5, dim=3)
-except ValueError as e:
-    print(e)
+except ValueError as error:
+    print(error)
 ```
 
 ## Complete bipartite frameworks

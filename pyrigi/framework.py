@@ -23,6 +23,7 @@ import numpy as np
 import functools
 
 from sympy import Matrix, flatten, binomial
+from math import log10
 
 from pyrigi.data_type import (
     Vertex,
@@ -30,7 +31,6 @@ from pyrigi.data_type import (
     Point,
     InfFlex,
     Stress,
-    point_to_vector,
     Sequence,
     Number,
     DirectedEdge,
@@ -45,6 +45,7 @@ from pyrigi.misc import (
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
     eval_sympy_vector,
+    point_to_vector,
 )
 import pyrigi._input_check as _input_check
 
@@ -239,8 +240,8 @@ class Framework(object):
             for point in points:
                 self.add_vertex(point)
         else:
-            for p, v in zip(points, vertices):
-                self.add_vertex(p, v)
+            for point, v in zip(points, vertices):
+                self.add_vertex(point, v)
 
     @doc_category("Framework manipulation")
     def add_edge(self, edge: Edge) -> None:
@@ -446,7 +447,7 @@ class Framework(object):
                 self,
                 ax,
                 inf_flex,
-                points=placement,
+                realization=placement,
                 plot_style=plot_style,
                 projection_matrix=projection_matrix,
             )
@@ -455,7 +456,7 @@ class Framework(object):
                 self,
                 ax,
                 stress,
-                points=placement,
+                realization=placement,
                 plot_style=plot_style,
                 arc_angles_dict=arc_angles_dict,
                 stress_label_positions=stress_label_positions,
@@ -511,25 +512,36 @@ class Framework(object):
         plot_style.update(**kwargs)
 
         realization = self.realization(as_points=True, numerical=True)
-        centroid_x = sum([p[0] for p in realization.values()]) / len(realization)
-        centroid_y = sum([p[1] for p in realization.values()]) / len(realization)
-        centroid_z = sum([p[2] for p in realization.values()]) / len(realization)
+        centroid_x, centroid_y, centroid_z = [
+            sum([pos[i] for pos in realization.values()]) / len(realization)
+            for i in range(3)
+        ]
         realization = {
-            v: [p[0] - centroid_x, p[1] - centroid_y, p[2] - centroid_z]
-            for v, p in realization.items()
+            v: [point[0] - centroid_x, point[1] - centroid_y, point[2] - centroid_z]
+            for v, point in realization.items()
         }
 
-        def _rotation_matrix(v, frame):
+        def _rotation_matrix(vector, frame):
             # Compute the rotation matrix Q
-            v = np.array(v)
-            v = v / np.linalg.norm(v)
+            vector = np.array(vector)
+            vector = vector / np.linalg.norm(vector)
             angle = frame * np.pi / total_frames
             cos_angle = np.cos(angle)
             sin_angle = np.sin(angle)
 
             # Rodrigues' rotation matrix
-            K = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
-            Q = np.eye(3) * cos_angle + K * sin_angle + np.outer(v, v) * (1 - cos_angle)
+            K = np.array(
+                [
+                    [0, -vector[2], vector[1]],
+                    [vector[2], 0, -vector[0]],
+                    [-vector[1], vector[0], 0],
+                ]
+            )
+            Q = (
+                np.eye(3) * cos_angle
+                + K * sin_angle
+                + np.outer(vector, vector) * (1 - cos_angle)
+            )
             return Q
 
         match rotation_axis:
@@ -560,26 +572,30 @@ class Framework(object):
 
         rotating_realizations = [
             {
-                v: np.dot(p, rotation_matrix(frame).T).tolist()
-                for v, p in realization.items()
+                v: np.dot(pos, rotation_matrix(frame).T).tolist()
+                for v, pos in realization.items()
             }
             for frame in range(2 * total_frames)
         ]
         pinned_vertex = self._graph.vertex_list()[0]
         _realizations = []
-        for r in rotating_realizations:
+        for rotated_realization in rotating_realizations:
             # Translate the realization to the origin
-            _r = {
-                v: [p[i] - r[pinned_vertex][i] for i in range(len(p))]
-                for v, p in r.items()
-            }
-            _realizations.append(_r)
+            _realizations.append(
+                {
+                    v: [
+                        pos[i] - rotated_realization[pinned_vertex][i]
+                        for i in range(len(pos))
+                    ]
+                    for v, pos in rotated_realization.items()
+                }
+            )
 
         from pyrigi import Motion
 
-        M = Motion(self.graph(), self.dim())
+        motion = Motion(self.graph(), self.dim())
         duration = 2 * total_frames * delay / 1000
-        return M.animate3D(
+        return motion.animate3D(
             _realizations,
             plot_style=plot_style,
             edge_colors_custom=edge_colors_custom,
@@ -726,11 +742,12 @@ class Framework(object):
 
         # Center the realization
         centroid = [
-            sum([p[i] for p in placement.values()]) / len(placement) for i in range(3)
+            sum([pos[i] for pos in placement.values()]) / len(placement)
+            for i in range(3)
         ]
         _placement = {
-            v: [p[0] - centroid[0], p[1] - centroid[1], p[2] - centroid[2]]
-            for v, p in placement.items()
+            v: [pos[0] - centroid[0], pos[1] - centroid[1], pos[2] - centroid[2]]
+            for v, pos in placement.items()
         }
 
         from pyrigi import _plot
@@ -748,7 +765,7 @@ class Framework(object):
                 self,
                 ax,
                 inf_flex,
-                points=_placement,
+                realization=_placement,
                 plot_style=plot_style,
                 projection_matrix=projection_matrix,
             )
@@ -758,7 +775,7 @@ class Framework(object):
                 self,
                 ax,
                 stress,
-                points=_placement,
+                realization=_placement,
                 plot_style=plot_style,
                 stress_label_positions=stress_label_positions,
             )
@@ -977,9 +994,7 @@ class Framework(object):
         else:
             raise TypeError("`rand_range` must be either a list or a single int.")
 
-        realization = {
-            vertex: [randrange(a, b) for _ in range(dim)] for vertex in graph.nodes
-        }
+        realization = {v: [randrange(a, b) for _ in range(dim)] for v in graph.nodes}
 
         return Framework(graph, realization)
 
@@ -1129,7 +1144,7 @@ class Framework(object):
             raise ValueError("The list of points cannot be empty!")
 
         Kn = CompleteGraph(len(points))
-        return Framework(Kn, {v: p for v, p in zip(Kn.nodes, points)})
+        return Framework(Kn, {v: pos for v, pos in zip(Kn.nodes, points)})
 
     @doc_category("Framework manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -1198,18 +1213,16 @@ class Framework(object):
         if not numerical:
             if not as_points:
                 return deepcopy(self._realization)
-            return {
-                vertex: list(position) for vertex, position in self._realization.items()
-            }
+            return {v: list(pos) for v, pos in self._realization.items()}
         else:
             if not as_points:
                 return {
-                    vertex: Matrix([float(p) for p in position])
-                    for vertex, position in self._realization.items()
+                    v: Matrix([float(coord) for coord in pos])
+                    for v, pos in self._realization.items()
                 }
             return {
-                vertex: [float(p) for p in position]
-                for vertex, position in self._realization.items()
+                v: [float(coord) for coord in pos]
+                for v, pos in self._realization.items()
             }
 
     @doc_category("Framework properties")
@@ -1772,11 +1785,10 @@ class Framework(object):
         trivial_inf_flexes = self.trivial_inf_flexes(vertex_order=vertex_order)
         s = len(trivial_inf_flexes)
         extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
-        for v in all_inf_flexes:
-            r = extend_basis_matrix.rank()
-            tmp_matrix = Matrix.hstack(extend_basis_matrix, v)
-            if not tmp_matrix.rank() == r:
-                extend_basis_matrix = Matrix.hstack(extend_basis_matrix, v)
+        for inf_flex in all_inf_flexes:
+            tmp_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
+            if not tmp_matrix.rank() == extend_basis_matrix.rank():
+                extend_basis_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
 
@@ -2007,7 +2019,15 @@ class Framework(object):
             if not difference.is_zero:
                 if not numerical:
                     return False
-                elif numerical and sp.Abs(difference) > tolerance:
+                elif (
+                    numerical
+                    and abs(
+                        sp.sympify(difference).evalf(
+                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
+                        )
+                    )
+                    > tolerance
+                ):
                     return False
         return True
 
@@ -2073,7 +2093,15 @@ class Framework(object):
             if not difference.is_zero:
                 if not numerical:
                     return False
-                elif numerical and sp.Abs(difference) > tolerance:
+                elif (
+                    numerical
+                    and abs(
+                        sp.sympify(difference).evalf(
+                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
+                        )
+                    )
+                    > tolerance
+                ):
                     return False
         return True
 
@@ -2252,12 +2280,10 @@ class Framework(object):
             projection_matrix = projection_matrix.T
         return (
             {
-                vertex: tuple(
-                    [float(s[0]) for s in np.dot(projection_matrix, np.array(position))]
+                v: tuple(
+                    [float(s[0]) for s in np.dot(projection_matrix, np.array(pos))]
                 )
-                for vertex, position in self.realization(
-                    as_points=False, numerical=True
-                ).items()
+                for v, pos in self.realization(as_points=False, numerical=True).items()
             },
             projection_matrix,
         )
@@ -2284,22 +2310,18 @@ class Framework(object):
         if numerical:
             points = self.realization(as_points=True, numerical=True)
             return {
-                tuple(pair): float(
-                    np.linalg.norm(
-                        np.array(points[pair[0]]) - np.array(points[pair[1]])
-                    )
+                tuple(e): float(
+                    np.linalg.norm(np.array(points[e[0]]) - np.array(points[e[1]]))
                 )
-                for pair in self._graph.edges
+                for e in self._graph.edges
             }
         else:
             points = self.realization(as_points=True)
             return {
-                tuple(pair): sp.sqrt(
-                    sum(
-                        [(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])]
-                    )
+                tuple(e): sp.sqrt(
+                    sum([(x - y) ** 2 for x, y in zip(points[e[0]], points[e[1]])])
                 )
-                for pair in self._graph.edges
+                for e in self._graph.edges
             }
 
     @staticmethod
@@ -2808,7 +2830,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_trivial_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
+        self, inf_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
         r"""
         Return whether an infinitesimal flex specified by a dictionary is trivial.
@@ -2819,7 +2841,7 @@ class Framework(object):
 
         Parameters
         ----------
-        vert_to_flex:
+        inf_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
         Notes
@@ -2838,11 +2860,11 @@ class Framework(object):
         >>> F.is_dict_trivial_inf_flex(q)
         True
         """
-        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
+        self._graph._input_check_vertex_order(list(inf_flex.keys()), "vert_to_flex")
 
         dict_to_list = []
         for v in self._graph.vertex_list():
-            dict_to_list += list(vert_to_flex[v])
+            dict_to_list += list(inf_flex[v])
 
         return self.is_vector_trivial_inf_flex(
             dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs

@@ -252,25 +252,21 @@ class Graph(nx.Graph):
                         + f" {to_check} is not a vertex of the graph!"
                     )
 
-    def _input_check_edge_format(
-        self, input_pair: Edge, loopfree: bool = False
-    ) -> None:
+    def _input_check_edge_format(self, edge: Edge, loopfree: bool = False) -> None:
         """
-        Check if an ``input_pair`` is a pair of (distinct) vertices of the graph and
+        Check if an ``edge`` is a pair of (distinct) vertices of the graph and
         raise an error otherwise.
 
         Parameters
         ----------
-        input_pair:
+        edge:
             Edge for which the containment in the graph ``self`` is checked.
         """
-        if not isinstance(input_pair, list | tuple) or not len(input_pair) == 2:
-            raise TypeError(
-                f"The input {input_pair} must be a tuple or list of length 2!"
-            )
-        self._input_check_vertex_members(input_pair, "the input pair")
-        if loopfree and input_pair[0] == input_pair[1]:
-            raise LoopError(f"The input {input_pair} must be two distinct vertices.")
+        if not isinstance(edge, list | tuple) or not len(edge) == 2:
+            raise TypeError(f"The input {edge} must be a tuple or list of length 2!")
+        self._input_check_vertex_members(edge, "the input pair")
+        if loopfree and edge[0] == edge[1]:
+            raise LoopError(f"The input {edge} must be two distinct vertices.")
 
     def _input_check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
         """
@@ -310,17 +306,17 @@ class Graph(nx.Graph):
         for edge in edges:
             self._input_check_edge(edge, vertices)
 
-    def _input_check_edge_format_list(self, pairs: Sequence[Edge]) -> None:
+    def _input_check_edge_format_list(self, edges: Sequence[Edge]) -> None:
         """
-        Apply :meth:`~Graph._input_check_edge_format` to all pairs in a list.
+        Apply :meth:`~Graph._input_check_edge_format` to all edges in a list.
 
         Parameters
         ----------
-        pairs:
+        edges:
             a list of pairs to be checked
         """
-        for pair in pairs:
-            self._input_check_edge_format(pair)
+        for edge in edges:
+            self._input_check_edge_format(edge)
 
     def _input_check_vertex_order(
         self, vertex_order: Sequence[Vertex], name: str = ""
@@ -705,8 +701,8 @@ class Graph(nx.Graph):
             )
 
         if algorithm == "subgraph":
-            for j in range(K, self.number_of_nodes() + 1):
-                for vertex_set in combinations(self.nodes, j):
+            for i in range(K, self.number_of_nodes() + 1):
+                for vertex_set in combinations(self.nodes, i):
                     G = self.subgraph(vertex_set)
                     if G.number_of_edges() > K * G.number_of_nodes() - L:
                         return False
@@ -1330,7 +1326,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def number_of_realizations(
         self,
-        spherical_realizations: bool = False,
+        spherical: bool = False,
         check_min_rigid: bool = True,
         count_reflection: bool = False,
     ) -> int:
@@ -1365,7 +1361,7 @@ class Graph(nx.Graph):
             If ``True``, a ``ValueError`` is raised if the graph is not minimally 2-rigid
             If ``False``, it is assumed that the user is inputing a minimally rigid graph.
 
-        spherical_realizations:
+        spherical:
             If ``True``, the number of spherical realizations of the graph is returned.
             If ``False`` (default), the number of planar realizations is returned.
 
@@ -1383,7 +1379,7 @@ class Graph(nx.Graph):
         >>> G = Graph([(0,1),(1,2),(2,0)])
         >>> G.number_of_realizations() # number of planar realizations
         1
-        >>> G.number_of_realizations(spherical_realizations=True)
+        >>> G.number_of_realizations(spherical=True)
         1
         >>> G = graphs.ThreePrism()
         >>> G.number_of_realizations() # number of planar realizations
@@ -1407,7 +1403,7 @@ class Graph(nx.Graph):
                 fac = 1
             else:
                 fac = 2
-            if spherical_realizations:
+            if spherical:
                 return lnumber.lnumbers(graph_int) // fac
             else:
                 return lnumber.lnumber(graph_int) // fac
@@ -2231,7 +2227,9 @@ class Graph(nx.Graph):
                 omega = zeros(F.rigidity_matrix().rows, 1)
                 return F.stress_matrix(omega).rank() == n - dim - 1
             elif stresses:
-                omega = sum([randint(1, N) * w for w in stresses], stresses[0])
+                omega = sum(
+                    [randint(1, N) * stress for stress in stresses], stresses[0]
+                )
                 return F.stress_matrix(omega).rank() == n - dim - 1
             else:
                 raise RuntimeError(
@@ -2670,8 +2668,8 @@ class Graph(nx.Graph):
 
             rigid_subgraphs = {
                 tuple(vertex_subset): True
-                for r in range(2, self.number_of_nodes() - 1)
-                for vertex_subset in combinations(self.nodes, r)
+                for n in range(2, self.number_of_nodes() - 1)
+                for vertex_subset in combinations(self.nodes, n)
                 if self.subgraph(vertex_subset).is_rigid(
                     dim, algorithm=alg_is_rigid, prob=prob
                 )
@@ -2809,8 +2807,10 @@ class Graph(nx.Graph):
             )
         self._input_check_no_loop()
 
-        M = self.adjacency_matrix(vertex_order)
-        upper_diag = [str(b) for i, row in enumerate(M.tolist()) for b in row[i + 1 :]]
+        adj_matrix = self.adjacency_matrix(vertex_order)
+        upper_diag = [
+            str(b) for i, row in enumerate(adj_matrix.tolist()) for b in row[i + 1 :]
+        ]
         return int("".join(upper_diag), 2)
 
     @classmethod
@@ -2825,21 +2825,21 @@ class Graph(nx.Graph):
         _input_check.integrality_and_range(N, "parameter n", min_val=1)
 
         L = bin(N)[2:]
-        n = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)
+        c = math.ceil((1 + math.sqrt(1 + 8 * len(L))) / 2)
         rows = []
         s = 0
-        L = "".join(["0" for _ in range(int(n * (n - 1) / 2) - len(L))]) + L
-        for i in range(n):
+        L = "".join(["0" for _ in range(int(c * (c - 1) / 2) - len(L))]) + L
+        for i in range(c):
             rows.append(
-                [0 for _ in range(i + 1)] + [int(j) for j in L[s : s + (n - i - 1)]]
+                [0 for _ in range(i + 1)] + [int(j) for j in L[s : s + (c - i - 1)]]
             )
-            s += n - i - 1
-        adjMatrix = Matrix(rows)
-        return Graph.from_adjacency_matrix(adjMatrix + adjMatrix.transpose())
+            s += c - i - 1
+        adj_matrix = Matrix(rows)
+        return Graph.from_adjacency_matrix(adj_matrix + adj_matrix.transpose())
 
     @classmethod
     @doc_category("Class methods")
-    def from_adjacency_matrix(cls, M: Matrix) -> Graph:
+    def from_adjacency_matrix(cls, adj_matrix: Matrix) -> Graph:
         """
         Create a graph from a given adjacency matrix.
 
@@ -2850,22 +2850,22 @@ class Graph(nx.Graph):
         >>> print(G)
         Graph with vertices [0, 1] and edges [[0, 1]]
         """
-        if not M.is_square:
+        if not adj_matrix.is_square:
             raise ValueError("The matrix is not square!")
-        if not M.is_symmetric():
+        if not adj_matrix.is_symmetric():
             raise ValueError("The matrix is not symmetric!")
 
-        vertices = range(M.cols)
+        vertices = range(adj_matrix.cols)
         edges = []
         for i, j in combinations(vertices, 2):
-            if not (M[i, j] == 0 or M[i, j] == 1):
+            if not (adj_matrix[i, j] == 0 or adj_matrix[i, j] == 1):
                 raise ValueError(
                     "The provided adjacency matrix contains entries other than 0 and 1!"
                 )
-            if M[i, j] == 1:
+            if adj_matrix[i, j] == 1:
                 edges += [(i, j)]
         for i in vertices:
-            if M[i, i] == 1:
+            if adj_matrix[i, i] == 1:
                 edges += [(i, i)]
         return Graph.from_vertices_and_edges(vertices, edges)
 
@@ -3036,29 +3036,29 @@ class Graph(nx.Graph):
 
         # strings for tikz styles
         if vertex_out_labels and default_styles:
-            lstyle_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
+            label_style_str = r"labelsty/.style={font=\scriptsize,black!70!white}"
         else:
-            lstyle_str = ""
+            label_style_str = ""
 
         if vertex_style == "gvertex" and default_styles:
             if vertex_in_labels:
-                vstyle_str = (
+                vertex_style_str = (
                     "gvertex/.style={white,fill=black,draw=black,circle,"
                     r"inner sep=1pt,font=\scriptsize}"
                 )
             else:
-                vstyle_str = (
+                vertex_style_str = (
                     "gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,"
                     "minimum size=4pt}"
                 )
         else:
-            vstyle_str = ""
+            vertex_style_str = ""
         if edge_style == "edge" and default_styles:
-            estyle_str = "edge/.style={line width=1.5pt,black!60!white}"
+            edge_style_str = "edge/.style={line width=1.5pt,black!60!white}"
         else:
-            estyle_str = ""
+            edge_style_str = ""
 
-        figure_str = [figure_opts, vstyle_str, estyle_str, lstyle_str]
+        figure_str = [figure_opts, vertex_style_str, edge_style_str, label_style_str]
         figure_str = [fs for fs in figure_str if fs != ""]
         figure_str = ",".join(figure_str)
 
@@ -3096,21 +3096,21 @@ class Graph(nx.Graph):
             vertex_style_dict[vertex_style] = self.vertex_list()
         else:
             dict_vertices = []
-            for style, vlist in vertex_style.items():
-                cdict_vertices = [vv for vv in vlist if (vv in self.vertex_list())]
+            for style, vertex_list in vertex_style.items():
+                cdict_vertices = [v for v in vertex_list if (v in self.vertex_list())]
                 vertex_style_dict[style] = cdict_vertices
                 dict_vertices += cdict_vertices
             remaining_vertices = [
-                vv for vv in self.vertex_list() if not (vv in dict_vertices)
+                v for v in self.vertex_list() if not (v in dict_vertices)
             ]
             vertex_style_dict[""] = remaining_vertices
 
         vertices_str = ""
-        for vstyle, vlist in vertex_style_dict.items():
+        for style, vertex_list in vertex_style_dict.items():
             vertices_str += "".join(
                 [
                     "\t\\node["
-                    + vstyle
+                    + style
                     + (
                         ("," if vertex_style != "" else "")
                         + f"label={{[{label_style}]right:${v}$}}"
@@ -3121,7 +3121,7 @@ class Graph(nx.Graph):
                     + f"({round(placement[v][0], 5)}, {round(placement[v][1], 5)}) {{"
                     + (f"${v}$" if vertex_in_labels else "")
                     + "};\n"
-                    for v in vlist
+                    for v in vertex_list
                 ]
             )
         return (
@@ -3134,9 +3134,9 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Graph manipulation")
-    def sum_t(self, G2: Graph, edge: Edge, t: int = 2):
+    def sum_t(self, other_graph: Graph, edge: Edge, t: int = 2):
         """
-        Return the t-sum of self and G2 along the given edge.
+        Return the t-sum of ``self`` and ``other_graph`` along the given edge.
 
         Definitions
         -----------
@@ -3144,7 +3144,7 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
-        G2: Graph
+        other_graph: Graph
         edge: Edge
         t: integer, default value 2
 
@@ -3155,27 +3155,27 @@ class Graph(nx.Graph):
         >>> H.sum_t(G, [1, 2], 3)
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [1, 3], [2, 3], [3, 4]]
         """
-        if edge not in self.edges or edge not in G2.edges:
+        if edge not in self.edges or edge not in other_graph.edges:
             raise ValueError(
                 f"The edge {edge} is not in the intersection of the graphs!"
             )
         # check if the intersection is a t-complete graph
-        if not self.intersection(G2).is_isomorphic(nx.complete_graph(t)):
+        if not self.intersection(other_graph).is_isomorphic(nx.complete_graph(t)):
             raise ValueError(
                 f"The intersection of the graphs must be a {t}-complete graph!"
             )
-        G = self + G2
+        G = self + other_graph
         G.remove_edge(edge[0], edge[1])
         return G
 
     @doc_category("Graph manipulation")
-    def intersection(self, G2: Graph):
+    def intersection(self, other_graph: Graph):
         """
-        Return the intersection of self and G2.
+        Return the intersection of ``self`` and ``other_graph``.
 
         Parameters
         ----------
-        G2: Graph
+        other_graph: Graph
 
         Examples
         --------
@@ -3191,8 +3191,8 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [1, 2]]
         """
         return Graph.from_vertices_and_edges(
-            [v for v in self.nodes if v in G2.nodes],
-            [e for e in self.edges if e in G2.edges],
+            [v for v in self.nodes if v in other_graph.nodes],
+            [e for e in self.edges if e in other_graph.edges],
         )
 
     @doc_category("Generic rigidity")
@@ -3538,8 +3538,8 @@ class Graph(nx.Graph):
             or len(placement.keys()) != len(self.nodes)
             or any(
                 [
-                    len(p) != len(placement[list(placement.keys())[0]])
-                    for p in placement.values()
+                    len(pos) != len(placement[list(placement.keys())[0]])
+                    for pos in placement.values()
                 ]
             )
         ):
