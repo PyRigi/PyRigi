@@ -2752,7 +2752,7 @@ class Graph(nx.Graph):
 
             If ``pebble"`` (only if ``dim=2``),
             then using the pebble game algorithm to find rigid components
-            O(|V|^3 log(|V|)) algorithm.
+            O(n^3 log(n)) algorithm.
             See :meth:`._get_2D_rigid_components_using_pebble_digraph`.
 
             If ``"randomized"``, all subgraphs are checked
