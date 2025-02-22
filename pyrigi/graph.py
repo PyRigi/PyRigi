@@ -2636,8 +2636,8 @@ class Graph(nx.Graph):
         Implementation details
         -----
         Iterate through all pairs of vertices, checks if they are in the same component,
-        and then try to extend the pair into a maximal clique by adding every vertex 
-        that are connected to both vertices in the pair. 
+        and then try to extend the pair into a maximal clique by adding every vertex
+        that are connected to both vertices in the pair.
         If a clique is found, it is added to the list of maximal cliques.
 
         Notes
@@ -2719,9 +2719,7 @@ class Graph(nx.Graph):
                     maximal_rigid_components += [list(connected_comp)]
                 else:
                     index_map = {vertex: i for i, vertex in enumerate(connected_comp)}
-                    comp_matrix = self._create_rigid_comp_matrix(
-                        index_map=index_map
-                    )
+                    comp_matrix = self._create_rigid_comp_matrix(index_map=index_map)
                     # find cliques
                     maximal_rigid_components += self._calculate_maximal_cliques(
                         index_map=index_map, adj_matrix=comp_matrix
