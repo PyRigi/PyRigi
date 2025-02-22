@@ -3357,11 +3357,11 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> H = Graph([[0, 1], [0, 3], [1, 2], [1, 4], [2, 3]])
-        >>> H.Rd_fundamental_circuit(1,4)
-        Graph with vertices [1, 4] and edges [[1, 4]]
-        >>> H.Rd_fundamental_circuit(2,4)
-        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 3], [1, 2], [1, 4], [2, 3]]
+        >>> H = Graph([[0, 1], [0, 2], [1, 3], [1, 5], [2, 3], [2, 6], [3, 5], [3, 7], [5, 7], [6, 7], [3, 6]])
+        >>> H.Rd_fundamental_circuit(1, 7)
+        Graph with vertices [1, 3, 5, 7] and edges [[1, 3], [1, 5], [3, 5], [3, 7], [5, 7]]
+        >>> H.Rd_fundamental_circuit(2,5)
+        Graph with vertices [2, 3, 5, 6, 7] and edges [[2, 3], [2, 6], [3, 5], [3, 6], [3, 7], [5, 7], [6, 7]]
 
         The following example is the Figure 5 of the article :cite:p:`JordanVillanyi2024`
 
@@ -3376,6 +3376,19 @@ class Graph(nx.Graph):
         )
         self._input_check_no_loop()
         self._input_check_vertex_members([u, v])
+        if not nx.is_biconnected(self):
+            raise ValueError("The graph must be biconnected.")
+        if self.has_edge(u, v):
+            raise ValueError("The vertices must not be connected by an edge.")
+        elif not list(
+            filter(
+                lambda x: u in x and v in x, self.rigid_components(algorithm="default")
+            )
+        ):
+            raise ValueError("The vertices must be a linked pair.")
+        if nx.algorithms.connectivity.local_node_connectivity(self, u, v) <= 2:
+            raise ValueError("The local connectivity of the vertices must be > 2.")
+
         self._build_pebble_digraph(K=2, L=3)
         set_nodes = self._pebble_digraph.fundamental_circuit(u, v)
         F = Graph(self._pebble_digraph.to_undirected())
@@ -3428,7 +3441,8 @@ class Graph(nx.Graph):
             list_biconnected_components = list(nx.biconnected_components(self))
             for bicon_comp in list_biconnected_components:
                 if u in bicon_comp and v in bicon_comp:
-                    return self.is_weakly_globally_linked(u, v)
+                    F = nx.subgraph(self, bicon_comp)
+                    return F.is_weakly_globally_linked(u, v)
             return False
         self._input_check_vertex_members([u, v])
         # check (u,v) are non adjacent
