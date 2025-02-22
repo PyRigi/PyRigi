@@ -1085,74 +1085,33 @@ def test_rigid_components_pebble():
     }
 
 
-def test_random_graph_rigid_components_using_pebble():
-    G = Graph(nx.gnp_random_graph(20, 0.1))
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
+@pytest.mark.parametrize(
+    "graph",
+    [
+        Graph(nx.gnp_random_graph(20, 0.1), marks=pytest.mark.slow_main),
+        Graph(nx.gnm_random_graph(30, 62), marks=pytest.mark.slow_main),
+        Graph(nx.gnm_random_graph(25, 46), marks=pytest.mark.slow_main),
+        Graph(nx.gnm_random_graph(40, 80), marks=pytest.mark.slow_main),
+        Graph(nx.gnm_random_graph(100, 230), marks=pytest.mark.slow_main),
+        Graph(nx.gnm_random_graph(100, 190), marks=pytest.mark.slow_main),
+    ],
+)
+def test_random_graph_rigid_components_using_pebble(graph):
+    rigid_components = graph.rigid_components(dim=2, algorithm="pebble")
 
     # Check that all components are rigid
     for c in rigid_components:
-        new_graph = G.subgraph(c)
+        new_graph = graph.subgraph(c)
         assert new_graph.is_rigid(dim=2, algorithm="sparsity")
 
     # Check that vertex-pairs that are not in a component are not in a rigid component
     # check every vertex pairs in the graph
-    for u, v in list(itertools.combinations(G.nodes, 2)):
+    for u, v in list(itertools.combinations(graph.nodes, 2)):
         # if there is no component from rigid components that contains u and v together
         # the edge u,v can be added
         if not any([u in c and v in c for c in rigid_components]):
-            G._build_pebble_digraph(2, 3)
-            assert G._pebble_digraph.can_add_edge_between_vertices(u, v)
-
-    G = Graph(nx.gnm_random_graph(30, 62))
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-
-    # Check that all components are rigid
-    for c in rigid_components:
-        new_graph = G.subgraph(c)
-        assert new_graph.is_rigid(dim=2, algorithm="sparsity")
-
-    # Check that vertex-pairs that are not in a component are not in a rigid component
-    # check every vertex pairs in the graph
-    for u, v in list(itertools.combinations(G.nodes, 2)):
-        # if there is no component from rigid components that contains u and v together
-        # the edge u,v can be added
-        if not any([u in c and v in c for c in rigid_components]):
-            G._build_pebble_digraph(2, 3)
-            assert G._pebble_digraph.can_add_edge_between_vertices(u, v)
-
-    G = Graph(nx.gnm_random_graph(25, 46))
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-
-    # Check that all components are rigid
-    for c in rigid_components:
-        new_graph = G.subgraph(c)
-        assert new_graph.is_rigid(dim=2, algorithm="sparsity")
-
-    # Check that vertex-pairs that are not in a component are not in a rigid component
-    # check every vertex pairs in the graph
-    for u, v in list(itertools.combinations(G.nodes, 2)):
-        # if there is no component from rigid components that contains u and v together
-        # the edge u,v can be added
-        if not any([u in c and v in c for c in rigid_components]):
-            G._build_pebble_digraph(2, 3)
-            assert G._pebble_digraph.can_add_edge_between_vertices(u, v)
-
-    G = Graph(nx.gnm_random_graph(40, 80))
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-
-    # Check that all components are rigid
-    for c in rigid_components:
-        new_graph = G.subgraph(c)
-        assert new_graph.is_rigid(dim=2, algorithm="sparsity")
-
-    # Check that vertex-pairs that are not in a component are not in a rigid component
-    # check every vertex pairs in the graph
-    for u, v in list(itertools.combinations(G.nodes, 2)):
-        # if there is no component from rigid components that contains u and v together
-        # the edge u,v can be added
-        if not any([u in c and v in c for c in rigid_components]):
-            G._build_pebble_digraph(2, 3)
-            assert G._pebble_digraph.can_add_edge_between_vertices(u, v)
+            graph._build_pebble_digraph(2, 3)
+            assert graph._pebble_digraph.can_add_edge_between_vertices(u, v)
 
 
 def test__str__():
