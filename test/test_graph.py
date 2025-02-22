@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pytest
 from sympy import Matrix
+from itertools import combinations
 
 import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError, NotSupportedValueError
 from pyrigi.warning import RandomizedAlgorithmWarning
-import itertools
 
 
 def test__add__():
@@ -1224,7 +1224,7 @@ def test_random_graph_rigid_components_using_pebble(graph):
 
     # Check that vertex-pairs that are not in a component are not in a rigid component
     # check every vertex pairs in the graph
-    for u, v in list(itertools.combinations(graph.nodes, 2)):
+    for u, v in list(combinations(graph.nodes, 2)):
         # if there is no component from rigid components that contains u and v together
         # the edge u,v can be added
         if not any([u in c and v in c for c in rigid_components]):
