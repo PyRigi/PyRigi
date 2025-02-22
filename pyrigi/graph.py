@@ -82,12 +82,6 @@ class Graph(nx.Graph):
     - :doc:`A Database of some Graphs <networkx:reference/generators>`
     - :doc:`Reading and Writing Graphs <networkx:reference/readwrite/index>`
     - :doc:`Converting to and from other Data Formats <networkx:reference/convert>`
-
-    Suggested Improvements
-    ----------------------
-    Graphical output in Jupyter.
-    Graph names.
-    __repr__ output for larger graphs?
     """
 
     silence_rand_alg_warns = False
@@ -399,11 +393,6 @@ class Graph(nx.Graph):
         """
         Return the list of vertices.
 
-        Notes
-        -----
-        The output is sorted if possible,
-        otherwise, the internal order is used instead.
-
         Examples
         --------
         >>> G = Graph.from_vertices_and_edges([2, 0, 3, 1], [[0, 1], [0, 2], [0, 3]])
@@ -417,6 +406,11 @@ class Graph(nx.Graph):
         >>> G = Graph.from_vertices(['b', 1, 'a']) # incomparable vertices
         >>> G.vertex_list()
         ['b', 1, 'a']
+
+        Notes
+        -----
+        The output is sorted if possible,
+        otherwise, the internal order is used instead.
         """
         try:
             return sorted(self.nodes)
@@ -432,11 +426,6 @@ class Graph(nx.Graph):
         ----------
         as_tuples:
             If ``True``, all edges are returned as tuples.
-
-        Notes
-        -----
-        The output is sorted if possible,
-        otherwise, the internal order is used instead.
 
         Examples
         --------
@@ -455,6 +444,11 @@ class Graph(nx.Graph):
         >>> G = Graph([['c', 1], [2, 'a']]) # incomparable vertices
         >>> G.edge_list()
         [('c', 1), (2, 'a')]
+
+        Notes
+        -----
+        The output is sorted if possible,
+        otherwise, the internal order is used instead.
         """
         try:
             if as_tuples:
@@ -951,10 +945,6 @@ class Graph(nx.Graph):
             otherwise a new modified graph will be created,
             while the original graph remains unchanged (default).
 
-        Notes
-        -----
-        See also :meth:`~Graph.zero_extension` and :meth:`~Graph.one_extension`.
-
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
@@ -977,6 +967,10 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
         >>> G
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
+
+        Notes
+        -----
+        See also :meth:`~Graph.zero_extension` and :meth:`~Graph.one_extension`.
         """  # noqa: E501
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
@@ -1199,7 +1193,6 @@ class Graph(nx.Graph):
             "both": an initial graph and a sequence of pairs [graph, extension],
             where the latter has the form from above
 
-
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
@@ -1379,7 +1372,6 @@ class Graph(nx.Graph):
         >>> G = graphs.ThreePrism()
         >>> G.number_of_realizations() # number of planar realizations
         12
-
         """  # noqa: E501
         try:
             import lnumber
@@ -1473,7 +1465,6 @@ class Graph(nx.Graph):
         >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
         >>> G.is_k_vertex_redundantly_rigid(1, 2)
         False
-
         """  # noqa: E501
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
@@ -1601,7 +1592,6 @@ class Graph(nx.Graph):
         True
         >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
         False
-
         """  # noqa: E501
 
         _input_check.dimension(dim)
@@ -1861,7 +1851,6 @@ class Graph(nx.Graph):
         True
         >>> G.is_min_k_redundantly_rigid(1, 2)
         False
-
         """  # noqa: E501
 
         _input_check.dimension(dim)
@@ -2123,8 +2112,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`globally dim-rigid
-        <def-globally-rigid-graph>`
+        :prf:ref:`Globally dim-rigid <def-globally-rigid-graph>`
 
         Parameters
         ----------
@@ -2146,10 +2134,6 @@ class Graph(nx.Graph):
             Only relevant if ``algorithm="randomized"``,
             It determines the bound on the probability of
             the randomized algorithm to yield false negatives.
-
-        Definitions
-        -----------
-        :prf:ref:`Globally d-rigid graph <def-globally-rigid-graph>`
 
         Examples
         --------
@@ -2240,8 +2224,6 @@ class Graph(nx.Graph):
         """
         Return whether the edge set is dependent in the generic dim-rigidity matroid.
 
-        See :meth:`.is_independent` for details.
-
         Definitions
         -----------
         * :prf:ref:`Dependence <def-matroid>`
@@ -2253,6 +2235,10 @@ class Graph(nx.Graph):
         >>> G = graphDB.K33plusEdge()
         >>> G.is_Rd_dependent()
         True
+
+        Notes
+        -----
+        See :meth:`.is_independent` for details.
         """
         return not self.is_Rd_independent(
             dim,
@@ -2597,12 +2583,6 @@ class Graph(nx.Graph):
             Warning: this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
-        Notes
-        -----
-        If the graph itself is rigid, it is clearly maximal and is returned.
-        Every edge is part of a rigid component. Isolated vertices form
-        additional rigid components.
-
         Examples
         --------
         >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
@@ -2615,8 +2595,14 @@ class Graph(nx.Graph):
         >>> G.rigid_components(algorithm="randomized")
         [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
 
-        TODO
-        ----
+        Notes
+        -----
+        If the graph itself is rigid, it is clearly maximal and is returned.
+        Every edge is part of a rigid component. Isolated vertices form
+        additional rigid components.
+
+        Suggested Improvements
+        ----------------------
         Implement directly using pebble games for dim=2
         to replace ``subgraphs-pebble`` algorithm.
         """
@@ -2700,14 +2686,6 @@ class Graph(nx.Graph):
             Warning: this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
-        Notes
-        -----
-        This is done by taking the dimension predicted by the Maxwell count
-        as a starting point and iteratively reducing the dimension until
-        generic rigidity is found.
-        This method returns `sympy.oo` (infinity) if and only if the graph
-        is complete. It has the data type `Inf`.
-
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
@@ -2722,6 +2700,14 @@ class Graph(nx.Graph):
         >>> G.add_edges([(0,4),(1,4),(2,4)])
         >>> G.max_rigid_dimension()
         3
+
+        Notes
+        -----
+        This is done by taking the dimension predicted by the Maxwell count
+        as a starting point and iteratively reducing the dimension until
+        generic rigidity is found.
+        This method returns `sympy.oo` (infinity) if and only if the graph
+        is complete. It has the data type `Inf`.
         """
         self._input_check_no_loop()
 
@@ -2747,16 +2733,16 @@ class Graph(nx.Graph):
         """
         Check whether two graphs are isomorphic.
 
-        Notes
-        -----
-        For further details, see :func:`networkx.algorithms.isomorphism.is_isomorphic`.
-
         Examples
         --------
         >>> G = Graph([(0,1), (1,2)])
         >>> G_ = Graph([('b','c'), ('c','a')])
         >>> G.is_isomorphic(G_)
         True
+
+        Notes
+        -----
+        For further details, see :func:`networkx.algorithms.isomorphism.is_isomorphic`.
         """
         return nx.is_isomorphic(self, graph)
 
@@ -2812,6 +2798,8 @@ class Graph(nx.Graph):
         """
         Return a graph given its integer representation.
 
+        Notes
+        -----
         See :meth:`~Graph.to_int` for the description
         of the integer representation.
         """
