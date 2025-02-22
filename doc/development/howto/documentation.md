@@ -26,7 +26,7 @@ The following extensions are used:
 
 These are already installed if you used `poetry install`.
 
-To compile, run Sphinx in the folder `doc` (with poetry shell activated) by:
+To compile, run Sphinx in the folder `doc` (with Poetry environment activated) by:
 ```
 make html
 ```
@@ -65,10 +65,15 @@ In general, a docstring should contain the following items (in this order):
  - notes (optional): implementation details
  - suggested improvements (optional): proposed changes/extensions to the method
 
+To check whether some docstrings are missing, run
+```
+make html coverage
+```
+
 ## Auto-build
 
 If you want that the documentation folder is kept watched and documentation is automatically rebuilt once a change is detected (works only for `.md` files, not docstrings), you can use the Sphinx extension [`sphinx-autobuild`](https://github.com/sphinx-doc/sphinx-autobuild).
-Run in the `doc` folder (with poetry shell activated):
+Run in the `doc` folder (with Poetry environment activated):
 ```
 sphinx-autobuild . _build/html --open-browser
 ```
@@ -107,13 +112,13 @@ You can contact a maintainer if you have a `.ipynb` tutorial
 you want to contribute but struggle to get its `.md` version.
 
 
-In case `poetry shell` is used as described above, Jupyterlab and Jupytext
+In case the Poetry environment is activated as described above, Jupyterlab and Jupytext
 can be installed using
 ```
 pip install jupyterlab jupytext
 ```
 After setting the virtual environment in Jupyterlab to the one created
-by `poetry shell`, `.md` notebooks can be opened directly.
+by Poetry, `.md` notebooks can be opened directly.
 
 If the execution of a cell takes long time,
 then import the cell magic

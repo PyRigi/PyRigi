@@ -2,11 +2,11 @@
 This is a module for providing common types of frameworks.
 """
 
-from pyrigi.framework import Framework
-import pyrigi.graphDB as graphs
-import pyrigi._input_check as _input_check
-
 import sympy as sp
+
+import pyrigi._input_check as _input_check
+import pyrigi.graphDB as graphs
+from pyrigi.framework import Framework
 
 
 def Cycle(n: int, dim: int = 2) -> Framework:
@@ -127,6 +127,60 @@ def Octahedron(realization: str = "regular") -> Framework:
     raise ValueError(f"The parameter `realization` cannot be {realization}.")
 
 
+def Icosahedron() -> Framework:
+    """Return the graph given by the skeleton of the regular icosahedron in $R^3$."""
+    phi = sp.sympify("(1+sqrt(5))/2")
+    F = Framework(
+        graphs.Icosahedral(),
+        {
+            0: (phi, 1, 0),
+            1: (1, 0, phi),
+            2: (-1, 0, phi),
+            9: (-phi, 1, 0),
+            4: (0, -phi, -1),
+            5: (phi, -1, 0),
+            6: (0, -phi, 1),
+            7: (0, phi, -1),
+            8: (0, phi, 1),
+            3: (-phi, -1, 0),
+            10: (-1, 0, -phi),
+            11: (1, 0, -phi),
+        },
+    )
+    return F
+
+
+def Dodecahedron() -> Framework:
+    """Return the graph given by the skeleton of the regular dodecahedron in $R^3$."""
+    phi = sp.sympify("(1+sqrt(5))/2")
+    F = Framework(
+        graphs.Dodecahedral(),
+        {
+            0: (1, 1, 1),
+            1: (-1, 1, 1),
+            2: (1, -1, 1),
+            3: (1, 1, -1),
+            4: (-1, -1, 1),
+            5: (-1, 1, -1),
+            6: (1, -1, -1),
+            7: (-1, -1, -1),
+            8: (0, phi, 1 / phi),
+            9: (0, phi, -1 / phi),
+            10: (0, -phi, 1 / phi),
+            11: (0, -phi, -1 / phi),
+            12: (1 / phi, 0, phi),
+            13: (-1 / phi, 0, phi),
+            14: (1 / phi, 0, -phi),
+            15: (-1 / phi, 0, -phi),
+            16: (phi, 1 / phi, 0),
+            17: (phi, -1 / phi, 0),
+            18: (-phi, 1 / phi, 0),
+            19: (-phi, -1 / phi, 0),
+        },
+    )
+    return F
+
+
 def K33plusEdge() -> Framework:
     """
     Return a framework of the complete bipartite graph on 3+3 vertices plus an edge.
@@ -228,57 +282,57 @@ def ThreePrismPlusEdge() -> Framework:
     return G
 
 
-def CompleteBipartite(m: int, n: int, realization: str = None) -> Framework:
+def CompleteBipartite(n1: int, n2: int, realization: str = None) -> Framework:
     """
-    Return a complete bipartite framework on m+n vertices in the plane.
+    Return a complete bipartite framework on ``n1+n2`` vertices in the plane.
 
     Parameters
     ----------
-    m,n:
+    n1,n2:
         The sizes of the two parts.
     realization:
         If ``"dixonI"``, a realization with one part on the x-axis and
         the other on the y-axis is returned.
         Otherwise (default), a "general" realization is returned.
 
-    Todo
-    ----
+    Suggested Improvements
+    ----------------------
     Implement realization in higher dimensions.
     """
-    _input_check.integrality_and_range(m, "size m", 1)
-    _input_check.integrality_and_range(n, "size n", 1)
+    _input_check.integrality_and_range(n1, "size n1", 1)
+    _input_check.integrality_and_range(n2, "size n2", 1)
     if realization == "dixonI":
         return Framework(
-            graphs.CompleteBipartite(m, n),
-            {i: [0, (i + 1) * (-1) ** i] for i in range(m)}
-            | {i: [(i - m + 1) * (-1) ** i, 0] for i in range(m, m + n)},
+            graphs.CompleteBipartite(n1, n2),
+            {i: [0, (i + 1) * (-1) ** i] for i in range(n1)}
+            | {i: [(i - n1 + 1) * (-1) ** i, 0] for i in range(n1, n1 + n2)},
         )
     elif realization == "collinear":
         return Framework(
             graphs.CompleteBipartite(m, n), {i: [i, 0] for i in range(m + n)}
         )
     return Framework(
-        graphs.CompleteBipartite(m, n),
+        graphs.CompleteBipartite(n1, n2),
         {
             i: [
-                sp.cos(i * sp.pi / max([1, m - 1])),
-                sp.sin(i * sp.pi / max([1, m - 1])),
+                sp.cos(i * sp.pi / max([1, n1 - 1])),
+                sp.sin(i * sp.pi / max([1, n1 - 1])),
             ]
-            for i in range(m)
+            for i in range(n1)
         }
         | {
             i: [
-                1 + 2 * sp.cos((i - m) * sp.pi / max([1, n - 1])),
-                3 + 2 * sp.sin((i - m) * sp.pi / max([1, n - 1])),
+                1 + 2 * sp.cos((i - n1) * sp.pi / max([1, n2 - 1])),
+                3 + 2 * sp.sin((i - n1) * sp.pi / max([1, n2 - 1])),
             ]
-            for i in range(m, m + n)
+            for i in range(n1, n1 + n2)
         },
     )
 
 
 def Frustum(n: int) -> Framework:
     """
-    Return the n-Frustum with `n` vertices in dimension 2.
+    Return the n-Frustum with ``2*n`` vertices in dimension 2.
 
     Definitions
     -----------
@@ -301,7 +355,7 @@ def Frustum(n: int) -> Framework:
 
 def CnSymmetricFourRegular(n: int = 8) -> Framework:
     """
-    Return a C_n-symmetric framework.
+    Return a $C_n$-symmetric framework.
 
     Definitions
     -----------
@@ -309,8 +363,8 @@ def CnSymmetricFourRegular(n: int = 8) -> Framework:
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this framework, the cyclical group "
-            + "needs to have an even order of at least 8!"
+            "To generate this framework, the cyclic group "
+            + "must have an even order of at least 8!"
         )
     return Framework(
         graphs.CnSymmetricFourRegular(n),
@@ -326,8 +380,9 @@ def CnSymmetricFourRegular(n: int = 8) -> Framework:
 
 def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
     """
-    Return a C_n-symmetric framework with a fixed vertex.
-    The cyclical group C_n needs to have even order of at least 8.
+    Return a $C_n$-symmetric framework with a fixed vertex.
+
+    The value ``n`` must be even and at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
@@ -338,8 +393,8 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this framework, the cyclical group "
-            + "needs to have an even order of at least 8!"
+            "To generate this framework, the cyclic group "
+            + "must have an even order of at least 8!"
         )
     return Framework(
         graphs.CnSymmetricFourRegularWithFixedVertex(n),

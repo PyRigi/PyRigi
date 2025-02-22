@@ -1,14 +1,20 @@
+from math import isclose, pi
+from random import randint
+
 import pytest
+import numpy as np
+import sympy as sp
+
+from pyrigi.graph import Graph
 from pyrigi.misc import (
     is_zero_vector,
     generate_two_orthonormal_vectors,
     eval_sympy_vector,
     is_isomorphic_graph_list,
+    normalize_flex,
+    vector_distance_pointwise,
+    point_to_vector,
 )
-from pyrigi.data_type import point_to_vector
-import numpy as np
-from random import randint
-from pyrigi.graph import Graph
 
 
 def test_is_zero_vector():
@@ -58,6 +64,42 @@ def test_eval_sympy_vector():
         0.12312312312312312,
     ]
     assert eval_sympy_vector(["1/4", -1]) == [0.25, -1]
+
+
+def test_normalize_flex():
+    flex = normalize_flex([1, 0, 1])
+    assert sum(p**2 for p in flex) == 1
+    flex = normalize_flex([1, 0, 1, -2, 3], numerical=True)
+    assert isclose(np.linalg.norm(flex), 1.0)
+    flex = normalize_flex(
+        {0: [1.0, 0.0], 1: [1.0, -2.5], 2: [pi, np.sqrt(15)]}, numerical=True
+    )
+    assert isclose(np.linalg.norm(sum([list(val) for val in flex.values()], [])), 1.0)
+    flex = normalize_flex(
+        {0: (1, 0), 1: (sp.cos(1), sp.sin(2)), 2: (sp.sqrt(5), sp.Rational(1 / 2))}
+    )
+    assert sp.simplify(sum(sum(p**2 for p in pt) for pt in flex.values())) == 1
+
+    with pytest.raises(ValueError):
+        normalize_flex([0])
+        normalize_flex([0], numerical=True)
+
+
+def test_vector_distance_pointwise():
+    vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}).is_zero
+    (
+        vector_distance_pointwise({0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, -1]}) - 1
+    ).is_zero
+    isclose(vector_distance_pointwise({0: [1, 1]}, {0: [1, -1]}, numerical=True), 2)
+    isclose(
+        vector_distance_pointwise(
+            {0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, 1]}, numerical=True
+        ),
+        4,
+    )
+
+    with pytest.raises(ValueError):
+        vector_distance_pointwise({0: [1, 1]}, {1: [1, 1]})
 
 
 @pytest.mark.parametrize(

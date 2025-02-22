@@ -14,14 +14,16 @@ Classes:
 
 from __future__ import annotations
 
+import functools
 from copy import deepcopy
 from itertools import combinations
+from math import log10
 from random import randrange
+from typing import Any
 
-import sympy as sp
+import matplotlib.pyplot as plt
 import numpy as np
-import functools
-
+import sympy as sp
 from sympy import Matrix, flatten, binomial
 
 from pyrigi.data_type import (
@@ -30,7 +32,6 @@ from pyrigi.data_type import (
     Point,
     InfFlex,
     Stress,
-    point_to_vector,
     Sequence,
     Number,
     DirectedEdge,
@@ -44,11 +45,9 @@ from pyrigi.misc import (
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
     eval_sympy_vector,
+    point_to_vector,
 )
 import pyrigi._input_check as _input_check
-
-from typing import Any
-import matplotlib.pyplot as plt
 
 
 __doctest_requires__ = {
@@ -93,12 +92,12 @@ class Framework(object):
     [1],
     [2]])
 
-    METHODS
-
     Notes
     -----
     Internally, the realization is represented as ``dict[Vertex,Matrix]``.
     However, :meth:`~Framework.realization` can also return ``dict[Vertex,Point]``.
+
+    METHODS
     """
 
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
@@ -191,11 +190,11 @@ class Framework(object):
         """
         if vertex is None:
             candidate = self._graph.number_of_nodes()
-            while candidate in self._graph.nodes:
+            while self._graph.has_node(candidate):
                 candidate += 1
             vertex = candidate
 
-        if vertex in self._graph.nodes:
+        if self._graph.has_node(vertex):
             raise KeyError(f"Vertex {vertex} is already a vertex of the graph!")
 
         self._realization[vertex] = Matrix(point)
@@ -238,13 +237,17 @@ class Framework(object):
             for point in points:
                 self.add_vertex(point)
         else:
-            for p, v in zip(points, vertices):
-                self.add_vertex(p, v)
+            for point, v in zip(points, vertices):
+                self.add_vertex(point, v)
 
     @doc_category("Framework manipulation")
     def add_edge(self, edge: Edge) -> None:
         """
         Add an edge to the framework.
+
+        Parameters
+        ----------
+        edge:
 
         Notes
         -----
@@ -257,6 +260,11 @@ class Framework(object):
     def add_edges(self, edges: Sequence[Edge]) -> None:
         """
         Add a list of edges to the framework.
+
+        Parameters
+        ----------
+        edges:
+            ``Sequence`` of edges.
 
         Notes
         -----
@@ -287,7 +295,7 @@ class Framework(object):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
-        edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
         **kwargs,
@@ -338,8 +346,8 @@ class Framework(object):
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
-        edge_coloring:
-            Optional parameter to specify the coloring of edges. It can be
+        edge_colors_custom:
+            Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
@@ -375,9 +383,9 @@ class Framework(object):
         Use both stress and infinitesimal flex
         >>> F.plot2D(stress=0, inf_flex=0)
 
-        Use edge coloring
-        >>> edge_coloring = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
-        >>> F.plot2D(edge_coloring=edge_coloring)
+        Use custom edge colors
+        >>> edge_colors = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
+        >>> F.plot2D(edge_colors_custom=edge_colors)
 
         The following is just to close all figures after running the example:
         >>> import matplotlib.pyplot
@@ -427,7 +435,7 @@ class Framework(object):
             ax,
             placement,
             plot_style=plot_style,
-            edge_coloring=edge_coloring,
+            edge_colors_custom=edge_colors_custom,
             arc_angles_dict=arc_angles_dict,
         )
 
@@ -436,7 +444,7 @@ class Framework(object):
                 self,
                 ax,
                 inf_flex,
-                points=placement,
+                realization=placement,
                 plot_style=plot_style,
                 projection_matrix=projection_matrix,
             )
@@ -445,7 +453,7 @@ class Framework(object):
                 self,
                 ax,
                 stress,
-                points=placement,
+                realization=placement,
                 plot_style=plot_style,
                 arc_angles_dict=arc_angles_dict,
                 stress_label_positions=stress_label_positions,
@@ -455,7 +463,7 @@ class Framework(object):
     def animate3D_rotation(
         self,
         plot_style: PlotStyle = None,
-        edge_coloring: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         total_frames: int = 100,
         delay: int = 75,
         rotation_axis: str | Sequence[Number] = None,
@@ -469,8 +477,8 @@ class Framework(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`PlotStyle` for more details.
-        edge_coloring:
-            Optional parameter to specify the coloring of edges. It can be
+        edge_colors_custom:
+            Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
@@ -501,25 +509,36 @@ class Framework(object):
         plot_style.update(**kwargs)
 
         realization = self.realization(as_points=True, numerical=True)
-        centroid_x = sum([p[0] for p in realization.values()]) / len(realization)
-        centroid_y = sum([p[1] for p in realization.values()]) / len(realization)
-        centroid_z = sum([p[2] for p in realization.values()]) / len(realization)
+        centroid_x, centroid_y, centroid_z = [
+            sum([pos[i] for pos in realization.values()]) / len(realization)
+            for i in range(3)
+        ]
         realization = {
-            v: [p[0] - centroid_x, p[1] - centroid_y, p[2] - centroid_z]
-            for v, p in realization.items()
+            v: [point[0] - centroid_x, point[1] - centroid_y, point[2] - centroid_z]
+            for v, point in realization.items()
         }
 
-        def _rotation_matrix(v, frame):
+        def _rotation_matrix(vector, frame):
             # Compute the rotation matrix Q
-            v = np.array(v)
-            v = v / np.linalg.norm(v)
+            vector = np.array(vector)
+            vector = vector / np.linalg.norm(vector)
             angle = frame * np.pi / total_frames
             cos_angle = np.cos(angle)
             sin_angle = np.sin(angle)
 
             # Rodrigues' rotation matrix
-            K = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
-            Q = np.eye(3) * cos_angle + K * sin_angle + np.outer(v, v) * (1 - cos_angle)
+            K = np.array(
+                [
+                    [0, -vector[2], vector[1]],
+                    [vector[2], 0, -vector[0]],
+                    [-vector[1], vector[0], 0],
+                ]
+            )
+            Q = (
+                np.eye(3) * cos_angle
+                + K * sin_angle
+                + np.outer(vector, vector) * (1 - cos_angle)
+            )
             return Q
 
         match rotation_axis:
@@ -550,30 +569,35 @@ class Framework(object):
 
         rotating_realizations = [
             {
-                v: np.dot(p, rotation_matrix(frame).T).tolist()
-                for v, p in realization.items()
+                v: np.dot(pos, rotation_matrix(frame).T).tolist()
+                for v, pos in realization.items()
             }
             for frame in range(2 * total_frames)
         ]
         pinned_vertex = self._graph.vertex_list()[0]
         _realizations = []
-        for r in rotating_realizations:
+        for rotated_realization in rotating_realizations:
             # Translate the realization to the origin
-            _r = {
-                v: [p[i] - r[pinned_vertex][i] for i in range(len(p))]
-                for v, p in r.items()
-            }
-            _realizations.append(_r)
+            _realizations.append(
+                {
+                    v: [
+                        pos[i] - rotated_realization[pinned_vertex][i]
+                        for i in range(len(pos))
+                    ]
+                    for v, pos in rotated_realization.items()
+                }
+            )
 
         from pyrigi import Motion
 
-        M = Motion(self.graph(), self.dim())
+        motion = Motion(self.graph(), self.dim())
         duration = 2 * total_frames * delay / 1000
-        return M.animate3D(
+        return motion.animate3D(
             _realizations,
             plot_style=plot_style,
-            edge_coloring=edge_coloring,
+            edge_colors_custom=edge_colors_custom,
             duration=duration,
+            **kwargs,
         )
 
     @doc_category("Plotting")
@@ -585,7 +609,9 @@ class Framework(object):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
-        edge_coloring: Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]] = None,
+        edge_colors_custom: (
+            Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+        ) = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         **kwargs,
     ) -> None:
@@ -636,8 +662,8 @@ class Framework(object):
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
             (i.e. coordinates).
-        edge_coloring:
-            Optional parameter to specify the coloring of edges. It can be
+        edge_colors_custom:
+            Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
@@ -646,7 +672,6 @@ class Framework(object):
             Dictionary specifying the position of stress labels along the edges. Keys are
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
             Ommited edges are given the value ``0.5``.
-
 
         Examples
         --------
@@ -671,9 +696,9 @@ class Framework(object):
         Use both stress and infinitesimal flex
         >>> F.plot3D(stress=0, inf_flex=0)
 
-        Use edge coloring
-        >>> edge_coloring = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
-        >>> F.plot3D(edge_coloring=edge_coloring)
+        Use custom edge colors
+        >>> edge_colors = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
+        >>> F.plot3D(edge_colors_custom=edge_colors)
 
         The following is just to close all figures after running the example:
         >>> import matplotlib.pyplot
@@ -713,11 +738,12 @@ class Framework(object):
 
         # Center the realization
         centroid = [
-            sum([p[i] for p in placement.values()]) / len(placement) for i in range(3)
+            sum([pos[i] for pos in placement.values()]) / len(placement)
+            for i in range(3)
         ]
         _placement = {
-            v: [p[0] - centroid[0], p[1] - centroid[1], p[2] - centroid[2]]
-            for v, p in placement.items()
+            v: [pos[0] - centroid[0], pos[1] - centroid[1], pos[2] - centroid[2]]
+            for v, pos in placement.items()
         }
 
         from pyrigi import _plot
@@ -727,7 +753,7 @@ class Framework(object):
             ax,
             _placement,
             plot_style,
-            edge_coloring=edge_coloring,
+            edge_colors_custom=edge_colors_custom,
         )
 
         if inf_flex is not None:
@@ -735,7 +761,7 @@ class Framework(object):
                 self,
                 ax,
                 inf_flex,
-                points=_placement,
+                realization=_placement,
                 plot_style=plot_style,
                 projection_matrix=projection_matrix,
             )
@@ -745,7 +771,7 @@ class Framework(object):
                 self,
                 ax,
                 stress,
-                points=_placement,
+                realization=_placement,
                 plot_style=plot_style,
                 stress_label_positions=stress_label_positions,
             )
@@ -839,6 +865,8 @@ class Framework(object):
            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
+        Notes
+        -----
         For more examples on formatting options, see also :meth:`.Graph.to_tikz`.
         """  # noqa: E501
 
@@ -964,9 +992,7 @@ class Framework(object):
         else:
             raise TypeError("`rand_range` must be either a list or a single int.")
 
-        realization = {
-            vertex: [randrange(a, b) for _ in range(dim)] for vertex in graph.nodes
-        }
+        realization = {v: [randrange(a, b) for _ in range(dim)] for v in graph.nodes}
 
         return Framework(graph, realization)
 
@@ -1116,7 +1142,7 @@ class Framework(object):
             raise ValueError("The list of points cannot be empty!")
 
         Kn = CompleteGraph(len(points))
-        return Framework(Kn, {v: p for v, p in zip(Kn.nodes, points)})
+        return Framework(Kn, {v: pos for v, pos in zip(Kn.nodes, points)})
 
     @doc_category("Framework manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -1185,18 +1211,16 @@ class Framework(object):
         if not numerical:
             if not as_points:
                 return deepcopy(self._realization)
-            return {
-                vertex: list(position) for vertex, position in self._realization.items()
-            }
+            return {v: list(pos) for v, pos in self._realization.items()}
         else:
             if not as_points:
                 return {
-                    vertex: Matrix([float(p) for p in position])
-                    for vertex, position in self._realization.items()
+                    v: Matrix([float(coord) for coord in pos])
+                    for v, pos in self._realization.items()
                 }
             return {
-                vertex: [float(p) for p in position]
-                for vertex, position in self._realization.items()
+                v: [float(coord) for coord in pos]
+                for v, pos in self._realization.items()
             }
 
     @doc_category("Framework properties")
@@ -1261,12 +1285,6 @@ class Framework(object):
         realization:
             a realization of the underlying graph of the framework
 
-        Notes
-        -----
-        It is assumed that the realization contains all vertices from the
-        underlying graph. Furthermore, all points in the realization need
-        to be contained in $\RR^d$ for a fixed $d$.
-
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
@@ -1275,6 +1293,12 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 1), 1:(1, 2), 2:(2, 3)}
+
+        Notes
+        -----
+        It is assumed that the realization contains all vertices from the
+        underlying graph. Furthermore, all points in the realization need
+        to be contained in $\RR^d$ for a fixed $d$.
         """  # noqa: E501
         if not len(realization) == self._graph.number_of_nodes():
             raise IndexError(
@@ -1431,10 +1455,6 @@ class Framework(object):
         dict_stress:
             Dictionary that maps the edge labels to coordinates.
 
-        Notes
-        -----
-        See :meth:`.Framework.is_vector_stress`.
-
         Examples
         --------
         >>> F = Framework.Complete([[0,0], [1,0], ['1/2',0]])
@@ -1442,6 +1462,10 @@ class Framework(object):
         True
         >>> F.is_dict_stress({(0,1):1, (1,2):'-1/2', (0,2):1})
         False
+
+        Notes
+        -----
+        See :meth:`.Framework.is_vector_stress`.
         """
         stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
         self._graph._input_check_edge_order(stress_edge_list, "dict_stress")
@@ -1470,7 +1494,7 @@ class Framework(object):
         tolerance=1e-9,
     ) -> bool:
         r"""
-        Return whether a vector is a stress.
+        Return whether a vector is an equilibrium stress.
 
         Definitions
         -----------
@@ -1599,7 +1623,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
+        :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
 
         Parameters
         ----------
@@ -1759,11 +1783,10 @@ class Framework(object):
         trivial_inf_flexes = self.trivial_inf_flexes(vertex_order=vertex_order)
         s = len(trivial_inf_flexes)
         extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
-        for v in all_inf_flexes:
-            r = extend_basis_matrix.rank()
-            tmp_matrix = Matrix.hstack(extend_basis_matrix, v)
-            if not tmp_matrix.rank() == r:
-                extend_basis_matrix = Matrix.hstack(extend_basis_matrix, v)
+        for inf_flex in all_inf_flexes:
+            tmp_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
+            if not tmp_matrix.rank() == extend_basis_matrix.rank():
+                extend_basis_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
 
@@ -2169,7 +2192,15 @@ class Framework(object):
             if not difference.is_zero:
                 if not numerical:
                     return False
-                elif numerical and sp.Abs(difference) > tolerance:
+                elif (
+                    numerical
+                    and abs(
+                        sp.sympify(difference).evalf(
+                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
+                        )
+                    )
+                    > tolerance
+                ):
                     return False
         return True
 
@@ -2235,7 +2266,15 @@ class Framework(object):
             if not difference.is_zero:
                 if not numerical:
                     return False
-                elif numerical and sp.Abs(difference) > tolerance:
+                elif (
+                    numerical
+                    and abs(
+                        sp.sympify(difference).evalf(
+                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
+                        )
+                    )
+                    > tolerance
+                ):
                     return False
         return True
 
@@ -2438,12 +2477,10 @@ class Framework(object):
             projection_matrix = projection_matrix.T
         return (
             {
-                vertex: tuple(
-                    [float(s[0]) for s in np.dot(projection_matrix, np.array(position))]
+                v: tuple(
+                    [float(s[0]) for s in np.dot(projection_matrix, np.array(pos))]
                 )
-                for vertex, position in self.realization(
-                    as_points=False, numerical=True
-                ).items()
+                for v, pos in self.realization(as_points=False, numerical=True).items()
             },
             projection_matrix,
         )
@@ -2470,22 +2507,18 @@ class Framework(object):
         if numerical:
             points = self.realization(as_points=True, numerical=True)
             return {
-                tuple(pair): float(
-                    np.linalg.norm(
-                        np.array(points[pair[0]]) - np.array(points[pair[1]])
-                    )
+                tuple(e): float(
+                    np.linalg.norm(np.array(points[e[0]]) - np.array(points[e[1]]))
                 )
-                for pair in self._graph.edges
+                for e in self._graph.edges
             }
         else:
             points = self.realization(as_points=True)
             return {
-                tuple(pair): sp.sqrt(
-                    sum(
-                        [(v - w) ** 2 for v, w in zip(points[pair[0]], points[pair[1]])]
-                    )
+                tuple(e): sp.sqrt(
+                    sum([(x - y) ** 2 for x, y in zip(points[e[0]], points[e[1]])])
                 )
-                for pair in self._graph.edges
+                for e in self._graph.edges
             }
 
     @staticmethod
@@ -2500,7 +2533,8 @@ class Framework(object):
         Generate an STL file for a bar.
 
         The method uses Trimesh and Manifold3d packages to create a model of a bar
-        with two holes at the ends. The bar is saved as an STL file.
+        with two holes at the ends.
+        The method returns the bar as a Trimesh object and saves it as a STL file.
 
         Parameters
         ----------
@@ -2514,11 +2548,6 @@ class Framework(object):
             Height of the bar.
         filename : str
             Name of the output STL file.
-
-        Returns
-        -------
-        bar_mesh : trimesh.base.Trimesh
-            The bar as a Trimesh object.
         """
         try:
             from trimesh.creation import box as trimesh_box
@@ -2586,8 +2615,8 @@ class Framework(object):
         """
         Generate STL files for the bars of the framework.
 
-        Generates STL files for the bars of the framework. The files are generated
-        in the working folder. The naming convention for the files is ``bar_i-j.stl``,
+        The STL files are generated in the working folder.
+        The naming convention for the files is ``bar_i-j.stl``,
         where i and j are the vertices of an edge.
 
         Parameters
@@ -2650,7 +2679,7 @@ class Framework(object):
         self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
     ) -> dict[Vertex, list[Number]]:
         r"""
-        Transform the natural data type of a flex (Matrix) to a
+        Transform the natural data type of a flex (``Matrix``) to a
         dictionary that maps a vertex to a Sequence of coordinates
         (i.e. a vector).
 
@@ -2662,11 +2691,6 @@ class Framework(object):
             If ``None``, the :meth:`.Graph.vertex_list`
             is taken as the vertex order.
 
-        Notes
-        ----
-        For example, this method can be used for generating an
-        infinitesimal flex for plotting purposes.
-
         Examples
         ----
         >>> F = Framework.from_points([(0,0), (1,0), (0,1)])
@@ -2675,6 +2699,10 @@ class Framework(object):
         >>> F._transform_inf_flex_to_pointwise(flex)
         {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
+        Notes
+        ----
+        For example, this method can be used for generating an
+        infinitesimal flex for plotting purposes.
         """
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         return {
@@ -2686,7 +2714,7 @@ class Framework(object):
         self, stress: Matrix, edge_order: Sequence[Edge] = None
     ) -> dict[Edge, Number]:
         r"""
-        Transform the natural data type of a stress (Matrix) to a
+        Transform the natural data type of a stress (``Matrix``) to a
         dictionary that maps an edge to a coordinate.
 
         Parameters
@@ -2697,11 +2725,6 @@ class Framework(object):
             If ``None``, the :meth:`.Graph.edge_list`
             is taken as the edge order.
 
-        Notes
-        ----
-        For example, this method can be used for generating an
-        equilibrium stresss for plotting purposes.
-
         Examples
         ----
         >>> F = Framework.Complete([(0,0),(1,0),(1,1),(0,1)])
@@ -2709,6 +2732,10 @@ class Framework(object):
         >>> F._transform_stress_to_edgewise(stress)
         {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
 
+        Notes
+        ----
+        For example, this method can be used for generating an
+        equilibrium stresss for plotting purposes.
         """
         edge_order = self._graph._input_check_edge_order(edge_order)
         return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
@@ -2726,8 +2753,8 @@ class Framework(object):
 
         Definitions
         -----------
-        :prf:ref:`Infinitesimal Flex <def-inf-flex>`
-        :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
+        * :prf:ref:`Infinitesimal Flex <def-inf-flex>`
+        * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
 
         Parameters
         ----------
@@ -2782,10 +2809,6 @@ class Framework(object):
             Dictionary that maps the vertex labels to
             vectors of the same dimension as the framework is.
 
-        Notes
-        -----
-        See :meth:`.Framework.is_vector_inf_flex`.
-
         Examples
         --------
         >>> F = Framework.Complete([[0,0], [1,1]])
@@ -2793,6 +2816,10 @@ class Framework(object):
         True
         >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
         True
+
+        Notes
+        -----
+        See :meth:`.Framework.is_vector_inf_flex`.
         """
         self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
@@ -2834,19 +2861,6 @@ class Framework(object):
             This parameter is used to determine the number of digits, to which
             accuracy the symbolic expressions are evaluated.
 
-        Notes
-        -----
-        This is done by solving a linear system composed of a matrix `A` whose columns
-        are given by a basis of the trivial flexes and the vector `b` given by the
-        input flex. `b` is trivial if and only if there is a linear combination of
-        the columns in `A` producing `b`. In other words, when there is a solution to
-        `Ax=b`, then `b` is a trivial infinitesimal motion. Otherwise, `b` is
-        nontrivial.
-
-        In the `numerical=True` case we compute a least squares solution `x` of the
-        overdetermined linear system and compare the values in `Ax` to the values
-        in `b`.
-
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2859,6 +2873,19 @@ class Framework(object):
         True
         >>> F.is_vector_nontrivial_inf_flex(q)
         False
+
+        Notes
+        -----
+        This is done by solving a linear system composed of a matrix `A` whose columns
+        are given by a basis of the trivial flexes and the vector `b` given by the
+        input flex. `b` is trivial if and only if there is a linear combination of
+        the columns in `A` producing `b`. In other words, when there is a solution to
+        `Ax=b`, then `b` is a trivial infinitesimal motion. Otherwise, `b` is
+        nontrivial.
+
+        In the `numerical=True` case we compute a least squares solution `x` of the
+        overdetermined linear system and compare the values in `Ax` to the values
+        in `b`.
         """
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         if not self.is_vector_inf_flex(
@@ -2904,11 +2931,6 @@ class Framework(object):
         vert_to_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
 
-        Notes
-        -----
-        See :meth:`Framework.is_vector_nontrivial_inf_flex` for details,
-        particularly concerning the possible parameters.
-
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2919,6 +2941,11 @@ class Framework(object):
         >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
         >>> F.is_dict_nontrivial_inf_flex(q)
         False
+
+        Notes
+        -----
+        See :meth:`Framework.is_vector_nontrivial_inf_flex` for details,
+        particularly concerning the possible parameters.
         """
         self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
@@ -2939,6 +2966,10 @@ class Framework(object):
         """
         Alias for :meth:`Framework.is_vector_nontrivial_inf_flex` and
         :meth:`Framework.is_dict_nontrivial_inf_flex`.
+
+        Definitions
+        -----------
+        :prf:ref:`Nontrivial infinitesimal flex <def-trivial-inf-flex>`
 
         Notes
         -----
@@ -2968,11 +2999,6 @@ class Framework(object):
         inf_flex:
             An infinitesimal flex of the framework.
 
-        Notes
-        -----
-        See :meth:`Framework.is_nontrivial_vector_inf_flex` for details,
-        particularly concerning the possible parameters.
-
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2983,6 +3009,11 @@ class Framework(object):
         >>> q = [1,-1,1,1,-1,1,-1,-1]
         >>> F.is_vector_trivial_inf_flex(q)
         True
+
+        Notes
+        -----
+        See :meth:`Framework.is_nontrivial_vector_inf_flex` for details,
+        particularly concerning the possible parameters.
         """
         if not self.is_vector_inf_flex(inf_flex, **kwargs):
             return False
@@ -2990,7 +3021,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def is_dict_trivial_inf_flex(
-        self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
+        self, inf_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
         r"""
         Return whether an infinitesimal flex specified by a dictionary is trivial.
@@ -3001,13 +3032,8 @@ class Framework(object):
 
         Parameters
         ----------
-        vert_to_flex:
+        inf_flex:
             An infinitesimal flex of the framework in the form of a dictionary.
-
-        Notes
-        -----
-        See :meth:`Framework.is_vector_trivial_inf_flex` for details,
-        particularly concerning the possible parameters.
 
         Examples
         --------
@@ -3019,12 +3045,17 @@ class Framework(object):
         >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
         >>> F.is_dict_trivial_inf_flex(q)
         True
+
+        Notes
+        -----
+        See :meth:`Framework.is_vector_trivial_inf_flex` for details,
+        particularly concerning the possible parameters.
         """
-        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
+        self._graph._input_check_vertex_order(list(inf_flex.keys()), "vert_to_flex")
 
         dict_to_list = []
         for v in self._graph.vertex_list():
-            dict_to_list += list(vert_to_flex[v])
+            dict_to_list += list(inf_flex[v])
 
         return self.is_vector_trivial_inf_flex(
             dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs
@@ -3039,6 +3070,10 @@ class Framework(object):
         """
         Alias for :meth:`Framework.is_vector_trivial_inf_flex` and
         :meth:`Framework.is_dict_trivial_inf_flex`.
+
+        Definitions
+        -----------
+        :prf:ref:`Trivial infinitesimal flex <def-trivial-inf-flex>`
 
         Notes
         -----

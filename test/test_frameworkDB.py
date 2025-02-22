@@ -1,7 +1,8 @@
-import pyrigi.frameworkDB as fws
+import pytest
 import sympy as sp
 
-import pytest
+import pyrigi.frameworkDB as fws
+import pyrigi.graphDB as graphs
 
 
 def test_Cycle():
@@ -288,3 +289,21 @@ def test_CnSymmetricFourRegularWithFixedVertex():
             ]
         )
     ) and all([F._graph.degree[v] in [4, 5, 8] for v in F._graph.nodes])
+
+
+def test_Icosahedron():
+    F = fws.Icosahedron()
+    G = graphs.Icosahedral()
+    assert G.is_isomorphic(F._graph)
+    edge_lengths = list(F.edge_lengths().values())
+    for length in edge_lengths:
+        assert sp.simplify(length - edge_lengths[0]) == 0
+
+
+def test_Dodecahedron():
+    F = fws.Dodecahedron()
+    G = graphs.Dodecahedral()
+    assert G.is_isomorphic(F._graph)
+    edge_lengths = list(F.edge_lengths().values())
+    for length in edge_lengths:
+        assert sp.simplify(length - edge_lengths[0]) == 0

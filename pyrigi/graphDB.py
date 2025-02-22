@@ -3,28 +3,29 @@ This is a module for providing common types of graphs.
 """
 
 import networkx as nx
-from pyrigi.graph import Graph
+
 import pyrigi._input_check as _input_check
+from pyrigi.graph import Graph
 
 
 def Cycle(n: int) -> Graph:
-    """Return the cycle graph on n vertices."""
+    """Return the cycle graph on ``n`` vertices."""
     return Graph(nx.cycle_graph(n))
 
 
 def Complete(n: int) -> Graph:
-    """Return the complete graph on n vertices."""
+    """Return the complete graph on ``n`` vertices."""
     return Graph(nx.complete_graph(n))
 
 
 def Path(n: int) -> Graph:
-    """Return the path graph with n vertices."""
+    """Return the path graph with ``n`` vertices."""
     return Graph(nx.path_graph(n))
 
 
-def CompleteBipartite(m: int, n: int) -> Graph:
-    """Return the complete bipartite graph on m+n vertices."""
-    return Graph(nx.complete_multipartite_graph(m, n))
+def CompleteBipartite(n1: int, n2: int) -> Graph:
+    """Return the complete bipartite graph on ``n1+n2`` vertices."""
+    return Graph(nx.complete_multipartite_graph(n1, n2))
 
 
 def K33plusEdge() -> Graph:
@@ -65,16 +66,18 @@ def CubeWithDiagonal() -> Graph:
 
 def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     r"""
-    Return the d-dimensional double banana graph.
-
-    Parameters
-    ----------
-    dim: integer, must be at least 3
-    t: integer, must be 2 <= t <= dim-1
+    Return the `dim`-dimensional double banana graph.
 
     Definitions
     -----
-    :prf:ref:`Generalized Double Banana <def-generalized-double-banana>`
+    * :prf:ref:`Generalized Double Banana <def-generalized-double-banana>`
+
+    Parameters
+    ----------
+    dim:
+        An integer greater or equal 3.
+    t:
+        An integer such that ``2 <= t <= dim-1``.
 
     Examples
     --------
@@ -88,18 +91,18 @@ def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     _input_check.smaller_equal(t, dim - 1, "parameter t", "dim - 1")
 
     r = (dim + 2) - t
-    K = Complete(t)
-    K1 = K.copy()
+    Kt = Complete(t)
+    Kt1 = Kt.copy()
     for i in range(t, dim + 2):
-        K1.add_edges([[i, v] for v in K1.nodes])
-    K2 = K.copy()
+        Kt1.add_edges([[i, v] for v in Kt1.nodes])
+    Kt2 = Kt.copy()
     for i in range(dim + 2, dim + 2 + r):
-        K2.add_edges([[i, v] for v in K2.nodes])
-    return K1.sum_t(K2, [0, 1], t)
+        Kt2.add_edges([[i, v] for v in Kt2.nodes])
+    return Kt1.sum_t(Kt2, [0, 1], t)
 
 
 def CompleteMinusOne(n: int) -> Graph:
-    """Return the complete graph on n vertices minus one edge."""
+    """Return the complete graph on ``n`` vertices minus one edge."""
     G = Complete(n)
     G.delete_edge((0, 1))
     return G
@@ -121,6 +124,49 @@ def Octahedral() -> Graph:
             (2, 5),
             (3, 4),
             (3, 5),
+        ]
+    )
+
+
+def Icosahedral() -> Graph:
+    """Return the graph given by the skeleton of an icosahedron."""
+    return Graph(nx.icosahedral_graph().edges)
+
+
+def Dodecahedral() -> Graph:
+    """Return the graph given by the skeleton of a dodecahedron."""
+    return Graph(
+        [
+            (0, 8),
+            (0, 12),
+            (0, 16),
+            (1, 8),
+            (1, 13),
+            (1, 18),
+            (2, 10),
+            (2, 12),
+            (2, 17),
+            (3, 9),
+            (3, 14),
+            (3, 16),
+            (4, 10),
+            (4, 13),
+            (4, 19),
+            (5, 9),
+            (5, 15),
+            (5, 18),
+            (6, 11),
+            (6, 14),
+            (6, 17),
+            (7, 11),
+            (7, 15),
+            (7, 19),
+            (8, 9),
+            (10, 11),
+            (12, 13),
+            (14, 15),
+            (16, 17),
+            (18, 19),
         ]
     )
 
@@ -147,7 +193,7 @@ def K66MinusPerfectMatching():
 
 def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
-    Return a C_n-symmetric graph.
+    Return a $C_n$-symmetric graph.
 
     Definitions
     -----------
@@ -155,8 +201,8 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this graph, the cyclical group "
-            + "needs to have an even order of at least 8!"
+            "To generate this graph, the cyclic group "
+            + "must have an even order of at least 8!"
         )
     G = Graph()
     G.add_edges([(0, n - 1), (n - 3, 0), (n - 2, 1), (n - 1, 2)])
@@ -169,8 +215,9 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
 
 def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
     """
-    Return a C_n-symmetric graph with a fixed vertex.
-    The cyclical group C_n needs to have even order of at least 8.
+    Return a $C_n$-symmetric graph with a fixed vertex.
+
+    The value ``n`` must be even and at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
     count for rotation but is infinitesimally flexible.
@@ -181,8 +228,8 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(
-            "To generate this graph, the cyclical group "
-            + "needs to have an even order of at least 8!"
+            "To generate this graph, the cyclic group "
+            + "must have an even order of at least 8!"
         )
     G = CnSymmetricFourRegular(n)
     G.add_edges([(0, n), (n, 2 * n), (n + 1, 2 * n - 1), (n, 2 * n - 2)])
@@ -193,9 +240,9 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
 
 def ThreeConnectedR3Circuit():
     """
-    Return a 3-connected R_3-circuit.
+    Return a 3-connected $R_3$-circuit.
 
-    The returned graph is hypothesized to be the smallest 3-connected R_3-circuit.
+    The returned graph is hypothesized to be the smallest 3-connected $R_3$-circuit.
     """
     return Graph(
         [

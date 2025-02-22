@@ -1,20 +1,37 @@
-[tool.poetry]
+[project]
 name = "pyrigi"
 version = "0.4.0"
+dynamic = [ "readme", "classifiers", "dependencies", "optional-dependencies" ]
 description = "Python package concerning the rigidity and flexibility of bar-and-joint frameworks."
-authors = ["The PyRigi Developers"]
-license = "MIT"
-readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+maintainers =  [
+    { name = "Matteo Gallet", email = "matteo.gallet@units.it"},
+    { name = "Georg Grasegger"},
+    { name = "Matthias Himmelmann", email = "himmelmann1@uni-potsdam.de"},
+    { name = "Jan Legerský", email = "jan.legersky@fit.cvut.cz"}
+]
+authors = [
+    {name = "The PyRigi Developers"}
+]
+
+[project.urls]
 homepage = "https://pyrigi.github.io/PyRigi/"
 repository = "https://github.com/PyRigi/PyRigi/"
+documentation = "https://pyrigi.github.io/PyRigi/"
+Issues = "https://github.com/PyRigi/PyRigi/issues"
+
+[project.optional-dependencies]
+realization-counting = ["lnumber"]
+meshing = ["trimesh", "manifold3d"]
+
+[tool.poetry]
+readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
-[tool.poetry.urls]
-Issues = "https://github.com/PyRigi/PyRigi/issues"
 
 [tool.poetry.dependencies]
 python = "^3.10"		#networkx requires >= 3.10
@@ -39,6 +56,7 @@ pre-commit = "^3.7.1"
 pytest = "^8.2.1"
 sphinx = "^7.3.7"
 pytest-doctestplus = "^1.2.1"
+pytest-cov = "^6.0.0"
 
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.5.6"
@@ -53,10 +71,6 @@ sphinxcontrib-napoleon = "^0.7"
 sphinx-autobuild = "^2024.4.16"
 setuptools = "^70.0.0"
 jupytext = "^1.16.4"
-
-[tool.poetry.extras]
-realization-counting = ["lnumber"]
-meshing = ["trimesh", "manifold3d"]
 
 [build-system]
 requires = ["poetry-core"]
@@ -74,6 +88,10 @@ markers = [
     "long_local: marks long tests run locally",
     "realization_counting: marks tests using extra realization-counting",
     "meshing: marks tests using extra meshing"
+]
+filterwarnings = [
+    'ignore::pyrigi.warning.RandomizedAlgorithmWarning',
+    'ignore:FigureCanvasAgg is non-interactive, and thus cannot be shown:UserWarning'
 ]
 
 [tool.jupytext]
