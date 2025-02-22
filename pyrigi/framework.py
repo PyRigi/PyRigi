@@ -2335,7 +2335,7 @@ class Framework(object):
 
         The method uses Trimesh and Manifold3d packages to create a model of a bar
         with two holes at the ends.
-        The method returns the bar as a Trimesh object and saves it as an STL file.
+        The method returns the bar as a Trimesh object and saves it as a STL file.
 
         Parameters
         ----------
