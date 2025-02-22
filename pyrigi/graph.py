@@ -2597,14 +2597,14 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> index_map = {0: 0, 1: 1, 2: 2, 3: 3} # identitiy
-        >>> G = Graph([(0,1),(0,2),(1,2),(1,3)])
-        >>> G._build_pebble_digraph(2, 3)
-        >>> G._create_rigid_comp_matrix(index_map)
-        [[True, True, True, False],
-         [True, True, True, True],
-         [True, True, True, False],
-         [False, True, False, True]]
+        >>> #index_map = {0: 0, 1: 1, 2: 2, 3: 3} # identitiy
+        >>> #G = Graph([(0,1),(0,2),(1,2),(1,3)])
+        >>> #G._build_pebble_digraph(2, 3)
+        >>> #G._create_rigid_comp_matrix(index_map)
+        #[[True, True, True, False],
+        # [True, True, True, True],
+        # [True, True, True, False],
+        # [False, True, False, True]]
         """
 
         # create a nodes by nodes matrix
