@@ -42,8 +42,6 @@ def resolve_inf_flex(
         If None, the framework's realization is used.
     projection_matrix:
         A matrix used for projection to a lower dimension.
-
-
     """
     if isinstance(inf_flex, int) and inf_flex >= 0:
         inf_flex_basis = framework.nontrivial_inf_flexes()
@@ -243,6 +241,9 @@ def resolve_stress(
     Resolve an equilibrium stress from various datatypes and
     position of the labels on edges.
 
+    The method returns a tuple with two dictionaries:
+    one for the stress values and another for the label positions.
+
     Parameters
     ----------
     framework:
@@ -252,12 +253,6 @@ def resolve_stress(
     stress_label_positions:
         A dictionary mapping directed edges
         to values determining the position of stress labels.
-
-    Returns
-    -------
-    tuple[dict[Edge, Number], dict[DirectedEdge, float]]
-        A tuple with two dictionaries: one for the stress values and another
-        for the label positions.
     """
 
     if stress_label_positions is None:
