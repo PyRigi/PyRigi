@@ -1,6 +1,6 @@
-import pyrigi.graphDB as graphs
-
 import pytest
+
+import pyrigi.graphDB as graphs
 
 
 def test_Cycle():

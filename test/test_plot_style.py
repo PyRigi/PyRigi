@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 

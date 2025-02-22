@@ -19,7 +19,6 @@ kernelspec:
 This notebook can be downloaded {download}`here <../../notebooks/plotting.ipynb>`.
 
 ```{code-cell} ipython3
-# The import will work if the package was installed using pip.
 import pyrigi.frameworkDB as frameworks
 import pyrigi.graphDB as graphs
 from pyrigi import Graph, Framework
@@ -66,22 +65,22 @@ G.plot(placement={0: (0, 0), 1: (0, 2), 2: (2, 1), 3: (6, 0), 4: (6, 2), 5: (4, 
 The size of the canvas can be specified.
 
 ```{code-cell} ipython3
-S = frameworks.Square()
-S.plot(canvas_width=2)
+Square = frameworks.Square()
+Square.plot(canvas_width=2)
 ```
 
 ```{code-cell} ipython3
-S.plot(canvas_height=2)
+Square.plot(canvas_height=2)
 ```
 
 ```{code-cell} ipython3
-S.plot(canvas_width=2, canvas_height=2)
+Square.plot(canvas_width=2, canvas_height=2)
 ```
 
 Also the aspect ratio:
 
 ```{code-cell} ipython3
-S.plot(aspect_ratio=0.4)
+Square.plot(aspect_ratio=0.4)
 ```
 
 ## Formatting
@@ -91,9 +90,9 @@ vertex color/size or label color/size can be changed.
 
 ```{code-cell} ipython3
 G = Graph([[0,1]])
-p = {0: [0,0], 1: [1,0]}
-G.plot(placement=p, canvas_height=1, vertex_labels=False, vertex_color='green')
-G.plot(placement=p, canvas_height=1, vertex_size=1500, font_size=30, font_color='#FFFFFF')
+realization = {0: [0,0], 1: [1,0]}
+G.plot(placement=realization, canvas_height=1, vertex_labels=False, vertex_color='green')
+G.plot(placement=realization, canvas_height=1, vertex_size=1500, font_size=30, font_color='#FFFFFF')
 ```
 
 In order to format multiple plots using the same arguments,
@@ -115,11 +114,11 @@ plot_style = PlotStyle(
 There are various styles of vertices and edges.
 
 ```{code-cell} ipython3
-G.plot(plot_style, placement=p, vertex_shape='s', edge_style='-')
-G.plot(plot_style, placement=p, vertex_shape='o', edge_style='--')
-G.plot(plot_style, placement=p, vertex_shape='^', edge_style='-.')
-G.plot(plot_style, placement=p, vertex_shape='>', edge_style=':')
-G.plot(plot_style, placement=p, vertex_shape='v', edge_style='solid')
+G.plot(plot_style, placement=realization, vertex_shape='s', edge_style='-')
+G.plot(plot_style, placement=realization, vertex_shape='o', edge_style='--')
+G.plot(plot_style, placement=realization, vertex_shape='^', edge_style='-.')
+G.plot(plot_style, placement=realization, vertex_shape='>', edge_style=':')
+G.plot(plot_style, placement=realization, vertex_shape='v', edge_style='solid')
 ```
 
 We can also change some values of `plot_style` in two different ways.
@@ -127,18 +126,18 @@ The first is using method `update`.
 
 ```{code-cell} ipython3
 plot_style.update(vertex_color='green')
-G.plot(plot_style, placement=p, vertex_shape='<', edge_style='dashed')
-G.plot(plot_style, placement=p, vertex_shape='d', edge_style='dashdot')
-G.plot(plot_style, placement=p, vertex_shape='p', edge_style='dotted')
+G.plot(plot_style, placement=realization, vertex_shape='<', edge_style='dashed')
+G.plot(plot_style, placement=realization, vertex_shape='d', edge_style='dashdot')
+G.plot(plot_style, placement=realization, vertex_shape='p', edge_style='dotted')
 ```
 
 The second is a direct assignment to an attribute.
 
 ```{code-cell} ipython3
 plot_style.vertex_shape = 'h'
-G.plot(plot_style, placement=p, edge_width=3)
+G.plot(plot_style, placement=realization, edge_width=3)
 plot_style.vertex_shape = '8'
-G.plot(plot_style, placement=p, edge_width=5)
+G.plot(plot_style, placement=realization, edge_width=5)
 ```
 
 ## Edge coloring
@@ -151,21 +150,21 @@ plot_style = PlotStyle(
     canvas_height=2,
     edge_width=5,
 )
-p = {v: [v, 0] for v in P.vertex_list()}
-P.plot(plot_style, placement=p, edge_color='red')
+realization = {v: [v, 0] for v in P.vertex_list()}
+P.plot(plot_style, placement=realization, edge_color='red')
 ```
 
 If a partition of the edges is specified, then each part is colored differently.
 
 ```{code-cell} ipython3
-P.plot(plot_style, placement=p, edge_colors_custom=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]])
+P.plot(plot_style, placement=realization, edge_colors_custom=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]])
 ```
 
 If the partition is incomplete, the missing edges get `plot_style.edge_color`.
 
 ```{code-cell} ipython3
 plot_style.update(edge_color='green')
-P.plot(plot_style, placement=p, edge_colors_custom=[[[0, 1], [2, 3]], [[5, 4], [4, 3]]])
+P.plot(plot_style, placement=realization, edge_colors_custom=[[[0, 1], [2, 3]], [[5, 4], [4, 3]]])
 ```
 
 Visually distinct colors are generated using the package [`distinctipy`](https://pypi.org/project/distinctipy/).
@@ -184,7 +183,7 @@ Another possibility is to provide a dictionary assigning to a color a list of ed
 
 ```{code-cell} ipython3
 P.plot(plot_style,
-       placement=p,
+       placement=realization,
         edge_colors_custom={
             "yellow": [[0, 1], [2, 3]],
             "#ABCDEF": [[5, 4], [4, 3]]
@@ -256,8 +255,8 @@ parameters can be found in the API reference: {class}`~.PlotStyle`.
 
 ```{code-cell} ipython3
 G = Graph([[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]])
-p = {0: [6, 8], 1: [6, -14], 2: [0, 0], 3: [-4, 4], 4: [-4, -4]}
-F = Framework(G, p)
+realization = {0: [6, 8], 1: [6, -14], 2: [0, 0], 3: [-4, 4], 4: [-4, -4]}
+F = Framework(G, realization)
 F.plot(
     inf_flex=0,
     flex_width=4,
@@ -273,8 +272,8 @@ following chain of commands:
 
 ```{code-cell} ipython3
 F = frameworks.ThreePrism(realization="flexible")
-flex = F.nontrivial_inf_flexes()[0]
-F.plot(inf_flex=flex)
+inf_flex = F.nontrivial_inf_flexes()[0]
+F.plot(inf_flex=inf_flex)
 ```
 
 It is important to use the same order of the vertices of `F` as {meth}`.Graph.vertex_list` when
@@ -285,8 +284,8 @@ internally checked whether the provided vector lies in the kernel of the rigidit
 
 ```{code-cell} ipython3
 F = frameworks.Square()
-flex = {0: (1, -1), 1: (1, 1), 2: (-1, 1), 3: (-1, -1)}
-F.plot(inf_flex=flex)
+inf_flex = {0: (1, -1), 1: (1, 1), 2: (-1, 1), 3: (-1, -1)}
+F.plot(inf_flex=inf_flex)
 ```
 
 ### Equilibrium Stresses

@@ -1,16 +1,16 @@
-from pyrigi.graph import Graph
-import pyrigi.graphDB as graphs
-from pyrigi.exception import LoopError, NotSupportedValueError
-from pyrigi.warning import RandomizedAlgorithmWarning
+from random import randint
 
+import math
 import matplotlib.pyplot as plt
-
+import networkx as nx
 import pytest
 from sympy import Matrix
-import math
-import networkx as nx
-from random import randint
+
+import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
+from pyrigi.graph import Graph
+from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.warning import RandomizedAlgorithmWarning
 import itertools
 
 
@@ -43,8 +43,26 @@ def test__add__():
     ],
 )
 def test_is_rigid_d2(graph):
+    assert graph.is_rigid(dim=2, algorithm="default")
     assert graph.is_rigid(dim=2, algorithm="sparsity")
     assert graph.is_rigid(dim=2, algorithm="randomized")
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(3),
+        graphs.Path(4),
+        graphs.Cycle(4),
+        graphs.Cycle(5),
+        graphs.CompleteBipartite(1, 3),
+        graphs.CompleteBipartite(2, 3),
+    ],
+)
+def test_not_is_rigid_d2(graph):
+    assert not graph.is_rigid(dim=2, algorithm="default")
+    assert not graph.is_rigid(dim=2, algorithm="sparsity")
+    assert not graph.is_rigid(dim=2, algorithm="randomized")
 
 
 @pytest.mark.parametrize(
@@ -79,6 +97,7 @@ def test_is_not_rigid_d2(graph):
     ],
 )
 def test_is_rigid_d1(graph):
+    assert graph.is_rigid(dim=1, algorithm="default")
     assert graph.is_rigid(dim=1, algorithm="graphic")
     assert graph.is_rigid(dim=1, algorithm="randomized")
 
@@ -102,6 +121,7 @@ def test_is_not_rigid_d1(graph):
 )
 def test_is_rigid(graph, dim):
     assert graph.is_rigid(dim, algorithm="sparsity" if (dim < 3) else "randomized")
+    assert graph.is_rigid(dim, algorithm="default")
 
 
 @pytest.mark.parametrize(
@@ -311,6 +331,10 @@ def read_globally(d_v_):
     return read_random_from_graph6("test/input_graphs/globally_rigid/" + d_v_ + ".g6")
 
 
+def read_sparsity(filename):
+    return Graph(nx.read_sparse6("test/input_graphs/sparsity/" + filename + ".s6"))
+
+
 # Examples of globally rigid graphs taken from:
 # Grasegger, G. (2022). Dataset of globally rigid graphs [Data set].
 # Zenodo. https://doi.org/10.5281/zenodo.7473052
@@ -412,6 +436,89 @@ def test_is_not_globally_rigid(graph, gdim):
 )
 def test_is_not_globally_d2(graph):
     assert not graph.is_globally_rigid(dim=2)
+
+
+@pytest.mark.slow_main
+def test_rigid_in_d2():
+    graph = read_sparsity("K4")
+    assert graph.is_rigid(dim=2, algorithm="sparsity")
+
+    # (2,3)-tight graph on 1000 vertices and 1997 edges
+    graph = read_sparsity("huge_tight_2_3")
+    assert graph.is_kl_tight(K=2, L=3, algorithm="pebble")
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        # (6,8)-tight graph on 50 vertices and 292 edges
+        pytest.param(read_sparsity("tight_6_8"), 6, 8, marks=pytest.mark.slow_main),
+        # (7,3)-tight graph on 70 vertices and 487 edges
+        pytest.param(read_sparsity("tight_7_3"), 7, 3, marks=pytest.mark.slow_main),
+        # (5,9)-tight graph on 40 vertices and 191 edges
+        pytest.param(read_sparsity("tight_5_9"), 5, 9, marks=pytest.mark.slow_main),
+        # (13,14)-tight graph on 20 vertices and 246 edges
+        pytest.param(read_sparsity("tight_13_14"), 13, 14, marks=pytest.mark.slow_main),
+        # (2,3)-tight graph on 1000 vertices and 1997 edges
+        pytest.param(
+            read_sparsity("huge_tight_2_3"), 2, 3, marks=pytest.mark.slow_main
+        ),
+    ],
+)
+def test_big_random_tight_graphs(graph, K, L):
+    assert graph.is_kl_tight(K, L, algorithm="pebble")
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        # Dense graph on 20 vertices
+        pytest.param(
+            read_sparsity("not_sparse_5_2"), 5, 2, marks=pytest.mark.slow_main
+        ),
+        # (7,7)-tight graph plus one edge on 40 vertices (274 edges)
+        pytest.param(
+            read_sparsity("not_sparse_7_7"), 7, 7, marks=pytest.mark.slow_main
+        ),
+        # few edges in graph on 30 vertices, but has a (3,5)-connected circle
+        pytest.param(
+            read_sparsity("not_sparse_3_5"), 3, 5, marks=pytest.mark.slow_main
+        ),
+        # random large graph on 70 vertices, not sparse
+        pytest.param(
+            read_sparsity("not_sparse_6_6"), 6, 6, marks=pytest.mark.slow_main
+        ),
+    ],
+)
+def test_big_random_not_sparse_graphs(graph, K, L):
+    assert not graph.is_kl_sparse(K, L, algorithm="pebble")
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        pytest.param(read_sparsity("K4"), marks=pytest.mark.slow_main),
+        pytest.param(read_sparsity("circle_5_8"), marks=pytest.mark.slow_main),
+        pytest.param(read_sparsity("circle_10_18"), marks=pytest.mark.slow_main),
+        pytest.param(read_sparsity("circle_20_38"), marks=pytest.mark.slow_main),
+        pytest.param(read_sparsity("circle_30_58"), marks=pytest.mark.slow_main),
+    ],
+)
+def test_Rd_circuit_graphs_d2(graph):
+    assert graph.is_Rd_circuit(dim=2, algorithm="sparsity")
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        pytest.param(read_sparsity("not_circle_5_7"), marks=pytest.mark.slow_main),
+        pytest.param(read_sparsity("not_circle_10_18"), marks=pytest.mark.slow_main),
+        pytest.param(read_sparsity("not_circle_20_39"), marks=pytest.mark.slow_main),
+        pytest.param(read_sparsity("not_circle_30_58"), marks=pytest.mark.slow_main),
+    ],
+)
+def test_Rd_not_circuit_graphs_d2(graph):
+    assert not graph.is_Rd_circuit(dim=2, algorithm="sparsity")
 
 
 @pytest.mark.parametrize(
@@ -799,6 +906,12 @@ def test_is_not_k_redundantly_rigid_d1(graph, k):
 @pytest.mark.parametrize(
     "graph, k",
     [
+        [
+            Graph(
+                [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 0), (0, 3), (0, 2), (1, 3)]
+            ),
+            1,
+        ],
         [Graph.from_int(255), 1],
         [Graph.from_int(507), 2],
         [Graph.from_int(14917374), 2],
@@ -818,6 +931,10 @@ def test_is_not_k_redundantly_rigid_d2(graph, k):
 @pytest.mark.parametrize(
     "graph, k",
     [
+        [graphs.Cycle(14), 2],
+        [graphs.CnSymmetricFourRegularWithFixedVertex(14), 2],
+        [graphs.DoubleBanana(), 0],
+        [graphs.DoubleBanana(), 1],
         [Graph.from_int(7679), 1],
         [Graph.from_int(16351), 2],
         [Graph.from_int(1048575), 3],
@@ -906,6 +1023,7 @@ def test_is_not_min_k_redundantly_rigid_d1(graph, k):
     [
         [graphs.ThreePrism(), 1],
         [Graph.from_int(8191), 1],
+        [graphs.Complete(7), 1],
         pytest.param(Graph.from_int(16351), 2, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048063), 3],
     ],
@@ -2378,7 +2496,7 @@ def test_plot():
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 2],
@@ -2388,12 +2506,12 @@ def test_plot():
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_count_reflection(graph, n):
-    assert graph.number_of_realizations(count_reflection=True) == n
+def test_number_of_realizations_count_reflection(graph, num_of_realizations):
+    assert graph.number_of_realizations(count_reflection=True) == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 1],
@@ -2403,12 +2521,12 @@ def test_number_of_realizations_count_reflection(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations(graph, n):
-    assert graph.number_of_realizations() == n
+def test_number_of_realizations(graph, num_of_realizations):
+    assert graph.number_of_realizations() == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 1],
@@ -2418,12 +2536,12 @@ def test_number_of_realizations(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere(graph, n):
-    assert graph.number_of_realizations(spherical_realizations=True) == n
+def test_number_of_realizations_sphere(graph, num_of_realizations):
+    assert graph.number_of_realizations(spherical=True) == num_of_realizations
 
 
 @pytest.mark.parametrize(
-    "graph, n",
+    "graph, num_of_realizations",
     [
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 2],
@@ -2433,10 +2551,10 @@ def test_number_of_realizations_sphere(graph, n):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere_count_reflection(graph, n):
+def test_number_of_realizations_sphere_count_reflection(graph, num_of_realizations):
     assert (
-        graph.number_of_realizations(spherical_realizations=True, count_reflection=True)
-        == n
+        graph.number_of_realizations(spherical=True, count_reflection=True)
+        == num_of_realizations
     )
 
 
@@ -2468,6 +2586,7 @@ def test_is_Rd_circuit_d1(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        Graph([(0, 1), (2, 3)]),
         graphs.Complete(2),
         graphs.Diamond(),
         graphs.K33plusEdge(),
@@ -2489,6 +2608,7 @@ def test_is_not_Rd_circuit_d1(graph):
         graphs.Complete(4),
         graphs.ThreePrismPlusEdge(),
         graphs.K33plusEdge(),
+        Graph([(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (3, 0), (3, 1), (2, 4)]),
     ],
 )
 def test_is_Rd_circuit_d2(graph):
@@ -2507,10 +2627,48 @@ def test_is_Rd_circuit_d2(graph):
         graphs.Path(3),
         graphs.Cycle(4),
         graphs.K66MinusPerfectMatching(),
+        Graph(
+            [
+                (0, 1),
+                (1, 2),
+                (2, 3),
+                (3, 4),
+                (4, 5),
+                (5, 0),
+                (0, 3),
+                (0, 2),
+                (1, 3),
+                (3, 5),
+            ]
+        ),
+        graphs.Complete(4) + Graph([(3, 4), (4, 5), (5, 6), (6, 3), (3, 5), (4, 6)]),
     ],
 )
 def test_is_not_Rd_circuit_d2(graph):
-    assert not graph.is_Rd_circuit(dim=2)
+    assert not graph.is_Rd_circuit(dim=2, algorithm="default")
+    assert not graph.is_Rd_circuit(dim=2, algorithm="randomized")
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
+)
+def test_is_Rd_circuit_d3(graph):
+    assert graph.is_Rd_circuit(dim=3)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        graphs.Path(5),
+        graphs.Complete(4),
+        graphs.Cycle(6),
+        graphs.ThreePrism(),
+        graphs.K33plusEdge(),
+    ],
+)
+def test_is_not_Rd_circuit_d3(graph):
+    assert not graph.is_Rd_circuit(dim=3)
 
 
 @pytest.mark.parametrize(
@@ -2548,28 +2706,6 @@ def test_is_not_Rd_closed(graph, dim):
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
-
-
-@pytest.mark.parametrize(
-    "graph",
-    [graphs.Complete(5), graphs.ThreeConnectedR3Circuit(), graphs.DoubleBanana()],
-)
-def test_is_Rd_circuit_d3(graph):
-    assert graph.is_Rd_circuit(dim=3)
-
-
-@pytest.mark.parametrize(
-    "graph",
-    [
-        graphs.Path(5),
-        graphs.Complete(4),
-        graphs.Cycle(6),
-        graphs.ThreePrism(),
-        graphs.K33plusEdge(),
-    ],
-)
-def test_is_not_Rd_circuit_d3(graph):
-    assert not graph.is_Rd_circuit(dim=3)
 
 
 @pytest.mark.parametrize(

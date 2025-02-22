@@ -4,11 +4,10 @@ Module for defining data type used for type hinting.
 
 """
 
-from sympy import Matrix, MatrixBase
-import sympy as sp
-import numpy as np
-from typing import Hashable
 from collections.abc import Sequence
+from typing import Hashable
+
+import sympy as sp
 
 
 Vertex = Hashable
@@ -58,35 +57,3 @@ Inf = sp.core.numbers.Infinity
 """
 Provides a data type that can become infinite.
 """
-
-
-def point_to_vector(point: Point) -> Matrix:
-    """
-    Return point as single column sympy Matrix.
-    """
-    if isinstance(point, MatrixBase) or isinstance(point, np.ndarray):
-        if (
-            len(point.shape) > 1 and point.shape[0] != 1 and point.shape[1] != 1
-        ) or len(point.shape) > 2:
-            raise ValueError("Point could not be interpreted as column vector.")
-        if isinstance(point, np.ndarray):
-            point = np.array([point]) if len(point.shape) == 1 else point
-            point = Matrix(
-                [
-                    [float(point[i, j]) for i in range(point.shape[0])]
-                    for j in range(point.shape[1])
-                ]
-            )
-        return point if (point.shape[1] == 1) else point.transpose()
-
-    if not isinstance(point, Sequence) or isinstance(point, str):
-        raise TypeError("The point must be a Sequence of Numbers.")
-
-    try:
-        res = Matrix(point)
-    except Exception as e:
-        raise ValueError("A coordinate could not be interpreted by sympify:\n" + str(e))
-
-    if res.shape[0] != 1 and res.shape[1] != 1:
-        raise ValueError("Point could not be interpreted as column vector.")
-    return res if (res.shape[1] == 1) else res.transpose()

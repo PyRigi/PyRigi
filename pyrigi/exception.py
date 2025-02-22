@@ -8,11 +8,19 @@ from collections.abc import Callable
 
 
 class LoopError(ValueError):
+    """
+    Error raised when the graph is not loop-free.
+    """
+
     def __init__(self, msg: str = "The graph needs to be loop-free.", *args, **kwargs):
         super().__init__(msg, *args, **kwargs)
 
 
 class NotSupportedValueError(ValueError):
+    """
+    Error raised when an input value is not supported.
+    """
+
     def __init__(
         self,
         wrong_param,

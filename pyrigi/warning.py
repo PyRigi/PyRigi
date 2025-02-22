@@ -8,6 +8,10 @@ from collections.abc import Callable
 
 
 class RandomizedAlgorithmWarning(UserWarning):
+    """
+    Warning raised when randomized algorithm is used without explicit call.
+    """
+
     def __init__(
         self,
         method: Callable,
