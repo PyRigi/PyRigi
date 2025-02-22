@@ -309,7 +309,7 @@ def CompleteBipartite(n1: int, n2: int, realization: str = None) -> Framework:
         )
     elif realization == "collinear":
         return Framework(
-            graphs.CompleteBipartite(m, n), {i: [i, 0] for i in range(m + n)}
+            graphs.CompleteBipartite(m, n), {i: [i, 0] for i in range(n1 + n2)}
         )
     return Framework(
         graphs.CompleteBipartite(n1, n2),
