@@ -221,8 +221,8 @@ is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_
 
 Let $V_1,\dots, V_r$ be the vertex sets of the {prf:ref}`connected components <def-k-connected>` of $B-V_0$. Delete from $B$ the vertex
 sets $V_i$ for $1\leq i\leq r$ and add the edges $xy$ for all pairs
-$x,y \in N_B(V_i)$ for $1\leq i\leq r$. Here $N_G(V_i)$ denotes
-the set of nodes of $V-V_i$ that are connected by an edge to some vertex of $V_i$. The resulting graph is $C(B,V_0)$.
+$x,y \in N_B(V_i)$ for $1\leq i\leq r$. Here $N_B(V_i)$ denotes
+the set of nodes of $B-V_i$ that are connected by an edge to some vertex of $V_i$. The resulting graph is $C(B, V_0)$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
 {{references}} {cite:p}`JordanVillanyi2024`
