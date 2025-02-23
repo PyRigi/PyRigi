@@ -3246,14 +3246,13 @@ class Graph(nx.Graph):
         self, vertices: list[Vertex] | set[Vertex]
     ) -> Graph:
         """
-        Consider the subgraph of self induced by vertices, contract each connected
-        components of self minus vertices to a single vertex. Make their neighbors
-        in vertices into a clique.
+        Create a graph by selecting the subgraph of ``self`` induced by vertices,
+        contracting each connected component of ``self`` minus ``vertices``
+        to a single vertex, and making their neighbors in ``vertices`` into a clique.
 
         Definitions
         -----------
         :prf:ref:`clique <def-clique>`
-        :prf:ref:`clique operation <def-clique-operation>`
 
         Parameters
         ----------
@@ -3389,8 +3388,8 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`weakly globally linked pair <def-globally-linked>`
-        :prf:ref:`weakly globally linked theorem <thm-weakly-globally-linked>`
+        * :prf:ref:`weakly globally linked pair <def-globally-linked>`
+        * :prf:ref:`weakly globally linked theorem <thm-weakly-globally-linked>`
 
         Parameters
         ----------
