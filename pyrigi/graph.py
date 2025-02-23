@@ -2650,7 +2650,7 @@ class Graph(nx.Graph):
                 # note that this will not return isolated vertices
                 if i_u < i_v:
                     # new clique starts here
-                    if adj_matrix[i_u][i_v] is True and not any(
+                    if adj_matrix[i_u][i_v] and not any(
                         u in c and v in c for c in maximal_cliques
                     ):
                         clique = {u, v}
@@ -2658,8 +2658,8 @@ class Graph(nx.Graph):
                             # enough to check for two vertices
                             if (
                                 (w not in clique)
-                                and adj_matrix[i_w][i_u] is True
-                                and adj_matrix[i_w][i_v] is True
+                                and adj_matrix[i_w][i_u]
+                                and adj_matrix[i_w][i_v]
                             ):
                                 clique.add(w)
                         maximal_cliques.append(clique)
