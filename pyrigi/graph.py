@@ -2549,7 +2549,9 @@ class Graph(nx.Graph):
 
         raise NotSupportedValueError(algorithm, "algorithm", self.Rd_closure)
 
-    def _create_rigid_comp_matrix(self, index_map: dict[Vertex, int]) -> list[list[int]]:
+    def _create_rigid_comp_matrix(
+        self, index_map: dict[Vertex, int]
+    ) -> list[list[int]]:
         """
         Return a matrix that for every pairs of vertices gives if there is a rigid
         component spanning the two vertices.
@@ -2594,9 +2596,7 @@ class Graph(nx.Graph):
         """
 
         # create a nodes by nodes matrix
-        comp_matrix = [
-            [False for _ in range(len(index_map))] for _ in range(len(index_map))
-        ]
+        comp_matrix = [[False for _ in index_map] for _ in index_map]
 
         for u, i_u in index_map.items():
             for v, i_v in index_map.items():
