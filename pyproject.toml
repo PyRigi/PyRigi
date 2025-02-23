@@ -50,17 +50,17 @@ pytest-cov = "^6.0.0"
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.8.6"
 myst-nb = "^1.2.0"
+sphinx = "^8.2.1"
+sphinx-autobuild = "^2024.10.3"
 sphinx-copybutton = "^0.5.2"
+sphinx-design = "^0.6.1"
 sphinx-math-dollar = "^1.2.1"
 sphinx-proof = "^0.2.0"
 sphinx-tippy = "^0.4.3"
-sphinxcontrib-bibtex = "^2.6.2"
+sphinxcontrib-bibtex = "^2.6.3"
 sphinxcontrib-napoleon = "^0.7"
-sphinx-autobuild = "^2024.4.16"
-setuptools = "^70.0.0"
-sphinx = "^8.2.1"
-sphinx-design = "^0.6.1"
 jupytext = "^1.16.7"
+setuptools = "^75.8.0"
 
 [build-system]
 requires = ["poetry-core"]
