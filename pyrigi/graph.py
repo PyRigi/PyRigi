@@ -2549,7 +2549,7 @@ class Graph(nx.Graph):
 
         raise NotSupportedValueError(algorithm, "algorithm", self.Rd_closure)
 
-    def _create_rigid_comp_matrix(self, index_map: map[Vertex, int]) -> list[list[int]]:
+    def _create_rigid_comp_matrix(self, index_map: dict[Vertex, int]) -> list[list[int]]:
         """
         Return a matrix that for every pairs of vertices gives if there is a rigid
         component spanning the two vertices.
@@ -2578,8 +2578,8 @@ class Graph(nx.Graph):
         Parameters
         ---------
         index_map:
-            mapping from vertices from the connected component to indices
-            - for better running time
+            dictionary with vertices from a connected component as keys
+            and indices as values - for better running time
 
         Examples
         --------
@@ -2615,7 +2615,7 @@ class Graph(nx.Graph):
         return comp_matrix
 
     def _calculate_maximal_cliques(
-        self, index_map: map[Vertex, int], adj_matrix: list[list[int]]
+        self, index_map: dict[Vertex, int], adj_matrix: list[list[int]]
     ) -> list[list[Vertex]]:
         """
         Find all maximal cliques in a graph given by an adjacency matrix.
@@ -2634,7 +2634,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         index_map:
-            mapping from vertices to indices
+            dictionary from vertices to indices
         adj_matrix:
             adjacency matrix of the graph
 
