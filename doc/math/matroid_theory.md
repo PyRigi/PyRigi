@@ -24,6 +24,18 @@ A _circuit_ is a minimal dependent subset of $E$
 {meth}`~.Graph.is_Rd_circuit`
 :::
 
+:::{prf:definition} Fundamental circuit
+:label: def-fundamental-circuit
+
+Let $G=(V,E)$ be a graph, $\mathcal{M}=(E, \mathcal{I})$ be a {prf:ref}`matroid <def-matroid>`, 
+$e\in E$ be an edge of the graph. Suppose $I\in\mathcal{I}$ is independent but $I+e$ is dependent. 
+Then the _fundamental circuit_ of $e$ with respect to $I$ is the (unique) 
+{prf:ref}`circuit <def-matroid>` contained in $I+e$.
+
+{{references}} {cite:p}`BergJordan2003`
+{{pyrigi_crossref}} {meth}`~.Graph.Rd_fundamental_circuit`
+:::
+
 
 :::{prf:definition} Rank function and closure
 :label: def-rank-function-closure

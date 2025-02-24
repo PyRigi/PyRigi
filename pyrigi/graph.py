@@ -3340,7 +3340,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`R2 circuit <def-matroid>`
+        :prf:ref:`fundamental circuit <def-fundamental-circuit>`
 
         Examples
         --------
@@ -3363,8 +3363,7 @@ class Graph(nx.Graph):
         )
         self._input_check_no_loop()
         self._input_check_vertex_members([u, v])
-        if not nx.is_biconnected(self):
-            raise ValueError("The graph must be biconnected.")
+        # check (u, v) are non-adjacent linked pair
         if self.has_edge(u, v):
             raise ValueError("The vertices must not be connected by an edge.")
         elif not list(
@@ -3373,8 +3372,6 @@ class Graph(nx.Graph):
             )
         ):
             raise ValueError("The vertices must be a linked pair.")
-        if nx.algorithms.connectivity.local_node_connectivity(self, u, v) <= 2:
-            raise ValueError("The local connectivity of the vertices must be > 2.")
 
         self._build_pebble_digraph(K=2, L=3)
         set_nodes = self._pebble_digraph.fundamental_circuit(u, v)

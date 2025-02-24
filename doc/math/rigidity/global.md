@@ -155,6 +155,37 @@ of $G$ that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in
 :::
 
 
+:::{prf:definition}
+:label: def-rigid-component
+
+Given a graph $G$, maximal rigid subgraph of $G$ is a _rigid component_ of $G$.
+{{references}} {cite:p}`BergJordan2003`
+:::
+
+Clearly, every edge belongs to some rigid component and rigid components are induced subgraphs.
+
+:::{prf:lemma}
+:label: lem-linked-pair-rigid-component
+
+A pair $\{u, v\}$ is {prf:ref}`linked <def-globally-linked>` in $G$ if and only if
+there exists a {prf:ref}`rigid component <def-rigid-component>` of $G$ containing 
+$u$ and $v$.
+
+{{references}} {cite:p}`Jordan2016`
+:::
+
+
+:::{prf:lemma}
+:label: lem-linked-pair-r2-circuit
+
+A pair $\{u, v\}$ of vertices is non-adjacent and {prf:ref}`linked <def-globally-linked>`
+in $G$ if and only if there exists some subgraph $G_0 = (V_0,E_0)$ of $G$ with $u,v\in V_0$
+such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-fundamental-circuit>`.
+
+{{references}} {cite:p}`JordanVillanyi2024`
+:::
+
+
 :::{prf:definition} augmented graph
 :label: def-augmented-graph
 
