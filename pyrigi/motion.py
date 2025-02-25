@@ -7,7 +7,7 @@ from copy import deepcopy
 from math import isclose
 from typing import Any, Literal
 from warnings import warn
-
+import random
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
@@ -26,6 +26,7 @@ from pyrigi.data_type import (
     DirectedEdge,
     Edge,
 )
+from pyrigi import graphDB
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
@@ -902,6 +903,7 @@ class ApproximateMotion(Motion):
         Create an instance of `ApproximateMotion`.
         """
         super().__init__(F.graph(), F.dim())
+        self._stress_length = len(F.stresses())
         self._starting_realization = F.realization(as_points=True, numerical=True)
         self.steps = steps
         self.chosen_flex = chosen_flex
@@ -992,10 +994,15 @@ class ApproximateMotion(Motion):
         step_size_rescaling = 2
         jump_indicator = [False, False]
         while i < self.steps:
-            euler_step, cur_inf_flex = self._euler_step(
+            euler_step, trial_inf_flex = self._euler_step(
                 cur_inf_flex, cur_sol, turning_threshold
             )
-            cur_sol = self._newton_steps(euler_step)
+            try:
+                cur_sol = self._newton_steps(euler_step)
+            except:
+                self._current_step_size = self._current_step_size / step_size_rescaling
+                continue
+            cur_inf_flex = trial_inf_flex
             self.motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
@@ -1115,7 +1122,8 @@ class ApproximateMotion(Motion):
                 ]
 
         output_realizations = []
-        for realization in _realizations:
+        print({i:pos[v2] for i, pos in enumerate(_realizations)})
+        for i, realization in enumerate(_realizations):
             if any([len(pos) not in [2, 3] for pos in realization.values()]):
                 raise ValueError(
                     "This method is not implemented for dimensions other than 2 or 3."
@@ -1131,7 +1139,9 @@ class ApproximateMotion(Motion):
                 np.dot([v_dist * t for t in fixed_direction], realization[v2])
                 / v_dist**2
             )
-
+            
+            print(f"{i}: {theta} {realization[v2]}")
+            
             if realization[v2][0] * realization[v2][1] < 0:
                 rotation_matrix = np.array(
                     [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
@@ -1176,8 +1186,9 @@ class ApproximateMotion(Motion):
         that was used in the computation as a tuple.
         """
         F = Framework(self._graph, realization)
+
         inf_flex = normalize_flex(
-            F._transform_inf_flex_to_pointwise(F.inf_flexes()[self.chosen_flex]),
+            F._transform_inf_flex_to_pointwise(F.inf_flexes(numerical=True)[self.chosen_flex]),
             numerical=True,
         )
         reflected_inf_flex = {v: [-q for q in flex] for v, flex in inf_flex.items()}
@@ -1231,6 +1242,7 @@ class ApproximateMotion(Motion):
             ]
         )
         damping = 5e-2
+        rand_mat = np.random.rand(F._graph.number_of_edges()-self._stress_length,F._graph.number_of_edges())
         while not cur_error < 1e-4:
             rigidity_matrix = np.array(F.rigidity_matrix()).astype(np.float64)
             equations = [
@@ -1246,7 +1258,10 @@ class ApproximateMotion(Motion):
                 - length
                 for e, length in self.edge_lengths.items()
             ]
-            newton_step = np.dot(np.linalg.pinv(rigidity_matrix), equations)
+
+            rand_equations = np.dot(rand_mat, equations)
+            rand_rigidity_matrix = np.dot(rand_mat, rigidity_matrix)
+            newton_step = np.dot(np.linalg.pinv(rand_rigidity_matrix), rand_equations)
             cur_sol = [
                 cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
             ]
@@ -1269,7 +1284,7 @@ class ApproximateMotion(Motion):
                 damping = damping / 2
             # If the damping becomes too small, raise an exception.
 
-            if damping < 1e-10:
+            if damping < 1e-12:
                 raise RuntimeError("Newton's method did not converge.")
             prev_error = cur_error
 

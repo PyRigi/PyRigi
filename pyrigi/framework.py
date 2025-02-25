@@ -1720,7 +1720,7 @@ class Framework(object):
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
-        self, include_trivial: bool = False, vertex_order: Sequence[Vertex] = None
+        self, include_trivial: bool = False, vertex_order: Sequence[Vertex] = None, numerical: bool = False
     ) -> list[Matrix]:
         r"""
         Return a basis of the space of infinitesimal flexes.
@@ -1776,19 +1776,52 @@ class Framework(object):
         """  # noqa: E501
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         if include_trivial:
-            return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
-        rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
+            if not numerical:
+                return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
+            else:
+                F = Framework(self._graph, self.realization(as_points=True, numerical=True))
+                return null_space(np.array(F.rigidity_matrix(vertex_order=vertex_order)).astype(np.float64))
 
-        all_inf_flexes = rigidity_matrix.nullspace()
-        trivial_inf_flexes = self.trivial_inf_flexes(vertex_order=vertex_order)
-        s = len(trivial_inf_flexes)
-        extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
-        for inf_flex in all_inf_flexes:
-            tmp_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
-            if not tmp_matrix.rank() == extend_basis_matrix.rank():
-                extend_basis_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
-        basis = extend_basis_matrix.columnspace()
-        return basis[s:]
+        if not numerical:
+            rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
+
+            all_inf_flexes = rigidity_matrix.nullspace()
+            trivial_inf_flexes = self.trivial_inf_flexes(vertex_order=vertex_order)
+            s = len(trivial_inf_flexes)
+            extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
+            for inf_flex in all_inf_flexes:
+                tmp_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
+                if not tmp_matrix.rank() == extend_basis_matrix.rank():
+                    extend_basis_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
+            basis = extend_basis_matrix.columnspace()
+            return basis[s:]
+        else:
+            def null_space(A, rcond=None):
+                u, s, vh = np.linalg.svd(A, full_matrices=True)
+                M, N = u.shape[0], vh.shape[1]
+                if rcond is None:
+                    rcond = 1e-5
+                tol = np.amax(s) * rcond
+                num = np.sum(s > tol, dtype=int)
+                Q = vh[num:,:].T.conj()
+                return Q
+
+            F = Framework(self._graph, self.realization(as_points=True, numerical=True))
+            inf_flexes = null_space(np.array(F.rigidity_matrix()).astype(np.float64))
+            inf_flexes = [inf_flexes[:,i] for i in range(inf_flexes.shape[1])]            
+            K = Framework(CompleteGraph(len(self._graph)), self.realization(as_points=True, numerical=True))
+            inf_flexes_trivial = null_space(np.array(K.rigidity_matrix()).astype(np.float64))
+            s = inf_flexes_trivial.shape[1]
+            extend_basis_matrix = inf_flexes_trivial
+            for inf_flex in inf_flexes:
+                inf_flex = np.reshape(inf_flex, (-1, 1))
+                tmp_matrix = np.hstack((inf_flexes_trivial, inf_flex))
+                if not np.linalg.matrix_rank(tmp_matrix) == np.linalg.matrix_rank(inf_flexes_trivial):
+                    extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
+            Q, R = np.linalg.qr(extend_basis_matrix)
+            Q = Q[:,s:np.linalg.matrix_rank(R)]
+            return [Q[:,i] for i in range(Q.shape[1])]
+
 
     @doc_category("Infinitesimal rigidity")
     def stresses(self, edge_order: Sequence[Edge] = None) -> list[Matrix]:
