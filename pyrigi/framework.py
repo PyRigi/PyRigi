@@ -46,6 +46,7 @@ from pyrigi.misc import (
     generate_three_orthonormal_vectors,
     eval_sympy_vector,
     point_to_vector,
+    _null_space,
 )
 import pyrigi._input_check as _input_check
 
@@ -1630,6 +1631,8 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
+        numerical:
+            Whether the check is symbolic (default) or numerical.
 
         Examples
         --------
@@ -1676,22 +1679,15 @@ class Framework(object):
         return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
 
     @doc_category("Infinitesimal rigidity")
-    def nontrivial_inf_flexes(
-        self, vertex_order: Sequence[Vertex] = None
-    ) -> list[Matrix]:
+    def nontrivial_inf_flexes(self, **kwargs) -> list[Matrix]:
         """
         Return non-trivial infinitesimal flexes.
+
+        See :meth:`~Framework.trivial_inf_flexes`.
 
         Definitions
         -----------
         :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
-
-        Parameters
-        ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the entries
-            of the infinitesimal flexes.
-            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
         --------
@@ -1711,16 +1707,16 @@ class Framework(object):
         [         0],
         [         0],
         [         0]])]
-
-        Notes
-        -----
-        See :meth:`~Framework.trivial_inf_flexes`.
         """
-        return self.inf_flexes(include_trivial=False, vertex_order=vertex_order)
+        return self.inf_flexes(include_trivial=False, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
     def inf_flexes(
-        self, include_trivial: bool = False, vertex_order: Sequence[Vertex] = None, numerical: bool = False
+        self,
+        include_trivial: bool = False,
+        vertex_order: Sequence[Vertex] = None,
+        numerical: bool = False,
+        tolerance: float = 1e-9,
     ) -> list[Matrix]:
         r"""
         Return a basis of the space of infinitesimal flexes.
@@ -1745,6 +1741,10 @@ class Framework(object):
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
             If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
+        numerical:
+            Whether the check is symbolic (default) or numerical.
+        tolerance
+            Used tolerance when checking numerically.
 
         Examples
         --------
@@ -1779,8 +1779,14 @@ class Framework(object):
             if not numerical:
                 return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
             else:
-                F = Framework(self._graph, self.realization(as_points=True, numerical=True))
-                return null_space(np.array(F.rigidity_matrix(vertex_order=vertex_order)).astype(np.float64))
+                F = Framework(
+                    self._graph, self.realization(as_points=True, numerical=True)
+                )
+                return _null_space(
+                    np.array(F.rigidity_matrix(vertex_order=vertex_order)).astype(
+                        np.float64
+                    )
+                )
 
         if not numerical:
             rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
@@ -1796,32 +1802,28 @@ class Framework(object):
             basis = extend_basis_matrix.columnspace()
             return basis[s:]
         else:
-            def null_space(A, rcond=None):
-                u, s, vh = np.linalg.svd(A, full_matrices=True)
-                M, N = u.shape[0], vh.shape[1]
-                if rcond is None:
-                    rcond = 1e-5
-                tol = np.amax(s) * rcond
-                num = np.sum(s > tol, dtype=int)
-                Q = vh[num:,:].T.conj()
-                return Q
-
             F = Framework(self._graph, self.realization(as_points=True, numerical=True))
-            inf_flexes = null_space(np.array(F.rigidity_matrix()).astype(np.float64))
-            inf_flexes = [inf_flexes[:,i] for i in range(inf_flexes.shape[1])]            
-            K = Framework(CompleteGraph(len(self._graph)), self.realization(as_points=True, numerical=True))
-            inf_flexes_trivial = null_space(np.array(K.rigidity_matrix()).astype(np.float64))
+            inf_flexes = _null_space(np.array(F.rigidity_matrix()).astype(np.float64))
+            inf_flexes = [inf_flexes[:, i] for i in range(inf_flexes.shape[1])]
+            K = Framework(
+                CompleteGraph(len(self._graph)),
+                self.realization(as_points=True, numerical=True),
+            )
+            inf_flexes_trivial = _null_space(
+                np.array(K.rigidity_matrix()).astype(np.float64)
+            )
             s = inf_flexes_trivial.shape[1]
             extend_basis_matrix = inf_flexes_trivial
             for inf_flex in inf_flexes:
                 inf_flex = np.reshape(inf_flex, (-1, 1))
                 tmp_matrix = np.hstack((inf_flexes_trivial, inf_flex))
-                if not np.linalg.matrix_rank(tmp_matrix) == np.linalg.matrix_rank(inf_flexes_trivial):
+                if not np.linalg.matrix_rank(tmp_matrix) == np.linalg.matrix_rank(
+                    inf_flexes_trivial
+                ):
                     extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
             Q, R = np.linalg.qr(extend_basis_matrix)
-            Q = Q[:,s:np.linalg.matrix_rank(R)]
-            return [Q[:,i] for i in range(Q.shape[1])]
-
+            Q = Q[:, s : np.linalg.matrix_rank(R, tol=tolerance)]
+            return [Q[:, i] for i in range(Q.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
     def stresses(self, edge_order: Sequence[Edge] = None) -> list[Matrix]:

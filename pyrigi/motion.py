@@ -7,7 +7,6 @@ from copy import deepcopy
 from math import isclose
 from typing import Any, Literal
 from warnings import warn
-import random
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
@@ -26,7 +25,6 @@ from pyrigi.data_type import (
     DirectedEdge,
     Edge,
 )
-from pyrigi import graphDB
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
@@ -848,6 +846,8 @@ class ApproximateMotion(Motion):
         distance is at least ``turning_threshold`` times as large as the distance
         of the negative infinitesimal flex, then the latter one is chosen instead.
         If instead the animation is too slow, consider increasing this value.
+    tolerance:
+        Tolerance for the Newton iteration.
     fixed_pair:
         Two vertices of the underlying graph that are fixed in the list of realizations.
         By default, the first entry is pinned to the origin
@@ -895,6 +895,7 @@ class ApproximateMotion(Motion):
         step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
+        tolerance: float = 1e-6,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
@@ -905,6 +906,7 @@ class ApproximateMotion(Motion):
         super().__init__(F.graph(), F.dim())
         self._stress_length = len(F.stresses())
         self._starting_realization = F.realization(as_points=True, numerical=True)
+        self.tolerance = tolerance
         self.steps = steps
         self.chosen_flex = chosen_flex
         self.step_size = step_size
@@ -999,7 +1001,7 @@ class ApproximateMotion(Motion):
             )
             try:
                 cur_sol = self._newton_steps(euler_step)
-            except:
+            except RuntimeError:
                 self._current_step_size = self._current_step_size / step_size_rescaling
                 continue
             cur_inf_flex = trial_inf_flex
@@ -1122,7 +1124,6 @@ class ApproximateMotion(Motion):
                 ]
 
         output_realizations = []
-        print({i:pos[v2] for i, pos in enumerate(_realizations)})
         for i, realization in enumerate(_realizations):
             if any([len(pos) not in [2, 3] for pos in realization.values()]):
                 raise ValueError(
@@ -1134,22 +1135,16 @@ class ApproximateMotion(Motion):
             ):
                 raise ValueError("`fixed_direction` does not have the correct format.")
 
-            v_dist = np.linalg.norm(realization[v2])
-            theta = np.arccos(
-                np.dot([v_dist * t for t in fixed_direction], realization[v2])
-                / v_dist**2
+            # Compute the signed angle `theta` between the `fixed_direction` and the
+            # vector `realization[v2]`
+            theta = np.arctan2(
+                [fixed_direction[1], realization[v2][1]],
+                [fixed_direction[0], realization[v2][0]],
+            )[1]
+
+            rotation_matrix = np.array(
+                [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
             )
-            
-            print(f"{i}: {theta} {realization[v2]}")
-            
-            if realization[v2][0] * realization[v2][1] < 0:
-                rotation_matrix = np.array(
-                    [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
-                )
-            else:
-                rotation_matrix = np.array(
-                    [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
-                )
             # Rotate the realization to the `fixed_direction`.
             _realization = {
                 v: np.dot(rotation_matrix, pos) for v, pos in realization.items()
@@ -1188,7 +1183,9 @@ class ApproximateMotion(Motion):
         F = Framework(self._graph, realization)
 
         inf_flex = normalize_flex(
-            F._transform_inf_flex_to_pointwise(F.inf_flexes(numerical=True)[self.chosen_flex]),
+            F._transform_inf_flex_to_pointwise(
+                F.inf_flexes(numerical=True)[self.chosen_flex]
+            ),
             numerical=True,
         )
         reflected_inf_flex = {v: [-q for q in flex] for v, flex in inf_flex.items()}
@@ -1242,8 +1239,10 @@ class ApproximateMotion(Motion):
             ]
         )
         damping = 5e-2
-        rand_mat = np.random.rand(F._graph.number_of_edges()-self._stress_length,F._graph.number_of_edges())
-        while not cur_error < 1e-4:
+        rand_mat = np.random.rand(
+            F._graph.number_of_edges() - self._stress_length, F._graph.number_of_edges()
+        )
+        while not cur_error < self.tolerance:
             rigidity_matrix = np.array(F.rigidity_matrix()).astype(np.float64)
             equations = [
                 np.linalg.norm(

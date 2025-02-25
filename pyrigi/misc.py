@@ -357,3 +357,20 @@ def point_to_vector(point: Point) -> Matrix:
     if res.shape[0] != 1 and res.shape[1] != 1:
         raise ValueError("Point could not be interpreted as column vector.")
     return res if (res.shape[1] == 1) else res.transpose()
+
+
+def _null_space(A: np.array, tolerance: float = 1e-8):
+    """
+    Compute the kernel of a numpy matrix.
+
+    Parameters
+    ----------
+    tolerance:
+        Used tolerance for the selection of the vectors
+        in the kernel of the numerical matrix.
+    """
+    _, s, vh = np.linalg.svd(A, full_matrices=True)
+    tol = np.amax(s) * tolerance
+    num = np.sum(s > tol, dtype=int)
+    Q = vh[num:, :].T.conj()
+    return Q
