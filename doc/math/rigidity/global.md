@@ -155,20 +155,22 @@ of $G$ that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in
 :::
 
 
-:::{prf:definition}
-:label: def-rigid-component
+:::{prf:definition} linked pair 
+:label: def-linked-pair
 
-Given a graph $G$, maximal rigid subgraph of $G$ is a _rigid component_ of $G$.
-{{references}} {cite:p}`BergJordan2003`
+A pair of vertices $\{u,v\}$ of $G$ is _linked in $G$_ (or that $uv$ is an _implied edge_ of $G$) in $\R^d$
+if $r_d(G+uv) = r_d(G)$, where $r_d(G):=\max\{|I|:I\subset G, I \text{ independent set}\}$ is the rank function of the 
+{prf:ref}`rigidity matroid <def-rigidity-matroid>`.
+
+{{references}} {cite:p}`Jordan2016`
 :::
 
-Clearly, every edge belongs to some rigid component and rigid components are induced subgraphs.
 
 :::{prf:lemma}
 :label: lem-linked-pair-rigid-component
 
-A pair $\{u, v\}$ is {prf:ref}`linked <def-globally-linked>` in $G$ if and only if
-there exists a {prf:ref}`rigid component <def-rigid-component>` of $G$ containing 
+A pair $\{u, v\}$ is {prf:ref}`linked <def-linked-pair>` in $G$ if and only if
+there exists a {prf:ref}`rigid component <def-rigid-components>` of $G$ containing 
 $u$ and $v$.
 
 {{references}} {cite:p}`Jordan2016`

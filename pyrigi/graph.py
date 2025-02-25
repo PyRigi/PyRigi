@@ -3242,7 +3242,7 @@ class Graph(nx.Graph):
         return res.difference(vertices)
 
     @doc_category("Generic rigidity")
-    def make_outside_neighbors_clique(
+    def _make_outside_neighbors_clique(
         self, vertices: list[Vertex] | set[Vertex]
     ) -> Graph:
         """
@@ -3262,10 +3262,10 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 3], [0, 4], [1, 2], [1, 5], [2, 3], [2, 4], [3, 5]])
-        >>> G.make_outside_neighbors_clique([0,1,2,3])
+        >>> G._make_outside_neighbors_clique([0,1,2,3])
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]])
-        >>> G.make_outside_neighbors_clique([0,1,4,5,6,7,8,11,12])
+        >>> G._make_outside_neighbors_clique([0,1,4,5,6,7,8,11,12])
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
         """  # noqa: E501
 
@@ -3323,6 +3323,50 @@ class Graph(nx.Graph):
         except StopIteration:
             return self
 
+    @doc_category("Generic rigidity")
+    def is_linked(self, u: Vertex, v: Vertex, dim: int = 2):
+        """
+        Check if the pair of vertices u,v is linked in the graph, given the dimension.
+        Parameters
+        ----------
+        u:
+            vertex
+        v:
+            vertex
+        dim:
+            dimension
+
+        Definitions
+        -----------
+        :prf:ref:`linked pair <def-linked-pair>`
+        :prf:ref:`lemma linked pair <lem-linked-pair-rigid-component>`
+
+        Examples
+        --------
+        >>> H = Graph([[0, 1], [0, 2], [1, 3], [1, 5], [2, 3], [2, 6], [3, 5], [3, 7], [5, 7], [6, 7], [3, 6]])
+        >>> H.is_linked(1,7)
+        True
+        >>> H = Graph([[0, 1], [0, 2], [1, 3], [2, 3]])
+        >>> H.is_linked(0,3)
+        False
+        >>> H.is_linked(1,3)
+        True
+
+
+        """  # noqa: E501
+        _input_check.dimension_for_algorithm(
+            dim, [2], "the algorithm to check linkedness"
+        )
+        self._input_check_vertex_members([u, v])
+        return bool(
+            list(
+                filter(
+                    lambda x: u in x and v in x,
+                    self.rigid_components(algorithm="default"),
+                )
+            )
+        )
+
     @doc_category("Rigidity Matroid")
     def Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2):
         """
@@ -3366,11 +3410,7 @@ class Graph(nx.Graph):
         # check (u, v) are non-adjacent linked pair
         if self.has_edge(u, v):
             raise ValueError("The vertices must not be connected by an edge.")
-        elif not list(
-            filter(
-                lambda x: u in x and v in x, self.rigid_components(algorithm="default")
-            )
-        ):
+        elif not self.is_linked(u, v, dim=dim):
             raise ValueError("The vertices must be a linked pair.")
 
         self._build_pebble_digraph(K=2, L=3)
@@ -3433,11 +3473,7 @@ class Graph(nx.Graph):
         if self.has_edge(u, v):
             return True  # they are actually globally linked, not just weakly
         # check (u,v) are linked pair
-        if not list(
-            filter(
-                lambda x: u in x and v in x, self.rigid_components(algorithm="default")
-            )
-        ):
+        if not self.is_linked(u, v, dim=dim):
             return False
 
         # check (u,v) are such that kappa_self(u,v) > 2
@@ -3455,7 +3491,7 @@ class Graph(nx.Graph):
         B = self.block_3(u, v)
         B._build_pebble_digraph(K=2, L=3)
         V_0 = B._pebble_digraph.fundamental_circuit(u, v)
-        return B.make_outside_neighbors_clique(V_0).is_globally_rigid()
+        return B._make_outside_neighbors_clique(V_0).is_globally_rigid()
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:

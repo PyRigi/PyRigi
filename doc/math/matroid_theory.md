@@ -24,18 +24,6 @@ A _circuit_ is a minimal dependent subset of $E$
 {meth}`~.Graph.is_Rd_circuit`
 :::
 
-:::{prf:definition} Fundamental circuit
-:label: def-fundamental-circuit
-
-Let $G=(V,E)$ be a graph, $\mathcal{M}=(E, \mathcal{I})$ be a {prf:ref}`matroid <def-matroid>`, 
-$e\in E$ be an edge of the graph. Suppose $I\in\mathcal{I}$ is independent but $I+e$ is dependent. 
-Then the _fundamental circuit_ of $e$ with respect to $I$ is the (unique) 
-{prf:ref}`circuit <def-matroid>` contained in $I+e$.
-
-{{references}} {cite:p}`BergJordan2003`
-{{pyrigi_crossref}} {meth}`~.Graph.Rd_fundamental_circuit`
-:::
-
 
 :::{prf:definition} Rank function and closure
 :label: def-rank-function-closure
@@ -88,6 +76,20 @@ The _$d$-dimensional rigidity matroid_ of a {prf:ref}`framework <def-framework>`
 :label: def-gen-rigidity-matroid
 The _generic $d$-dimensional rigidity matroid_ of a graph $G=(V,E)$ is the {prf:ref}`matroid <def-matroid>` $\mathcal{R}_d(G)$ on $E$ in which a set of edges $F\subseteq E$ is independent whenever the corresponding rows of $R_d(G,p)$ are independent, for some (or equivalently every) {prf:ref}`generic realization <def-gen-realization>` $p$ of $G$.
 :::
+
+
+:::{prf:definition} Fundamental circuit
+:label: def-fundamental-circuit
+
+Let $G=(V,E)$ be a graph, $\mathcal{M}=(E, \mathcal{I})$ be a {prf:ref}`matroid <def-matroid>`, 
+$e\in E$ be an edge of the graph. Suppose $I\in\mathcal{I}$ is independent but $I+e$ is dependent. 
+Then the _fundamental circuit_ of $e$ with respect to $I$ is the (unique) 
+{prf:ref}`circuit <def-matroid>` contained in $I+e$.
+
+{{references}} {cite:p}`BergJordan2003`
+{{pyrigi_crossref}} {meth}`~.Graph.Rd_fundamental_circuit`
+:::
+
 
 :::{prf:lemma}
 :label: lem-2-sum
