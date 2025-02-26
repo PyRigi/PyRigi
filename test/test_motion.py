@@ -250,9 +250,7 @@ def test_normalize_realizations():
                 np.linalg.norm(
                     [
                         v - w
-                        for v, w in zip(
-                            r[0], [0.5954750846569365, 0.15661445793796835]
-                        )
+                        for v, w in zip(r[0], [0.5954750846569365, 0.15661445793796835])
                     ]
                 ),
                 0,
@@ -262,9 +260,7 @@ def test_normalize_realizations():
                 np.linalg.norm(
                     [
                         v - w
-                        for v, w in zip(
-                            r[1], [2.0099998003349073, 0.15661445793796835]
-                        )
+                        for v, w in zip(r[1], [2.0099998003349073, 0.15661445793796835])
                     ]
                 ),
                 0,

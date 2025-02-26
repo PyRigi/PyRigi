@@ -895,7 +895,7 @@ class ApproximateMotion(Motion):
         step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
-        tolerance: float = 1e-6,
+        tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
@@ -914,6 +914,9 @@ class ApproximateMotion(Motion):
         self.edge_lengths = F.edge_lengths(numerical=True)
         self._compute_motion_samples(chosen_flex, turning_threshold)
         if fixed_pair is not None:
+            _input_check.dimension_for_algorithm(
+                self._dim, [2], "ApproximateMotion._fix_edge"
+            )
             if fixed_direction is None:
                 fixed_direction = [1] + [0 for _ in range(self._dim - 1)]
             if len(fixed_direction) != self._dim:
@@ -939,6 +942,7 @@ class ApproximateMotion(Motion):
         step_size: float = 0.1,
         chosen_flex: int = 0,
         turning_threshold: float = 1.5,
+        tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
@@ -971,6 +975,7 @@ class ApproximateMotion(Motion):
             step_size=step_size,
             chosen_flex=chosen_flex,
             turning_threshold=turning_threshold,
+            tolerance=tolerance,
             fixed_pair=fixed_pair,
             fixed_direction=fixed_direction,
             pin_vertex=pin_vertex,
@@ -984,7 +989,9 @@ class ApproximateMotion(Motion):
         """
         F = Framework(self._graph, self._starting_realization)
         cur_inf_flex = normalize_flex(
-            F._transform_inf_flex_to_pointwise(F.inf_flexes()[chosen_flex]),
+            F._transform_inf_flex_to_pointwise(
+                F.inf_flexes(numerical=True, tolerance=self.tolerance)[chosen_flex]
+            ),
             numerical=True,
         )
 
@@ -996,15 +1003,15 @@ class ApproximateMotion(Motion):
         step_size_rescaling = 2
         jump_indicator = [False, False]
         while i < self.steps:
-            euler_step, trial_inf_flex = self._euler_step(
+            euler_step, cur_inf_flex = self._euler_step(
                 cur_inf_flex, cur_sol, turning_threshold
             )
             try:
                 cur_sol = self._newton_steps(euler_step)
+                self._current_step_size = self.step_size
             except RuntimeError:
                 self._current_step_size = self._current_step_size / step_size_rescaling
                 continue
-            cur_inf_flex = trial_inf_flex
             self.motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
@@ -1124,7 +1131,7 @@ class ApproximateMotion(Motion):
                 ]
 
         output_realizations = []
-        for i, realization in enumerate(_realizations):
+        for realization in _realizations:
             if any([len(pos) not in [2, 3] for pos in realization.values()]):
                 raise ValueError(
                     "This method is not implemented for dimensions other than 2 or 3."
@@ -1181,10 +1188,9 @@ class ApproximateMotion(Motion):
         that was used in the computation as a tuple.
         """
         F = Framework(self._graph, realization)
-
         inf_flex = normalize_flex(
             F._transform_inf_flex_to_pointwise(
-                F.inf_flexes(numerical=True)[self.chosen_flex]
+                F.inf_flexes(numerical=True, tolerance=self.tolerance)[self.chosen_flex]
             ),
             numerical=True,
         )
@@ -1238,7 +1244,7 @@ class ApproximateMotion(Motion):
                 for e, length in F.edge_lengths(numerical=True).items()
             ]
         )
-        damping = 5e-2
+        damping = 1e-1
         rand_mat = np.random.rand(
             F._graph.number_of_edges() - self._stress_length, F._graph.number_of_edges()
         )
@@ -1283,7 +1289,7 @@ class ApproximateMotion(Motion):
                 damping = damping / 2
             # If the damping becomes too small, raise an exception.
 
-            if damping < 1e-12:
+            if damping < 1e-10:
                 raise RuntimeError("Newton's method did not converge.")
             prev_error = cur_error
 
