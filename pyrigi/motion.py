@@ -971,9 +971,7 @@ class ApproximateMotion(Motion):
             pin_vertex=pin_vertex,
         )
 
-    def _compute_motion_samples(
-        self, chosen_flex: int
-    ) -> None:
+    def _compute_motion_samples(self, chosen_flex: int) -> None:
         """
         Perform path-tracking to compute the attribute `motion_samples`.
         """
@@ -993,9 +991,7 @@ class ApproximateMotion(Motion):
         step_size_rescaling = 2
         jump_indicator = [False, False]
         while i < self.steps:
-            euler_step, cur_inf_flex = self._euler_step(
-                cur_inf_flex, cur_sol
-            )
+            euler_step, cur_inf_flex = self._euler_step(cur_inf_flex, cur_sol)
             try:
                 cur_sol = self._newton_steps(euler_step)
                 self._current_step_size = self.step_size
@@ -1190,11 +1186,21 @@ class ApproximateMotion(Motion):
         """
         F = Framework(self._graph, realization)
 
-        inf_flex_space = np.vstack(F.inf_flexes(numerical=True, tolerance=self.tolerance))
-        old_inf_flex_matrix = np.reshape(sum([list(pos) for pos in old_inf_flex.values()],[]), (-1,1))
-        flex_coefficients = np.dot(np.linalg.pinv(inf_flex_space).transpose(), old_inf_flex_matrix)
-        predicted_inf_flex = sum(np.dot(inf_flex_space.transpose(), flex_coefficients).tolist(),[])
-        predicted_inf_flex = normalize_flex(F._transform_inf_flex_to_pointwise(predicted_inf_flex), numerical=True)
+        inf_flex_space = np.vstack(
+            F.inf_flexes(numerical=True, tolerance=self.tolerance)
+        )
+        old_inf_flex_matrix = np.reshape(
+            sum([list(pos) for pos in old_inf_flex.values()], []), (-1, 1)
+        )
+        flex_coefficients = np.dot(
+            np.linalg.pinv(inf_flex_space).transpose(), old_inf_flex_matrix
+        )
+        predicted_inf_flex = sum(
+            np.dot(inf_flex_space.transpose(), flex_coefficients).tolist(), []
+        )
+        predicted_inf_flex = normalize_flex(
+            F._transform_inf_flex_to_pointwise(predicted_inf_flex), numerical=True
+        )
         realization = self.motion_samples[-1]
         return {
             v: tuple(
