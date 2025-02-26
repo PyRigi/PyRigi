@@ -238,21 +238,20 @@ def test_ApproximateMotion_from_framework():
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
         ) and not F.is_congruent_realization(sample, numerical=True)
-    
+
     F = fws.ThreePrism("flexible")
-    M = ApproximateMotion(F, 10, 0.1, fixed_pair=(0,1))
-    for sample in M.motion_samples[1:]:
-        assert F.is_equivalent_realization(
-            sample, numerical=True, tolerance=1e-3
-        ) and not F.is_congruent_realization(sample, numerical=True)
-    
-    F = fws.Cycle(5)
-    M = ApproximateMotion(F, 10, 0.1, fixed_pair=(0,1))
+    M = ApproximateMotion(F, 10, 0.1, fixed_pair=(0, 1))
     for sample in M.motion_samples[1:]:
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
         ) and not F.is_congruent_realization(sample, numerical=True)
 
+    F = fws.Cycle(5)
+    M = ApproximateMotion(F, 10, 0.1, fixed_pair=(0, 1))
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
 
 
 def test_normalize_realizations():
