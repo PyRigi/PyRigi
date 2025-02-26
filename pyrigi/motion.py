@@ -1261,9 +1261,11 @@ class ApproximateMotion(Motion):
                 for e, length in self.edge_lengths.items()
             ]
 
-            rand_equations = np.dot(rand_mat, equations)
-            rand_rigidity_matrix = np.dot(rand_mat, rigidity_matrix)
-            newton_step = np.dot(np.linalg.pinv(rand_rigidity_matrix), rand_equations)
+            if self._stress_length > 0:
+                equations = np.dot(rand_mat, equations)
+                rigidity_matrix = np.dot(rand_mat, rigidity_matrix)
+            newton_step = np.dot(np.linalg.pinv(rigidity_matrix), equations)
+
             cur_sol = [
                 cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
             ]
