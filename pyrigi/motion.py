@@ -839,13 +839,6 @@ class ApproximateMotion(Motion):
     chosen_flex:
         An integer indicating the ``i``-th flex from the list of :meth:`Framework.inf_flexes`
         for ``i=chosen_flex``.
-    turning_threshold:
-        Determines when the reflected infinitesimal flex at position ``chosen_flex``
-        is taken instead of the regular one. To decide this, the distance from the
-        previous Euler step is calculated using the Euclidean norm. If the current
-        distance is at least ``turning_threshold`` times as large as the distance
-        of the negative infinitesimal flex, then the latter one is chosen instead.
-        If instead the animation is too slow, consider increasing this value.
     tolerance:
         Tolerance for the Newton iteration.
     fixed_pair:
@@ -894,7 +887,6 @@ class ApproximateMotion(Motion):
         steps: int,
         step_size: float = 0.1,
         chosen_flex: int = 0,
-        turning_threshold: float = 1.5,
         tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
@@ -912,7 +904,7 @@ class ApproximateMotion(Motion):
         self.step_size = step_size
         self._current_step_size = step_size
         self.edge_lengths = F.edge_lengths(numerical=True)
-        self._compute_motion_samples(chosen_flex, turning_threshold)
+        self._compute_motion_samples(chosen_flex)
         if fixed_pair is not None:
             _input_check.dimension_for_algorithm(
                 self._dim, [2], "ApproximateMotion._fix_edge"
@@ -941,7 +933,6 @@ class ApproximateMotion(Motion):
         steps: int,
         step_size: float = 0.1,
         chosen_flex: int = 0,
-        turning_threshold: float = 1.5,
         tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
@@ -974,7 +965,6 @@ class ApproximateMotion(Motion):
             steps,
             step_size=step_size,
             chosen_flex=chosen_flex,
-            turning_threshold=turning_threshold,
             tolerance=tolerance,
             fixed_pair=fixed_pair,
             fixed_direction=fixed_direction,
@@ -982,7 +972,7 @@ class ApproximateMotion(Motion):
         )
 
     def _compute_motion_samples(
-        self, chosen_flex: int, turning_threshold: float
+        self, chosen_flex: int
     ) -> None:
         """
         Perform path-tracking to compute the attribute `motion_samples`.
@@ -1004,7 +994,7 @@ class ApproximateMotion(Motion):
         jump_indicator = [False, False]
         while i < self.steps:
             euler_step, cur_inf_flex = self._euler_step(
-                cur_inf_flex, cur_sol, turning_threshold
+                cur_inf_flex, cur_sol
             )
             try:
                 cur_sol = self._newton_steps(euler_step)
@@ -1179,41 +1169,42 @@ class ApproximateMotion(Motion):
         self,
         old_inf_flex: InfFlex,
         realization: dict[Vertex, Point],
-        turning_threshold: float,
     ) -> tuple[dict[Vertex, Point], InfFlex]:
         """
         Computes a single Euler step.
 
         This method returns the resulting configuration and the infinitesimal flex
         that was used in the computation as a tuple.
+
+        Notes
+        -----
+        Choose the (normalized) infinitesimal flex with the smallest distance from the
+        previous infinitesimal flex ``old_inf_flex``. This is given by computing the
+        Moore-Penrose pseudoinverse.
+
+        Suggested Improvements
+        ----------------------
+        * Add vector transport to ``old_inf_flex`` to more accurately compare the vectors.
+        * Search the space of `inf_flexes` using a Least Squares approach rather than
+        just searching a basis
         """
         F = Framework(self._graph, realization)
-        inf_flex = normalize_flex(
-            F._transform_inf_flex_to_pointwise(
-                F.inf_flexes(numerical=True, tolerance=self.tolerance)[self.chosen_flex]
-            ),
-            numerical=True,
-        )
-        reflected_inf_flex = {v: [-q for q in flex] for v, flex in inf_flex.items()}
 
-        if vector_distance_pointwise(
-            inf_flex, old_inf_flex, numerical=True
-        ) > turning_threshold * vector_distance_pointwise(
-            reflected_inf_flex,
-            old_inf_flex,
-            numerical=True,
-        ):
-            inf_flex = reflected_inf_flex
+        inf_flex_space = np.vstack(F.inf_flexes(numerical=True, tolerance=self.tolerance))
+        old_inf_flex_matrix = np.reshape(sum([list(pos) for pos in old_inf_flex.values()],[]), (-1,1))
+        flex_coefficients = np.dot(np.linalg.pinv(inf_flex_space).transpose(), old_inf_flex_matrix)
+        predicted_inf_flex = sum(np.dot(inf_flex_space.transpose(), flex_coefficients).tolist(),[])
+        predicted_inf_flex = normalize_flex(F._transform_inf_flex_to_pointwise(predicted_inf_flex), numerical=True)
         realization = self.motion_samples[-1]
         return {
             v: tuple(
                 [
-                    pos[i] + self._current_step_size * inf_flex[v][i]
+                    pos[i] + self._current_step_size * predicted_inf_flex[v][i]
                     for i in range(len(realization[v]))
                 ]
             )
             for v, pos in realization.items()
-        }, inf_flex
+        }, predicted_inf_flex
 
     def _newton_steps(self, realization: dict[Vertex, Point]) -> dict[Vertex, Point]:
         """
