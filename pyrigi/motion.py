@@ -997,6 +997,11 @@ class ApproximateMotion(Motion):
                 self._current_step_size = self.step_size
             except RuntimeError:
                 self._current_step_size = self._current_step_size / step_size_rescaling
+                if self._current_step_size < self.step_size / 10:
+                    raise RuntimeError(
+                        "Newton's method did not converge. Potentially the "
+                        + "given framework is not flexible?"
+                    )
                 continue
             self.motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
