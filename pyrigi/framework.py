@@ -1631,8 +1631,6 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-        numerical:
-            Whether the check is symbolic (default) or numerical.
 
         Examples
         --------
@@ -1683,7 +1681,7 @@ class Framework(object):
         """
         Return non-trivial infinitesimal flexes.
 
-        See :meth:`~Framework.trivial_inf_flexes`.
+        See :meth:`~Framework.inf_flexes` for possible keywords.
 
         Definitions
         -----------
