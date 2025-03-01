@@ -2515,8 +2515,7 @@ class Graph(nx.Graph):
 
         Notes
         -----
-        The pebble game algorithm has running time O(n^3 log(n))
-        and proceeds as follows:
+        The pebble game algorithm proceeds as follows:
         Iterate through the vertex pairs of each connected component
         and check if there exists a rigid component containing both.
         This can be done by trying to add a new edge between the vertices.
@@ -2673,8 +2672,8 @@ class Graph(nx.Graph):
                     common_neighs = nx.common_neighbors(closure, u, v)
                     comp = [u, v] + list(common_neighs)
                     components.append(comp)
-                    for e in combinations(comp, 2):
-                        closure.edges[*e]["used"] = True
+                    for w1, w2 in combinations(comp, 2):
+                        closure.edges[w1, w2]["used"] = True
 
             return components + [[v] for v in self.nodes if nx.is_isolate(self, v)]
 
