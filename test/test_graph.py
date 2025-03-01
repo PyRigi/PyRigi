@@ -2600,7 +2600,7 @@ def test_is_not_Rd_circuit_d3(graph):
 )
 def test_is_Rd_closed(graph, dim):
     if dim <= 1:
-        assert graph.is_Rd_closed(dim=dim, algorithm="components")
+        assert graph.is_Rd_closed(dim=dim, algorithm="graphic")
         assert graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert graph.is_Rd_closed(dim=dim, algorithm="randomized")
@@ -2619,7 +2619,7 @@ def test_is_Rd_closed(graph, dim):
 )
 def test_is_not_Rd_closed(graph, dim):
     if dim <= 1:
-        assert not graph.is_Rd_closed(dim=dim, algorithm="components")
+        assert not graph.is_Rd_closed(dim=dim, algorithm="graphic")
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")

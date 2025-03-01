@@ -2494,20 +2494,34 @@ class Graph(nx.Graph):
         dim:
             Dimension of the rigidity matroid
         algorithm:
-            If ``"components"``, then the closure is
-            computed using ``dim``-rigid components.
+            If ``"graphic"`` (only if ``dim=1``),
+            then the closure is computed using connected components.
+
+            If ``"pebble"`` (only if ``dim=2``),
+            then pebble games are used.
 
             If ``"randomized"``, then adding
             non-edges is tested one by one on a random framework.
 
-            If ``"default"``, then ``"components"`` is used
-            for ``dim=1`` and ``"randomized"`` for ``dim>=2``.
+            If ``"default"``, then ``"graphic"`` is used
+            for ``dim=1``, ``"pebble"`` for ``dim=2``
+            and ``"randomized"`` for ``dim>=3``.
 
         Examples
         --------
         >>> G = Graph([(0,1),(0,2),(3,4)])
         >>> G.Rd_closure(dim=1)
         [[0, 1], [0, 2], [1, 2], [3, 4]]
+
+        Notes
+        -----
+        The pebble game algorithm has running time O(n^3 log(n))
+        and proceeds as follows:
+        Iterate through the vertex pairs of each connected component
+        and check if there exists a rigid component containing both.
+        This can be done by trying to add a new edge between the vertices.
+        If there is such a rigid component, we can add every vertex pair from there:
+        they are certainly within a rigid component.
 
         Suggested Improvements
         ----------------------
@@ -2518,20 +2532,39 @@ class Graph(nx.Graph):
 
         if algorithm == "default":
             if dim == 1:
-                algorithm = "components"
+                algorithm = "graphic"
+            elif dim == 2:
+                algorithm = "pebble"
             else:
                 algorithm = "randomized"
                 self._warn_randomized_alg(self.Rd_closure, "algorithm='randomized'")
 
-        if algorithm == "components":
-            _input_check.dimension_for_algorithm(
-                dim, [1], "the algorithm using rigid components"
-            )
+        if algorithm == "graphic":
+            _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm ")
             return [
                 [u, v]
-                for comp in self.rigid_components(dim=dim, algorithm="graphic")
+                for comp in nx.connected_components(self)
                 for u, v in combinations(comp, 2)
             ]
+
+        if algorithm == "pebble":
+            _input_check.dimension_for_algorithm(
+                dim, [2], "the algorithm based on pebble games"
+            )
+
+            self._build_pebble_digraph(2, 3)
+            if self._pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
+                return list(combinations(self.nodes, 2))
+            else:
+                closure = deepcopy(self)
+                for connected_comp in nx.connected_components(self):
+                    for u, v in combinations(connected_comp, 2):
+                        if not closure.has_edge(u, v):
+                            circuit = self._pebble_digraph.fundamental_circuit(u, v)
+                            if circuit is not None:
+                                for e in combinations(circuit, 2):
+                                    closure.add_edge(*e)
+                return list(closure.edges)
 
         if algorithm == "randomized":
             F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
@@ -2549,158 +2582,8 @@ class Graph(nx.Graph):
 
         raise NotSupportedValueError(algorithm, "algorithm", self.Rd_closure)
 
-    def _create_rigid_comp_matrix(
-        self, index_map: dict[Vertex, int]
-    ) -> list[list[int]]:
-        """
-        Return a matrix that for every pairs of vertices gives if there is a rigid
-        component spanning the two vertices.
-
-        Parameters
-        ---------
-        index_map:
-            dictionary with vertices from a connected component as keys
-            and indices as values - for better running time
-
-        Examples
-        --------
-        >>> index_map = {0: 0, 1: 1, 2: 2, 3: 3} # identity
-        >>> G = Graph([(0, 1), (0, 2), (1, 2), (1, 3)])
-        >>> G._build_pebble_digraph(2, 3)
-        >>> G._create_rigid_comp_matrix(index_map)
-        [[True, True, True, False],
-         [True, True, True, True],
-         [True, True, True, False],
-         [False, True, False, True]]
-
-        Notes
-        -----
-        The matrix is a symmetric matrix of size ``n`` times ``n``, where ``n`` is the
-        number of vertices.
-        Implemented with an index map. Running time is O(n^3 log(n)).
-
-        Iterate through the vertex pairs of the component and check if there exists
-        a rigid component containing both. This can be done by trying to add a new edge
-        between the vertices.
-        If there is such a rigid component, we can add every vertex pair from there:
-        they are certainly within a rigid component.
-        The matrix we'll get is an adjacency matrix of a graph that consists of
-        edge disjoint cliques.
-
-        Proof: If w_1 is in a rigid component C_1 with u and v
-        and w_2 is also in a rigid component C_2 with u and v,
-        then there is a rigid component C_3 containing both w_1 and w_2,
-        since C_1 and C_2 intersect in at least two vertices.
-        """
-
-        # create a nodes by nodes matrix
-        comp_matrix = [[False for _ in index_map] for _ in index_map]
-
-        for u, i_u in index_map.items():
-            for v, i_v in index_map.items():
-                if u == v:
-                    comp_matrix[i_u][i_v] = True
-                elif i_u > i_v:
-                    # calculate only once
-                    comp_matrix[i_u][i_v] = comp_matrix[i_v][i_u]
-                else:
-                    circuit = self._pebble_digraph.fundamental_circuit(u, v)
-                    if circuit is not None:
-                        for x in circuit:
-                            for y in circuit:
-                                comp_matrix[index_map[x]][index_map[y]] = True
-
-        return comp_matrix
-
-    def _calculate_maximal_cliques(
-        self, index_map: dict[Vertex, int], adj_matrix: list[list[int]]
-    ) -> list[list[Vertex]]:
-        """
-        Return all maximal cliques in a graph given by an adjacency matrix.
-
-        Parameters
-        ----------
-        index_map:
-            dictionary from vertices to indices
-        adj_matrix:
-            adjacency matrix of the graph
-
-        Notes
-        -----
-        Running time is O(n^3 log(n)).
-
-        Iterate through all pairs of vertices, checks if they are in the same component,
-        and then try to extend the pair into a maximal clique by adding every vertex
-        that are connected to both vertices in the pair.
-        If a clique is found, it is added to the list of maximal cliques.
-        """
-
-        maximal_cliques = []
-
-        for u, i_u in index_map.items():
-            for v, i_v in index_map.items():
-                # note that this will not return isolated vertices
-                if i_u < i_v:
-                    # new clique starts here
-                    if adj_matrix[i_u][i_v] and not any(
-                        u in c and v in c for c in maximal_cliques
-                    ):
-                        clique = {u, v}
-                        for w, i_w in index_map.items():
-                            # enough to check for two vertices
-                            if (
-                                (w not in clique)
-                                and adj_matrix[i_w][i_u]
-                                and adj_matrix[i_w][i_v]
-                            ):
-                                clique.add(w)
-                        maximal_cliques.append(clique)
-
-        return [list(c) for c in maximal_cliques]
-
-    def _get_2D_rigid_components_using_pebble_digraph(self) -> list[list[Vertex]]:
-        """
-        Return the 2-rigid components of the graph using the pebble game algorithm.
-
-        Notes
-        -----
-        First, the graph is split into connected components, as only
-        connected components can be rigid components. Only the components
-        with more than one vertex are investigated further. For each of these
-        components, the pebble digraph is constructed and checked if it is rigid.
-        If it is, the component is added to the list of rigid components.
-        If not, create a (vertex x vertex) matrix in which we store
-        if there exists a rigid component spanning the two vertices.
-        Then using this matrix as an adjacency matrix of a graph we compute
-        the maximal cliques resulting in the maximal rigid components of the
-        connected component, which is then added to the list of maximal rigid components.
-
-        Running time is O(n^3 log(n)).
-        We could also use 2-connected components, but there are small issues
-        with isolated vertices.
-        """
-        maximal_rigid_components = []
-        # build the pebble digraph
-        self._build_pebble_digraph(2, 3)
-        # if rigid, we are done. Easy check
-        if self._pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
-            return [list(self.nodes())]
-        else:
-            # check only the components that can even be part of one
-            for connected_comp in nx.connected_components(self):
-                if len(connected_comp) == 1:
-                    maximal_rigid_components += [list(connected_comp)]
-                else:
-                    index_map = {vertex: i for i, vertex in enumerate(connected_comp)}
-                    comp_matrix = self._create_rigid_comp_matrix(index_map=index_map)
-                    # find cliques
-                    maximal_rigid_components += self._calculate_maximal_cliques(
-                        index_map=index_map, adj_matrix=comp_matrix
-                    )
-        return maximal_rigid_components
-
     @doc_category("Generic rigidity")
-    def rigid_components(
+    def rigid_components(  # noqa: 901
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> list[list[Vertex]]:
         """
@@ -2755,6 +2638,9 @@ class Graph(nx.Graph):
         If the graph itself is rigid, it is clearly maximal and is returned.
         Every edge is part of a rigid component. Isolated vertices form
         additional rigid components.
+
+        For the pebble game algorithm we use the fact that the R2_closure
+        consists of edge disjoint cliques, so we only have to determine them.
         """
         _input_check.dimension(dim)
         self._input_check_no_loop()
@@ -2778,7 +2664,19 @@ class Graph(nx.Graph):
             _input_check.dimension_for_algorithm(
                 dim, [2], "the rigid component algorithm based on pebble games"
             )
-            return self._get_2D_rigid_components_using_pebble_digraph()
+            components = []
+            closure = Graph(self.Rd_closure(dim=2, algorithm="pebble"))
+            for u, v in closure.edges:
+                closure.edges[u, v]["used"] = False
+            for u, v in closure.edges:
+                if not closure.edges[u, v]["used"]:
+                    common_neighs = nx.common_neighbors(closure, u, v)
+                    comp = [u, v] + list(common_neighs)
+                    components.append(comp)
+                    for e in combinations(comp, 2):
+                        closure.edges[*e]["used"] = True
+
+            return components + [[v] for v in self.nodes if nx.is_isolate(self, v)]
 
         if algorithm in ["randomized", "subgraphs-pebble"]:
             if not nx.is_connected(self):
