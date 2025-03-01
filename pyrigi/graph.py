@@ -2769,11 +2769,6 @@ class Graph(nx.Graph):
         If the graph itself is rigid, it is clearly maximal and is returned.
         Every edge is part of a rigid component. Isolated vertices form
         additional rigid components.
-
-        Suggested Improvements
-        ----------------------
-        Implement directly using pebble games for dim=2
-        to replace ``subgraphs-pebble`` algorithm.
         """
         _input_check.dimension(dim)
         self._input_check_no_loop()
@@ -2813,7 +2808,7 @@ class Graph(nx.Graph):
                 _input_check.dimension_for_algorithm(
                     dim, [2], "the subgraph algorithm using pebble games"
                 )
-                alg_is_rigid = "pebble"
+                alg_is_rigid = "sparsity"
             else:
                 alg_is_rigid = "randomized"
 
