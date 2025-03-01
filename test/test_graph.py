@@ -14,6 +14,17 @@ from pyrigi.exception import LoopError, NotSupportedValueError
 from pyrigi.warning import RandomizedAlgorithmWarning
 
 
+def relabeled_inc(graph: Graph, increment: int = None) -> Graph:
+    """
+    Return the graph with each vertex label incremented by a given number.
+
+    Note that ``graph`` must have integer vertex labels.
+    """
+    if increment is None:
+        increment = graph.number_of_nodes()
+    return nx.relabel_nodes(graph, {i: i + increment for i in graph.nodes()}, copy=True)
+
+
 def test__add__():
     G = Graph([[0, 1], [1, 2], [2, 0]])
     H = Graph([[0, 1], [1, 3], [3, 0]])
@@ -1048,159 +1059,65 @@ def test_is_not_min_k_redundantly_rigid_d3(graph, k):
     assert not graph.is_min_k_redundantly_rigid(k, dim=3, algorithm="randomized")
 
 
-def test_rigid_components():
-    G = graphs.Path(6)
-    rigid_components = G.rigid_components(dim=1)
-    assert rigid_components[0] == [0, 1, 2, 3, 4, 5]
-    G.remove_edge(2, 3)
-    rigid_components = G.rigid_components(dim=1)
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2]),
-        frozenset([3, 4, 5]),
-    }
-
-    G = graphs.Path(5)
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert sorted([sorted(H) for H in rigid_components]) == [
-        [0, 1],
-        [1, 2],
-        [2, 3],
-        [3, 4],
-    ]
-
-    G = Graph(
+@pytest.mark.parametrize(
+    "graph, components, dim",
+    [
+        [graphs.Path(6), [[0, 1, 2, 3, 4, 5]], 1],
+        [graphs.Path(3) + relabeled_inc(graphs.Path(3), 3), [[0, 1, 2], [3, 4, 5]], 1],
+        [graphs.Path(5), [[i, i + 1] for i in range(4)], 2],
         [
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 4),
-            (4, 5),
-            (5, 0),
-            (0, 3),
-            (1, 4),
-            (2, 5),
-            (0, "a"),
-            (0, "b"),
-            ("a", "b"),
-        ]
-    )
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, "a", "b"]),
-        frozenset([0, 1, 2, 3, 4, 5]),
-    }
-
-    G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2]),
-        frozenset([3, 4, 5]),
-    }
-
-    G = graphs.Complete(3)
-    G.add_vertex(3)
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2]),
-        frozenset([3]),
-    }
-
-    G = graphs.ThreePrism()
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
-
-    G = graphs.ThreeConnectedR3Circuit()
-    G.remove_node(0)
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([1, 2, 3, 4]),
-        frozenset([1, 10, 11, 12]),
-        frozenset([4, 5, 6, 7]),
-        frozenset([7, 8, 9, 10]),
-    }
-
-    G = graphs.DoubleBanana()
-    rigid_components = G.rigid_components(dim=3, algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2, 3, 4]),
-        frozenset([0, 1, 5, 6, 7]),
-    }
-
-
-def test_rigid_components_pebble():
-    G = graphs.Path(5)
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-    assert sorted([sorted(H) for H in rigid_components]) == [
-        [0, 1],
-        [1, 2],
-        [2, 3],
-        [3, 4],
-    ]
-
-    G = Graph(
+            graphs.CompleteBipartite(3, 3) + Graph([(0, "a"), (0, "b"), ("a", "b")]),
+            [[0, "a", "b"], [0, 1, 2, 3, 4, 5]],
+            2,
+        ],
+        [graphs.Cycle(3) + relabeled_inc(graphs.Cycle(3)), [[0, 1, 2], [3, 4, 5]], 2],
         [
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 4),
-            (4, 5),
-            (5, 0),
-            (0, 3),
-            (1, 4),
-            (2, 5),
-            (0, "a"),
-            (0, "b"),
-            ("a", "b"),
-        ]
-    )
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, "a", "b"]),
-        frozenset([0, 1, 2, 3, 4, 5]),
-    }
-
-    G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2]),
-        frozenset([3, 4, 5]),
-    }
-
-    G = graphs.Complete(3)
-    G.add_vertex(3)
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-    print("Instead", rigid_components)
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2]),
-        frozenset([3]),
-    }
-
-    G = graphs.ThreePrism()
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-    assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
-
-    # Two rigid subgraphs, connceted by an edge (2,6)
-    G = Graph(
+            graphs.Cycle(3) + relabeled_inc(graphs.Cycle(3), 2),
+            [[0, 1, 2], [2, 3, 4]],
+            2,
+        ],
+        [graphs.Complete(3) + Graph.from_vertices([3]), [[0, 1, 2], [3]], 2],
+        [graphs.ThreePrism(), [[i for i in range(6)]], 2],
+        [graphs.DoubleBanana(), [[0, 1, 2, 3, 4], [0, 1, 5, 6, 7]], 3],
         [
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 0),
-            (0, 2),
-            (4, 5),
-            (5, 6),
-            (6, 7),
-            (7, 4),
-            (5, 7),
-            (2, 6),
-        ]
-    )
-    rigid_components = G.rigid_components(dim=2, algorithm="pebble")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2, 3]),
-        frozenset([4, 5, 6, 7]),
-        frozenset([2, 6]),
-    }
+            graphs.Diamond() + relabeled_inc(graphs.Diamond()) + Graph([[2, 6]]),
+            [[0, 1, 2, 3], [4, 5, 6, 7], [2, 6]],
+            2,
+        ],
+        [
+            # graphs.ThreeConnectedR3Circuit with 0 removed
+            # and then each vertex label decreased by 1
+            Graph.from_int(64842845087398392615),
+            [[0, 1, 2, 3], [0, 9, 10, 11], [3, 4, 5, 6], [6, 7, 8, 9]],
+            2,
+        ],
+    ],
+)
+def test_rigid_components(graph, components, dim):
+    def to_sets(comps):
+        return set([frozenset(comp) for comp in comps])
+
+    comps_set = to_sets(components)
+
+    if dim == 1:
+        assert (
+            to_sets(graph.rigid_components(dim=dim, algorithm="graphic")) == comps_set
+        )
+    elif dim == 2:
+        assert to_sets(graph.rigid_components(dim=dim, algorithm="pebble")) == comps_set
+        if graph.number_of_nodes() <= 8:  # since it runs through all subgraphs
+            assert (
+                to_sets(graph.rigid_components(dim=dim, algorithm="subgraphs-pebble"))
+                == comps_set
+            )
+
+    # randomized algorithm is tested for all dimensions for graphs
+    # with at most 8 vertices (since it runs through all subgraphs)
+    if graph.number_of_nodes() <= 8:
+        assert (
+            to_sets(graph.rigid_components(dim=dim, algorithm="randomized"))
+            == comps_set
+        )
 
 
 @pytest.mark.parametrize(
@@ -1214,7 +1131,7 @@ def test_rigid_components_pebble():
         Graph(nx.gnm_random_graph(100, 190), marks=pytest.mark.slow_main),
     ],
 )
-def test_random_graph_rigid_components_using_pebble(graph):
+def test_random_graph_rigid_components_pebble(graph):
     rigid_components = graph.rigid_components(dim=2, algorithm="pebble")
 
     # Check that all components are rigid
