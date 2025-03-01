@@ -1123,15 +1123,15 @@ def test_rigid_components(graph, components, dim):
 @pytest.mark.parametrize(
     "graph",
     [
-        Graph(nx.gnp_random_graph(20, 0.1), marks=pytest.mark.slow_main),
-        Graph(nx.gnm_random_graph(30, 62), marks=pytest.mark.slow_main),
-        Graph(nx.gnm_random_graph(25, 46), marks=pytest.mark.slow_main),
-        Graph(nx.gnm_random_graph(40, 80), marks=pytest.mark.slow_main),
-        Graph(nx.gnm_random_graph(100, 230), marks=pytest.mark.slow_main),
-        Graph(nx.gnm_random_graph(100, 190), marks=pytest.mark.slow_main),
+        Graph(nx.gnp_random_graph(20, 0.1)),
+        Graph(nx.gnm_random_graph(30, 62)),
+        pytest.param(Graph(nx.gnm_random_graph(25, 46)), marks=pytest.mark.slow_main),
+        pytest.param(Graph(nx.gnm_random_graph(40, 80)), marks=pytest.mark.slow_main),
+        pytest.param(Graph(nx.gnm_random_graph(100, 230)), marks=pytest.mark.slow_main),
+        pytest.param(Graph(nx.gnm_random_graph(100, 190)), marks=pytest.mark.slow_main),
     ],
 )
-def test_random_graph_rigid_components_pebble(graph):
+def test_rigid_components_pebble_random_graphs(graph):
     rigid_components = graph.rigid_components(dim=2, algorithm="pebble")
 
     # Check that all components are rigid
