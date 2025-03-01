@@ -2618,18 +2618,7 @@ class Graph(nx.Graph):
         self, index_map: dict[Vertex, int], adj_matrix: list[list[int]]
     ) -> list[list[Vertex]]:
         """
-        Find all maximal cliques in a graph given by an adjacency matrix.
-
-        Implementation details
-        -----
-        Iterate through all pairs of vertices, checks if they are in the same component,
-        and then try to extend the pair into a maximal clique by adding every vertex
-        that are connected to both vertices in the pair.
-        If a clique is found, it is added to the list of maximal cliques.
-
-        Notes
-        -----
-        Running time is O(n^3 log(n)).
+        Return all maximal cliques in a graph given by an adjacency matrix.
 
         Parameters
         ----------
@@ -2638,9 +2627,14 @@ class Graph(nx.Graph):
         adj_matrix:
             adjacency matrix of the graph
 
-        Returns
-        -------
-        list of maximal cliques in adj_matrix
+        Notes
+        -----
+        Running time is O(n^3 log(n)).
+
+        Iterate through all pairs of vertices, checks if they are in the same component,
+        and then try to extend the pair into a maximal clique by adding every vertex
+        that are connected to both vertices in the pair.
+        If a clique is found, it is added to the list of maximal cliques.
         """
 
         maximal_cliques = []
@@ -2668,9 +2662,9 @@ class Graph(nx.Graph):
 
     def _get_2D_rigid_components_using_pebble_digraph(self) -> list[list[Vertex]]:
         """
-        Compute the 2D rigid components of the graph using the pebble game algorithm.
+        Return the 2-rigid components of the graph using the pebble game algorithm.
 
-        Implementation details
+        Notes
         -----
         First, the graph is split into connected components, as only
         connected components can be rigid components. Only the components
@@ -2683,15 +2677,9 @@ class Graph(nx.Graph):
         the maximal cliques resulting in the maximal rigid components of the
         connected component, which is then added to the list of maximal rigid components.
 
-        Notes
-        -----
         Running time is O(n^3 log(n)).
         We could also use 2-connected components, but there are small issues
         with isolated vertices.
-
-        Returns
-        -------
-        list of maximal 2D rigid components
         """
         maximal_rigid_components = []
         # build the pebble digraph
@@ -2776,14 +2764,13 @@ class Graph(nx.Graph):
         if algorithm == "default":
             if dim == 1:
                 algorithm = "graphic"
+            elif dim == 2:
+                algorithm = "pebble"
             else:
-                if dim == 2:
-                    algorithm = "pebble"
-                else:
-                    algorithm = "randomized"
-                    self._warn_randomized_alg(
-                        self.rigid_components, "algorithm='randomized'"
-                    )
+                algorithm = "randomized"
+                self._warn_randomized_alg(
+                    self.rigid_components, "algorithm='randomized'"
+                )
 
         if algorithm == "graphic":
             _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
