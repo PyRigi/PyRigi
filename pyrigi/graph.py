@@ -2556,27 +2556,6 @@ class Graph(nx.Graph):
         Return a matrix that for every pairs of vertices gives if there is a rigid
         component spanning the two vertices.
 
-        Notes
-        -----
-        The matrix is a symmetric matrix of size ``n`` times ``n``, where ``n`` is the
-        number of vertices.
-        Implemented with an index map. Running time is O(n^3 log(n)).
-
-        Implementation details
-        -----
-        Iterate through the vertex pairs of the component and check if there exists
-        a rigid component containing both. This can be done by trying to add a new edge
-        between the vertices.
-        If there is such a rigid component, we can add every vertex pair from there:
-        they are certainly within a rigid component.
-        The matrix we'll get is an adjacency matrix of a graph that consists of
-        edge disjoint cliques.
-
-        Proof: If w_1 is in a rigid component C_1 with u and v
-        and w_2 is also in a rigid component C_2 with u and v,
-        then there is a rigid component C_3 containing both w_1 and w_2,
-        since C_1 and C_2 intersect in at least two vertices.
-
         Parameters
         ---------
         index_map:
@@ -2593,6 +2572,25 @@ class Graph(nx.Graph):
          [True, True, True, True],
          [True, True, True, False],
          [False, True, False, True]]
+
+        Notes
+        -----
+        The matrix is a symmetric matrix of size ``n`` times ``n``, where ``n`` is the
+        number of vertices.
+        Implemented with an index map. Running time is O(n^3 log(n)).
+
+        Iterate through the vertex pairs of the component and check if there exists
+        a rigid component containing both. This can be done by trying to add a new edge
+        between the vertices.
+        If there is such a rigid component, we can add every vertex pair from there:
+        they are certainly within a rigid component.
+        The matrix we'll get is an adjacency matrix of a graph that consists of
+        edge disjoint cliques.
+
+        Proof: If w_1 is in a rigid component C_1 with u and v
+        and w_2 is also in a rigid component C_2 with u and v,
+        then there is a rigid component C_3 containing both w_1 and w_2,
+        since C_1 and C_2 intersect in at least two vertices.
         """
 
         # create a nodes by nodes matrix
