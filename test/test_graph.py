@@ -2809,8 +2809,8 @@ def test_is_not_k_edge_apex(graph, k):
     ]
     + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
 )
-def test_is_critical_k_vertex_apex(graph, k):
-    assert graph.is_critical_k_vertex_apex(k)
+def test_is_critically_k_vertex_apex(graph, k):
+    assert graph.is_critically_k_vertex_apex(k)
 
 
 @pytest.mark.parametrize(
@@ -2823,8 +2823,8 @@ def test_is_critical_k_vertex_apex(graph, k):
     ]
     + [[graphs.Wheel(n).cone(), 0] for n in range(3, 8)],
 )
-def test_is_not_critical_k_vertex_apex(graph, k):
-    assert not graph.is_critical_k_vertex_apex(k)
+def test_is_not_critically_k_vertex_apex(graph, k):
+    assert not graph.is_critically_k_vertex_apex(k)
 
 
 @pytest.mark.parametrize(
@@ -2843,8 +2843,8 @@ def test_is_not_critical_k_vertex_apex(graph, k):
     ]
     + [[graphs.Wheel(n).cone(), 1 if n == 3 else 2 * n - 3] for n in range(3, 6)],
 )
-def test_is_critical_k_edge_apex(graph, k):
-    assert graph.is_critical_k_edge_apex(k)
+def test_is_critically_k_edge_apex(graph, k):
+    assert graph.is_critically_k_edge_apex(k)
 
 
 @pytest.mark.parametrize(
@@ -2856,5 +2856,5 @@ def test_is_critical_k_edge_apex(graph, k):
     ]
     + [[graphs.Wheel(n).cone(), 0 if n == 3 else 2 * n - 4] for n in range(3, 6)],
 )
-def test_is_not_critical_k_edge_apex(graph, k):
-    assert not graph.is_critical_k_edge_apex(k)
+def test_is_not_critically_k_edge_apex(graph, k):
+    assert not graph.is_critically_k_edge_apex(k)
