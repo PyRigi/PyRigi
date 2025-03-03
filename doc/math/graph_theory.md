@@ -94,12 +94,16 @@ results in a planar graph, we call $G$ a _$k$-apex graph_ or _$k$-vertex apex gr
 of $k$ edges from $G$ results in a planar graph, we call $G$ a _$k$-edge apex graph_.
 
 Moreover, if one of these properties holds for all choices of $k$ vertices or edges, we call the graph a
-_critical $k$-vertex apex graph_ or _critical $k$-edge apex graph_, respectively.
+_critically $k$-vertex apex graph_ or _critically $k$-edge apex graph_, respectively.
 
-{{pyrigi_crossref}} {meth}`~.Graph.is_k_vertex_apex`
+{{pyrigi_crossref}} {meth}`~.Graph.is_vertex_apex`
+{meth}`~.Graph.is_k_vertex_apex`
+{meth}`~.Graph.is_edge_apex`
 {meth}`~.Graph.is_k_edge_apex`
-{meth}`~.Graph.is_critical_k_vertex_apex`
-{meth}`~.Graph.is_critical_k_edge_apex`
+{meth}`~.Graph.is_critically_vertex_apex`
+{meth}`~.Graph.is_critically_k_vertex_apex`
+{meth}`~.Graph.is_critically_edge_apex`
+{meth}`~.Graph.is_critically_k_edge_apex`
 :::
 
 

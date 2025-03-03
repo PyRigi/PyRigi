@@ -2977,9 +2977,22 @@ class Graph(nx.Graph):
         return G
 
     @doc_category("General graph theoretical properties")
+    def is_vertex_apex(self):
+        """
+        Check whether the graph is vertex apex.
+
+        Alias for :meth:`~.Graph.is_k_vertex_apex` with ``k=1``
+
+        Definitions
+        -----------
+        :prf:ref:`vertex apex graph <def-apex-graph>`
+        """
+        return self.is_k_vertex_apex(1)
+
+    @doc_category("General graph theoretical properties")
     def is_k_vertex_apex(self, k: int):
         """
-        Check whether the removal of some set of k vertices creates a planar graph.
+        Check whether the graph is ``k``-vertex apex.
 
         Definitions
         -----------
@@ -3005,9 +3018,22 @@ class Graph(nx.Graph):
         return False
 
     @doc_category("General graph theoretical properties")
+    def is_edge_apex(self):
+        """
+        Check whether the graph is edge apex.
+
+        Alias for :meth:`~.Graph.is_k_edge_apex` with ``k=1``
+
+        Definitions
+        -----------
+        :prf:ref:`edge apex graph <def-apex-graph>`
+        """
+        return self.is_k_edge_apex(1)
+
+    @doc_category("General graph theoretical properties")
     def is_k_edge_apex(self, k: int):
         """
-        Check whether the removal of some set of k edges creates a planar graph.
+        Check whether the graph is ``k``-edge apex.
 
         Definitions
         -----------
@@ -3032,19 +3058,32 @@ class Graph(nx.Graph):
         return False
 
     @doc_category("General graph theoretical properties")
-    def is_critical_k_vertex_apex(self, k: int):
+    def is_critically_vertex_apex(self):
         """
-        Check whether the removal of all choices of k vertices creates a planar graph.
+        Check whether the graph is critically vertex apex.
+
+        Alias for :meth:`~.Graph.is_critically_k_vertex_apex` with ``k=1``.
 
         Definitions
         -----------
-        :prf:ref:`critical k-vertex apex graph <def-apex-graph>`
+        :prf:ref:`critically vertex apex graph <def-apex-graph>`
+        """
+        return self.is_critically_k_vertex_apex(1)
+
+    @doc_category("General graph theoretical properties")
+    def is_critically_k_vertex_apex(self, k: int):
+        """
+        Check whether the graph is critically ``k``-vertex apex.
+
+        Definitions
+        -----------
+        :prf:ref:`critically k-vertex apex graph <def-apex-graph>`
 
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(5)
-        >>> G.is_critical_k_vertex_apex(1)
+        >>> G.is_critically_k_vertex_apex(1)
         True
         """
         _input_check.integrality_and_range(
@@ -3060,19 +3099,32 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("General graph theoretical properties")
-    def is_critical_k_edge_apex(self, k: int):
+    def is_critically_edge_apex(self):
         """
-        Check whether the removal of all choices of k edges creates a planar graph.
+        Check whether the graph is critically edge apex.
+
+        Alias for :meth:`~.Graph.is_critically_k_edge_apex` with ``k=1``.
 
         Definitions
         -----------
-        :prf:ref:`critical k-edge apex graph <def-apex-graph>`
+        :prf:ref:`critically edge apex graph <def-apex-graph>`
+        """
+        return self.is_critically_k_edge_apex(1)
+
+    @doc_category("General graph theoretical properties")
+    def is_critically_k_edge_apex(self, k: int):
+        """
+        Check whether the graph is critically ``k``-edge apex.
+
+        Definitions
+        -----------
+        :prf:ref:`critically k-edge apex graph <def-apex-graph>`
 
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(5)
-        >>> G.is_critical_k_edge_apex(1)
+        >>> G.is_critically_k_edge_apex(1)
         True
         """
         _input_check.integrality_and_range(
