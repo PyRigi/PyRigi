@@ -57,6 +57,5 @@ def method(algorithm: str = test):
 ```{eval-rst}
 .. automodule:: pyrigi._input_check
    :members:
-   :undoc-members:
    :show-inheritance:
 ```

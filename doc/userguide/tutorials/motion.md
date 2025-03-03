@@ -22,10 +22,11 @@ As an example, consider the 4-cycle. A parametric motion can be specified
 using the following sequence of commands:
 
 ```{code-cell} ipython3
+import sympy as sp
+
 from pyrigi import graphDB as graphs
 from pyrigi import ParametricMotion
 from pyrigi.misc import skip_execution
-import sympy as sp
 
 motion = ParametricMotion(
     graphs.Cycle(4),

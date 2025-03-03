@@ -8,11 +8,19 @@ from collections.abc import Callable
 
 
 class LoopError(ValueError):
+    """
+    Error raised when the graph is not loop-free.
+    """
+
     def __init__(self, msg: str = "The graph needs to be loop-free.", *args, **kwargs):
         super().__init__(msg, *args, **kwargs)
 
 
 class NotSupportedValueError(ValueError):
+    """
+    Error raised when an input value is not supported.
+    """
+
     def __init__(
         self,
         wrong_param,
@@ -26,7 +34,7 @@ class NotSupportedValueError(ValueError):
             super().__init__(msg, *args, **kwargs)
         else:
             msg_str = (
-                f"The specified value of the `{parameter_name}`"
+                f"The specified value of the `{parameter_name}` "
                 + f"parameter is '{wrong_param}', "
                 + "which is not supported!\n"
             )

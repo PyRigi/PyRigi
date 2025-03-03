@@ -11,16 +11,18 @@ Classes:
 """
 
 from collections.abc import Sequence
-from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
-from ipycanvas import MultiCanvas, hold_canvas
+
+import networkx as nx
+import numpy as np
 from IPython.display import display
+from ipycanvas import MultiCanvas, hold_canvas
+from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
+from ipyevents import Event
 from sympy import Rational
+
 from pyrigi.data_type import Edge
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
-from ipyevents import Event
-import networkx as nx
-import numpy as np
 
 
 class GraphDrawer(object):
@@ -64,7 +66,6 @@ class GraphDrawer(object):
         and also ``NE``, ``NW``, ``SE`` and ``SW``.
         If ``graph`` is ``None`` or empty this parameter will not have any effect.
 
-
     Examples
     --------
     >>> from pyrigi import GraphDrawer
@@ -86,14 +87,14 @@ class GraphDrawer(object):
         """
 
         self._radius = 10
-        self._ewidth = 2
-        self._v_color = "blue"  # default color for vertices
-        self._e_color = "black"  # default color for edges
+        self._edge_width = 2
+        self._vertex_color = "blue"  # default color for vertices
+        self._edge_color = "black"  # default color for edges
 
         self._selected_vertex = None  # this determines what vertex to update on canvas
-        self._show_vlabels = True
+        self._vertex_labels = True
         self._mouse_down = False
-        self._vertexmove_on = False
+        self._vertex_move_on = False
         self._grid_size = 50
 
         self._graph = Graph()  # the graph on canvas
@@ -132,20 +133,23 @@ class GraphDrawer(object):
         self._events.on_dom_event(self._handle_event)
 
         # color picker for the new vertices
-        self._vcolor_picker = ColorPicker(
-            concise=False, description="V-Color", value=self._v_color, disabled=False
+        self._vertex_color_picker = ColorPicker(
+            concise=False,
+            description="V-Color",
+            value=self._vertex_color,
+            disabled=False,
         )
 
-        self._vcolor_picker.observe(self._on_vcolor_change)
+        self._vertex_color_picker.observe(self._on_vertex_color_change)
 
         # color picker for the new edges
-        self._ecolor_picker = ColorPicker(
-            concise=False, description="E-Color", value=self._e_color, disabled=False
+        self._edge_color_picker = ColorPicker(
+            concise=False, description="E-Color", value=self._edge_color, disabled=False
         )
-        self._ecolor_picker.observe(self._on_ecolor_change)
+        self._edge_color_picker.observe(self._on_edge_color_change)
 
         # setting radius for vertices
-        self._vradius_slider = IntSlider(
+        self._vertex_radius_slider = IntSlider(
             value=self._radius,
             min=8,
             max=20,
@@ -157,11 +161,11 @@ class GraphDrawer(object):
             readout=True,
             readout_format="d",
         )
-        self._vradius_slider.observe(self._on_vradius_change)
+        self._vertex_radius_slider.observe(self._on_vertex_radius_change)
 
         # setting line width for the edges
-        self._ewidth_slider = IntSlider(
-            value=self._ewidth,
+        self._edge_width_slider = IntSlider(
+            value=self._edge_width,
             min=1,
             max=10,
             step=1,
@@ -172,13 +176,13 @@ class GraphDrawer(object):
             readout=True,
             readout_format="d",
         )
-        self._ewidth_slider.observe(self._on_ewidth_change)
+        self._edge_width_slider.observe(self._on_edge_width_change)
 
         # setting checkbox for showing vertex labels
-        self._vlabel_checkbox = Checkbox(
+        self._vertex_label_checkbox = Checkbox(
             value=True, description="Show V-Labels", disabled=False, indent=False
         )
-        self._vlabel_checkbox.observe(self._on_show_vlabel_change)
+        self._vertex_label_checkbox.observe(self._on_show_vertex_label_change)
 
         self._grid_checkbox = Checkbox(
             value=False, description="Show Grid", disabled=False, indent=False
@@ -209,11 +213,11 @@ class GraphDrawer(object):
         # combining the menu and canvas
         right_box = VBox(
             [
-                self._vcolor_picker,
-                self._ecolor_picker,
-                self._vradius_slider,
-                self._ewidth_slider,
-                self._vlabel_checkbox,
+                self._vertex_color_picker,
+                self._edge_color_picker,
+                self._vertex_radius_slider,
+                self._edge_width_slider,
+                self._vertex_label_checkbox,
                 self._grid_checkbox,
                 self._grid_snap_checkbox,
                 self._grid_size_slider,
@@ -248,12 +252,12 @@ class GraphDrawer(object):
 
     def _handle_event(self, event) -> None:
         """
-        This function handles keyboard events and double click event using ``ipyevents``.
+        Handle keyboard events and double click event using ``ipyevents``.
         """
         if event["event"] == "keydown":
-            self._vertexmove_on = event["ctrlKey"]
+            self._vertex_move_on = event["ctrlKey"]
         elif event["event"] == "keyup":
-            self._vertexmove_on = event["ctrlKey"]
+            self._vertex_move_on = event["ctrlKey"]
         elif event["event"] == "dblclick":
             x = (
                 (event["clientX"] - event["boundingRectLeft"])
@@ -269,7 +273,7 @@ class GraphDrawer(object):
 
     def _assign_pos(self, x, y, place) -> list[int]:
         """
-        This function converts layout positions which are between -1 and 1
+        Convert layout positions which are between -1 and 1
         to canvas positions according to the chosen place by scaling.
         """
         width = self._mcanvas.width
@@ -324,12 +328,24 @@ class GraphDrawer(object):
             ]
 
     def _set_graph(self, graph: Graph, layout_type, place) -> None:
+        """
+        Set up a ``graph`` with specified layout and place it on the canvas.
+
+        Parameters
+        ----------
+        graph:
+            Graph
+        layout_type:
+            Specifies the graph's realization.
+        place:
+            Determines on the canvas.
+        """
         vertex_map = {}
         for vertex in graph:
             if not isinstance(vertex, int) or vertex < 0:
-                for k in range(graph.number_of_nodes()):
-                    if not graph.has_node(k) and k not in vertex_map.values():
-                        vertex_map[vertex] = k
+                for i in range(graph.number_of_nodes()):
+                    if not graph.has_node(i) and i not in vertex_map.values():
+                        vertex_map[vertex] = i
                         break
         graph = nx.relabel_nodes(graph, vertex_map, copy=True)
         placement = graph.layout(layout_type)
@@ -345,19 +361,18 @@ class GraphDrawer(object):
         for vertex in graph.nodes:
             px, py = placement[vertex]
             self._graph.add_node(
-                vertex, color=self._v_color, pos=self._assign_pos(px, py, place)
+                vertex, color=self._vertex_color, pos=self._assign_pos(px, py, place)
             )
         for edge in graph.edges:
-            self._graph.add_edge(edge[0], edge[1], color=self._e_color)
+            self._graph.add_edge(edge[0], edge[1], color=self._edge_color)
 
         if len(vertex_map) != 0:
             with self._out:
                 print("relabeled vertices:", vertex_map)
 
-    def _on_grid_checkbox_change(self, change) -> None:
+    def _on_grid_checkbox_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the grid checkbox.
-
+        Handle the grid checkbox.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._update_background(change["new"])
@@ -366,61 +381,70 @@ class GraphDrawer(object):
             if change["new"] is False:
                 self._grid_snap_checkbox.value = False
 
-    def _on_grid_size_change(self, change) -> None:
+    def _on_grid_size_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the grid size slider.
+        Handle the grid size slider.
         """
         if change["type"] == "change" and change["name"] == "value":
             self._grid_size = change["new"]
             self._update_background(grid_on=self._grid_checkbox.value)
 
-    def _on_vcolor_change(self, change) -> None:
+    def _on_vertex_color_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the color picker for the new vertices.
-        """
-
-        if change["type"] == "change" and change["name"] == "value":
-            self._v_color = change["new"]
-
-    def _on_ecolor_change(self, change) -> None:
-        """
-        Handler of the color picker for the new edges.
+        Handle the color picker for the new vertices.
         """
         if change["type"] == "change" and change["name"] == "value":
-            self._e_color = change["new"]
+            self._vertex_color = change["new"]
 
-    def _on_vradius_change(self, change) -> None:
+    def _on_edge_color_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the vertex size slider.
+        Handle the color picker for the new edges.
         """
+        if change["type"] == "change" and change["name"] == "value":
+            self._edge_color = change["new"]
 
+    def _on_vertex_radius_change(self, change: dict[str, str]) -> None:
+        """
+        Handle the vertex size slider.
+        """
         if change["type"] == "change" and change["name"] == "value":
             self._radius = change["new"]
             with hold_canvas():
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
-    def _on_ewidth_change(self, change) -> None:
+    def _on_edge_width_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the edge width slider.
+        Handle the edge width slider.
         """
         if change["type"] == "change" and change["name"] == "value":
-            self._ewidth = change["new"]
+            self._edge_width = change["new"]
             with hold_canvas():
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
-    def _on_show_vlabel_change(self, change) -> None:
+    def _on_show_vertex_label_change(self, change: dict[str, str]) -> None:
         """
-        Handler of the vertex labels checkbox.
+        Handle the vertex labels checkbox.
         """
         if change["type"] == "change" and change["name"] == "value":
-            self._show_vlabels = change["new"]
+            self._vertex_labels = change["new"]
             with hold_canvas():
                 self._mcanvas[2].clear()
                 self._redraw_graph()
 
-    def _update_background(self, grid_on):
+    def _update_background(self, grid_on: bool):
+        """
+        Update the background of a canvas.
+
+        A grid can be added, if desired.
+
+        Parameters
+        ----------
+        grid_on:
+            Boolean determining whether a grid should be added
+            to the canvas.
+        """
         self._mcanvas[0].clear()
         self._mcanvas[0].line_width = 1
         self._mcanvas[0].stroke_style = "black"
@@ -470,7 +494,7 @@ class GraphDrawer(object):
 
     def _handle_mouse_down(self, x, y) -> None:
         """
-        Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_down`.
+        Handle :meth:`ipycanvas.MultiCanvas.on_mouse_down`.
 
         It determines what to do when mouse button is pressed.
         """
@@ -488,7 +512,7 @@ class GraphDrawer(object):
             # add a new vertex if no vertex is selected and
             # no edge contains the mouse pointer position
             vertex = self._least_available_label()
-            self._graph.add_node(vertex, color=self._v_color, pos=location)
+            self._graph.add_node(vertex, color=self._vertex_color, pos=location)
             self._selected_vertex = vertex
         with hold_canvas():
             # redraw graph and send the edges incident with selected vertex to layer 1
@@ -500,7 +524,7 @@ class GraphDrawer(object):
 
     def _handle_mouse_up(self, x, y) -> None:
         """
-        Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_up`.
+        Handle :meth:`ipycanvas.MultiCanvas.on_mouse_up`.
 
         It determines what to do when mouse button is released.
         """
@@ -513,9 +537,7 @@ class GraphDrawer(object):
             location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
             vertex = self._collided_vertex(location[0], location[1])
 
-        s_vertex = self._selected_vertex
-
-        if s_vertex is None:
+        if self._selected_vertex is None:
             # This is to ignore the case when mousebutton is pressed
             # outside multicanvas and released on multicanvas
             return
@@ -524,15 +546,17 @@ class GraphDrawer(object):
             # add a new vertex and an edge between the new vertex and the selected vertex
             vertex = self._least_available_label()
 
-            self._graph.add_node(vertex, color=self._v_color, pos=location)
-            self._graph.add_edge(vertex, s_vertex, color=self._e_color)
-        elif vertex is not None and vertex is not s_vertex:
+            self._graph.add_node(vertex, color=self._vertex_color, pos=location)
+            self._graph.add_edge(vertex, self._selected_vertex, color=self._edge_color)
+        elif vertex is not None and vertex is not self._selected_vertex:
             # if there is a vertex containing mouse pointer position other than
             # the selected vertex, add / remove edge between these two vertices.
-            if self._graph.has_edge(vertex, s_vertex):
-                self._graph.remove_edge(vertex, s_vertex)
+            if self._graph.has_edge(vertex, self._selected_vertex):
+                self._graph.remove_edge(vertex, self._selected_vertex)
             else:
-                self._graph.add_edge(vertex, s_vertex, color=self._e_color)
+                self._graph.add_edge(
+                    vertex, self._selected_vertex, color=self._edge_color
+                )
 
         with hold_canvas():
             self._mcanvas[1].clear()
@@ -543,9 +567,9 @@ class GraphDrawer(object):
 
     def _handle_dblclick(self, x, y) -> None:
         """
-        This function is the handler for double click event (using ipyevents).
+        Handle double click event (using ipyevents).
 
-        Double clicking on a vertex or edge will remove the vertex or the edge, resp.
+        Double clicking on a vertex or edge removes the vertex or the edge, respectively.
         """
         edge = self._collided_edge(x, y)
         vertex = self._collided_vertex(x, y)
@@ -561,22 +585,20 @@ class GraphDrawer(object):
 
     def _handle_mouse_move(self, x, y) -> None:
         """
-        Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_move`.
+        Handle :meth:`ipycanvas.MultiCanvas.on_mouse_move`.
 
         It determines what to do when mouse pointer is moving on multicanvas.
         """
-
-        vertex = self._selected_vertex
         location = [int(x), int(y)]
         collided_vertex = self._collided_vertex(x, y)
         self._mcanvas[4].clear()
         if self._grid_snap_checkbox.value and (
-            collided_vertex is None or collided_vertex is vertex
+            collided_vertex is None or collided_vertex is self._selected_vertex
         ):
             gridpoint = self._closest_grid_coordinate(x, y)
             location = self._grid_to_canvas_point(gridpoint[0], gridpoint[1])
 
-        if vertex is None or not self._mouse_down:
+        if self._selected_vertex is None or not self._mouse_down:
             # do nothing if no vertex is selected or mouse button is not down
             if self._grid_snap_checkbox.value:
                 with hold_canvas():
@@ -584,38 +606,38 @@ class GraphDrawer(object):
                     self._mcanvas[4].fill_circle(location[0], location[1], 3)
             return
 
-        if not self._vertexmove_on:
+        if not self._vertex_move_on:
             # add a line segment between selected vertex and the mouse pointer position
             # and update layer 1 of multicanvas
             with hold_canvas():
                 self._mcanvas[1].clear()
-                self._mcanvas[1].stroke_style = self._e_color
-                self._mcanvas[1].line_width = self._ewidth
+                self._mcanvas[1].stroke_style = self._edge_color
+                self._mcanvas[1].line_width = self._edge_width
                 self._mcanvas[1].stroke_line(
-                    self._graph.nodes[vertex]["pos"][0],
-                    self._graph.nodes[vertex]["pos"][1],
+                    self._graph.nodes[self._selected_vertex]["pos"][0],
+                    self._graph.nodes[self._selected_vertex]["pos"][1],
                     location[0],
                     location[1],
                 )
-                self._redraw_vertex(vertex)
+                self._redraw_vertex(self._selected_vertex)
         else:
             # move vertex to mouse pointer position
             # and update layer 1 and 3 of multicanvas
-            self._graph.nodes[vertex]["pos"] = location
+            self._graph.nodes[self._selected_vertex]["pos"] = location
             with hold_canvas():
                 self._mcanvas[1].clear()
                 self._mcanvas[3].clear()
-                self._redraw_vertex(vertex)
+                self._redraw_vertex(self._selected_vertex)
 
     def _handle_mouse_out(self, x, y) -> None:
         """
-        Handler for :meth:`ipycanvas.MultiCanvas.on_mouse_out`.
+        Handle :meth:`ipycanvas.MultiCanvas.on_mouse_out`.
 
         It determines what to do when the mouse leaves multicanvas.
         """
         _, _ = x, y  # To avoid unused variable warning
         self._selected_vertex = None
-        self._vertexmove_on = False
+        self._vertex_move_on = False
         with hold_canvas():
             self._mcanvas[1].clear()
             self._mcanvas[2].clear()
@@ -644,25 +666,25 @@ class GraphDrawer(object):
                     self._graph.nodes[edge[1]]["pos"],
                     [x, y],
                 )
-                < self._ewidth / 2 + 1
+                < self._edge_width / 2 + 1
             ):
                 return edge
         return None
 
     @staticmethod
-    def _point_distance_to_segment(a, b, p) -> float:
+    def _point_distance_to_segment(a, b, point) -> float:
         """
-        Return the distance between point 'p' and line segment given by 'a' and 'b'.
+        Return the distance between 'point' and line segment given by 'a' and 'b'.
         """
         a = np.asarray(a)
         b = np.asarray(b)
-        p = np.asarray(p)
-        ap = p - a
+        point = np.asarray(point)
+        ap = point - a
         ab = b - a
         t = np.dot(ap, ab) / np.dot(ab, ab)
         t = max(0, min(1, t))
         closest_point = a + t * ab
-        return np.linalg.norm(p - closest_point)
+        return np.linalg.norm(point - closest_point)
 
     def _redraw_vertex(self, vertex) -> None:
         """
@@ -675,7 +697,7 @@ class GraphDrawer(object):
         of the multicanvas.
         This is to make sure that edges do not show up above other vertices.
         """
-        self._mcanvas[1].line_width = self._ewidth
+        self._mcanvas[1].line_width = self._edge_width
         for v in self._graph[vertex]:
             self._mcanvas[1].stroke_style = self._graph[vertex][v]["color"]
             self._mcanvas[1].stroke_line(
@@ -687,29 +709,29 @@ class GraphDrawer(object):
         self._mcanvas[3].fill_style = self._graph.nodes[vertex]["color"]
         x, y = self._graph.nodes[vertex]["pos"]
         self._mcanvas[3].fill_circle(x, y, self._radius)
-        if self._show_vlabels:
+        if self._vertex_labels:
             self._mcanvas[3].fill_style = "white"
             self._mcanvas[3].fill_text(str(vertex), x, y)
 
-    def _redraw_graph(self, hvertex=None) -> None:
+    def _redraw_graph(self, vertex=None) -> None:
         """
         Redraw the whole graph.
 
-        If hvertex is not None,
-        then the edges incident with hvertex are drawn on layer 1,
-        hvertex is drawn on layer 3 and all other vertices and edges are drawn
+        If ``vertex`` is not None,
+        then the edges incident with ``vertex`` are drawn on layer 1,
+        ``vertex`` is drawn on layer 3 and all other vertices and edges are drawn
         on layer 2. This is to prepare multicanvas for adding/removing edges
-        incident with hvertex and repositioning hvertex while keeping other vertices
+        incident with ``vertex`` and repositioning ``vertex`` while keeping other vertices
         and edges fixed on multicanvas in layer 2.
         """
-        self._mcanvas[1].line_width = self._ewidth
-        self._mcanvas[2].line_width = self._ewidth
+        self._mcanvas[1].line_width = self._edge_width
+        self._mcanvas[2].line_width = self._edge_width
         for u, v in self._graph.edges:
             # i below is the index of the layer to be used.
-            # if the edge is incident with hvertex,
+            # if the edge is incident with ``vertex``,
             # draw this edge on layer 1 of multicanvas.
             # otherwise draw it on layer 2.
-            if hvertex in [u, v]:
+            if vertex in [u, v]:
                 i = 1
             else:
                 i = 2
@@ -722,20 +744,20 @@ class GraphDrawer(object):
                 self._graph.nodes[v]["pos"][1],
             )
 
-        for vertex in self._graph.nodes:
+        for v in self._graph.nodes:
             # i below is the index of the layer to be used.
-            # draw hvertex on layer 3 and other vertices on layer 2
-            # so that moving vertex (hvertex) will show up above others.
-            if hvertex == vertex:
+            # draw ``vertex`` on layer 3 and other vertices on layer 2
+            # so that moving ``vertex`` will show up above others.
+            if vertex == v:
                 i = 3
             else:
                 i = 2
-            self._mcanvas[i].fill_style = self._graph.nodes[vertex]["color"]
-            x, y = self._graph.nodes[vertex]["pos"]
+            self._mcanvas[i].fill_style = self._graph.nodes[v]["color"]
+            x, y = self._graph.nodes[v]["pos"]
             self._mcanvas[i].fill_circle(x, y, self._radius)
-            if self._show_vlabels:
+            if self._vertex_labels:
                 self._mcanvas[i].fill_style = "white"
-                self._mcanvas[i].fill_text(str(vertex), x, y)
+                self._mcanvas[i].fill_text(str(v), x, y)
 
     def _grid_to_canvas_point(self, x, y):
         """
@@ -783,10 +805,7 @@ class GraphDrawer(object):
         """
         Return a copy of the current graph on the multicanvas.
         """
-        H = Graph()
-        H.add_nodes_from(self._graph.nodes)
-        H.add_edges_from(self._graph.edges)
-        return H
+        return Graph.from_vertices_and_edges(self._graph.nodes, self._graph.edges)
 
     def framework(self, grid: bool = False) -> Framework:
         """

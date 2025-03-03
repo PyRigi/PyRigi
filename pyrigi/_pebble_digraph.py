@@ -2,10 +2,12 @@
 Auxiliary class for directed graph used in pebble game style algorithms.
 """
 
-from pyrigi.data_type import Vertex, DirectedEdge
-import pyrigi._input_check as _input_check
+from typing import Iterable
 
 import networkx as nx
+
+import pyrigi._input_check as _input_check
+from pyrigi.data_type import Vertex, DirectedEdge
 
 
 class PebbleDiGraph(nx.MultiDiGraph):
@@ -14,7 +16,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     Notes
     -----
-    All nx methods in use need a wrapper - to make future developments easier.
+    All ``networkx`` methods in use need a wrapper - to
+    make future developments easier.
     """
 
     def __init__(self, K: int = None, L: int = None, *args, **kwargs) -> None:
@@ -106,8 +109,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
         Parameters
         ----------
         vertex: Vertex, whose indegree we want to know.
-        TODO check if vertex exists
         """
+        self._input_check_vertex_members(vertex, "vertex")
         return int(super().in_degree(vertex))
 
     def out_degree(self, vertex: Vertex) -> int:
@@ -117,8 +120,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
         Parameters
         ----------
         vertex: Vertex, whose outdegree we want to know.
-        TODO check if vertex exists
         """
+        self._input_check_vertex_members(vertex, "vertex")
         return int(super().out_degree(vertex))
 
     def redirect_edge_to_head(self, edge: DirectedEdge, vertex_to: Vertex) -> None:
@@ -153,7 +156,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
             Run depth first search to find vertices
             that can be reached from u or v.
 
-            Returns whether any of these has outdegree < self._K
+            Return whether any of these has outdegree < self._K
             and the set of reachable vertices.
             It will also turn edges around by this path.
 
@@ -271,3 +274,24 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
+
+    def _input_check_vertex_members(
+        self, to_check: Iterable[Vertex] | Vertex, name: str = ""
+    ) -> None:
+        """
+        Check whether the elements of a list are indeed vertices and
+        raise error otherwise.
+        """
+        if not isinstance(to_check, Iterable):
+            if not self.has_node(to_check):
+                raise ValueError(
+                    f"The element {to_check} is not a vertex of the graph!"
+                )
+        else:
+            for vertex in to_check:
+                if not self.has_node(vertex):
+                    raise ValueError(
+                        f"The element {vertex} from "
+                        + name
+                        + f" {to_check} is not a vertex of the graph!"
+                    )

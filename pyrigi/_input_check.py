@@ -45,7 +45,7 @@ def integrality_and_range(
     value: int, name: str, min_val: int = 0, max_val: int = math.inf
 ) -> None:
     """
-    Check whether an input parameter `value` is an integer in a certain range and
+    Check whether an input parameter ``value`` is an integer in a certain range and
     raise an error otherwise.
 
     Parameters
@@ -72,7 +72,7 @@ def greater_equal(
     val1: int | float, val2: int | float, name1: str, name2: str = ""
 ) -> None:
     """
-    Check whether an input parameter val1 is greater than or equal to val2 and
+    Check whether an input parameter ``val1`` is greater than or equal to ``val2`` and
     raise an error otherwise.
 
     Parameters
@@ -82,9 +82,9 @@ def greater_equal(
     val2:
         Value that shall be smaller
     name1:
-        Name of the parameter val1
+        Name of the parameter ``val1``
     name2:
-        Name of the parameter val2
+        Name of the parameter ``val2``
     """
     if name2 == "":
         str2 = ""
@@ -100,7 +100,7 @@ def greater_equal(
 
 def greater(val1: int | float, val2: int | float, name1: str, name2: str = "") -> None:
     """
-    Check whether an input parameter val1 is greater than or equal to val2 and
+    Check whether an input parameter ``val1`` is greater than or equal to ``val2`` and
     raise an error otherwise.
 
     Parameters
@@ -110,9 +110,9 @@ def greater(val1: int | float, val2: int | float, name1: str, name2: str = "") -
     val2:
         Value that shall be smaller/equal
     name1:
-        Name of the parameter val1
+        Name of the parameter ``val1``
     name2:
-        Name of the parameter val2
+        Name of the parameter ``val2``
     """
     if name2 == "":
         str2 = ""
@@ -130,7 +130,7 @@ def smaller_equal(
     val1: int | float, val2: int | float, name1: str, name2: str = ""
 ) -> None:
     """
-    Check whether an input parameter val1 is smaller than or equal to val2 and
+    Check whether an input parameter ``val1`` is smaller than or equal to ``val2`` and
     raise an error otherwise.
 
     Parameters
@@ -140,9 +140,9 @@ def smaller_equal(
     val2:
         Value that shall be greater
     name1:
-        Name of the parameter val1
+        Name of the parameter ``val1``
     name2:
-        Name of the parameter val2
+        Name of the parameter ``val2``
     """
     if name2 == "":
         str2 = ""
@@ -158,8 +158,8 @@ def smaller_equal(
 
 def pebble_values(K: int, L: int) -> None:
     """
-    Check if K and L satisfy the pebble conditions K > 0 and 0 <= L < 2K and
-    raise an error otherwise.
+    Check if ``K`` and ``L`` satisfy the pebble conditions ``K > 0`` and ``0 <= L < 2K``
+    and raise an error otherwise.
     """
     # Check that K and L are integers and range
     integrality_and_range(K, "K", min_val=1)

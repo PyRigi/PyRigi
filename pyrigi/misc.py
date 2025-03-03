@@ -2,11 +2,13 @@
 Module for miscellaneous functions.
 """
 
-from pyrigi.data_type import Sequence, Number, point_to_vector, InfFlex, Vertex
-from sympy import Matrix
-import sympy as sp
-import numpy as np
 from math import isclose, log10
+
+import numpy as np
+import sympy as sp
+from sympy import Matrix, MatrixBase
+
+from pyrigi.data_type import Sequence, Number, InfFlex, Vertex, Point
 
 
 try:
@@ -15,7 +17,7 @@ try:
     @register_cell_magic
     def skip_execution(line, cell):
         print(
-            "This cell was marked to be skipped (probably due to its long execution time."
+            "This cell was marked to be skipped (probably due to long execution time)."
         )
         print("Remove the cell magic `%%skip_execution` to run it.")
         return
@@ -25,6 +27,10 @@ except NameError:
 
 
 def doc_category(category):
+    """
+    Decorator for doc categories.
+    """
+
     def decorator_doc_category(func):
         setattr(func, "_doc_category", category)
         return func
@@ -33,6 +39,23 @@ def doc_category(category):
 
 
 def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
+    """
+    Generate a formatted string that categorizes methods of a given class.
+
+    Parameters
+    ----------
+    cls:
+        Represents the class.
+    tabs:
+        Specifies the number of indentation levels that are applied to
+        the output.
+    cat_order:
+        Optional list specifying the order in which categories appear
+        in the output.
+    include_all:
+        Optional boolean determining whether methods without a specific category
+        should be included. Defaults to ``False``.
+    """
     if cat_order is None:
         cat_order = []
     categories = {}
@@ -108,12 +131,6 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     """
     Generate three random numeric orthonormal vectors in the given dimension.
 
-    Notes
-    -----
-    The vectors are in the columns of the returned matrix. To ensure that the
-    vectors are uniformly distributed over the Stiefel manifold, we need to
-    ensure that the triangular matrix `R` has positive diagonal elements.
-
     Parameters
     ----------
     dim:
@@ -121,6 +138,12 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     random_seed:
         Seed for generating random vectors.
         When the same value is provided, the same vectors are generated.
+
+    Notes
+    -----
+    The vectors are in the columns of the returned matrix. To ensure that the
+    vectors are uniformly distributed over the Stiefel manifold, we need to
+    ensure that the triangular matrix `R` has positive diagonal elements.
     """
 
     if random_seed is not None:
@@ -189,9 +212,20 @@ def eval_sympy_vector(
     ]
 
 
-def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
+def normalize_flex(
+    inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-12
+) -> InfFlex:
     """
-    Divides a vector by its Euclidean norm.
+    Divide a vector by its Euclidean norm.
+
+    Parameters
+    ----------
+    inf_flex:
+        The infinitesimal flex that is supposed to be normalized.
+    numerical:
+        Determines whether a numerical or symbolic normalization is performed.
+    tolerance:
+        Intended level of numerical accuracy.
     """
     if isinstance(inf_flex, dict):
         if numerical:
@@ -200,18 +234,26 @@ def normalize_flex(inf_flex: InfFlex, numerical: bool = False) -> InfFlex:
                 for v, flex in inf_flex.items()
             }
             flex_norm = np.linalg.norm(sum(_inf_flex.values(), []))
+            if isclose(flex_norm, 0, abs_tol=tolerance):
+                raise ValueError("The norm of this flex is almost zero.")
             return {
-                v: tuple([pt / flex_norm for pt in q]) for v, q in _inf_flex.items()
+                v: tuple([q / flex_norm for q in flex]) for v, flex in _inf_flex.items()
             }
-        flex_norm = sp.sqrt(sum([q**2 for val in inf_flex.values() for q in val]))
-        return {v: tuple([pt / flex_norm for pt in q]) for v, q in inf_flex.items()}
+        flex_norm = sp.sqrt(sum([q**2 for flex in inf_flex.values() for q in flex]))
+        if flex_norm.is_zero:
+            raise ValueError("The norm of this flex is zero.")
+        return {v: tuple([q / flex_norm for q in flex]) for v, flex in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
         if numerical:
-            _inf_flex = [float(sp.sympify(q).evalf(15)) for q in inf_flex]
+            _inf_flex = [float(sp.sympify(flex).evalf(15)) for flex in inf_flex]
             flex_norm = np.linalg.norm(_inf_flex)
-            return [q / flex_norm for q in _inf_flex]
-        flex_norm = sp.sqrt(sum([q**2 for q in inf_flex]))
-        return [q / flex_norm for q in inf_flex]
+            if isclose(flex_norm, 0, abs_tol=tolerance):
+                raise ValueError("The norm of this flex is almost zero.")
+            return [flex / flex_norm for flex in _inf_flex]
+        flex_norm = sp.sqrt(sum([flex**2 for flex in inf_flex]))
+        if flex_norm.is_zero:
+            raise ValueError("The norm of this flex is zero.")
+        return [flex / flex_norm for flex in inf_flex]
     else:
         raise TypeError("`inf_flex` does not have the correct type.")
 
@@ -222,10 +264,17 @@ def vector_distance_pointwise(
     numerical: bool = False,
 ) -> float:
     """
-    Computes the Euclidean distance between two realizations or pointwise vectors.
+    Compute the Euclidean distance between two realizations or pointwise vectors.
 
-    This method computes the Euclidean distance from the realization `dict_1`
-    to `dict2`. These dicts need to be based on the same vertex set.
+    This method computes the Euclidean distance from the realization ``dict_1``
+    to ``dict2``. The keys of ``dict1`` and ``dict2`` must be the same.
+
+    Parameters
+    ----------
+    dict1, dict2:
+        The dictionaries that are used for the distance computation.
+    numerical:
+        Determines whether a numerical or symbolic normalization is performed.
     """
     if not set(dict1.keys()) == set(dict2.keys()) or not len(dict1) == len(dict2):
         raise ValueError("`dict1` and `dict2` are not based on the same vertex set.")
@@ -233,9 +282,9 @@ def vector_distance_pointwise(
         return float(
             np.linalg.norm(
                 [
-                    p1 - p2
+                    x - y
                     for v in dict1.keys()
-                    for p1, p2 in zip(
+                    for x, y in zip(
                         dict1[v],
                         dict2[v],
                     )
@@ -245,9 +294,9 @@ def vector_distance_pointwise(
     return sp.sqrt(
         sum(
             [
-                (p1 - p2) ** 2
+                (x - y) ** 2
                 for v in dict1.keys()
-                for p1, p2 in zip(
+                for x, y in zip(
                     dict1[v],
                     dict2[v],
                 )
@@ -276,3 +325,35 @@ def is_isomorphic_graph_list(list1, list2):
         else:
             return False
     return True
+
+
+def point_to_vector(point: Point) -> Matrix:
+    """
+    Return point as single column sympy Matrix.
+    """
+    if isinstance(point, MatrixBase) or isinstance(point, np.ndarray):
+        if (
+            len(point.shape) > 1 and point.shape[0] != 1 and point.shape[1] != 1
+        ) or len(point.shape) > 2:
+            raise ValueError("Point could not be interpreted as column vector.")
+        if isinstance(point, np.ndarray):
+            point = np.array([point]) if len(point.shape) == 1 else point
+            point = Matrix(
+                [
+                    [float(point[i, j]) for i in range(point.shape[0])]
+                    for j in range(point.shape[1])
+                ]
+            )
+        return point if (point.shape[1] == 1) else point.transpose()
+
+    if not isinstance(point, Sequence) or isinstance(point, str):
+        raise TypeError("The point must be a Sequence of Numbers.")
+
+    try:
+        res = Matrix(point)
+    except Exception as e:
+        raise ValueError("A coordinate could not be interpreted by sympify:\n" + str(e))
+
+    if res.shape[0] != 1 and res.shape[1] != 1:
+        raise ValueError("Point could not be interpreted as column vector.")
+    return res if (res.shape[1] == 1) else res.transpose()
