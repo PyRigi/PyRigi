@@ -90,7 +90,7 @@ creating the _cone graph_ $G*\{v^*\} = (V\cup \{v^*\}, E^*)$.
 :label: def-apex-graph
 
 Let $G=(V,E)$ be a graph and let $k$ be an integer. If the removal of some set of $k$ vertices from $G$
-results in a planar graph, we call $G$ a or _$k$-apex graph_ or _$k$-vertex apex graph_. Similarly, if the removal of some set
+results in a planar graph, we call $G$ a _$k$-apex graph_ or _$k$-vertex apex graph_. Similarly, if the removal of some set
 of $k$ edges from $G$ results in a planar graph, we call $G$ a _$k$-edge apex graph_.
 
 Moreover, if one of these properties holds for all choices of $k$ vertices or edges, we call the graph a
