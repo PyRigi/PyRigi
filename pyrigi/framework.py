@@ -1987,10 +1987,11 @@ class Framework(object):
 
         if numerical:
             stresses = [
-                {e: float(p.evalf()) for e, p in stress.items()} for stress in stresses
+                {e: eval_sympy_expression(p) for e, p in stress.items()}
+                for stress in stresses
             ]
             inf_flexes = [
-                {v: [float(pt.evalf()) for pt in p] for v, p in flex.items()}
+                {v: eval_sympy_expression(p) for v, p in flex.items()}
                 for flex in inf_flexes
             ]
 
@@ -2055,15 +2056,13 @@ class Framework(object):
             if numerical:
                 return all(
                     [
-                        np.sign(float(coefficients[(i, i)].evalf()))
-                        == np.sign(float(coefficients[(j, j)].evalf()))
+                        np.sign(eval_sympy_expression(coefficients[(i, i)]))
+                        == np.sign(eval_sympy_expression(coefficients[(j, j)]))
                         and (
                             np.absolute(coefficients[(i, j)])
                             < np.sqrt(
-                                float(
-                                    (
-                                        4 * coefficients[(i, i)] * coefficients[(j, j)]
-                                    ).evalf()
+                                eval_sympy_expression(
+                                    4 * coefficients[(i, i)] * coefficients[(j, j)]
                                 )
                             )
                         )
