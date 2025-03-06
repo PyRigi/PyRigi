@@ -11,7 +11,7 @@
 
 PyRigi is a Python package for research in rigidity and flexibility of bar-and-joint frameworks.
 We aim at providing a tool for investigating combinatorial and geometric questions
-such as infinitesimal, global, minimal, or generic rigidity. 
+such as infinitesimal, global, minimal, or generic rigidity.
 
 
 We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://www.sympy.org/) for symbolic and numerical computations.
@@ -19,9 +19,7 @@ We acknowledge these and all the other open-source projects upon which PyRigi is
 
 ## Installation and usage
 
-We have not reached a stable version yet,
-but the latest version requiring at least Python 3.10
-can be installed by
+The latest version of PyRigi can be installed by
 ```
 pip install pyrigi
 ```
@@ -84,5 +82,5 @@ Georg Grasegger \
 
 The decision to create PyRigi was made by the participants of the workshop
 [Code of Rigidity](https://www.ricam.oeaw.ac.at/specsem/specsem2024/workshop2/)
-(March 11–15, 2024), which was part of the 
+(March 11–15, 2024), which was part of the
 Special Semester on Rigidity and Flexibility at [RICAM](https://www.oeaw.ac.at/ricam/), Linz, Austria.
