@@ -1953,6 +1953,12 @@ class Framework(object):
         ----------
         :prf:ref:`Prestress stability <def-prestress-stability>`.
 
+        Parameters
+        -------
+        numerical:
+            If ``True``, numerical infinitesimal flexes and stresses
+            are used in the check for prestress stability.
+
         Examples
         --------
         >>> from pyrigi import frameworkDB as fws
@@ -2090,7 +2096,7 @@ class Framework(object):
         )
 
     @doc_category("Other")
-    def is_second_order_rigid(self) -> bool:
+    def is_second_order_rigid(self, numerical: bool = False) -> bool:
         """
         Check whether the framework is second-order rigid.
 
@@ -2103,6 +2109,12 @@ class Framework(object):
         Definitions
         ----------
         :prf:ref:`Second-order Rigidity <def-second-order-rigid>`.
+
+        Parameters
+        -------
+        numerical:
+            If ``True``, numerical infinitesimal flexes and stresses
+            are used in the check for prestress stability.
 
         Examples
         --------
@@ -2124,7 +2136,7 @@ class Framework(object):
         if len(inf_flexes) == 0 or len(stresses) == 0:
             return False
         if len(stresses) == 1 or len(inf_flexes) == 1:
-            return self.is_prestress_stable()
+            return self.is_prestress_stable(numerical=numerical)
 
         raise ValueError("Second-order rigidity is not implemented for this framework.")
 
