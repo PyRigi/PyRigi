@@ -1316,13 +1316,14 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def number_of_realizations(
         self,
+        dim: int = 2,
         spherical: bool = False,
         check_min_rigid: bool = True,
         count_reflection: bool = False,
     ) -> int:
         """
-        Count the number of complex planar or spherical realizations
-        of a minimally 2-rigid graph.
+        Count the number of complex (spherical) realizations
+        of a minimally dim-rigid graph.
 
         Algorithms of :cite:p:`CapcoGalletEtAl2018` and
         :cite:p:`GalletGraseggerSchicho2020` are used.
@@ -1345,14 +1346,15 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
+        dim:
+            The dimension in which the realizations are counted.
+            Currently, only ``dim=2`` is supported.
         check_min_rigid:
             If ``True``, a ``ValueError`` is raised if the graph is not minimally 2-rigid
             If ``False``, it is assumed that the user is inputting a minimally rigid graph.
-
         spherical:
             If ``True``, the number of spherical realizations of the graph is returned.
             If ``False`` (default), the number of planar realizations is returned.
-
         count_reflection:
             If ``True``, the number of realizations is computed modulo direct isometries.
             But reflection is counted to be non-congruent as used in
@@ -1372,7 +1374,15 @@ class Graph(nx.Graph):
         >>> G = graphs.ThreePrism()
         >>> G.number_of_realizations() # number of planar realizations
         12
+
+        Suggested Improvements
+        ----------------------
+        Implement the counting for ``dim=1``.
         """  # noqa: E501
+        _input_check.dimension_for_algorithm(
+            dim, [2], "the method number_of_realizations"
+        )
+
         try:
             import lnumber
 
