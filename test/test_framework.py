@@ -871,20 +871,29 @@ def test_rigidity_matrix():
     )
 
 
-def test_rigidity_matrix_rank():
-    K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
-    assert K4.rigidity_matrix_rank() == 5
-
-    # Deleting one edge does not change the rank of the rigidity matrix ...
-    K4.delete_edge([0, 1])
-    assert K4.rigidity_matrix_rank() == 5
-
-    # ... whereas deleting two edges does
-    K4.delete_edge([2, 3])
-    assert K4.rigidity_matrix_rank() == 4
-
-    F = fws.Frustum(3)  # has a single infinitesimal motion and stress
-    assert F.rigidity_matrix_rank() == 8
+@pytest.mark.parametrize(
+    "framework, rank",
+    [
+        [Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)]), 5],
+        [
+            Framework(
+                Graph([[0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]),
+                {0: (0, 0), 1: (0, 1), 2: (1, 0), 3: (1, 1)},
+            ),
+            5,
+        ],
+        [
+            Framework(
+                Graph([[0, 2], [0, 3], [1, 2], [1, 3]]),
+                {0: (0, 0), 1: (0, 1), 2: (1, 0), 3: (1, 1)},
+            ),
+            4,
+        ],
+        [fws.Frustum(3), 8],
+    ],
+)
+def test_rigidity_matrix_rank(framework, rank):
+    assert framework.rigidity_matrix_rank() == rank
 
 
 def test_stress_matrix():
