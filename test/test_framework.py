@@ -179,6 +179,72 @@ def test_is_independent(framework):
 
 
 @pytest.mark.parametrize(
+    "framework, bool_res",
+    [
+        [fws.Complete(4, dim=2), True],
+        [fws.Frustum(3), True],
+        [fws.Frustum(4), True],
+        [fws.Square(), False],
+        [fws.K33plusEdge(), True],
+        [fws.ThreePrism(realization="flexible"), False],
+        [fws.ThreePrism(realization="parallel"), True],
+        [fws.Octahedron(realization="regular"), True],
+        [fws.Octahedron(realization="Bricard_plane"), False],
+        [fws.Octahedron(realization="Bricard_line"), False],
+        [fws.Cube(), False],
+        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
+    ],
+)
+def test_is_prestress_stable(framework, bool_res):
+    assert framework.is_prestress_stable() == bool_res
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.CompleteBipartite(3, 3, realization="collinear"),
+        fws.ConnellyExampleSecondOrderRigidity(),
+    ],
+)
+def test_is_prestress_stable_error(framework):
+    with pytest.raises(ValueError):
+        framework.is_prestress_stable()
+
+
+@pytest.mark.parametrize(
+    "framework, bool_res",
+    [
+        [fws.Complete(4, dim=2), True],
+        [fws.Frustum(3), True],
+        [fws.Frustum(4), True],
+        [fws.Square(), False],
+        [fws.K33plusEdge(), True],
+        [fws.ThreePrism(realization="flexible"), False],
+        [fws.ThreePrism(realization="parallel"), True],
+        [fws.Octahedron(realization="regular"), True],
+        [fws.Octahedron(realization="Bricard_plane"), False],
+        [fws.Octahedron(realization="Bricard_line"), False],
+        [fws.Cube(), False],
+        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
+    ],
+)
+def test_is_second_order_rigid(framework, bool_res):
+    assert framework.is_second_order_rigid() == bool_res
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.CompleteBipartite(3, 3, realization="collinear"),
+        fws.ConnellyExampleSecondOrderRigidity(),
+    ],
+)
+def test_is_second_order_rigid_error(framework):
+    with pytest.raises(ValueError):
+        framework.is_second_order_rigid()
+
+
+@pytest.mark.parametrize(
     "framework",
     [
         fws.K33plusEdge(),
@@ -561,6 +627,20 @@ def test_translate():
     assert newF[0].equals(F[0] + translation)
     assert newF[1].equals(F[1] + translation)
     assert newF[2].equals(F[2] + translation)
+
+
+def test_rescale():
+    G = graphs.Complete(4)
+    F = Framework(G, {0: (-1, 0), 1: (2, 0), 2: (1, 1), 3: (3, -2)})
+
+    newF = F.rescale(1, False)
+    for v, pos in newF.realization().items():
+        assert pos.equals(F[v])
+
+    newF = F.rescale(2, False)
+    assert newF[0].equals(Matrix([p * 2 for p in F[0]]))
+    assert newF[1].equals(Matrix([p * 2 for p in F[1]]))
+    assert newF[2].equals(Matrix([p * 2 for p in F[2]]))
 
 
 def test_projected_realization():
