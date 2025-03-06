@@ -9,7 +9,7 @@ import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
-from pyrigi.misc import point_to_vector
+from pyrigi.misc import point_to_vector, eval_sympy_expression
 
 
 @pytest.mark.parametrize(
@@ -768,7 +768,7 @@ def test_is_equivalent():
 
     # testing numerical equivalence
 
-    R1 = {v: pos.evalf() for v, pos in F9.realization().items()}
+    R1 = {v: eval_sympy_expression(pos) for v, pos in F9.realization().items()}
 
     assert not F9.is_equivalent_realization(R1, numerical=False)
     assert F9.is_equivalent_realization(R1, numerical=True)
@@ -829,7 +829,7 @@ def test_is_congruent():
         assert F6.is_congruent(F7)
 
     # testing numerical congruence
-    R1 = {v: pos.evalf() for v, pos in F4.realization().items()}
+    R1 = {v: eval_sympy_expression(pos) for v, pos in F4.realization().items()}
 
     assert not F4.is_congruent_realization(R1)
     assert F4.is_congruent_realization(R1, numerical=True)
