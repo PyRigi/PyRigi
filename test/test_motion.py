@@ -187,7 +187,7 @@ def test_animate3D():
 @pytest.mark.parametrize(
     "F",
     [
-        Framework(Graph([(0,1),(2,3)]), {0:[0],1:[1],2:[2],3:[3]}),
+        Framework(Graph([(0, 1), (2, 3)]), {0: [0], 1: [1], 2: [2], 3: [3]}),
         fws.Square(),
         fws.Cycle(5),
         fws.Cycle(6),
@@ -210,13 +210,13 @@ def test_ApproximateMotion_from_framework(F):
                 sample, numerical=True, tolerance=1e-3
             ) and not F.is_congruent_realization(sample, numerical=True)
     except ValueError:
-        assert F._dim==1
+        assert F._dim == 1
 
 
 @pytest.mark.parametrize(
     "F",
     [
-        Framework(Graph([(0,1),(2,3)]), {0:[0],1:[1],2:[2],3:[3]}),
+        Framework(Graph([(0, 1), (2, 3)]), {0: [0], 1: [1], 2: [2], 3: [3]}),
         fws.Square(),
         fws.Cycle(5),
         fws.Cycle(6),
@@ -236,20 +236,25 @@ def test_ApproximateMotion_from_graph(F):
 
     try:
         M2 = ApproximateMotion.from_graph(
-            F.graph(), F.realization(as_points=True, numerical=True), 5, 0.075,  fixed_pair=(0, 1), fixed_direction=[1, 0]
+            F.graph(),
+            F.realization(as_points=True, numerical=True),
+            5,
+            0.075,
+            fixed_pair=(0, 1),
+            fixed_direction=[1, 0],
         )
         for sample in M2.motion_samples[1:]:
             assert F.is_equivalent_realization(
                 sample, numerical=True, tolerance=1e-3
             ) and not F.is_congruent_realization(sample, numerical=True)
     except ValueError:
-        assert F._dim==1
+        assert F._dim == 1
 
 
 @pytest.mark.parametrize(
     "F",
     [
-        Framework(Graph([(0,1),(2,3)]), {0:[0],1:[1],2:[2],3:[3]}),
+        Framework(Graph([(0, 1), (2, 3)]), {0: [0], 1: [1], 2: [2], 3: [3]}),
         fws.Square(),
         fws.Cycle(5),
         fws.Cycle(6),
