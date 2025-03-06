@@ -215,7 +215,9 @@ def sympy_expr_to_float(
         if isinstance(expression, list | tuple | Matrix):
             return [
                 float(
-                    sp.sympify(coord).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
+                    sp.sympify(coord).evalf(
+                        int(round(2.5 * log10(tolerance ** (-1) + 1)))
+                    )
                 )
                 for coord in point_to_vector(expression)
             ]

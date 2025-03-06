@@ -2911,9 +2911,7 @@ class Framework(object):
                     for flex in self.trivial_inf_flexes(vertex_order=vertex_order)
                 ]
             ).transpose()
-            b = np.array(
-                sympy_expr_to_float(inf_flex, tolerance=tolerance)
-            ).transpose()
+            b = np.array(sympy_expr_to_float(inf_flex, tolerance=tolerance)).transpose()
             x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
             return not is_zero_vector(
                 np.dot(Q_trivial, x) - b, numerical=True, tolerance=tolerance
