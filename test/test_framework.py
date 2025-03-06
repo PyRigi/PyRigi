@@ -853,9 +853,11 @@ def test_animate3D_rotation():
         [fws.Complete(3, dim=1), Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])],
     ],
 )
-def test_rigidity_matrix(framework, rigidity_matrix):
+def test_rigidity_matrix_parametric(framework, rigidity_matrix):
     assert framework.rigidity_matrix() == rigidity_matrix
 
+
+def test_rigidity_matrix():
     F = fws.Complete(4, dim=3)
     assert F.rigidity_matrix().shape == (6, 12)
 
@@ -927,6 +929,7 @@ def test_stress_matrix():
 @pytest.mark.parametrize(
     "framework, num_stresses",
     [
+        [fws.CompleteBipartite(4, 4), 3],
         [fws.Complete(4), 1],
         [fws.Complete(5), 3],
         [fws.Frustum(3), 1],
@@ -934,10 +937,8 @@ def test_stress_matrix():
     ],
 )
 def test_stresses(framework, num_stresses):
-    Q1 = Matrix.hstack(
-        *(fws.CompleteBipartite(4, 4).rigidity_matrix().transpose().nullspace())
-    )
-    Q2 = Matrix.hstack(*(fws.CompleteBipartite(4, 4).stresses()))
+    Q1 = Matrix.hstack(*(framework.rigidity_matrix().transpose().nullspace()))
+    Q2 = Matrix.hstack(*(framework.stresses()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
 
     stresses = framework.stresses()
