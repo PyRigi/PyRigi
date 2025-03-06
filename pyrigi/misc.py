@@ -195,6 +195,9 @@ def sympy_expr_to_float(
     Converts a sympy expression to (numerical) floats.
 
     If the given ``expression`` is a Sequence of Numbers or a Matrix, then
+    each individual element is evaluated and a list of ``float`` is returned.
+    If the input is just a single sympy expression, it is evaluated and
+    returned as a ``float``.
 
     Parameters
     ----------
@@ -208,14 +211,14 @@ def sympy_expr_to_float(
     The method :func:`.data_type.point_to_vector` is used to ensure that
     the input is consistent with the sympy format.
     """
-    if isinstance(expression, list | tuple | Matrix):
-        return [
-            float(
-                sp.sympify(coord).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
-            )
-            for coord in point_to_vector(expression)
-        ]
     try:
+        if isinstance(expression, list | tuple | Matrix):
+            return [
+                float(
+                    sp.sympify(coord).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
+                )
+                for coord in point_to_vector(expression)
+            ]
         return float(
             sp.sympify(expression).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
         )
