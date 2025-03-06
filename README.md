@@ -19,8 +19,7 @@ We acknowledge these and all the other open-source projects upon which PyRigi is
 
 ## Installation and usage
 
-The latest version of PyRigi (requiring at least Python 3.11)
-can be installed by
+The latest version of PyRigi can be installed by
 ```
 pip install pyrigi
 ```
