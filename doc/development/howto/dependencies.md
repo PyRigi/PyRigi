@@ -24,7 +24,6 @@ To activate this environment, use the command
 eval $(poetry env activate)
 ```
 or consult [Poetry documentation](https://python-poetry.org/docs/managing-environments/#activating-the-environment).
-You can exit it with `exit` or `Ctrl+D`.
 An alternative is to execute command line tools like `poetry run flake8`.
 
 If you want to install dependencies necessary only for the package itself, not for the development, run
