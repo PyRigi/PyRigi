@@ -845,15 +845,16 @@ def test_animate3D_rotation():
         F.animate3D_rotation()
 
 
-def test_rigidity_matrix():
-    F = fws.Complete(2)
-    assert F.rigidity_matrix() == Matrix([-1, 0, 1, 0]).transpose()
-
-    F = fws.Path(3)
-    assert F.rigidity_matrix() == Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])
-
-    F = fws.Complete(3, dim=1)
-    assert F.rigidity_matrix() == Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])
+@pytest.mark.parametrize(
+    "framework, rigidity_matrix",
+    [
+        [fws.Complete(2), Matrix([-1, 0, 1, 0]).transpose()],
+        [fws.Path(3), Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])],
+        [fws.Complete(3, dim=1), Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])],
+    ],
+)
+def test_rigidity_matrix(framework, rigidity_matrix):
+    assert framework.rigidity_matrix() == rigidity_matrix
 
     F = fws.Complete(4, dim=3)
     assert F.rigidity_matrix().shape == (6, 12)
