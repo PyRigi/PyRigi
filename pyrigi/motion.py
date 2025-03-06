@@ -33,7 +33,7 @@ from pyrigi.misc import (
     point_to_vector,
     normalize_flex,
     vector_distance_pointwise,
-    eval_sympy_expression,
+    sympy_expr_to_float,
 )
 
 
@@ -750,8 +750,8 @@ class ParametricMotion(Motion):
         realization = {}
         for v in self._graph.nodes:
             if numerical:
-                _value = eval_sympy_expression(value)
-                placement = eval_sympy_expression(
+                _value = sympy_expr_to_float(value)
+                placement = sympy_expr_to_float(
                     self._parametrization[v].subs({self._parameter: float(_value)})
                 )
             else:
@@ -782,8 +782,8 @@ class ParametricMotion(Motion):
             return realizations
 
         newinterval = [
-            eval_sympy_expression(sp.atan(self._interval[0])),
-            eval_sympy_expression(sp.atan(self._interval[1])),
+            sympy_expr_to_float(sp.atan(self._interval[0])),
+            sympy_expr_to_float(sp.atan(self._interval[1])),
         ]
         for i in np.linspace(newinterval[0], newinterval[1], number_of_samples):
             realizations.append(self.realization(f"tan({i})", numerical=True))
@@ -950,7 +950,7 @@ class ApproximateMotion(Motion):
                 "The realization does not contain the correct amount of vertices!"
             )
 
-        realization = {v: eval_sympy_expression(pos) for v, pos in realization.items()}
+        realization = {v: sympy_expr_to_float(pos) for v, pos in realization.items()}
         realization_0 = realization[list(realization.keys())[0]]
         for v in G.nodes:
             if v not in realization:

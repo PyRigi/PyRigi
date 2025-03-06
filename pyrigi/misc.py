@@ -183,12 +183,12 @@ def is_zero_vector(
                     0,
                     abs_tol=tolerance,
                 )
-                for coord in eval_sympy_expression(vector, tolerance=tolerance)
+                for coord in sympy_expr_to_float(vector, tolerance=tolerance)
             ]
         )
 
 
-def eval_sympy_expression(
+def sympy_expr_to_float(
     expression: Sequence[Number] | Matrix | Number, tolerance: float = 1e-9
 ) -> list[float] | float:
     """
@@ -241,7 +241,7 @@ def normalize_flex(
     if isinstance(inf_flex, dict):
         if numerical:
             _inf_flex = {
-                v: eval_sympy_expression(flex, tolerance=tolerance)
+                v: sympy_expr_to_float(flex, tolerance=tolerance)
                 for v, flex in inf_flex.items()
             }
             flex_norm = np.linalg.norm(sum(_inf_flex.values(), []))
@@ -257,7 +257,7 @@ def normalize_flex(
     elif isinstance(inf_flex, Sequence):
         if numerical:
             _inf_flex = [
-                eval_sympy_expression(flex, tolerance=tolerance) for flex in inf_flex
+                sympy_expr_to_float(flex, tolerance=tolerance) for flex in inf_flex
             ]
             flex_norm = np.linalg.norm(_inf_flex)
             if isclose(flex_norm, 0, abs_tol=tolerance):

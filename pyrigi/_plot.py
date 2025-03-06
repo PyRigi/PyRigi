@@ -21,7 +21,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
-from pyrigi.misc import eval_sympy_expression
+from pyrigi.misc import sympy_expr_to_float
 
 
 def resolve_inf_flex(
@@ -282,7 +282,7 @@ def resolve_stress(
 
     if plot_style.stress_normalization:
         numerical_stress = {
-            edge: eval_sympy_expression(w) for edge, w in stress_edgewise.items()
+            edge: sympy_expr_to_float(w) for edge, w in stress_edgewise.items()
         }
         _stress = {
             edge: round(w / np.linalg.norm(list(numerical_stress.values())), 2)
