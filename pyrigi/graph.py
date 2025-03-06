@@ -2494,20 +2494,33 @@ class Graph(nx.Graph):
         dim:
             Dimension of the rigidity matroid
         algorithm:
-            If ``"components"``, then the closure is
-            computed using ``dim``-rigid components.
+            If ``"graphic"`` (only if ``dim=1``),
+            then the closure is computed using connected components.
+
+            If ``"pebble"`` (only if ``dim=2``),
+            then pebble games are used.
 
             If ``"randomized"``, then adding
             non-edges is tested one by one on a random framework.
 
-            If ``"default"``, then ``"components"`` is used
-            for ``dim=1`` and ``"randomized"`` for ``dim>=2``.
+            If ``"default"``, then ``"graphic"`` is used
+            for ``dim=1``, ``"pebble"`` for ``dim=2``
+            and ``"randomized"`` for ``dim>=3``.
 
         Examples
         --------
         >>> G = Graph([(0,1),(0,2),(3,4)])
         >>> G.Rd_closure(dim=1)
         [[0, 1], [0, 2], [1, 2], [3, 4]]
+
+        Notes
+        -----
+        The pebble game algorithm proceeds as follows:
+        Iterate through the vertex pairs of each connected component
+        and check if there exists a rigid component containing both.
+        This can be done by trying to add a new edge between the vertices.
+        If there is such a rigid component, we can add every vertex pair from there:
+        they are certainly within a rigid component.
 
         Suggested Improvements
         ----------------------
@@ -2518,20 +2531,39 @@ class Graph(nx.Graph):
 
         if algorithm == "default":
             if dim == 1:
-                algorithm = "components"
+                algorithm = "graphic"
+            elif dim == 2:
+                algorithm = "pebble"
             else:
                 algorithm = "randomized"
                 self._warn_randomized_alg(self.Rd_closure, "algorithm='randomized'")
 
-        if algorithm == "components":
-            _input_check.dimension_for_algorithm(
-                dim, [1], "the algorithm using rigid components"
-            )
+        if algorithm == "graphic":
+            _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm ")
             return [
                 [u, v]
-                for comp in self.rigid_components(dim=dim, algorithm="graphic")
+                for comp in nx.connected_components(self)
                 for u, v in combinations(comp, 2)
             ]
+
+        if algorithm == "pebble":
+            _input_check.dimension_for_algorithm(
+                dim, [2], "the algorithm based on pebble games"
+            )
+
+            self._build_pebble_digraph(2, 3)
+            if self._pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
+                return list(combinations(self.nodes, 2))
+            else:
+                closure = deepcopy(self)
+                for connected_comp in nx.connected_components(self):
+                    for u, v in combinations(connected_comp, 2):
+                        if not closure.has_edge(u, v):
+                            circuit = self._pebble_digraph.fundamental_circuit(u, v)
+                            if circuit is not None:
+                                for e in combinations(circuit, 2):
+                                    closure.add_edge(*e)
+                return list(closure.edges)
 
         if algorithm == "randomized":
             F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
@@ -2550,7 +2582,7 @@ class Graph(nx.Graph):
         raise NotSupportedValueError(algorithm, "algorithm", self.Rd_closure)
 
     @doc_category("Generic rigidity")
-    def rigid_components(
+    def rigid_components(  # noqa: 901
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> list[list[Vertex]]:
         """
@@ -2572,11 +2604,16 @@ class Graph(nx.Graph):
             then all subgraphs are checked
             using :meth:`.is_rigid` with ``algorithm="pebble"``.
 
+            If ``pebble"`` (only if ``dim=2``),
+            then using the pebble game algorithm to find rigid components
+            O(n^3 log(n)) algorithm.
+            See :meth:`._get_2D_rigid_components_using_pebble_digraph`.
+
             If ``"randomized"``, all subgraphs are checked
             using randomized :meth:`.is_rigid`.
 
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
-            ``"subgraphs-pebble"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
+            ``"pebble"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
         prob:
             bound on the probability for false negatives of the rigidity testing
             when ``algorithm="randomized"``.
@@ -2601,10 +2638,8 @@ class Graph(nx.Graph):
         Every edge is part of a rigid component. Isolated vertices form
         additional rigid components.
 
-        Suggested Improvements
-        ----------------------
-        Implement directly using pebble games for dim=2
-        to replace ``subgraphs-pebble`` algorithm.
+        For the pebble game algorithm we use the fact that the R2_closure
+        consists of edge disjoint cliques, so we only have to determine them.
         """
         _input_check.dimension(dim)
         self._input_check_no_loop()
@@ -2612,6 +2647,8 @@ class Graph(nx.Graph):
         if algorithm == "default":
             if dim == 1:
                 algorithm = "graphic"
+            elif dim == 2:
+                algorithm = "pebble"
             else:
                 algorithm = "randomized"
                 self._warn_randomized_alg(
@@ -2622,8 +2659,23 @@ class Graph(nx.Graph):
             _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
             return [list(comp) for comp in nx.connected_components(self)]
 
-        # here will be the implementation using pebble games for dim=2
-        # if algorithm == "pebble":
+        if algorithm == "pebble":
+            _input_check.dimension_for_algorithm(
+                dim, [2], "the rigid component algorithm based on pebble games"
+            )
+            components = []
+            closure = Graph(self.Rd_closure(dim=2, algorithm="pebble"))
+            for u, v in closure.edges:
+                closure.edges[u, v]["used"] = False
+            for u, v in closure.edges:
+                if not closure.edges[u, v]["used"]:
+                    common_neighs = nx.common_neighbors(closure, u, v)
+                    comp = [u, v] + list(common_neighs)
+                    components.append(comp)
+                    for w1, w2 in combinations(comp, 2):
+                        closure.edges[w1, w2]["used"] = True
+
+            return components + [[v] for v in self.nodes if nx.is_isolate(self, v)]
 
         if algorithm in ["randomized", "subgraphs-pebble"]:
             if not nx.is_connected(self):
@@ -2638,7 +2690,7 @@ class Graph(nx.Graph):
                 _input_check.dimension_for_algorithm(
                     dim, [2], "the subgraph algorithm using pebble games"
                 )
-                alg_is_rigid = "pebble"
+                alg_is_rigid = "sparsity"
             else:
                 alg_is_rigid = "randomized"
 
