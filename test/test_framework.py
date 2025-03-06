@@ -923,35 +923,25 @@ def test_stress_matrix():
     )
 
 
-def test_stresses():
+@pytest.mark.parametrize(
+    "framework, num_stresses",
+    [
+        [fws.Complete(4), 1],
+        [fws.Complete(5), 3],
+        [fws.Frustum(3), 1],
+        [fws.Frustum(4), 1],
+    ],
+)
+def test_stresses(framework, num_stresses):
     Q1 = Matrix.hstack(
         *(fws.CompleteBipartite(4, 4).rigidity_matrix().transpose().nullspace())
     )
     Q2 = Matrix.hstack(*(fws.CompleteBipartite(4, 4).stresses()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
 
-    F = fws.Complete(4)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Complete(5)
-    stresses = F.stresses()
-    assert len(stresses) == 3 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Frustum(3)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Frustum(4)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
+    stresses = framework.stresses()
+    assert len(stresses) == num_stresses and all(
+        [framework.is_stress(s, numerical=True) for s in stresses]
     )
 
 
