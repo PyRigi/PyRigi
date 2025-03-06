@@ -338,7 +338,7 @@ class Motion(object):
         """
         if self._dim == 1:
             realizations = [
-                {v: [pos[0, 0], 0] for v, pos in realization.items()}
+                {v: [pos[0], 0] for v, pos in realization.items()}
                 for realization in realizations
             ]
         _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_plt")
@@ -502,7 +502,7 @@ class Motion(object):
         """
         if self._dim == 1:
             realizations = [
-                {v: [pos[0, 0], 0] for v, pos in realization.items()}
+                {v: [pos[0], 0] for v, pos in realization.items()}
                 for realization in realizations
             ]
         _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_svg")

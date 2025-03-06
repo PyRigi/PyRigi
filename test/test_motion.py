@@ -174,34 +174,6 @@ def test_ParametricMotion_init():
         ParametricMotion(graphs.Cycle(4), mot, [-sp.oo, sp.oo])
 
 
-def test_ApproximateMotion_init():
-    ApproximateMotion(fws.Cycle(4), 10)
-    F = fws.Cycle(5)
-    ApproximateMotion.from_graph(
-        F.graph(), F.realization(as_points=True, numerical=True), 1, 1
-    )
-
-
-@pytest.mark.slow_main
-def test_animate():
-    """
-    Test that the motion actually moves.
-    """
-    F = fws.Square()
-    M = ApproximateMotion.from_graph(
-        F.graph(), F.realization(as_points=True, numerical=True), 50, 0.075
-    )
-
-    for i in range(1, len(M.motion_samples)):
-        assert F.is_equivalent_realization(
-            M.motion_samples[i], numerical=True, tolerance=1e-4
-        ) and not F.is_congruent_realization(
-            M.motion_samples[i], numerical=True, tolerance=1e-4
-        )
-    M.animate(animation_format="svg")
-    M.animate(animation_format="matplotlib")
-
-
 def test_animate3D():
     F = fws.Cube()
     M = ApproximateMotion(F, 5, 0.075)
@@ -230,6 +202,7 @@ def test_ApproximateMotion_from_framework(F):
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
         ) and not F.is_congruent_realization(sample, numerical=True)
+
     try:
         M2 = ApproximateMotion(F, 5, 0.075, fixed_pair=(0, 1), fixed_direction=[1, 0])
         for sample in M2.motion_samples[1:]:
@@ -238,6 +211,57 @@ def test_ApproximateMotion_from_framework(F):
             ) and not F.is_congruent_realization(sample, numerical=True)
     except ValueError:
         assert F._dim==1
+
+
+@pytest.mark.parametrize(
+    "F",
+    [
+        Framework(Graph([(0,1),(2,3)]), {0:[0],1:[1],2:[2],3:[3]}),
+        fws.Square(),
+        fws.Cycle(5),
+        fws.Cycle(6),
+        fws.ThreePrism("flexible"),
+        fws.CompleteBipartite(2, 4),
+        pytest.param(fws.CompleteBipartite(2, 5), marks=pytest.mark.slow_main),
+    ],
+)
+def test_ApproximateMotion_from_graph(F):
+    M1 = ApproximateMotion.from_graph(
+        F.graph(), F.realization(as_points=True, numerical=True), 5, 0.075
+    )
+    for sample in M1.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+
+    try:
+        M2 = ApproximateMotion.from_graph(
+            F.graph(), F.realization(as_points=True, numerical=True), 5, 0.075,  fixed_pair=(0, 1), fixed_direction=[1, 0]
+        )
+        for sample in M2.motion_samples[1:]:
+            assert F.is_equivalent_realization(
+                sample, numerical=True, tolerance=1e-3
+            ) and not F.is_congruent_realization(sample, numerical=True)
+    except ValueError:
+        assert F._dim==1
+
+
+@pytest.mark.parametrize(
+    "F",
+    [
+        Framework(Graph([(0,1),(2,3)]), {0:[0],1:[1],2:[2],3:[3]}),
+        fws.Square(),
+        fws.Cycle(5),
+        fws.Cycle(6),
+        fws.ThreePrism("flexible"),
+        fws.CompleteBipartite(2, 4),
+        pytest.param(fws.CompleteBipartite(2, 5), marks=pytest.mark.slow_main),
+    ],
+)
+def test_animate(F):
+    M = ApproximateMotion(F, 5, 0.075)
+    M.animate(animation_format="svg")
+    M.animate(animation_format="matplotlib")
 
 
 def test_normalize_realizations():
