@@ -6,7 +6,8 @@ import os
 from copy import deepcopy
 from math import isclose
 from typing import Any, Literal
-from warnings import warn
+from collections.abc import Callable
+import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
@@ -29,6 +30,7 @@ from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
+from pyrigi.warning import NumericalAlgorithmWarning
 
 
 class Motion(object):
@@ -881,6 +883,8 @@ class ApproximateMotion(Motion):
     10 retraction steps and initial step size 0.1.
     """  # noqa: E501
 
+    silence_numerical_alg_warns = False
+
     def __init__(
         self,
         F: Framework,
@@ -896,6 +900,7 @@ class ApproximateMotion(Motion):
         Create an instance of `ApproximateMotion`.
         """
         super().__init__(F.graph(), F.dim())
+        self._warn_numerical_alg(self.__init__)
         self._stress_length = len(F.stresses())
         self._starting_realization = F.realization(as_points=True, numerical=True)
         self.tolerance = tolerance
@@ -970,6 +975,19 @@ class ApproximateMotion(Motion):
             fixed_direction=fixed_direction,
             pin_vertex=pin_vertex,
         )
+
+    @classmethod
+    def _warn_numerical_alg(cls, method: Callable):
+        """
+        Raise a warning if a numerical algorithm is silently called.
+
+        Parameters
+        ----------
+        method:
+            Reference to the method that is called.
+        """
+        if not cls.silence_numerical_alg_warns:
+            warnings.warn(NumericalAlgorithmWarning(method, class_off=cls))
 
     def _compute_motion_samples(self, chosen_flex: int) -> None:
         """
@@ -1106,7 +1124,7 @@ class ApproximateMotion(Motion):
                 x - y for x, y in zip(_realizations[0][v1], _realizations[0][v2])
             ]
             if np.isclose(np.linalg.norm(fixed_direction), 0, rtol=1e-6):
-                warn(
+                warnings.warn(
                     f"The entries of the edge {fixed_pair} are too close to each "
                     + "other. Thus, `fixed_direction=(1,0)` is chosen instead."
                 )
