@@ -208,16 +208,21 @@ def eval_sympy_expression(
     The method :func:`.data_type.point_to_vector` is used to ensure that
     the input is consistent with the sympy format.
     """
-    if isinstance(expression, Sequence | Matrix):
+    if isinstance(expression, list | tuple | Matrix):
         return [
-            float(
-                sp.sympify(coord).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
-            )
+            float(sp.sympify(coord).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))))
             for coord in point_to_vector(expression)
         ]
-    return float(
-        sp.sympify(expression).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
-    )
+    try:
+        return float(
+            sp.sympify(expression).evalf(
+                int(round(2.5 * log10(tolerance ** (-1) + 1)))
+            )
+        )
+    except sp.SympifyError:
+        raise ValueError(
+            f"The expression `{expression}` could not be parsed by sympy."
+        )
 
 
 def normalize_flex(
