@@ -1,3 +1,4 @@
+import math
 from math import isclose, pi
 from random import randint
 
@@ -86,16 +87,18 @@ def test_normalize_flex():
 
 
 def test_vector_distance_pointwise():
-    vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}).is_zero
-    (
-        vector_distance_pointwise({0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, -1]}) - 1
+    assert vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}).is_zero
+    assert (
+        vector_distance_pointwise({0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, -1]}) - 2
     ).is_zero
-    isclose(vector_distance_pointwise({0: [1, 1]}, {0: [1, -1]}, numerical=True), 2)
-    isclose(
+    assert isclose(
+        vector_distance_pointwise({0: [1, 1]}, {0: [1, -1]}, numerical=True), 2
+    )
+    assert isclose(
         vector_distance_pointwise(
             {0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, 1]}, numerical=True
         ),
-        4,
+        math.sqrt(8),
     )
 
     with pytest.raises(ValueError):

@@ -925,16 +925,19 @@ def test_animate3D_rotation():
         F.animate3D_rotation()
 
 
+@pytest.mark.parametrize(
+    "framework, rigidity_matrix",
+    [
+        [fws.Complete(2), Matrix([-1, 0, 1, 0]).transpose()],
+        [fws.Path(3), Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])],
+        [fws.Complete(3, dim=1), Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])],
+    ],
+)
+def test_rigidity_matrix_parametric(framework, rigidity_matrix):
+    assert framework.rigidity_matrix() == rigidity_matrix
+
+
 def test_rigidity_matrix():
-    F = fws.Complete(2)
-    assert F.rigidity_matrix() == Matrix([-1, 0, 1, 0]).transpose()
-
-    F = fws.Path(3)
-    assert F.rigidity_matrix() == Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])
-
-    F = fws.Complete(3, dim=1)
-    assert F.rigidity_matrix() == Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])
-
     F = fws.Complete(4, dim=3)
     assert F.rigidity_matrix().shape == (6, 12)
 
@@ -951,20 +954,29 @@ def test_rigidity_matrix():
     )
 
 
-def test_rigidity_matrix_rank():
-    K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
-    assert K4.rigidity_matrix_rank() == 5
-
-    # Deleting one edge does not change the rank of the rigidity matrix ...
-    K4.delete_edge([0, 1])
-    assert K4.rigidity_matrix_rank() == 5
-
-    # ... whereas deleting two edges does
-    K4.delete_edge([2, 3])
-    assert K4.rigidity_matrix_rank() == 4
-
-    F = fws.Frustum(3)  # has a single infinitesimal motion and stress
-    assert F.rigidity_matrix_rank() == 8
+@pytest.mark.parametrize(
+    "framework, rank",
+    [
+        [Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)]), 5],
+        [
+            Framework(
+                graphs.Diamond(),
+                {0: (0, 0), 1: (0, 1), 2: (1, 1), 3: (1, 0)},
+            ),
+            5,
+        ],
+        [
+            Framework(
+                graphs.Cycle(4),
+                {0: (0, 0), 1: (0, 1), 2: (1, 1), 3: (1, 0)},
+            ),
+            4,
+        ],
+        [fws.Frustum(3), 8],
+    ],
+)
+def test_rigidity_matrix_rank(framework, rank):
+    assert framework.rigidity_matrix_rank() == rank
 
 
 def test_stress_matrix():
@@ -994,35 +1006,24 @@ def test_stress_matrix():
     )
 
 
-def test_stresses():
-    Q1 = Matrix.hstack(
-        *(fws.CompleteBipartite(4, 4).rigidity_matrix().transpose().nullspace())
-    )
-    Q2 = Matrix.hstack(*(fws.CompleteBipartite(4, 4).stresses()))
+@pytest.mark.parametrize(
+    "framework, num_stresses",
+    [
+        [fws.CompleteBipartite(4, 4), 3],
+        [fws.Complete(4), 1],
+        [fws.Complete(5), 3],
+        [fws.Frustum(3), 1],
+        [fws.Frustum(4), 1],
+    ],
+)
+def test_stresses(framework, num_stresses):
+    Q1 = Matrix.hstack(*(framework.rigidity_matrix().transpose().nullspace()))
+    Q2 = Matrix.hstack(*(framework.stresses()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
 
-    F = fws.Complete(4)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Complete(5)
-    stresses = F.stresses()
-    assert len(stresses) == 3 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Frustum(3)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Frustum(4)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
+    stresses = framework.stresses()
+    assert len(stresses) == num_stresses and all(
+        [framework.is_stress(s, numerical=True) for s in stresses]
     )
 
 
