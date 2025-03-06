@@ -183,21 +183,23 @@ def is_zero_vector(
                     0,
                     abs_tol=tolerance,
                 )
-                for coord in eval_sympy_vector(vector, tolerance=tolerance)
+                for coord in eval_sympy_expression(vector, tolerance=tolerance)
             ]
         )
 
 
-def eval_sympy_vector(
-    vector: Sequence[Number] | Matrix, tolerance: float = 1e-9
-) -> list[float]:
+def eval_sympy_expression(
+    expression: Sequence[Number] | Matrix | Number, tolerance: float = 1e-9
+) -> list[float] | float:
     """
-    Converts a sympy vector to a (numerical) list of floats.
+    Converts a sympy expression to (numerical) floats.
+
+    If the given ``expression`` is a Sequence of Numbers or a Matrix, then
 
     Parameters
     ----------
-    vector:
-        The sympy vector.
+    expression:
+        The sympy expression.
     tolerance:
         Intended level of numerical accuracy.
 
@@ -206,14 +208,20 @@ def eval_sympy_vector(
     The method :func:`.data_type.point_to_vector` is used to ensure that
     the input is consistent with the sympy format.
     """
-    return [
-        float(coord.evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))))
-        for coord in point_to_vector(vector)
-    ]
+    if isinstance(expression, Sequence | Matrix):
+        return [
+            float(
+                sp.sympify(coord).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
+            )
+            for coord in point_to_vector(expression)
+        ]
+    return float(
+        sp.sympify(expression).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
+    )
 
 
 def normalize_flex(
-    inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-12
+    inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-9
 ) -> InfFlex:
     """
     Divide a vector by its Euclidean norm.
@@ -230,7 +238,7 @@ def normalize_flex(
     if isinstance(inf_flex, dict):
         if numerical:
             _inf_flex = {
-                v: [float(sp.sympify(q).evalf(15)) for q in flex]
+                v: eval_sympy_expression(flex, tolerance=tolerance)
                 for v, flex in inf_flex.items()
             }
             flex_norm = np.linalg.norm(sum(_inf_flex.values(), []))
@@ -245,7 +253,9 @@ def normalize_flex(
         return {v: tuple([q / flex_norm for q in flex]) for v, flex in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
         if numerical:
-            _inf_flex = [float(sp.sympify(flex).evalf(15)) for flex in inf_flex]
+            _inf_flex = [
+                eval_sympy_expression(flex, tolerance=tolerance) for flex in inf_flex
+            ]
             flex_norm = np.linalg.norm(_inf_flex)
             if isclose(flex_norm, 0, abs_tol=tolerance):
                 raise ValueError("The norm of this flex is almost zero.")

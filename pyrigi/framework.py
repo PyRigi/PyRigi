@@ -17,7 +17,6 @@ from __future__ import annotations
 import functools
 from copy import deepcopy
 from itertools import combinations
-from math import log10
 from random import randrange
 from typing import Any
 
@@ -44,7 +43,7 @@ from pyrigi.misc import (
     is_zero_vector,
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
-    eval_sympy_vector,
+    eval_sympy_expression,
     point_to_vector,
 )
 import pyrigi._input_check as _input_check
@@ -2019,11 +2018,7 @@ class Framework(object):
                     return False
                 elif (
                     numerical
-                    and abs(
-                        sp.sympify(difference).evalf(
-                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
-                        )
-                    )
+                    and abs(eval_sympy_expression(difference, tolerance=tolerance))
                     > tolerance
                 ):
                     return False
@@ -2093,11 +2088,7 @@ class Framework(object):
                     return False
                 elif (
                     numerical
-                    and abs(
-                        sp.sympify(difference).evalf(
-                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
-                        )
-                    )
+                    and abs(eval_sympy_expression(difference, tolerance=tolerance))
                     > tolerance
                 ):
                     return False
@@ -2706,11 +2697,13 @@ class Framework(object):
         else:
             Q_trivial = np.array(
                 [
-                    eval_sympy_vector(flex, tolerance=tolerance)
+                    eval_sympy_expression(flex, tolerance=tolerance)
                     for flex in self.trivial_inf_flexes(vertex_order=vertex_order)
                 ]
             ).transpose()
-            b = np.array(eval_sympy_vector(inf_flex, tolerance=tolerance)).transpose()
+            b = np.array(
+                eval_sympy_expression(inf_flex, tolerance=tolerance)
+            ).transpose()
             x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
             return not is_zero_vector(
                 np.dot(Q_trivial, x) - b, numerical=True, tolerance=tolerance
