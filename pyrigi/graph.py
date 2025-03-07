@@ -97,7 +97,7 @@ class Graph(nx.Graph):
 
     def __repr__(self) -> str:
         """
-        Return a representation.
+        Return a representation of a graph.
         """
         o_str = f"Graph.from_vertices_and_edges({self.vertex_list()}, "
         o_str += f"{self.edge_list(as_tuples=True)})"

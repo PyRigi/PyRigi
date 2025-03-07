@@ -56,7 +56,7 @@ class Motion(object):
         return f"{self.__class__.__name__} of a " + self._graph.__str__()
 
     def __repr__(self) -> str:
-        """Return a representation"""
+        """Return a representation of a Motion."""
         return f"Motion({self.graph().__repr__()}, {self.dim()})"
 
     def graph(self) -> Graph:
@@ -732,11 +732,11 @@ class ParametricMotion(Motion):
             raise ValueError("The given motion does not preserve edge lengths!")
 
     def interval(self) -> tuple[Number]:
-        """Return the underlying interval of the ParametricMotion."""
+        """Return the underlying interval of a ParametricMotion."""
         return self._interval
 
     def parametrization(self, as_points: bool = False) -> dict[Vertex, Point]:
-        """Return a parametrization of the ParametricMotion."""
+        """Return the parametrization of a ParametricMotion."""
         if not as_points:
             return deepcopy(self._parametrization)
         return {v: list(pos) for v, pos in self._parametrization.items()}
@@ -789,7 +789,7 @@ class ParametricMotion(Motion):
         return res
 
     def __repr__(self) -> str:
-        """Return a representation"""
+        """Return a representation of a ParametricMotion."""
         o_str = f"ParametricMotion({self.graph().__repr__()}, "
         o_str += f"{self.parametrization(as_points=True)}, {self.interval()})"
         return o_str
@@ -1356,7 +1356,7 @@ class ApproximateMotion(Motion):
         return res
 
     def __repr__(self) -> str:
-        """Return a representation"""
+        """Return a representation of a ApproximateMotion."""
         o_str = f"ApproximateMotion.from_graph({self.graph().__repr__()}, "
         o_str += f"{self._starting_realization}, {self.steps}, "
         o_str += f"step_size={self.step_size}, chosen_flex={self.chosen_flex}, "

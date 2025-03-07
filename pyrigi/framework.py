@@ -136,7 +136,7 @@ class Framework(object):
         )
 
     def __repr__(self) -> str:
-        """Return a representation"""
+        """Return a representation of a framework."""
         return (
             f"Framework({self.graph().__repr__()}, {self.realization(as_points=True)})"
         )
