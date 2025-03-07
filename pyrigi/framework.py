@@ -301,7 +301,7 @@ class Framework(object):
         """
         Plot the framework in 2D.
 
-        If this framework is in dimensions higher than 2 and ``projection_matrix``
+        If the framework is in dimensions higher than 2 and ``projection_matrix``
         with ``coordinates`` are ``None``, a random projection matrix
         containing two orthonormal vectors is generated and used for projection into 2D.
         For various formatting options, see :meth:`.PlotStyle`.
@@ -314,7 +314,7 @@ class Framework(object):
             for plotting, see :class:`PlotStyle` for more details.
         projection_matrix:
             The matrix used for projecting the realization
-            when the dimension greater than 2.
+            when the dimension is greater than 2.
             The matrix must have dimensions ``(2, dim)``,
             where ``dim`` is the dimension of the framework.
             If ``None``, a random projection matrix is generated.
@@ -636,7 +636,7 @@ class Framework(object):
             for plotting, see :class:`PlotStyle` for more details.
         projection_matrix:
             The matrix used for projecting the realization
-            when the dimension greater than 3.
+            when the dimension is greater than 3.
             The matrix must have dimensions ``(3, dim)``,
             where ``dim`` is the dimension of the framework.
             If ``None``, a random projection matrix is generated.
@@ -1069,7 +1069,7 @@ class Framework(object):
     @doc_category("Class methods")
     def Simplicial(cls, graph: Graph, dim: int = None) -> Framework:
         """
-        Return the framework with a realization on the dim-simplex.
+        Return the framework with a realization on the ``dim``-simplex.
 
         Parameters
         ----------

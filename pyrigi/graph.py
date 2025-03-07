@@ -656,9 +656,9 @@ class Graph(nx.Graph):
         algorithm:
             If ``"pebble"``, the function uses the pebble game algorithm to check
             for sparseness.
-            If "subgraph", it checks each subgraph following the definition.
-            If defaults to ``"pebble"`` whenever ``K>0`` and ``0<=L<2K``,
-            otherwise "subgraph".
+            If ``"subgraph"``, it checks each subgraph following the definition.
+            It defaults to ``"pebble"`` whenever ``K>0`` and ``0<=L<2K``,
+            otherwise to ``"subgraph"``.
         use_precomputed_pebble_digraph:
             If ``True``, the pebble digraph present in the cache is used.
             If ``False``, recompute the pebble digraph.
@@ -1110,7 +1110,7 @@ class Graph(nx.Graph):
         k_min:
             Minimal value of ``k`` for the ``k``-extensions (default 0).
         k_max:
-            Maximal value of ``k`` for the ``k``-extensions (default dim - 1).
+            Maximal value of ``k`` for the ``k``-extensions (default ``dim - 1``).
 
         Examples
         --------
@@ -1185,16 +1185,16 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the extensions are created.
         return_type:
-            Can have values "graphs", "extensions" or "both".
+            Can have values ``"graphs"``, ``"extensions"`` or ``"both"``.
 
-            If "graphs", then the sequence of graphs obtained from the extensions
+            If ``"graphs"``, then the sequence of graphs obtained from the extensions
             is returned.
 
-            If "extensions", then an initial graph and a sequence of extensions
+            If ``"extensions"``, then an initial graph and a sequence of extensions
             of the form ``[k, vertices, edges, new_vertex]`` as needed
             for the input of `k_extension` is returned.
 
-            If "both", then an initial graph and a sequence of pairs
+            If ``"both"``, then an initial graph and a sequence of pairs
             ``[graph, extension]``, where the latter has the form from above,
             is returned.
 
@@ -1325,7 +1325,7 @@ class Graph(nx.Graph):
         count_reflection: bool = False,
     ) -> int:
         """
-        Count the number of complex realizations of a minimally dim-rigid graph.
+        Count the number of complex realizations of a minimally ``dim``-rigid graph.
 
         Realizations in ``dim``-dimensional sphere
         can be counted using ``spherical=True``.
@@ -2607,7 +2607,7 @@ class Graph(nx.Graph):
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> list[list[Vertex]]:
         """
-        Return the list of the vertex sets of dim-rigid components.
+        Return the list of the vertex sets of ``dim``-rigid components.
 
         Definitions
         -----
@@ -2621,11 +2621,11 @@ class Graph(nx.Graph):
             If ``"graphic"`` (only if ``dim=1``),
             then the connected components are returned.
 
-            If ``subgraphs-pebble"`` (only if ``dim=2``),
+            If ``"subgraphs-pebble"`` (only if ``dim=2``),
             then all subgraphs are checked
             using :meth:`.is_rigid` with ``algorithm="pebble"``.
 
-            If ``pebble"`` (only if ``dim=2``),
+            If ``"pebble"`` (only if ``dim=2``),
             then :meth:`.Rd_closure` with ``algorithm="pebble"``
             is used.
 

@@ -13,7 +13,8 @@ def Cycle(n: int, dim: int = 2) -> Framework:
     """
     Return ``dim``-dimensional framework of the ``n``-cycle.
 
-    The resulting realization depends on the dimension ``dim`` and ``n``:
+    The resulting realization depends on the dimension ``dim``
+    and on the number ``n``:
 
     - If ``n-1<=dim``, then the cycle is realized as the vertices of the
       `dim`-dimensional simplex.
@@ -195,7 +196,8 @@ def Complete(n: int, dim: int = 2) -> Framework:
     """
     Return ``dim``-dimensional framework of the complete graph on ``n`` vertices.
 
-    The resulting realization depends on the dimension ``dim`` and ``n``:
+    The resulting realization depends on the dimension ``dim``
+    and on the number ``n``:
 
     - If ``n-1<=dim``, then the complete graph is realized on the vertices of the
       ``dim``-dimensional simplex. The complete graph is either given by the
