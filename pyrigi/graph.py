@@ -821,8 +821,8 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the 0-extension is created.
         inplace:
-            If ``True``, the graph will be modified,
-            otherwise a new modified graph will be created,
+            If ``True``, the graph is modified,
+            otherwise a new modified graph is created,
             while the original graph remains unchanged (default).
 
         Examples
@@ -876,8 +876,8 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the 1-extension is created.
         inplace:
-            If ``True``, the graph will be modified,
-            otherwise a new modified graph will be created,
+            If ``True``, the graph is modified,
+            otherwise a new modified graph is created,
             while the original graph remains unchanged (default).
 
         Examples
@@ -941,8 +941,8 @@ class Graph(nx.Graph):
         dim:
             The dimension in which the ``k``-extension is created.
         inplace:
-            If ``True``, the graph will be modified,
-            otherwise a new modified graph will be created,
+            If ``True``, the graph is modified,
+            otherwise a new modified graph is created,
             while the original graph remains unchanged (default).
 
         Examples
@@ -1315,6 +1315,49 @@ class Graph(nx.Graph):
         False
         """  # noqa: E501
         return self.extension_sequence(dim) is not None
+
+    @doc_category("Graph manipulation")
+    def cone(self, inplace: bool = False, vertex: Vertex = None) -> Graph:
+        """
+        Return a coned version of the graph.
+
+        A coned graph is a base graph G with an additional vertex that is adjacent
+        to all other vertices. No additional edges are added.
+
+        Parameters
+        ----------
+        inplace:
+            If ``True``, the graph is modified,
+            otherwise a new modified graph is created,
+            while the original graph remains unchanged (default).
+        vertex:
+            It is possible to give the added cone vertex a name using
+            the keyword ``vertex``.
+
+        Definition
+        ----------
+        :prf:ref:`Cone graph <def-cone-graph>`
+
+        Examples
+        --------
+        >>> G = Graph([(0,1)]).cone()
+        >>> G.is_isomorphic(Graph([(0,1),(1,2),(0,2)]))
+        True
+        """
+        if vertex in self.nodes:
+            raise KeyError(f"Vertex {vertex} is already a vertex of the graph!")
+        if vertex is None:
+            vertex = self.number_of_nodes()
+            while vertex in self.nodes:
+                vertex += 1
+
+        if inplace:
+            self.add_edges([(u, vertex) for u in self.nodes])
+            return self
+        else:
+            G = deepcopy(self)
+            G.add_edges([(u, vertex) for u in G.nodes])
+            return G
 
     @doc_category("Generic rigidity")
     def number_of_realizations(
@@ -3223,6 +3266,168 @@ class Graph(nx.Graph):
         G = self + other_graph
         G.remove_edge(edge[0], edge[1])
         return G
+
+    @doc_category("General graph theoretical properties")
+    def is_vertex_apex(self):
+        """
+        Check whether the graph is vertex apex.
+
+        Alias for :meth:`~.Graph.is_k_vertex_apex` with ``k=1``
+
+        Definitions
+        -----------
+        :prf:ref:`vertex apex graph <def-apex-graph>`
+        """
+        return self.is_k_vertex_apex(1)
+
+    @doc_category("General graph theoretical properties")
+    def is_k_vertex_apex(self, k: int):
+        """
+        Check whether the graph is ``k``-vertex apex.
+
+        Definitions
+        -----------
+        :prf:ref:`k-vertex apex graph <def-apex-graph>`
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.is_k_vertex_apex(1)
+        True
+        """
+        _input_check.integrality_and_range(
+            k, "k", min_val=0, max_val=self.number_of_nodes()
+        )
+        _G = deepcopy(self)
+        for vertex_list in combinations(self.nodes, k):
+            incident_edges = list(_G.edges(vertex_list))
+            _G.delete_vertices(vertex_list)
+            if nx.is_planar(_G):
+                return True
+            _G.add_edges(incident_edges)
+        return False
+
+    @doc_category("General graph theoretical properties")
+    def is_edge_apex(self):
+        """
+        Check whether the graph is edge apex.
+
+        Alias for :meth:`~.Graph.is_k_edge_apex` with ``k=1``
+
+        Definitions
+        -----------
+        :prf:ref:`edge apex graph <def-apex-graph>`
+        """
+        return self.is_k_edge_apex(1)
+
+    @doc_category("General graph theoretical properties")
+    def is_k_edge_apex(self, k: int):
+        """
+        Check whether the graph is ``k``-edge apex.
+
+        Definitions
+        -----------
+        :prf:ref:`k-edge apex graph <def-apex-graph>`
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.is_k_edge_apex(1)
+        True
+        """
+        _input_check.integrality_and_range(
+            k, "k", min_val=0, max_val=self.number_of_edges()
+        )
+        _G = deepcopy(self)
+        for edge_list in combinations(self.edges, k):
+            _G.delete_edges(edge_list)
+            if nx.is_planar(_G):
+                return True
+            _G.add_edges(edge_list)
+        return False
+
+    @doc_category("General graph theoretical properties")
+    def is_critically_vertex_apex(self):
+        """
+        Check whether the graph is critically vertex apex.
+
+        Alias for :meth:`~.Graph.is_critically_k_vertex_apex` with ``k=1``.
+
+        Definitions
+        -----------
+        :prf:ref:`critically vertex apex graph <def-apex-graph>`
+        """
+        return self.is_critically_k_vertex_apex(1)
+
+    @doc_category("General graph theoretical properties")
+    def is_critically_k_vertex_apex(self, k: int):
+        """
+        Check whether the graph is critically ``k``-vertex apex.
+
+        Definitions
+        -----------
+        :prf:ref:`critically k-vertex apex graph <def-apex-graph>`
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.is_critically_k_vertex_apex(1)
+        True
+        """
+        _input_check.integrality_and_range(
+            k, "k", min_val=0, max_val=self.number_of_nodes()
+        )
+        _G = deepcopy(self)
+        for vertex_list in combinations(self.nodes, k):
+            incident_edges = list(_G.edges(vertex_list))
+            _G.delete_vertices(vertex_list)
+            if not nx.is_planar(_G):
+                return False
+            _G.add_edges(incident_edges)
+        return True
+
+    @doc_category("General graph theoretical properties")
+    def is_critically_edge_apex(self):
+        """
+        Check whether the graph is critically edge apex.
+
+        Alias for :meth:`~.Graph.is_critically_k_edge_apex` with ``k=1``.
+
+        Definitions
+        -----------
+        :prf:ref:`critically edge apex graph <def-apex-graph>`
+        """
+        return self.is_critically_k_edge_apex(1)
+
+    @doc_category("General graph theoretical properties")
+    def is_critically_k_edge_apex(self, k: int):
+        """
+        Check whether the graph is critically ``k``-edge apex.
+
+        Definitions
+        -----------
+        :prf:ref:`critically k-edge apex graph <def-apex-graph>`
+
+        Examples
+        --------
+        >>> import pyrigi.graphDB as graphs
+        >>> G = graphs.Complete(5)
+        >>> G.is_critically_k_edge_apex(1)
+        True
+        """
+        _input_check.integrality_and_range(
+            k, "k", min_val=0, max_val=self.number_of_edges()
+        )
+        _G = deepcopy(self)
+        for edge_list in combinations(self.edges, k):
+            _G.delete_edges(edge_list)
+            if not nx.is_planar(_G):
+                return False
+            _G.add_edges(edge_list)
+        return True
 
     @doc_category("Graph manipulation")
     def intersection(self, other_graph: Graph):

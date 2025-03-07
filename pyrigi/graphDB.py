@@ -283,3 +283,13 @@ def ThreeConnectedR3Circuit():
             (11, 12),
         ]
     )
+
+
+def Wheel(k: int):
+    """
+    Create the wheel graph on n+1 vertices.
+    """
+    _input_check.integrality_and_range(k, "k", min_val=3)
+    G = Cycle(k)
+    G.add_edges([(i, k) for i in range(k)])
+    return G

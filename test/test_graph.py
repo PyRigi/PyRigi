@@ -1643,7 +1643,7 @@ def test_all_extensions(graph, dim, sol):
         [graphs.Complete(2), 1],
         [graphs.Complete(1), 1],
         [graphs.CompleteMinusOne(5), 1],
-        [Graph.from_int(16350), 3],
+        pytest.param(Graph.from_int(16350), 3, marks=pytest.mark.slow_main),
         [graphs.CompleteMinusOne(5), 3],
     ],
 )
@@ -2526,7 +2526,8 @@ def test_is_not_Rd_circuit_d1(graph):
         graphs.ThreePrismPlusEdge(),
         graphs.K33plusEdge(),
         Graph([(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (3, 0), (3, 1), (2, 4)]),
-    ],
+    ]
+    + [graphs.Wheel(n) for n in range(3, 7)],
 )
 def test_is_Rd_circuit_d2(graph):
     assert graph.is_Rd_circuit(dim=2)
@@ -2662,7 +2663,8 @@ def test_is_Rd_independent_d1(graph):
         graphs.Complete(5),
         graphs.CompleteBipartite(3, 4),
         graphs.K66MinusPerfectMatching(),
-    ],
+    ]
+    + [graphs.Wheel(n) for n in range(3, 8)],
 )
 def test_is_Rd_dependent_d2(graph):
     assert graph.is_Rd_dependent(dim=2)
@@ -2738,3 +2740,154 @@ def test_max_rigid_dimension_warning():
     G = graphs.K66MinusPerfectMatching()
     with pytest.warns(RandomizedAlgorithmWarning):
         G.max_rigid_dimension()
+
+
+def test_cone():
+    G = graphs.Complete(5).cone()
+    assert set(G.nodes) == set([0, 1, 2, 3, 4, 5]) and len(G.nodes) == 6
+    G = graphs.Complete(4).cone(vertex="a")
+    assert "a" in G.nodes
+    G = graphs.Cycle(4).cone()
+    assert G.number_of_nodes() == G.max_degree() + 1
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 0],
+        [graphs.Diamond(), 0],
+        [graphs.Complete(4), 0],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), 1],
+        [graphs.Complete(6), 2],
+        [graphs.Frustum(3), 0],
+        [graphs.ThreePrism(), 0],
+        [graphs.DoubleBanana(), 1],
+        [graphs.Octahedral(), 0],
+        [Graph.from_int(8191), 1],
+    ]
+    + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
+)
+def test_is_k_vertex_apex(graph, k):
+    assert graph.is_k_vertex_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Complete(5), 0],
+        [graphs.Complete(6), 1],
+        [graphs.DoubleBanana(), 0],
+    ]
+    + [[graphs.Wheel(n).cone(), 0] for n in range(3, 8)],
+)
+def test_is_not_k_vertex_apex(graph, k):
+    assert not graph.is_k_vertex_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 0],
+        [graphs.Diamond(), 0],
+        [graphs.Complete(4), 0],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), 1],
+        [graphs.Complete(6), 3],
+        [graphs.Frustum(3), 0],
+        [graphs.ThreePrism(), 0],
+        [graphs.DoubleBanana(), 2],
+        [graphs.Octahedral(), 0],
+        [Graph.from_int(16351), 1],
+    ]
+    + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
+)
+def test_is_k_edge_apex(graph, k):
+    assert graph.is_k_edge_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Complete(5), 0],
+        [graphs.Complete(6), 2],
+        [graphs.DoubleBanana(), 1],
+        [graphs.K66MinusPerfectMatching(), 0],
+    ]
+    + [[graphs.Wheel(n).cone(), 0] for n in range(3, 8)],
+)
+def test_is_not_k_edge_apex(graph, k):
+    assert not graph.is_k_edge_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 0],
+        [graphs.Diamond(), 0],
+        [graphs.Complete(4), 0],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), 1],
+        [graphs.Complete(6), 2],
+        [graphs.Frustum(3), 0],
+        [graphs.ThreePrism(), 0],
+        [graphs.DoubleBanana(), 3],
+        [graphs.Octahedral(), 0],
+        [Graph.from_int(8191), 2],
+    ]
+    + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
+)
+def test_is_critically_k_vertex_apex(graph, k):
+    assert graph.is_critically_k_vertex_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Complete(5), 0],
+        [graphs.Complete(6), 1],
+        [graphs.DoubleBanana(), 2],
+        [graphs.K66MinusPerfectMatching(), 0],
+        [Graph.from_int(8191), 1],
+    ]
+    + [[graphs.Wheel(n).cone(), 0] for n in range(3, 8)],
+)
+def test_is_not_critically_k_vertex_apex(graph, k):
+    assert not graph.is_critically_k_vertex_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 0],
+        [graphs.Diamond(), 0],
+        [graphs.Complete(4), 0],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), 1],
+        pytest.param(graphs.Complete(6), 7, marks=pytest.mark.slow_main),
+        [graphs.Frustum(3), 0],
+        [graphs.ThreePrism(), 0],
+        pytest.param(graphs.DoubleBanana(), 8, marks=pytest.mark.slow_main),
+        [graphs.Octahedral(), 0],
+        [Graph.from_int(112468), 1],
+        [Graph.from_int(481867), 2],
+    ]
+    + [[graphs.Wheel(n).cone(), 1 if n == 3 else 2 * n - 3] for n in range(3, 6)],
+)
+def test_is_critically_k_edge_apex(graph, k):
+    assert graph.is_critically_k_edge_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Complete(5), 0],
+        [graphs.Complete(6), 6],
+        [graphs.DoubleBanana(), 7],
+        [Graph.from_int(481867), 1],
+        [Graph.from_int(16351), 1],
+    ]
+    + [[graphs.Wheel(n).cone(), 0 if n == 3 else 2 * n - 4] for n in range(3, 6)],
+)
+def test_is_not_critically_k_edge_apex(graph, k):
+    assert not graph.is_critically_k_edge_apex(k)
