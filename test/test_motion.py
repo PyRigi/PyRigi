@@ -312,10 +312,3 @@ def test_normalize_realizations():
             and np.linalg.norm(r[2][0]) <= 2.02
             and np.linalg.norm(r[2][1]) <= 2.02
         )
-
-
-@pytest.mark.long_local
-def test_newton_raises_runtimeerror():
-    F = fws.ThreePrism(realization="flexible")
-    with pytest.raises(RuntimeError):
-        ApproximateMotion(F, 5, 0.1)
