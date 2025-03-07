@@ -389,7 +389,7 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
     The underlying graph of the returned framework satisfies the
     expected symmetry-adapted Laman count for rotation but the
     framework is infinitesimally flexible.
-    
+
     Definitions
     -----------
     * :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
