@@ -222,7 +222,7 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
     The value ``n`` must be even and at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
-    count for rotation but is infinitesimally flexible.
+    count for rotation but is (generically) infinitesimally flexible.
 
     Definitions
     -----------
