@@ -10,7 +10,7 @@ from pyrigi.graph import Graph
 from pyrigi.misc import (
     is_zero_vector,
     generate_two_orthonormal_vectors,
-    eval_sympy_vector,
+    sympy_expr_to_float,
     is_isomorphic_graph_list,
     normalize_flex,
     vector_distance_pointwise,
@@ -54,17 +54,20 @@ def test_generate_two_orthonormal_vectors():
         assert abs(np.linalg.norm(m[:, 1])) - 1 < 1e-9
 
 
-def test_eval_sympy_vector():
-    with pytest.raises(TypeError):
-        eval_sympy_vector("12mkcd")
+def test_sympy_expr_to_float():
     with pytest.raises(ValueError):
-        eval_sympy_vector(["sin(pi)^"])
-    assert eval_sympy_vector(["cos(0)", "sin(pi)"]) == [1, 0]
-    assert eval_sympy_vector(["sqrt(2)^2", "0.123123123123123123123123123123123"]) == [
+        sympy_expr_to_float("12mkcd")
+        sympy_expr_to_float("sin(pi)^")
+        sympy_expr_to_float(["sin(pi)^"])
+    assert sympy_expr_to_float(["cos(0)", "sin(pi)"]) == [1, 0]
+    assert sympy_expr_to_float(
+        ["sqrt(2)^2", "0.123123123123123123123123123123123"]
+    ) == [
         2,
         0.12312312312312312,
     ]
-    assert eval_sympy_vector(["1/4", -1]) == [0.25, -1]
+    assert sympy_expr_to_float(["1/4", -1]) == [0.25, -1]
+    assert sympy_expr_to_float("1/4") == 0.25
 
 
 def test_normalize_flex():

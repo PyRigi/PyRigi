@@ -44,7 +44,7 @@ from pyrigi.misc import (
     is_zero_vector,
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
-    eval_sympy_vector,
+    sympy_expr_to_float,
     point_to_vector,
 )
 import pyrigi._input_check as _input_check
@@ -1994,10 +1994,11 @@ class Framework(object):
 
         if numerical:
             stresses = [
-                {e: float(p.evalf()) for e, p in stress.items()} for stress in stresses
+                {e: sympy_expr_to_float(p) for e, p in stress.items()}
+                for stress in stresses
             ]
             inf_flexes = [
-                {v: [float(pt.evalf()) for pt in p] for v, p in flex.items()}
+                {v: sympy_expr_to_float(p) for v, p in flex.items()}
                 for flex in inf_flexes
             ]
 
@@ -2064,15 +2065,13 @@ class Framework(object):
             if numerical:
                 return all(
                     [
-                        np.sign(float(coefficients[(i, i)].evalf()))
-                        == np.sign(float(coefficients[(j, j)].evalf()))
+                        np.sign(sympy_expr_to_float(coefficients[(i, i)]))
+                        == np.sign(sympy_expr_to_float(coefficients[(j, j)]))
                         and (
                             np.absolute(coefficients[(i, j)])
                             < np.sqrt(
-                                float(
-                                    (
-                                        4 * coefficients[(i, i)] * coefficients[(j, j)]
-                                    ).evalf()
+                                sympy_expr_to_float(
+                                    4 * coefficients[(i, i)] * coefficients[(j, j)]
                                 )
                             )
                         )
@@ -2221,11 +2220,7 @@ class Framework(object):
                     return False
                 elif (
                     numerical
-                    and abs(
-                        sp.sympify(difference).evalf(
-                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
-                        )
-                    )
+                    and abs(sympy_expr_to_float(difference, tolerance=tolerance))
                     > tolerance
                 ):
                     return False
@@ -2295,11 +2290,7 @@ class Framework(object):
                     return False
                 elif (
                     numerical
-                    and abs(
-                        sp.sympify(difference).evalf(
-                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
-                        )
-                    )
+                    and abs(sympy_expr_to_float(difference, tolerance=tolerance))
                     > tolerance
                 ):
                     return False
@@ -2932,11 +2923,11 @@ class Framework(object):
         else:
             Q_trivial = np.array(
                 [
-                    eval_sympy_vector(flex, tolerance=tolerance)
+                    sympy_expr_to_float(flex, tolerance=tolerance)
                     for flex in self.trivial_inf_flexes(vertex_order=vertex_order)
                 ]
             ).transpose()
-            b = np.array(eval_sympy_vector(inf_flex, tolerance=tolerance)).transpose()
+            b = np.array(sympy_expr_to_float(inf_flex, tolerance=tolerance)).transpose()
             x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
             return not is_zero_vector(
                 np.dot(Q_trivial, x) - b, numerical=True, tolerance=tolerance
