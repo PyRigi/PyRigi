@@ -40,7 +40,7 @@ def resolve_inf_flex(
         The infinitesimal flex to resolve.
     realization:
         A realization.
-        If None, the framework's realization is used.
+        If ``None``, the framework realization is used.
     projection_matrix:
         A matrix used for projection to a lower dimension.
     """

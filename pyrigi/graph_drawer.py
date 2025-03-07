@@ -31,40 +31,42 @@ class GraphDrawer(object):
 
     An instance of this class creates a canvas and
     takes mouse inputs in order to construct a graph. The vertices of the graph
-    will be labeled using non-negative integers. Supported inputs are listed below.
+    are labeled using non-negative integers.
+
+    Supported inputs are:
 
     - Press mouse button on an empty place on canvas:
         Add a vertex at the pointer position.
     - Press mouse button on an existing vertex (or empty space) and
         release the mouse button on another vertex (or empty space):
         Add/remove an edge between the two vertices.
-    - Drag a vertex with ``Ctrl`` is being pressed:
+    - Drag a vertex with ``Ctrl`` being pressed:
         Reposition the vertex.
-    - Double click on an existing vertex:
+    - Double-click on an existing vertex:
         Remove the corresponding vertex.
-    - Double click on an existing edge:
+    - Double-click on an existing edge:
         Remove the corresponding edge.
 
     Parameters
     ----------
     graph:
-        (optional) A graph without loops which is to be drawn on canvas
+        A graph without loops which is to be drawn on canvas
         when the object is created. The non-integer labels are relabeled
     size:
-        (optional) [width, height] of the canvas, defaults to [600,600]
-        width and height will be arranged so that they are multiples of 100
+        Width and height of the canvas, defaults to ``[600,600]``.
+        The width and height are adjusted so that they are multiples of 100
         with minimum value 400 and maximum value 1000.
     layout_type:
         Layout type to visualise the ``graph``.
         For supported layout types see :meth:`.Graph.layout`.
         The default is ``spring``.
-        If ``graph`` is ``None`` or empty this parameter will not have any effect.
+        If ``graph`` is ``None`` or empty, this parameter has no effect.
     place:
         The part of the canvas that will be used for drawing ``graph``.
         Options are ``all`` (default, use all canvas), ``E`` (use the east part),
         ``W`` (use the west part), ``N`` (use the north part), ``S`` (use the south part),
         and also ``NE``, ``NW``, ``SE`` and ``SW``.
-        If ``graph`` is ``None`` or empty this parameter will not have any effect.
+        If ``graph`` is ``None`` or empty, this parameter has no effect.
 
     Examples
     --------
@@ -252,7 +254,7 @@ class GraphDrawer(object):
 
     def _handle_event(self, event) -> None:
         """
-        Handle keyboard events and double click event using ``ipyevents``.
+        Handle keyboard events and double-click events using ``ipyevents``.
         """
         if event["event"] == "keydown":
             self._vertex_move_on = event["ctrlKey"]
@@ -331,14 +333,7 @@ class GraphDrawer(object):
         """
         Set up a ``graph`` with specified layout and place it on the canvas.
 
-        Parameters
-        ----------
-        graph:
-            Graph
-        layout_type:
-            Specifies the graph's realization.
-        place:
-            Determines on the canvas.
+        See :obj:`GraphDrawer` for the parameters.
         """
         vertex_map = {}
         for vertex in graph:
@@ -442,8 +437,7 @@ class GraphDrawer(object):
         Parameters
         ----------
         grid_on:
-            Boolean determining whether a grid should be added
-            to the canvas.
+            Boolean determining whether a grid should be added to the canvas.
         """
         self._mcanvas[0].clear()
         self._mcanvas[0].line_width = 1
@@ -569,7 +563,7 @@ class GraphDrawer(object):
         """
         Handle double click event (using ipyevents).
 
-        Double clicking on a vertex or edge removes the vertex or the edge, respectively.
+        Double-clicking on a vertex or edge removes the vertex or the edge, respectively.
         """
         edge = self._collided_edge(x, y)
         vertex = self._collided_vertex(x, y)
@@ -646,7 +640,7 @@ class GraphDrawer(object):
 
     def _collided_vertex(self, x, y) -> int | None:
         """
-        Return the vertex containing the point (x,y) on canvas.
+        Return the vertex containing the point ``(x,y)`` on canvas.
         """
         for vertex in self._graph.nodes:
             if (self._graph.nodes[vertex]["pos"][0] - x) ** 2 + (
@@ -657,7 +651,7 @@ class GraphDrawer(object):
 
     def _collided_edge(self, x, y) -> Edge | None:
         """
-        Return the edge containing the point (x,y) on canvas.
+        Return the edge containing the point ``(x,y)`` on canvas.
         """
         for edge in self._graph.edges:
             if (
@@ -674,7 +668,7 @@ class GraphDrawer(object):
     @staticmethod
     def _point_distance_to_segment(a, b, point) -> float:
         """
-        Return the distance between 'point' and line segment given by 'a' and 'b'.
+        Return the distance between ``point`` and line segment given by ``a`` and ``b``.
         """
         a = np.asarray(a)
         b = np.asarray(b)
@@ -688,7 +682,7 @@ class GraphDrawer(object):
 
     def _redraw_vertex(self, vertex) -> None:
         """
-        Update the position of a specific vertex and its incident edges
+        Update the position of a specific vertex and its incident edges.
 
         It is used when repositioning a vertex and
         adding/removing a new edge so that only the parts related to
@@ -761,7 +755,7 @@ class GraphDrawer(object):
 
     def _grid_to_canvas_point(self, x, y):
         """
-        Return the canvas coordinates for the given grid point (x,y)
+        Return the canvas coordinates for the given grid point ``(x,y)``.
         """
         # gridpoint = self._closest_grid_coordinate(x,y)
 
@@ -772,7 +766,7 @@ class GraphDrawer(object):
 
     def _closest_grid_coordinate(self, x, y):
         """
-        Return the closest grid coordinates on canvas of the given point (x,y)
+        Return the closest grid coordinates on canvas of the given point ``(x,y)``.
         """
         grid_x = int(round((x - self._mcanvas.width / 2) / self._grid_size))
         grid_y = int(round((self._mcanvas.height / 2 - y) / self._grid_size))
@@ -815,7 +809,7 @@ class GraphDrawer(object):
         ---------
         grid:
             If ``True`` and ``Grid Snapping`` is checked,
-            the realization will be scaled so that the grid points
+            the realization is scaled so that the grid points
             correspond to integral points.
         """
         H = self.graph()
