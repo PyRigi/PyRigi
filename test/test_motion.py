@@ -6,7 +6,7 @@ import pytest
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
-from pyrigi import ParametricMotion, ApproximateMotion, Framework, Graph
+from pyrigi import Framework, ParametricMotion, ApproximateMotion, Graph
 
 
 def test_check_edge_lengths():
@@ -267,6 +267,15 @@ def test_animate(F):
     M = ApproximateMotion(F, 5, 0.075)
     M.animate(animation_format="svg")
     M.animate(animation_format="matplotlib")
+
+    # 1D Framework
+    G = Graph([(0, 1), (2, 3)])
+    F = Framework(G, {0: [0], 1: [1], 2: [2], 3: [3]})
+    M = ApproximateMotion(F, 50, 0.1)
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
 
 
 def test_normalize_realizations():

@@ -10,7 +10,7 @@ import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
-from pyrigi.misc import point_to_vector
+from pyrigi.misc import point_to_vector, sympy_expr_to_float
 
 
 @pytest.mark.parametrize(
@@ -177,6 +177,74 @@ def test_is_not_min_inf_rigid(framework):
 )
 def test_is_independent(framework):
     assert framework.is_independent()
+
+
+@pytest.mark.parametrize(
+    "framework, bool_res",
+    [
+        [fws.Complete(4, dim=2), True],
+        [fws.Frustum(3), True],
+        [fws.Frustum(4), True],
+        [fws.Square(), False],
+        [fws.K33plusEdge(), True],
+        [fws.ThreePrism(realization="flexible"), False],
+        [fws.ThreePrism(realization="parallel"), True],
+        [fws.Octahedron(realization="regular"), True],
+        [fws.Octahedron(realization="Bricard_plane"), False],
+        [fws.Octahedron(realization="Bricard_line"), False],
+        [fws.Cube(), False],
+        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
+    ],
+)
+def test_is_prestress_stable(framework, bool_res):
+    assert framework.is_prestress_stable() == bool_res
+    assert framework.is_prestress_stable(numerical=True) == bool_res
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.CompleteBipartite(3, 3, realization="collinear"),
+        fws.ConnellyExampleSecondOrderRigidity(),
+    ],
+)
+def test_is_prestress_stable_error(framework):
+    with pytest.raises(ValueError):
+        framework.is_prestress_stable()
+
+
+@pytest.mark.parametrize(
+    "framework, bool_res",
+    [
+        [fws.Complete(4, dim=2), True],
+        [fws.Frustum(3), True],
+        [fws.Frustum(4), True],
+        [fws.Square(), False],
+        [fws.K33plusEdge(), True],
+        [fws.ThreePrism(realization="flexible"), False],
+        [fws.ThreePrism(realization="parallel"), True],
+        [fws.Octahedron(realization="regular"), True],
+        [fws.Octahedron(realization="Bricard_plane"), False],
+        [fws.Octahedron(realization="Bricard_line"), False],
+        [fws.Cube(), False],
+        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
+    ],
+)
+def test_is_second_order_rigid(framework, bool_res):
+    assert framework.is_second_order_rigid() == bool_res
+    assert framework.is_second_order_rigid(numerical=True) == bool_res
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.CompleteBipartite(3, 3, realization="collinear"),
+        fws.ConnellyExampleSecondOrderRigidity(),
+    ],
+)
+def test_is_second_order_rigid_error(framework):
+    with pytest.raises(ValueError):
+        framework.is_second_order_rigid()
 
 
 @pytest.mark.parametrize(
@@ -601,6 +669,20 @@ def test_translate():
     assert newF[2].equals(F[2] + translation)
 
 
+def test_rescale():
+    G = graphs.Complete(4)
+    F = Framework(G, {0: (-1, 0), 1: (2, 0), 2: (1, 1), 3: (3, -2)})
+
+    newF = F.rescale(1, False)
+    for v, pos in newF.realization().items():
+        assert pos.equals(F[v])
+
+    newF = F.rescale(2, False)
+    assert newF[0].equals(Matrix([p * 2 for p in F[0]]))
+    assert newF[1].equals(Matrix([p * 2 for p in F[1]]))
+    assert newF[2].equals(Matrix([p * 2 for p in F[2]]))
+
+
 def test_projected_realization():
     F = fws.Complete(4, dim=3)
     _r = F.projected_realization(
@@ -726,7 +808,7 @@ def test_is_equivalent():
 
     # testing numerical equivalence
 
-    R1 = {v: pos.evalf() for v, pos in F9.realization().items()}
+    R1 = {v: sympy_expr_to_float(pos) for v, pos in F9.realization().items()}
 
     assert not F9.is_equivalent_realization(R1, numerical=False)
     assert F9.is_equivalent_realization(R1, numerical=True)
@@ -787,7 +869,7 @@ def test_is_congruent():
         assert F6.is_congruent(F7)
 
     # testing numerical congruence
-    R1 = {v: pos.evalf() for v, pos in F4.realization().items()}
+    R1 = {v: sympy_expr_to_float(pos) for v, pos in F4.realization().items()}
 
     assert not F4.is_congruent_realization(R1)
     assert F4.is_congruent_realization(R1, numerical=True)
@@ -883,16 +965,19 @@ def test_animate3D_rotation():
         F.animate3D_rotation()
 
 
+@pytest.mark.parametrize(
+    "framework, rigidity_matrix",
+    [
+        [fws.Complete(2), Matrix([-1, 0, 1, 0]).transpose()],
+        [fws.Path(3), Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])],
+        [fws.Complete(3, dim=1), Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])],
+    ],
+)
+def test_rigidity_matrix_parametric(framework, rigidity_matrix):
+    assert framework.rigidity_matrix() == rigidity_matrix
+
+
 def test_rigidity_matrix():
-    F = fws.Complete(2)
-    assert F.rigidity_matrix() == Matrix([-1, 0, 1, 0]).transpose()
-
-    F = fws.Path(3)
-    assert F.rigidity_matrix() == Matrix([[-1, 0, 1, 0, 0, 0], [0, 0, 1, -1, -1, 1]])
-
-    F = fws.Complete(3, dim=1)
-    assert F.rigidity_matrix() == Matrix([[-1, 1, 0], [-2, 0, 2], [0, -1, 1]])
-
     F = fws.Complete(4, dim=3)
     assert F.rigidity_matrix().shape == (6, 12)
 
@@ -909,20 +994,29 @@ def test_rigidity_matrix():
     )
 
 
-def test_rigidity_matrix_rank():
-    K4 = Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)])
-    assert K4.rigidity_matrix_rank() == 5
-
-    # Deleting one edge does not change the rank of the rigidity matrix ...
-    K4.delete_edge([0, 1])
-    assert K4.rigidity_matrix_rank() == 5
-
-    # ... whereas deleting two edges does
-    K4.delete_edge([2, 3])
-    assert K4.rigidity_matrix_rank() == 4
-
-    F = fws.Frustum(3)  # has a single infinitesimal motion and stress
-    assert F.rigidity_matrix_rank() == 8
+@pytest.mark.parametrize(
+    "framework, rank",
+    [
+        [Framework.Complete([(0, 0), (0, 1), (1, 0), (1, 1)]), 5],
+        [
+            Framework(
+                graphs.Diamond(),
+                {0: (0, 0), 1: (0, 1), 2: (1, 1), 3: (1, 0)},
+            ),
+            5,
+        ],
+        [
+            Framework(
+                graphs.Cycle(4),
+                {0: (0, 0), 1: (0, 1), 2: (1, 1), 3: (1, 0)},
+            ),
+            4,
+        ],
+        [fws.Frustum(3), 8],
+    ],
+)
+def test_rigidity_matrix_rank(framework, rank):
+    assert framework.rigidity_matrix_rank() == rank
 
 
 def test_stress_matrix():
@@ -952,35 +1046,24 @@ def test_stress_matrix():
     )
 
 
-def test_stresses():
-    Q1 = Matrix.hstack(
-        *(fws.CompleteBipartite(4, 4).rigidity_matrix().transpose().nullspace())
-    )
-    Q2 = Matrix.hstack(*(fws.CompleteBipartite(4, 4).stresses()))
+@pytest.mark.parametrize(
+    "framework, num_stresses",
+    [
+        [fws.CompleteBipartite(4, 4), 3],
+        [fws.Complete(4), 1],
+        [fws.Complete(5), 3],
+        [fws.Frustum(3), 1],
+        [fws.Frustum(4), 1],
+    ],
+)
+def test_stresses(framework, num_stresses):
+    Q1 = Matrix.hstack(*(framework.rigidity_matrix().transpose().nullspace()))
+    Q2 = Matrix.hstack(*(framework.stresses()))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
 
-    F = fws.Complete(4)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Complete(5)
-    stresses = F.stresses()
-    assert len(stresses) == 3 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Frustum(3)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
-    )
-
-    F = fws.Frustum(4)
-    stresses = F.stresses()
-    assert len(stresses) == 1 and all(
-        [F.is_stress(s, numerical=True) for s in stresses]
+    stresses = framework.stresses()
+    assert len(stresses) == num_stresses and all(
+        [framework.is_stress(s, numerical=True) for s in stresses]
     )
 
 

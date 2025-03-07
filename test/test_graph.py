@@ -5,12 +5,24 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pytest
 from sympy import Matrix
+from itertools import combinations
 
 import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError, NotSupportedValueError
 from pyrigi.warning import RandomizedAlgorithmWarning
+
+
+def relabeled_inc(graph: Graph, increment: int = None) -> Graph:
+    """
+    Return the graph with each vertex label incremented by a given number.
+
+    Note that ``graph`` must have integer vertex labels.
+    """
+    if increment is None:
+        increment = graph.number_of_nodes()
+    return nx.relabel_nodes(graph, {i: i + increment for i in graph.nodes()}, copy=True)
 
 
 def test__add__():
@@ -1047,83 +1059,94 @@ def test_is_not_min_k_redundantly_rigid_d3(graph, k):
     assert not graph.is_min_k_redundantly_rigid(k, dim=3, algorithm="randomized")
 
 
-def test_rigid_components():
-    G = graphs.Path(6)
-    rigid_components = G.rigid_components(dim=1)
-    assert rigid_components[0] == [0, 1, 2, 3, 4, 5]
-    G.remove_edge(2, 3)
-    rigid_components = G.rigid_components(dim=1)
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2]),
-        frozenset([3, 4, 5]),
-    }
-
-    G = graphs.Path(5)
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert sorted([sorted(H) for H in rigid_components]) == [
-        [0, 1],
-        [1, 2],
-        [2, 3],
-        [3, 4],
-    ]
-
-    G = Graph(
+@pytest.mark.parametrize(
+    "graph, components, dim",
+    [
+        [graphs.Path(6), [[0, 1, 2, 3, 4, 5]], 1],
+        [graphs.Path(3) + relabeled_inc(graphs.Path(3), 3), [[0, 1, 2], [3, 4, 5]], 1],
+        [graphs.Path(5), [[i, i + 1] for i in range(4)], 2],
         [
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 4),
-            (4, 5),
-            (5, 0),
-            (0, 3),
-            (1, 4),
-            (2, 5),
-            (0, "a"),
-            (0, "b"),
-            ("a", "b"),
-        ]
-    )
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, "a", "b"]),
-        frozenset([0, 1, 2, 3, 4, 5]),
-    }
+            graphs.CompleteBipartite(3, 3) + Graph([(0, "a"), (0, "b"), ("a", "b")]),
+            [[0, "a", "b"], [0, 1, 2, 3, 4, 5]],
+            2,
+        ],
+        [graphs.Cycle(3) + relabeled_inc(graphs.Cycle(3)), [[0, 1, 2], [3, 4, 5]], 2],
+        [
+            graphs.Cycle(3) + relabeled_inc(graphs.Cycle(3), 2),
+            [[0, 1, 2], [2, 3, 4]],
+            2,
+        ],
+        [graphs.Complete(3) + Graph.from_vertices([3]), [[0, 1, 2], [3]], 2],
+        [graphs.ThreePrism(), [[i for i in range(6)]], 2],
+        [graphs.DoubleBanana(), [[0, 1, 2, 3, 4], [0, 1, 5, 6, 7]], 3],
+        [
+            graphs.Diamond() + relabeled_inc(graphs.Diamond()) + Graph([[2, 6]]),
+            [[0, 1, 2, 3], [4, 5, 6, 7], [2, 6]],
+            2,
+        ],
+        [
+            # graphs.ThreeConnectedR3Circuit with 0 removed
+            # and then each vertex label decreased by 1
+            Graph.from_int(64842845087398392615),
+            [[0, 1, 2, 3], [0, 9, 10, 11], [3, 4, 5, 6], [6, 7, 8, 9]],
+            2,
+        ],
+    ],
+)
+def test_rigid_components(graph, components, dim):
+    def to_sets(comps):
+        return set([frozenset(comp) for comp in comps])
 
-    G = Graph([(0, 1), (1, 2), (2, 0), (3, 4), (4, 5), (5, 3)])
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2]),
-        frozenset([3, 4, 5]),
-    }
+    comps_set = to_sets(components)
 
-    G = graphs.Complete(3)
-    G.add_vertex(3)
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2]),
-        frozenset([3]),
-    }
+    if dim == 1:
+        assert (
+            to_sets(graph.rigid_components(dim=dim, algorithm="graphic")) == comps_set
+        )
+    elif dim == 2:
+        assert to_sets(graph.rigid_components(dim=dim, algorithm="pebble")) == comps_set
+        if graph.number_of_nodes() <= 8:  # since it runs through all subgraphs
+            assert (
+                to_sets(graph.rigid_components(dim=dim, algorithm="subgraphs-pebble"))
+                == comps_set
+            )
 
-    G = graphs.ThreePrism()
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert len(rigid_components) == 1 and (rigid_components == [[0, 1, 2, 3, 4, 5]])
+    # randomized algorithm is tested for all dimensions for graphs
+    # with at most 8 vertices (since it runs through all subgraphs)
+    if graph.number_of_nodes() <= 8:
+        assert (
+            to_sets(graph.rigid_components(dim=dim, algorithm="randomized"))
+            == comps_set
+        )
 
-    G = graphs.ThreeConnectedR3Circuit()
-    G.remove_node(0)
-    rigid_components = G.rigid_components(algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([1, 2, 3, 4]),
-        frozenset([1, 10, 11, 12]),
-        frozenset([4, 5, 6, 7]),
-        frozenset([7, 8, 9, 10]),
-    }
 
-    G = graphs.DoubleBanana()
-    rigid_components = G.rigid_components(dim=3, algorithm="randomized")
-    assert {frozenset(H) for H in rigid_components} == {
-        frozenset([0, 1, 2, 3, 4]),
-        frozenset([0, 1, 5, 6, 7]),
-    }
+@pytest.mark.parametrize(
+    "graph",
+    [
+        Graph(nx.gnp_random_graph(20, 0.1)),
+        Graph(nx.gnm_random_graph(30, 62)),
+        pytest.param(Graph(nx.gnm_random_graph(25, 46)), marks=pytest.mark.slow_main),
+        pytest.param(Graph(nx.gnm_random_graph(40, 80)), marks=pytest.mark.slow_main),
+        pytest.param(Graph(nx.gnm_random_graph(100, 230)), marks=pytest.mark.slow_main),
+        pytest.param(Graph(nx.gnm_random_graph(100, 190)), marks=pytest.mark.slow_main),
+    ],
+)
+def test_rigid_components_pebble_random_graphs(graph):
+    rigid_components = graph.rigid_components(dim=2, algorithm="pebble")
+
+    # Check that all components are rigid
+    for c in rigid_components:
+        new_graph = graph.subgraph(c)
+        assert new_graph.is_rigid(dim=2, algorithm="sparsity")
+
+    # Check that vertex-pairs that are not in a component are not in a rigid component
+    # check every vertex pairs in the graph
+    for u, v in list(combinations(graph.nodes, 2)):
+        # if there is no component from rigid components that contains u and v together
+        # the edge u,v can be added
+        if not any([u in c and v in c for c in rigid_components]):
+            graph._build_pebble_digraph(2, 3)
+            assert graph._pebble_digraph.can_add_edge_between_vertices(u, v)
 
 
 def test__str__():
@@ -1620,7 +1643,7 @@ def test_all_extensions(graph, dim, sol):
         [graphs.Complete(2), 1],
         [graphs.Complete(1), 1],
         [graphs.CompleteMinusOne(5), 1],
-        [Graph.from_int(16350), 3],
+        pytest.param(Graph.from_int(16350), 3, marks=pytest.mark.slow_main),
         [graphs.CompleteMinusOne(5), 3],
     ],
 )
@@ -2503,7 +2526,8 @@ def test_is_not_Rd_circuit_d1(graph):
         graphs.ThreePrismPlusEdge(),
         graphs.K33plusEdge(),
         Graph([(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (3, 0), (3, 1), (2, 4)]),
-    ],
+    ]
+    + [graphs.Wheel(n) for n in range(3, 7)],
 )
 def test_is_Rd_circuit_d2(graph):
     assert graph.is_Rd_circuit(dim=2)
@@ -2577,7 +2601,7 @@ def test_is_not_Rd_circuit_d3(graph):
 )
 def test_is_Rd_closed(graph, dim):
     if dim <= 1:
-        assert graph.is_Rd_closed(dim=dim, algorithm="components")
+        assert graph.is_Rd_closed(dim=dim, algorithm="graphic")
         assert graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert graph.is_Rd_closed(dim=dim, algorithm="randomized")
@@ -2596,7 +2620,7 @@ def test_is_Rd_closed(graph, dim):
 )
 def test_is_not_Rd_closed(graph, dim):
     if dim <= 1:
-        assert not graph.is_Rd_closed(dim=dim, algorithm="components")
+        assert not graph.is_Rd_closed(dim=dim, algorithm="graphic")
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
     else:
         assert not graph.is_Rd_closed(dim=dim, algorithm="randomized")
@@ -2639,7 +2663,8 @@ def test_is_Rd_independent_d1(graph):
         graphs.Complete(5),
         graphs.CompleteBipartite(3, 4),
         graphs.K66MinusPerfectMatching(),
-    ],
+    ]
+    + [graphs.Wheel(n) for n in range(3, 8)],
 )
 def test_is_Rd_dependent_d2(graph):
     assert graph.is_Rd_dependent(dim=2)
@@ -2715,3 +2740,154 @@ def test_max_rigid_dimension_warning():
     G = graphs.K66MinusPerfectMatching()
     with pytest.warns(RandomizedAlgorithmWarning):
         G.max_rigid_dimension()
+
+
+def test_cone():
+    G = graphs.Complete(5).cone()
+    assert set(G.nodes) == set([0, 1, 2, 3, 4, 5]) and len(G.nodes) == 6
+    G = graphs.Complete(4).cone(vertex="a")
+    assert "a" in G.nodes
+    G = graphs.Cycle(4).cone()
+    assert G.number_of_nodes() == G.max_degree() + 1
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 0],
+        [graphs.Diamond(), 0],
+        [graphs.Complete(4), 0],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), 1],
+        [graphs.Complete(6), 2],
+        [graphs.Frustum(3), 0],
+        [graphs.ThreePrism(), 0],
+        [graphs.DoubleBanana(), 1],
+        [graphs.Octahedral(), 0],
+        [Graph.from_int(8191), 1],
+    ]
+    + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
+)
+def test_is_k_vertex_apex(graph, k):
+    assert graph.is_k_vertex_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Complete(5), 0],
+        [graphs.Complete(6), 1],
+        [graphs.DoubleBanana(), 0],
+    ]
+    + [[graphs.Wheel(n).cone(), 0] for n in range(3, 8)],
+)
+def test_is_not_k_vertex_apex(graph, k):
+    assert not graph.is_k_vertex_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 0],
+        [graphs.Diamond(), 0],
+        [graphs.Complete(4), 0],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), 1],
+        [graphs.Complete(6), 3],
+        [graphs.Frustum(3), 0],
+        [graphs.ThreePrism(), 0],
+        [graphs.DoubleBanana(), 2],
+        [graphs.Octahedral(), 0],
+        [Graph.from_int(16351), 1],
+    ]
+    + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
+)
+def test_is_k_edge_apex(graph, k):
+    assert graph.is_k_edge_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Complete(5), 0],
+        [graphs.Complete(6), 2],
+        [graphs.DoubleBanana(), 1],
+        [graphs.K66MinusPerfectMatching(), 0],
+    ]
+    + [[graphs.Wheel(n).cone(), 0] for n in range(3, 8)],
+)
+def test_is_not_k_edge_apex(graph, k):
+    assert not graph.is_k_edge_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 0],
+        [graphs.Diamond(), 0],
+        [graphs.Complete(4), 0],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), 1],
+        [graphs.Complete(6), 2],
+        [graphs.Frustum(3), 0],
+        [graphs.ThreePrism(), 0],
+        [graphs.DoubleBanana(), 3],
+        [graphs.Octahedral(), 0],
+        [Graph.from_int(8191), 2],
+    ]
+    + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
+)
+def test_is_critically_k_vertex_apex(graph, k):
+    assert graph.is_critically_k_vertex_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Complete(5), 0],
+        [graphs.Complete(6), 1],
+        [graphs.DoubleBanana(), 2],
+        [graphs.K66MinusPerfectMatching(), 0],
+        [Graph.from_int(8191), 1],
+    ]
+    + [[graphs.Wheel(n).cone(), 0] for n in range(3, 8)],
+)
+def test_is_not_critically_k_vertex_apex(graph, k):
+    assert not graph.is_critically_k_vertex_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Cycle(4), 0],
+        [graphs.Diamond(), 0],
+        [graphs.Complete(4), 0],
+        [Graph([(0, 1), (2, 3)]), 0],
+        [graphs.Complete(5), 1],
+        pytest.param(graphs.Complete(6), 7, marks=pytest.mark.slow_main),
+        [graphs.Frustum(3), 0],
+        [graphs.ThreePrism(), 0],
+        pytest.param(graphs.DoubleBanana(), 8, marks=pytest.mark.slow_main),
+        [graphs.Octahedral(), 0],
+        [Graph.from_int(112468), 1],
+        [Graph.from_int(481867), 2],
+    ]
+    + [[graphs.Wheel(n).cone(), 1 if n == 3 else 2 * n - 3] for n in range(3, 6)],
+)
+def test_is_critically_k_edge_apex(graph, k):
+    assert graph.is_critically_k_edge_apex(k)
+
+
+@pytest.mark.parametrize(
+    "graph, k",
+    [
+        [graphs.Complete(5), 0],
+        [graphs.Complete(6), 6],
+        [graphs.DoubleBanana(), 7],
+        [Graph.from_int(481867), 1],
+        [Graph.from_int(16351), 1],
+    ]
+    + [[graphs.Wheel(n).cone(), 0 if n == 3 else 2 * n - 4] for n in range(3, 6)],
+)
+def test_is_not_critically_k_edge_apex(graph, k):
+    assert not graph.is_critically_k_edge_apex(k)

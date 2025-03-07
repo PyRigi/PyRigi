@@ -45,16 +45,15 @@ def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> st
     Parameters
     ----------
     cls:
-        Represents the class.
+        A class.
     tabs:
-        Specifies the number of indentation levels that are applied to
-        the output.
+        The number of indentation levels that are applied to the output.
     cat_order:
         Optional list specifying the order in which categories appear
         in the output.
     include_all:
         Optional boolean determining whether methods without a specific category
-        should be included. Defaults to ``False``.
+        should be included.
     """
     if cat_order is None:
         cat_order = []
@@ -165,14 +164,14 @@ def is_zero_vector(
     vector:
         Vector that is checked.
     numerical:
-        If True, then the check is done only numerically with the given tolerance.
-        If False (default), the check is done symbolically, sympy is_zero is used.
+        If ``True``, then the check is done only numerically with the given tolerance.
+        If ``False`` (default), the check is done symbolically,
+        ``sympy`` attribute ``is_zero`` is used.
     tolerance:
         The tolerance that is used in the numerical check coordinate-wise.
     """
     if not isinstance(vector, Matrix):
         vector = point_to_vector(vector)
-
     if not numerical:
         return all([coord.is_zero for coord in vector])
     else:
@@ -183,21 +182,26 @@ def is_zero_vector(
                     0,
                     abs_tol=tolerance,
                 )
-                for coord in eval_sympy_vector(vector, tolerance=tolerance)
+                for coord in sympy_expr_to_float(vector, tolerance=tolerance)
             ]
         )
 
 
-def eval_sympy_vector(
-    vector: Sequence[Number] | Matrix, tolerance: float = 1e-9
-) -> list[float]:
+def sympy_expr_to_float(
+    expression: Sequence[Number] | Matrix | Number, tolerance: float = 1e-9
+) -> list[float] | float:
     """
-    Converts a sympy vector to a (numerical) list of floats.
+    Convert a sympy expression to (numerical) floats.
+
+    If the given ``expression`` is a ``Sequence`` of ``Numbers``or a ``Matrix``,
+    then each individual element is evaluated and a list of ``float`` is returned.
+    If the input is just a single sympy expression, it is evaluated and
+    returned as a ``float``.
 
     Parameters
     ----------
-    vector:
-        The sympy vector.
+    expression:
+        The sympy expression.
     tolerance:
         Intended level of numerical accuracy.
 
@@ -206,14 +210,25 @@ def eval_sympy_vector(
     The method :func:`.data_type.point_to_vector` is used to ensure that
     the input is consistent with the sympy format.
     """
-    return [
-        float(coord.evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))))
-        for coord in point_to_vector(vector)
-    ]
+    try:
+        if isinstance(expression, list | tuple | Matrix):
+            return [
+                float(
+                    sp.sympify(coord).evalf(
+                        int(round(2.5 * log10(tolerance ** (-1) + 1)))
+                    )
+                )
+                for coord in point_to_vector(expression)
+            ]
+        return float(
+            sp.sympify(expression).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
+        )
+    except sp.SympifyError:
+        raise ValueError(f"The expression `{expression}` could not be parsed by sympy.")
 
 
 def normalize_flex(
-    inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-12
+    inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-9
 ) -> InfFlex:
     """
     Divide a vector by its Euclidean norm.
@@ -223,14 +238,14 @@ def normalize_flex(
     inf_flex:
         The infinitesimal flex that is supposed to be normalized.
     numerical:
-        Determines whether a numerical or symbolic normalization is performed.
+        Boolean determining whether a numerical or symbolic normalization is performed.
     tolerance:
         Intended level of numerical accuracy.
     """
     if isinstance(inf_flex, dict):
         if numerical:
             _inf_flex = {
-                v: [float(sp.sympify(q).evalf(15)) for q in flex]
+                v: sympy_expr_to_float(flex, tolerance=tolerance)
                 for v, flex in inf_flex.items()
             }
             flex_norm = np.linalg.norm(sum(_inf_flex.values(), []))
@@ -245,7 +260,9 @@ def normalize_flex(
         return {v: tuple([q / flex_norm for q in flex]) for v, flex in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
         if numerical:
-            _inf_flex = [float(sp.sympify(flex).evalf(15)) for flex in inf_flex]
+            _inf_flex = [
+                sympy_expr_to_float(flex, tolerance=tolerance) for flex in inf_flex
+            ]
             flex_norm = np.linalg.norm(_inf_flex)
             if isclose(flex_norm, 0, abs_tol=tolerance):
                 raise ValueError("The norm of this flex is almost zero.")
@@ -267,14 +284,15 @@ def vector_distance_pointwise(
     Compute the Euclidean distance between two realizations or pointwise vectors.
 
     This method computes the Euclidean distance from the realization ``dict_1``
-    to ``dict2``. The keys of ``dict1`` and ``dict2`` must be the same.
+    to ``dict2`` considering them as vectors.
+    The keys of ``dict1`` and ``dict2`` must be the same.
 
     Parameters
     ----------
     dict1, dict2:
         The dictionaries that are used for the distance computation.
     numerical:
-        Determines whether a numerical or symbolic normalization is performed.
+        Boolean determining whether a numerical or symbolic normalization is performed.
     """
     if not set(dict1.keys()) == set(dict2.keys()) or not len(dict1) == len(dict2):
         raise ValueError("`dict1` and `dict2` are not based on the same vertex set.")

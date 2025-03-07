@@ -182,7 +182,7 @@ def Frustum(n: int) -> Graph:
 
 def K66MinusPerfectMatching():
     """
-    Return a complete bipartite graph minus a perfect matching.
+    Return the complete bipartite graph minus a perfect matching.
 
     A matching is formed by six non-incident edges.
     """
@@ -193,7 +193,9 @@ def K66MinusPerfectMatching():
 
 def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
-    Return a $C_n$-symmetric graph.
+    Return a $C_n$-symmetric 4-regular graph.
+
+    The value ``n`` must be even and at least 8.
 
     Definitions
     -----------
@@ -281,3 +283,13 @@ def ThreeConnectedR3Circuit():
             (11, 12),
         ]
     )
+
+
+def Wheel(k: int):
+    """
+    Create the wheel graph on n+1 vertices.
+    """
+    _input_check.integrality_and_range(k, "k", min_val=3)
+    G = Cycle(k)
+    G.add_edges([(i, k) for i in range(k)])
+    return G

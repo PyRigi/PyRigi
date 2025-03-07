@@ -29,7 +29,12 @@ from pyrigi.data_type import (
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
-from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
+from pyrigi.misc import (
+    point_to_vector,
+    normalize_flex,
+    vector_distance_pointwise,
+    sympy_expr_to_float,
+)
 from pyrigi.warning import NumericalAlgorithmWarning
 
 
@@ -40,7 +45,7 @@ class Motion(object):
 
     def __init__(self, graph: Graph, dim: int) -> None:
         """
-        Create an instance of a graph's motion.
+        Create an instance of a graph motion.
         """
 
         self._graph = graph
@@ -67,15 +72,16 @@ class Motion(object):
         padding: Number = 0.01,
     ) -> list[dict[Vertex, Point]]:
         """
-        Normalize a given list of realizations
-        so they fit exactly to the window with the given dimensions.
+        Normalize a given list of realizations.
+
+        The returned realizations fit exactly to the window with the given dimensions.
 
         Parameters
         ----------
         realizations:
             ``Sequence`` of realizations.
         x_width, y_width, z_width:
-            Widths of the underlying canvas.
+            Sizes of the underlying canvas.
         padding:
             Whitespace added on the boundaries of the canvas.
 
@@ -157,7 +163,7 @@ class Motion(object):
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
-            The ommited edges are given the value ``plot_style.edge_color``.
+            The omitted edges are given the value ``plot_style.edge_color``.
         duration:
             The duration of one period of the animation in seconds.
         """
@@ -312,13 +318,13 @@ class Motion(object):
         duration: float = 8,
         **kwargs,
     ) -> Any:
-        """
+        r"""
         Animate the continuous motion in 2D.
 
         See :class:`~.PlotStyle2D` for a list of possible visualization keywords.
         Not necessarily all of them apply (e.g. keywords related to infinitesimal
         flexes are ignored).
-        If the dimension of the motion is 1, then we embed it in R2.
+        If the dimension of the motion is 1, then we embed it in $\RR^2$.
 
         Parameters
         ----------
@@ -332,7 +338,7 @@ class Motion(object):
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
             or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
             values are lists of edges.
-            The ommited edges are given the value ``plot_style.edge_color``.
+            The omitted edges are given the value ``plot_style.edge_color``.
         duration:
             The duration of one period of the animation in seconds.
         """
@@ -593,7 +599,7 @@ class Motion(object):
         **kwargs,
     ) -> Any:
         """
-        Animates the continuous motion.
+        Animate the continuous motion.
 
         The motion can be animated only if its dimension is less than 3.
         This method calls :meth:`.Motion.animate2D`` or
@@ -608,8 +614,8 @@ class Motion(object):
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
         animation_format:
-            In 2 dimensions, the Literal ``animation_format`` can be set to determine,
-            whether the output is in the `.svg` format or in the `matplotlib` format.
+            In dimension two, the ``animation_format`` can be set to determine,
+            whether the output is in the ``.svg`` format or in the ``matplotlib`` format.
             The `"svg"` method is documented here: :meth:`~.Motion.animate2D_svg`.
             The method for `"matplotlib"` is documented here:
             :meth:`~.Motion.animate2D_plt`.
@@ -719,7 +725,7 @@ class ParametricMotion(Motion):
 
     def check_edge_lengths(self) -> bool:
         """
-        Check whether the saved motion preserves edge lengths.
+        Return whether the motion preserves the edge lengths.
         """
 
         for u, v in self._graph.edges:
@@ -740,17 +746,15 @@ class ParametricMotion(Motion):
             The parameter of the deformation path is substituted by ``value``.
         numerical:
             Boolean determining whether the sympy expressions are supposed to be
-            evaluated (``True``) or not (``False``).
+            evaluated to numerical (``True``) or not (``False``).
         """
 
         realization = {}
         for v in self._graph.nodes:
             if numerical:
-                _value = sp.sympify(value).evalf()
-                placement = (
-                    self._parametrization[v]
-                    .subs({self._parameter: float(_value)})
-                    .evalf()
+                _value = sympy_expr_to_float(value)
+                placement = sympy_expr_to_float(
+                    self._parametrization[v].subs({self._parameter: float(_value)})
                 )
             else:
                 placement = simplify(
@@ -780,8 +784,8 @@ class ParametricMotion(Motion):
             return realizations
 
         newinterval = [
-            sp.atan(self._interval[0]).evalf(),
-            sp.atan(self._interval[1]).evalf(),
+            sympy_expr_to_float(sp.atan(self._interval[0])),
+            sympy_expr_to_float(sp.atan(self._interval[1])),
         ]
         for i in np.linspace(newinterval[0], newinterval[1], number_of_samples):
             realizations.append(self.realization(f"tan({i})", numerical=True))
@@ -804,7 +808,7 @@ class ParametricMotion(Motion):
             animation. A higher value results in a smoother and more accurate
             representation of the motion, while a lower value can speed up rendering
             but may lead to a less precise or jerky animation. This parameter controls
-            the resolution of the animation's movement by setting the density of
+            the resolution of the animation movement by setting the density of
             sampled data points between keyframes or time steps.
         """
         lower, upper = self._interval
@@ -844,7 +848,7 @@ class ApproximateMotion(Motion):
     tolerance:
         Tolerance for the Newton iteration.
     fixed_pair:
-        Two vertices of the underlying graph that are fixed in the list of realizations.
+        Two vertices of the underlying graph that are fixed in each realization.
         By default, the first entry is pinned to the origin
         and the second is pinned to the ``x``-axis.
     fixed_direction:
@@ -944,17 +948,14 @@ class ApproximateMotion(Motion):
         pin_vertex: Vertex = None,
     ):
         """
-        Instantiates an ``ApproximateMotion`` from a ``Framework``.
+        Instantiate an ``ApproximateMotion`` from a graph with a realization.
         """
         if not len(realization) == G.number_of_nodes():
             raise ValueError(
                 "The realization does not contain the correct amount of vertices!"
             )
 
-        realization = {
-            v: [float(sp.sympify(coord).evalf()) for coord in pos]
-            for v, pos in realization.items()
-        }
+        realization = {v: sympy_expr_to_float(pos) for v, pos in realization.items()}
         realization_0 = realization[list(realization.keys())[0]]
         for v in G.nodes:
             if v not in realization:
@@ -991,7 +992,7 @@ class ApproximateMotion(Motion):
 
     def _compute_motion_samples(self, chosen_flex: int) -> None:
         """
-        Perform path-tracking to compute the attribute `motion_samples`.
+        Perform path-tracking to compute the attribute ``motion_samples``.
         """
         F = Framework(self._graph, self._starting_realization)
         cur_inf_flex = normalize_flex(
@@ -1143,7 +1144,8 @@ class ApproximateMotion(Motion):
         for realization in _realizations:
             if any([len(pos) not in [2, 3] for pos in realization.values()]):
                 raise ValueError(
-                    "This method is not implemented for dimensions other than 2 or 3."
+                    "This method ``_fix_edge`` is not implemented for "
+                    + "dimensions other than 2 or 3."
                 )
             if (
                 len(fixed_direction) not in [2, 3]
@@ -1175,7 +1177,7 @@ class ApproximateMotion(Motion):
         """
         Animate the approximate motion.
 
-        See the parent method :meth:`~.Motion.animate` for a list of possible keywords.
+        See the parent method :meth:`~.Motion.animate` for the list of possible keywords.
         """
         realizations = self.motion_samples
         return super().animate(
@@ -1190,7 +1192,7 @@ class ApproximateMotion(Motion):
         realization: dict[Vertex, Point],
     ) -> tuple[dict[Vertex, Point], InfFlex]:
         """
-        Computes a single Euler step.
+        Compute a single Euler step.
 
         This method returns the resulting configuration and the infinitesimal flex
         that was used in the computation as a tuple.
@@ -1237,7 +1239,7 @@ class ApproximateMotion(Motion):
 
     def _newton_steps(self, realization: dict[Vertex, Point]) -> dict[Vertex, Point]:
         """
-        Computes a sequence of Newton steps to return to the constraint variety.
+        Compute a sequence of Newton steps to return to the constraint variety.
 
         Notes
         -----
