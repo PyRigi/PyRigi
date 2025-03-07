@@ -47,7 +47,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Set the value K.
 
-        After doing so, the current directions of the edges are invalid.
+        After doing so, the directions of the edges may have to be recomputed.
 
         Parameters
         ----------
@@ -70,7 +70,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Set the value L.
 
-        After doing so, the current directions of the edges are invalid.
+        After doing so, the directions of the edges may have to be recomputed.
 
         Parameters
         ----------
@@ -83,7 +83,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Set K and L.
 
-        After doing so, the current directions of the edges are invalid.
+        After doing so, the directions of the edges may have to be recomputed.
 
         Parameters
         ----------
