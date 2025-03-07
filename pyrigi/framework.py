@@ -17,6 +17,7 @@ from __future__ import annotations
 import functools
 from copy import deepcopy
 from itertools import combinations
+from math import isclose
 from random import randrange
 from typing import Any
 
@@ -1944,7 +1945,9 @@ class Framework(object):
         return self.is_independent() and self.is_inf_rigid()
 
     @doc_category("Other")
-    def is_prestress_stable(self, numerical: bool = False) -> bool:
+    def is_prestress_stable(
+        self, numerical: bool = False, tolerance: float = 1e-9
+    ) -> bool:
         """
         Check whether the framework is prestress stable.
 
@@ -1957,6 +1960,9 @@ class Framework(object):
         numerical:
             If ``True``, numerical infinitesimal flexes and stresses
             are used in the check for prestress stability.
+        tolerance:
+            Numerical tolerance used for the check that something is
+            an approximate zero.
 
         Examples
         --------
@@ -1969,7 +1975,8 @@ class Framework(object):
         -----
         The implementation details are specified in
         the section on second-order rigiditiy.
-        This method only properly works for symbolic coordinates.
+        In case that ``numerical=False``, this method only
+        properly works for symbolic coordinates.
         """
         edges = self._graph.edge_list(as_tuples=True)
         stresses = [
@@ -2017,7 +2024,9 @@ class Framework(object):
                     )
                 )
             if numerical:
-                any([Q != 0 for Q in stress_energy_list])
+                return any(
+                    [not isclose(Q, 0, abs_tol=tolerance) for Q in stress_energy_list]
+                )
             return any([not sp.sympify(Q).is_zero for Q in stress_energy_list])
 
         if len(stresses) == 1:
@@ -2094,7 +2103,9 @@ class Framework(object):
         )
 
     @doc_category("Other")
-    def is_second_order_rigid(self, numerical: bool = False) -> bool:
+    def is_second_order_rigid(
+        self, numerical: bool = False, tolerance: float = 1e-9
+    ) -> bool:
         """
         Check whether the framework is second-order rigid.
 
@@ -2113,6 +2124,10 @@ class Framework(object):
         numerical:
             If ``True``, numerical infinitesimal flexes and stresses
             are used in the check for prestress stability.
+        tolerance:
+            Numerical tolerance used for the check that something is
+            an approximate zero.
+
 
         Examples
         --------
@@ -2125,7 +2140,8 @@ class Framework(object):
         -----
         The implementation details are specified in
         the section on second-order rigiditiy.
-        This method only properly works for symbolic coordinates.
+        In case that ``numerical=False``, this method only
+        properly works for symbolic coordinates.
         """
         stresses = self.stresses()
         inf_flexes = self.inf_flexes()
@@ -2134,7 +2150,7 @@ class Framework(object):
         if len(inf_flexes) == 0 or len(stresses) == 0:
             return False
         if len(stresses) == 1 or len(inf_flexes) == 1:
-            return self.is_prestress_stable(numerical=numerical)
+            return self.is_prestress_stable(numerical=numerical, tolerance=tolerance)
 
         raise ValueError("Second-order rigidity is not implemented for this framework.")
 
