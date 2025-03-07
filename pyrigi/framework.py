@@ -17,7 +17,7 @@ from __future__ import annotations
 import functools
 from copy import deepcopy
 from itertools import combinations
-from math import log10, isclose
+from math import isclose
 from random import randrange
 from typing import Any
 
