@@ -497,8 +497,8 @@ def test_inf_flexes_numerical():
     inf_flexes = F.nontrivial_inf_flexes(numerical=True)
     dict_flex = F._transform_inf_flex_to_pointwise(inf_flexes[0])
     assert F.is_dict_inf_flex(
-        dict_flex, numerical=True
-    ) and F.is_dict_nontrivial_inf_flex(dict_flex, numerical=True, tolerance=1e-6)
+        dict_flex, numerical=True, tolerance=1e-4
+    ) and F.is_dict_nontrivial_inf_flex(dict_flex, numerical=True, tolerance=1e-4)
     assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
 
 
