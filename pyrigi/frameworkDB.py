@@ -380,7 +380,7 @@ def CnSymmetricFourRegular(n: int = 8) -> Framework:
     )
 
 
-def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
+def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
     """
     Return a $C_n$-symmetric framework with a fixed vertex in the plane.
 
@@ -399,7 +399,7 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
             + "must have an even order of at least 8!"
         )
     return Framework(
-        graphs.CnSymmetricFourRegularWithFixedVertex(n),
+        graphs.CnSymmetricWithFixedVertex(n),
         {
             i: [
                 sp.cos(2 * i * sp.pi / n),

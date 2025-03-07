@@ -943,7 +943,7 @@ def test_is_not_k_redundantly_rigid_d2(graph, k):
     "graph, k",
     [
         [graphs.Cycle(14), 2],
-        [graphs.CnSymmetricFourRegularWithFixedVertex(14), 2],
+        [graphs.CnSymmetricWithFixedVertex(14), 2],
         [graphs.DoubleBanana(), 0],
         [graphs.DoubleBanana(), 1],
         [Graph.from_int(7679), 1],

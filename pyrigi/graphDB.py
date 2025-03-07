@@ -215,7 +215,7 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
     return G
 
 
-def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
+def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
     """
     Return a $C_n$-symmetric graph with a fixed vertex.
 

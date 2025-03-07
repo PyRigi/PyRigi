@@ -259,12 +259,12 @@ def test_CnSymmetricFourRegular():
     ) and all([F._graph.degree[v] == 4 for v in F._graph.nodes])
 
 
-def test_CnSymmetricFourRegularWithFixedVertex():
+def test_CnSymmetricWithFixedVertex():
     with pytest.raises(ValueError):
-        fws.CnSymmetricFourRegularWithFixedVertex(6)
-        fws.CnSymmetricFourRegularWithFixedVertex(9)
+        fws.CnSymmetricWithFixedVertex(6)
+        fws.CnSymmetricWithFixedVertex(9)
 
-    F = fws.CnSymmetricFourRegularWithFixedVertex(8)
+    F = fws.CnSymmetricWithFixedVertex(8)
     assert (
         F.dim() == 2
         and F._graph.number_of_nodes() == 17

@@ -720,10 +720,10 @@ class ParametricMotion(Motion):
 
         self._interval = interval
         self._parameter = symbols.pop()
-        if not self.check_edge_lengths():
+        if not self._input_check_edge_lengths():
             raise ValueError("The given motion does not preserve edge lengths!")
 
-    def check_edge_lengths(self) -> bool:
+    def _input_check_edge_lengths(self) -> bool:
         """
         Return whether the motion preserves the edge lengths.
         """
