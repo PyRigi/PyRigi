@@ -29,7 +29,12 @@ from pyrigi.data_type import (
 from pyrigi.graph import Graph
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
-from pyrigi.misc import point_to_vector, normalize_flex, vector_distance_pointwise
+from pyrigi.misc import (
+    point_to_vector,
+    normalize_flex,
+    vector_distance_pointwise,
+    sympy_expr_to_float,
+)
 
 
 class Motion(object):
@@ -337,7 +342,7 @@ class Motion(object):
         """
         if self._dim == 1:
             realizations = [
-                {v: [pos[0, 0], 0] for v, pos in realization.items()}
+                {v: [pos[0], 0] for v, pos in realization.items()}
                 for realization in realizations
             ]
         _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_plt")
@@ -501,7 +506,7 @@ class Motion(object):
         """
         if self._dim == 1:
             realizations = [
-                {v: [pos[0, 0], 0] for v, pos in realization.items()}
+                {v: [pos[0], 0] for v, pos in realization.items()}
                 for realization in realizations
             ]
         _input_check.dimension_for_algorithm(self._dim, [1, 2], "animate2D_svg")
@@ -745,11 +750,9 @@ class ParametricMotion(Motion):
         realization = {}
         for v in self._graph.nodes:
             if numerical:
-                _value = sp.sympify(value).evalf()
-                placement = (
-                    self._parametrization[v]
-                    .subs({self._parameter: float(_value)})
-                    .evalf()
+                _value = sympy_expr_to_float(value)
+                placement = sympy_expr_to_float(
+                    self._parametrization[v].subs({self._parameter: float(_value)})
                 )
             else:
                 placement = simplify(
@@ -779,8 +782,8 @@ class ParametricMotion(Motion):
             return realizations
 
         newinterval = [
-            sp.atan(self._interval[0]).evalf(),
-            sp.atan(self._interval[1]).evalf(),
+            sympy_expr_to_float(sp.atan(self._interval[0])),
+            sympy_expr_to_float(sp.atan(self._interval[1])),
         ]
         for i in np.linspace(newinterval[0], newinterval[1], number_of_samples):
             realizations.append(self.realization(f"tan({i})", numerical=True))
@@ -947,10 +950,7 @@ class ApproximateMotion(Motion):
                 "The realization does not contain the correct amount of vertices!"
             )
 
-        realization = {
-            v: [float(sp.sympify(coord).evalf()) for coord in pos]
-            for v, pos in realization.items()
-        }
+        realization = {v: sympy_expr_to_float(pos) for v, pos in realization.items()}
         realization_0 = realization[list(realization.keys())[0]]
         for v in G.nodes:
             if v not in realization:
@@ -1118,7 +1118,8 @@ class ApproximateMotion(Motion):
         for realization in _realizations:
             if any([len(pos) not in [2, 3] for pos in realization.values()]):
                 raise ValueError(
-                    "This method is not implemented for dimensions other than 2 or 3."
+                    "This method ``_fix_edge`` is not implemented for "
+                    + "dimensions other than 2 or 3."
                 )
             if (
                 len(fixed_direction) not in [2, 3]
