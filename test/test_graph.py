@@ -2504,7 +2504,7 @@ def test_is_not_Rd_circuit_d1(graph):
         graphs.K33plusEdge(),
         Graph([(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (3, 0), (3, 1), (2, 4)]),
     ]
-    + [graphs.Wheel(n) for n in range(3, 7)]
+    + [graphs.Wheel(n) for n in range(3, 7)],
 )
 def test_is_Rd_circuit_d2(graph):
     assert graph.is_Rd_circuit(dim=2)
@@ -2741,6 +2741,7 @@ def test_cone():
         [graphs.ThreePrism(), 0],
         [graphs.DoubleBanana(), 1],
         [graphs.Octahedral(), 0],
+        [Graph.from_int(8191), 1],
     ]
     + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
 )
@@ -2774,6 +2775,7 @@ def test_is_not_k_vertex_apex(graph, k):
         [graphs.ThreePrism(), 0],
         [graphs.DoubleBanana(), 2],
         [graphs.Octahedral(), 0],
+        [Graph.from_int(16351), 1],
     ]
     + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
 )
@@ -2808,6 +2810,7 @@ def test_is_not_k_edge_apex(graph, k):
         [graphs.ThreePrism(), 0],
         [graphs.DoubleBanana(), 3],
         [graphs.Octahedral(), 0],
+        [Graph.from_int(8191), 2],
     ]
     + [[graphs.Wheel(n).cone(), 1] for n in range(3, 8)],
 )
@@ -2822,6 +2825,7 @@ def test_is_critically_k_vertex_apex(graph, k):
         [graphs.Complete(6), 1],
         [graphs.DoubleBanana(), 2],
         [graphs.K66MinusPerfectMatching(), 0],
+        [Graph.from_int(8191), 1],
     ]
     + [[graphs.Wheel(n).cone(), 0] for n in range(3, 8)],
 )
@@ -2842,6 +2846,8 @@ def test_is_not_critically_k_vertex_apex(graph, k):
         [graphs.ThreePrism(), 0],
         pytest.param(graphs.DoubleBanana(), 8, marks=pytest.mark.slow_main),
         [graphs.Octahedral(), 0],
+        [Graph.from_int(112468), 1],
+        [Graph.from_int(481867), 2],
     ]
     + [[graphs.Wheel(n).cone(), 1 if n == 3 else 2 * n - 3] for n in range(3, 6)],
 )
@@ -2855,6 +2861,8 @@ def test_is_critically_k_edge_apex(graph, k):
         [graphs.Complete(5), 0],
         [graphs.Complete(6), 6],
         [graphs.DoubleBanana(), 7],
+        [Graph.from_int(481867), 1],
+        [Graph.from_int(16351), 1],
     ]
     + [[graphs.Wheel(n).cone(), 0 if n == 3 else 2 * n - 4] for n in range(3, 6)],
 )
