@@ -239,6 +239,20 @@ def test_ApproximateMotion_from_framework():
             sample, numerical=True, tolerance=1e-3
         ) and not F.is_congruent_realization(sample, numerical=True)
 
+    F = fws.ThreePrism("flexible")
+    M = ApproximateMotion(F, 10, 0.1, fixed_pair=(0, 1))
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+
+    F = fws.Cycle(5)
+    M = ApproximateMotion(F, 10, 0.1, fixed_pair=(0, 1))
+    for sample in M.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+
     # 1D Framework
     G = Graph([(0, 1), (2, 3)])
     F = Framework(G, {0: [0], 1: [1], 2: [2], 3: [3]})
@@ -259,9 +273,7 @@ def test_normalize_realizations():
                 np.linalg.norm(
                     [
                         v - w
-                        for v, w in zip(
-                            r[0], [0.5865084834138097, 0.010000000000002604]
-                        )
+                        for v, w in zip(r[0], [0.5954750846569365, 0.15661445793796835])
                     ]
                 ),
                 0,
@@ -271,9 +283,7 @@ def test_normalize_realizations():
                 np.linalg.norm(
                     [
                         v - w
-                        for v, w in zip(
-                            r[1], [2.0098612795397743, 0.010000000000002604]
-                        )
+                        for v, w in zip(r[1], [2.0099998003349073, 0.15661445793796835])
                     ]
                 ),
                 0,
@@ -281,7 +291,7 @@ def test_normalize_realizations():
             )
             and isclose(
                 np.linalg.norm([v - w for v, w in zip(r[1], r[2])]),
-                2.012924828323006,
+                2,
                 abs_tol=1e-2,
             )
             and np.linalg.norm(r[2][0]) <= 2.02

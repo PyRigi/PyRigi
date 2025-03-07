@@ -3,6 +3,7 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import pytest
 from sympy import Matrix, pi, sqrt, sympify
+import numpy as np
 
 import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
@@ -462,6 +463,43 @@ def test_inf_flexes():
     dict_flex = F._transform_inf_flex_to_pointwise(inf_flexes[0])
     assert F.is_dict_inf_flex(dict_flex) and F.is_dict_nontrivial_inf_flex(dict_flex)
     assert Matrix.hstack(*inf_flexes).rank() == 1
+
+
+def test_inf_flexes_numerical():
+    F = fws.ThreePrism(realization="flexible")
+    C = Framework(graphs.Complete(6), realization=F.realization())
+    QF = np.hstack(F.nontrivial_inf_flexes(numerical=True))
+    QC = C.nontrivial_inf_flexes(numerical=True)
+    assert np.linalg.matrix_rank(QF) == 1 and len(QC) == 0
+
+    F = fws.Path(4)
+    for inf_flex in F.nontrivial_inf_flexes(numerical=True):
+        dict_flex = F._transform_inf_flex_to_pointwise(inf_flex)
+        assert F.is_dict_inf_flex(
+            dict_flex, numerical=True
+        ) and F.is_dict_nontrivial_inf_flex(dict_flex, numerical=True)
+    assert (
+        np.linalg.matrix_rank(np.vstack(tuple(F.nontrivial_inf_flexes(numerical=True))))
+        == 2
+    )
+
+    F = fws.Frustum(4)
+    QF = np.vstack(tuple(F.inf_flexes(include_trivial=True, numerical=True)))
+    assert np.linalg.matrix_rank(QF) == 5
+    QF = np.vstack(tuple(F.inf_flexes(include_trivial=False, numerical=True)))
+    assert np.linalg.matrix_rank(QF) == 2
+
+    F = fws.Complete(5)
+    F_all = F.inf_flexes(include_trivial=True, numerical=True)
+    assert len(F_all) == 10
+
+    F = Framework.Random(graphs.DoubleBanana(), dim=3)
+    inf_flexes = F.nontrivial_inf_flexes(numerical=True)
+    dict_flex = F._transform_inf_flex_to_pointwise(inf_flexes[0])
+    assert F.is_dict_inf_flex(
+        dict_flex, numerical=True
+    ) and F.is_dict_nontrivial_inf_flex(dict_flex, numerical=True, tolerance=1e-6)
+    assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
 
 
 def test_is_vector_inf_flex():

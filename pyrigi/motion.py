@@ -6,8 +6,8 @@ import os
 from copy import deepcopy
 from math import isclose
 from typing import Any, Literal
-from warnings import warn
-
+from collections.abc import Callable
+import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
@@ -35,6 +35,7 @@ from pyrigi.misc import (
     vector_distance_pointwise,
     sympy_expr_to_float,
 )
+from pyrigi.warning import NumericalAlgorithmWarning
 
 
 class Motion(object):
@@ -844,13 +845,8 @@ class ApproximateMotion(Motion):
     chosen_flex:
         An integer indicating the ``i``-th flex from the list of :meth:`Framework.inf_flexes`
         for ``i=chosen_flex``.
-    turning_threshold:
-        Determines when the reflected infinitesimal flex at position ``chosen_flex``
-        is taken instead of the regular one. To decide this, the distance from the
-        previous Euler step is calculated using the Euclidean norm. If the current
-        distance is at least ``turning_threshold`` times as large as the distance
-        of the negative infinitesimal flex, then the latter one is chosen instead.
-        If instead the animation is too slow, consider increasing this value.
+    tolerance:
+        Tolerance for the Newton iteration.
     fixed_pair:
         Two vertices of the underlying graph that are fixed in each realization.
         By default, the first entry is pinned to the origin
@@ -891,13 +887,15 @@ class ApproximateMotion(Motion):
     10 retraction steps and initial step size 0.1.
     """  # noqa: E501
 
+    silence_numerical_alg_warns = False
+
     def __init__(
         self,
         F: Framework,
         steps: int,
         step_size: float = 0.1,
         chosen_flex: int = 0,
-        turning_threshold: float = 1.5,
+        tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
@@ -906,14 +904,20 @@ class ApproximateMotion(Motion):
         Create an instance of `ApproximateMotion`.
         """
         super().__init__(F.graph(), F.dim())
+        self._warn_numerical_alg(self.__init__)
+        self._stress_length = len(F.stresses())
         self._starting_realization = F.realization(as_points=True, numerical=True)
+        self.tolerance = tolerance
         self.steps = steps
         self.chosen_flex = chosen_flex
         self.step_size = step_size
         self._current_step_size = step_size
         self.edge_lengths = F.edge_lengths(numerical=True)
-        self._compute_motion_samples(chosen_flex, turning_threshold)
+        self._compute_motion_samples(chosen_flex)
         if fixed_pair is not None:
+            _input_check.dimension_for_algorithm(
+                self._dim, [2], "ApproximateMotion._fix_edge"
+            )
             if fixed_direction is None:
                 fixed_direction = [1] + [0 for _ in range(self._dim - 1)]
             if len(fixed_direction) != self._dim:
@@ -938,7 +942,7 @@ class ApproximateMotion(Motion):
         steps: int,
         step_size: float = 0.1,
         chosen_flex: int = 0,
-        turning_threshold: float = 1.5,
+        tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
@@ -967,21 +971,34 @@ class ApproximateMotion(Motion):
             steps,
             step_size=step_size,
             chosen_flex=chosen_flex,
-            turning_threshold=turning_threshold,
+            tolerance=tolerance,
             fixed_pair=fixed_pair,
             fixed_direction=fixed_direction,
             pin_vertex=pin_vertex,
         )
 
-    def _compute_motion_samples(
-        self, chosen_flex: int, turning_threshold: float
-    ) -> None:
+    @classmethod
+    def _warn_numerical_alg(cls, method: Callable):
+        """
+        Raise a warning if a numerical algorithm is silently called.
+
+        Parameters
+        ----------
+        method:
+            Reference to the method that is called.
+        """
+        if not cls.silence_numerical_alg_warns:
+            warnings.warn(NumericalAlgorithmWarning(method, class_off=cls))
+
+    def _compute_motion_samples(self, chosen_flex: int) -> None:
         """
         Perform path-tracking to compute the attribute ``motion_samples``.
         """
         F = Framework(self._graph, self._starting_realization)
         cur_inf_flex = normalize_flex(
-            F._transform_inf_flex_to_pointwise(F.inf_flexes()[chosen_flex]),
+            F._transform_inf_flex_to_pointwise(
+                F.inf_flexes(numerical=True, tolerance=self.tolerance)[chosen_flex]
+            ),
             numerical=True,
         )
 
@@ -993,10 +1010,18 @@ class ApproximateMotion(Motion):
         step_size_rescaling = 2
         jump_indicator = [False, False]
         while i < self.steps:
-            euler_step, cur_inf_flex = self._euler_step(
-                cur_inf_flex, cur_sol, turning_threshold
-            )
-            cur_sol = self._newton_steps(euler_step)
+            euler_step, cur_inf_flex = self._euler_step(cur_inf_flex, cur_sol)
+            try:
+                cur_sol = self._newton_steps(euler_step)
+                self._current_step_size = self.step_size
+            except RuntimeError:
+                self._current_step_size = self._current_step_size / step_size_rescaling
+                if self._current_step_size < self.step_size / 10:
+                    raise RuntimeError(
+                        "Newton's method did not converge. Potentially the "
+                        + "given framework is not flexible?"
+                    )
+                continue
             self.motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
@@ -1100,7 +1125,7 @@ class ApproximateMotion(Motion):
                 x - y for x, y in zip(_realizations[0][v1], _realizations[0][v2])
             ]
             if np.isclose(np.linalg.norm(fixed_direction), 0, rtol=1e-6):
-                warn(
+                warnings.warn(
                     f"The entries of the edge {fixed_pair} are too close to each "
                     + "other. Thus, `fixed_direction=(1,0)` is chosen instead."
                 )
@@ -1128,20 +1153,16 @@ class ApproximateMotion(Motion):
             ):
                 raise ValueError("`fixed_direction` does not have the correct format.")
 
-            v_dist = np.linalg.norm(realization[v2])
-            theta = np.arccos(
-                np.dot([v_dist * t for t in fixed_direction], realization[v2])
-                / v_dist**2
-            )
+            # Compute the signed angle `theta` between the `fixed_direction` and the
+            # vector `realization[v2]`
+            theta = np.arctan2(
+                [fixed_direction[1], realization[v2][1]],
+                [fixed_direction[0], realization[v2][0]],
+            )[1]
 
-            if realization[v2][0] * realization[v2][1] < 0:
-                rotation_matrix = np.array(
-                    [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
-                )
-            else:
-                rotation_matrix = np.array(
-                    [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
-                )
+            rotation_matrix = np.array(
+                [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
+            )
             # Rotate the realization to the `fixed_direction`.
             _realization = {
                 v: np.dot(rotation_matrix, pos) for v, pos in realization.items()
@@ -1169,39 +1190,52 @@ class ApproximateMotion(Motion):
         self,
         old_inf_flex: InfFlex,
         realization: dict[Vertex, Point],
-        turning_threshold: float,
     ) -> tuple[dict[Vertex, Point], InfFlex]:
         """
         Compute a single Euler step.
 
         This method returns the resulting configuration and the infinitesimal flex
         that was used in the computation as a tuple.
+
+        Notes
+        -----
+        Choose the (normalized) infinitesimal flex with the smallest distance from the
+        previous infinitesimal flex ``old_inf_flex``. This is given by computing the
+        Moore-Penrose pseudoinverse.
+
+        Suggested Improvements
+        ----------------------
+        * Add vector transport to ``old_inf_flex`` to more accurately compare the vectors.
+        * Search the space of `inf_flexes` using a Least Squares approach rather than
+        just searching a basis
         """
         F = Framework(self._graph, realization)
-        inf_flex = normalize_flex(
-            F._transform_inf_flex_to_pointwise(F.inf_flexes()[self.chosen_flex]),
-            numerical=True,
-        )
-        reflected_inf_flex = {v: [-q for q in flex] for v, flex in inf_flex.items()}
 
-        if vector_distance_pointwise(
-            inf_flex, old_inf_flex, numerical=True
-        ) > turning_threshold * vector_distance_pointwise(
-            reflected_inf_flex,
-            old_inf_flex,
-            numerical=True,
-        ):
-            inf_flex = reflected_inf_flex
+        inf_flex_space = np.vstack(
+            F.inf_flexes(numerical=True, tolerance=self.tolerance)
+        )
+        old_inf_flex_matrix = np.reshape(
+            sum([list(pos) for pos in old_inf_flex.values()], []), (-1, 1)
+        )
+        flex_coefficients = np.dot(
+            np.linalg.pinv(inf_flex_space).transpose(), old_inf_flex_matrix
+        )
+        predicted_inf_flex = sum(
+            np.dot(inf_flex_space.transpose(), flex_coefficients).tolist(), []
+        )
+        predicted_inf_flex = normalize_flex(
+            F._transform_inf_flex_to_pointwise(predicted_inf_flex), numerical=True
+        )
         realization = self.motion_samples[-1]
         return {
             v: tuple(
                 [
-                    pos[i] + self._current_step_size * inf_flex[v][i]
+                    pos[i] + self._current_step_size * predicted_inf_flex[v][i]
                     for i in range(len(realization[v]))
                 ]
             )
             for v, pos in realization.items()
-        }, inf_flex
+        }, predicted_inf_flex
 
     def _newton_steps(self, realization: dict[Vertex, Point]) -> dict[Vertex, Point]:
         """
@@ -1232,8 +1266,11 @@ class ApproximateMotion(Motion):
                 for e, length in F.edge_lengths(numerical=True).items()
             ]
         )
-        damping = 5e-2
-        while not cur_error < 1e-4:
+        damping = 1e-1
+        rand_mat = np.random.rand(
+            F._graph.number_of_edges() - self._stress_length, F._graph.number_of_edges()
+        )
+        while not cur_error < self.tolerance:
             rigidity_matrix = np.array(F.rigidity_matrix()).astype(np.float64)
             equations = [
                 np.linalg.norm(
@@ -1248,7 +1285,12 @@ class ApproximateMotion(Motion):
                 - length
                 for e, length in self.edge_lengths.items()
             ]
+
+            if self._stress_length > 0:
+                equations = np.dot(rand_mat, equations)
+                rigidity_matrix = np.dot(rand_mat, rigidity_matrix)
             newton_step = np.dot(np.linalg.pinv(rigidity_matrix), equations)
+
             cur_sol = [
                 cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
             ]
