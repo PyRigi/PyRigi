@@ -996,7 +996,7 @@ class ApproximateMotion(Motion):
         """
         F = Framework(self._graph, self._starting_realization)
         inf_flexes = F.inf_flexes(numerical=True, tolerance=self.tolerance)
-        _input_check._check_integrality_and_range(
+        _input_check.integrality_and_range(
             chosen_flex, "chosen_flex", max_val=len(inf_flexes)
         )
         cur_inf_flex = normalize_flex(
