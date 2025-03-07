@@ -125,7 +125,7 @@ Graph.from_adjacency_matrix(Matrix([
 
 PyRigi comes with a graph drawer that lets the user input a graph by specifying the vertices
 (via a click). The edges can be added by dragging the mouse cursor from the head vertex and 
-releasing the click on the tail vertex. Doing so will create an undirected edge.
+releasing the click on the tail vertex. Doing so creates an undirected edge.
 
 ```{code-cell} ipython3
 from pyrigi import GraphDrawer

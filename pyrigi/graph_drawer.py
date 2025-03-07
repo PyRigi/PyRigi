@@ -62,7 +62,7 @@ class GraphDrawer(object):
         The default is ``spring``.
         If ``graph`` is ``None`` or empty, this parameter has no effect.
     place:
-        The part of the canvas that will be used for drawing ``graph``.
+        The part of the canvas that is used for drawing ``graph``.
         Options are ``all`` (default, use all canvas), ``E`` (use the east part),
         ``W`` (use the west part), ``N`` (use the north part), ``S`` (use the south part),
         and also ``NE``, ``NW``, ``SE`` and ``SW``.
@@ -741,7 +741,7 @@ class GraphDrawer(object):
         for v in self._graph.nodes:
             # i below is the index of the layer to be used.
             # draw ``vertex`` on layer 3 and other vertices on layer 2
-            # so that moving ``vertex`` will show up above others.
+            # so that moving ``vertex`` shows up above others.
             if vertex == v:
                 i = 3
             else:
