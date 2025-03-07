@@ -258,7 +258,7 @@ def test_ApproximateMotion_from_graph(F):
     for sample in M1.motion_samples[1:]:
         assert F.is_equivalent_realization(
             sample, numerical=True, tolerance=1e-3
-        ) and not F.is_congruent_realization(sample, numerical=True)
+        ) and not F.is_congruent_realization(sample, numerical=True, tolerance=1e-3)
 
     try:
         M2 = ApproximateMotion.from_graph(
@@ -272,7 +272,7 @@ def test_ApproximateMotion_from_graph(F):
         for sample in M2.motion_samples[1:]:
             assert F.is_equivalent_realization(
                 sample, numerical=True, tolerance=1e-3
-            ) and not F.is_congruent_realization(sample, numerical=True)
+            ) and not F.is_congruent_realization(sample, numerical=True, tolerance=1e-3)
     except ValueError:
         assert F._dim == 1
 
