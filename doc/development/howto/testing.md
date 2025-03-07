@@ -26,7 +26,7 @@ Therefore, before opening a pull request we **strongly advise** to run
 ```
 pytest
 ```
-in the root folder of PyRigi (with Poetry environment activated).
+in the root folder of PyRigi (with Poetry environment [activated](dependencies)).
 The reason why the examples in the docstrings are tested is to make sure their outputs are valid,
 they do **not** replace the tests in the `test` folder.
 If you do not want to run doctests, run
