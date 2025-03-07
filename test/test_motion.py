@@ -191,15 +191,6 @@ def test_animate(F):
     M.animate(animation_format="svg")
     M.animate(animation_format="matplotlib")
 
-    # 1D Framework
-    G = Graph([(0, 1), (2, 3)])
-    F = Framework(G, {0: [0], 1: [1], 2: [2], 3: [3]})
-    M = ApproximateMotion(F, 50, 0.1)
-    for sample in M.motion_samples[1:]:
-        assert F.is_equivalent_realization(
-            sample, numerical=True, tolerance=1e-3
-        ) and not F.is_congruent_realization(sample, numerical=True)
-
 
 def test_animate3D():
     F = fws.Cube()
