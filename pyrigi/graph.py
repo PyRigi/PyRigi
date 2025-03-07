@@ -811,12 +811,12 @@ class Graph(nx.Graph):
         Parameters
         ----------
         vertices:
-            A new vertex will be connected to these vertices.
+            A new vertex is connected to these vertices.
             All the vertices must be contained in the graph
             and there must be ``dim`` of them.
         new_vertex:
-            Newly added vertex will be named according to this parameter.
-            If ``None``, the name will be set as the lowest possible integer value
+            Newly added vertex is named according to this parameter.
+            If ``None``, the name is set as the lowest possible integer value
             greater or equal than the number of nodes.
         dim:
             The dimension in which the 0-extension is created.
@@ -863,15 +863,15 @@ class Graph(nx.Graph):
         Parameters
         ----------
         vertices:
-            A new vertex will be connected to these vertices.
+            A new vertex is connected to these vertices.
             All the vertices must be contained in the graph
             and there must be ``dim + 1`` of them.
         edge:
-            An edge with endvertices from the list ``vertices`` that will be deleted.
+            An edge with endvertices from the list ``vertices`` that is deleted.
             The edge must be contained in the graph.
         new_vertex:
-            Newly added vertex will be named according to this parameter.
-            If ``None``, the name will be set as the lowest possible integer value
+            Newly added vertex is named according to this parameter.
+            If ``None``, the name is set as the lowest possible integer value
             greater or equal than the number of nodes.
         dim:
             The dimension in which the 1-extension is created.
@@ -926,17 +926,17 @@ class Graph(nx.Graph):
         ----------
         k
         vertices:
-            A new vertex will be connected to these vertices.
+            A new vertex is connected to these vertices.
             All the vertices must be contained in the graph
             and there must be ``dim + k`` of them.
         edges:
-            A list of edges that will be deleted.
+            A list of edges that are deleted.
             The endvertices of all the edges must be contained
             in the list ``vertices``.
             The edges must be contained in the graph and there must be ``k`` of them.
         new_vertex:
-            Newly added vertex will be named according to this parameter.
-            If ``None``, the name will be set as the lowest possible integer value
+            Newly added vertex is named according to this parameter.
+            If ``None``, the name is set as the lowest possible integer value
             greater or equal than the number of nodes.
         dim:
             The dimension in which the ``k``-extension is created.

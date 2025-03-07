@@ -47,7 +47,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Set the value K.
 
-        This will invalidate the current directions of the edges.
+        After doing so, the current directions of the edges are invalid.
 
         Parameters
         ----------
@@ -70,7 +70,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Set the value L.
 
-        This will invalidate the current directions of the edges.
+        After doing so, the current directions of the edges are invalid.
 
         Parameters
         ----------
@@ -83,7 +83,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Set K and L.
 
-        This will invalidate the current directions of the edges.
+        After doing so, the current directions of the edges are invalid.
 
         Parameters
         ----------
@@ -130,9 +130,11 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        edge: DirectedEdge to redirect.
-        vertex_to: Vertex to which the edge will point to.
-                 Vertex must be part of the edge.
+        edge:
+            DirectedEdge to redirect.
+        vertex_to:
+            A vertex to which the edge should point to.
+            The vertex must be part of the edge.
         """
         if self.has_node(vertex_to) and vertex_to in edge:
             tail = edge[0]
@@ -159,7 +161,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
             Return whether any of these has outdegree < self._K
             and the set of reachable vertices.
-            It will also turn edges around by this path.
+            It also turns edges around by this path.
 
             Parameters
             ----------
@@ -222,7 +224,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
             # not found_from_u and not found_from_v
             # so we reached the maximal extent of the reachable points
-            # which will be the fundamental circuit
+            # which is the fundamental circuit
             break
 
         can_add_edge = (
@@ -246,7 +248,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Add an edge to the pebble digraph if it is possible
         and choose the correct orientation.
-        This will also check the possibility of adding the edge and return
+        This also checks the possibility of adding the edge and return
         ``True`` or ``False`` depending on it.
         """
         # if the vertex u is not present (yet), then it has outdegree 0

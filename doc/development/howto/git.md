@@ -19,7 +19,7 @@ These are the tasks to be performed:
 by the maintainers, who may ask some other collaborator to serve as reviewer to ensure that the coding
 standards and other requirements are satisfied. In a review, Alice and Bob will get comments about specific
 pieces of code or other further suggestions. Once they think that they have adequately
-adressed a comment, Alica and Bob can use a tick in the Github GUI (`:white_check_mark:`✅ or
+addressed a comment, Alica and Bob can use a tick in the GitHub GUI (`:white_check_mark:`✅ or
 `:heavy_check_mark:`✔️ ) to indicate that. If the reviewer agrees, they will resolve the comment. 
 4. Once the pull request is approved, a maintainer merges `feature-X` into `dev` and during the next version release
 cycle, it will be merged into `main`, making the code available through the `pip` installation of PyRigi.
