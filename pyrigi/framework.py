@@ -71,8 +71,8 @@ class Framework(object):
     graph:
         A graph without loops.
     realization:
-        A dictionary mapping the vertices of the graph to points in $R^d$.
-        The dimension ``d`` is retrieved from the points in realization.
+        A dictionary mapping the vertices of the graph to points in $\RR^d$.
+        The dimension $d$ is retrieved from the points in realization.
         If ``graph`` is empty, and hence also the ``realization``,
         the dimension is set to 0 (:meth:`Framework.Empty`
         can be used to construct an empty framework with different dimension).
@@ -92,12 +92,12 @@ class Framework(object):
     [1],
     [2]])
 
+    METHODS
+
     Notes
     -----
     Internally, the realization is represented as ``dict[Vertex,Matrix]``.
     However, :meth:`~Framework.realization` can also return ``dict[Vertex,Point]``.
-
-    METHODS
     """
 
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
@@ -140,8 +140,7 @@ class Framework(object):
 
     def __getitem__(self, vertex: Vertex) -> Matrix:
         """
-        Return the coordinates corresponding to the image
-        of a given vertex under the realization map.
+        Return the coordinates of a given vertex in the realization.
 
         Examples
         --------
@@ -168,15 +167,15 @@ class Framework(object):
         """
         Add a vertex to the framework with the corresponding coordinates.
 
-        If no vertex is provided (``None``), then the smallest,
-        free integer is chosen instead.
+        If no vertex is provided (``None``),
+        then an integer is chosen instead.
 
         Parameters
         ----------
         point:
-            the realization of the new vertex
+            The realization of the new vertex.
         vertex:
-            the label of the new vertex
+            The label of the new vertex.
 
         Examples
         --------
@@ -213,9 +212,9 @@ class Framework(object):
             List of points consisting of coordinates in $\RR^d$. It is checked
             that all points lie in the same ambient space.
         vertices:
-            List of vertices. If the list of vertices is empty, we generate a
-            vertex that is not yet taken with the method :meth:`add_vertex`.
-            Else, the list of vertices needs to have the same length as the
+            List of vertices. If the list of vertices is empty, we generate
+            vertices with the method :meth:`add_vertex`.
+            Otherwise, the list of vertices needs to have the same length as the
             list of points.
 
         Examples
@@ -301,9 +300,9 @@ class Framework(object):
         **kwargs,
     ) -> None:
         """
-        Plot this framework in 2D.
+        Plot the framework in 2D.
 
-        If this framework is in dimensions higher than 2 and ``projection_matrix``
+        If the framework is in dimensions higher than 2 and ``projection_matrix``
         with ``coordinates`` are ``None``, a random projection matrix
         containing two orthonormal vectors is generated and used for projection into 2D.
         For various formatting options, see :meth:`.PlotStyle`.
@@ -315,8 +314,8 @@ class Framework(object):
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`PlotStyle` for more details.
         projection_matrix:
-            The matrix used for projecting the placement of vertices
-            only when they are in dimension higher than 2.
+            The matrix used for projecting the realization
+            when the dimension is greater than 2.
             The matrix must have dimensions ``(2, dim)``,
             where ``dim`` is the dimension of the framework.
             If ``None``, a random projection matrix is generated.
@@ -330,8 +329,8 @@ class Framework(object):
             :meth:`~.Framework.inf_flexes`. Alternatively, an ``int`` can be specified
             to directly choose the 0,1,2,...-th nontrivial infinitesimal flex (according
             to the method :meth:`~.Framework.nontrivial_inf_flexes`) for plotting.
-            For these input types, is important to use the same vertex order as the one
-            from :meth:`.Graph.vertex_list`.
+            For these input types, it is important to use the same vertex order
+            as the one from :meth:`.Graph.vertex_list`.
             If the vertex order needs to be specified, a
             ``dict[Vertex, Sequence[Number]]`` can be provided, which maps the
             vertex labels to vectors (i.e. a sequence of coordinates).
@@ -341,7 +340,7 @@ class Framework(object):
             :meth:`~.Framework.stresses`. Alternatively, an ``int`` can be specified
             to directly choose the 0,1,2,...-th equilibrium stress (according
             to the method :meth:`~.Framework.stresses`) for plotting.
-            For these input types, is important to use the same edge order as the one
+            For these input types, it is important to use the same edge order as the one
             from :meth:`.Graph.edge_list`.
             If the edge order needs to be specified, a ``Dict[Edge, Number]``
             can be provided, which maps the edges to numbers
@@ -371,23 +370,29 @@ class Framework(object):
         >>> F.plot2D(plot_style=style)
 
         Use keyword arguments
+
         >>> F.plot2D(vertex_color="red", edge_color="black", vertex_size=500)
 
         Specify stress and its labels positions
+
         >>> stress_label_positions = {(0, 1): 0.7, (1, 2): 0.2}
         >>> F.plot2D(stress=0, stress_label_positions=stress_label_positions)
 
         Specify infinitesimal flex
+
         >>> F.plot2D(inf_flex=0)
 
         Use both stress and infinitesimal flex
+
         >>> F.plot2D(stress=0, inf_flex=0)
 
         Use custom edge colors
+
         >>> edge_colors = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
         >>> F.plot2D(edge_colors_custom=edge_colors)
 
         The following is just to close all figures after running the example:
+
         >>> import matplotlib.pyplot
         >>> matplotlib.pyplot.close("all")
         """
@@ -489,8 +494,8 @@ class Framework(object):
             Delay between frames in milliseconds.
         rotation_axis:
             The user can input a rotation axis or vector. By default, a rotation around
-            the z-axis is performed. This can either be done in the form of a char
-            ('x', 'y', 'z') or as a vector (e.g. [1, 0, 0]).
+            the z-axis is performed. This can either a character
+            (``'x'``, ``'y'``, or ``'z'``) or a vector (e.g. ``[1, 0, 0]``).
 
         Examples
         --------
@@ -631,9 +636,9 @@ class Framework(object):
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`PlotStyle` for more details.
         projection_matrix:
-            The matrix used for projecting the placement of vertices
-            only when they are in dimension higher than 2.
-            The matrix must have dimensions ``(2, dim)``,
+            The matrix used for projecting the realization
+            when the dimension is greater than 3.
+            The matrix must have dimensions ``(3, dim)``,
             where ``dim`` is the dimension of the framework.
             If ``None``, a random projection matrix is generated.
         random_seed:
@@ -684,23 +689,29 @@ class Framework(object):
         >>> F.plot3D(plot_style=style)
 
         Use keyword arguments
+
         >>> F.plot3D(vertex_color="red", edge_color="black", vertex_size=500)
 
         Specify stress and its positions
+
         >>> stress_label_positions = {(0, 2): 0.7, (1, 2): 0.2}
         >>> F.plot3D(stress=0, stress_label_positions=stress_label_positions)
 
         Specify infinitesimal flex
+
         >>> F.plot3D(inf_flex=0)
 
         Use both stress and infinitesimal flex
+
         >>> F.plot3D(stress=0, inf_flex=0)
 
         Use custom edge colors
+
         >>> edge_colors = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
         >>> F.plot3D(edge_colors_custom=edge_colors)
 
         The following is just to close all figures after running the example:
+
         >>> import matplotlib.pyplot
         >>> matplotlib.pyplot.close("all")
         """
@@ -814,8 +825,8 @@ class Framework(object):
     ) -> str:
         r"""
         Create a TikZ code for the framework.
-        Works for dimension 2 only.
 
+        The framework must have dimension 2.
         For using it in ``LaTeX`` you need to use the ``tikz`` package.
 
         Parameters
@@ -950,14 +961,14 @@ class Framework(object):
         cls, graph: Graph, dim: int = 2, rand_range: int | Sequence[int] = None
     ) -> Framework:
         """
-        Return a framework with random realization.
+        Return a framework with random realization with integral coordinates.
 
         Parameters
         ----------
         dim:
             The dimension of the constructed framework.
         graph:
-            Graph on which the random realization should be constructed.
+            Graph for which the random realization should be constructed.
         rand_range:
             Sets the range of random numbers from which the realization is
             sampled. The format is either an interval ``(a,b)`` or a single
@@ -974,7 +985,7 @@ class Framework(object):
         Notes
         -----
         If ``rand_range=None``, then the range is set to ``(-a,a)`` for
-        ``a = 10^4 * n * d``.
+        ``a = 10^4 * n * dim``, where ``n`` is the number of vertices.
         """
         _input_check.dimension(dim)
         if rand_range is None:
@@ -1029,12 +1040,12 @@ class Framework(object):
     @doc_category("Class methods")
     def Collinear(cls, graph: Graph, dim: int = 1) -> Framework:
         """
-        Return the framework with a realization on the x-axis in the d-dimensional space.
+        Return the framework with a realization on the x-axis.
 
         Parameters
         ----------
         dim:
-            The dimension of the constructed framework.
+            The dimension of the space in which the framework is constructed.
         graph:
             Underlying graph on which the framework is constructed.
 
@@ -1059,7 +1070,7 @@ class Framework(object):
     @doc_category("Class methods")
     def Simplicial(cls, graph: Graph, dim: int = None) -> Framework:
         """
-        Return the framework with a realization on the d-simplex.
+        Return the framework with a realization on the ``dim``-simplex.
 
         Parameters
         ----------
@@ -1101,8 +1112,8 @@ class Framework(object):
         Parameters
         ----------
         dim:
-            a natural number that determines the dimension
-            in which the framework is realized
+            A natural number that determines the dimension
+            in which the framework is realized.
 
         Examples
         ----
@@ -1184,8 +1195,9 @@ class Framework(object):
         Parameters
         ----------
         as_points:
-            If ``True``, then the vertex positions type is Point,
-            otherwise Matrix (default).
+            If ``True``, then the vertex positions type is
+            :obj:`pyrigi.data_type.Point`,
+            otherwise :obj:`Matrix <~sympy.matrices.dense.MutableDenseMatrix>` (default).
         numerical:
             If ``True``, the vertex positions are converted to floats.
 
@@ -1202,11 +1214,6 @@ class Framework(object):
         [0]]), 2: Matrix([
         [1],
         [1]])}
-
-        Notes
-        -----
-        The format returned by this method with ``as_points=True``
-        can be read by networkx.
         """
         if not numerical:
             if not as_points:
@@ -1257,9 +1264,9 @@ class Framework(object):
 
         Parameters
         ----------
-        numerical
+        numerical:
             Whether the check is symbolic (default) or numerical.
-        tolerance
+        tolerance:
             Used tolerance when checking numerically.
 
         Notes
@@ -1278,28 +1285,28 @@ class Framework(object):
     @doc_category("Framework manipulation")
     def set_realization(self, realization: dict[Vertex, Point]) -> None:
         r"""
-        Change the realization of the framework.
+        Change the :prf:ref:`realization <def-realization>` of the framework.
 
         Parameters
         ----------
         realization:
-            a realization of the underlying graph of the framework
+            A realization of the underlying graph of the framework.
+            It must contain all vertices from the underlying graph.
+            Furthermore, all points in the realization need
+            to be contained in $\RR^d$ for $d$ being
+            the current dimension of the framework.
 
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
-        >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertex_list()})
+        >>> F.set_realization(
+        ...     {vertex: (vertex, vertex + 1) for vertex in F.graph().vertex_list()}
+        ... )
         >>> print(F)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 1), 1:(1, 2), 2:(2, 3)}
-
-        Notes
-        -----
-        It is assumed that the realization contains all vertices from the
-        underlying graph. Furthermore, all points in the realization need
-        to be contained in $\RR^d$ for a fixed $d$.
-        """  # noqa: E501
+        """
         if not len(realization) == self._graph.number_of_nodes():
             raise IndexError(
                 "The realization does not contain the correct amount of vertices!"
@@ -1314,6 +1321,13 @@ class Framework(object):
     def set_vertex_pos(self, vertex: Vertex, point: Point) -> None:
         """
         Change the coordinates of a single given vertex.
+
+        Parameters
+        ----------
+        vertex:
+            A vertex whose position is changed.
+        point:
+            A new position of the ``vertex``.
 
         Examples
         --------
@@ -1336,21 +1350,19 @@ class Framework(object):
         """
         Change the coordinates of a given list of vertices.
 
+        It is necessary that both lists have the same length.
+        No vertex from ``vertices`` can be contained multiple times.
+        We apply the method :meth:`~Framework.set_vertex_positions`
+        to the corresponding pairs of ``vertices`` and ``points``.
+
         Examples
-        ----
+        --------
         >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
         >>> F.set_vertex_positions_from_lists([1,3], [(0,1),(1,1)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
-
-        Notes
-        -----
-        It is necessary that both lists have the same length.
-        No vertex from ``vertices`` can be contained multiple times.
-        We apply the method :meth:`~Framework.set_vertex_pos`
-        to ``vertices`` and ``points``.
         """
         if len(list(set(vertices))) != len(list(vertices)):
             raise ValueError("Multiple Vertices with the same name were found!")
@@ -1367,17 +1379,13 @@ class Framework(object):
         Change the coordinates of vertices given by a dictionary.
 
         Examples
-        ----
+        --------
         >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 0], 2: [1, 0], 3: [1, 0]}
         >>> F.set_vertex_positions({1:(0,1),3:(1,1)})
         >>> F.realization(as_points=True)
         {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]}
-
-        Notes
-        -----
-        See :meth:`~Framework.set_vertex_pos`.
         """
         for v, pos in subset_of_realization.items():
             self.set_vertex_pos(v, pos)
@@ -1453,7 +1461,7 @@ class Framework(object):
         Parameters
         ----------
         dict_stress:
-            Dictionary that maps the edge labels to coordinates.
+            Dictionary that maps the edges to stress values.
 
         Examples
         --------
@@ -1563,9 +1571,7 @@ class Framework(object):
         vertex_order: Sequence[Vertex] = None,
     ) -> Matrix:
         r"""
-        Construct the stress matrix from a stress of from its support.
-
-        The matrix order is the one from :meth:`~.Framework.vertex_list`.
+        Construct the stress matrix of a stress.
 
         Definitions
         -----
@@ -1574,13 +1580,13 @@ class Framework(object):
         Parameters
         ----------
         stress:
-            A stress of the framework.
+            A stress of the framework given as a vector.
         edge_order:
-            A list of edges, providing the ordering for the rows
-            of the stress matrix.
+            A list of edges, providing the ordering of edges in ``stress``.
+            If ``None``, :meth:`~Graph.edge_list` is assumed.
         vertex_order:
-            By listing vertices in the preferred order, the rigidity matrix
-            can be computed in a way the user expects.
+            Specification of row/column order of the stress matrix.
+            If ``None``, :meth:`~Graph.vertex_list` is assumed.
 
         Examples
         --------
@@ -1691,7 +1697,7 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
+            If ``None``, the list from :meth:`~Graph.vertex_list` is taken.
 
         Examples
         --------
@@ -1711,10 +1717,6 @@ class Framework(object):
         [         0],
         [         0],
         [         0]])]
-
-        Notes
-        -----
-        See :meth:`~Framework.trivial_inf_flexes`.
         """
         return self.inf_flexes(include_trivial=False, vertex_order=vertex_order)
 
@@ -1730,7 +1732,6 @@ class Framework(object):
         modulo trivial infinitesimal flexes, if ``include_trivial=False``.
         Return a basis of the vector space of infinitesimal flexes
         if ``include_trivial=True``.
-        Else, return the entire kernel.
 
         Definitions
         -----------
@@ -1740,7 +1741,7 @@ class Framework(object):
         ----------
         include_trivial:
             Boolean that decides, whether the trivial flexes should
-            be included (``True``) or not (``False``)
+            be included.
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
@@ -1760,7 +1761,10 @@ class Framework(object):
         [0],
         [0],
         [0]])]
-        >>> F = Framework(Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]), {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]})
+        >>> F = Framework(
+        ...     Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]),
+        ...     {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]},
+        ... )
         >>> F.inf_flexes()
         [Matrix([
         [0],
@@ -1773,7 +1777,7 @@ class Framework(object):
         [0],
         [0],
         [0]])]
-        """  # noqa: E501
+        """
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         if include_trivial:
             return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
@@ -1824,10 +1828,14 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
         """
-        Compute the rank of the rigidity matrix.
+        Return the rank of the rigidity matrix.
+
+        Definitions
+        -----------
+        * :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
 
         Examples
-        ----
+        --------
         >>> K4 = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
         >>> K4.rigidity_matrix_rank()   # the complete graph is a circuit
         5
@@ -1843,16 +1851,16 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_inf_rigid(self) -> bool:
         """
-        Check whether the given framework is infinitesimally rigid.
+        Return whether the framework is infinitesimally rigid.
 
         The check is based on :meth:`~Framework.rigidity_matrix_rank`.
 
         Definitions
-        -----
+        -----------
         * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
 
         Examples
-        ----
+        --------
         >>> from pyrigi import frameworkDB
         >>> F1 = frameworkDB.CompleteBipartite(4,4)
         >>> F1.is_inf_rigid()
@@ -1875,16 +1883,18 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_inf_flexible(self) -> bool:
         """
-        Check whether the given framework is infinitesimally flexible.
+        Return whether the framework is infinitesimally flexible.
 
-        See :meth:`~Framework.is_inf_rigid`
+        Definitions
+        -----------
+        * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
         return not self.is_inf_rigid()
 
     @doc_category("Infinitesimal rigidity")
     def is_min_inf_rigid(self) -> bool:
         """
-        Check whether a framework is minimally infinitesimally rigid.
+        Return whether the framework is minimally infinitesimally rigid.
 
         Definitions
         -----
@@ -1912,7 +1922,11 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_independent(self) -> bool:
         """
-        Check whether the framework is :prf:ref:`independent <def-independent-framework>`.
+        Return whether the framework is independent.
+
+        Definitions
+        -----------
+        :prf:ref:`Independent framework <def-independent-framework>`
 
         Examples
         --------
@@ -1928,10 +1942,8 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_dependent(self) -> bool:
         """
-        Check whether the framework is :prf:ref:`dependent <def-independent-framework>`.
+        Return whether the framework is :prf:ref:`dependent <def-independent-framework>`.
 
-        Notes
-        -----
         See also :meth:`~.Framework.is_independent`.
         """
         return not self.is_independent()
@@ -1939,8 +1951,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_isostatic(self) -> bool:
         """
-        Check whether the framework is :prf:ref:`independent <def-independent-framework>`
-        and :prf:ref:`infinitesimally rigid <def-inf-rigid-framework>`.
+        Return whether the framework is :prf:ref:`isostatic <def-isostatic-frameworks>`.
         """
         return self.is_independent() and self.is_inf_rigid()
 
@@ -1949,7 +1960,7 @@ class Framework(object):
         self, numerical: bool = False, tolerance: float = 1e-9
     ) -> bool:
         """
-        Check whether the framework is prestress stable.
+        Return whether the framework is prestress stable.
 
         Definitions
         ----------
@@ -2059,9 +2070,7 @@ class Framework(object):
                 for i in range(len(inf_flexes))
                 for j in range(i, len(inf_flexes))
             }
-            """
-            We then apply the SONC criterion.
-            """
+            #  We then apply the SONC criterion.
             if numerical:
                 return all(
                     [
@@ -2107,7 +2116,7 @@ class Framework(object):
         self, numerical: bool = False, tolerance: float = 1e-9
     ) -> bool:
         """
-        Check whether the framework is second-order rigid.
+        Return whether the framework is second-order rigid.
 
         Checking second-order-rigidity for a general framework is computationally hard.
         If there is only one stress or only one infinitesimal flex, second-order rigidity
@@ -2157,7 +2166,7 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
         """
-        Check if the framework is infinitesimally redundantly rigid.
+        Return if the framework is infinitesimally redundantly rigid.
 
         Definitions
         -----------
@@ -2191,6 +2200,10 @@ class Framework(object):
     ) -> bool:
         """
         Return whether the given realization is congruent to self.
+
+        Definitions
+        -----------
+        :prf:ref:`Congruent frameworks <def-equivalent-framework>`
 
         Parameters
         ----------
@@ -2236,6 +2249,10 @@ class Framework(object):
         """
         Return whether the given framework is congruent to self.
 
+        Definitions
+        -----------
+        :prf:ref:`Congruent frameworks <def-equivalent-framework>`
+
         Parameters
         ----------
         other_framework
@@ -2261,6 +2278,10 @@ class Framework(object):
     ) -> bool:
         """
         Return whether the given realization is equivalent to self.
+
+        Definitions
+        -----------
+        :prf:ref:`Equivalent frameworks <def-equivalent-framework>`
 
         Parameters
         ----------
@@ -2306,6 +2327,10 @@ class Framework(object):
         """
         Return whether the given framework is equivalent to self.
 
+        Definitions
+        -----------
+        :prf:ref:`Equivalent frameworks <def-equivalent-framework>`
+
         Parameters
         ----------
         other_framework
@@ -2334,7 +2359,7 @@ class Framework(object):
         vector
             Translation vector
         inplace
-            If True (default), then this framework is translated.
+            If ``True`` (default), then this framework is translated.
             Otherwise, a new translated framework is returned.
         """
         vector = point_to_vector(vector)
@@ -2363,7 +2388,7 @@ class Framework(object):
         factor:
             Scaling factor
         inplace:
-            If True (default), then this framework is translated.
+            If ``True`` (default), then this framework is translated.
             Otherwise, a new translated framework is returned.
         """
         if isinstance(factor, str):
@@ -2380,14 +2405,14 @@ class Framework(object):
     @doc_category("Framework manipulation")
     def rotate2D(self, angle: float, inplace: bool = True) -> None | Framework:
         """
-        Rotate the planar framework counter clockwise.
+        Rotate the planar framework counterclockwise.
 
         Parameters
         ----------
-        angle
+        angle:
             Rotation angle
-        inplace
-            If True (default), then this framework is rotated.
+        inplace:
+            If ``True`` (default), then this framework is rotated.
             Otherwise, a new rotated framework is returned.
         """
 
@@ -2550,21 +2575,21 @@ class Framework(object):
         """
         Generate an STL file for a bar.
 
-        The method uses Trimesh and Manifold3d packages to create a model of a bar
-        with two holes at the ends.
-        The method returns the bar as a Trimesh object and saves it as a STL file.
+        The method uses ``Trimesh`` and ``Manifold3d`` packages to create
+        a model of a bar with two holes at the ends.
+        The method returns the bar as a ``Trimesh`` object and saves it as an STL file.
 
         Parameters
         ----------
-        holes_distance : float
+        holes_distance:
             Distance between the centers of the holes.
-        holes_diameter : float
+        holes_diameter:
             Diameter of the holes.
-        bar_width : float
+        bar_width:
             Width of the bar.
-        bar_height : float
+        bar_height:
             Height of the bar.
-        filename : str
+        filename:
             Name of the output STL file.
         """
         try:
@@ -2635,21 +2660,21 @@ class Framework(object):
 
         The STL files are generated in the working folder.
         The naming convention for the files is ``bar_i-j.stl``,
-        where i and j are the vertices of an edge.
+        where ``i`` and ``j`` are the vertices of an edge.
 
         Parameters
         ----------
-        scale
+        scale:
             Scale factor for the lengths of the edges, default is 1.0.
-        width_of_bars
+        width_of_bars:
             Width of the bars, default is 8.0 mm.
-        height_of_bars
+        height_of_bars:
             Height of the bars, default is 3.0 mm.
-        holes_diameter
+        holes_diameter:
             Diameter of the holes at the ends of the bars, default is 4.3 mm.
-        filename_prefix
+        filename_prefix:
             Prefix for the filenames of the generated STL files, default is ``bar_``.
-        output_dir
+        output_dir:
             Name or path of the folder where the STL files are saved,
             default is ``stl_output``. Relative to the working directory.
 
@@ -2698,13 +2723,13 @@ class Framework(object):
     ) -> dict[Vertex, list[Number]]:
         r"""
         Transform the natural data type of a flex (``Matrix``) to a
-        dictionary that maps a vertex to a Sequence of coordinates
+        dictionary that maps a vertex to a ``Sequence`` of coordinates
         (i.e. a vector).
 
         Parameters
         ----------
         inf_flex:
-            An infinitesimal flex in the form of a `Matrix`.
+            An infinitesimal flex in the form of a ``Matrix``.
         vertex_order:
             If ``None``, the :meth:`.Graph.vertex_list`
             is taken as the vertex order.
@@ -2738,7 +2763,7 @@ class Framework(object):
         Parameters
         ----------
         stress:
-            An equilibrium stress in the form of a `Matrix`.
+            An equilibrium stress in the form of a ``Matrix``.
         edge_order:
             If ``None``, the :meth:`.Graph.edge_list`
             is taken as the edge order.
@@ -2782,8 +2807,8 @@ class Framework(object):
             A list of vertices specifying the order in which ``inf_flex`` is given.
             If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
         numerical:
-            A Boolean determining whether the evaluation of the product of the `inf_flex`
-            and the rigidity matrix is symbolic or numerical.
+            A Boolean determining whether the evaluation of the product of
+            the ``inf_flex`` and the rigidity matrix is symbolic or numerical.
         tolerance:
             Absolute tolerance that is the threshold for acceptable numerical flexes.
             This parameter is used to determine the number of digits, to which
@@ -2940,6 +2965,9 @@ class Framework(object):
         r"""
         Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
 
+        See :meth:`Framework.is_vector_nontrivial_inf_flex` for details,
+        particularly concerning the possible parameters.
+
         Definitions
         -----------
         :prf:ref:`Nontrivial infinitesimal Flex <def-trivial-inf-flex>`
@@ -2959,11 +2987,6 @@ class Framework(object):
         >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
         >>> F.is_dict_nontrivial_inf_flex(q)
         False
-
-        Notes
-        -----
-        See :meth:`Framework.is_vector_nontrivial_inf_flex` for details,
-        particularly concerning the possible parameters.
         """
         self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
@@ -3008,6 +3031,9 @@ class Framework(object):
         r"""
         Return whether an infinitesimal flex is trivial.
 
+        See also :meth:`Framework.is_nontrivial_vector_inf_flex` for details,
+        particularly concerning the possible parameters.
+
         Definitions
         -----------
         :prf:ref:`Trivial infinitesimal Flex <def-trivial-inf-flex>`
@@ -3027,11 +3053,6 @@ class Framework(object):
         >>> q = [1,-1,1,1,-1,1,-1,-1]
         >>> F.is_vector_trivial_inf_flex(q)
         True
-
-        Notes
-        -----
-        See :meth:`Framework.is_nontrivial_vector_inf_flex` for details,
-        particularly concerning the possible parameters.
         """
         if not self.is_vector_inf_flex(inf_flex, **kwargs):
             return False
@@ -3043,6 +3064,9 @@ class Framework(object):
     ) -> bool:
         r"""
         Return whether an infinitesimal flex specified by a dictionary is trivial.
+
+        See :meth:`Framework.is_vector_trivial_inf_flex` for details,
+        particularly concerning the possible parameters.
 
         Definitions
         -----------
@@ -3063,11 +3087,6 @@ class Framework(object):
         >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
         >>> F.is_dict_trivial_inf_flex(q)
         True
-
-        Notes
-        -----
-        See :meth:`Framework.is_vector_trivial_inf_flex` for details,
-        particularly concerning the possible parameters.
         """
         self._graph._input_check_vertex_order(list(inf_flex.keys()), "vert_to_flex")
 

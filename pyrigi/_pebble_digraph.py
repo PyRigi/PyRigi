@@ -51,7 +51,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        value: value K must be integer and 0 < K. Also, L < 2K.
+        value: value K must be an integer and 0 < K. Also, L < 2K.
         """
         _input_check.pebble_values(value, self._L)
         self._K = value
@@ -142,8 +142,9 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:
         """
-        Return the fundamental (k, l)-matroid cycle of the edge uv.
-        If the edge uv is independent, return None.
+        Return the fundamental (k, l)-matroid circuit of the edge uv.
+
+        If the edge uv is independent, ``None`` is returned.
         """
 
         def dfs(
@@ -162,10 +163,14 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
             Parameters
             ----------
-            vertex: Vertex, starting position of the dfs
-            visited: set of Vertex. Contains the vertices already reached.
-            edge_path: list of DirectedEdge. Contains the used edges in the transversal.
-            current_edge: DirectedEdge. The edge through we reached this vertex.
+            vertex:
+                Starting position of the dfs
+            visited:
+                Already reached vertices.
+            edge_path:
+                The edges used in the transversal.
+            current_edge:
+                The edge through we reached this vertex.
             """
             visited.add(vertex)
             if current_edge:
@@ -269,8 +274,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         Run ``add_edge_maintaining_digraph`` for each edge in the list.
 
-        ! Note that this might not add all the edges, only the edges that
-        ! take part of the maximal sparse subgraph
+        Note that this might not add all the edges, only the edges that
+        take part of the maximal sparse subgraph.
         """
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
