@@ -81,9 +81,9 @@ def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
 
     Examples
     --------
-    >>> DoubleBanana()
+    >>> print(DoubleBanana())
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [2, 3], [2, 4], [3, 4], [5, 6], [5, 7], [6, 7]]
-    >>> DoubleBanana(dim = 4)
+    >>> print(DoubleBanana(dim = 4))
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]]
     """  # noqa: E501
     _input_check.greater_equal(dim, 3, "dimension")

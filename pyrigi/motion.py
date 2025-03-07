@@ -52,16 +52,24 @@ class Motion(object):
         self._dim = dim
 
     def __str__(self) -> str:
+        """Return the string representation"""
         return f"{self.__class__.__name__} of a " + self._graph.__str__()
 
     def __repr__(self) -> str:
-        return self.__str__()
+        """Return a representation"""
+        return f"Motion({self.graph().__repr__()}, {self.dim()})"
 
     def graph(self) -> Graph:
         """
         Return a copy of the underlying graph.
         """
         return deepcopy(self._graph)
+
+    def dim(self) -> int:
+        """
+        Return the dimension of the motion.
+        """
+        return self._dim
 
     @staticmethod
     def _normalize_realizations(
@@ -670,7 +678,7 @@ class ParametricMotion(Motion):
     ...     },
     ...     [-sp.oo, sp.oo],
     ... )
-    >>> motion
+    >>> print(motion)
     ParametricMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with motion defined for every vertex:
     0: Matrix([[0], [0]])
     1: Matrix([[1], [0]])
@@ -679,7 +687,7 @@ class ParametricMotion(Motion):
     """  # noqa: E501
 
     def __init__(
-        self, graph: Graph, motion: dict[Vertex, Point], interval: tuple
+        self, graph: Graph, motion: dict[Vertex, Point], interval: tuple[Number]
     ) -> None:
         """
         Create an instance of ``ParametricMotion``.
@@ -723,6 +731,16 @@ class ParametricMotion(Motion):
         if not self.check_edge_lengths():
             raise ValueError("The given motion does not preserve edge lengths!")
 
+    def interval(self) -> tuple[Number]:
+        """Return the underlying interval of the ParametricMotion."""
+        return self._interval
+
+    def parametrization(self, as_points: bool = False) -> dict[Vertex, Point]:
+        """Return a parametrization of the ParametricMotion."""
+        if not as_points:
+            return deepcopy(self._parametrization)
+        return {v: list(pos) for v, pos in self._parametrization.items()}
+
     def check_edge_lengths(self) -> bool:
         """
         Return whether the motion preserves the edge lengths.
@@ -764,10 +782,17 @@ class ParametricMotion(Motion):
         return realization
 
     def __str__(self) -> str:
+        """Return the string representation."""
         res = super().__str__() + " with motion defined for every vertex:"
         for vertex, param in self._parametrization.items():
             res = res + "\n" + str(vertex) + ": " + str(param)
         return res
+
+    def __repr__(self) -> str:
+        """Return a representation"""
+        o_str = f"ParametricMotion({self.graph().__repr__()}, "
+        o_str += f"{self.parametrization(as_points=True)}, {self.interval()})"
+        return o_str
 
     def _realization_sampling(
         self, number_of_samples: int, use_tan: bool = False
@@ -874,14 +899,14 @@ class ApproximateMotion(Motion):
     ...     {0:(0,0), 1:(1,0), 2:(1,1), 3:(0,1)},
     ...     10
     ... )
-    >>> motion
+    >>> print(motion)
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
     10 retraction steps and initial step size 0.1.
 
     >>> F = Framework(graphs.Cycle(4), {0:(0,0), 1:(1,0), 2:(1,1), 3:(0,1)})
     >>> motion = ApproximateMotion(F, 10)
-    >>> motion
+    >>> print(motion)
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
     10 retraction steps and initial step size 0.1.
@@ -1323,8 +1348,20 @@ class ApproximateMotion(Motion):
         }
 
     def __str__(self) -> str:
+        """Return the string representation"""
         res = super().__str__() + " with starting configuration\n"
         res += str(self.motion_samples[0]) + ",\n"
         res += str(self.steps) + " retraction steps and initial step size "
         res += str(self.step_size) + "."
         return res
+
+    def __repr__(self) -> str:
+        """Return a representation"""
+        o_str = f"ApproximateMotion.from_graph({self.graph().__repr__()}, "
+        o_str += f"{self._starting_realization}, {self.steps}, "
+        o_str += f"step_size={self.step_size}, chosen_flex={self.chosen_flex}, "
+        o_str += f"tolerance={self.tolerance}, fixed_pair={self.fixed_pair}, "
+        o_str += (
+            f"fixed_direction={self.fixed_direction}, pin_vertex={self.pin_vertex})"
+        )
+        return o_str

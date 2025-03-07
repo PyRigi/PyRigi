@@ -81,7 +81,7 @@ class Framework(object):
     Examples
     --------
     >>> F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
-    >>> F
+    >>> print(F)
     Framework in 2-dimensional space consisting of:
     Graph with vertices [0, 1] and edges [[0, 1]]
     Realization {0:(1, 2), 1:(0, 5)}
@@ -136,8 +136,10 @@ class Framework(object):
         )
 
     def __repr__(self) -> str:
-        """Return the representation"""
-        return self.__str__()
+        """Return a representation"""
+        return (
+            f"Framework({self.graph().__repr__()}, {self.realization(as_points=True)})"
+        )
 
     def __getitem__(self, vertex: Vertex) -> Matrix:
         """
@@ -183,7 +185,7 @@ class Framework(object):
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertex((1.5,2), 'a')
         >>> F.add_vertex((3,1))
-        >>> F
+        >>> print(F)
         Framework in 2-dimensional space consisting of:
         Graph with vertices ['a', 1] and edges []
         Realization {a:(1.50000000000000, 2), 1:(3, 1)}
@@ -281,7 +283,7 @@ class Framework(object):
         Examples
         ----
         >>> F = Framework.Random(Graph([(0,1), (1,2), (0,2)]))
-        >>> F.graph()
+        >>> print(F.graph())
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         """
         return deepcopy(self._graph)
@@ -1053,7 +1055,7 @@ class Framework(object):
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
-        >>> Framework.Collinear(graphs.Complete(3), dim=2)
+        >>> print(Framework.Collinear(graphs.Complete(3), dim=2))
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 0), 1:(1, 0), 2:(2, 0)}
@@ -1118,7 +1120,7 @@ class Framework(object):
 
         Examples
         ----
-        >>> F = Framework.Empty(dim=1); F
+        >>> F = Framework.Empty(dim=1); print(F)
         Framework in 1-dimensional space consisting of:
         Graph with vertices [] and edges []
         Realization {}
@@ -1145,7 +1147,7 @@ class Framework(object):
 
         Examples
         --------
-        >>> F = Framework.Complete([(1,),(2,),(3,),(4,)]); F
+        >>> F = Framework.Complete([(1,),(2,),(3,),(4,)]); print(F)
         Framework in 1-dimensional space consisting of:
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
         Realization {0:(1,), 1:(2,), 2:(3,), 3:(4,)}
