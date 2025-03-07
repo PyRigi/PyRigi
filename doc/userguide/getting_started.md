@@ -17,16 +17,14 @@ Jupyter notebook version of this page can be downloaded {download}`here <../note
 
 ## Installation
 
-We have not reached a stable version yet,
-but the latest version requiring at least Python 3.10
-can be installed by
+The latest version of PyRigi can be installed by
 ```
 pip install pyrigi
 ```
 
 Alternatively, one can clone/download the package
 from [this GitHub repository](https://github.com/pyRigi/PyRigi).
-Installation for development is done via [Poetry](dependencies). 
+Installation for development is done via [Poetry](dependencies).
 More detailed installation instructions depending on your operating system can be found [here](installation-guide).
 
 +++
@@ -59,7 +57,7 @@ F
 
 Notice that in order to keep the coordinates symbolic, they must be entered as strings (or SymPy expressions).
 
-We can plot frameworks and graphs, see also the [Plotting](plotting-tutorial) tutorial. 
+We can plot frameworks and graphs, see also the [Plotting](plotting-tutorial) tutorial.
 
 ```{code-cell} ipython3
 F.plot()
@@ -82,14 +80,14 @@ TP_flex = frameworks.ThreePrism('parallel')
 TP_flex.plot()
 ```
 
-There is also a possibility to [draw a graph using mouse](graph-drawer-tutorial).  
+There is also a possibility to [draw a graph using mouse](graph-drawer-tutorial).
 
 ## Rigidity properties
 
 +++
 
 Various rigidity properties can be checked by calling class methods, some examples are below.
-See also [this tutorial](rigidity-tutorial). 
+See also [this tutorial](rigidity-tutorial).
 
 +++
 

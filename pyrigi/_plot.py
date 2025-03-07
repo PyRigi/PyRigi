@@ -7,7 +7,7 @@ import numpy as np
 import distinctipy
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
-from sympy import Matrix, sympify
+from sympy import Matrix
 
 from pyrigi.data_type import (
     Vertex,
@@ -21,6 +21,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
+from pyrigi.misc import sympy_expr_to_float
 
 
 def resolve_inf_flex(
@@ -281,7 +282,7 @@ def resolve_stress(
 
     if plot_style.stress_normalization:
         numerical_stress = {
-            edge: float(sympify(w).evalf(10)) for edge, w in stress_edgewise.items()
+            edge: sympy_expr_to_float(w) for edge, w in stress_edgewise.items()
         }
         _stress = {
             edge: round(w / np.linalg.norm(list(numerical_stress.values())), 2)

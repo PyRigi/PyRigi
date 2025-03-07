@@ -17,7 +17,6 @@ from __future__ import annotations
 import functools
 from copy import deepcopy
 from itertools import combinations
-from math import log10
 from random import randrange
 from typing import Any
 
@@ -44,7 +43,7 @@ from pyrigi.misc import (
     is_zero_vector,
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
-    eval_sympy_vector,
+    sympy_expr_to_float,
     point_to_vector,
     _null_space,
 )
@@ -72,7 +71,7 @@ class Framework(object):
     graph:
         A graph without loops.
     realization:
-        A dictionary mapping the vertices of the graph to points in $\RR^d$.
+        A dictionary mapping the vertices of the graph to points in $R^d$.
         The dimension ``d`` is retrieved from the points in realization.
         If ``graph`` is empty, and hence also the ``realization``,
         the dimension is set to 0 (:meth:`Framework.Empty`
@@ -1979,14 +1978,200 @@ class Framework(object):
         """
         return self.is_independent() and self.is_inf_rigid()
 
-    @doc_category("Waiting for implementation")
-    def is_prestress_stable(self) -> bool:
+    @doc_category("Other")
+    def is_prestress_stable(self, numerical: bool = False) -> bool:
         """
-        TODO
-        ----
-        Implement
+        Check whether the framework is prestress stable.
+
+        Definitions
+        ----------
+        :prf:ref:`Prestress stability <def-prestress-stability>`.
+
+        Parameters
+        -------
+        numerical:
+            If ``True``, numerical infinitesimal flexes and stresses
+            are used in the check for prestress stability.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Frustum(3)
+        >>> F.is_prestress_stable()
+        True
+
+        Notes
+        -----
+        The implementation details are specified in
+        the section on second-order rigiditiy.
+        This method only properly works for symbolic coordinates.
         """
-        raise NotImplementedError()
+        edges = self._graph.edge_list(as_tuples=True)
+        stresses = [
+            self._transform_stress_to_edgewise(stress, edge_order=edges)
+            for stress in self.stresses()
+        ]
+        inf_flexes = [
+            self._transform_inf_flex_to_pointwise(q) for q in self.inf_flexes()
+        ]
+
+        if self.is_inf_rigid():
+            return True
+        if len(stresses) == 0:
+            return False
+
+        if numerical:
+            stresses = [
+                {e: sympy_expr_to_float(p) for e, p in stress.items()}
+                for stress in stresses
+            ]
+            inf_flexes = [
+                {v: sympy_expr_to_float(p) for v, p in flex.items()}
+                for flex in inf_flexes
+            ]
+
+        if len(inf_flexes) == 1:
+            q = inf_flexes[0]
+            stress_energy_list = []
+            for stress in stresses:
+                stress_energy_list.append(
+                    sum(
+                        [
+                            stress[(u, v)]
+                            * sum(
+                                [
+                                    (q1 - q2) ** 2
+                                    for q1, q2 in zip(
+                                        q[u],
+                                        q[v],
+                                    )
+                                ]
+                            )
+                            for u, v in edges
+                        ]
+                    )
+                )
+            if numerical:
+                any([Q != 0 for Q in stress_energy_list])
+            return any([not sp.sympify(Q).is_zero for Q in stress_energy_list])
+
+        if len(stresses) == 1:
+            a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
+            stress_energy = 0
+            stress_energy += sum(
+                [
+                    stresses[0][(u, v)]
+                    * sum(
+                        [
+                            (
+                                sum(
+                                    [
+                                        a[i]
+                                        * (inf_flexes[i][u][j] - inf_flexes[i][v][j])
+                                        for i in range(len(inf_flexes))
+                                    ]
+                                )
+                                ** 2
+                            )
+                            for j in range(self._dim)
+                        ]
+                    )
+                    for u, v in edges
+                ]
+            )
+
+            coefficients = {
+                (i, j): sp.Poly(stress_energy, a).coeff_monomial(a[i] * a[j])
+                for i in range(len(inf_flexes))
+                for j in range(i, len(inf_flexes))
+            }
+            """
+            We then apply the SONC criterion.
+            """
+            if numerical:
+                return all(
+                    [
+                        np.sign(sympy_expr_to_float(coefficients[(i, i)]))
+                        == np.sign(sympy_expr_to_float(coefficients[(j, j)]))
+                        and (
+                            np.absolute(coefficients[(i, j)])
+                            < np.sqrt(
+                                sympy_expr_to_float(
+                                    4 * coefficients[(i, i)] * coefficients[(j, j)]
+                                )
+                            )
+                        )
+                        for i in range(len(inf_flexes))
+                        for j in range(i + 1, len(inf_flexes))
+                    ]
+                )
+            return all(
+                [
+                    (
+                        (sp.sign(coefficients[(i, i)]) == sp.sign(coefficients[(j, j)]))
+                        and (
+                            sp.sign(
+                                sp.sign(coefficients[(i, j)]) * coefficients[(i, j)]
+                                - sp.sqrt(
+                                    4 * coefficients[(i, i)] * coefficients[(j, j)]
+                                )
+                            )
+                            == -1
+                        )
+                    )
+                    for i in range(len(inf_flexes))
+                    for j in range(i + 1, len(inf_flexes))
+                ]
+            )
+
+        raise ValueError(
+            "Prestress stability is not yet implemented for the general case."
+        )
+
+    @doc_category("Other")
+    def is_second_order_rigid(self, numerical: bool = False) -> bool:
+        """
+        Check whether the framework is second-order rigid.
+
+        Checking second-order-rigidity for a general framework is computationally hard.
+        If there is only one stress or only one infinitesimal flex, second-order rigidity
+        is identical to :prf:ref:`prestress stability <def-prestress-stability>`,
+        so we can apply :meth:`.Framework.is_prestress_stable`. See also
+        :prf:ref:`this theorem <thm-second-order-implies-prestress-stability>`.
+
+        Definitions
+        ----------
+        :prf:ref:`Second-order Rigidity <def-second-order-rigid>`.
+
+        Parameters
+        -------
+        numerical:
+            If ``True``, numerical infinitesimal flexes and stresses
+            are used in the check for prestress stability.
+
+        Examples
+        --------
+        >>> from pyrigi import frameworkDB as fws
+        >>> F = fws.Frustum(3)
+        >>> F.is_second_order_rigid()
+        True
+
+        Notes
+        -----
+        The implementation details are specified in
+        the section on second-order rigiditiy.
+        This method only properly works for symbolic coordinates.
+        """
+        stresses = self.stresses()
+        inf_flexes = self.inf_flexes()
+        if self.is_inf_rigid():
+            return True
+        if len(inf_flexes) == 0 or len(stresses) == 0:
+            return False
+        if len(stresses) == 1 or len(inf_flexes) == 1:
+            return self.is_prestress_stable(numerical=numerical)
+
+        raise ValueError("Second-order rigidity is not implemented for this framework.")
 
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
@@ -2054,11 +2239,7 @@ class Framework(object):
                     return False
                 elif (
                     numerical
-                    and abs(
-                        sp.sympify(difference).evalf(
-                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
-                        )
-                    )
+                    and abs(sympy_expr_to_float(difference, tolerance=tolerance))
                     > tolerance
                 ):
                     return False
@@ -2128,11 +2309,7 @@ class Framework(object):
                     return False
                 elif (
                     numerical
-                    and abs(
-                        sp.sympify(difference).evalf(
-                            int(round(2.5 * log10(tolerance ** (-1) + 1)))
-                        )
-                    )
+                    and abs(sympy_expr_to_float(difference, tolerance=tolerance))
                     > tolerance
                 ):
                     return False
@@ -2193,6 +2370,30 @@ class Framework(object):
 
         new_framework = deepcopy(self)
         new_framework.translate(vector, True)
+        return new_framework
+
+    @doc_category("Framework manipulation")
+    def rescale(self, factor: Number, inplace: bool = True) -> None | Framework:
+        """
+        Scale the framework.
+
+        Parameters
+        ----------
+        factor:
+            Scaling factor
+        inplace:
+            If True (default), then this framework is translated.
+            Otherwise, a new translated framework is returned.
+        """
+        if isinstance(factor, str):
+            factor = sp.sympify(factor)
+        if inplace:
+            for v in self._realization.keys():
+                self._realization[v] = self._realization[v] * factor
+            return
+
+        new_framework = deepcopy(self)
+        new_framework.rescale(factor, True)
         return new_framework
 
     @doc_category("Framework manipulation")
@@ -2741,11 +2942,11 @@ class Framework(object):
         else:
             Q_trivial = np.array(
                 [
-                    eval_sympy_vector(flex, tolerance=tolerance)
+                    sympy_expr_to_float(flex, tolerance=tolerance)
                     for flex in self.trivial_inf_flexes(vertex_order=vertex_order)
                 ]
             ).transpose()
-            b = np.array(eval_sympy_vector(inf_flex, tolerance=tolerance)).transpose()
+            b = np.array(sympy_expr_to_float(inf_flex, tolerance=tolerance)).transpose()
             x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
             return not is_zero_vector(
                 np.dot(Q_trivial, x) - b, numerical=True, tolerance=tolerance
