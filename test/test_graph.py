@@ -2724,6 +2724,8 @@ def test_cone():
     assert set(G.nodes) == set([0, 1, 2, 3, 4, 5]) and len(G.nodes) == 6
     G = graphs.Complete(4).cone(vertex="a")
     assert "a" in G.nodes
+    G = graphs.Cycle(4).cone()
+    assert G.number_of_nodes() == G.max_degree() + 1
 
 
 @pytest.mark.parametrize(
