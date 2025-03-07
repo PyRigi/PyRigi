@@ -1123,7 +1123,8 @@ class Graph(nx.Graph):
         >>> len(list(G.all_extensions(only_non_isomorphic=True)))
         1
 
-        >>> list(graphs.Diamond().all_extensions(2, only_non_isomorphic=True, k_min=1, k_max=1)) == list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True))
+        >>> list(graphs.Diamond().all_extensions(2, only_non_isomorphic=True, k_min=1, k_max=1)
+        ... ) == list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True))
         True
 
         Notes
@@ -1470,7 +1471,8 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3],
+        ...            [1, 4], [2, 3], [2, 4], [3, 4]])
         >>> G.is_k_vertex_redundantly_rigid(1, 2)
         True
         >>> G.is_k_vertex_redundantly_rigid(2, 2)
@@ -1478,7 +1480,7 @@ class Graph(nx.Graph):
         >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
         >>> G.is_k_vertex_redundantly_rigid(1, 2)
         False
-        """  # noqa: E501
+        """
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
         self._input_check_no_loop()
@@ -1569,7 +1571,7 @@ class Graph(nx.Graph):
         prob: float = 0.0001,
     ) -> bool:
         """
-        Return whether the graph is :prf:ref:`minimally k-vertex redundantly (generically) dim-rigid
+        Return whether the graph is :prf:ref:`minimally k-vertex redundantly dim-rigid
         <def-redundantly-rigid-graph>`.
 
         Preliminary checks from
@@ -1594,17 +1596,19 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph([[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
+        >>> G = Graph([[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5],
+        ...            [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
         >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
         True
         >>> G.is_min_k_vertex_redundantly_rigid(2, 2)
         False
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]])
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3],
+        ...            [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]])
         >>> G.is_k_vertex_redundantly_rigid(1, 2)
         True
         >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
         False
-        """  # noqa: E501
+        """
 
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
@@ -1729,20 +1733,23 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 5], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
+        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 5], [1, 2],
+        ...            [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
         >>> G.is_k_redundantly_rigid(1, 2)
         True
-        >>> G = Graph([[0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G = Graph([[0, 3], [0, 4], [1, 2], [1, 3], [1, 4],
+        ...            [2, 3], [2, 4], [3, 4]])
         >>> G.is_k_redundantly_rigid(1, 2)
         False
-        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2],
+        ...            [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
         >>> G.is_k_redundantly_rigid(2, 2)
         True
 
         Suggested Improvements
         ----------------------
         Improve with pebble games.
-        """  # noqa: E501
+        """
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
         self._input_check_no_loop()
@@ -1825,7 +1832,7 @@ class Graph(nx.Graph):
         prob: float = 0.0001,
     ) -> bool:
         """
-        Return whether the graph is minimally ``k``-redundantly (generically) ``dim``-rigid.
+        Return whether the graph is minimally ``k``-redundantly ``dim``-rigid.
 
         Preliminary checks from
         :prf:ref:`thm-minimal-1-edge-redundant-upper-edge-bound-dim2`
@@ -1853,17 +1860,19 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2],
+        ...            [1, 3], [1, 4], [2, 4], [3, 4]])
         >>> G.is_min_k_redundantly_rigid(1, 2)
         True
         >>> G.is_min_k_redundantly_rigid(2, 2)
         False
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
+        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3],
+        ...            [1, 4], [2, 3], [2, 4], [3, 4]])
         >>> G.is_k_redundantly_rigid(1, 2)
         True
         >>> G.is_min_k_redundantly_rigid(1, 2)
         False
-        """  # noqa: E501
+        """
 
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
@@ -3052,7 +3061,11 @@ class Graph(nx.Graph):
             \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(layout_type = "circular", vertex_style = "myvertex", edge_style = "myedge")) # doctest: +NORMALIZE_WHITESPACE
+        >>> print(G.to_tikz(
+        ...     layout_type = "circular",
+        ...     vertex_style = "myvertex",
+        ...     edge_style = "myedge")
+        ... ) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[]
             \node[myvertex] (0) at (1.0, 0.0) {};
             \node[myvertex] (1) at (-0.0, 1.0) {};
@@ -3061,7 +3074,11 @@ class Graph(nx.Graph):
             \draw[myedge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
 
-        >>> print(G.to_tikz(layout_type = "circular", edge_style = {"red edge": [[1, 2]], "green edge": [[2, 3], [0, 1]]}, vertex_style = {"red vertex": [0], "blue vertex": [2, 3]})) # doctest: +NORMALIZE_WHITESPACE
+        >>> print(G.to_tikz(
+        ...     layout_type="circular",
+        ...     edge_style={"red edge": [[1, 2]], "green edge": [[2, 3], [0, 1]]},
+        ...     vertex_style={"red vertex": [0], "blue vertex": [2, 3]})
+        ... ) # doctest: +NORMALIZE_WHITESPACE
         \begin{tikzpicture}[]
             \node[red vertex] (0) at (1.0, 0.0) {};
             \node[blue vertex] (2) at (-1.0, -0.0) {};

@@ -1298,12 +1298,14 @@ class Framework(object):
         Examples
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
-        >>> F.set_realization({vertex:(vertex,vertex+1) for vertex in F.graph().vertex_list()})
+        >>> F.set_realization(
+        ...     {vertex: (vertex, vertex + 1) for vertex in F.graph().vertex_list()}
+        ... )
         >>> print(F)
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(0, 1), 1:(1, 2), 2:(2, 3)}
-        """  # noqa: E501
+        """
         if not len(realization) == self._graph.number_of_nodes():
             raise IndexError(
                 "The realization does not contain the correct amount of vertices!"
@@ -1758,7 +1760,10 @@ class Framework(object):
         [0],
         [0],
         [0]])]
-        >>> F = Framework(Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]), {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]})
+        >>> F = Framework(
+        ...     Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]),
+        ...     {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]},
+        ... )
         >>> F.inf_flexes()
         [Matrix([
         [0],
@@ -1771,7 +1776,7 @@ class Framework(object):
         [0],
         [0],
         [0]])]
-        """  # noqa: E501
+        """
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         if include_trivial:
             return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
