@@ -1368,7 +1368,7 @@ class Graph(nx.Graph):
         count_reflection: bool = False,
     ) -> int:
         """
-        Count the number of complex realizations of a minimally ``dim``-rigid graph.
+        Count the number of complex realizations of a &minimally dim-rigid& graph.
 
         Realizations in ``dim``-dimensional sphere
         can be counted using ``spherical=True``.
@@ -1381,7 +1381,7 @@ class Graph(nx.Graph):
         but it can be changed using the parameter ``count_reflection``.
 
         Note that by default,
-        the method checks if the input graph is indeed minimally 2-rigid.
+        the method checks if the input graph is indeed &minimally 2-rigid&.
 
         Caution: Currently the method only works if the python package ``lnumber``
         is installed :cite:p:`Capco2024`.
@@ -1398,7 +1398,7 @@ class Graph(nx.Graph):
             The dimension in which the realizations are counted.
             Currently, only ``dim=2`` is supported.
         check_min_rigid:
-            If ``True``, a ``ValueError`` is raised if the graph is not minimally 2-rigid
+            If ``True``, a ``ValueError`` is raised if the graph is not &minimally 2-rigid&.
             If ``False``, it is assumed that the user is inputting a minimally rigid graph.
         spherical:
             If ``True``, the number of spherical realizations of the graph is returned.
@@ -1976,7 +1976,7 @@ class Graph(nx.Graph):
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
         """
-        Return whether the graph is (generically) ``dim``-rigid.
+        Return whether the graph is &dim-rigid&.
 
         Definitions
         -----------
@@ -2064,7 +2064,7 @@ class Graph(nx.Graph):
         prob: float = 0.0001,
     ) -> bool:
         """
-        Return whether the graph is minimally (generically) ``dim``-rigid.
+        Return whether the graph is &minimally dim-rigid&.
 
         Definitions
         -----------
@@ -3588,3 +3588,18 @@ Graph.__doc__ = Graph.__doc__.replace(
         include_all=False,
     ),
 )
+
+terms_to_defs = [
+    ["dim-rigid", ":prf:ref:`dim-rigid <def-gen-rigid>`"],
+    ["minimally dim-rigid", ":prf:ref:`minimally dim-rigid <def-min-rigid-graph>`"],
+    ["minimally 2-rigid", ":prf:ref:`minimally 2-rigid <def-min-rigid-graph>`"],
+]
+
+for meth_str, meth in Graph.__dict__.items():
+    if callable(meth) and meth_str[:2] != "__":
+        doc_str = meth.__doc__
+        for term, def_link in terms_to_defs:
+            doc_str = doc_str.replace("&" + term + "&", def_link)
+        # if meth.__doc__ != doc_str:
+        #     print(meth_str)
+        meth.__doc__ = doc_str
