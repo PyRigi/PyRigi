@@ -9,7 +9,7 @@ import pyrigi.graphDB as graphs
 from pyrigi import Framework, ParametricMotion, ApproximateMotion, Graph
 
 
-def test_check_edge_lengths():
+def test_input_check_edge_lengths():
     mot = ParametricMotion(
         graphs.Cycle(4),
         {
@@ -23,7 +23,7 @@ def test_check_edge_lengths():
         },
         [-sp.oo, sp.oo],
     )
-    assert mot.check_edge_lengths()
+    mot._input_check_edge_lengths()
 
     t = sp.Symbol("t")
     mot = ParametricMotion(
@@ -39,7 +39,7 @@ def test_check_edge_lengths():
         },
         [-sp.oo, sp.oo],
     )
-    assert mot.check_edge_lengths()
+    mot._input_check_edge_lengths()
 
     mot = {
         0: ("t", "0"),
@@ -69,7 +69,7 @@ def test_check_edge_lengths():
     }
 
     mot = ParametricMotion(graphs.CompleteBipartite(4, 4), p, [-sp.pi, sp.pi])
-    assert mot.check_edge_lengths()
+    mot._input_check_edge_lengths()
 
 
 def test_realization():
