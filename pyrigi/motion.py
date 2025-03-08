@@ -733,7 +733,7 @@ class ParametricMotion(Motion):
 
     def interval(self) -> tuple[Number]:
         """Return the underlying interval of a ParametricMotion."""
-        return self._interval
+        return deepcopy(self._interval)
 
     def parametrization(self, as_points: bool = False) -> dict[Vertex, Point]:
         """Return the parametrization of a ParametricMotion."""
@@ -1001,6 +1001,25 @@ class ApproximateMotion(Motion):
             fixed_direction=fixed_direction,
             pin_vertex=pin_vertex,
         )
+
+    def __str__(self) -> str:
+        """Return the string representation"""
+        res = super().__str__() + " with starting configuration\n"
+        res += str(self.motion_samples[0]) + ",\n"
+        res += str(self.steps) + " retraction steps and initial step size "
+        res += str(self.step_size) + "."
+        return res
+
+    def __repr__(self) -> str:
+        """Return a representation of a ApproximateMotion."""
+        o_str = f"ApproximateMotion.from_graph({self.graph().__repr__()}, "
+        o_str += f"{self._starting_realization}, {self.steps}, "
+        o_str += f"step_size={self.step_size}, chosen_flex={self.chosen_flex}, "
+        o_str += f"tolerance={self.tolerance}, fixed_pair={self.fixed_pair}, "
+        o_str += (
+            f"fixed_direction={self.fixed_direction}, pin_vertex={self.pin_vertex})"
+        )
+        return o_str
 
     @classmethod
     def _warn_numerical_alg(cls, method: Callable):
@@ -1346,22 +1365,3 @@ class ApproximateMotion(Motion):
             v: tuple(cur_sol[(self._dim * i) : (self._dim * (i + 1))])
             for i, v in enumerate(self._graph.vertex_list())
         }
-
-    def __str__(self) -> str:
-        """Return the string representation"""
-        res = super().__str__() + " with starting configuration\n"
-        res += str(self.motion_samples[0]) + ",\n"
-        res += str(self.steps) + " retraction steps and initial step size "
-        res += str(self.step_size) + "."
-        return res
-
-    def __repr__(self) -> str:
-        """Return a representation of a ApproximateMotion."""
-        o_str = f"ApproximateMotion.from_graph({self.graph().__repr__()}, "
-        o_str += f"{self._starting_realization}, {self.steps}, "
-        o_str += f"step_size={self.step_size}, chosen_flex={self.chosen_flex}, "
-        o_str += f"tolerance={self.tolerance}, fixed_pair={self.fixed_pair}, "
-        o_str += (
-            f"fixed_direction={self.fixed_direction}, pin_vertex={self.pin_vertex})"
-        )
-        return o_str
