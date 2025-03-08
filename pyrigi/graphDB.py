@@ -215,14 +215,14 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
     return G
 
 
-def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
+def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
     """
     Return a $C_n$-symmetric graph with a fixed vertex.
 
     The value ``n`` must be even and at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
-    count for rotation but is infinitesimally flexible.
+    count for rotation but is (generically) infinitesimally flexible.
 
     Definitions
     -----------

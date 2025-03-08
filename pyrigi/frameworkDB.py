@@ -380,14 +380,15 @@ def CnSymmetricFourRegular(n: int = 8) -> Framework:
     )
 
 
-def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
+def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
     """
     Return a $C_n$-symmetric framework with a fixed vertex in the plane.
 
     The value ``n`` must be even and at least 8.
 
-    The returned graph satisfies the expected symmetry-adapted Laman
-    count for rotation but is infinitesimally flexible.
+    The underlying graph of the returned framework satisfies the
+    expected symmetry-adapted Laman count for rotation but the
+    framework is infinitesimally flexible.
 
     Definitions
     -----------
@@ -399,7 +400,7 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
             + "must have an even order of at least 8!"
         )
     return Framework(
-        graphs.CnSymmetricFourRegularWithFixedVertex(n),
+        graphs.CnSymmetricWithFixedVertex(n),
         {
             i: [
                 sp.cos(2 * i * sp.pi / n),

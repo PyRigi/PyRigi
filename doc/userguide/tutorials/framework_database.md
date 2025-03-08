@@ -181,5 +181,5 @@ frameworks.CnSymmetricFourRegular(10).plot()
 ```
 
 ```{code-cell} ipython3
-frameworks.CnSymmetricFourRegularWithFixedVertex(8).plot()
+frameworks.CnSymmetricWithFixedVertex(8).plot()
 ```
