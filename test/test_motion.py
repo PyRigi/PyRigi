@@ -64,6 +64,7 @@ def test__str__():
     ],
 )
 def test__repr__(motion, motion_repr):
+    eval(repr(motion))
     assert repr(motion) == motion_repr
 
 

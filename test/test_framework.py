@@ -27,6 +27,9 @@ def test__repr__():
         repr(fws.Complete(2)) == "Framework(Graph.from_vertices_and_edges"
         "([0, 1], [(0, 1)]), {0: [0, 0], 1: [1, 0]})"
     )
+    F1 = Framework(Graph([(0, 1)]), {0: ["1/2"], 1: ["sqrt(2)"]})
+    F2 = eval(repr(F1))
+    assert F1[0] == F2[0] and F1[1] == F2[1]
 
 
 @pytest.mark.parametrize(
