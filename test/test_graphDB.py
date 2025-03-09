@@ -124,13 +124,13 @@ def test_CnSymmetricFourRegular():
         )
 
 
-def test_CnSymmetricFourRegularWithFixedVertex():
+def test_CnSymmetricWithFixedVertex():
     with pytest.raises(ValueError):
-        graphs.CnSymmetricFourRegularWithFixedVertex(6)
-        graphs.CnSymmetricFourRegularWithFixedVertex(9)
+        graphs.CnSymmetricWithFixedVertex(6)
+        graphs.CnSymmetricWithFixedVertex(9)
 
     for i in range(4, 10):
-        G = graphs.CnSymmetricFourRegularWithFixedVertex(2 * i)
+        G = graphs.CnSymmetricWithFixedVertex(2 * i)
         print(G.number_of_edges())
         assert (
             G.number_of_nodes() == 4 * i + 1

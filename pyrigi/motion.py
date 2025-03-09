@@ -720,21 +720,19 @@ class ParametricMotion(Motion):
 
         self._interval = interval
         self._parameter = symbols.pop()
-        if not self.check_edge_lengths():
-            raise ValueError("The given motion does not preserve edge lengths!")
+        self._input_check_edge_lengths()
 
-    def check_edge_lengths(self) -> bool:
+    def _input_check_edge_lengths(self) -> None:
         """
-        Return whether the motion preserves the edge lengths.
+        Check whether the motion preserves the edge lengths and
+        raise an error otherwise.
         """
-
         for u, v in self._graph.edges:
             edge = self._parametrization[u] - self._parametrization[v]
             edge_len = edge.T * edge
             edge_len.simplify()
             if edge_len.has(self._parameter):
-                return False
-        return True
+                raise ValueError("The given motion does not preserve edge lengths!")
 
     def realization(self, value: Number, numerical: bool = False) -> dict[Vertex:Point]:
         """
