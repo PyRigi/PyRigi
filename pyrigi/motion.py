@@ -687,7 +687,10 @@ class ParametricMotion(Motion):
     """  # noqa: E501
 
     def __init__(
-        self, graph: Graph, motion: dict[Vertex, Point], interval: tuple[Number]
+        self,
+        graph: Graph,
+        motion: dict[Vertex, Point],
+        interval: tuple[Number] | list[Number],
     ) -> None:
         """
         Create an instance of ``ParametricMotion``.
@@ -726,11 +729,11 @@ class ParametricMotion(Motion):
                 f"{len(symbols)} parameters."
             )
 
-        self._interval = interval
+        self._interval = list(interval)
         self._parameter = symbols.pop()
         self._input_check_edge_lengths()
 
-    def interval(self) -> tuple[Number]:
+    def interval(self) -> list[Number]:
         """Return the underlying interval."""
         return deepcopy(self._interval)
 
