@@ -56,7 +56,7 @@ class Motion(object):
         return f"{self.__class__.__name__} of a " + self._graph.__str__()
 
     def __repr__(self) -> str:
-        """Return a representation of a Motion."""
+        """Return a representation of the motion."""
         return f"Motion({self.graph().__repr__()}, {self.dim()})"
 
     def graph(self) -> Graph:
@@ -731,11 +731,11 @@ class ParametricMotion(Motion):
         self._input_check_edge_lengths()
 
     def interval(self) -> tuple[Number]:
-        """Return the underlying interval of a ParametricMotion."""
+        """Return the underlying interval."""
         return deepcopy(self._interval)
 
     def parametrization(self, as_points: bool = False) -> dict[Vertex, Point]:
-        """Return the parametrization of a ParametricMotion."""
+        """Return the parametrization."""
         if not as_points:
             return deepcopy(self._parametrization)
         return {v: list(pos) for v, pos in self._parametrization.items()}
@@ -787,7 +787,7 @@ class ParametricMotion(Motion):
         return res
 
     def __repr__(self) -> str:
-        """Return a representation of a ParametricMotion."""
+        """Return a representation of the parametric motion."""
         o_str = f"ParametricMotion({self.graph().__repr__()}, "
         o_str += f"{self.parametrization(as_points=True)}, {self.interval()})"
         return o_str
@@ -1001,7 +1001,7 @@ class ApproximateMotion(Motion):
         )
 
     def __str__(self) -> str:
-        """Return the string representation"""
+        """Return the string representation."""
         res = super().__str__() + " with starting configuration\n"
         res += str(self.motion_samples[0]) + ",\n"
         res += str(self.steps) + " retraction steps and initial step size "
@@ -1009,7 +1009,7 @@ class ApproximateMotion(Motion):
         return res
 
     def __repr__(self) -> str:
-        """Return a representation of a ApproximateMotion."""
+        """Return a representation of the approximate motion."""
         o_str = f"ApproximateMotion.from_graph({self.graph().__repr__()}, "
         o_str += f"{self._starting_realization}, {self.steps}, "
         o_str += f"step_size={self.step_size}, chosen_flex={self.chosen_flex}, "
