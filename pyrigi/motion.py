@@ -993,10 +993,12 @@ class ApproximateMotion(Motion):
         Perform path-tracking to compute the attribute ``motion_samples``.
         """
         F = Framework(self._graph, self._starting_realization)
+        inf_flexes = F.inf_flexes(numerical=True, tolerance=self.tolerance)
+        _input_check.integrality_and_range(
+            chosen_flex, "chosen_flex", max_val=len(inf_flexes)
+        )
         cur_inf_flex = normalize_flex(
-            F._transform_inf_flex_to_pointwise(
-                F.inf_flexes(numerical=True, tolerance=self.tolerance)[chosen_flex]
-            ),
+            F._transform_inf_flex_to_pointwise(inf_flexes[chosen_flex]),
             numerical=True,
         )
 
