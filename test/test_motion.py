@@ -37,29 +37,34 @@ def test__str__():
     )
 
 
-def test__repr__():
-    assert (
-        repr(Motion(graphs.Complete(3), dim=2))
-        == "Motion(Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (0, 2), (1, 2)]), 2)"
-    )
-    assert (
-        repr(
+@pytest.mark.parametrize(
+    "motion, motion_repr",
+    [
+        [
+            Motion(graphs.Complete(3), dim=2),
+            "Motion(Graph.from_vertices_and_edges([0, 1, 2],"
+            " [(0, 1), (0, 2), (1, 2)]), 2)",
+        ],
+        [
             ParametricMotion(
                 graphs.Path(3),
                 {0: [-1, 0], 1: [0, 0], 2: ["sin(t)", "cos(t)"]},
                 [-1, 1],
-            )
-        )
-        == "ParametricMotion(Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (1, 2)]),"
-        " {0: [-1, 0], 1: [0, 0], 2: [sin(t), cos(t)]}, [-1, 1])"
-    )
-    assert (
-        repr(ApproximateMotion(fws.Path(3), 2))
-        == "ApproximateMotion.from_graph(Graph.from_vertices_and_edges"
-        "([0, 1, 2], [(0, 1), (1, 2)]), {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [0.0, 1.0]},"
-        " 2, step_size=0.1, chosen_flex=0, tolerance=1e-05, fixed_pair=None,"
-        " fixed_direction=None, pin_vertex=None)"
-    )
+            ),
+            "ParametricMotion(Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (1, 2)]),"
+            " {0: [-1, 0], 1: [0, 0], 2: [sin(t), cos(t)]}, [-1, 1])",
+        ],
+        [
+            ApproximateMotion(fws.Path(3), 2),
+            "ApproximateMotion.from_graph(Graph.from_vertices_and_edges([0, 1, 2], "
+            "[(0, 1), (1, 2)]), {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [0.0, 1.0]},"
+            " 2, step_size=0.1, chosen_flex=0, tolerance=1e-05, fixed_pair=None,"
+            " fixed_direction=None, pin_vertex=None)",
+        ],
+    ],
+)
+def test__repr__(motion, motion_repr):
+    assert repr(motion) == motion_repr
 
 
 def test_input_check_edge_lengths():
