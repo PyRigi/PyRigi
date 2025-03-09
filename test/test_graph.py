@@ -1161,6 +1161,17 @@ def test__str__():
     assert str(G) == "Graph with vertices ['C', 1, 'D', 2, 'E', 3, 0] and edges []"
 
 
+def test__repr__():
+    assert (
+        repr(Graph([[2, 1], [2, 3]]))
+        == "Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])"
+    )
+    assert (
+        repr(Graph.from_vertices_and_edges([1, 2, 3], [(1, 2)]))
+        == "Graph.from_vertices_and_edges([1, 2, 3], [(1, 2)])"
+    )
+
+
 def test_vertex_and_edge_lists():
     G = Graph([[2, 1], [2, 3]])
     assert G.vertex_list() == [1, 2, 3]

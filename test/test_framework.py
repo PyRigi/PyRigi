@@ -13,6 +13,22 @@ from pyrigi.graph import Graph
 from pyrigi.misc import point_to_vector, sympy_expr_to_float
 
 
+def test__str__():
+    assert (
+        str(fws.Complete(2))
+        == """Framework in 2-dimensional space consisting of:
+Graph with vertices [0, 1] and edges [[0, 1]]
+Realization {0:(0, 0), 1:(1, 0)}"""
+    )
+
+
+def test__repr__():
+    assert (
+        repr(fws.Complete(2)) == "Framework(Graph.from_vertices_and_edges"
+        "([0, 1], [(0, 1)]), {0: [0, 0], 1: [1, 0]})"
+    )
+
+
 @pytest.mark.parametrize(
     "framework",
     [
