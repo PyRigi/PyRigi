@@ -234,7 +234,7 @@ html_theme_options = {
     "source_directory": "doc/",
 }
 
-html_title = "PyRigi"
+html_title = "PyRigi " + version
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
