@@ -1348,8 +1348,8 @@ class Graph(nx.Graph):
             It is possible to give the added cone vertex a name using
             the keyword ``vertex``.
 
-        Definition
-        ----------
+        Definitions
+        -----------
         :prf:ref:`Cone graph <def-cone-graph>`
 
         Examples
