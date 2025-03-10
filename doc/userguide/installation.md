@@ -50,7 +50,7 @@ pip install pyrigi[meshing]
 
 ### Windows
 
-In this tutorial, we assume a clean Windows without Python installed. In case that you have `pip` already installed, you can skip the first 3 steps. This can be checked using the command `python -m pip -v`. Otherwise, we recommend uninstalling any existing Python installation in the "Add or Delete Programs" settings menu first.
+In this tutorial, we assume a clean Windows without Python installed. In case that you have `pip` already installed, you can skip the first 3 steps. This can be checked using the command `python -m pip -v`.
 
 1. Download Python with a version >= 3.11 from the website [https://www.python.org/downloads/](https://www.python.org/downloads/).
 2. When installing, make sure that you tick the box "add to path variables" on the first installation page. You may need to tick the box that you run the installation as an Administrator as well.
