@@ -97,9 +97,11 @@ class Graph(nx.Graph):
 
     def __repr__(self) -> str:
         """
-        Return a representation.
+        Return a representation of a graph.
         """
-        return self.__str__()
+        o_str = f"Graph.from_vertices_and_edges({self.vertex_list()}, "
+        o_str += f"{self.edge_list(as_tuples=True)})"
+        return o_str
 
     def __eq__(self, other: Graph):
         """
@@ -143,7 +145,8 @@ class Graph(nx.Graph):
         --------
         >>> G = Graph([[0,1],[1,2],[2,0]])
         >>> H = Graph([[2,3],[3,4],[4,2]])
-        >>> G + H
+        >>> graph = G + H
+        >>> print(graph)
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [1, 2], [2, 3], [2, 4], [3, 4]]
         """  # noqa: E501
         return Graph(nx.compose(self, other))
@@ -165,13 +168,16 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> Graph.from_vertices_and_edges([0, 1, 2, 3], [])
+        >>> G = Graph.from_vertices_and_edges([0, 1, 2, 3], [])
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3] and edges []
-        >>> Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [1, 3]])
+        >>> G = Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [1, 3]])
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [1, 3]]
-        >>> Graph.from_vertices_and_edges(['a', 'b', 'c', 'd'], [['a','c'], ['a', 'd']])
+        >>> G = Graph.from_vertices_and_edges(['a', 'b', 'c', 'd'], [['a','c'], ['a', 'd']])
+        >>> print(G)
         Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'c'], ['a', 'd']]
-        """
+        """  # noqa: E501
         G = Graph()
         G.add_nodes_from(vertices)
         G._input_check_edge_format_list(edges)
@@ -188,7 +194,7 @@ class Graph(nx.Graph):
         --------
         >>> from pyrigi import Graph
         >>> G = Graph.from_vertices([3, 1, 7, 2, 12, 3, 0])
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 7, 12] and edges []
         """
         return Graph.from_vertices_and_edges(vertices, [])
@@ -201,9 +207,9 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> Graph.CompleteOnVertices([0, 1, 2, 3, 4])
+        >>> print(Graph.CompleteOnVertices([0, 1, 2, 3, 4]))
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> Graph.CompleteOnVertices(['a', 'b', 'c', 'd'])
+        >>> print(Graph.CompleteOnVertices(['a', 'b', 'c', 'd']))
         Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
         """  # noqa: E501
         edges = list(combinations(vertices, 2))
@@ -600,7 +606,8 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph.CompleteOnVertices([0,1,2,3])
-        >>> G.spanning_kl_sparse_subgraph(2,3)
+        >>> H = G.spanning_kl_sparse_subgraph(2,3)
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
         """  # noqa: E501
         if (
@@ -829,17 +836,20 @@ class Graph(nx.Graph):
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(3)
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.zero_extension([0, 2])
+        >>> H = G.zero_extension([0, 2])
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
-        >>> G.zero_extension([0, 2], 5)
+        >>> H = G.zero_extension([0, 2], 5)
+        >>> print(H)
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [2, 5]]
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.zero_extension([0, 1, 2], 5, dim=3, inplace=True)
+        >>> H = G.zero_extension([0, 1, 2], 5, dim=3, inplace=True)
+        >>> print(H)
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
         """  # noqa: E501
         return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
@@ -884,23 +894,26 @@ class Graph(nx.Graph):
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(3)
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.one_extension([0, 1, 2], [0, 1])
+        >>> H = G.one_extension([0, 1, 2], [0, 1])
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         >>> G = graphs.ThreePrism()
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-        >>> G.one_extension([0, 1], [0, 1], dim=1)
+        >>> H = G.one_extension([0, 1], [0, 1], dim=1)
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 2], [0, 3], [0, 6], [1, 2], [1, 4], [1, 6], [2, 5], [3, 4], [3, 5], [4, 5]]
         >>> G = graphs.CompleteBipartite(3, 2)
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]
-        >>> G.one_extension([0, 1, 2, 3, 4], [0, 3], dim=4, inplace = True)
+        >>> H = G.one_extension([0, 1, 2, 3, 4], [0, 3], dim=4, inplace = True)
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
         """  # noqa: E501
         return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
@@ -949,23 +962,24 @@ class Graph(nx.Graph):
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(5)
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> G.k_extension(2, [0, 1, 2, 3], [[0, 1], [0,2]])
+        >>> H = G.k_extension(2, [0, 1, 2, 3], [[0, 1], [0,2]])
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5]]
-        >>> G
-        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
         >>> G = graphs.Complete(5)
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> G.k_extension(2, [0, 1, 2, 3, 4], [[0, 1], [0,2]], dim = 3)
+        >>> H = G.k_extension(2, [0, 1, 2, 3, 4], [[0, 1], [0,2]], dim = 3)
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
         >>> G = graphs.Path(6)
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]]
-        >>> G.k_extension(2, [0, 1, 2], [[0, 1], [1,2]], dim = 1, inplace = True)
+        >>> H = G.k_extension(2, [0, 1, 2], [[0, 1], [1,2]], dim = 1, inplace = True);
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
 
         Notes
@@ -1202,17 +1216,17 @@ class Graph(nx.Graph):
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(3)
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         >>> G.extension_sequence(return_type="graphs")
-        [Graph with vertices [1, 2] and edges [[1, 2]], Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]]
+        [Graph.from_vertices_and_edges([1, 2], [(1, 2)]), Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (0, 2), (1, 2)])]
         >>> G = graphs.Diamond()
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
         >>> G.extension_sequence(return_type="graphs")
-        [Graph with vertices [2, 3] and edges [[2, 3]], Graph with vertices [0, 2, 3] and edges [[0, 2], [0, 3], [2, 3]], Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]]
+        [Graph.from_vertices_and_edges([2, 3], [(2, 3)]), Graph.from_vertices_and_edges([0, 2, 3], [(0, 2), (0, 3), (2, 3)]), Graph.from_vertices_and_edges([0, 1, 2, 3], [(0, 1), (0, 2), (0, 3), (1, 2), (2, 3)])]
         >>> G.extension_sequence(return_type="extensions")
-        [Graph with vertices [2, 3] and edges [[2, 3]], [0, [3, 2], [], 0], [0, [0, 2], [], 1]]
+        [Graph.from_vertices_and_edges([2, 3], [(2, 3)]), [0, [3, 2], [], 0], [0, [0, 2], [], 1]]
         """  # noqa: E501
         _input_check.dimension(dim)
         self._input_check_no_loop()
@@ -1304,12 +1318,12 @@ class Graph(nx.Graph):
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.ThreePrism()
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
         >>> G.has_extension_sequence()
         True
         >>> G = graphs.CompleteBipartite(1, 2)
-        >>> G
+        >>> print(G)
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2]]
         >>> G.has_extension_sequence()
         False
@@ -3249,9 +3263,10 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
-        >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
-        >>> H.sum_t(G, [1, 2], 3)
+        >>> G1 = Graph([[1,2],[2,3],[3,1],[3,4]])
+        >>> G2 = Graph([[0,1],[1,2],[2,3],[3,1]])
+        >>> H = G2.sum_t(G1, [1, 2], 3)
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [1, 3], [2, 3], [3, 4]]
         """
         if edge not in self.edges or edge not in other_graph.edges:
@@ -3442,13 +3457,15 @@ class Graph(nx.Graph):
         --------
         >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
         >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
-        >>> G.intersection(H)
+        >>> graph = G.intersection(H)
+        >>> print(graph)
         Graph with vertices [1, 2, 3] and edges [[1, 2], [1, 3], [2, 3]]
         >>> G = Graph([[0,1],[0,2],[1,2]])
         >>> G.add_vertex(3)
         >>> H = Graph([[0,1],[1,2],[2,4],[4,0]])
         >>> H.add_vertex(3)
-        >>> G.intersection(H)
+        >>> graph = G.intersection(H)
+        >>> print(graph)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [1, 2]]
         """
         return Graph.from_vertices_and_edges(

@@ -373,7 +373,7 @@ def read_sparsity(filename):
         [read_globally("D10V13"), 10],
         [read_globally("D10V14"), 10],
         [read_globally("D19V20"), 19],
-        [read_globally("D19V21"), 19],
+        pytest.param(read_globally("D19V21"), 19, marks=pytest.mark.slow_main),
         pytest.param(read_globally("D19V22"), 19, marks=pytest.mark.slow_main),
         pytest.param(read_globally("D19V23"), 19, marks=pytest.mark.slow_main),
     ],
@@ -1159,6 +1159,17 @@ def test__str__():
     )
     G = Graph.from_vertices(["C", 1, "D", 2, "E", 3, 0])
     assert str(G) == "Graph with vertices ['C', 1, 'D', 2, 'E', 3, 0] and edges []"
+
+
+def test__repr__():
+    assert (
+        repr(Graph([[2, 1], [2, 3]]))
+        == "Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)])"
+    )
+    assert (
+        repr(Graph.from_vertices_and_edges([1, 2, 3], [(1, 2)]))
+        == "Graph.from_vertices_and_edges([1, 2, 3], [(1, 2)])"
+    )
 
 
 def test_vertex_and_edge_lists():

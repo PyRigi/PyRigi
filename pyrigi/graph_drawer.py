@@ -73,7 +73,7 @@ class GraphDrawer(object):
     >>> from pyrigi import GraphDrawer
     >>> Drawer = GraphDrawer()
     HBox(children=(MultiCanvas(height=600, width=600)...
-    >>> Drawer.graph()
+    >>> print(Drawer.graph())
     Graph with vertices [] and edges []
     """
 

@@ -13,6 +13,25 @@ from pyrigi.graph import Graph
 from pyrigi.misc import point_to_vector, sympy_expr_to_float
 
 
+def test__str__():
+    assert (
+        str(fws.Complete(2))
+        == """Framework in 2-dimensional space consisting of:
+Graph with vertices [0, 1] and edges [[0, 1]]
+Realization {0:(0, 0), 1:(1, 0)}"""
+    )
+
+
+def test__repr__():
+    assert (
+        repr(fws.Complete(2)) == "Framework(Graph.from_vertices_and_edges"
+        "([0, 1], [(0, 1)]), {0: ['0', '0'], 1: ['1', '0']})"
+    )
+    F1 = Framework(Graph([(0, 1)]), {0: ["1/2"], 1: ["sqrt(2)"]})
+    F2 = eval(repr(F1))
+    assert F1[0] == F2[0] and F1[1] == F2[1]
+
+
 @pytest.mark.parametrize(
     "framework",
     [
@@ -1049,11 +1068,13 @@ def test_stress_matrix():
 @pytest.mark.parametrize(
     "framework, num_stresses",
     [
-        [fws.CompleteBipartite(4, 4), 3],
+        pytest.param(fws.CompleteBipartite(4, 4), 3, marks=pytest.mark.slow_main),
         [fws.Complete(4), 1],
-        [fws.Complete(5), 3],
+        pytest.param(fws.Complete(5), 3, marks=pytest.mark.slow_main),
         [fws.Frustum(3), 1],
         [fws.Frustum(4), 1],
+        [fws.ConnellyExampleSecondOrderRigidity(), 2],
+        [fws.CompleteBipartite(3, 3, realization="collinear"), 4],
     ],
 )
 def test_stresses(framework, num_stresses):
