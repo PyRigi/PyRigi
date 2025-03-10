@@ -792,7 +792,11 @@ class ParametricMotion(Motion):
     def __repr__(self) -> str:
         """Return a representation of the parametric motion."""
         o_str = f"ParametricMotion({self.graph().__repr__()}, "
-        o_str += f"{self.parametrization(as_points=True)}, {self.interval()})"
+        str_parametrization = {
+            v: [str(p) for p in pos]
+            for v, pos in self.parametrization(as_points=True).items()
+        }
+        o_str += f"{str_parametrization}, {self.interval()})"
         return o_str
 
     def _realization_sampling(

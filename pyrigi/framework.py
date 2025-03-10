@@ -137,9 +137,11 @@ class Framework(object):
 
     def __repr__(self) -> str:
         """Return a representation of the framework."""
-        return (
-            f"Framework({self.graph().__repr__()}, {self.realization(as_points=True)})"
-        )
+        str_realization = {
+            v: [str(p) for p in pos]
+            for v, pos in self.realization(as_points=True).items()
+        }
+        return f"Framework({self.graph().__repr__()}, {str_realization})"
 
     def __getitem__(self, vertex: Vertex) -> Matrix:
         """

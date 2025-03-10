@@ -52,7 +52,7 @@ def test__str__():
                 [-1, 1],
             ),
             "ParametricMotion(Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (1, 2)]),"
-            " {0: [-1, 0], 1: [0, 0], 2: [sin(t), cos(t)]}, [-1, 1])",
+            " {0: ['-1', '0'], 1: ['0', '0'], 2: ['sin(t)', 'cos(t)']}, [-1, 1])",
         ],
         [
             ApproximateMotion(fws.Path(3), 2),

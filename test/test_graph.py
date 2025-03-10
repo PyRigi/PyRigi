@@ -373,7 +373,7 @@ def read_sparsity(filename):
         [read_globally("D10V13"), 10],
         [read_globally("D10V14"), 10],
         [read_globally("D19V20"), 19],
-        [read_globally("D19V21"), 19],
+        pytest.param(read_globally("D19V21"), 19, marks=pytest.mark.slow_main),
         pytest.param(read_globally("D19V22"), 19, marks=pytest.mark.slow_main),
         pytest.param(read_globally("D19V23"), 19, marks=pytest.mark.slow_main),
     ],
