@@ -19,7 +19,7 @@ We acknowledge these and all the other open-source projects upon which PyRigi is
 
 ## Installation and usage
 
-The latest version of PyRigi can be installed by
+The latest stable version of PyRigi can be installed by
 ```
 pip install pyrigi
 ```
@@ -27,17 +27,21 @@ Then it can be used by
 ```python
 from pyrigi import Graph, Framework
 ```
+See [Getting started](https://pyrigi.github.io/PyRigi/userguide/getting_started.html)
+in the [documentation](https://pyrigi.github.io/PyRigi/) for more details.
 
 Alternatively, one can clone/download the package
 from [this GitHub repository](https://github.com/pyRigi/PyRigi).
+The development version is on the branch `dev`.
 
 ## Documentation
 
-The documentation of the `main` branch is available [online](https://pyrigi.github.io/PyRigi/).
+The documentation of the latest stable version is available [online](https://pyrigi.github.io/PyRigi/).
 For compiling it locally,
 see the [development guide](https://pyrigi.github.io/PyRigi/development/howto).
 
-An important part of the documentation is the mathematical background.
+An important part of the documentation is the
+[mathematical background](https://pyrigi.github.io/PyRigi/math/rigidity.html).
 We specify the outputs of the methods in the package
 by providing rigorous mathematical definitions.
 
@@ -72,6 +76,8 @@ and [contact us](mailto:external.dc4f45edef70cb7e0c621ad50377d9f1.show-sender.in
 The package is licensed under the [MIT license](https://github.com/PyRigi/PyRigi/blob/main/LICENSE).
 
 ## The PyRigi Developers
+
+See the complete [list of contributors](https://pyrigi.github.io/PyRigi/development/contributors.html).
 
 The current maintainers of the project are:
 
