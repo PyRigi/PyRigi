@@ -1074,7 +1074,7 @@ def test_stress_matrix():
         [fws.Frustum(3), 1],
         [fws.Frustum(4), 1],
         [fws.ConnellyExampleSecondOrderRigidity(), 2],
-        [fws.CompleteBipartite(3,3,realization="collinear"), 4]
+        [fws.CompleteBipartite(3, 3, realization="collinear"), 4],
     ],
 )
 def test_stresses(framework, num_stresses):
