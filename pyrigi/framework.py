@@ -2045,7 +2045,8 @@ class Framework(object):
             for stress in self.stresses()
         ]
         inf_flexes = [
-            self._transform_inf_flex_to_pointwise(q) for q in self.inf_flexes()
+            self._transform_inf_flex_to_pointwise(q)
+            for q in self.inf_flexes(numerical=numerical, tolerance=tolerance)
         ]
 
         if self.is_inf_rigid():
@@ -2057,10 +2058,6 @@ class Framework(object):
             stresses = [
                 {e: sympy_expr_to_float(p) for e, p in stress.items()}
                 for stress in stresses
-            ]
-            inf_flexes = [
-                {v: sympy_expr_to_float(p) for v, p in flex.items()}
-                for flex in inf_flexes
             ]
 
         if len(inf_flexes) == 1:

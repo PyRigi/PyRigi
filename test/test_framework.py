@@ -212,6 +212,13 @@ def test_is_independent(framework):
         [fws.Octahedron(realization="Bricard_plane"), False],
         [fws.Octahedron(realization="Bricard_line"), False],
         [fws.Cube(), False],
+        [
+            Framework(
+                fws.Cube().graph().cone(),
+                fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
+            ),
+            True,
+        ],
         pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
     ],
 )
@@ -246,6 +253,13 @@ def test_is_prestress_stable_error(framework):
         [fws.Octahedron(realization="Bricard_plane"), False],
         [fws.Octahedron(realization="Bricard_line"), False],
         [fws.Cube(), False],
+        [
+            Framework(
+                fws.Cube().graph().cone(),
+                fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
+            ),
+            True,
+        ],
         pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
     ],
 )
