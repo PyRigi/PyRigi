@@ -3,14 +3,15 @@
 # Dependencies
 
 We maintain the dependencies of the package using [Poetry](https://python-poetry.org/).
-See the [installation instructions](https://python-poetry.org/docs/#installation).
+See its [installation instructions](https://python-poetry.org/docs/#installation).
 
 To install the package dependencies including those needed for the development, run
 ```
-poetry install --no-root --all-extras
+poetry install --all-extras
 ```
 in the root folder of PyRigi.
-Omitting `--no-root` installs also PyRigi itself, so it can be used system-wide.
+The command installs also `PyRigi` itself, so it can be used system-wide.
+Use `--no-root` to install only dependencies without PyRigi itself. 
 The option `--all-extras` specifies to install also all optional packages.
 To install a specific group of optional packages, use
 ```
