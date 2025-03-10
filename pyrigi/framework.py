@@ -141,7 +141,7 @@ class Framework(object):
             v: [str(p) for p in pos]
             for v, pos in self.realization(as_points=True).items()
         }
-        return f"Framework({self.graph().__repr__()}, {str_realization})"
+        return f"Framework({repr(self.graph())}, {str_realization})"
 
     def __getitem__(self, vertex: Vertex) -> Matrix:
         """

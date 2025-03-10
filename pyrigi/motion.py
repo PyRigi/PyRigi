@@ -57,7 +57,7 @@ class Motion(object):
 
     def __repr__(self) -> str:
         """Return a representation of the motion."""
-        return f"Motion({self.graph().__repr__()}, {self.dim()})"
+        return f"Motion({repr(self.graph())}, {self.dim()})"
 
     def graph(self) -> Graph:
         """
@@ -791,7 +791,7 @@ class ParametricMotion(Motion):
 
     def __repr__(self) -> str:
         """Return a representation of the parametric motion."""
-        o_str = f"ParametricMotion({self.graph().__repr__()}, "
+        o_str = f"ParametricMotion({repr(self.graph())}, "
         str_parametrization = {
             v: [str(p) for p in pos]
             for v, pos in self.parametrization(as_points=True).items()
@@ -1017,7 +1017,7 @@ class ApproximateMotion(Motion):
 
     def __repr__(self) -> str:
         """Return a representation of the approximate motion."""
-        o_str = f"ApproximateMotion.from_graph({self.graph().__repr__()}, "
+        o_str = f"ApproximateMotion.from_graph({repr(self.graph())}, "
         o_str += f"{self._starting_realization}, {self.steps}, "
         o_str += f"step_size={self.step_size}, chosen_flex={self.chosen_flex}, "
         o_str += f"tolerance={self.tolerance}, fixed_pair={self.fixed_pair}, "
