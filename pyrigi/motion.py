@@ -4,7 +4,6 @@ This module contains functionality related to motions (continuous flexes).
 
 import os
 from copy import deepcopy
-from math import isclose
 from typing import Any, Literal
 from collections.abc import Callable
 import warnings
@@ -34,6 +33,7 @@ from pyrigi.misc import (
     normalize_flex,
     vector_distance_pointwise,
     sympy_expr_to_float,
+    is_zero,
 )
 from pyrigi.warning import NumericalAlgorithmWarning
 
@@ -108,16 +108,16 @@ class Motion(object):
                 ymin, ymax = min(ymin, point[1]), max(ymax, point[1])
                 if z_width is not None:
                     zmin, zmax = min(zmin, point[2]), max(zmax, point[2])
-        if not isclose(xmax - xmin, 0, abs_tol=1e-6):
+        if not is_zero(xmax - xmin, numerical=True, tolerance=1e-6):
             xnorm = (x_width - padding * 2) / (xmax - xmin)
         else:
             xnorm = np.inf
-        if not isclose(ymax - ymin, 0, abs_tol=1e-6):
+        if not is_zero(ymax - ymin, numerical=True, tolerance=1e-6):
             ynorm = (y_width - padding * 2) / (ymax - ymin)
         else:
             ynorm = np.inf
         if z_width is not None:
-            if not isclose(zmax - zmin, 0, abs_tol=1e-6):
+            if not is_zero(zmax - zmin, numerical=True, tolerance=1e-6):
                 znorm = (z_width - padding * 2) / (zmax - zmin)
             else:
                 znorm = np.inf
@@ -1175,7 +1175,7 @@ class ApproximateMotion(Motion):
             fixed_direction = [
                 x - y for x, y in zip(_realizations[0][v1], _realizations[0][v2])
             ]
-            if np.isclose(np.linalg.norm(fixed_direction), 0, rtol=1e-6):
+            if is_zero(np.linalg.norm(fixed_direction), numerical=True, tolerance=1e-6):
                 warnings.warn(
                     f"The entries of the edge {fixed_pair} are too close to each "
                     + "other. Thus, `fixed_direction=(1,0)` is chosen instead."

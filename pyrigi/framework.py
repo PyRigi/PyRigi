@@ -17,7 +17,6 @@ from __future__ import annotations
 import functools
 from copy import deepcopy
 from itertools import combinations
-from math import isclose
 from random import randrange
 from typing import Any
 
@@ -2106,11 +2105,12 @@ class Framework(object):
                         ]
                     )
                 )
-            if numerical:
-                return any(
-                    [not isclose(Q, 0, abs_tol=tolerance) for Q in stress_energy_list]
-                )
-            return any([not sp.sympify(Q).is_zero for Q in stress_energy_list])
+            return any(
+                [
+                    not is_zero(Q, numerical=numerical, tolerance=tolerance)
+                    for Q in stress_energy_list
+                ]
+            )
 
         if len(stresses) == 1:
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
