@@ -112,7 +112,7 @@ You can contact a maintainer if you have a `.ipynb` tutorial
 you want to contribute but struggle to get its `.md` version.
 
 
-In case the Poetry environment is [activated](dependencies), Jupyterlab and Jupytext
+In case the Poetry environment is [activated](#dependencies-poetry), Jupyterlab and Jupytext
 can be installed using
 ```
 pip install jupyterlab jupytext

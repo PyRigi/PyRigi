@@ -1,5 +1,4 @@
 (installation-guide)=
-
 # Installation
 
 If you are familiar with `pip`, you can install the latest version of PyRigi including the necessary dependencies
@@ -12,7 +11,7 @@ Otherwise, see how to start using Python and `PyRigi` depending on your [operati
 Alternatively, one can clone/download the package
 from [this GitHub repository](https://github.com/pyRigi/PyRigi),
 see the branch `dev` for the development version.
-Installation for development is done via [Poetry](dependencies).
+Installation for development is done via [Poetry](#dependencies-poetry).
 
 (optional-packages)=
 ## Optional packages
