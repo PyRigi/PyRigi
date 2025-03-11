@@ -1087,6 +1087,9 @@ def test_stress_matrix():
         pytest.param(fws.Complete(5), 3, marks=pytest.mark.slow_main),
         [fws.Frustum(3), 1],
         [fws.Frustum(4), 1],
+        pytest.param(fws.Frustum(5), 1, marks=pytest.mark.long_local),
+        [fws.ThreePrism(realization="flexible"), 1],
+        [fws.ThreePrism(realization="parallel"), 1],
         [fws.ConnellyExampleSecondOrderRigidity(), 2],
         [fws.CompleteBipartite(3, 3, realization="collinear"), 4],
     ],
@@ -1097,6 +1100,27 @@ def test_stresses(framework, num_stresses):
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
 
     stresses = framework.stresses()
+    assert len(stresses) == num_stresses and all(
+        [framework.is_stress(s, numerical=True) for s in stresses]
+    )
+
+
+@pytest.mark.parametrize(
+    "framework, num_stresses",
+    [
+        [fws.CompleteBipartite(4, 4), 3],
+        [fws.Complete(4), 1],
+        [fws.Complete(5), 3],
+        [fws.Complete(6), 6],
+        [fws.ThreePrism(realization="flexible"), 1],
+        [fws.ThreePrism(realization="parallel"), 1],
+        [fws.ConnellyExampleSecondOrderRigidity(), 2],
+        [fws.CompleteBipartite(3, 3, realization="collinear"), 4],
+    ]
+    + [[fws.Frustum(i), 1] for i in range(3, 8)],
+)
+def test_stresses_numerical(framework, num_stresses):
+    stresses = framework.stresses(numerical=True)
     assert len(stresses) == num_stresses and all(
         [framework.is_stress(s, numerical=True) for s in stresses]
     )
