@@ -39,11 +39,11 @@ jobs:
     - name: Convert notebooks from md to ipynb
       run: |
         cd doc/userguide/tutorials/
-        jupytext --to notebook  *.md
+        poetry run jupytext --to notebook  *.md
         mkdir  --verbose ../../notebooks
         cp --verbose *.ipynb ../../notebooks
         cd ..
-        jupytext --to notebook  getting_started.md
+        poetry run jupytext --to notebook  getting_started.md
         cp --verbose getting_started.ipynb ../notebooks
         cd ..
     - name: Test doc compilation
