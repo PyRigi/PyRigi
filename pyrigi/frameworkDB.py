@@ -454,3 +454,12 @@ def ConnellyExampleSecondOrderRigidity() -> Framework:
         ]
     )
     return F
+
+
+def Wheel(k: int):
+    """
+    Create the wheel framework on k+1 vertices.
+    """
+    _input_check.integrality_and_range(k, "k", min_val=3)
+    G = graphs.Wheel(k)
+    return Framework(G, Cycle(k).realization(as_points=True) | {k: [0, 0]})

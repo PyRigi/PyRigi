@@ -131,7 +131,6 @@ def test_CnSymmetricWithFixedVertex():
 
     for i in range(4, 10):
         G = graphs.CnSymmetricWithFixedVertex(2 * i)
-        print(G.number_of_edges())
         assert (
             G.number_of_nodes() == 4 * i + 1
             and G.number_of_edges() == 10 * i
@@ -147,3 +146,17 @@ def test_Icosahedral():
 def test_Dodecahedron():
     G = graphs.Dodecahedral()
     assert G.number_of_nodes() == 20 and G.number_of_edges() == 30
+
+
+def test_Wheel():
+    with pytest.raises(ValueError):
+        graphs.Wheel(1)
+        graphs.Wheel(2)
+
+    for k in range(3, 10):
+        G = graphs.Wheel(k)
+        assert (
+            G.number_of_nodes() == k + 1
+            and G.number_of_edges() == 2 * k
+            and all([G.degree[v] in [3, k] for v in G.nodes])
+        )
