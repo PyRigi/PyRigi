@@ -126,7 +126,7 @@ def test_is_not_rigid_d1(graph):
     "graph, dim",
     [
         [graphs.K66MinusPerfectMatching(), 3],
-        pytest.param(graphs.Icosahedral(), 3, marks=pytest.mark.slow_main),
+        pytest.param(graphs.Icosahedral(), 3, marks=pytest.mark.long_local),
     ]
     + [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
 )
@@ -306,7 +306,7 @@ def test_is_min_rigid_d3(graph):
         graphs.CubeWithDiagonal(),
         graphs.CompleteBipartite(5, 5),
         graphs.DoubleBanana(dim=3),
-        pytest.param(graphs.ThreeConnectedR3Circuit(), marks=pytest.mark.slow_main),
+        pytest.param(graphs.ThreeConnectedR3Circuit(), marks=pytest.mark.long_local),
         graphs.Dodecahedral(),
     ],
 )
@@ -375,7 +375,7 @@ def read_sparsity(filename):
         [read_globally("D19V20"), 19],
         pytest.param(read_globally("D19V21"), 19, marks=pytest.mark.slow_main),
         pytest.param(read_globally("D19V22"), 19, marks=pytest.mark.slow_main),
-        pytest.param(read_globally("D19V23"), 19, marks=pytest.mark.slow_main),
+        pytest.param(read_globally("D19V23"), 19, marks=pytest.mark.long_local),
     ],
 )
 def test_is_globally_rigid(graph, gdim):
@@ -1127,8 +1127,12 @@ def test_rigid_components(graph, components, dim):
         Graph(nx.gnm_random_graph(30, 62)),
         pytest.param(Graph(nx.gnm_random_graph(25, 46)), marks=pytest.mark.slow_main),
         pytest.param(Graph(nx.gnm_random_graph(40, 80)), marks=pytest.mark.slow_main),
-        pytest.param(Graph(nx.gnm_random_graph(100, 230)), marks=pytest.mark.slow_main),
-        pytest.param(Graph(nx.gnm_random_graph(100, 190)), marks=pytest.mark.slow_main),
+        pytest.param(
+            Graph(nx.gnm_random_graph(100, 230)), marks=pytest.mark.long_local
+        ),
+        pytest.param(
+            Graph(nx.gnm_random_graph(100, 190)), marks=pytest.mark.long_local
+        ),
     ],
 )
 def test_rigid_components_pebble_random_graphs(graph):
