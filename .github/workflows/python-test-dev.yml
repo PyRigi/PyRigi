@@ -45,7 +45,7 @@ jobs:
         cd ..
         poetry run jupytext --to notebook  getting_started.md
         cp --verbose getting_started.ipynb ../notebooks
-        cd ..
     - name: Test doc compilation
       run: |
+        cd doc
         poetry run make SPHINXOPTS=--fail-on-warning html
