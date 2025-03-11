@@ -9,7 +9,7 @@ _prestress stable_ if there exists an {prf:ref}`equilibrium stress <def-equilibr
 $\omega$ such that for every {prf:ref}`nontrivial infinitesimal flex <def-trivial-inf-flex>` $q$ 
 it holds that
 \begin{equation*}
-\sum_{ij\in E} \omega_{ij}\cdot ||q_i-q_j||^2\,>\,0.
+    \sum_{uv\in E} \omega_{uv}\cdot ||q_u-q_v||^2\,>\,0.
 \end{equation*} 
 
 {{pyrigi_crossref}} {meth}`~.Framework.is_prestress_stable`
@@ -24,7 +24,7 @@ Let $G=(V,E)$ be a graph and let $F$ be a $d$-dimensional
 {prf:ref}`infinitesimal flex <def-inf-flex>` of $F$. A _second-order flex_ $p''$ 
 of $F$ corresponding to $q$ is defined by the equation
 \begin{equation*}
-R(G, p)\cdot p'' + R(G, q)\cdot q = 0
+    R(G, p)\cdot p'' + R(G, q)\cdot q = 0
 \end{equation*} 
 for the {prf:ref}`rigidity matrix <def-rigidity-matrix>` $R(G, p)$ of $F$. 
 If there is no second-order flex $p''$ for a 
@@ -53,7 +53,7 @@ A framework $F=(G,p)$ is second-order rigid in $\RR^d$ if and only if for every
 {prf:ref}`nontrivial infinitesimal flex <def-trivial-inf-flex>` $q$ of $F$ there
  is an {prf:ref}`equilibrium stress <def-equilibrium-stress>` $\omega$ such that 
 \begin{equation*}
-\sum_{ij \in E} \omega_{ij}\cdot ||q_i-q_j||^2\,>\,0.
+    \sum_{uv \in E} \omega_{uv}\cdot ||q_u-q_v||^2\,>\,0.
 \end{equation*} 
 
 {{references}} {cite:p}`ConnellyGortler2017{Thm 2.5}`
@@ -67,15 +67,15 @@ by a swap of quantifiers, they are indeed separate concepts, as the following ex
 
 Let $G = (V, E)$ be the graph where $V = \{1, \dots, 8\}$ and
 \begin{equation*}
-E=\{\{1, 2\},\, \{1, 3\},\, \{1,4\},\, \{1, 6\},\, \{1, 7\},\,
-\{2,3\},\, \{2,5\},\, \{2, 7\},\, \{3, 4\},\, \{3, 5\},\,
-\{4,5\},\, \{4,6\},\,
-\{5,6\},\, \{5,7\},\,
-\{6, 7\}\}.
+    E=\{\{1, 2\},\, \{1, 3\},\, \{1,4\},\, \{1, 6\},\, \{1, 7\},\,
+    \{2,3\},\, \{2,5\},\, \{2, 7\},\, \{3, 4\},\, \{3, 5\},\,
+    \{4,5\},\, \{4,6\},\,
+    \{5,6\},\, \{5,7\},\,
+    \{6, 7\}\}.
 \end{equation*}
 We describe a {prf:ref}`framework <def-framework>` on $G$ by the {prf:ref}`realization <def-framework>` $p:V\rightarrow \RR^3$ defined by
 \begin{equation*}
-p(1)=(0,0,0),~p(2)=p(6)=(0,1,0),~p(3)=(0,0,1),p(4)=p(7)=(1,0,0),~p(5)=(1,1,0).
+    p(1)=(0,0,0),~p(2)=p(6)=(0,1,0),~p(3)=(0,0,1),p(4)=p(7)=(1,0,0),~p(5)=(1,1,0).
 \end{equation*}
 This framework has a two-dimensional set of {prf:ref}`nontrivial infinitesimal flexes <def-trivial-inf-flex>`
 and a two-dimensional set of {prf:ref}`equilibrium stresses <def-equilibrium-stress>`.
@@ -91,7 +91,7 @@ there is a single stress or infinitesimal motion, the problem becomes easier:
 
 If there is only one {prf:ref}`nontrivial infinitesimal flex <def-trivial-inf-flex>` $q$, we check for a basis
 $(\omega^{(k)})_{k=1}^r$ of the stress space such that the stress energy
-$\sum_{ij \in E} \omega^{(k)}_{ij} \cdot ||q(i)-q(j)||^2$
+$\sum_{uv \in E} \omega^{(k)}_{uv} \cdot ||q(u)-q(v)||^2$
 is always non-zero by verifying that not all of these energies
 become simultaneously 0 for all $k=1,\dots,m$.
 
@@ -99,7 +99,7 @@ If there is only one {prf:ref}`equilibrium stress <def-equilibrium-stress>`, den
 space by $(q^{(k)})_{k=1}^s$. Next, we consider the coefficients
 of the monomials $({a_i}\cdot{a_j} \,:\, i,j=1,\dots,s)$ in the quadratic polynomial
 \begin{equation*}
-E_{q,\omega}(a)=\sum_{ij \in E} \omega_{ij} \cdot ||\sum_{k=1}^s a_k \cdot (q^{(k)}(i)-q^{(k)}(j))||^2.
+    E_{q,\omega}(a)=\sum_{uv \in E} \omega_{uv} \cdot ||\sum_{k=1}^s a_k \cdot (q^{(k)}(u)-q^{(k)}(v))||^2.
 \end{equation*}
 A simple result about sums of nonnegative circuits (cf. {cite:p}`IlimandeWolff2016{Thm 3.8}`)
 then lets us characterize the positivity of the stress energy. 
@@ -152,7 +152,7 @@ and the space of {prf:ref}`stresses <def-equilibrium-stress>` by variables
 $(b_{j})_{j=1}^r$. This turns the stress energy into a cubic polynomial that is homogeneous
 and quadratic in $a_i$ and homogeneously linear in $b_j$:
 \begin{equation*}
-E_{q,\omega}(a,b)=\sum_{k=1}^s \sum_{ij \in E} b_k \cdot \omega^{(k)}_{ij} \cdot ||\sum_{\ell=1}^r a_\ell \cdot ( q^{(\ell)}(i)-q^{(\ell)}(j) )||^2
+    E_{q,\omega}(a,b)=\sum_{k=1}^s \sum_{uv \in E} b_k \cdot \omega^{(k)}_{uv} \cdot ||\sum_{\ell=1}^r a_\ell \cdot ( q^{(\ell)}(u)-q^{(\ell)}(v) )||^2
 \end{equation*}
 
 :::{prf:corollary} Polynomial criterion for second-order rigidity
