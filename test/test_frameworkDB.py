@@ -307,3 +307,24 @@ def test_Dodecahedron():
     edge_lengths = list(F.edge_lengths().values())
     for length in edge_lengths:
         assert sp.simplify(length - edge_lengths[0]) == 0
+
+
+def test_Wheel():
+    with pytest.raises(ValueError):
+        fws.Wheel(1)
+        fws.Wheel(2)
+
+    for k in range(3, 10):
+        F = fws.Wheel(k)
+        G = graphs.Wheel(k)
+        assert G.is_isomorphic(F.graph()) and all(
+            [
+                any(
+                    [
+                        sp.simplify(sp.sympify(sum([p**2 for p in pos]) - val)).is_zero
+                        for val in [0, 1]
+                    ]
+                )
+                for pos in F.realization(as_points=True).values()
+            ]
+        )
