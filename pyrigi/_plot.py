@@ -21,7 +21,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
-from pyrigi.misc import sympy_expr_to_float
+from pyrigi.misc import sympy_expr_to_float, is_zero_vector
 
 
 def resolve_inf_flex(
@@ -106,16 +106,14 @@ def resolve_inf_flex(
 
     # normalize the edge lengths by the Euclidean norm of the longest one
     flex_mag = max(magnidutes)
-    for flex_key in inf_flex_pointwise.keys():
-        if not all(entry == 0 for entry in inf_flex_pointwise[flex_key]):
-            inf_flex_pointwise[flex_key] = tuple(
-                flex / flex_mag for flex in inf_flex_pointwise[flex_key]
-            )
+    for v, flex in inf_flex_pointwise.items():
+        if not is_zero_vector(inf_flex):
+            inf_flex_pointwise[v] = tuple(coord / flex_mag for coord in flex)
     # Delete the edges with zero length
     inf_flex_pointwise = {
-        flex_key: np.array(inf_flex_pointwise[flex_key], dtype=float)
-        for flex_key in inf_flex_pointwise.keys()
-        if not all(entry == 0 for entry in inf_flex_pointwise[flex_key])
+        v: np.array(flex, dtype=float)
+        for v, flex in inf_flex_pointwise.items()
+        if not is_zero_vector(flex)
     }
 
     return inf_flex_pointwise
