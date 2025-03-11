@@ -1565,7 +1565,7 @@ class Framework(object):
             return self.is_dict_stress(stress, **kwargs)
         else:
             raise TypeError(
-                "The `stress` must be specified either by a vector or a dictionary!"
+                "The `stress` must be specified either by a list/Matrix or a dictionary!"
             )
 
     @doc_category("Infinitesimal rigidity")
@@ -1732,7 +1732,7 @@ class Framework(object):
         vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
-    ) -> list[Matrix]:
+    ) -> list[Matrix] | list[list[float]]:
         r"""
         Return a basis of the space of infinitesimal flexes.
 
@@ -1756,9 +1756,9 @@ class Framework(object):
             of the infinitesimal flexes.
             If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
         numerical:
-            Whether the check is symbolic (default) or numerical.
+            Determines whether the output is symbolic (default) or numerical.
         tolerance
-            Used tolerance when checking numerically.
+            Used tolerance when computing the infinitesimal flex numerically.
 
         Examples
         --------
@@ -1821,7 +1821,10 @@ class Framework(object):
         else:
             F = Framework(self._graph, self.realization(as_points=True, numerical=True))
             inf_flexes = _null_space(
-                np.array(F.rigidity_matrix()).astype(np.float64), tolerance=tolerance
+                np.array(F.rigidity_matrix(vertex_order=vertex_order)).astype(
+                    np.float64
+                ),
+                tolerance=tolerance,
             )
             inf_flexes = [inf_flexes[:, i] for i in range(inf_flexes.shape[1])]
             K = Framework(
@@ -1829,7 +1832,10 @@ class Framework(object):
                 self.realization(as_points=True, numerical=True),
             )
             inf_flexes_trivial = _null_space(
-                np.array(K.rigidity_matrix()).astype(np.float64), tolerance=tolerance
+                np.array(K.rigidity_matrix(vertex_order=vertex_order)).astype(
+                    np.float64
+                ),
+                tolerance=tolerance,
             )
             s = inf_flexes_trivial.shape[1]
             extend_basis_matrix = inf_flexes_trivial
@@ -1845,7 +1851,12 @@ class Framework(object):
             return [Q[:, i] for i in range(Q.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
-    def stresses(self, edge_order: Sequence[Edge] = None) -> list[Matrix]:
+    def stresses(
+        self,
+        edge_order: Sequence[Edge] = None,
+        numerical: bool = False,
+        tolerance: float = 1e-9,
+    ) -> list[Matrix] | list[list[float]]:
         r"""
         Return a basis of the space of equilibrium stresses.
 
@@ -1858,6 +1869,10 @@ class Framework(object):
         edge_order:
             A list of edges, providing the ordering for the entries of the stresses.
             If none is provided, the list from :meth:`~Graph.edge_list` is taken.
+        numerical:
+            Determines whether the output is symbolic (default) or numerical.
+        tolerance:
+            Used tolerance when computing the stresses numerically.
 
         Examples
         --------
@@ -1873,7 +1888,16 @@ class Framework(object):
         [ 2],
         [ 1]])]
         """
-        return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
+        if not numerical:
+            return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
+        F = Framework(self._graph, self.realization(as_points=True, numerical=True))
+        stresses = _null_space(
+            np.array(F.rigidity_matrix(edge_order=edge_order).transpose()).astype(
+                np.float64
+            ),
+            tolerance=tolerance,
+        )
+        return [list(stresses[:, i]) for i in range(stresses.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
@@ -2042,7 +2066,7 @@ class Framework(object):
         edges = self._graph.edge_list(as_tuples=True)
         stresses = [
             self._transform_stress_to_edgewise(stress, edge_order=edges)
-            for stress in self.stresses()
+            for stress in self.stresses(numerical=numerical, tolerance=tolerance)
         ]
         inf_flexes = [
             self._transform_inf_flex_to_pointwise(q)
@@ -2199,8 +2223,8 @@ class Framework(object):
         In case that ``numerical=False``, this method only
         properly works for symbolic coordinates.
         """
-        stresses = self.stresses()
-        inf_flexes = self.inf_flexes()
+        stresses = self.stresses(numerical=numerical, tolerance=tolerance)
+        inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
         if self.is_inf_rigid():
             return True
         if len(inf_flexes) == 0 or len(stresses) == 0:
