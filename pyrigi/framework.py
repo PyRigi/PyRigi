@@ -41,6 +41,7 @@ from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
     generate_category_tables,
+    is_zero,
     is_zero_vector,
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
@@ -2299,15 +2300,8 @@ class Framework(object):
             otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
 
             difference = sp.simplify(dist_squared - otherdist_squared)
-            if not difference.is_zero:
-                if not numerical:
-                    return False
-                elif (
-                    numerical
-                    and abs(sympy_expr_to_float(difference, tolerance=tolerance))
-                    > tolerance
-                ):
-                    return False
+            if not is_zero(difference, numerical=numerical, tolerance=tolerance):
+                return False
         return True
 
     @doc_category("Framework properties")
@@ -2377,15 +2371,8 @@ class Framework(object):
             otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
 
             difference = sp.simplify(otherdist_squared - dist_squared)
-            if not difference.is_zero:
-                if not numerical:
-                    return False
-                elif (
-                    numerical
-                    and abs(sympy_expr_to_float(difference, tolerance=tolerance))
-                    > tolerance
-                ):
-                    return False
+            if not is_zero(difference, numerical=numerical, tolerance=tolerance):
+                return False
         return True
 
     @doc_category("Framework properties")

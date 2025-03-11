@@ -153,6 +153,31 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     return Q @ np.diag(np.sign(np.diag(R)))
 
 
+def is_zero(expr, numerical: bool = False, tolerance: float = 1e-9) -> bool:
+    """
+    Check if the given expression is zero.
+
+    Parameters
+    ----------
+    expr:
+        Expression that is checked.
+    numerical:
+        If ``True``, then the check is done only numerically with the given tolerance.
+        If ``False`` (default), the check is done symbolically,
+        ``sympy`` method ``equals`` is used.
+    tolerance:
+        The tolerance that is used in the numerical check coordinate-wise.
+    """
+    if not numerical:
+        return sp.cancel(sp.sympify(expr)).equals(0)
+    else:
+        return isclose(
+            sympy_expr_to_float(expr, tolerance=tolerance),
+            0,
+            abs_tol=tolerance,
+        )
+
+
 def is_zero_vector(
     vector: Sequence[Number], numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
@@ -172,19 +197,9 @@ def is_zero_vector(
     """
     if not isinstance(vector, Matrix):
         vector = point_to_vector(vector)
-    if not numerical:
-        return all([coord.is_zero for coord in vector])
-    else:
-        return all(
-            [
-                isclose(
-                    coord,
-                    0,
-                    abs_tol=tolerance,
-                )
-                for coord in sympy_expr_to_float(vector, tolerance=tolerance)
-            ]
-        )
+    return all(
+        [is_zero(coord, numerical=numerical, tolerance=tolerance) for coord in vector]
+    )
 
 
 def sympy_expr_to_float(
@@ -255,7 +270,7 @@ def normalize_flex(
                 v: tuple([q / flex_norm for q in flex]) for v, flex in _inf_flex.items()
             }
         flex_norm = sp.sqrt(sum([q**2 for flex in inf_flex.values() for q in flex]))
-        if flex_norm.is_zero:
+        if is_zero(flex_norm, numerical=numerical, tolerance=tolerance):
             raise ValueError("The norm of this flex is zero.")
         return {v: tuple([q / flex_norm for q in flex]) for v, flex in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
@@ -268,7 +283,7 @@ def normalize_flex(
                 raise ValueError("The norm of this flex is almost zero.")
             return [flex / flex_norm for flex in _inf_flex]
         flex_norm = sp.sqrt(sum([flex**2 for flex in inf_flex]))
-        if flex_norm.is_zero:
+        if is_zero(flex_norm, numerical=numerical, tolerance=tolerance):
             raise ValueError("The norm of this flex is zero.")
         return [flex / flex_norm for flex in inf_flex]
     else:
