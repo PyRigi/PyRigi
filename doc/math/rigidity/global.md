@@ -38,7 +38,7 @@ Let $G$ be a graph, if $\Omega$ is an {prf:ref}`equilibrium stress matrix <def-s
 its kernel is called _stress kernel_; we denote it by $K(\Omega)$ and its dimension by $k(\Omega)$.
 We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges over all 
 {prf:ref}`equilibrium stress matrices <def-stress-matrix>` of all 
-{prf:ref}`generic $d$-dimensional frameworks <def-gen-realization>` of $G$.
+{prf:ref}`generic d-dimensional frameworks <def-gen-realization>` of $G$.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
@@ -47,7 +47,7 @@ We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges 
 :label: lem-k-min-stress-matrix
 
 For {prf:ref}`frameworks <def-framework>` of a graph $G$ with at least $d+1$ vertices, 
-it holds $k_{min}(G,d) \geq d+1$.
+$k_{min}(G,d) \geq d+1$ holds.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
@@ -65,7 +65,7 @@ if $k_{min}(G,d) = d+1$.
 :label: thm-k-min-stress-matrix
 
 If a graph $G$ with $d+2$ or more vertices has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\mathbb{R}^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $p$ of $G$ are globally rigid.
+in $\mathbb{R}^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $p$ of $G$ are globally $d$-rigid.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
@@ -76,34 +76,46 @@ The converse of this theorem is the following one:
 :label: thm-inverse-k-min-stress-matrix
 
 If a graph $G$ with $d+2$ or more vertices does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\mathbb{R}^d$, then any {prf:ref}`generic framework <def-gen-realization>` $p$ of $G$ is not globally rigid.
+in $\mathbb{R}^d$, then any {prf:ref}`generic framework <def-gen-realization>` $p$ of $G$ is not globally $d$-rigid.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
-The method {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid` uses the following randomized algorithm:
 
-Let $d$ be the dimension for which we want to test whether the graph is globally $d$-rigid, 
-$v$ be the number of vertices, $e$ be the number of edges, 
-$t = v\cdot d - \binom{d+1}{2}$ and $N = A\cdot v\cdot \binom{v}{2} +2$, where $A$ is a constant.
-To check if a graph with at least $d + 2$ vertices is generically globally rigid in $\RR^d$, 
-proceed as follows:
-* If $e < t$, output `False` (as the graph cannot even be generically locally rigid with so few edges), otherwise continue.
-* Pick a framework with integer coordinates randomly chosen from 1 to $N$.
-* Pick one equilibrium stress vector in a suitably random way. (If $e = t$, there are no stresses, so we consider the zero vector.) 
-* Consider the corresponding equilibrium stress matrix and compute its rank. 
-* If the rank is $v-d-1$, return `True`, otherwise return `False` .
+The following randomized algorithm from {cite:p}`GortlerHealyThurston2010` checks for global $d$-rigidity.
 
+:::{prf:algorithm}
+:label: alg-randomized-globally-rigid
+**Input:** A graph $G$ with at least $d + 2$ vertices and a dimension $d$
+
+**Output:** A statement on whether $G$ is globally $d$-rigid, `True` or `False`
+
+Let $n$ be the number of vertices, $m$ be the number of edges,
+$t = n\cdot d - \binom{d+1}{2}$ and $N = A\cdot n\cdot \binom{n}{2} +2$, where $A$ is some constant.
+
+
+1. If $m < t$, output `False` (as the graph cannot even be generically $d$-rigid with so few edges), otherwise continue.
+2. Pick a framework with integer coordinates randomly chosen from 1 to $N$.
+3. Pick an equilibrium stress vector in a suitably random way. (If $m = t$, there are no stresses, so we consider the zero vector.)
+4. Consider the corresponding equilibrium stress matrix and compute its rank.
+5. If the rank is $n-d-1$, return `True`, otherwise return `False`.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
+
+{{references}} {cite:p}`GortlerHealyThurston2010`
+:::
+
+The above algorithm may give false negatives as the following theorem tells.
 :::{prf:theorem}
 :label: thm-globally-randomize-algorithm
-
-The randomized algorithm for checking global rigidity never returns a false `True` answer, 
-and returns a false `False` answer with probability bounded above by $ve/N$, where $v$ is the
-number of vertices, $e$ is the number of edges and $N$ is an arbitrarily large integer. 
-In this case, we chose $N \geq A\cdot ve + 2$ so that the probability of getting a false `False`
+The randomized {prf:ref}`algorithm for checking global d-rigidity<alg-randomized-globally-rigid>`  never returns a false positive answer,
+and returns a false negative answer with probability bounded above by $nm/N$, where $n$ is the
+number of vertices, $m$ is the number of edges and $N$ is an arbitrarily large integer.
+In this case, we chose $N \geq A\cdot nm + 2$ so that the probability of getting a false negative
 is less than $1/A$.
-In particular, checking for generic global rigidity in $\mathbb{R}^d$ is in $RP$, i.e., 
+In particular, checking for generic global $d$-rigidity is in $RP$, i.e.,
 the class of randomized polynomial time algorithms.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
+
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::

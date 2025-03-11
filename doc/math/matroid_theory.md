@@ -16,7 +16,7 @@ A _matroid_ $\mathcal{M}=(E, \mathcal{I})$ is a pair consisting of a finite set 
 A subset of the ground set $E$ that is not independent is called _dependent_. A maximal independent set
 – that is, an independent set that becomes dependent upon adding any element of $E$ –
 is called a _basis_ for the matroid.
-A _circuit_ is a minimal dependent subset of $E$
+An _$\mathcal{M}$-circuit_ (or _circuit_) is a minimal dependent subset of $E$
 – that is, a dependent set whose proper subsets are all independent.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_Rd_independent`
