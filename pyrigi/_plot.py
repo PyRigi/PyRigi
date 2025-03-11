@@ -64,7 +64,7 @@ def resolve_inf_flex(
     else:
         raise TypeError("inf_flex does not have the correct Type.")
 
-    if not framework.is_dict_inf_flex(inf_flex_pointwise):
+    if not framework.is_dict_inf_flex(inf_flex_pointwise, numerical=True):
         raise ValueError("The provided `inf_flex` is not an infinitesimal flex.")
     if framework.dim() == 1:
         inf_flex_pointwise = {
@@ -277,7 +277,7 @@ def resolve_stress(
     else:
         raise TypeError("`stress` does not have the correct Type.")
 
-    if not framework.is_dict_stress(stress_edgewise):
+    if not framework.is_dict_stress(stress_edgewise, numerical=True):
         raise ValueError("The provided `stress` is not an equilibrium stress.")
 
     if plot_style.stress_normalization:
