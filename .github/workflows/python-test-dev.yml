@@ -36,7 +36,16 @@ jobs:
       run: |
         poetry run pytest --doctest-modules
         # --doctest-modules overrides the default --doctest-plus
+    - name: Convert notebooks from md to ipynb
+      run: |
+        cd doc/userguide/tutorials/
+        poetry run jupytext --to notebook  *.md
+        mkdir  --verbose ../../notebooks
+        cp --verbose *.ipynb ../../notebooks
+        cd ..
+        poetry run jupytext --to notebook  getting_started.md
+        cp --verbose getting_started.ipynb ../notebooks
     - name: Test doc compilation
       run: |
         cd doc
-        poetry run make html
+        poetry run make SPHINXOPTS=--fail-on-warning html

@@ -1,5 +1,4 @@
-
-(dependencies)=
+(dependencies-poetry)=
 # Dependencies
 
 We maintain the dependencies of the package using [Poetry](https://python-poetry.org/).

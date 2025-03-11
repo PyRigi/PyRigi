@@ -26,7 +26,7 @@ Therefore, before opening a pull request we **strongly advise** to run
 ```
 pytest
 ```
-in the root folder of PyRigi (with Poetry environment [activated](dependencies)).
+in the root folder of PyRigi (with Poetry environment [activated](#dependencies-poetry)).
 The reason why the examples in the docstrings are tested is to make sure their outputs are valid,
 they do **not** replace the tests in the `test` folder.
 If you do not want to run doctests, run
@@ -41,7 +41,7 @@ if you want to skip some specific optional feature(s), run
 ```
 pytest -m "not slow_main and not long_local and not opt_feature1 and not opt_feature2"
 ```
-See the file `pyproject.toml` for the markers that specify groups of tests relying on [optional packages](optional-packages).
+See the file `pyproject.toml` for the markers that specify groups of tests relying on [optional packages](#optional-packages).
 
 We mark tests that take longer time according to the following table:
 
