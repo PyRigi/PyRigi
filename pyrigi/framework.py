@@ -17,7 +17,6 @@ from __future__ import annotations
 import functools
 from copy import deepcopy
 from itertools import combinations
-from math import isclose
 from random import randrange
 from typing import Any
 
@@ -41,6 +40,7 @@ from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
     doc_category,
     generate_category_tables,
+    is_zero,
     is_zero_vector,
     generate_two_orthonormal_vectors,
     generate_three_orthonormal_vectors,
@@ -1539,6 +1539,11 @@ class Framework(object):
         >>> omega1[0] = 0
         >>> F.is_stress(omega1)
         False
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(5, dim=2)
+        >>> stresses=F.stresses()
+        >>> F.is_stress(stresses[0])
+        True
         """
         edge_order = self._graph._input_check_edge_order(edge_order=edge_order)
         return is_zero_vector(
@@ -2105,11 +2110,12 @@ class Framework(object):
                         ]
                     )
                 )
-            if numerical:
-                return any(
-                    [not isclose(Q, 0, abs_tol=tolerance) for Q in stress_energy_list]
-                )
-            return any([not sp.sympify(Q).is_zero for Q in stress_energy_list])
+            return any(
+                [
+                    not is_zero(Q, numerical=numerical, tolerance=tolerance)
+                    for Q in stress_energy_list
+                ]
+            )
 
         if len(stresses) == 1:
             a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
@@ -2299,15 +2305,8 @@ class Framework(object):
             otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
 
             difference = sp.simplify(dist_squared - otherdist_squared)
-            if not difference.is_zero:
-                if not numerical:
-                    return False
-                elif (
-                    numerical
-                    and abs(sympy_expr_to_float(difference, tolerance=tolerance))
-                    > tolerance
-                ):
-                    return False
+            if not is_zero(difference, numerical=numerical, tolerance=tolerance):
+                return False
         return True
 
     @doc_category("Framework properties")
@@ -2377,15 +2376,8 @@ class Framework(object):
             otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
 
             difference = sp.simplify(otherdist_squared - dist_squared)
-            if not difference.is_zero:
-                if not numerical:
-                    return False
-                elif (
-                    numerical
-                    and abs(sympy_expr_to_float(difference, tolerance=tolerance))
-                    > tolerance
-                ):
-                    return False
+            if not is_zero(difference, numerical=numerical, tolerance=tolerance):
+                return False
         return True
 
     @doc_category("Framework properties")

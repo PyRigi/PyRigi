@@ -1107,7 +1107,7 @@ def test_stresses(framework, num_stresses):
 
     stresses = framework.stresses()
     assert len(stresses) == num_stresses and all(
-        [framework.is_stress(s, numerical=True) for s in stresses]
+        [framework.is_stress(s) for s in stresses]
     )
 
 
