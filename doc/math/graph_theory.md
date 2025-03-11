@@ -76,8 +76,8 @@ is called a $d$-dimensional _k-extension_ of $G$.
 :::{prf:definition} Cone graph
 :label: def-cone-graph
 
-Let $G=(V,E)$ be a graph. _Coning a graph_ adds a new vertex $v^*\notin V$ and adds edges $(u,v^*)$
-for all vertices $u\in V$ so that $E^*=E\cup \{(u,v^*)\,:\, u\in V\}$,
+Let $G=(V,E)$ be a graph. _Coning a graph_ adds a new vertex $v^*\notin V$ and adds edges $\{u,v^*\}$
+for all vertices $u\in V$ so that $E^*=E\cup \{\{u,v^*\}\,:\, u\in V\}$,
 creating the _cone graph_ $G*\{v^*\} = (V\cup \{v^*\}, E^*)$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.cone`
