@@ -112,7 +112,7 @@ and returns a false negative answer with probability bounded above by $nm/N$, wh
 number of vertices, $m$ is the number of edges and $N$ is an arbitrarily large integer.
 In this case, we chose $N \geq A\cdot nm + 2$ so that the probability of getting a false negative
 is less than $1/A$.
-In particular, checking for generic global $d$-rigidity in $\mathbb{R}^d$ is in $RP$, i.e.,
+In particular, checking for generic global $d$-rigidity is in $RP$, i.e.,
 the class of randomized polynomial time algorithms.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
