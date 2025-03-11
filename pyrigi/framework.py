@@ -1732,7 +1732,7 @@ class Framework(object):
         vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
-    ) -> list[Matrix]:
+    ) -> list[Matrix] | list[list[float]]:
         r"""
         Return a basis of the space of infinitesimal flexes.
 
@@ -1897,7 +1897,7 @@ class Framework(object):
             ),
             tolerance=tolerance,
         )
-        return [[w for w in stresses[:, i]] for i in range(stresses.shape[1])]
+        return [list(stresses[:, i]) for i in range(stresses.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
     def rigidity_matrix_rank(self) -> int:
