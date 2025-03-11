@@ -1540,6 +1540,11 @@ class Framework(object):
         >>> omega1[0] = 0
         >>> F.is_stress(omega1)
         False
+        >>> from pyrigi import frameworkDB
+        >>> F = frameworkDB.Complete(5, dim=2)
+        >>> stresses=F.stresses()
+        >>> F.is_stress(stresses[0])
+        True
         """
         edge_order = self._graph._input_check_edge_order(edge_order=edge_order)
         return is_zero_vector(
