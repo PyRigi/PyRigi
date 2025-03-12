@@ -171,8 +171,10 @@ def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> b
     if not numerical:
         zero_bool = sp.simplify(sp.cancel(sp.sympify(expr))).equals(0)
         if zero_bool is None:
-            raise ValueError(
-                f"The expression `{expr}` could not be simplified by sympy."
+            raise RuntimeError(
+                f"The expression `{expr}` could not be simplified by sympy.^"
+                + "Please report this as an issue on Github "
+                + "(https://github.com/PyRigi/PyRigi/issues)."
             )
         return zero_bool
     else:
