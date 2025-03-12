@@ -8,8 +8,8 @@ The framework $(G, p)$ is called
 
 * _redundantly (infinitesimally) $d$-rigid_ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
 * _vertex redundantly (infinitesimally) $d$-rigid_ if removing any vertex from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
-* _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ edges from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
-* _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ vertices from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`.
+* _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of of at most $k$ edges from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
+* _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of at most $k$ vertices from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`.
 
 {{pyrigi_crossref}} {meth}`~.Framework.is_redundantly_rigid`
 :::
@@ -54,6 +54,25 @@ Note, that the word generically is often omitted when talking about graphs.
 :::
 
 ## (Edge) Redundancy
+:::{prf:theorem}
+:label: thm-red-min-deg
+
+Let $G = (V, E)$ be a {prf:ref}`k-redundantly d-rigid <def-redundantly-rigid-graph>` graph with at least $d+k+1$ vertices,
+then the minimum degree of $G$ is at least $d+k$.
+
+{{references}} {cite:p}`Jordan2021{Lem 2}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-redundant-edge-subset
+
+A graph $G = (V, E)$ is {prf:ref}`k-redundantly d-rigid <def-redundantly-rigid-graph>` if and only if the removal of any set of $k$ edges yields a $d$-rigid graph.
+
+{{references}} {cite:p}`YuAnderson2009{Obs 1}`
+:::
+
+
 :::{prf:theorem}
 :label: thm-k-edge-redundant-edge-bound-dim2
 
@@ -115,6 +134,25 @@ Let $G = (V, E)$ be a {prf:ref}`minimally 1-redundantly 2-rigid <def-redundantly
 
 
 ## Vertex Redundancy
+:::{prf:theorem}
+:label: thm-vertex-red-min-deg
+
+Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-rigid-graph>` graph with at least $d+k+1$ vertices,
+then the minimum degree of $G$ is at least $d+k$.
+
+{{references}} {cite:p}`Jordan2021{Lem 2}`
+:::
+
+:::{prf:theorem}
+:label: thm-redundant-vertex-subset
+
+Let $G = (V, E)$ be a graph with at least $k+2$ vertices.
+Then $G$ is {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-rigid-graph>` if and only if the removal of any set of $k$ vertices yields a $d$-rigid graph.
+
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Lem 1}`
+{cite:p}`YuAnderson2009{Obs 6}`
+:::
+
 :::{prf:theorem}
 :label: thm-k-vertex-redundant-edge-bound-general
 
@@ -223,3 +261,12 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly 1-rigid <def-redu
 {{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 8}`
 :::
 
+
+:::{prf:theorem}
+:label: thm-vertex-implies_edge
+
+Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-rigid-graph>` graph with at least $d+k+1$ vertices,
+then $G$ is {prf:ref}`k-redundantly d-rigid <def-redundantly-rigid-graph>`.
+
+{{references}} {cite:p}`Jordan2021{Thm 1}`
+:::
