@@ -2909,64 +2909,63 @@ def test_is_not_critically_k_edge_apex(graph, k):
 
 
 def test_randomized_rigidity_properties():
-    d = 2
-    for n in range(1, 7):
-        for m in range(1, math.comb(n, 2) + 1):
-            for x in range(10):
-                G = Graph(nx.gnm_random_graph(n, m))
-                print(G)
-                prop_rigid = G.is_rigid(d)
-                prop_min_rigid = G.is_min_rigid(d)
-                prop_glob_rigid = G.is_globally_rigid(d)
-                prop_red_rigid = G.is_redundantly_rigid(d)
-                prop_2_red_rigid = G.is_k_redundantly_rigid(2, d)
-                prop_3_red_rigid = G.is_k_redundantly_rigid(3, d)
-                prop_vred_rigid = G.is_vertex_redundantly_rigid(d)
-                prop_2_vred_rigid = G.is_k_vertex_redundantly_rigid(2, d)
-                prop_3_vred_rigid = G.is_k_vertex_redundantly_rigid(3, d)
-                if prop_min_rigid:
-                    assert prop_rigid
-                if prop_glob_rigid:
-                    assert prop_rigid
-                if prop_red_rigid:
-                    assert prop_rigid
-                    if G.number_of_nodes() >= d + 1 + 1:
-                        assert G.min_degree() >= d + 1  # thm-vertex-red-min-deg
-                if prop_2_red_rigid:
-                    assert prop_rigid
-                    assert prop_red_rigid
-                    if G.number_of_nodes() >= d + 2 + 1:
-                        assert G.min_degree() >= d + 2  # thm-vertex-red-min-deg
-                if prop_3_red_rigid:
-                    assert prop_rigid
-                    assert prop_2_red_rigid
-                    assert prop_red_rigid
-                    if G.number_of_nodes() >= d + 3 + 1:
-                        assert G.min_degree() >= d + 3  # thm-vertex-red-min-deg
-                if prop_vred_rigid:
-                    assert prop_rigid
-                    if G.number_of_nodes() >= d + 1 + 1:
-                        assert prop_red_rigid  # thm-vertex-implies_edge
-                        assert G.min_degree() >= d + 1  # thm-vertex-red-min-deg
-                if prop_2_vred_rigid:
-                    assert prop_rigid
-                    assert prop_vred_rigid
-                    if G.number_of_nodes() >= d + 2 + 1:
-                        assert prop_2_red_rigid  # thm-vertex-implies_edge
-                        assert G.min_degree() >= d + 2  # thm-vertex-red-min-deg
-                if prop_3_vred_rigid:
-                    assert prop_rigid
-                    assert prop_2_vred_rigid
-                    assert prop_vred_rigid
-                    if G.number_of_nodes() >= d + 3 + 1:
-                        assert prop_3_red_rigid  # thm-vertex-implies_edge
-                        assert G.min_degree() >= d + 3  # thm-vertex-red-min-deg
-                if not prop_rigid:
-                    assert not prop_min_rigid
-                    assert not prop_glob_rigid
-                    assert not prop_red_rigid
-                    assert not prop_2_red_rigid
-                    assert not prop_3_red_rigid
-                    assert not prop_vred_rigid
-                    assert not prop_2_vred_rigid
-                    assert not prop_3_vred_rigid
+    for dim in range(1, 4):
+        for n in range(1, 7):
+            for m in range(1, math.comb(n, 2) + 1):
+                for x in range(10):
+                    G = Graph(nx.gnm_random_graph(n, m))
+                    prop_rigid = G.is_rigid(dim)
+                    prop_min_rigid = G.is_min_rigid(dim)
+                    prop_glob_rigid = G.is_globally_rigid(dim)
+                    prop_red_rigid = G.is_redundantly_rigid(dim)
+                    prop_2_red_rigid = G.is_k_redundantly_rigid(2, dim)
+                    prop_3_red_rigid = G.is_k_redundantly_rigid(3, dim)
+                    prop_vred_rigid = G.is_vertex_redundantly_rigid(dim)
+                    prop_2_vred_rigid = G.is_k_vertex_redundantly_rigid(2, dim)
+                    prop_3_vred_rigid = G.is_k_vertex_redundantly_rigid(3, dim)
+                    if prop_min_rigid:
+                        assert prop_rigid
+                    if prop_glob_rigid:
+                        assert prop_rigid
+                    if prop_red_rigid:
+                        assert prop_rigid
+                        if G.number_of_nodes() >= dim + 1 + 1:
+                            assert G.min_degree() >= dim + 1  # thm-vertex-red-min-deg
+                    if prop_2_red_rigid:
+                        assert prop_rigid
+                        assert prop_red_rigid
+                        if G.number_of_nodes() >= dim + 2 + 1:
+                            assert G.min_degree() >= dim + 2  # thm-vertex-red-min-deg
+                    if prop_3_red_rigid:
+                        assert prop_rigid
+                        assert prop_2_red_rigid
+                        assert prop_red_rigid
+                        if G.number_of_nodes() >= dim + 3 + 1:
+                            assert G.min_degree() >= dim + 3  # thm-vertex-red-min-deg
+                    if prop_vred_rigid:
+                        assert prop_rigid
+                        if G.number_of_nodes() >= dim + 1 + 1:
+                            assert prop_red_rigid  # thm-vertex-implies_edge
+                            assert G.min_degree() >= dim + 1  # thm-vertex-red-min-deg
+                    if prop_2_vred_rigid:
+                        assert prop_rigid
+                        assert prop_vred_rigid
+                        if G.number_of_nodes() >= dim + 2 + 1:
+                            assert prop_2_red_rigid  # thm-vertex-implies_edge
+                            assert G.min_degree() >= dim + 2  # thm-vertex-red-min-deg
+                    if prop_3_vred_rigid:
+                        assert prop_rigid
+                        assert prop_2_vred_rigid
+                        assert prop_vred_rigid
+                        if G.number_of_nodes() >= dim + 3 + 1:
+                            assert prop_3_red_rigid  # thm-vertex-implies_edge
+                            assert G.min_degree() >= dim + 3  # thm-vertex-red-min-deg
+                    if not prop_rigid:
+                        assert not prop_min_rigid
+                        assert not prop_glob_rigid
+                        assert not prop_red_rigid
+                        assert not prop_2_red_rigid
+                        assert not prop_3_red_rigid
+                        assert not prop_vred_rigid
+                        assert not prop_2_vred_rigid
+                        assert not prop_3_vred_rigid
