@@ -1853,7 +1853,7 @@ class Framework(object):
                     extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
             Q, R = np.linalg.qr(extend_basis_matrix)
             Q = Q[:, s : np.linalg.matrix_rank(R, tol=tolerance)]
-            return [Q[:, i] for i in range(Q.shape[1])]
+            return [list(Q[:, i]) for i in range(Q.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
     def stresses(
@@ -2036,7 +2036,11 @@ class Framework(object):
 
     @doc_category("Other")
     def is_prestress_stable(
-        self, numerical: bool = False, tolerance: float = 1e-9
+        self,
+        numerical: bool = False,
+        tolerance: float = 1e-9,
+        inf_flexes: Sequence[InfFlex] = None,
+        stresses: Sequence[Stress] = None,
     ) -> bool:
         """
         Return whether the framework is prestress stable.
@@ -2053,6 +2057,9 @@ class Framework(object):
         tolerance:
             Numerical tolerance used for the check that something is
             an approximate zero.
+        inf_flexes, stresses:
+            We can provide precomputed infinitesimal flexes and stresses
+            to avoid recomputation. If not provided, they are computed here.
 
         Examples
         --------
@@ -2069,25 +2076,38 @@ class Framework(object):
         properly works for symbolic coordinates.
         """
         edges = self._graph.edge_list(as_tuples=True)
+        if inf_flexes is None:
+            inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
+        elif any(
+            not self.is_nontrivial_flex(
+                inf_flex, numerical=numerical, tolerance=tolerance
+            )
+            for inf_flex in inf_flexes
+        ):
+            raise ValueError(
+                "Some of the provided `inf_flexes` are not "
+                + "nontrivial infinitesimal flexes!"
+            )
+        inf_flexes = [self._transform_inf_flex_to_pointwise(q) for q in inf_flexes]
+
+        if stresses is None:
+            stresses = self.stresses(numerical=numerical, tolerance=tolerance)
+        elif any(
+            not self.is_stress(stress, numerical=numerical, tolerance=tolerance)
+            for stress in stresses
+        ):
+            raise ValueError(
+                "Some of the provided `stresses` are not equilibrium stresses!"
+            )
         stresses = [
             self._transform_stress_to_edgewise(stress, edge_order=edges)
-            for stress in self.stresses(numerical=numerical, tolerance=tolerance)
-        ]
-        inf_flexes = [
-            self._transform_inf_flex_to_pointwise(q)
-            for q in self.inf_flexes(numerical=numerical, tolerance=tolerance)
+            for stress in stresses
         ]
 
-        if self.is_inf_rigid():
+        if len(inf_flexes) == 0:
             return True
         if len(stresses) == 0:
             return False
-
-        if numerical:
-            stresses = [
-                {e: sympy_expr_to_float(p) for e, p in stress.items()}
-                for stress in stresses
-            ]
 
         if len(inf_flexes) == 1:
             q = inf_flexes[0]
@@ -2167,18 +2187,12 @@ class Framework(object):
                 )
             return all(
                 [
-                    (
-                        (sp.sign(coefficients[(i, i)]) == sp.sign(coefficients[(j, j)]))
-                        and (
-                            sp.sign(
-                                sp.sign(coefficients[(i, j)]) * coefficients[(i, j)]
-                                - sp.sqrt(
-                                    4 * coefficients[(i, i)] * coefficients[(j, j)]
-                                )
-                            )
-                            == -1
+                    sp.simplify(
+                        sp.cancel(
+                            4 * coefficients[(i, i)] * coefficients[(j, j)]
+                            - coefficients[(i, j)] ** 2
                         )
-                    )
+                    ).is_positive
                     for i in range(len(inf_flexes))
                     for j in range(i + 1, len(inf_flexes))
                 ]
@@ -2190,7 +2204,11 @@ class Framework(object):
 
     @doc_category("Other")
     def is_second_order_rigid(
-        self, numerical: bool = False, tolerance: float = 1e-9
+        self,
+        numerical: bool = False,
+        tolerance: float = 1e-9,
+        inf_flexes: Sequence[InfFlex] = None,
+        stresses: Sequence[Stress] = None,
     ) -> bool:
         """
         Return whether the framework is second-order rigid.
@@ -2213,7 +2231,9 @@ class Framework(object):
         tolerance:
             Numerical tolerance used for the check that something is
             an approximate zero.
-
+        inf_flexes, stresses:
+            We can provide precomputed infinitesimal flexes and stresses
+            to avoid recomputation. If not provided, they are computed here.
 
         Examples
         --------
@@ -2229,14 +2249,21 @@ class Framework(object):
         In case that ``numerical=False``, this method only
         properly works for symbolic coordinates.
         """
-        stresses = self.stresses(numerical=numerical, tolerance=tolerance)
-        inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
-        if self.is_inf_rigid():
+        if inf_flexes is None:
+            inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
+        if stresses is None:
+            stresses = self.stresses(numerical=numerical, tolerance=tolerance)
+        if len(inf_flexes) == 0:
             return True
-        if len(inf_flexes) == 0 or len(stresses) == 0:
+        if len(stresses) == 0:
             return False
         if len(stresses) == 1 or len(inf_flexes) == 1:
-            return self.is_prestress_stable(numerical=numerical, tolerance=tolerance)
+            return self.is_prestress_stable(
+                numerical=numerical,
+                tolerance=tolerance,
+                inf_flexes=inf_flexes,
+                stresses=stresses,
+            )
 
         raise ValueError("Second-order rigidity is not implemented for this framework.")
 
