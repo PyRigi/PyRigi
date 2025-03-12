@@ -169,12 +169,12 @@ def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> b
         The tolerance that is used in the numerical check coordinate-wise.
     """
     if not numerical:
-        sympy_expr = sp.simplify(sp.cancel(sp.sympify(expr)))
-        if sympy_expr is None:
+        zero_bool = sp.simplify(sp.cancel(sp.sympify(expr))).equals(0)
+        if zero_bool is None:
             raise ValueError(
                 f"The expression `{expr}` could not be simplified by sympy."
             )
-        return sympy_expr.equals(0)
+        return zero_bool
     else:
         return isclose(
             sympy_expr_to_float(expr, tolerance=tolerance),
