@@ -1544,6 +1544,8 @@ class Graph(nx.Graph):
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
+
+        # :prf:ref:`from thm-vertex-red-min-deg`
         if n >= dim + k + 1 and self.min_degree() < dim + k:
             return False
         if dim == 1:
@@ -1589,6 +1591,13 @@ class Graph(nx.Graph):
             return False
 
         # in all other cases check by definition
+        # and :prf:ref:`thm-redundant-vertex-subset`
+        if self.number_of_nodes() < k+2:
+            if not self.is_rigid(dim, algorithm, prob):
+                return False
+            for kk in range(1,k):
+                if not self.is_k_vertex_redundantly_rigid(kk, dim, algorithm, prob):
+                    return False
         G = deepcopy(self)
         for vertex_set in combinations(self.nodes, k):
             adj = [[v, list(G.neighbors(v))] for v in vertex_set]
@@ -1855,6 +1864,7 @@ class Graph(nx.Graph):
             return True
 
         # in all other cases check by definition
+        #:prf:ref:`thm-redundant-edge-subset`
         G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
             G.delete_edges(edge_set)
