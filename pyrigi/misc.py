@@ -153,7 +153,7 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     return Q @ np.diag(np.sign(np.diag(R)))
 
 
-def is_zero(expr, numerical: bool = False, tolerance: float = 1e-9) -> bool:
+def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> bool:
     """
     Check if the given expression is zero.
 
@@ -169,7 +169,15 @@ def is_zero(expr, numerical: bool = False, tolerance: float = 1e-9) -> bool:
         The tolerance that is used in the numerical check coordinate-wise.
     """
     if not numerical:
-        return sp.cancel(sp.sympify(expr)).equals(0)
+        zero_bool = sp.cancel(sp.sympify(expr)).equals(0)
+        if zero_bool is None:
+            raise RuntimeError(
+                "It could not be determined by sympy "
+                + f"whether the expression `{expr}` is zero."
+                + "Please report this as an issue on Github "
+                + "(https://github.com/PyRigi/PyRigi/issues)."
+            )
+        return zero_bool
     else:
         return isclose(
             sympy_expr_to_float(expr, tolerance=tolerance),

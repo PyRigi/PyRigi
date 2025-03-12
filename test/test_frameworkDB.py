@@ -3,6 +3,7 @@ import sympy as sp
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
+from pyrigi.misc import is_zero
 
 
 def test_Cycle():
@@ -22,9 +23,7 @@ def test_Cycle():
         F.dim() == 2
         and F._graph.number_of_nodes() == 4
         and F._graph.number_of_edges() == 4
-        and all(
-            [(L - sp.sympify("sqrt(2)")).is_zero for L in F.edge_lengths().values()]
-        )
+        and all([is_zero(L - sp.sympify("sqrt(2)")) for L in F.edge_lengths().values()])
         and len(F.inf_flexes()) == 1
     )
 
@@ -251,8 +250,8 @@ def test_CnSymmetricFourRegular():
         and F._graph.number_of_edges() == 16
         and all(
             [
-                (L - sp.sympify("sqrt((1 - sqrt(2)/2)**2 + 1/2)")).is_zero
-                or (L - sp.sympify("sqrt((1 + sqrt(2)/2)**2 + 1/2)")).is_zero
+                is_zero(L - sp.sympify("sqrt((1 - sqrt(2)/2)**2 + 1/2)"))
+                or is_zero(L - sp.sympify("sqrt((1 + sqrt(2)/2)**2 + 1/2)"))
                 for L in F.edge_lengths().values()
             ]
         )
@@ -273,7 +272,7 @@ def test_CnSymmetricWithFixedVertex():
             [
                 any(
                     [
-                        (L - z).is_zero
+                        is_zero(L - z)
                         for z in sp.sympify(
                             [
                                 "sqrt((1 - sqrt(2)/2)**2 + 1/2)",
@@ -319,12 +318,7 @@ def test_Wheel():
         G = graphs.Wheel(k)
         assert G.is_isomorphic(F.graph()) and all(
             [
-                any(
-                    [
-                        sp.simplify(sp.sympify(sum([p**2 for p in pos]) - val)).is_zero
-                        for val in [0, 1]
-                    ]
-                )
+                any([is_zero(sum([p**2 for p in pos]) - val) for val in [0, 1]])
                 for pos in F.realization(as_points=True).values()
             ]
         )

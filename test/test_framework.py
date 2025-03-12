@@ -10,7 +10,7 @@ import pyrigi.frameworkDB as fws
 from pyrigi.exception import LoopError
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
-from pyrigi.misc import point_to_vector, sympy_expr_to_float
+from pyrigi.misc import point_to_vector, sympy_expr_to_float, is_zero, is_zero_vector
 
 
 def test__str__():
@@ -1157,10 +1157,10 @@ def test_edge_lengths():
     }
 
     for edge, length in l_dict.items():
-        assert (sympify(expected_result[edge]) - length).is_zero
+        assert is_zero(sympify(expected_result[edge]) - length)
 
     F = fws.Cycle(6)
-    assert all([(v - 1).is_zero for v in F.edge_lengths(numerical=False).values()])
+    assert is_zero_vector([v - 1 for v in F.edge_lengths(numerical=False).values()])
 
 
 @pytest.mark.parametrize(

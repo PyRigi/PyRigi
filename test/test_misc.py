@@ -15,6 +15,7 @@ from pyrigi.misc import (
     normalize_flex,
     vector_distance_pointwise,
     point_to_vector,
+    is_zero,
 )
 
 
@@ -90,10 +91,10 @@ def test_normalize_flex():
 
 
 def test_vector_distance_pointwise():
-    assert vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}).is_zero
-    assert (
+    assert is_zero(vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}))
+    assert is_zero(
         vector_distance_pointwise({0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, -1]}) - 2
-    ).is_zero
+    )
     assert isclose(
         vector_distance_pointwise({0: [1, 1]}, {0: [1, -1]}, numerical=True), 2
     )
