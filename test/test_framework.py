@@ -218,7 +218,7 @@ def test_is_independent(framework):
             fws.Cube().graph().cone(),
             fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
         ),
-        # pytest.param(fws.Frustum(5), marks=pytest.mark.long_local),
+        pytest.param(fws.Frustum(5), marks=pytest.mark.long_local),
     ],
 )
 def test_is_prestress_stable(framework):
@@ -267,7 +267,7 @@ def test_is_prestress_stable_error(framework):
             fws.Cube().graph().cone(),
             fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
         ),
-        # pytest.param(fws.Frustum(5), marks=pytest.mark.long_local),
+        pytest.param(fws.Frustum(5), marks=pytest.mark.long_local),
     ],
 )
 def test_is_second_order_rigid(framework):
