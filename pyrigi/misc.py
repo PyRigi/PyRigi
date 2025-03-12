@@ -153,7 +153,7 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     return Q @ np.diag(np.sign(np.diag(R)))
 
 
-def is_zero(expr, numerical: bool = False, tolerance: float = 1e-9) -> bool:
+def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> bool:
     """
     Check if the given expression is zero.
 
@@ -169,7 +169,12 @@ def is_zero(expr, numerical: bool = False, tolerance: float = 1e-9) -> bool:
         The tolerance that is used in the numerical check coordinate-wise.
     """
     if not numerical:
-        return sp.cancel(sp.sympify(expr)).equals(0)
+        sympy_expr = sp.simplify(sp.cancel(sp.sympify(expr)))
+        if sympy_expr is None:
+            raise ValueError(
+                f"The expression `{expr}` could not be simplified by sympy."
+            )
+        return sympy_expr.equals(0)
     else:
         return isclose(
             sympy_expr_to_float(expr, tolerance=tolerance),
