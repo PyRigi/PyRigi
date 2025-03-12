@@ -7,7 +7,6 @@ from itertools import combinations
 import networkx as nx
 import pytest
 from sympy import Matrix
-from itertools import combinations
 
 import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
