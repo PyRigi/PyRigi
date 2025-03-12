@@ -3,6 +3,7 @@ import sympy as sp
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
+from pyrigi.misc import is_zero
 
 
 def test_Cycle():
@@ -22,9 +23,7 @@ def test_Cycle():
         F.dim() == 2
         and F._graph.number_of_nodes() == 4
         and F._graph.number_of_edges() == 4
-        and all(
-            [(L - sp.sympify("sqrt(2)")).is_zero for L in F.edge_lengths().values()]
-        )
+        and all([is_zero(L - sp.sympify("sqrt(2)")) for L in F.edge_lengths().values()])
         and len(F.inf_flexes()) == 1
     )
 
@@ -251,20 +250,20 @@ def test_CnSymmetricFourRegular():
         and F._graph.number_of_edges() == 16
         and all(
             [
-                (L - sp.sympify("sqrt((1 - sqrt(2)/2)**2 + 1/2)")).is_zero
-                or (L - sp.sympify("sqrt((1 + sqrt(2)/2)**2 + 1/2)")).is_zero
+                is_zero(L - sp.sympify("sqrt((1 - sqrt(2)/2)**2 + 1/2)"))
+                or is_zero(L - sp.sympify("sqrt((1 + sqrt(2)/2)**2 + 1/2)"))
                 for L in F.edge_lengths().values()
             ]
         )
     ) and all([F._graph.degree[v] == 4 for v in F._graph.nodes])
 
 
-def test_CnSymmetricFourRegularWithFixedVertex():
+def test_CnSymmetricWithFixedVertex():
     with pytest.raises(ValueError):
-        fws.CnSymmetricFourRegularWithFixedVertex(6)
-        fws.CnSymmetricFourRegularWithFixedVertex(9)
+        fws.CnSymmetricWithFixedVertex(6)
+        fws.CnSymmetricWithFixedVertex(9)
 
-    F = fws.CnSymmetricFourRegularWithFixedVertex(8)
+    F = fws.CnSymmetricWithFixedVertex(8)
     assert (
         F.dim() == 2
         and F._graph.number_of_nodes() == 17
@@ -273,7 +272,7 @@ def test_CnSymmetricFourRegularWithFixedVertex():
             [
                 any(
                     [
-                        (L - z).is_zero
+                        is_zero(L - z)
                         for z in sp.sympify(
                             [
                                 "sqrt((1 - sqrt(2)/2)**2 + 1/2)",
@@ -307,3 +306,19 @@ def test_Dodecahedron():
     edge_lengths = list(F.edge_lengths().values())
     for length in edge_lengths:
         assert sp.simplify(length - edge_lengths[0]) == 0
+
+
+def test_Wheel():
+    with pytest.raises(ValueError):
+        fws.Wheel(1)
+        fws.Wheel(2)
+
+    for k in range(3, 10):
+        F = fws.Wheel(k)
+        G = graphs.Wheel(k)
+        assert G.is_isomorphic(F.graph()) and all(
+            [
+                any([is_zero(sum([p**2 for p in pos]) - val) for val in [0, 1]])
+                for pos in F.realization(as_points=True).values()
+            ]
+        )

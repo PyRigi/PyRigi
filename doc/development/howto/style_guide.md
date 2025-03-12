@@ -9,7 +9,7 @@ To check your code, simply run
 ```
 flake8
 ```
-in PyRigi's home folder (with Poetry environment activated).
+in PyRigi's home folder (with Poetry environment [activated](#dependencies-poetry)).
 The `.flake8` file in PyRigi's home folder, which specifies `flake8` configuration,
 is the same that is used in the automatic tests once a pull request is filed in GitHub.
 Therefore, please check your code with `flake8` before performing a pull request.
@@ -20,7 +20,7 @@ To format your code, run
 ```
 black .
 ```
-in the root folder (with Poetry environment activated) to modify the files in place.
+in the root folder (with Poetry environment [activated](#dependencies-poetry)) to modify the files in place.
 We suggest to integrate the use of `black` at every commit
 as explained at [this page](https://black.readthedocs.io/en/stable/integrations/source_version_control.html) of `black`'s guide.
 

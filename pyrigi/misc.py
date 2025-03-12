@@ -45,16 +45,15 @@ def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> st
     Parameters
     ----------
     cls:
-        Represents the class.
+        A class.
     tabs:
-        Specifies the number of indentation levels that are applied to
-        the output.
+        The number of indentation levels that are applied to the output.
     cat_order:
         Optional list specifying the order in which categories appear
         in the output.
     include_all:
         Optional boolean determining whether methods without a specific category
-        should be included. Defaults to ``False``.
+        should be included.
     """
     if cat_order is None:
         cat_order = []
@@ -154,6 +153,39 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
     return Q @ np.diag(np.sign(np.diag(R)))
 
 
+def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> bool:
+    """
+    Check if the given expression is zero.
+
+    Parameters
+    ----------
+    expr:
+        Expression that is checked.
+    numerical:
+        If ``True``, then the check is done only numerically with the given tolerance.
+        If ``False`` (default), the check is done symbolically,
+        ``sympy`` method ``equals`` is used.
+    tolerance:
+        The tolerance that is used in the numerical check coordinate-wise.
+    """
+    if not numerical:
+        zero_bool = sp.cancel(sp.sympify(expr)).equals(0)
+        if zero_bool is None:
+            raise RuntimeError(
+                "It could not be determined by sympy "
+                + f"whether the expression `{expr}` is zero."
+                + "Please report this as an issue on Github "
+                + "(https://github.com/PyRigi/PyRigi/issues)."
+            )
+        return zero_bool
+    else:
+        return isclose(
+            sympy_expr_to_float(expr, tolerance=tolerance),
+            0,
+            abs_tol=tolerance,
+        )
+
+
 def is_zero_vector(
     vector: Sequence[Number], numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
@@ -165,39 +197,34 @@ def is_zero_vector(
     vector:
         Vector that is checked.
     numerical:
-        If True, then the check is done only numerically with the given tolerance.
-        If False (default), the check is done symbolically, sympy is_zero is used.
+        If ``True``, then the check is done only numerically with the given tolerance.
+        If ``False`` (default), the check is done symbolically,
+        ``sympy`` attribute ``is_zero`` is used.
     tolerance:
         The tolerance that is used in the numerical check coordinate-wise.
     """
     if not isinstance(vector, Matrix):
         vector = point_to_vector(vector)
-
-    if not numerical:
-        return all([coord.is_zero for coord in vector])
-    else:
-        return all(
-            [
-                isclose(
-                    coord,
-                    0,
-                    abs_tol=tolerance,
-                )
-                for coord in eval_sympy_vector(vector, tolerance=tolerance)
-            ]
-        )
+    return all(
+        [is_zero(coord, numerical=numerical, tolerance=tolerance) for coord in vector]
+    )
 
 
-def eval_sympy_vector(
-    vector: Sequence[Number] | Matrix, tolerance: float = 1e-9
-) -> list[float]:
+def sympy_expr_to_float(
+    expression: Sequence[Number] | Matrix | Number, tolerance: float = 1e-9
+) -> list[float] | float:
     """
-    Converts a sympy vector to a (numerical) list of floats.
+    Convert a sympy expression to (numerical) floats.
+
+    If the given ``expression`` is a ``Sequence`` of ``Numbers``or a ``Matrix``,
+    then each individual element is evaluated and a list of ``float`` is returned.
+    If the input is just a single sympy expression, it is evaluated and
+    returned as a ``float``.
 
     Parameters
     ----------
-    vector:
-        The sympy vector.
+    expression:
+        The sympy expression.
     tolerance:
         Intended level of numerical accuracy.
 
@@ -206,14 +233,25 @@ def eval_sympy_vector(
     The method :func:`.data_type.point_to_vector` is used to ensure that
     the input is consistent with the sympy format.
     """
-    return [
-        float(coord.evalf(int(round(2.5 * log10(tolerance ** (-1) + 1)))))
-        for coord in point_to_vector(vector)
-    ]
+    try:
+        if isinstance(expression, list | tuple | Matrix):
+            return [
+                float(
+                    sp.sympify(coord).evalf(
+                        int(round(2.5 * log10(tolerance ** (-1) + 1)))
+                    )
+                )
+                for coord in point_to_vector(expression)
+            ]
+        return float(
+            sp.sympify(expression).evalf(int(round(2.5 * log10(tolerance ** (-1) + 1))))
+        )
+    except sp.SympifyError:
+        raise ValueError(f"The expression `{expression}` could not be parsed by sympy.")
 
 
 def normalize_flex(
-    inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-12
+    inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-9
 ) -> InfFlex:
     """
     Divide a vector by its Euclidean norm.
@@ -223,14 +261,14 @@ def normalize_flex(
     inf_flex:
         The infinitesimal flex that is supposed to be normalized.
     numerical:
-        Determines whether a numerical or symbolic normalization is performed.
+        Boolean determining whether a numerical or symbolic normalization is performed.
     tolerance:
         Intended level of numerical accuracy.
     """
     if isinstance(inf_flex, dict):
         if numerical:
             _inf_flex = {
-                v: [float(sp.sympify(q).evalf(15)) for q in flex]
+                v: sympy_expr_to_float(flex, tolerance=tolerance)
                 for v, flex in inf_flex.items()
             }
             flex_norm = np.linalg.norm(sum(_inf_flex.values(), []))
@@ -240,18 +278,20 @@ def normalize_flex(
                 v: tuple([q / flex_norm for q in flex]) for v, flex in _inf_flex.items()
             }
         flex_norm = sp.sqrt(sum([q**2 for flex in inf_flex.values() for q in flex]))
-        if flex_norm.is_zero:
+        if is_zero(flex_norm, numerical=numerical, tolerance=tolerance):
             raise ValueError("The norm of this flex is zero.")
         return {v: tuple([q / flex_norm for q in flex]) for v, flex in inf_flex.items()}
     elif isinstance(inf_flex, Sequence):
         if numerical:
-            _inf_flex = [float(sp.sympify(flex).evalf(15)) for flex in inf_flex]
+            _inf_flex = [
+                sympy_expr_to_float(flex, tolerance=tolerance) for flex in inf_flex
+            ]
             flex_norm = np.linalg.norm(_inf_flex)
             if isclose(flex_norm, 0, abs_tol=tolerance):
                 raise ValueError("The norm of this flex is almost zero.")
             return [flex / flex_norm for flex in _inf_flex]
         flex_norm = sp.sqrt(sum([flex**2 for flex in inf_flex]))
-        if flex_norm.is_zero:
+        if is_zero(flex_norm, numerical=numerical, tolerance=tolerance):
             raise ValueError("The norm of this flex is zero.")
         return [flex / flex_norm for flex in inf_flex]
     else:
@@ -267,14 +307,15 @@ def vector_distance_pointwise(
     Compute the Euclidean distance between two realizations or pointwise vectors.
 
     This method computes the Euclidean distance from the realization ``dict_1``
-    to ``dict2``. The keys of ``dict1`` and ``dict2`` must be the same.
+    to ``dict2`` considering them as vectors.
+    The keys of ``dict1`` and ``dict2`` must be the same.
 
     Parameters
     ----------
     dict1, dict2:
         The dictionaries that are used for the distance computation.
     numerical:
-        Determines whether a numerical or symbolic normalization is performed.
+        Boolean determining whether a numerical or symbolic normalization is performed.
     """
     if not set(dict1.keys()) == set(dict2.keys()) or not len(dict1) == len(dict2):
         raise ValueError("`dict1` and `dict2` are not based on the same vertex set.")
@@ -357,3 +398,20 @@ def point_to_vector(point: Point) -> Matrix:
     if res.shape[0] != 1 and res.shape[1] != 1:
         raise ValueError("Point could not be interpreted as column vector.")
     return res if (res.shape[1] == 1) else res.transpose()
+
+
+def _null_space(A: np.array, tolerance: float = 1e-8):
+    """
+    Compute the kernel of a numpy matrix.
+
+    Parameters
+    ----------
+    tolerance:
+        Used tolerance for the selection of the vectors
+        in the kernel of the numerical matrix.
+    """
+    _, s, vh = np.linalg.svd(A, full_matrices=True)
+    tol = np.amax(s) * tolerance
+    num = np.sum(s > tol, dtype=int)
+    Q = vh[num:, :].T.conj()
+    return Q

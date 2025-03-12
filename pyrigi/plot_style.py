@@ -52,7 +52,7 @@ class PlotStyle(object):
     flex_arrow_size:
         The size of the arrowhead's length and width.
     stress_color:
-        The Color of the font used to label the edges with stresses.
+        The color of the font used to label the edges with stresses.
     stress_fontsize:
         Fontsize of the stress labels.
     stress_rotate_labels:
@@ -464,8 +464,8 @@ class PlotStyle2D(PlotStyle):
 
         Parameters
         ----------
-        plot_style: PlotStyle
-            The PlotStyle instance to copy attributes from.
+        plot_style:
+            A :obj:`.PlotStyle` instance to copy attributes from.
         """
         return cls(**{key[1:]: val for key, val in plot_style.__dict__.items()})
 
@@ -544,7 +544,7 @@ class PlotStyle3D(PlotStyle):
 
         Parameters
         ----------
-        plot_style: PlotStyle
-            The PlotStyle instance to copy attributes from.
+        plot_style:
+            A :obj:`.PlotStyle` instance to copy attributes from.
         """
         return cls(**{key[1:]: val for key, val in plot_style.__dict__.items()})

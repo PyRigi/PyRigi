@@ -7,7 +7,7 @@ import numpy as np
 import distinctipy
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
-from sympy import Matrix, sympify
+from sympy import Matrix
 
 from pyrigi.data_type import (
     Vertex,
@@ -21,6 +21,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
+from pyrigi.misc import sympy_expr_to_float, is_zero_vector
 
 
 def resolve_inf_flex(
@@ -39,7 +40,7 @@ def resolve_inf_flex(
         The infinitesimal flex to resolve.
     realization:
         A realization.
-        If None, the framework's realization is used.
+        If ``None``, the framework realization is used.
     projection_matrix:
         A matrix used for projection to a lower dimension.
     """
@@ -63,7 +64,7 @@ def resolve_inf_flex(
     else:
         raise TypeError("inf_flex does not have the correct Type.")
 
-    if not framework.is_dict_inf_flex(inf_flex_pointwise):
+    if not framework.is_dict_inf_flex(inf_flex_pointwise, numerical=True):
         raise ValueError("The provided `inf_flex` is not an infinitesimal flex.")
     if framework.dim() == 1:
         inf_flex_pointwise = {
@@ -105,16 +106,14 @@ def resolve_inf_flex(
 
     # normalize the edge lengths by the Euclidean norm of the longest one
     flex_mag = max(magnidutes)
-    for flex_key in inf_flex_pointwise.keys():
-        if not all(entry == 0 for entry in inf_flex_pointwise[flex_key]):
-            inf_flex_pointwise[flex_key] = tuple(
-                flex / flex_mag for flex in inf_flex_pointwise[flex_key]
-            )
+    for v, flex in inf_flex_pointwise.items():
+        if not is_zero_vector(inf_flex):
+            inf_flex_pointwise[v] = tuple(coord / flex_mag for coord in flex)
     # Delete the edges with zero length
     inf_flex_pointwise = {
-        flex_key: np.array(inf_flex_pointwise[flex_key], dtype=float)
-        for flex_key in inf_flex_pointwise.keys()
-        if not all(entry == 0 for entry in inf_flex_pointwise[flex_key])
+        v: np.array(flex, dtype=float)
+        for v, flex in inf_flex_pointwise.items()
+        if not is_zero_vector(flex)
     }
 
     return inf_flex_pointwise
@@ -276,12 +275,12 @@ def resolve_stress(
     else:
         raise TypeError("`stress` does not have the correct Type.")
 
-    if not framework.is_dict_stress(stress_edgewise):
+    if not framework.is_dict_stress(stress_edgewise, numerical=True):
         raise ValueError("The provided `stress` is not an equilibrium stress.")
 
     if plot_style.stress_normalization:
         numerical_stress = {
-            edge: float(sympify(w).evalf(10)) for edge, w in stress_edgewise.items()
+            edge: sympy_expr_to_float(w) for edge, w in stress_edgewise.items()
         }
         _stress = {
             edge: round(w / np.linalg.norm(list(numerical_stress.values())), 2)

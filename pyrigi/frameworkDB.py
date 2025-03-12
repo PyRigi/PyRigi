@@ -13,7 +13,8 @@ def Cycle(n: int, dim: int = 2) -> Framework:
     """
     Return ``dim``-dimensional framework of the ``n``-cycle.
 
-    The resulting realization depends on the dimension ``dim`` and ``n``.
+    The resulting realization depends on the dimension ``dim``
+    and on the number ``n``:
 
     - If ``n-1<=dim``, then the cycle is realized as the vertices of the
       `dim`-dimensional simplex.
@@ -37,17 +38,17 @@ def Cycle(n: int, dim: int = 2) -> Framework:
 
 
 def Square() -> Framework:
-    """Framework of the 4-cycle with square realization in the plane"""
+    """Return the 4-cycle with square realization in the plane."""
     return Framework(graphs.Cycle(4), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
 
 
 def Diamond() -> Framework:
-    """Framework of the diamond with square realization in the plane"""
+    """Return the diamond with square realization in the plane."""
     return Framework(graphs.Diamond(), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
 
 
 def Cube() -> Framework:
-    """Return the graph given by the skeleton of the regular cube in $R^3$."""
+    r"""Return the regular cube in $\RR^3$."""
     F = Framework(
         graphs.CubeWithDiagonal(),
         {
@@ -66,13 +67,13 @@ def Cube() -> Framework:
 
 
 def Octahedron(realization: str = "regular") -> Framework:
-    """
-    Return a framework of the regular octahedron.
+    r"""
+    Return a framework of the octahedron in $\RR^3$.
 
     Parameters
     ----------
     realization:
-        If ``"regular"``, a realization of the regular octahedron in $R^3$
+        If ``"regular"``, a realization of the regular octahedron in $\RR^3$
         is returned.
         If ``"Bricard_line"``, a flexible Bricard's octahedron
         line-symmetric w.r.t. z-axis is returned.
@@ -128,7 +129,7 @@ def Octahedron(realization: str = "regular") -> Framework:
 
 
 def Icosahedron() -> Framework:
-    """Return the graph given by the skeleton of the regular icosahedron in $R^3$."""
+    r"""Return the regular icosahedron in $\RR^3$."""
     phi = sp.sympify("(1+sqrt(5))/2")
     F = Framework(
         graphs.Icosahedral(),
@@ -151,7 +152,7 @@ def Icosahedron() -> Framework:
 
 
 def Dodecahedron() -> Framework:
-    """Return the graph given by the skeleton of the regular dodecahedron in $R^3$."""
+    r"""Return the regular dodecahedron in $\RR^3$."""
     phi = sp.sympify("(1+sqrt(5))/2")
     F = Framework(
         graphs.Dodecahedral(),
@@ -182,8 +183,8 @@ def Dodecahedron() -> Framework:
 
 
 def K33plusEdge() -> Framework:
-    """
-    Return a framework of the complete bipartite graph on 3+3 vertices plus an edge.
+    r"""
+    Return the complete bipartite graph on 3+3 vertices plus an edge realized in $\RR^2$.
     """
     return Framework(
         graphs.K33plusEdge(),
@@ -195,7 +196,8 @@ def Complete(n: int, dim: int = 2) -> Framework:
     """
     Return ``dim``-dimensional framework of the complete graph on ``n`` vertices.
 
-    The resulting realization depends on the dimension ``dim`` and ``n``.
+    The resulting realization depends on the dimension ``dim``
+    and on the number ``n``:
 
     - If ``n-1<=dim``, then the complete graph is realized on the vertices of the
       ``dim``-dimensional simplex. The complete graph is either given by the
@@ -224,7 +226,7 @@ def Path(n: int, dim: int = 2) -> Framework:
     """
     Return ``dim``-dimensional framework of the path graph on ``n`` vertices.
 
-    The resulting realization depends on the dimension ``dim`` and ``n``.
+    The resulting realization depends on the dimension ``dim`` and ``n``:
 
     - If ``n-1<=dim``, then the path is realized as the vertices of the
       `dim`-dimensional simplex.
@@ -249,7 +251,7 @@ def Path(n: int, dim: int = 2) -> Framework:
 
 def ThreePrism(realization: str = None) -> Framework:
     """
-    Return 3-prism framework.
+    Return a framework of the 3-prism graph in the plane.
 
     Parameters
     ----------
@@ -276,7 +278,7 @@ def ThreePrism(realization: str = None) -> Framework:
 
 
 def ThreePrismPlusEdge() -> Framework:
-    """Return a framework of the 3-prism graph with one extra edge."""
+    """Return a framework of the 3-prism graph with one extra edge in the plane."""
     G = ThreePrism()
     G.add_edge([0, 5])
     return G
@@ -307,6 +309,10 @@ def CompleteBipartite(n1: int, n2: int, realization: str = None) -> Framework:
             {i: [0, (i + 1) * (-1) ** i] for i in range(n1)}
             | {i: [(i - n1 + 1) * (-1) ** i, 0] for i in range(n1, n1 + n2)},
         )
+    elif realization == "collinear":
+        return Framework(
+            graphs.CompleteBipartite(n1, n2), {i: [i, 0] for i in range(n1 + n2)}
+        )
     return Framework(
         graphs.CompleteBipartite(n1, n2),
         {
@@ -328,7 +334,7 @@ def CompleteBipartite(n1: int, n2: int, realization: str = None) -> Framework:
 
 def Frustum(n: int) -> Framework:
     """
-    Return the n-Frustum with ``2*n`` vertices in dimension 2.
+    Return the $n$-Frustum with ``2*n`` vertices in dimension 2.
 
     Definitions
     -----------
@@ -351,7 +357,7 @@ def Frustum(n: int) -> Framework:
 
 def CnSymmetricFourRegular(n: int = 8) -> Framework:
     """
-    Return a $C_n$-symmetric framework.
+    Return a $C_n$-symmetric framework in the plane.
 
     Definitions
     -----------
@@ -374,14 +380,15 @@ def CnSymmetricFourRegular(n: int = 8) -> Framework:
     )
 
 
-def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
+def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
     """
-    Return a $C_n$-symmetric framework with a fixed vertex.
+    Return a $C_n$-symmetric framework with a fixed vertex in the plane.
 
     The value ``n`` must be even and at least 8.
 
-    The returned graph satisfies the expected symmetry-adapted Laman
-    count for rotation but is infinitesimally flexible.
+    The underlying graph of the returned framework satisfies the
+    expected symmetry-adapted Laman count for rotation but the
+    framework is infinitesimally flexible.
 
     Definitions
     -----------
@@ -393,7 +400,7 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
             + "must have an even order of at least 8!"
         )
     return Framework(
-        graphs.CnSymmetricFourRegularWithFixedVertex(n),
+        graphs.CnSymmetricWithFixedVertex(n),
         {
             i: [
                 sp.cos(2 * i * sp.pi / n),
@@ -413,3 +420,46 @@ def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Framework:
         }
         | {2 * n: (0, 0)},
     )
+
+
+def ConnellyExampleSecondOrderRigidity() -> Framework:
+    """
+    Return an example by Connelly.
+
+    This is an example of a (non-injective) 3-dimensional framework with a
+    two-dimensional space of flexes and stresses. It appears in
+    {{references}} {cite:p}`Connelly1996`. This framework is
+    second-order rigid but not prestress stable.
+    """
+    F = Framework.from_points(
+        [(0, 0, 0), (0, 1, 0), (0, 0, 1), (1, 0, 0), (1, 1, 0), (0, 1, 0), (1, 0, 0)]
+    )
+    F.add_edges(
+        [
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (0, 5),
+            (0, 6),
+            (1, 2),
+            (1, 4),
+            (1, 6),
+            (2, 3),
+            (2, 4),
+            (3, 4),
+            (3, 5),
+            (4, 5),
+            (4, 6),
+            (5, 6),
+        ]
+    )
+    return F
+
+
+def Wheel(k: int):
+    """
+    Create the wheel framework on k+1 vertices.
+    """
+    _input_check.integrality_and_range(k, "k", min_val=3)
+    G = graphs.Wheel(k)
+    return Framework(G, Cycle(k).realization(as_points=True) | {k: [0, 0]})

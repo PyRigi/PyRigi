@@ -81,9 +81,9 @@ def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
 
     Examples
     --------
-    >>> DoubleBanana()
+    >>> print(DoubleBanana())
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [2, 3], [2, 4], [3, 4], [5, 6], [5, 7], [6, 7]]
-    >>> DoubleBanana(dim = 4)
+    >>> print(DoubleBanana(dim = 4))
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]]
     """  # noqa: E501
     _input_check.greater_equal(dim, 3, "dimension")
@@ -182,7 +182,7 @@ def Frustum(n: int) -> Graph:
 
 def K66MinusPerfectMatching():
     """
-    Return a complete bipartite graph minus a perfect matching.
+    Return the complete bipartite graph minus a perfect matching.
 
     A matching is formed by six non-incident edges.
     """
@@ -193,7 +193,9 @@ def K66MinusPerfectMatching():
 
 def CnSymmetricFourRegular(n: int = 8) -> Graph:
     """
-    Return a $C_n$-symmetric graph.
+    Return a $C_n$-symmetric 4-regular graph.
+
+    The value ``n`` must be even and at least 8.
 
     Definitions
     -----------
@@ -213,14 +215,14 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
     return G
 
 
-def CnSymmetricFourRegularWithFixedVertex(n: int = 8) -> Graph:
+def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
     """
     Return a $C_n$-symmetric graph with a fixed vertex.
 
     The value ``n`` must be even and at least 8.
 
     The returned graph satisfies the expected symmetry-adapted Laman
-    count for rotation but is infinitesimally flexible.
+    count for rotation but is (generically) infinitesimally flexible.
 
     Definitions
     -----------
@@ -281,3 +283,13 @@ def ThreeConnectedR3Circuit():
             (11, 12),
         ]
     )
+
+
+def Wheel(k: int):
+    """
+    Create the wheel graph on ``k+1`` vertices.
+    """
+    _input_check.integrality_and_range(k, "k", min_val=3)
+    G = Cycle(k)
+    G.add_edges([(i, k) for i in range(k)])
+    return G

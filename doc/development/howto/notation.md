@@ -11,10 +11,10 @@ and in the code.
 |dimension|$d$|`dim`|
 |Realization|$p$|`realization` or ``points`` depending on `dict`/`list`|
 |Point|$(x_1,\dots,x_d)\in \RR^d$|``pos`` or ``point``|
-|Vertex Set|$V$|`vertices`|
-|Edge Set|$E$|`edges`|
+|Vertex Set|$V$, $V(G)$|`vertices`|
+|Edge Set|$E$, $E(G)$|`edges`|
 |Vertex|$u,\, v, \, w,\, u_1,\, v_1,\, w_1$|`vertex`, `u`, `v`,`w`,`u1`, `v1`,`w1`|
-|Edge|$e_1$ and $e_2$|`edge`, `e`, `e1`|
+|Edge|$e$, $e_1$, $uv$|`edge`, `e`, `e1`|
 |#V|$n$  or $\|V\|$| `n`|
 |#E|$m$ or $\|E\|$|`m`|
 |Rigidity Matrix|$R(G,p)$|`rigidity_matrix`|

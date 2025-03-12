@@ -216,7 +216,6 @@ html_theme_options = {
     "sidebar_hide_name": False,
     "light_logo": "logo_nofont.png",
     "dark_logo": "logo_nofont_dark.png",
-    "announcement": "<em>The package has not reached a stable version yet!</em>",
     "footer_icons": [
         {
             "name": "GitHub",
@@ -235,7 +234,7 @@ html_theme_options = {
     "source_directory": "doc/",
 }
 
-html_title = "PyRigi"
+html_title = "PyRigi " + version
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
