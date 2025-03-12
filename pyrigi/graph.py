@@ -3559,10 +3559,12 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 3], [0, 4], [1, 2], [1, 5], [2, 3], [2, 4], [3, 5]])
-        >>> G._make_outside_neighbors_clique([0,1,2,3])
+        >>> H = G._make_outside_neighbors_clique([0,1,2,3])
+        >>> print(H)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]])
-        >>> G._make_outside_neighbors_clique([0,1,4,5,6,7,8,11,12])
+        >>> H = G._make_outside_neighbors_clique([0,1,4,5,6,7,8,11,12])
+        >>> print(H)
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
         """  # noqa: E501
 
@@ -3600,7 +3602,7 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
-        >>> G.block_3(0,11)
+        >>> print(G.block_3(0,11))
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]
         """  # noqa: E501
         try:
@@ -3687,16 +3689,16 @@ class Graph(nx.Graph):
         --------
         >>> H = Graph([[0, 1], [0, 2], [1, 3], [1, 5], [2, 3], [2, 6], [3, 5], [3, 7], [5, 7], [6, 7], [3, 6]])
         >>> H.Rd_fundamental_circuit(1, 7)
-        Graph with vertices [1, 3, 5, 7] and edges [[1, 3], [1, 5], [3, 5], [3, 7], [5, 7]]
+        [[1, 3], [1, 5], [3, 5], [3, 7], [5, 7]]
         >>> H.Rd_fundamental_circuit(2,5)
-        Graph with vertices [2, 3, 5, 6, 7] and edges [[2, 3], [2, 6], [3, 5], [3, 6], [3, 7], [5, 7], [6, 7]]
+        [[2, 3], [2, 6], [3, 5], [3, 6], [3, 7], [5, 7], [6, 7]]
 
         The following example is the Figure 5 of the article :cite:p:`JordanVillanyi2024`
 
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
         >>> H = G.block_3(0,11)
         >>> H.Rd_fundamental_circuit(0,11)
-        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
+        [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
         """  # noqa: E501
 
         _input_check.dimension_for_algorithm(
@@ -3713,7 +3715,7 @@ class Graph(nx.Graph):
         self._build_pebble_digraph(K=2, L=3)
         set_nodes = self._pebble_digraph.fundamental_circuit(u, v)
         F = Graph(self._pebble_digraph.to_undirected())
-        return nx.subgraph(F, set_nodes)
+        return nx.subgraph(F, set_nodes).edge_list()
 
     @doc_category("Generic rigidity")
     def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
