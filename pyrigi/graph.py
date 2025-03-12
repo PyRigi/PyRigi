@@ -1592,10 +1592,10 @@ class Graph(nx.Graph):
 
         # in all other cases check by definition
         # and :prf:ref:`thm-redundant-vertex-subset`
-        if self.number_of_nodes() < k+2:
+        if self.number_of_nodes() < k + 2:
             if not self.is_rigid(dim, algorithm, prob):
                 return False
-            for kk in range(1,k):
+            for kk in range(1, k):
                 if not self.is_k_vertex_redundantly_rigid(kk, dim, algorithm, prob):
                     return False
         G = deepcopy(self)
@@ -1864,7 +1864,7 @@ class Graph(nx.Graph):
             return True
 
         # in all other cases check by definition
-        #:prf:ref:`thm-redundant-edge-subset`
+        # and :prf:ref:`thm-redundant-edge-subset`
         G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
             G.delete_edges(edge_set)

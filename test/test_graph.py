@@ -2908,7 +2908,7 @@ def test_is_not_critically_k_edge_apex(graph, k):
     assert not graph.is_critically_k_edge_apex(k)
 
 
-def test_randomized_rigidity_properties():
+def test_randomized_rigidity_properties():  # noqa: C901
     for dim in range(1, 4):
         for n in range(1, 7):
             for m in range(1, math.comb(n, 2) + 1):
