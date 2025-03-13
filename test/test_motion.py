@@ -412,7 +412,6 @@ def test_ApproximateMotion_Getters():
         )
     )
     assert motion.tolerance == 1e-6
-    print(motion.starting_realization)
     assert F.is_congruent_realization(
         motion.starting_realization, numerical=True, tolerance=1e-5
     )
@@ -471,7 +470,6 @@ def test_fix_pair_of_vertices():
     )
     for i, realization in enumerate(motion.motion_samples):
         _F = Framework(F.graph(), realization)
-        print(_motion.motion_samples[i])
         assert (
             _F.is_congruent_realization(
                 _motion.motion_samples[i], numerical=True, tolerance=1e-4
@@ -515,7 +513,6 @@ def test_fix_vertex():
     )
     for i, realization in enumerate(motion.motion_samples):
         _F = Framework(F.graph(), realization)
-        print(realization)
         assert (
             _F.is_congruent_realization(
                 _motion.motion_samples[i], numerical=True, tolerance=1e-4
