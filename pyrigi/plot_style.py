@@ -293,7 +293,7 @@ class PlotStyle(object):
         return self._stress_fontsize
 
     @stress_fontsize.setter
-    def stress_fontsize(self, value) -> str:
+    def stress_fontsize(self, value) -> None:
         if isinstance(value, int):
             self._stress_fontsize = value
         else:
