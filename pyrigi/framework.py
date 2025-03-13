@@ -1550,9 +1550,7 @@ class Framework(object):
         Alias for :meth:`.is_vector_stress` and
         :meth:`.is_dict_stress`.
 
-        It is distinguished between instances of ``List`` and instances of
-        ``Dict`` to call one of the alias methods.
-
+        One of the alias methods is called depending on the type of the input.
         """
         if isinstance(stress, list | Matrix):
             return self.is_vector_stress(stress, **kwargs)
