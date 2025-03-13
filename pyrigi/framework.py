@@ -2350,7 +2350,7 @@ class Framework(object):
         return stresses
 
     @doc_category("Infinitesimal rigidity")
-    def is_redundantly_rigid(self) -> bool:
+    def is_inf_redundantly_rigid(self) -> bool:
         """
         Return if the framework is infinitesimally redundantly rigid.
 
@@ -2363,10 +2363,10 @@ class Framework(object):
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
         >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
-        >>> F.is_redundantly_rigid()
+        >>> F.is_inf_redundantly_rigid()
         True
         >>> F.delete_edge(('a','c'))
-        >>> F.is_redundantly_rigid()
+        >>> F.is_inf_redundantly_rigid()
         False
         """  # noqa: E501
         for edge in self._graph.edge_list():
