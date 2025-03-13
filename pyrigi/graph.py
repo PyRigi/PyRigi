@@ -2421,7 +2421,7 @@ class Graph(nx.Graph):
         raise NotSupportedValueError(algorithm, "algorithm", self.is_Rd_independent)
 
     @doc_category("Rigidity Matroid")
-    def is_Rd_circuit(
+    def is_Rd_circuit(  # noqa: C901
         self,
         dim: int = 2,
         algorithm: str = "default",
