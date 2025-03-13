@@ -288,6 +288,7 @@ def test_is_not_min_rigid_d2(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        Graph.from_vertices_and_edges([0, 1], [[0, 1]]),
         graphs.Complete(3),
         graphs.Complete(4),
         graphs.Octahedral(),
