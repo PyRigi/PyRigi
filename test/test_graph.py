@@ -2965,7 +2965,6 @@ def test_randomized_rigidity_properties():  # noqa: C901
     for dim, n, x in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
-
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m
 
@@ -3053,17 +3052,24 @@ def test_randomized_rigidity_properties():  # noqa: C901
             else:
                 res_ext1 = []
 
+            # framework
+            F = G.random_framework(dim)
+            fprop_inf_rigid = F.is_inf_rigid()
+            fprop_min_inf_rigid = F.is_min_inf_rigid()
+            fprop_red_rigid = F.is_redundantly_rigid()
+            fprop_dep = F.is_dependent()
+            fprop_indep = F.is_independent()
+
             # (min) rigidity
             if prop_min_rigid:
                 assert rprop_min_rigid
                 assert cprop_min_rigid
                 assert prop_rigid
+                assert fprop_min_inf_rigid
                 assert prop_indep
                 if n > dim:
                     assert m == n * dim - math.comb(dim + 1, 2)
-                    assert G.random_framework(
-                        dim
-                    ).rigidity_matrix_rank() == n * dim - math.comb(dim + 1, 2)
+                    assert F.rigidity_matrix_rank() == n * dim - math.comb(dim + 1, 2)
                     assert G.min_degree() >= dim
                     assert G.min_degree() <= 2 * dim - 1
                     assert prop_sparse
@@ -3080,11 +3086,10 @@ def test_randomized_rigidity_properties():  # noqa: C901
             if prop_rigid:
                 assert rprop_rigid
                 assert cprop_rigid
+                assert fprop_inf_rigid
                 if n > dim:
                     assert m >= n * dim - math.comb(dim + 1, 2)
-                    assert G.random_framework(
-                        dim
-                    ).rigidity_matrix_rank() == n * dim - math.comb(dim + 1, 2)
+                    assert F.rigidity_matrix_rank() == n * dim - math.comb(dim + 1, 2)
                     assert G.min_degree() >= dim
                     if m > n * dim - math.comb(dim + 1, 2):
                         assert prop_dep
@@ -3112,6 +3117,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
             if prop_red_rigid:
                 assert rprop_red_rigid
                 assert prop_rigid
+                assert fprop_red_rigid
                 assert m >= n * dim - math.comb(dim + 1, 2) + 1
                 if G.number_of_nodes() >= dim + 1 + 1:
                     assert G.min_degree() >= dim + 1  # thm-vertex-red-min-deg
@@ -3277,12 +3283,14 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert rprop_indep
                 assert not prop_circ
                 assert not prop_dep
+                assert fprop_indep
                 if n > dim:
                     assert m <= n * dim - math.comb(dim + 1, 2)
             if rprop_indep:
                 assert prop_indep
             if prop_dep:
                 assert rprop_dep
+                assert fprop_dep
             if rprop_dep:
                 assert prop_dep
 
@@ -3291,3 +3299,15 @@ def test_randomized_rigidity_properties():  # noqa: C901
             assert res_close.is_Rd_closed()
             res_close = Graph(G.Rd_closure(), algorithm="randomized")
             assert res_close.is_Rd_closed()
+
+            # frameworks
+            if fprop_inf_rigid:
+                assert prop_rigid
+            if fprop_min_inf_rigid:
+                assert prop_min_rigid
+            if fprop_red_rigid:
+                assert prop_red_rigid
+            if fprop_indep:
+                assert prop_indep
+            if fprop_dep:
+                assert prop_dep

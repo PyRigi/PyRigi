@@ -2142,13 +2142,13 @@ class Graph(nx.Graph):
         self._input_check_no_loop()
 
         n = self.number_of_nodes()
+        # small graphs are minimally rigid iff complete
+        # :pref:ref:`thm-gen-rigidity-small-complete`
+        if n <= dim + 1:
+            return self.number_of_edges() == math.comb(n, 2)
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
         if self.number_of_edges() != dim * n - math.comb(dim + 1, 2):
             return False
-        # small graphs are minimally rigid iff complete
-        # :pref:ref:`thm-gen-rigidity-small-complete`
-        elif n <= dim + 1:
-            return self.number_of_edges() == math.comb(n, 2)
 
         if algorithm == "default":
             if dim == 1:
