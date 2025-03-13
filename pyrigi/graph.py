@@ -3570,13 +3570,13 @@ class Graph(nx.Graph):
 
         H = self.copy()
         H.delete_vertices(vertices)
-        vert_conn_comp = nx.connected_components(H)
+        conn_comps = nx.connected_components(H)
         H = self.copy()
         import pyrigi.graphDB as graphs
 
-        for V in vert_conn_comp:
-            H.delete_vertices(V)
-            K = graphs.Complete(vertices=self.neighbors_of_set(V))
+        for conn_comp in conn_comps:
+            H.delete_vertices(conn_comp)
+            K = graphs.Complete(vertices=self.neighbors_of_set(conn_comp))
             H += K
         return H
 
@@ -3609,8 +3609,7 @@ class Graph(nx.Graph):
                 return self
             H = self.copy()
             H.delete_vertices(cut)
-            calc_comp = nx.connected_components(H)
-            for conn_comp in calc_comp:
+            for conn_comp in nx.connected_components(H):
                 conn_comp.update(cut)
                 if u in conn_comp and v in conn_comp:
                     break
@@ -3755,8 +3754,7 @@ class Graph(nx.Graph):
         # we focus on the 2-connected components of the graph
         # and check if the two given vertices are in the same 2-connected component
         if not nx.is_biconnected(self):
-            list_biconnected_components = list(nx.biconnected_components(self))
-            for bicon_comp in list_biconnected_components:
+            for bicon_comp in nx.biconnected_components(self):
                 if u in bicon_comp and v in bicon_comp:
                     F = nx.subgraph(self, bicon_comp)
                     return F.is_weakly_globally_linked(u, v)
@@ -3772,7 +3770,6 @@ class Graph(nx.Graph):
         if nx.algorithms.connectivity.local_node_connectivity(self, u, v) <= 2:
             return False
 
-        # THEN
         # if (u,v) separating pair in self
         H = self.copy()
         H.delete_vertices([u, v])
