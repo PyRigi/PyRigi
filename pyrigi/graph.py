@@ -31,7 +31,7 @@ class Graph(nx.Graph):
     """
     Class representing a graph.
 
-    One option for *incoming_graph_data* is a list of edges.
+    One option for ``incoming_graph_data`` is a list of edges.
     See :class:`networkx.Graph` for the other input formats
     or use class methods :meth:`~Graph.from_vertices_and_edges`
     or :meth:`~Graph.from_vertices` when specifying the vertex set is needed.
@@ -503,7 +503,7 @@ class Graph(nx.Graph):
 
     @doc_category("Graph manipulation")
     def delete_loops(self) -> None:
-        """Removes all the loops from the edges to get a loop free graph."""
+        """Remove all the loops from the edges to get a loop free graph."""
         self.delete_edges(nx.selfloop_edges(self))
 
     @doc_category("General graph theoretical properties")
@@ -586,11 +586,11 @@ class Graph(nx.Graph):
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> Graph:
         r"""
-        Return a maximal (K, L)-sparse subgraph.
+        Return a maximal (``K``, ``L``)-sparse subgraph.
 
         Based on the directed graph calculated by the pebble game algorithm, return
         a maximal :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>` of the graph.
-        There are multiple possible maximal (K, L)-sparse subgraphs, all of which have
+        There are multiple possible maximal (``K``, ``L``)-sparse subgraphs, all of which have
         the same number of edges.
 
         Definitions
@@ -658,7 +658,7 @@ class Graph(nx.Graph):
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
         r"""
-        Return whether the graph is (K, L)-sparse.
+        Return whether the graph is (``K``, ``L``)-sparse.
 
         Definitions
         -----------
@@ -749,7 +749,7 @@ class Graph(nx.Graph):
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
         r"""
-        Return whether the graph is (k,l)-tight.
+        Return whether the graph is (``K``, ``L``)-tight.
 
         Definitions
         -----------
@@ -1214,7 +1214,7 @@ class Graph(nx.Graph):
 
             If ``"extensions"``, then an initial graph and a sequence of extensions
             of the form ``[k, vertices, edges, new_vertex]`` as needed
-            for the input of `k_extension` is returned.
+            for the input of :meth:`.k_extension` is returned.
 
             If ``"both"``, then an initial graph and a sequence of pairs
             ``[graph, extension]``, where the latter has the form from above,
@@ -1315,7 +1315,7 @@ class Graph(nx.Graph):
 
         Definitions
         -----------
-        :prf:ref:`k-extension <def-k-extension>`.
+        :prf:ref:`k-extension <def-k-extension>`
 
         Parameters
         ----------
@@ -3008,7 +3008,7 @@ class Graph(nx.Graph):
         Notes
         -----
         :func:`networkx.linalg.graphmatrix.adjacency_matrix`
-        requires `scipy`. To avoid unnecessary imports, the method is implemented here.
+        requires ``scipy``. To avoid unnecessary imports, the method is implemented here.
         """
         vertex_order = self._input_check_vertex_order(vertex_order)
 
@@ -3258,7 +3258,7 @@ class Graph(nx.Graph):
     @doc_category("Graph manipulation")
     def sum_t(self, other_graph: Graph, edge: Edge, t: int = 2):
         """
-        Return the t-sum of ``self`` and ``other_graph`` along the given edge.
+        Return the ``t``-sum with ``other_graph`` along the given edge.
 
         Definitions
         -----------
@@ -3294,7 +3294,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_vertex_apex(self):
         """
-        Check whether the graph is vertex apex.
+        Return whether the graph is vertex apex.
 
         Alias for :meth:`~.Graph.is_k_vertex_apex` with ``k=1``
 
@@ -3307,7 +3307,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_k_vertex_apex(self, k: int):
         """
-        Check whether the graph is ``k``-vertex apex.
+        Return whether the graph is ``k``-vertex apex.
 
         Definitions
         -----------
@@ -3335,7 +3335,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_edge_apex(self):
         """
-        Check whether the graph is edge apex.
+        Return whether the graph is edge apex.
 
         Alias for :meth:`~.Graph.is_k_edge_apex` with ``k=1``
 
@@ -3348,7 +3348,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_k_edge_apex(self, k: int):
         """
-        Check whether the graph is ``k``-edge apex.
+        Return whether the graph is ``k``-edge apex.
 
         Definitions
         -----------
@@ -3375,7 +3375,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_critically_vertex_apex(self):
         """
-        Check whether the graph is critically vertex apex.
+        Return whether the graph is critically vertex apex.
 
         Alias for :meth:`~.Graph.is_critically_k_vertex_apex` with ``k=1``.
 
@@ -3388,7 +3388,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_critically_k_vertex_apex(self, k: int):
         """
-        Check whether the graph is critically ``k``-vertex apex.
+        Return whether the graph is critically ``k``-vertex apex.
 
         Definitions
         -----------
@@ -3416,7 +3416,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_critically_edge_apex(self):
         """
-        Check whether the graph is critically edge apex.
+        Return whether the graph is critically edge apex.
 
         Alias for :meth:`~.Graph.is_critically_k_edge_apex` with ``k=1``.
 
@@ -3429,7 +3429,7 @@ class Graph(nx.Graph):
     @doc_category("General graph theoretical properties")
     def is_critically_k_edge_apex(self, k: int):
         """
-        Check whether the graph is critically ``k``-edge apex.
+        Return whether the graph is critically ``k``-edge apex.
 
         Definitions
         -----------
@@ -3456,7 +3456,7 @@ class Graph(nx.Graph):
     @doc_category("Graph manipulation")
     def intersection(self, other_graph: Graph):
         """
-        Return the intersection of ``self`` and ``other_graph``.
+        Return the intersection with ``other_graph``.
 
         Parameters
         ----------
