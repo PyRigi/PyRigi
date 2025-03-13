@@ -3655,13 +3655,8 @@ class Graph(nx.Graph):
             dim, [2], "the algorithm to check linkedness"
         )
         self._input_check_vertex_members([u, v])
-        return bool(
-            list(
-                filter(
-                    lambda x: u in x and v in x,
-                    self.rigid_components(algorithm="default"),
-                )
-            )
+        return any(
+            [(u in C and v in C) for C in self.rigid_components(algorithm="default")]
         )
 
     @doc_category("Rigidity Matroid")
