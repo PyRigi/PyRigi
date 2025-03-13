@@ -2493,9 +2493,15 @@ class Graph(nx.Graph):
         if algorithm == "graphic":
             _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
             # Check if every vertex has degree 2 or 0
+            V = []
             for vertex in self.nodes:
                 if self.degree(vertex) != 2 and self.degree(vertex) != 0:
                     return False
+                if self.degree(vertex) == 2:
+                    V.append(vertex)
+            H = self.subgraph(V)
+            if not nx.is_connected(H):
+                return False
             return True
 
         if algorithm == "sparsity":

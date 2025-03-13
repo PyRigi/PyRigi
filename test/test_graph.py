@@ -2523,6 +2523,7 @@ def test_is_Rd_circuit_d1(graph):
 @pytest.mark.parametrize(
     "graph",
     [
+        Graph([(0, 1), (1, 2), (0, 2), (3, 4), (4, 5), (3, 5)]),
         Graph([(0, 1), (2, 3)]),
         graphs.Complete(2),
         graphs.Diamond(),
