@@ -36,7 +36,7 @@ Let $G$ be a $6$-connected {prf:ref}`2-rigid <def-gen-rigid>` graph. Then $G$ is
 
 Let $G$ be a graph, if $\Omega$ is an {prf:ref}`equilibrium stress matrix <def-stress-matrix>`,
 its kernel is called _stress kernel_; we denote it by $K(\Omega)$ and its dimension by $k(\Omega)$.
-We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges over all 
+We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges over all
 {prf:ref}`equilibrium stress matrices <def-stress-matrix>` of all
 {prf:ref}`generic d-dimensional frameworks <def-gen-realization>` of $G$.
 
@@ -46,7 +46,7 @@ We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges 
 :::{prf:lemma}
 :label: lem-k-min-stress-matrix
 
-For {prf:ref}`frameworks <def-framework>` of a graph $G$ with at least $d+1$ vertices, 
+For {prf:ref}`frameworks <def-framework>` of a graph $G$ with at least $d+1$ vertices,
 $k_{min}(G,d) \geq d+1$ holds.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
@@ -123,8 +123,9 @@ the class of randomized polynomial time algorithms.
 :::{prf:definition} globally linked in a framework
 :label: def-globally-linked-p
 
-We say that a pair of vertices $\{u,v\}$ in a $d$-{prf:ref}`dimensional framework <def-framework>`
-$(G,p)$ is _globally $d$-linked in $(G,p)$_ if for every {prf:ref}`equivalent <def-equivalent-framework>`
+We say that a pair of vertices $\{u,v\}$ is _globally $d$-linked
+in a $d$-{prf:ref}`dimensional framework <def-framework>` $(G,p)$_
+if for every {prf:ref}`equivalent <def-equivalent-framework>`
 $d$-{prf:ref}`dimensional framework <def-framework>` $(G,q)$ we have
 $||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
 
@@ -161,18 +162,23 @@ vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 :::{prf:corollary}
 :label: cor-weakly-globally-linked-rigid-graph
 
-Given a rigid but not globally rigid graph $G$ in $\RR^d$ then there exists at least one pair of vertices
-of $G$ that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
-
+Given a rigid but not globally rigid graph $G$ in $\RR^d$,
+there exists at least one pair of vertices of $G$
+that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 :::
 
 
-:::{prf:definition} linked pair 
+:::{prf:definition} linked pair
 :label: def-linked-pair
 
-A pair of vertices $\{u,v\}$ of $G$ is _linked in $G$_ (or that $uv$ is an _implied edge_ of $G$) in $\R^d$
-if $r_d(G+uv) = r_d(G)$, where $r_d(G):=\max\{|I|:I\subset G, I \text{ independent set}\}$ is the rank function of the 
-{prf:ref}`rigidity matroid <def-rigidity-matroid>`.
+A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked in a
+$d$-{prf:ref}`dimensional framework <def-framework>` $(G,p)$_
+(or that $uv$ is an _implied edge_ of $(G,p)$) if the set of distances
+$\{ \|q(u) - q(v) \| : (G,q) \text{ is equivalent to } (G,p) \}$
+is finite.
+
+A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked if it is $d$-linked
+in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$.
 
 {{references}} {cite:p}`Jordan2016`
 :::
@@ -182,7 +188,7 @@ if $r_d(G+uv) = r_d(G)$, where $r_d(G):=\max\{|I|:I\subset G, I \text{ independe
 :label: lem-linked-pair-rigid-component
 
 A pair $\{u, v\}$ is {prf:ref}`linked <def-linked-pair>` in $G$ if and only if
-there exists a {prf:ref}`rigid component <def-rigid-components>` of $G$ containing 
+there exists a {prf:ref}`rigid component <def-rigid-components>` of $G$ containing
 $u$ and $v$.
 
 {{references}} {cite:p}`Jordan2016`
@@ -194,7 +200,7 @@ $u$ and $v$.
 
 A pair $\{u, v\}$ of vertices is non-adjacent and {prf:ref}`linked <def-globally-linked>`
 in $G$ if and only if there exists some subgraph $G_0 = (V_0,E_0)$ of $G$ with $u,v\in V_0$
-such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-fundamental-circuit>`.
+such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`fundamental circuit <def-fundamental-circuit>`.
 
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
@@ -205,18 +211,18 @@ such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-fundamental-circ
 
 Given a graph $G$ its _augmented graph_ is the graph obtained from $G$
 by adding an edge between every {prf:ref}`separating pair <def-separating-set>` of $G$.
-
 :::
 
 
 :::{prf:definition} cleaving operation
 :label: def-cleaving-operation
 
-Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and $u,v\in V$ such that $\{u,v\}$
-is a {prf:ref}`separating pair <def-separating-set>` of $G$. Let $C$ be a {prf:ref}`connected component <def-k-connected>`
-of $G-\{u,v\}$ and let $H$ be the subgraph of $G$ induced by $V(C)\cup \{u,v\}$. Then we say that $H+ uv$
-is obtained from $G$ by a _cleaving operation_ along $\{u,v\}$.
-
+Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>`
+and $u,v\in V$ be such that $\{u,v\}$
+is a {prf:ref}`separating pair <def-separating-set>` of $G$.
+Let $C$ be a {prf:ref}`connected component <def-k-connected>`
+of $G-\{u,v\}$ and let $H$ be the subgraph of $G$ induced by $V(C) \cup \{u,v\}$.
+We say that $H + uv$ is obtained from $G$ by a _cleaving operation_ along $\{u,v\}$.
 :::
 
 
@@ -264,10 +270,11 @@ Then $\{u,v\}$ is {prf:ref}`weakly globally 2-linked <def-globally-linked>` in $
 where $B$ is the {prf:ref}`3-block <def-block-3>` of $\{u,v\}$ in $G$, $B_0 = (V_0,E_0)$
 is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`, and $C(B, V_0)$ is the graph obtained as follows.
 
-Let $V_1,\dots, V_r$ be the vertex sets of the {prf:ref}`connected components <def-k-connected>` of $B-V_0$. Delete from $B$ the vertex
-sets $V_i$ for $1\leq i\leq r$ and add the edges $xy$ for all pairs
-$x,y \in N_B(V_i)$ for $1\leq i\leq r$. Here $N_B(V_i)$ denotes
-the set of nodes of $B-V_i$ that are connected by an edge to some vertex of $V_i$. The resulting graph is $C(B, eV_0)$.
+Let $V_1,\dots, V_r$ be the vertex sets of the {prf:ref}`connected components <def-k-connected>` of $B-V_0$.
+Delete from $B$ the vertex sets $V_i$ for $1\leq i\leq r$
+and add the edges $xy$ for all pairs $x,y \in N_B(V_i)$ for $1\leq i\leq r$.
+Here $N_B(V_i)$ denotes the set of nodes of $B-V_i$ that are connected by an edge to some vertex of $V_i$.
+The resulting graph is $C(B, V_0)$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
 {{references}} {cite:p}`JordanVillanyi2024`
