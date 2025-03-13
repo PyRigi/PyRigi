@@ -395,7 +395,7 @@ def test_is_not_isostatic(framework):
         fws.CompleteBipartite(4, 4),
     ],
 )
-def test_is_inf_redundantly_rigid(framework):
+def test_is_redundantly_inf_rigid(framework):
     assert framework.is_redundantly_inf_rigid()
 
 
@@ -418,7 +418,7 @@ def test_is_inf_redundantly_rigid(framework):
         fws.Cube(),
     ],
 )
-def test_is_not_inf_redundantly_rigid(framework):
+def test_is_not_redundantly_inf_rigid(framework):
     assert not framework.is_redundantly_inf_rigid()
 
 
