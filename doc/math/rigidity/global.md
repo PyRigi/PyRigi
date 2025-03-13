@@ -155,7 +155,7 @@ If $\{u,v\}$ is not weakly globally $d$-linked in $G$, then it is called _global
 :label: thm-weakly-globally-linked-globally-rigid-graph
 
 A graph $G$ is {prf:ref}`globally rigid <def-globally-rigid-graph>` in $\RR^d$ if and only if every pair of
-vertices are {prf:ref}`weakly globally $d$-linked <def-globally-linked>` in $G$.
+vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
@@ -166,7 +166,7 @@ vertices are {prf:ref}`weakly globally $d$-linked <def-globally-linked>` in $G$.
 
 Given a rigid but not globally rigid graph $G$ in $\RR^d$,
 there exists at least one pair of vertices of $G$
-that are not {prf:ref}`weakly globally $d$-linked <def-globally-linked>` in $G$.
+that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 :::
 
 
