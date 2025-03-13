@@ -11,7 +11,7 @@ The framework $(G, p)$ is called
 * _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of at most $k$ edges from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
 * _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of at most $k$ vertices from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`.
 
-{{pyrigi_crossref}} {meth}`~.Framework.is_redundantly_rigid`
+{{pyrigi_crossref}} {meth}`~.Framework.is_inf_redundantly_rigid`
 :::
 
 :::{prf:definition} Redundantly generically rigid graphs
