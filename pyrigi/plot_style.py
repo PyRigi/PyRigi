@@ -524,7 +524,7 @@ class PlotStyle3D(PlotStyle):
         return self._axis_scales
 
     @axis_scales.setter
-    def axis_scales(self, scales):
+    def axis_scales(self, scales) -> None:
         if not isinstance(scales, tuple | list):
             raise TypeError(
                 f"Axis_scales must be a tuple or a list, not {type(scales).__name__}."
