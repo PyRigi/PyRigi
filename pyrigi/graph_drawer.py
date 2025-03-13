@@ -808,7 +808,7 @@ class GraphDrawer(object):
         Parameters
         ---------
         grid:
-            If ``True`` and ``Grid Snapping`` is checked,
+            If ``True`` and *Grid Snapping* is checked,
             the realization is scaled so that the grid points
             correspond to integral points.
         """
