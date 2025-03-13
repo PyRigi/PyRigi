@@ -68,6 +68,32 @@ def integrality_and_range(
         )
 
 
+def equal(val1: int | float, val2: int | float, name1: str, name2: str = "") -> None:
+    """
+    Check whether an input parameter ``val1`` is equal to ``val2`` and
+    raise an error otherwise.
+
+    Parameters
+    ----------
+    val1, val2:
+        Values that shall be equal
+    name1:
+        Name of the parameter ``val1``
+    name2:
+        Name of the parameter ``val2``
+    """
+    if name2 == "":
+        str2 = ""
+    else:
+        str2 = name2 + ", i.e. "
+    if val1 != val2:
+        raise ValueError(
+            "The " + name1 + " needs to be "
+            "equal to " + str2 + f"{val2}, "
+            f"but is {val1}!"
+        )
+
+
 def greater_equal(
     val1: int | float, val2: int | float, name1: str, name2: str = ""
 ) -> None:

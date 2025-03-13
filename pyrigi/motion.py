@@ -969,7 +969,7 @@ class ApproximateMotion(Motion):
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pin_vertex: Vertex = None,
-    ):
+    ) -> Motion:
         """
         Create an instance from a graph with a realization.
         """
@@ -1020,7 +1020,7 @@ class ApproximateMotion(Motion):
         return o_str
 
     @classmethod
-    def _warn_numerical_alg(cls, method: Callable):
+    def _warn_numerical_alg(cls, method: Callable) -> None:
         """
         Raise a warning if a numerical algorithm is silently called.
 

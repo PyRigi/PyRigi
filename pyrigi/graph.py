@@ -103,7 +103,7 @@ class Graph(nx.Graph):
         o_str += f"{self.edge_list(as_tuples=True)})"
         return o_str
 
-    def __eq__(self, other: Graph):
+    def __eq__(self, other: Graph) -> bool:
         """
         Return whether the other graph has the same vertices and edges.
 
@@ -133,7 +133,7 @@ class Graph(nx.Graph):
                 return False
         return True
 
-    def __add__(self, other: Graph):
+    def __add__(self, other: Graph) -> Graph:
         r"""
         Return the union of ``self`` and ``other``.
 
@@ -198,22 +198,6 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3, 7, 12] and edges []
         """
         return Graph.from_vertices_and_edges(vertices, [])
-
-    @classmethod
-    @doc_category("Class methods")
-    def CompleteOnVertices(cls, vertices: Sequence[Vertex]) -> Graph:
-        """
-        Generate the complete graph on ``vertices``.
-
-        Examples
-        --------
-        >>> print(Graph.CompleteOnVertices([0, 1, 2, 3, 4]))
-        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> print(Graph.CompleteOnVertices(['a', 'b', 'c', 'd']))
-        Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
-        """  # noqa: E501
-        edges = list(combinations(vertices, 2))
-        return Graph.from_vertices_and_edges(vertices, edges)
 
     def _input_check_no_loop(self) -> None:
         """
@@ -378,7 +362,7 @@ class Graph(nx.Graph):
             return list(edge_order)
 
     @classmethod
-    def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None):
+    def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None) -> None:
         """
         Raise a warning if a randomized algorithm is silently called.
 
@@ -530,7 +514,6 @@ class Graph(nx.Graph):
         [1, 2, 1]
         """
         vertex_order = self._input_check_vertex_order(vertex_order)
-
         return [int(self.degree(v)) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
@@ -609,7 +592,8 @@ class Graph(nx.Graph):
 
         Examples
         --------
-        >>> G = Graph.CompleteOnVertices([0,1,2,3])
+        >>> from pyrigi import graphDB
+        >>> G = graphDB.Complete(4)
         >>> H = G.spanning_kl_sparse_subgraph(2,3)
         >>> print(H)
         Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
@@ -1551,6 +1535,8 @@ class Graph(nx.Graph):
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
+
+        # :prf:ref:`from thm-vertex-red-min-deg`
         if n >= dim + k + 1 and self.min_degree() < dim + k:
             return False
         if dim == 1:
@@ -1596,6 +1582,13 @@ class Graph(nx.Graph):
             return False
 
         # in all other cases check by definition
+        # and :prf:ref:`thm-redundant-vertex-subset`
+        if self.number_of_nodes() < k + 2:
+            if not self.is_rigid(dim, algorithm, prob):
+                return False
+            for cur_k in range(1, k):
+                if not self.is_k_vertex_redundantly_rigid(cur_k, dim, algorithm, prob):
+                    return False
         G = deepcopy(self)
         for vertex_set in combinations(self.nodes, k):
             adj = [[v, list(G.neighbors(v))] for v in vertex_set]
@@ -1866,6 +1859,7 @@ class Graph(nx.Graph):
             return True
 
         # in all other cases check by definition
+        # and :prf:ref:`thm-redundant-edge-subset`
         G = deepcopy(self)
         for edge_set in combinations(self.edge_list(), k):
             G.delete_edges(edge_set)
@@ -2141,13 +2135,13 @@ class Graph(nx.Graph):
         self._input_check_no_loop()
 
         n = self.number_of_nodes()
+        # small graphs are minimally rigid iff complete
+        # :pref:ref:`thm-gen-rigidity-small-complete`
+        if n <= dim + 1:
+            return self.number_of_edges() == math.comb(n, 2)
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
         if self.number_of_edges() != dim * n - math.comb(dim + 1, 2):
             return False
-        # small graphs are minimally rigid iff complete
-        # :pref:ref:`thm-gen-rigidity-small-complete`
-        elif n <= dim + 1:
-            return self.number_of_edges() == math.comb(n, 2)
 
         if algorithm == "default":
             if dim == 1:
@@ -2422,7 +2416,7 @@ class Graph(nx.Graph):
         raise NotSupportedValueError(algorithm, "algorithm", self.is_Rd_independent)
 
     @doc_category("Rigidity Matroid")
-    def is_Rd_circuit(
+    def is_Rd_circuit(  # noqa: C901
         self,
         dim: int = 2,
         algorithm: str = "default",
@@ -2493,13 +2487,16 @@ class Graph(nx.Graph):
 
         if algorithm == "graphic":
             _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
-            if not nx.is_connected(self):
-                return False
-
-            # Check if every vertex has degree 2
+            # Check if every vertex has degree 2 or 0
+            V = []
             for vertex in self.nodes:
-                if self.degree(vertex) != 2:
+                if self.degree(vertex) != 2 and self.degree(vertex) != 0:
                     return False
+                if self.degree(vertex) == 2:
+                    V.append(vertex)
+            H = self.subgraph(V)
+            if not nx.is_connected(H):
+                return False
             return True
 
         if algorithm == "sparsity":
@@ -3260,7 +3257,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Graph manipulation")
-    def sum_t(self, other_graph: Graph, edge: Edge, t: int = 2):
+    def sum_t(self, other_graph: Graph, edge: Edge, t: int = 2) -> Graph:
         """
         Return the ``t``-sum with ``other_graph`` along the given edge.
 
@@ -3290,7 +3287,7 @@ class Graph(nx.Graph):
         return G
 
     @doc_category("General graph theoretical properties")
-    def is_vertex_apex(self):
+    def is_vertex_apex(self) -> bool:
         """
         Return whether the graph is vertex apex.
 
@@ -3303,7 +3300,7 @@ class Graph(nx.Graph):
         return self.is_k_vertex_apex(1)
 
     @doc_category("General graph theoretical properties")
-    def is_k_vertex_apex(self, k: int):
+    def is_k_vertex_apex(self, k: int) -> bool:
         """
         Return whether the graph is ``k``-vertex apex.
 
@@ -3331,7 +3328,7 @@ class Graph(nx.Graph):
         return False
 
     @doc_category("General graph theoretical properties")
-    def is_edge_apex(self):
+    def is_edge_apex(self) -> bool:
         """
         Return whether the graph is edge apex.
 
@@ -3344,7 +3341,7 @@ class Graph(nx.Graph):
         return self.is_k_edge_apex(1)
 
     @doc_category("General graph theoretical properties")
-    def is_k_edge_apex(self, k: int):
+    def is_k_edge_apex(self, k: int) -> bool:
         """
         Return whether the graph is ``k``-edge apex.
 
@@ -3371,7 +3368,7 @@ class Graph(nx.Graph):
         return False
 
     @doc_category("General graph theoretical properties")
-    def is_critically_vertex_apex(self):
+    def is_critically_vertex_apex(self) -> bool:
         """
         Return whether the graph is critically vertex apex.
 
@@ -3384,7 +3381,7 @@ class Graph(nx.Graph):
         return self.is_critically_k_vertex_apex(1)
 
     @doc_category("General graph theoretical properties")
-    def is_critically_k_vertex_apex(self, k: int):
+    def is_critically_k_vertex_apex(self, k: int) -> bool:
         """
         Return whether the graph is critically ``k``-vertex apex.
 
@@ -3412,7 +3409,7 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("General graph theoretical properties")
-    def is_critically_edge_apex(self):
+    def is_critically_edge_apex(self) -> bool:
         """
         Return whether the graph is critically edge apex.
 
@@ -3425,7 +3422,7 @@ class Graph(nx.Graph):
         return self.is_critically_k_edge_apex(1)
 
     @doc_category("General graph theoretical properties")
-    def is_critically_k_edge_apex(self, k: int):
+    def is_critically_k_edge_apex(self, k: int) -> bool:
         """
         Return whether the graph is critically ``k``-edge apex.
 
@@ -3452,7 +3449,7 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Graph manipulation")
-    def intersection(self, other_graph: Graph):
+    def intersection(self, other_graph: Graph) -> Graph:
         """
         Return the intersection with ``other_graph``.
 

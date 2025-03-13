@@ -173,7 +173,7 @@ def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> b
         if zero_bool is None:
             raise RuntimeError(
                 "It could not be determined by sympy "
-                + f"whether the expression `{expr}` is zero."
+                + "whether the given sympy expression is zero."
                 + "Please report this as an issue on Github "
                 + "(https://github.com/PyRigi/PyRigi/issues)."
             )
@@ -346,7 +346,7 @@ def vector_distance_pointwise(
     )
 
 
-def is_isomorphic_graph_list(list1, list2):
+def is_isomorphic_graph_list(list1, list2) -> bool:
     """
     Return whether two lists of graphs are the same up to graph isomorphism.
     """
@@ -400,7 +400,7 @@ def point_to_vector(point: Point) -> Matrix:
     return res if (res.shape[1] == 1) else res.transpose()
 
 
-def _null_space(A: np.array, tolerance: float = 1e-8):
+def _null_space(A: np.array, tolerance: float = 1e-8) -> np.array:
     """
     Compute the kernel of a numpy matrix.
 
