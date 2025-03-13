@@ -146,231 +146,231 @@ class PlotStyle(object):
                 raise ValueError(f"PlotStyle does not have the attribute {key}.")
 
     @property
-    def vertex_size(self):
+    def vertex_size(self) -> float | int:
         return self._vertex_size
 
     @vertex_size.setter
-    def vertex_size(self, value):
+    def vertex_size(self, value) -> None:
         if isinstance(value, float | int):
             self._vertex_size = value
         else:
             raise TypeError("vertex_size must be a float or integer.")
 
     @property
-    def vertex_color(self):
+    def vertex_color(self) -> str:
         return self._vertex_color
 
     @vertex_color.setter
-    def vertex_color(self, value):
+    def vertex_color(self, value) -> None:
         if isinstance(value, str):
             self._vertex_color = value
         else:
             raise TypeError("vertex_color must be a string.")
 
     @property
-    def vertex_labels(self):
+    def vertex_labels(self) -> bool:
         return self._vertex_labels
 
     @vertex_labels.setter
-    def vertex_labels(self, value):
+    def vertex_labels(self, value) -> None:
         if isinstance(value, bool):
             self._vertex_labels = value
         else:
             raise TypeError("vertex_labels must be a boolean.")
 
     @property
-    def vertex_shape(self):
+    def vertex_shape(self) -> str:
         return self._vertex_shape
 
     @vertex_shape.setter
-    def vertex_shape(self, value):
+    def vertex_shape(self, value) -> None:
         if isinstance(value, str):
             self._vertex_shape = value
         else:
             raise TypeError("vertex_shape must be a string.")
 
     @property
-    def edge_width(self):
+    def edge_width(self) -> float | int:
         return self._edge_width
 
     @edge_width.setter
-    def edge_width(self, value):
+    def edge_width(self, value) -> None:
         if isinstance(value, float | int):
             self._edge_width = value
         else:
             raise TypeError("edge_width must be a float or integer.")
 
     @property
-    def edge_color(self):
+    def edge_color(self) -> str:
         return self._edge_color
 
     @edge_color.setter
-    def edge_color(self, value):
+    def edge_color(self, value) -> None:
         if isinstance(value, str):
             self._edge_color = value
         else:
             raise TypeError("edge_color must be a string.")
 
     @property
-    def edge_style(self):
+    def edge_style(self) -> str:
         return self._edge_style
 
     @edge_style.setter
-    def edge_style(self, value):
+    def edge_style(self, value) -> None:
         if isinstance(value, str):
             self._edge_style = value
         else:
             raise TypeError("edge_style must be a string.")
 
     @property
-    def flex_width(self):
+    def flex_width(self) -> float | int:
         return self._flex_width
 
     @flex_width.setter
-    def flex_width(self, value):
+    def flex_width(self, value) -> None:
         if isinstance(value, float | int):
             self._flex_width = value
         else:
             raise TypeError("flex_width must be a float or integer.")
 
     @property
-    def flex_length(self):
+    def flex_length(self) -> float | int:
         return self._flex_length
 
     @flex_length.setter
-    def flex_length(self, value):
+    def flex_length(self, value) -> None:
         if isinstance(value, float | int):
             self._flex_length = value
         else:
             raise TypeError("flex_length must be a float or integer.")
 
     @property
-    def flex_color(self):
+    def flex_color(self) -> str:
         return self._flex_color
 
     @flex_color.setter
-    def flex_color(self, value):
+    def flex_color(self, value) -> None:
         if isinstance(value, str):
             self._flex_color = value
         else:
             raise TypeError("flex_color must be a string.")
 
     @property
-    def flex_style(self):
+    def flex_style(self) -> str:
         return self._flex_style
 
     @flex_style.setter
-    def flex_style(self, value):
+    def flex_style(self, value) -> None:
         if isinstance(value, str):
             self._flex_style = value
         else:
             raise TypeError("flex_style must be a string.")
 
     @property
-    def flex_arrow_size(self):
+    def flex_arrow_size(self) -> int:
         return self._flex_arrow_size
 
     @flex_arrow_size.setter
-    def flex_arrow_size(self, value):
+    def flex_arrow_size(self, value) -> None:
         if isinstance(value, int):
             self._flex_arrow_size = value
         else:
             raise TypeError("flex_arrow_size must be an int.")
 
     @property
-    def stress_color(self):
+    def stress_color(self) -> str:
         return self._stress_color
 
     @stress_color.setter
-    def stress_color(self, value):
+    def stress_color(self, value) -> None:
         if isinstance(value, str):
             self._stress_color = value
         else:
             raise TypeError("stress_color must be a string.")
 
     @property
-    def stress_fontsize(self):
+    def stress_fontsize(self) -> int:
         return self._stress_fontsize
 
     @stress_fontsize.setter
-    def stress_fontsize(self, value):
+    def stress_fontsize(self, value) -> None:
         if isinstance(value, int):
             self._stress_fontsize = value
         else:
             raise TypeError("stress_fontsize must be an int.")
 
     @property
-    def stress_rotate_labels(self):
+    def stress_rotate_labels(self) -> bool:
         return self._stress_rotate_labels
 
     @stress_rotate_labels.setter
-    def stress_rotate_labels(self, value):
+    def stress_rotate_labels(self, value) -> None:
         if isinstance(value, bool):
             self._stress_rotate_labels = value
         else:
             raise TypeError("stress_rotate_labels must be a boolean.")
 
     @property
-    def stress_normalization(self):
+    def stress_normalization(self) -> bool:
         return self._stress_normalization
 
     @stress_normalization.setter
-    def stress_normalization(self, value):
+    def stress_normalization(self, value) -> None:
         if isinstance(value, bool):
             self._stress_normalization = value
         else:
             raise TypeError("stress_normalization must be a boolean.")
 
     @property
-    def font_size(self):
+    def font_size(self) -> int:
         return self._font_size
 
     @font_size.setter
-    def font_size(self, value):
+    def font_size(self, value) -> None:
         if isinstance(value, int):
             self._font_size = value
         else:
             raise TypeError("font_size must be an int.")
 
     @property
-    def font_color(self):
+    def font_color(self) -> str:
         return self._font_color
 
     @font_color.setter
-    def font_color(self, value):
+    def font_color(self, value) -> None:
         if isinstance(value, str):
             self._font_color = value
         else:
             raise TypeError("font_color must be a string.")
 
     @property
-    def canvas_width(self):
+    def canvas_width(self) -> float | int:
         return self._canvas_width
 
     @canvas_width.setter
-    def canvas_width(self, value):
+    def canvas_width(self, value) -> None:
         if isinstance(value, float | int):
             self._canvas_width = value
         else:
             raise TypeError("canvas_width must be a float or integer.")
 
     @property
-    def canvas_height(self):
+    def canvas_height(self) -> float | int:
         return self._canvas_height
 
     @canvas_height.setter
-    def canvas_height(self, value):
+    def canvas_height(self, value) -> None:
         if isinstance(value, float | int):
             self._canvas_height = value
         else:
             raise TypeError("canvas_height must be a float or integer.")
 
     @property
-    def dpi(self):
+    def dpi(self) -> int:
         return self._dpi
 
     @dpi.setter
-    def dpi(self, value):
+    def dpi(self, value) -> None:
         if isinstance(value, int):
             self._dpi = value
         else:
@@ -425,40 +425,40 @@ class PlotStyle2D(PlotStyle):
         self.arc_angle = arc_angle
 
     @property
-    def aspect_ratio(self):
+    def aspect_ratio(self) -> float | int:
         return self._aspect_ratio
 
     @aspect_ratio.setter
-    def aspect_ratio(self, value):
-        if isinstance(value, (float, int)):
+    def aspect_ratio(self, value) -> None:
+        if isinstance(value, float | int):
             self._aspect_ratio = value
         else:
             raise TypeError("aspect_ratio must be a float or an int.")
 
     @property
-    def edges_as_arcs(self):
+    def edges_as_arcs(self) -> bool:
         return self._edges_as_arcs
 
     @edges_as_arcs.setter
-    def edges_as_arcs(self, value):
+    def edges_as_arcs(self, value) -> None:
         if isinstance(value, bool):
             self._edges_as_arcs = value
         else:
             raise TypeError("edges_as_arcs must be a boolean.")
 
     @property
-    def arc_angle(self):
+    def arc_angle(self) -> float | int:
         return self._arc_angle
 
     @arc_angle.setter
-    def arc_angle(self, value):
+    def arc_angle(self, value) -> None:
         if isinstance(value, float | int):
             self._arc_angle = value
         else:
             raise TypeError("arc_angle must be a float or integer.")
 
     @classmethod
-    def from_plot_style(cls, plot_style: PlotStyle):
+    def from_plot_style(cls, plot_style: PlotStyle) -> PlotStyle:
         """
         Construct an instance of ``PlotStyle2D`` from a given instance of ``PlotStyle``.
 
@@ -510,22 +510,22 @@ class PlotStyle3D(PlotStyle):
         self.axis_scales = axis_scales
 
     @property
-    def padding(self):
+    def padding(self) -> float | int:
         return self._padding
 
     @padding.setter
-    def padding(self, value):
+    def padding(self, value) -> None:
         if not isinstance(value, float | int):
             raise TypeError("Padding must be a float or integer.")
         self._padding = value
 
     @property
-    def axis_scales(self):
+    def axis_scales(self) -> Sequence[float | int]:
         return self._axis_scales
 
     @axis_scales.setter
-    def axis_scales(self, scales):
-        if not isinstance(scales, (tuple, list)):
+    def axis_scales(self, scales) -> None:
+        if not isinstance(scales, tuple | list):
             raise TypeError(
                 f"Axis_scales must be a tuple or a list, not {type(scales).__name__}."
             )
@@ -538,7 +538,7 @@ class PlotStyle3D(PlotStyle):
         self._axis_scales = scales
 
     @classmethod
-    def from_plot_style(cls, plot_style: PlotStyle):
+    def from_plot_style(cls, plot_style: PlotStyle) -> PlotStyle:
         """
         Construct an instance of ``PlotStyle3D`` from a given instance of ``PlotStyle``.
 

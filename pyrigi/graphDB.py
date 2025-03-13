@@ -213,7 +213,7 @@ def Frustum(n: int) -> Graph:
     )
 
 
-def K66MinusPerfectMatching():
+def K66MinusPerfectMatching() -> Graph:
     """
     Return the complete bipartite graph minus a perfect matching.
 
@@ -273,7 +273,7 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
     return G
 
 
-def ThreeConnectedR3Circuit():
+def ThreeConnectedR3Circuit() -> Graph:
     """
     Return a 3-connected $R_3$-circuit.
 
@@ -318,7 +318,7 @@ def ThreeConnectedR3Circuit():
     )
 
 
-def Wheel(n: int):
+def Wheel(n: int) -> Graph:
     """
     Create the wheel graph on ``n+1`` vertices.
     """
