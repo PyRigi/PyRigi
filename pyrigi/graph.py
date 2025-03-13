@@ -3474,7 +3474,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_separating_set(self, vertices: list[Vertex] | set[Vertex]) -> bool:
         """
-        Check if a set of vertices is a separating set for ``self``.
+        Check if a set of vertices is a separating set.
 
         Parameters
         ----------
@@ -3508,7 +3508,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
         """
-        Return the set of neighbors of a set of vertices of ``self``.
+        Return the set of neighbors of a set of vertices.
 
         Parameters
         ----------
@@ -3582,7 +3582,7 @@ class Graph(nx.Graph):
 
     def _block_3(self, u: Vertex, v: Vertex) -> Graph:
         """
-        Return the 3-block of ``(u, v)`` via cleaving operations.
+        Return the 3-block of (``u``, ``v``) via cleaving operations.
 
         Definitions
         -----------
@@ -3621,7 +3621,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
-        Check if the pair of vertices ``u`` and ``v`` is ``dim``-linked in ``self``.
+        Check if the pair of vertices ``u`` and ``v`` is ``dim``-linked.
 
         Parameters
         ----------
