@@ -19,7 +19,7 @@ def Complete(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
     """
     Return the complete graph on ``n`` vertices.
 
-    Alternatively, the vertex labels can be specified explicitly via
+    The vertex labels can also be specified explicitly via
     the keyword ``vertices``.
 
     Parameters
