@@ -278,5 +278,6 @@ Here $N_B(V_i)$ denotes the set of nodes of $B-V_i$ that are connected by an edg
 The resulting graph is $C(B, V_0)$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
+
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
