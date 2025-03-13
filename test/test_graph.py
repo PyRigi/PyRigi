@@ -3061,6 +3061,9 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_indep
                 if n > dim:
                     assert m == n * dim - math.comb(dim + 1, 2)
+                    assert G.random_framework(
+                        dim
+                    ).rigidity_matrix_rank() == n * dim - math.comb(dim + 1, 2)
                     assert G.min_degree() >= dim
                     assert G.min_degree() <= 2 * dim - 1
                     assert prop_sparse
@@ -3079,6 +3082,9 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert cprop_rigid
                 if n > dim:
                     assert m >= n * dim - math.comb(dim + 1, 2)
+                    assert G.random_framework(
+                        dim
+                    ).rigidity_matrix_rank() == n * dim - math.comb(dim + 1, 2)
                     assert G.min_degree() >= dim
                     if m > n * dim - math.comb(dim + 1, 2):
                         assert prop_dep
