@@ -2492,12 +2492,9 @@ class Graph(nx.Graph):
 
         if algorithm == "graphic":
             _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
-            if not nx.is_connected(self):
-                return False
-
-            # Check if every vertex has degree 2
+            # Check if every vertex has degree 2 or 0
             for vertex in self.nodes:
-                if self.degree(vertex) != 2:
+                if self.degree(vertex) != 2 and self.degree(vertex) != 0:
                     return False
             return True
 
