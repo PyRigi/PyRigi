@@ -14,13 +14,29 @@ def test_Cycle():
 
 
 def test_Complete():
-    for n in range(1, 10):
+    for n in range(0, 10):
         G = graphs.Complete(n)
         assert (
             G.number_of_nodes() == n
             and G.number_of_edges() == n * (n - 1) / 2
             and all([G.degree[v] == n - 1 for v in G.nodes])
         )
+        G = graphs.Complete(n, [f"a_{i}" for i in range(n)])
+        assert (
+            G.number_of_nodes() == n
+            and G.number_of_edges() == n * (n - 1) / 2
+            and all([G.degree[v] == n - 1 for v in G.nodes])
+        )
+        G = graphs.Complete(vertices=[f"a_{i}" for i in range(n)])
+        assert (
+            G.number_of_nodes() == n
+            and G.number_of_edges() == n * (n - 1) / 2
+            and all([G.degree[v] == n - 1 for v in G.nodes])
+        )
+        with pytest.raises(ValueError):
+            graphs.Complete(n, [f"a_{i}" for i in range(n + 1)])
+            graphs.Complete(n + 1, [f"a_{i}" for i in range(n)])
+            graphs.Complete([f"a_{i}" for i in range(n)])
 
 
 def test_Path():

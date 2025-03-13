@@ -64,7 +64,7 @@ graphs.Complete(4)
 ```
 
 ```{code-cell} ipython3
-Graph.CompleteOnVertices(['a', 1, (1.2)])
+graphs.Complete(3, ['a', 1, (1.2)])
 ```
 
 ```{code-cell} ipython3
