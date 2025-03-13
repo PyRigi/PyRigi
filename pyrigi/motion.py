@@ -57,14 +57,16 @@ class Motion(object):
 
     def __repr__(self) -> str:
         """Return a representation of the motion."""
-        return f"Motion({repr(self.graph())}, {self.dim()})"
+        return f"Motion({repr(self.graph)}, {self.dim})"
 
+    @property
     def graph(self) -> Graph:
         """
         Return a copy of the underlying graph.
         """
         return deepcopy(self._graph)
 
+    @property
     def dim(self) -> int:
         """
         Return the dimension of the motion.
@@ -791,7 +793,7 @@ class ParametricMotion(Motion):
 
     def __repr__(self) -> str:
         """Return a representation of the parametric motion."""
-        o_str = f"ParametricMotion({repr(self.graph())}, "
+        o_str = f"ParametricMotion({repr(self.graph)}, "
         str_parametrization = {
             v: [str(p) for p in pos]
             for v, pos in self.parametrization(as_points=True).items()
@@ -868,7 +870,7 @@ class ApproximateMotion(Motion):
         A framework.
     steps:
         The amount of retraction steps that are performed. This number is equal to the
-        amount of ``motion_samples`` that are computed.
+        amount of ``_motion_samples`` that are computed.
     step_size:
         The step size of each retraction step. If the output seems too jumpy or instable,
         consider reducing the step size.
@@ -887,13 +889,6 @@ class ApproximateMotion(Motion):
     pin_vertex:
         If the keyword ``fixed_pair`` is not set, we can use the keyword ``pin_vertex``
         to pin one of the vertices to the origin instead during the motion.
-
-    Attributes
-    ----------
-    edge_lengths:
-        The edge lengths that ought to be preserved.
-    motion_samples:
-        A list of numerical configurations on the configuration space.
 
     Examples
     --------
@@ -937,12 +932,12 @@ class ApproximateMotion(Motion):
         self._warn_numerical_alg(self.__init__)
         self._stress_length = len(F.stresses())
         self._starting_realization = F.realization(as_points=True, numerical=True)
-        self.tolerance = tolerance
-        self.steps = steps
-        self.chosen_flex = chosen_flex
-        self.step_size = step_size
+        self._tolerance = tolerance
+        self._steps = steps
+        self._chosen_flex = chosen_flex
+        self._step_size = step_size
         self._current_step_size = step_size
-        self.edge_lengths = F.edge_lengths(numerical=True)
+        self._edge_lengths = F.edge_lengths(numerical=True)
         self._compute_motion_samples(chosen_flex)
         if fixed_pair is not None:
             _input_check.dimension_for_algorithm(
@@ -955,14 +950,23 @@ class ApproximateMotion(Motion):
                     "`fixed_direction` does not have the same length as the"
                     + f" motion's dimension, which is {self._dim}."
                 )
-            self.motion_samples = self._fix_edge(
-                self.motion_samples, fixed_pair, fixed_direction
+            self._motion_samples = self._fix_edge(
+                self._motion_samples, fixed_pair, fixed_direction
             )
-        elif pin_vertex is not None:
-            self.motion_samples = self._pin_origin(self.motion_samples, pin_vertex)
-        self.fixed_pair = fixed_pair
-        self.fixed_direction = fixed_direction
-        self.pin_vertex = pin_vertex
+            self._pin_vertex = None
+        elif pin_vertex is None:
+            pin_result = self._pin_origin(self._motion_samples, pin_vertex)
+            self._motion_samples = pin_result[0]
+            self._pin_vertex = pin_result[1]
+        else:
+            if pin_vertex not in self._graph.nodes:
+                raise ValueError(
+                    f"The pinned vertex {pin_vertex} is not part of the graph"
+                )
+            self._motion_samples = self._pin_origin(self._motion_samples, pin_vertex)[0]
+            self._pin_vertex = pin_vertex
+        self._fixed_pair = fixed_pair
+        self._fixed_direction = fixed_direction
 
     @classmethod
     def from_graph(
@@ -1017,14 +1021,140 @@ class ApproximateMotion(Motion):
 
     def __repr__(self) -> str:
         """Return a representation of the approximate motion."""
-        o_str = f"ApproximateMotion.from_graph({repr(self.graph())}, "
-        o_str += f"{self._starting_realization}, {self.steps}, "
-        o_str += f"step_size={self.step_size}, chosen_flex={self.chosen_flex}, "
-        o_str += f"tolerance={self.tolerance}, fixed_pair={self.fixed_pair}, "
+        o_str = f"ApproximateMotion.from_graph({repr(self._graph)}, "
+        o_str += f"{self._starting_realization}, {self._steps}, "
+        o_str += f"step_size={self._step_size}, chosen_flex={self._chosen_flex}, "
+        o_str += f"tolerance={self._tolerance}, fixed_pair={self._fixed_pair}, "
         o_str += (
-            f"fixed_direction={self.fixed_direction}, pin_vertex={self.pin_vertex})"
+            f"fixed_direction={self._fixed_direction}, pin_vertex={self._pin_vertex})"
         )
         return o_str
+
+    @property
+    def edge_lengths(self) -> dict[Edge, Number]:
+        """
+        Return a copy of the edge lengths.
+        """
+        return deepcopy(self._edge_lengths)
+
+    @property
+    def motion_samples(self) -> list[dict[Vertex, Point]]:
+        """
+        Return a copy of the motion samples.
+        """
+        return deepcopy(self._motion_samples)
+
+    @property
+    def steps(self) -> int:
+        """
+        Return the number of steps.
+        """
+        return self._steps
+
+    @property
+    def tolerance(self) -> float:
+        """
+        Return the tolerance for Newton's method.
+        """
+        return self._tolerance
+
+    @property
+    def starting_realization(self) -> dict[Vertex, Point]:
+        """
+        Return the starting realization of the motion.
+        """
+        return deepcopy(self._starting_realization)
+
+    @property
+    def step_size(self) -> float:
+        """
+        Return the step size of the motion.
+        """
+        return self._step_size
+
+    @property
+    def fixed_pair(self) -> DirectedEdge:
+        """
+        Return the fixed pair of the motion.
+        """
+        return deepcopy(self._fixed_pair)
+
+    @property
+    def chosen_flex(self) -> int:
+        """
+        Return the chosen flex of the motion.
+        """
+        return self._chosen_flex
+
+    @property
+    def pin_vertex(self) -> Vertex:
+        """
+        Return the pinned vertex of the motion.
+        """
+        return self._pin_vertex
+
+    @property
+    def fixed_direction(self) -> Sequence[Number]:
+        """
+        Return the vector to which `fixed_pair` is fixed in the motion.
+        """
+        return deepcopy(self._fixed_direction)
+
+    def fix_vertex(self, vertex: Vertex) -> None:
+        """
+        Pin ``vertex`` to the origin.
+
+        Parameters
+        ----------
+        vertex:
+            The vertex that is pinned to the origin.
+        """
+        if vertex is None or vertex not in self.graph.nodes:
+            raise ValueError(f"The pinned vertex {vertex} is not part of the graph")
+        self._pin_vertex = vertex
+        self._motion_samples = self._pin_origin(self.motion_samples, vertex)[0]
+
+    def fix_pair_of_vertices(
+        self, fixed_pair: DirectedEdge, fixed_direction: Sequence[Number] = None
+    ) -> None:
+        """
+        Pin ``fixed_pair`` to the vector given by ``fixed_direction``.
+
+        The default value for ``fixed_direction`` is the first standard unit
+        vector ``[1,0,...,0]``.
+
+        Parameters
+        ----------
+        fixed_pair:
+            The pair of vertices that is fixed in the direction ``fixed_direction``.
+        fixed_direction:
+            A vector to which the  pair of vertices is fixed.
+        """
+        if (
+            len(fixed_pair) == 2
+            and fixed_pair[0] in self.graph.nodes
+            and fixed_pair[1] in self.graph.nodes
+        ):
+            _input_check.dimension_for_algorithm(
+                self._dim, [2], "ApproximateMotion.fix_edge"
+            )
+            if fixed_direction is None:
+                fixed_direction = [1] + [0 for _ in range(self._dim - 1)]
+            if len(fixed_direction) != self._dim:
+                raise ValueError(
+                    "`fixed_direction` does not have the same length as the"
+                    + f" motion's dimension, which is {self._dim}."
+                )
+        else:
+            raise ValueError(
+                "`fixed_pair` does not have the correct format or "
+                + "has entries that are not contained in the underlying graph."
+            )
+        self._fixed_pair = fixed_pair
+        self._fixed_direction = fixed_direction
+        self._motion_samples = self._fix_edge(
+            self.motion_samples, fixed_pair, fixed_direction
+        )
 
     @classmethod
     def _warn_numerical_alg(cls, method: Callable) -> None:
@@ -1041,7 +1171,7 @@ class ApproximateMotion(Motion):
 
     def _compute_motion_samples(self, chosen_flex: int) -> None:
         """
-        Perform path-tracking to compute the attribute ``motion_samples``.
+        Perform path-tracking to compute the attribute ``_motion_samples``.
         """
         F = Framework(self._graph, self._starting_realization)
         inf_flexes = F.inf_flexes(numerical=True, tolerance=self.tolerance)
@@ -1054,13 +1184,13 @@ class ApproximateMotion(Motion):
         )
 
         cur_sol = self._starting_realization
-        self.motion_samples = [cur_sol]
+        self._motion_samples = [cur_sol]
         i = 1
         # To avoid an infinite loop, the step size rescaling is reduced if only too large
         # or too small step sizes are found Its value converges to 1.
         step_size_rescaling = 2
         jump_indicator = [False, False]
-        while i < self.steps:
+        while i < self._steps:
             euler_step, cur_inf_flex = self._euler_step(cur_inf_flex, cur_sol)
             try:
                 cur_sol = self._newton_steps(euler_step)
@@ -1073,16 +1203,16 @@ class ApproximateMotion(Motion):
                         + "given framework is not flexible?"
                     )
                 continue
-            self.motion_samples += [cur_sol]
+            self._motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
                 vector_distance_pointwise(
-                    self.motion_samples[-1], self.motion_samples[-2], numerical=True
+                    self._motion_samples[-1], self._motion_samples[-2], numerical=True
                 )
                 > self.step_size * 2
             ):
                 self._current_step_size = self._current_step_size / step_size_rescaling
-                self.motion_samples.pop()
+                self._motion_samples.pop()
                 jump_indicator[0] = True
                 if all(jump_indicator):
                     step_size_rescaling = step_size_rescaling ** (0.75)
@@ -1090,12 +1220,12 @@ class ApproximateMotion(Motion):
                 continue
             elif (
                 vector_distance_pointwise(
-                    self.motion_samples[-1], self.motion_samples[-2], numerical=True
+                    self._motion_samples[-1], self._motion_samples[-2], numerical=True
                 )
                 < self.step_size / 2
             ):
                 self._current_step_size = self._current_step_size * step_size_rescaling
-                self.motion_samples.pop()
+                self._motion_samples.pop()
                 jump_indicator[1] = True
                 if all(jump_indicator):
                     step_size_rescaling = step_size_rescaling ** (0.75)
@@ -1106,7 +1236,7 @@ class ApproximateMotion(Motion):
 
     def _pin_origin(
         self, realizations: Sequence[dict[Vertex, Point]], pinned_vertex: Vertex = None
-    ) -> list[dict[Vertex, Point]]:
+    ) -> tuple[list[dict[Vertex, Point]], Vertex]:
         """
         Pin a vertex to the origin.
 
@@ -1132,7 +1262,7 @@ class ApproximateMotion(Motion):
                 for v, pos in realization.items()
             }
             _realizations.append(_realization)
-        return _realizations
+        return _realizations, pinned_vertex
 
     @staticmethod
     def _fix_edge(
@@ -1230,7 +1360,7 @@ class ApproximateMotion(Motion):
 
         See the parent method :meth:`~.Motion.animate` for the list of possible keywords.
         """
-        realizations = self.motion_samples
+        realizations = self._motion_samples
         return super().animate(
             realizations,
             None,
@@ -1277,7 +1407,7 @@ class ApproximateMotion(Motion):
         predicted_inf_flex = normalize_flex(
             F._transform_inf_flex_to_pointwise(predicted_inf_flex), numerical=True
         )
-        realization = self.motion_samples[-1]
+        realization = self._motion_samples[-1]
         return {
             v: tuple(
                 [
@@ -1313,7 +1443,7 @@ class ApproximateMotion(Motion):
         )
         cur_error = prev_error = sum(
             [
-                np.abs(length - self.edge_lengths[e])
+                np.abs(length - self._edge_lengths[e])
                 for e, length in F.edge_lengths(numerical=True).items()
             ]
         )
@@ -1334,7 +1464,7 @@ class ApproximateMotion(Motion):
                     ]
                 )
                 - length
-                for e, length in self.edge_lengths.items()
+                for e, length in self._edge_lengths.items()
             ]
 
             if self._stress_length > 0:
@@ -1354,7 +1484,7 @@ class ApproximateMotion(Motion):
             )
             cur_error = sum(
                 [
-                    np.abs(length - self.edge_lengths[e])
+                    np.abs(length - self._edge_lengths[e])
                     for e, length in F.edge_lengths(numerical=True).items()
                 ]
             )

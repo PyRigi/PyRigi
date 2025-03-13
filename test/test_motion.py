@@ -3,10 +3,12 @@ from math import isclose
 import sympy as sp
 import numpy as np
 import pytest
+from copy import deepcopy
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
 from pyrigi import Motion, Framework, ParametricMotion, ApproximateMotion, Graph
+from pyrigi.misc import is_zero_vector
 
 
 def test__str__():
@@ -59,7 +61,7 @@ def test__str__():
             "ApproximateMotion.from_graph(Graph.from_vertices_and_edges([0, 1, 2], "
             "[(0, 1), (1, 2)]), {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [0.0, 1.0]},"
             " 2, step_size=0.1, chosen_flex=0, tolerance=1e-05, fixed_pair=None,"
-            " fixed_direction=None, pin_vertex=None)",
+            " fixed_direction=None, pin_vertex=0)",
         ],
     ],
 )
@@ -378,4 +380,154 @@ def test_normalize_realizations():
             )
             and np.linalg.norm(r[2][0]) <= 2.02
             and np.linalg.norm(r[2][1]) <= 2.02
+        )
+
+
+def test_ApproximateMotion_Getters():
+    F = fws.Cycle(4)
+    motion = ApproximateMotion(
+        F,
+        10,
+        fixed_pair=(0, 1),
+        fixed_direction=[0, 1],
+        step_size=0.075,
+        tolerance=1e-6,
+        chosen_flex=0,
+    )
+    assert is_zero_vector(
+        [
+            (L - float(sp.sympify("sqrt(2)").evalf()))
+            for L in motion.edge_lengths.values()
+        ],
+        numerical=True,
+        tolerance=1e-6,
+    )
+    assert motion.steps == 10
+    assert (
+        len(motion.motion_samples) == 10
+        and all(len(realization) == 4 for realization in motion.motion_samples)
+        and all(
+            F.is_equivalent_realization(realization, numerical=True, tolerance=1e-5)
+            for realization in motion.motion_samples
+        )
+    )
+    assert motion.tolerance == 1e-6
+    print(motion.starting_realization)
+    assert F.is_congruent_realization(
+        motion.starting_realization, numerical=True, tolerance=1e-5
+    )
+    assert motion.step_size == 0.075
+    assert motion.fixed_pair == (0, 1)
+    assert motion.fixed_direction == [0, 1]
+    assert motion.pin_vertex is None
+    assert motion.chosen_flex == 0
+
+    F = fws.Cycle(5)
+    motion = ApproximateMotion(
+        F, 15, pin_vertex=1, step_size=0.05, tolerance=1e-5, chosen_flex=1
+    )
+    assert is_zero_vector(
+        [
+            L - float(sp.sympify("sqrt(2-2*cos(2*pi/5))").evalf())
+            for L in motion.edge_lengths.values()
+        ],
+        numerical=True,
+        tolerance=1e-6,
+    )
+    assert motion.steps == 15
+    assert (
+        len(motion.motion_samples) == 15
+        and all(len(realization) == 5 for realization in motion.motion_samples)
+        and all(
+            F.is_equivalent_realization(realization, numerical=True, tolerance=1e-5)
+            for realization in motion.motion_samples
+        )
+    )
+    assert motion.tolerance == 1e-5
+    assert F.is_congruent_realization(
+        motion.starting_realization, numerical=True, tolerance=1e-5
+    )
+    assert motion.step_size == 0.05
+    assert motion.fixed_pair is None
+    assert motion.fixed_direction is None
+    assert motion.pin_vertex == 1
+    assert motion.chosen_flex == 1
+
+
+def test_fix_pair_of_vertices():
+    F = fws.Cycle(4)
+    motion = ApproximateMotion(
+        F,
+        10,
+        fixed_pair=(0, 1),
+        fixed_direction=[0, 1],
+        step_size=0.075,
+    )
+    _motion = deepcopy(motion)
+    motion.fix_pair_of_vertices((1, 2))
+    assert all(
+        F.is_equivalent_realization(realization, numerical=True, tolerance=1e-4)
+        for realization in motion.motion_samples
+    )
+    for i, realization in enumerate(motion.motion_samples):
+        _F = Framework(F.graph(), realization)
+        print(_motion.motion_samples[i])
+        assert (
+            _F.is_congruent_realization(
+                _motion.motion_samples[i], numerical=True, tolerance=1e-4
+            )
+            and is_zero_vector(
+                [
+                    _motion.motion_samples[i][1][j]
+                    - _motion.motion_samples[i][0][j]
+                    - (float(sp.sympify("sqrt(2)").evalf()) if j == 0 else 0)
+                    for j in range(0, 2)
+                ],
+                numerical=True,
+                tolerance=1e-4,
+            )
+            and is_zero_vector(
+                [
+                    realization[2][j]
+                    - realization[1][j]
+                    - (float(sp.sympify("sqrt(2)").evalf()) if j == 0 else 0)
+                    for j in range(0, 2)
+                ],
+                numerical=True,
+                tolerance=1e-4,
+            )
+        )
+
+
+def test_fix_vertex():
+    F = fws.Cycle(6)
+    motion = ApproximateMotion(
+        F,
+        10,
+        pin_vertex=0,
+        step_size=0.075,
+    )
+    _motion = deepcopy(motion)
+    motion.fix_vertex(2)
+    assert all(
+        F.is_equivalent_realization(realization, numerical=True, tolerance=1e-4)
+        for realization in motion.motion_samples
+    )
+    for i, realization in enumerate(motion.motion_samples):
+        _F = Framework(F.graph(), realization)
+        print(realization)
+        assert (
+            _F.is_congruent_realization(
+                _motion.motion_samples[i], numerical=True, tolerance=1e-4
+            )
+            and is_zero_vector(
+                _motion.motion_samples[i][0],
+                numerical=True,
+                tolerance=1e-4,
+            )
+            and is_zero_vector(
+                realization[2],
+                numerical=True,
+                tolerance=1e-4,
+            )
         )
