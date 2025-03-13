@@ -6,6 +6,8 @@ import networkx as nx
 
 import pyrigi._input_check as _input_check
 from pyrigi.graph import Graph
+from pyrigi.data_type import Vertex, Sequence
+from itertools import combinations
 
 
 def Cycle(n: int) -> Graph:
@@ -13,9 +15,34 @@ def Cycle(n: int) -> Graph:
     return Graph(nx.cycle_graph(n))
 
 
-def Complete(n: int) -> Graph:
-    """Return the complete graph on ``n`` vertices."""
-    return Graph(nx.complete_graph(n))
+def Complete(n: int, vertices: Sequence[Vertex] = None) -> Graph:
+    """
+    Return the complete graph on ``n`` vertices.
+
+    Alternatively, the vertex labels can be specified explicitly via
+    the keyword ``vertices``.
+
+    Parameters
+    ----------
+    n:
+        The number of vertices.
+    vertices:
+        An optional parameter for the vertices.
+
+    Examples
+    --------
+    >>> print(Complete(5))
+    Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+    >>> print(Complete(5, [0, 1, 2, 3, 4]))
+    Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+    >>> print(Complete(4, ['a', 'b', 'c', 'd']))
+    Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
+    """  # noqa: E501
+    if vertices is None:
+        return Graph(nx.complete_graph(n))
+    _input_check.equal(len(vertices), n, "number of `vertices`", "the parameter `n`")
+    edges = list(combinations(vertices, 2))
+    return Graph.from_vertices_and_edges(vertices, edges)
 
 
 def Path(n: int) -> Graph:
