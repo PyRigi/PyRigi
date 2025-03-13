@@ -3443,7 +3443,7 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Graph manipulation")
-    def intersection(self, other_graph: Graph):
+    def intersection(self, other_graph: Graph) -> Graph:
         """
         Return the intersection of ``self`` and ``other_graph``.
 
@@ -3506,7 +3506,7 @@ class Graph(nx.Graph):
         return not nx.is_connected(H)
 
     @doc_category("Generic rigidity")
-    def neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set:
+    def neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
         """
         Return the set of neighbors of a set of vertices of ``self``.
 
@@ -3581,7 +3581,7 @@ class Graph(nx.Graph):
         return H
 
     @doc_category("Generic rigidity")
-    def block_3(self, u: Vertex, v: Vertex):
+    def block_3(self, u: Vertex, v: Vertex) -> Graph:
         """
         Return the 3-block of ``(u, v)`` via cleaving operations.
 
@@ -3621,7 +3621,7 @@ class Graph(nx.Graph):
             return self
 
     @doc_category("Generic rigidity")
-    def is_linked(self, u: Vertex, v: Vertex, dim: int = 2):
+    def is_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
         Check if the pair of vertices ``u`` and ``v`` is ``dim``-linked in ``self``.
 
@@ -3661,7 +3661,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Rigidity Matroid")
-    def Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2):
+    def Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2) -> list[Edge]:
         """
         Return the Rd circuit of ``self`` + ``uv``.
 
