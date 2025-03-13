@@ -47,7 +47,7 @@ We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges 
 :label: lem-k-min-stress-matrix
 
 For {prf:ref}`frameworks <def-framework>` of a graph $G$ with at least $d+1$ vertices,
-$k_{min}(G,d) \geq d+1$ holds.
+the relation $k_{min}(G,d) \geq d+1$ holds.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
@@ -55,7 +55,8 @@ $k_{min}(G,d) \geq d+1$ holds.
 :::{prf:definition}
 :label: def-has-min-stress-kernel
 
-A graph $G$ has a _minimal {prf:ref}`stress kernel <def-stress-kernel>` in $\mathbb{R}^d$_
+A graph $G$ is said to have
+a _minimal {prf:ref}`stress kernel <def-stress-kernel>` in $\mathbb{R}^d$_
 if $k_{min}(G,d) = d+1$.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
@@ -92,12 +93,11 @@ The following randomized algorithm from {cite:p}`GortlerHealyThurston2010` check
 Let $n$ be the number of vertices, $m$ be the number of edges,
 $t = n\cdot d - \binom{d+1}{2}$ and $N = A\cdot n\cdot \binom{n}{2} +2$, where $A$ is some constant.
 
-
 1. If $m < t$, output `False` (as the graph cannot even be generically $d$-rigid with so few edges), otherwise continue.
 2. Pick a framework with integer coordinates randomly chosen from 1 to $N$.
 3. Pick an equilibrium stress vector in a suitably random way. (If $m = t$, there are no stresses, so we consider the zero vector.)
 4. Consider the corresponding equilibrium stress matrix and compute its rank.
-5. If the rank is $n-d-1$, return `True`, otherwise return `False`.
+5. If the rank is $n-d-1$ then return `True`, otherwise return `False`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
 
@@ -105,12 +105,14 @@ $t = n\cdot d - \binom{d+1}{2}$ and $N = A\cdot n\cdot \binom{n}{2} +2$, where $
 :::
 
 The above algorithm may give false negatives as the following theorem tells.
+
 :::{prf:theorem}
 :label: thm-globally-randomize-algorithm
 The randomized {prf:ref}`algorithm for checking global d-rigidity<alg-randomized-globally-rigid>`  never returns a false positive answer,
 and returns a false negative answer with probability bounded above by $nm/N$, where $n$ is the
 number of vertices, $m$ is the number of edges and $N$ is an arbitrarily large integer.
-In this case, we chose $N \geq A\cdot nm + 2$ so that the probability of getting a false negative
+Given a number $A$, we chose $N \geq A\cdot nm + 2$
+so that the probability of getting a false negative
 is less than $1/A$.
 In particular, checking for generic global $d$-rigidity is in $RP$, i.e.,
 the class of randomized polynomial time algorithms.
@@ -153,7 +155,7 @@ If $\{u,v\}$ is not weakly globally $d$-linked in $G$, then it is called _global
 :label: thm-weakly-globally-linked-globally-rigid-graph
 
 A graph $G$ is {prf:ref}`globally rigid <def-globally-rigid-graph>` in $\RR^d$ if and only if every pair of
-vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
+vertices are {prf:ref}`weakly globally $d$-linked <def-globally-linked>` in $G$.
 
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
@@ -164,7 +166,7 @@ vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
 Given a rigid but not globally rigid graph $G$ in $\RR^d$,
 there exists at least one pair of vertices of $G$
-that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
+that are not {prf:ref}`weakly globally $d$-linked <def-globally-linked>` in $G$.
 :::
 
 
