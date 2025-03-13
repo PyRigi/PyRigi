@@ -3751,6 +3751,7 @@ class Graph(nx.Graph):
         _input_check.dimension_for_algorithm(
             dim, [2], "the weakly globally linked method"
         )
+        self._input_check_vertex_members([u, v])
         # we focus on the 2-connected components of the graph
         # and check if the two given vertices are in the same 2-connected component
         if not nx.is_biconnected(self):
@@ -3760,7 +3761,6 @@ class Graph(nx.Graph):
                     F = nx.subgraph(self, bicon_comp)
                     return F.is_weakly_globally_linked(u, v)
             return False
-        self._input_check_vertex_members([u, v])
         # check (u,v) are non adjacent
         if self.has_edge(u, v):
             return True  # they are actually globally linked, not just weakly
