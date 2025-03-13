@@ -3043,6 +3043,16 @@ def test_randomized_rigidity_properties():  # noqa: C901
             cprop_min_rigid = res_cone.is_min_rigid(dim + 1)
             cprop_glob_rigid = res_cone.is_globally_rigid(dim + 1)
 
+            # extensions
+            if n > dim:
+                res_ext0 = G.all_k_extensions(0, dim)
+            else:
+                res_ext0 = []
+            if m > 1 and n > dim + 1:
+                res_ext1 = G.all_k_extensions(1, dim)
+            else:
+                res_ext1 = []
+
             # (min) rigidity
             if prop_min_rigid:
                 assert rprop_min_rigid
@@ -3058,6 +3068,10 @@ def test_randomized_rigidity_properties():  # noqa: C901
                     assert prop_seq
                 else:
                     assert m == math.comb(n, 2)
+                for graph in res_ext0:
+                    assert graph.is_min_rigid(dim)
+                for graph in res_ext1:
+                    assert graph.is_min_rigid(dim)
             if rprop_min_rigid:
                 assert prop_min_rigid
             if prop_rigid:
