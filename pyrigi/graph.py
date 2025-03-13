@@ -3476,13 +3476,13 @@ class Graph(nx.Graph):
         """
         Check if a set of vertices is a separating set.
 
-        Parameters
-        ----------
-        vertices: list of Vertex
-
         Definitions
         -----------
         :prf:ref:`separating-set <def-separating-set>`
+
+        Parameters
+        ----------
+        vertices: list of Vertex
 
         Examples
         --------
@@ -3621,7 +3621,12 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
-        Check if the pair of vertices ``u`` and ``v`` is ``dim``-linked.
+        Return whether the pair of vertices ``u`` and ``v`` is ``dim``-linked.
+
+        Definitions
+        -----------
+        :prf:ref:`linked pair <def-linked-pair>`
+        :prf:ref:`lemma linked pair <lem-linked-pair-rigid-component>`
 
         Parameters
         ----------
@@ -3631,11 +3636,6 @@ class Graph(nx.Graph):
             vertex
         dim:
             dimension
-
-        Definitions
-        -----------
-        :prf:ref:`linked pair <def-linked-pair>`
-        :prf:ref:`lemma linked pair <lem-linked-pair-rigid-component>`
 
         Examples
         --------
@@ -3647,8 +3647,6 @@ class Graph(nx.Graph):
         False
         >>> H.is_linked(1,3)
         True
-
-
         """  # noqa: E501
         _input_check.dimension_for_algorithm(
             dim, [2], "the algorithm to check linkedness"
@@ -3663,6 +3661,10 @@ class Graph(nx.Graph):
         """
         Return the Rd circuit of ``self`` + ``uv``.
 
+        Definitions
+        -----------
+        :prf:ref:`fundamental circuit <def-fundamental-circuit>`
+
         Parameters
         ----------
         u:
@@ -3671,10 +3673,6 @@ class Graph(nx.Graph):
             vertex
         dim:
             dimension
-
-        Definitions
-        -----------
-        :prf:ref:`fundamental circuit <def-fundamental-circuit>`
 
         Examples
         --------
@@ -3711,7 +3709,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
-        Return if the vertices ``u`` and ``v`` are weakly globally ``dim``-linked in ``self``.
+        Return whether the vertices ``u`` and ``v`` are weakly globally ``dim``-linked in ``self``.
 
         Definitions
         -----------
