@@ -1087,7 +1087,7 @@ class ApproximateMotion(Motion):
         return self._chosen_flex
 
     @property
-    def pin_vertex(self) -> Vertex:
+    def pinned_vertex(self) -> Vertex:
         """
         Return the pinned vertex of the motion.
         """
