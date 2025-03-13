@@ -44,7 +44,7 @@ class RandomizedAlgorithmWarning(UserWarning):
 
 class NumericalAlgorithmWarning(UserWarning):
     """
-    Warning raised when an numerical algorithm is called, whose output cannot
+    Warning raised when a numerical algorithm is called, whose output cannot
     be guaranteed to be correct.
     """
 
