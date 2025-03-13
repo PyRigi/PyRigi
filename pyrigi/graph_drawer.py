@@ -1,13 +1,5 @@
 """
 Module for graph drawing on a canvas in jupyter notebook.
-
-.. currentmodule:: pyrigi.graph_drawer
-
-Classes:
-
-.. autosummary::
-
-    GraphDrawer
 """
 
 from collections.abc import Sequence
@@ -808,7 +800,7 @@ class GraphDrawer(object):
         Parameters
         ---------
         grid:
-            If ``True`` and ``Grid Snapping`` is checked,
+            If ``True`` and *Grid Snapping* is checked,
             the realization is scaled so that the grid points
             correspond to integral points.
         """

@@ -46,6 +46,7 @@ We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges 
 :::{prf:lemma}
 :label: lem-k-min-stress-matrix
 
+
 For {prf:ref}`frameworks <def-framework>` of a graph $G$ with at least $d+1$ vertices,
 the relation $k_{min}(G,d) \geq d+1$ holds.
 
