@@ -2513,7 +2513,8 @@ def test_number_of_realizations_error(graph):
 
 @pytest.mark.parametrize(
     "graph",
-    [graphs.Cycle(n) for n in range(3, 7)],
+    [graphs.Cycle(n) for n in range(3, 7)]
+    + [Graph.from_vertices_and_edges([0, 1, 2, 3], [[0, 1], [0, 2], [1, 2]])],
 )
 def test_is_Rd_circuit_d1(graph):
     assert graph.is_Rd_circuit(dim=1)
