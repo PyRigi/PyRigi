@@ -1,15 +1,5 @@
 """
-
 Module for the functionality concerning frameworks.
-
-.. currentmodule:: pyrigi.framework
-
-Classes:
-
-.. autosummary::
-
-    Framework
-
 """
 
 from __future__ import annotations

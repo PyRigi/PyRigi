@@ -1,13 +1,5 @@
 """
 Module for graph drawing on a canvas in jupyter notebook.
-
-.. currentmodule:: pyrigi.graph_drawer
-
-Classes:
-
-.. autosummary::
-
-    GraphDrawer
 """
 
 from collections.abc import Sequence
