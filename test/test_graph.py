@@ -2959,9 +2959,9 @@ def test_randomized_apex_properties():  # noqa: C901
                 assert prop_3_vapex
 
 
-# @pytest.mark.long_local
+@pytest.mark.long_local
 def test_randomized_rigidity_properties():  # noqa: C901
-    search_space = [range(1, 4), range(1, 6), range(10)]
+    search_space = [range(1, 4), range(1, 7), range(10)]
     for dim, n, x in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
@@ -3055,6 +3055,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
             # framework
             F = G.random_framework(dim)
             fprop_inf_rigid = F.is_inf_rigid()
+            fprop_inf_flex = F.is_inf_flexible()
             fprop_min_inf_rigid = F.is_min_inf_rigid()
             fprop_red_rigid = F.is_redundantly_rigid()
             fprop_dep = F.is_dependent()
@@ -3303,6 +3304,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
             # frameworks
             if fprop_inf_rigid:
                 assert prop_rigid
+                assert not fprop_inf_flex
             if fprop_min_inf_rigid:
                 assert prop_min_rigid
             if fprop_red_rigid:
@@ -3311,3 +3313,5 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_indep
             if fprop_dep:
                 assert prop_dep
+            if fprop_inf_flex:
+                assert not fprop_inf_rigid
