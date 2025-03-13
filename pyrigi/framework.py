@@ -2076,12 +2076,12 @@ class Framework(object):
         properly works for symbolic coordinates.
         """
         edges = self._graph.edge_list(as_tuples=True)
-        inf_flexes = self._process_inf_flexes(
+        inf_flexes = self._process_list_of_inf_flexes(
             inf_flexes, numerical=numerical, tolerance=tolerance
         )
         if len(inf_flexes) == 0:
             return True
-        stresses = self._process_stresses(
+        stresses = self._process_list_of_stresses(
             stresses, numerical=numerical, tolerance=tolerance
         )
         if len(stresses) == 0:
@@ -2149,15 +2149,9 @@ class Framework(object):
             if numerical:
                 return all(
                     [
-                        np.sign(sympy_expr_to_float(coefficients[(i, i)]))
-                        == np.sign(sympy_expr_to_float(coefficients[(j, j)]))
-                        and (
-                            np.absolute(coefficients[(i, j)])
-                            < np.sqrt(
-                                sympy_expr_to_float(
-                                    4 * coefficients[(i, i)] * coefficients[(j, j)]
-                                )
-                            )
+                        coefficients[(i, j)] ** 2
+                        < sympy_expr_to_float(
+                            4 * coefficients[(i, i)] * coefficients[(j, j)]
                         )
                         for i in range(len(inf_flexes))
                         for j in range(i + 1, len(inf_flexes))
@@ -2169,7 +2163,7 @@ class Framework(object):
                         4 * coefficients[(i, i)] * coefficients[(j, j)]
                         - coefficients[(i, j)] ** 2
                     )
-                )
+                ).is_positive
                 for i in range(len(inf_flexes))
                 for j in range(i + 1, len(inf_flexes))
             ]
@@ -2180,7 +2174,7 @@ class Framework(object):
                     + "Please report this as an issue on Github "
                     + "(https://github.com/PyRigi/PyRigi/issues)."
                 )
-            return all([expr.is_positive for expr in sonc_expressions])
+            return all(sonc_expressions)
 
         raise ValueError(
             "Prestress stability is not yet implemented for the general case."
@@ -2233,12 +2227,12 @@ class Framework(object):
         In case that ``numerical=False``, this method only
         properly works for symbolic coordinates.
         """
-        inf_flexes = self._process_inf_flexes(
+        inf_flexes = self._process_list_of_inf_flexes(
             inf_flexes, numerical=numerical, tolerance=tolerance
         )
         if len(inf_flexes) == 0:
             return True
-        stresses = self._process_stresses(
+        stresses = self._process_list_of_stresses(
             stresses, numerical=numerical, tolerance=tolerance
         )
         if len(stresses) == 0:
@@ -2254,7 +2248,7 @@ class Framework(object):
 
         raise ValueError("Second-order rigidity is not implemented for this framework.")
 
-    def _process_inf_flexes(
+    def _process_list_of_inf_flexes(
         self,
         inf_flexes: Sequence[InfFlex],
         numerical: bool = False,
@@ -2264,18 +2258,18 @@ class Framework(object):
         Process the input infinitesimal flexes for the second-order methods.
 
         If any of the input is not a nontrivial flex, an error is thrown.
-        Otherwise, the infinitesimal flexes are transformed to a ``dict``.
+        Otherwise, the infinitesimal flexes are transformed to a ``list`` of
+        ``dict``.
 
         Parameters
         ----------
         inf_flexes:
             The infinitesimal flexes to be processed.
         numerical:
-            If ``True``, numerical infinitesimal flexes and stresses
-            are used in the check for prestress stability.
+            If ``True``, the check is numerical.
         tolerance:
             Numerical tolerance used for the check that something is
-            an approximate zero.
+            a nontrivial infinitesimal flex.
         """
         if inf_flexes is None:
             inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
@@ -2301,30 +2295,28 @@ class Framework(object):
             )
         return inf_flexes
 
-    def _process_stresses(
+    def _process_list_of_stresses(
         self,
         stresses: Sequence[Stress],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> list[dict[Edge, Number]]:
         """
-        Process the input infinitesimal flexes for the second-order methods.
+        Process the input equilibrium stresses for the second-order methods.
 
-        If any of the input is not a nontrivial flex, an error is thrown.
-        Otherwise, the infinitesimal flexes are transformed to a ``dict``.
+        If any of the input is not an equilibrium stress, an error is thrown.
+        Otherwise, the equilibrium stresses are transformed to a list of
+        ``dict``.
 
         Parameters
         ----------
-        inf_flexes:
-            The infinitesimal flexes to be processed.
-        edges:
-            A
+        stresses:
+            The equilibrium stresses to be processed.
         numerical:
-            If ``True``, numerical infinitesimal flexes and stresses
-            are used in the check for prestress stability.
+            If ``True``, the check is numerical.
         tolerance:
             Numerical tolerance used for the check that something is
-            an approximate zero.
+            an equilibrium stress.
         """
         edges = self._graph.edge_list(as_tuples=True)
         if stresses is None:

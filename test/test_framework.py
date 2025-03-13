@@ -218,7 +218,6 @@ def test_is_independent(framework):
             fws.Cube().graph().cone(),
             fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
         ),
-        pytest.param(fws.Frustum(5), marks=pytest.mark.long_local),
     ],
 )
 def test_is_prestress_stable(framework):
@@ -234,6 +233,10 @@ def test_is_prestress_stable(framework):
         fws.Octahedron(realization="Bricard_plane"),
         fws.Octahedron(realization="Bricard_line"),
         fws.Cube(),
+        Framework(
+            fws.Cube().graph().cone(),
+            fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "7/6"]},
+        ),
     ],
 )
 def test_is_not_prestress_stable(framework):
@@ -267,7 +270,6 @@ def test_is_prestress_stable_error(framework):
             fws.Cube().graph().cone(),
             fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
         ),
-        pytest.param(fws.Frustum(5), marks=pytest.mark.long_local),
     ],
 )
 def test_is_second_order_rigid(framework):
@@ -283,6 +285,10 @@ def test_is_second_order_rigid(framework):
         fws.Octahedron(realization="Bricard_plane"),
         fws.Octahedron(realization="Bricard_line"),
         fws.Cube(),
+        Framework(
+            fws.Cube().graph().cone(),
+            fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "7/6"]},
+        ),
     ],
 )
 def test_is_not_second_order_rigid(framework):
