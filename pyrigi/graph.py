@@ -3474,7 +3474,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_separating_set(self, vertices: list[Vertex] | set[Vertex]) -> bool:
         """
-        Check if a set of vertices is a separating set for G.
+        Check if a set of vertices is a separating set for ``self``.
 
         Parameters
         ----------
@@ -3508,7 +3508,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set:
         """
-        Return the set of neighbors of a set of vertices of the graph.
+        Return the set of neighbors of a set of vertices of ``self``.
 
         Parameters
         ----------
@@ -3583,7 +3583,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def block_3(self, u: Vertex, v: Vertex):
         """
-        Return the 3-block of {u,v}, getting it by cleaving operations.
+        Return the 3-block of ``(u, v)`` via cleaving operations.
 
         Definitions
         -----------
@@ -3623,7 +3623,8 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_linked(self, u: Vertex, v: Vertex, dim: int = 2):
         """
-        Check if the pair of vertices u,v is linked in the graph, given the dimension.
+        Check if the pair of vertices ``u`` and ``v`` is ``dim``-linked in ``self``.
+
         Parameters
         ----------
         u:
@@ -3662,8 +3663,7 @@ class Graph(nx.Graph):
     @doc_category("Rigidity Matroid")
     def Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2):
         """
-        Return an Rd_circuit of self + uv, i.e., it
-        contains the edge uv.
+        Return the Rd circuit of ``self`` + ``uv``.
 
         Parameters
         ----------
@@ -3713,7 +3713,7 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
-        Return if the vertices are weakly globally (dim-)linked in the graph.
+        Return if the vertices ``u`` and ``v`` are weakly globally ``dim``-linked in ``self``.
 
         Definitions
         -----------
@@ -3741,7 +3741,7 @@ class Graph(nx.Graph):
         >>> G.is_weakly_globally_linked(0,1)
         True
 
-        The following example is the Figure 1 of the article :cite:p:`JordanVillanyi2024`
+        The following example is Figure 1 of the article :cite:p:`JordanVillanyi2024`
 
         >>> G = Graph([[0,1],[0,2],[0,4],[1,2],[1,4],[2,3],[3,4]])
         >>> G.is_weakly_globally_linked(2,4)
@@ -3751,7 +3751,7 @@ class Graph(nx.Graph):
         _input_check.dimension_for_algorithm(
             dim, [2], "the weakly globally linked method"
         )
-        # we must focus on the 2-connected components of the graph
+        # we focus on the 2-connected components of the graph
         # and check if the two given vertices are in the same 2-connected component
         if not nx.is_biconnected(self):
             list_biconnected_components = list(nx.biconnected_components(self))
