@@ -1595,8 +1595,8 @@ class Graph(nx.Graph):
         if self.number_of_nodes() < k + 2:
             if not self.is_rigid(dim, algorithm, prob):
                 return False
-            for kk in range(1, k):
-                if not self.is_k_vertex_redundantly_rigid(kk, dim, algorithm, prob):
+            for cur_k in range(1, k):
+                if not self.is_k_vertex_redundantly_rigid(cur_k, dim, algorithm, prob):
                     return False
         G = deepcopy(self)
         for vertex_set in combinations(self.nodes, k):
