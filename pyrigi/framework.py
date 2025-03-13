@@ -1379,7 +1379,7 @@ class Framework(object):
         self.set_vertex_positions({v: pos for v, pos in zip(vertices, points)})
 
     @doc_category("Framework manipulation")
-    def set_vertex_positions(self, subset_of_realization: dict[Vertex, Point]):
+    def set_vertex_positions(self, subset_of_realization: dict[Vertex, Point]) -> None:
         """
         Change the coordinates of vertices given by a dictionary.
 
@@ -2743,7 +2743,7 @@ class Framework(object):
         bar_width: float,
         bar_height: float,
         filename="bar.stl",
-    ):
+    ) -> Any:
         """
         Generate an STL file for a bar.
 

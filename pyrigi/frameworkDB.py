@@ -456,10 +456,10 @@ def ConnellyExampleSecondOrderRigidity() -> Framework:
     return F
 
 
-def Wheel(k: int):
+def Wheel(n: int) -> Framework:
     """
-    Create the wheel framework on k+1 vertices.
+    Create the wheel framework on n+1 vertices.
     """
-    _input_check.integrality_and_range(k, "k", min_val=3)
-    G = graphs.Wheel(k)
-    return Framework(G, Cycle(k).realization(as_points=True) | {k: [0, 0]})
+    _input_check.integrality_and_range(n + 1, "number of vertices n+1", min_val=4)
+    G = graphs.Wheel(n)
+    return Framework(G, Cycle(n).realization(as_points=True) | {n: [0, 0]})

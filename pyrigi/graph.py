@@ -103,7 +103,7 @@ class Graph(nx.Graph):
         o_str += f"{self.edge_list(as_tuples=True)})"
         return o_str
 
-    def __eq__(self, other: Graph):
+    def __eq__(self, other: Graph) -> bool:
         """
         Return whether the other graph has the same vertices and edges.
 
@@ -133,7 +133,7 @@ class Graph(nx.Graph):
                 return False
         return True
 
-    def __add__(self, other: Graph):
+    def __add__(self, other: Graph) -> Graph:
         r"""
         Return the union of ``self`` and ``other``.
 
@@ -378,7 +378,7 @@ class Graph(nx.Graph):
             return list(edge_order)
 
     @classmethod
-    def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None):
+    def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None) -> None:
         """
         Raise a warning if a randomized algorithm is silently called.
 
@@ -530,7 +530,6 @@ class Graph(nx.Graph):
         [1, 2, 1]
         """
         vertex_order = self._input_check_vertex_order(vertex_order)
-
         return [int(self.degree(v)) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
@@ -3260,7 +3259,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Graph manipulation")
-    def sum_t(self, other_graph: Graph, edge: Edge, t: int = 2):
+    def sum_t(self, other_graph: Graph, edge: Edge, t: int = 2) -> Graph:
         """
         Return the t-sum of ``self`` and ``other_graph`` along the given edge.
 
@@ -3296,7 +3295,7 @@ class Graph(nx.Graph):
         return G
 
     @doc_category("General graph theoretical properties")
-    def is_vertex_apex(self):
+    def is_vertex_apex(self) -> bool:
         """
         Check whether the graph is vertex apex.
 
@@ -3309,7 +3308,7 @@ class Graph(nx.Graph):
         return self.is_k_vertex_apex(1)
 
     @doc_category("General graph theoretical properties")
-    def is_k_vertex_apex(self, k: int):
+    def is_k_vertex_apex(self, k: int) -> bool:
         """
         Check whether the graph is ``k``-vertex apex.
 
@@ -3337,7 +3336,7 @@ class Graph(nx.Graph):
         return False
 
     @doc_category("General graph theoretical properties")
-    def is_edge_apex(self):
+    def is_edge_apex(self) -> bool:
         """
         Check whether the graph is edge apex.
 
@@ -3350,7 +3349,7 @@ class Graph(nx.Graph):
         return self.is_k_edge_apex(1)
 
     @doc_category("General graph theoretical properties")
-    def is_k_edge_apex(self, k: int):
+    def is_k_edge_apex(self, k: int) -> bool:
         """
         Check whether the graph is ``k``-edge apex.
 
@@ -3377,7 +3376,7 @@ class Graph(nx.Graph):
         return False
 
     @doc_category("General graph theoretical properties")
-    def is_critically_vertex_apex(self):
+    def is_critically_vertex_apex(self) -> bool:
         """
         Check whether the graph is critically vertex apex.
 
@@ -3390,7 +3389,7 @@ class Graph(nx.Graph):
         return self.is_critically_k_vertex_apex(1)
 
     @doc_category("General graph theoretical properties")
-    def is_critically_k_vertex_apex(self, k: int):
+    def is_critically_k_vertex_apex(self, k: int) -> bool:
         """
         Check whether the graph is critically ``k``-vertex apex.
 
@@ -3418,7 +3417,7 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("General graph theoretical properties")
-    def is_critically_edge_apex(self):
+    def is_critically_edge_apex(self) -> bool:
         """
         Check whether the graph is critically edge apex.
 
@@ -3431,7 +3430,7 @@ class Graph(nx.Graph):
         return self.is_critically_k_edge_apex(1)
 
     @doc_category("General graph theoretical properties")
-    def is_critically_k_edge_apex(self, k: int):
+    def is_critically_k_edge_apex(self, k: int) -> bool:
         """
         Check whether the graph is critically ``k``-edge apex.
 
@@ -3458,7 +3457,7 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Graph manipulation")
-    def intersection(self, other_graph: Graph):
+    def intersection(self, other_graph: Graph) -> Graph:
         """
         Return the intersection of ``self`` and ``other_graph``.
 
