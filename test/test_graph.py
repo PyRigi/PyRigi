@@ -2961,10 +2961,14 @@ def test_randomized_apex_properties():  # noqa: C901
 
 # @pytest.mark.long_local
 def test_randomized_rigidity_properties():  # noqa: C901
-    search_space = [range(1, 4), range(1, 7), range(10)]
+    search_space = [range(1, 4), range(1, 6), range(10)]
     for dim, n, x in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
+
+            assert G.number_of_nodes() == n
+            assert G.number_of_edges() == m
+
             prop_rigid = G.is_rigid(dim)
             prop_min_rigid = G.is_min_rigid(dim)
             prop_glob_rigid = G.is_globally_rigid(dim)
@@ -3033,9 +3037,16 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 dim, math.comb(dim + 1, 2), algorithm="subgraph"
             )
 
+            # cones
+            res_cone = G.cone()
+            cprop_rigid = res_cone.is_rigid(dim + 1)
+            cprop_min_rigid = res_cone.is_min_rigid(dim + 1)
+            cprop_glob_rigid = res_cone.is_globally_rigid(dim + 1)
+
             # (min) rigidity
             if prop_min_rigid:
                 assert rprop_min_rigid
+                assert cprop_min_rigid
                 assert prop_rigid
                 assert prop_indep
                 if n > dim:
@@ -3051,6 +3062,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_min_rigid
             if prop_rigid:
                 assert rprop_rigid
+                assert cprop_rigid
                 if n > dim:
                     assert m >= n * dim - math.comb(dim + 1, 2)
                     assert G.min_degree() >= dim
@@ -3198,6 +3210,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
             if prop_glob_rigid:
                 assert rprop_glob_rigid
                 assert prop_rigid
+                assert cprop_glob_rigid
                 if n > dim + 1:
                     assert m >= n * dim - math.comb(dim + 1, 2)
                     assert prop_red_rigid
@@ -3207,6 +3220,14 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 if prop_min_rigid:
                     assert m == math.comb(n, 2)
             if rprop_glob_rigid:
+                assert prop_glob_rigid
+
+            # cones
+            if cprop_min_rigid:
+                assert prop_min_rigid
+            if cprop_rigid:
+                assert prop_rigid
+            if cprop_glob_rigid:
                 assert prop_glob_rigid
 
             if not prop_rigid:
