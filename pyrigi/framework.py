@@ -2163,13 +2163,21 @@ class Framework(object):
                         4 * coefficients[(i, i)] * coefficients[(j, j)]
                         - coefficients[(i, j)] ** 2
                     )
-                ).is_positive
+                )
                 for i in range(len(inf_flexes))
                 for j in range(i + 1, len(inf_flexes))
             ]
             if any(expr is None for expr in sonc_expressions):
                 raise RuntimeError(
-                    "It could not be determined by sympy "
+                    "It could not be determined by `sympy.simplify` "
+                    + "whether the given sympy expression can be simplified."
+                    + "Please report this as an issue on Github "
+                    + "(https://github.com/PyRigi/PyRigi/issues)."
+                )
+            sonc_expressions = [expr.is_positive for expr in sonc_expressions]
+            if any(expr is None for expr in sonc_expressions):
+                raise RuntimeError(
+                    "It could not be determined by `sympy.is_positive` "
                     + "whether the given sympy expression is positive."
                     + "Please report this as an issue on Github "
                     + "(https://github.com/PyRigi/PyRigi/issues)."
