@@ -242,7 +242,7 @@ def test_ParametricMotion_init():
         fws.Cycle(6),
         fws.ThreePrism("flexible"),
         fws.CompleteBipartite(2, 4),
-        pytest.param(fws.CompleteBipartite(2, 5), marks=pytest.mark.slow_main),
+        fws.CompleteBipartite(2, 5),
     ],
 )
 def test_animate(framework):
@@ -274,7 +274,7 @@ def test_animate3D():
             graphs.Complete(4) + Graph([(2, 4)]),
             fws.Complete(4).realization(as_points=True, numerical=True) | {4: [2, 2]},
         ),
-        pytest.param(fws.CompleteBipartite(2, 5), marks=pytest.mark.slow_main),
+        fws.CompleteBipartite(2, 5),
     ],
 )
 def test_ApproximateMotion_from_framework(framework):
@@ -309,7 +309,7 @@ def test_ApproximateMotion_from_framework(framework):
             graphs.Complete(4) + Graph([(2, 4)]),
             fws.Complete(4).realization(as_points=True, numerical=True) | {4: [2, 2]},
         ),
-        pytest.param(fws.CompleteBipartite(2, 5), marks=pytest.mark.slow_main),
+        fws.CompleteBipartite(2, 5),
     ],
 )
 def test_ApproximateMotion_from_graph(framework):

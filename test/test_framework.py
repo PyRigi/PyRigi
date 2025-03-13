@@ -205,32 +205,43 @@ def test_is_independent(framework):
 
 
 @pytest.mark.parametrize(
-    "framework, bool_res",
+    "framework",
     [
-        [fws.Complete(4, dim=2), True],
-        [fws.Frustum(3), True],
-        [fws.Frustum(4), True],
-        [fws.Square(), False],
-        [fws.K33plusEdge(), True],
-        [fws.ThreePrism(realization="flexible"), False],
-        [fws.ThreePrism(realization="parallel"), True],
-        [fws.Octahedron(realization="regular"), True],
-        [fws.Octahedron(realization="Bricard_plane"), False],
-        [fws.Octahedron(realization="Bricard_line"), False],
-        [fws.Cube(), False],
-        [
-            Framework(
-                fws.Cube().graph().cone(),
-                fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
-            ),
-            True,
-        ],
-        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
+        fws.Complete(4, dim=2),
+        fws.Frustum(3),
+        fws.Frustum(4),
+        fws.Frustum(6),
+        fws.K33plusEdge(),
+        fws.ThreePrism(realization="parallel"),
+        fws.Octahedron(realization="regular"),
+        Framework(
+            fws.Cube().graph().cone(),
+            fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
+        ),
     ],
 )
-def test_is_prestress_stable(framework, bool_res):
-    assert framework.is_prestress_stable() == bool_res
-    assert framework.is_prestress_stable(numerical=True) == bool_res
+def test_is_prestress_stable(framework):
+    assert framework.is_prestress_stable()
+    assert framework.is_prestress_stable(numerical=True)
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Square(),
+        fws.ThreePrism(realization="flexible"),
+        fws.Octahedron(realization="Bricard_plane"),
+        fws.Octahedron(realization="Bricard_line"),
+        fws.Cube(),
+        Framework(
+            fws.Cube().graph().cone(),
+            fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "7/6"]},
+        ),
+    ],
+)
+def test_is_not_prestress_stable(framework):
+    assert not framework.is_prestress_stable()
+    assert not framework.is_prestress_stable(numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -246,32 +257,43 @@ def test_is_prestress_stable_error(framework):
 
 
 @pytest.mark.parametrize(
-    "framework, bool_res",
+    "framework",
     [
-        [fws.Complete(4, dim=2), True],
-        [fws.Frustum(3), True],
-        [fws.Frustum(4), True],
-        [fws.Square(), False],
-        [fws.K33plusEdge(), True],
-        [fws.ThreePrism(realization="flexible"), False],
-        [fws.ThreePrism(realization="parallel"), True],
-        [fws.Octahedron(realization="regular"), True],
-        [fws.Octahedron(realization="Bricard_plane"), False],
-        [fws.Octahedron(realization="Bricard_line"), False],
-        [fws.Cube(), False],
-        [
-            Framework(
-                fws.Cube().graph().cone(),
-                fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
-            ),
-            True,
-        ],
-        pytest.param(fws.Frustum(5), True, marks=pytest.mark.long_local),
+        fws.Complete(4, dim=2),
+        fws.Frustum(3),
+        fws.Frustum(4),
+        fws.Frustum(6),
+        fws.K33plusEdge(),
+        fws.ThreePrism(realization="parallel"),
+        fws.Octahedron(realization="regular"),
+        Framework(
+            fws.Cube().graph().cone(),
+            fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
+        ),
     ],
 )
-def test_is_second_order_rigid(framework, bool_res):
-    assert framework.is_second_order_rigid() == bool_res
-    assert framework.is_second_order_rigid(numerical=True) == bool_res
+def test_is_second_order_rigid(framework):
+    assert framework.is_second_order_rigid()
+    assert framework.is_second_order_rigid(numerical=True)
+
+
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Square(),
+        fws.ThreePrism(realization="flexible"),
+        fws.Octahedron(realization="Bricard_plane"),
+        fws.Octahedron(realization="Bricard_line"),
+        fws.Cube(),
+        Framework(
+            fws.Cube().graph().cone(),
+            fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "7/6"]},
+        ),
+    ],
+)
+def test_is_not_second_order_rigid(framework):
+    assert not framework.is_second_order_rigid()
+    assert not framework.is_second_order_rigid(numerical=True)
 
 
 @pytest.mark.parametrize(

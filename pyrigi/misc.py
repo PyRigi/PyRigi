@@ -173,7 +173,7 @@ def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> b
         if zero_bool is None:
             raise RuntimeError(
                 "It could not be determined by sympy "
-                + f"whether the expression `{expr}` is zero."
+                + "whether the given sympy expression is zero."
                 + "Please report this as an issue on Github "
                 + "(https://github.com/PyRigi/PyRigi/issues)."
             )

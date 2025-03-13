@@ -291,7 +291,7 @@ def test_is_not_min_rigid_d2(graph):
         graphs.Complete(3),
         graphs.Complete(4),
         graphs.Octahedral(),
-        graphs.K66MinusPerfectMatching(),
+        pytest.param(graphs.K66MinusPerfectMatching(), marks=pytest.mark.slow_main),
         pytest.param(graphs.Icosahedral(), marks=pytest.mark.long_local),
     ],
 )
@@ -449,7 +449,6 @@ def test_is_not_globally_d2(graph):
     assert not graph.is_globally_rigid(dim=2)
 
 
-@pytest.mark.slow_main
 def test_rigid_in_d2():
     graph = read_sparsity("K4")
     assert graph.is_rigid(dim=2, algorithm="sparsity")
@@ -714,7 +713,7 @@ def test_is_min_k_vertex_redundantly_rigid_d1(graph, k):
             1,
         ],
         [Graph.from_int(16383), 2],
-        pytest.param(Graph.from_int(1048575), 3, marks=pytest.mark.slow_main),
+        [Graph.from_int(1048575), 3],
     ],
 )
 def test_is_min_k_vertex_redundantly_rigid_d2(graph, k):
@@ -726,7 +725,7 @@ def test_is_min_k_vertex_redundantly_rigid_d2(graph, k):
     "graph, k",
     [
         [Graph.from_int(507903), 1],
-        pytest.param(Graph.from_int(1048575), 2, marks=pytest.mark.slow_main),
+        [Graph.from_int(1048575), 2],
     ],
 )
 def test_is_min_k_vertex_redundantly_rigid_d3(graph, k):
@@ -798,7 +797,7 @@ def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k):
         graphs.K33plusEdge(),
         graphs.ThreePrismPlusEdge(),
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]),
-        graphs.Complete(7),
+        pytest.param(graphs.Complete(7), marks=pytest.mark.slow_main),
     ],
 )
 def test_is_redundantly_rigid_d2(graph):
@@ -839,8 +838,8 @@ def test_is_k_redundantly_rigid_d1(graph, k):
             1,
         ],
         [graphs.Complete(5), 2],
-        pytest.param(graphs.Octahedral(), 2, marks=pytest.mark.slow_main),
-        pytest.param(graphs.Complete(6), 2, marks=pytest.mark.slow_main),
+        [graphs.Octahedral(), 2],
+        [graphs.Complete(6), 2],
         pytest.param(graphs.Complete(6), 3, marks=pytest.mark.slow_main),
         # [Graph.from_int(1048059), 3],
         # [Graph.from_int(2097151), 3],
@@ -992,7 +991,7 @@ def test_is_min_k_redundantly_rigid_d1(graph, k):
             1,
         ],
         [Graph.from_int(16350), 2],
-        pytest.param(Graph.from_int(507851), 2, marks=pytest.mark.slow_main),
+        [Graph.from_int(507851), 2],
         # [Graph.from_int(1048059), 3],
     ],
 )
@@ -1006,7 +1005,7 @@ def test_is_min_k_redundantly_rigid_d2(graph, k):
     [
         [graphs.Complete(5), 1],
         [Graph.from_int(16351), 1],
-        pytest.param(Graph.from_int(32767), 2, marks=pytest.mark.slow_main),
+        [Graph.from_int(32767), 2],
     ],
 )
 def test_is_min_k_redundantly_rigid_d3(graph, k):
@@ -1035,7 +1034,7 @@ def test_is_not_min_k_redundantly_rigid_d1(graph, k):
         [graphs.ThreePrism(), 1],
         [Graph.from_int(8191), 1],
         [graphs.Complete(7), 1],
-        pytest.param(Graph.from_int(16351), 2, marks=pytest.mark.slow_main),
+        [Graph.from_int(16351), 2],
         # [Graph.from_int(1048063), 3],
     ],
 )
@@ -2628,7 +2627,7 @@ def test_is_Rd_closed(graph, dim):
         [graphs.Path(4), 1],
         [graphs.ThreePrism(), 2],
         [graphs.ThreePrismPlusEdge(), 2],
-        [graphs.K66MinusPerfectMatching(), 2],
+        pytest.param(graphs.K66MinusPerfectMatching(), 2, marks=pytest.mark.slow_main),
         [graphs.Octahedral(), 3],
         [graphs.DoubleBanana(), 3],
     ],
@@ -2879,15 +2878,16 @@ def test_is_not_critically_k_vertex_apex(graph, k):
         [graphs.Complete(4), 0],
         [Graph([(0, 1), (2, 3)]), 0],
         [graphs.Complete(5), 1],
-        pytest.param(graphs.Complete(6), 7, marks=pytest.mark.slow_main),
+        [graphs.Complete(6), 7],
         [graphs.Frustum(3), 0],
         [graphs.ThreePrism(), 0],
         pytest.param(graphs.DoubleBanana(), 8, marks=pytest.mark.slow_main),
         [graphs.Octahedral(), 0],
         [Graph.from_int(112468), 1],
         [Graph.from_int(481867), 2],
+        pytest.param(graphs.Wheel(5).cone(), 7, marks=pytest.mark.slow_main),
     ]
-    + [[graphs.Wheel(n).cone(), 1 if n == 3 else 2 * n - 3] for n in range(3, 6)],
+    + [[graphs.Wheel(n).cone(), 1 if n == 3 else 2 * n - 3] for n in range(3, 5)],
 )
 def test_is_critically_k_edge_apex(graph, k):
     assert graph.is_critically_k_edge_apex(k)
