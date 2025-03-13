@@ -2076,36 +2076,14 @@ class Framework(object):
         properly works for symbolic coordinates.
         """
         edges = self._graph.edge_list(as_tuples=True)
-        if inf_flexes is None:
-            inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
-        elif any(
-            not self.is_nontrivial_flex(
-                inf_flex, numerical=numerical, tolerance=tolerance
-            )
-            for inf_flex in inf_flexes
-        ):
-            raise ValueError(
-                "Some of the provided `inf_flexes` are not "
-                + "nontrivial infinitesimal flexes!"
-            )
-        inf_flexes = [self._transform_inf_flex_to_pointwise(q) for q in inf_flexes]
-
-        if stresses is None:
-            stresses = self.stresses(numerical=numerical, tolerance=tolerance)
-        elif any(
-            not self.is_stress(stress, numerical=numerical, tolerance=tolerance)
-            for stress in stresses
-        ):
-            raise ValueError(
-                "Some of the provided `stresses` are not equilibrium stresses!"
-            )
-        stresses = [
-            self._transform_stress_to_edgewise(stress, edge_order=edges)
-            for stress in stresses
-        ]
-
+        inf_flexes = self._process_inf_flexes(
+            inf_flexes, numerical=numerical, tolerance=tolerance
+        )
         if len(inf_flexes) == 0:
             return True
+        stresses = self._process_stresses(
+            stresses, numerical=numerical, tolerance=tolerance
+        )
         if len(stresses) == 0:
             return False
 
@@ -2255,8 +2233,54 @@ class Framework(object):
         In case that ``numerical=False``, this method only
         properly works for symbolic coordinates.
         """
+        inf_flexes = self._process_inf_flexes(
+            inf_flexes, numerical=numerical, tolerance=tolerance
+        )
+        if len(inf_flexes) == 0:
+            return True
+        stresses = self._process_stresses(
+            stresses, numerical=numerical, tolerance=tolerance
+        )
+        if len(stresses) == 0:
+            return False
+
+        if len(stresses) == 1 or len(inf_flexes) == 1:
+            return self.is_prestress_stable(
+                numerical=numerical,
+                tolerance=tolerance,
+                inf_flexes=inf_flexes,
+                stresses=stresses,
+            )
+
+        raise ValueError("Second-order rigidity is not implemented for this framework.")
+
+    def _process_inf_flexes(
+        self,
+        inf_flexes: Sequence[InfFlex],
+        numerical: bool = False,
+        tolerance: float = 1e-9,
+    ) -> list[dict[Vertex, Point]]:
+        """
+        Process the input infinitesimal flexes for the second-order methods.
+
+        If any of the input is not a nontrivial flex, an error is thrown.
+        Otherwise, the infinitesimal flexes are transformed to a ``dict``.
+
+        Parameters
+        ----------
+        inf_flexes:
+            The infinitesimal flexes to be processed.
+        numerical:
+            If ``True``, numerical infinitesimal flexes and stresses
+            are used in the check for prestress stability.
+        tolerance:
+            Numerical tolerance used for the check that something is
+            an approximate zero.
+        """
         if inf_flexes is None:
             inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
+            if len(inf_flexes) == 0:
+                return inf_flexes
         elif any(
             not self.is_nontrivial_flex(
                 inf_flex, numerical=numerical, tolerance=tolerance
@@ -2267,9 +2291,46 @@ class Framework(object):
                 "Some of the provided `inf_flexes` are not "
                 + "nontrivial infinitesimal flexes!"
             )
+        if len(inf_flexes) == 0:
+            raise ValueError("No infinitesimal flexes were provided.")
+        if all(isinstance(inf_flex, list | tuple | Matrix) for inf_flex in inf_flexes):
+            inf_flexes = [self._transform_inf_flex_to_pointwise(q) for q in inf_flexes]
+        elif not all(isinstance(inf_flex, dict) for inf_flex in inf_flexes):
+            raise ValueError(
+                "The provided `inf_flexes` do not have the correct format."
+            )
+        return inf_flexes
 
+    def _process_stresses(
+        self,
+        stresses: Sequence[Stress],
+        numerical: bool = False,
+        tolerance: float = 1e-9,
+    ) -> list[dict[Edge, Number]]:
+        """
+        Process the input infinitesimal flexes for the second-order methods.
+
+        If any of the input is not a nontrivial flex, an error is thrown.
+        Otherwise, the infinitesimal flexes are transformed to a ``dict``.
+
+        Parameters
+        ----------
+        inf_flexes:
+            The infinitesimal flexes to be processed.
+        edges:
+            A
+        numerical:
+            If ``True``, numerical infinitesimal flexes and stresses
+            are used in the check for prestress stability.
+        tolerance:
+            Numerical tolerance used for the check that something is
+            an approximate zero.
+        """
+        edges = self._graph.edge_list(as_tuples=True)
         if stresses is None:
             stresses = self.stresses(numerical=numerical, tolerance=tolerance)
+            if len(stresses) == 0:
+                return stresses
         elif any(
             not self.is_stress(stress, numerical=numerical, tolerance=tolerance)
             for stress in stresses
@@ -2277,20 +2338,16 @@ class Framework(object):
             raise ValueError(
                 "Some of the provided `stresses` are not equilibrium stresses!"
             )
-
-        if len(inf_flexes) == 0:
-            return True
         if len(stresses) == 0:
-            return False
-        if len(stresses) == 1 or len(inf_flexes) == 1:
-            return self.is_prestress_stable(
-                numerical=numerical,
-                tolerance=tolerance,
-                inf_flexes=inf_flexes,
-                stresses=stresses,
-            )
-
-        raise ValueError("Second-order rigidity is not implemented for this framework.")
+            raise ValueError("No equilibrium stresses were provided.")
+        if all(isinstance(stress, list | tuple | Matrix) for stress in stresses):
+            stresses = [
+                self._transform_stress_to_edgewise(stress, edge_order=edges)
+                for stress in stresses
+            ]
+        elif not all(isinstance(stress, dict) for stress in stresses):
+            raise ValueError("The provided `stresses` do not have the correct format.")
+        return stresses
 
     @doc_category("Infinitesimal rigidity")
     def is_redundantly_rigid(self) -> bool:
