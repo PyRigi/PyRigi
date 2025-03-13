@@ -3580,8 +3580,7 @@ class Graph(nx.Graph):
             H += K
         return H
 
-    @doc_category("Generic rigidity")
-    def block_3(self, u: Vertex, v: Vertex) -> Graph:
+    def _block_3(self, u: Vertex, v: Vertex) -> Graph:
         """
         Return the 3-block of ``(u, v)`` via cleaving operations.
 
@@ -3600,7 +3599,7 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
-        >>> print(G.block_3(0,11))
+        >>> print(G._block_3(0,11))
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]
         """  # noqa: E501
         try:
@@ -3615,7 +3614,7 @@ class Graph(nx.Graph):
                     break
             B = nx.subgraph(self, conn_comp).copy()
             B.add_edge(*(cut))
-            return B.block_3(u, v)
+            return B._block_3(u, v)
         except StopIteration:
             return self
 
@@ -3688,7 +3687,7 @@ class Graph(nx.Graph):
         The following example is the Figure 5 of the article :cite:p:`JordanVillanyi2024`
 
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
-        >>> H = G.block_3(0,11)
+        >>> H = G._block_3(0,11)
         >>> H.Rd_fundamental_circuit(0,11)
         [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
         """  # noqa: E501
@@ -3777,7 +3776,7 @@ class Graph(nx.Graph):
             return True
         # OR
         # elif Clique(B,V_0) is globally rigid
-        B = self.block_3(u, v)
+        B = self._block_3(u, v)
         B._build_pebble_digraph(K=2, L=3)
         V_0 = B._pebble_digraph.fundamental_circuit(u, v)
         return B._make_outside_neighbors_clique(V_0).is_globally_rigid()

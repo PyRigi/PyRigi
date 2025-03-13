@@ -241,7 +241,6 @@ In the latter case the subgraph $B$ can be obtained from $G$ by a sequence of
 Furthermore, $uv \notin E(B)$ and, in $\RR^2$, if the pair $\{u,v\}$ is linked in $G$ then it is also
 linked in $B$.
 
-{{pyrigi_crossref}} {meth}`~.Graph.block_3`
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
 
@@ -255,7 +254,6 @@ The unique {prf:ref}`3-connected component <def-k-connected>`
 $B$ of the {prf:ref}`augmented graph <def-augmented-graph>` of $G$ such that $\{u,v\}\subset V(B)$
 is called the _3-block_ of $\{u,v\}$ in $G$.
 
-{{pyrigi_crossref}} {meth}`~.Graph.block_3`
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
 
