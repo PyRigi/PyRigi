@@ -3576,7 +3576,7 @@ class Graph(nx.Graph):
 
         for V in vert_conn_comp:
             H.delete_vertices(V)
-            K = graphs.Complete(self.neighbors_of_set(V))
+            K = graphs.Complete(vertices=self.neighbors_of_set(V))
             H += K
         return H
 
