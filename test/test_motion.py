@@ -418,7 +418,7 @@ def test_ApproximateMotion_Getters():
     assert motion.step_size == 0.075
     assert motion.fixed_pair == (0, 1)
     assert motion.fixed_direction == [0, 1]
-    assert motion.pin_vertex is None
+    assert motion.pinned_vertex is None
     assert motion.chosen_flex == 0
 
     F = fws.Cycle(5)
@@ -449,7 +449,7 @@ def test_ApproximateMotion_Getters():
     assert motion.step_size == 0.05
     assert motion.fixed_pair is None
     assert motion.fixed_direction is None
-    assert motion.pin_vertex == 1
+    assert motion.pinned_vertex == 1
     assert motion.chosen_flex == 1
 
 
