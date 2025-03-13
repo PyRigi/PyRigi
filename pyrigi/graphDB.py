@@ -66,11 +66,11 @@ def CubeWithDiagonal() -> Graph:
 
 def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     r"""
-    Return the `dim`-dimensional double banana graph.
+    Return the ``dim``-dimensional double banana graph.
 
     Definitions
     -----
-    * :prf:ref:`Generalized Double Banana <def-generalized-double-banana>`
+    :prf:ref:`Generalized Double Banana <def-generalized-double-banana>`
 
     Parameters
     ----------
@@ -172,7 +172,13 @@ def Dodecahedral() -> Graph:
 
 
 def Frustum(n: int) -> Graph:
-    """Return the :prf:ref:`n-Frustum graph <def-n-frustum>`"""
+    """
+    Return the ``n``-Frustum graph.
+
+    Definitions
+    -----------
+    :prf:ref:`n-Frustum graph <def-n-frustum>`
+    """
     return Graph(
         [(j, (j + 1) % n) for j in range(0, n)]
         + [(j, (j + 1 - n) % n + n) for j in range(n, 2 * n)]
@@ -226,7 +232,7 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
 
     Definitions
     -----------
-    * :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
+    :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
     """
     if not n % 2 == 0 or n < 8:
         raise ValueError(

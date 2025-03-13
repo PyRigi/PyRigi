@@ -1240,7 +1240,11 @@ class Framework(object):
         self, numerical: bool = False, tolerance: float = 1e-9
     ) -> bool:
         """
-        Return whether the realization is :prf:ref:`quasi-injective <def-realization>`.
+        Return whether the realization is quasi-injective.
+
+        Definitions
+        -----------
+        :prf:ref:`Quasi-injectivity <def-realization>`
 
         Parameters
         ----------
@@ -1290,7 +1294,11 @@ class Framework(object):
     @doc_category("Framework manipulation")
     def set_realization(self, realization: dict[Vertex, Point]) -> None:
         r"""
-        Change the :prf:ref:`realization <def-realization>` of the framework.
+        Change the realization of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Realization <def-realization>`
 
         Parameters
         ----------
@@ -1749,7 +1757,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Infinitesimal flex <def-inf-flex>`
+        :prf:ref:`Infinitesimal flex <def-inf-flex>`
 
         Parameters
         ----------
@@ -1911,7 +1919,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
+        :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
 
         Examples
         --------
@@ -1936,7 +1944,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
+        :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
 
         Examples
         --------
@@ -1966,7 +1974,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
+        :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
         return not self.is_inf_rigid()
 
@@ -2021,16 +2029,24 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_dependent(self) -> bool:
         """
-        Return whether the framework is :prf:ref:`dependent <def-independent-framework>`.
+        Return whether the framework is dependent.
 
         See also :meth:`~.Framework.is_independent`.
+
+        Definitions
+        -----------
+        :prf:ref:`Dependent framework <def-independent-framework>`
         """
         return not self.is_independent()
 
     @doc_category("Infinitesimal rigidity")
     def is_isostatic(self) -> bool:
         """
-        Return whether the framework is :prf:ref:`isostatic <def-isostatic-frameworks>`.
+        Return whether the framework is isostatic.
+
+        Definitions
+        -----------
+        :prf:ref:`Isostatic framework <def-isostatic-frameworks>`
         """
         return self.is_independent() and self.is_inf_rigid()
 
@@ -2043,7 +2059,7 @@ class Framework(object):
 
         Definitions
         ----------
-        :prf:ref:`Prestress stability <def-prestress-stability>`.
+        :prf:ref:`Prestress stability <def-prestress-stability>`
 
         Parameters
         -------
@@ -2203,7 +2219,7 @@ class Framework(object):
 
         Definitions
         ----------
-        :prf:ref:`Second-order Rigidity <def-second-order-rigid>`.
+        :prf:ref:`Second-order rigidity <def-second-order-rigid>`
 
         Parameters
         -------
