@@ -2257,8 +2257,27 @@ class Framework(object):
         """
         if inf_flexes is None:
             inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
+        elif any(
+            not self.is_nontrivial_flex(
+                inf_flex, numerical=numerical, tolerance=tolerance
+            )
+            for inf_flex in inf_flexes
+        ):
+            raise ValueError(
+                "Some of the provided `inf_flexes` are not "
+                + "nontrivial infinitesimal flexes!"
+            )
+
         if stresses is None:
             stresses = self.stresses(numerical=numerical, tolerance=tolerance)
+        elif any(
+            not self.is_stress(stress, numerical=numerical, tolerance=tolerance)
+            for stress in stresses
+        ):
+            raise ValueError(
+                "Some of the provided `stresses` are not equilibrium stresses!"
+            )
+
         if len(inf_flexes) == 0:
             return True
         if len(stresses) == 0:
