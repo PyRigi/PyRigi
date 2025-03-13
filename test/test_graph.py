@@ -2917,7 +2917,7 @@ def test_is_not_critically_k_edge_apex(graph, k):
 @pytest.mark.long_local
 def test_randomized_apex_properties():  # noqa: C901
     search_space = [range(1, 8), range(10)]
-    for n, x in product(*search_space):
+    for n, _ in product(*search_space):
         for m in range(3, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
             prop_apex = G.is_k_edge_apex(1)
@@ -2965,7 +2965,7 @@ def test_randomized_apex_properties():  # noqa: C901
 @pytest.mark.long_local
 def test_randomized_rigidity_properties():  # noqa: C901
     search_space = [range(1, 4), range(1, 7), range(10)]
-    for dim, n, x in product(*search_space):
+    for dim, n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
             assert G.number_of_nodes() == n
