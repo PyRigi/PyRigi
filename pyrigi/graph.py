@@ -939,6 +939,8 @@ class Graph(nx.Graph):
         """
         Return a ``dim``-dimensional ``k``-extension.
 
+        See also :meth:`.zero_extension` and :meth:`.one_extension`.
+
         Definitions
         -----------
         :prf:ref:`k-extension <def-k-extension>`
@@ -989,10 +991,6 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
         >>> print(G)
         Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
-
-        Notes
-        -----
-        See also :meth:`~Graph.zero_extension` and :meth:`~Graph.one_extension`.
         """  # noqa: E501
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
@@ -1485,7 +1483,7 @@ class Graph(nx.Graph):
         """
         Return whether the graph is vertex redundantly ``dim``-rigid.
 
-        See :meth:`.is_k_vertex_redundantly_rigid` (using k = 1) for details.
+        See :meth:`.is_k_vertex_redundantly_rigid` (using ``k=1``) for details.
 
         Definitions
         -----------
@@ -1511,9 +1509,9 @@ class Graph(nx.Graph):
         :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`,
         :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`,
         :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`,
+        :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3` and
         :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
-        ... are used
+        are used.
 
         Definitions
         -----------
@@ -1531,7 +1529,8 @@ class Graph(nx.Graph):
         prob:
             bound on the probability for false negatives of the rigidity testing
             when ``algorithm="randomized"``.
-            Warning: this is not the probability of wrong results in this method
+
+            *Warning:* this is not the probability of wrong results in this method
             but is just passed on to rigidity testing.
 
         Examples
@@ -1658,7 +1657,8 @@ class Graph(nx.Graph):
         prob:
             A bound on the probability for false negatives of the rigidity testing
             when ``algorithm="randomized"``.
-            Warning: this is not the probability of wrong results in this method,
+
+            *Warning:* this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
         Examples
@@ -1751,7 +1751,7 @@ class Graph(nx.Graph):
         """
         Return whether the graph is redundantly ``dim``-rigid.
 
-        See :meth:`.is_k_redundantly_rigid` (using k = 1) for details.
+        See :meth:`.is_k_redundantly_rigid` (using ``k=1``) for details.
 
         Definitions
         -----------
@@ -1771,13 +1771,13 @@ class Graph(nx.Graph):
         Return whether the graph is ``k``-redundantly ``dim``-rigid.
 
         Preliminary checks from
+        :prf:ref:`thm-globally-mindeg6-dim2`,
+        :prf:ref:`thm-globally-redundant-3connected`,
         :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`,
         :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`,
-        :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`,
-        :prf:ref:`thm-globally-redundant-3connected` and
-        :prf:ref:`thm-globally-mindeg6-dim2`.
-        are used
+        :prf:ref:`thm-2-edge-redundant-edge-bound-dim3` and
+        :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
+        are used.
 
         Definitions
         -----------
@@ -1795,7 +1795,8 @@ class Graph(nx.Graph):
         prob:
             A bound on the probability for false negatives of the rigidity testing
             when ``algorithm="randomized"``.
-            Warning: this is not the probability of wrong results in this method,
+
+            *Warning:* this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
         Examples
@@ -1880,7 +1881,7 @@ class Graph(nx.Graph):
         """
         Return whether the graph is minimally redundantly ``dim``-rigid.
 
-        See :meth:`.is_min_k_redundantly_rigid` (using k = 1) for details.
+        See :meth:`.is_min_k_redundantly_rigid` (using ``k=1``) for details.
 
         Definitions
         -----------
@@ -1920,7 +1921,8 @@ class Graph(nx.Graph):
         prob:
             A bound on the probability for false negatives of the rigidity testing
             when ``algorithm="randomized"``.
-            Warning: this is not the probability of wrong results in this method,
+
+            *Warning:* this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
         Examples
@@ -2024,7 +2026,7 @@ class Graph(nx.Graph):
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``
             and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
         prob:
-            Only relevant if ``algorithm="randomized"``,
+            Only relevant if ``algorithm="randomized"``.
             It determines the bound on the probability of
             the randomized algorithm to yield false negatives.
 
@@ -2122,7 +2124,7 @@ class Graph(nx.Graph):
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
         prob:
-            Only relevant if ``algorithm="randomized"``,
+            Only relevant if ``algorithm="randomized"``.
             It determines the bound on the probability of
             the randomized algorithm to yield false negatives.
 
@@ -2216,7 +2218,7 @@ class Graph(nx.Graph):
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
             ``"redundancy"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
         prob:
-            Only relevant if ``algorithm="randomized"``,
+            Only relevant if ``algorithm="randomized"``.
             It determines the bound on the probability of
             the randomized algorithm to yield false negatives.
 
@@ -2314,7 +2316,7 @@ class Graph(nx.Graph):
         Definitions
         -----------
         * :prf:ref:`Dependence <def-matroid>`
-        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
 
         Examples
         --------
@@ -2346,7 +2348,7 @@ class Graph(nx.Graph):
         Definitions
         ---------
         * :prf:ref:`Independence <def-matroid>`
-        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
 
         Parameters
         ---------
@@ -2432,7 +2434,7 @@ class Graph(nx.Graph):
         Definitions
         ---------
         * :prf:ref:`Circuit <def-matroid>`
-        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
 
         Parameters
         ---------
@@ -2549,7 +2551,7 @@ class Graph(nx.Graph):
         Definitions
         -----------
         * :prf:ref:`Rd-closed <def-rank-function-closure>`
-        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
 
         Parameters
         ---------
@@ -2574,7 +2576,7 @@ class Graph(nx.Graph):
         Definitions
         -----------
         * :prf:ref:`Rd-closure <def-rank-function-closure>`
-        * :prf:ref:`Generic Rigidity Matroid <def-gen-rigidity-matroid>`
+        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
 
         Parameters
         ---------
@@ -2703,7 +2705,8 @@ class Graph(nx.Graph):
         prob:
             A bound on the probability for false negatives of the rigidity testing
             when ``algorithm="randomized"``.
-            Warning: this is not the probability of wrong results in this method,
+
+            *Warning:* this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
         Examples
@@ -2724,7 +2727,7 @@ class Graph(nx.Graph):
         Every edge is part of a rigid component. Isolated vertices form
         additional rigid components.
 
-        For the pebble game algorithm we use the fact that the R2_closure
+        For the pebble game algorithm we use the fact that the ``R2_closure``
         consists of edge disjoint cliques, so we only have to determine them.
         """
         _input_check.dimension(dim)
@@ -2819,8 +2822,9 @@ class Graph(nx.Graph):
         Parameters
         ----------
         prob:
-            A bound on the probability for false negatives of the rigidity testing
-            Warning: this is not the probability of wrong results in this method,
+            A bound on the probability for false negatives of the rigidity testing.
+
+            *Warning:* this is not the probability of wrong results in this method,
             but is just passed on to rigidity testing.
 
         Examples
@@ -2843,8 +2847,8 @@ class Graph(nx.Graph):
         This is done by taking the dimension predicted by the Maxwell count
         as a starting point and iteratively reducing the dimension until
         generic rigidity is found.
-        This method returns `sympy.oo` (infinity) if and only if the graph
-        is complete. It has the data type `Inf`.
+        This method returns ``sympy.oo`` (infinity) if and only if the graph
+        is complete. It has the data type ``Inf``.
         """
         self._input_check_no_loop()
 
@@ -3264,12 +3268,6 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`t-sum <def-t-sum>`
 
-        Parameters
-        ----------
-        other_graph: Graph
-        edge: Edge
-        t: integer, default value 2
-
         Examples
         --------
         >>> G1 = Graph([[1,2],[2,3],[3,1],[3,4]])
@@ -3296,7 +3294,7 @@ class Graph(nx.Graph):
         """
         Return whether the graph is vertex apex.
 
-        Alias for :meth:`~.Graph.is_k_vertex_apex` with ``k=1``
+        Alias for :meth:`~.Graph.is_k_vertex_apex` with ``k=1``.
 
         Definitions
         -----------
