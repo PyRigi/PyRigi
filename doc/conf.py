@@ -52,6 +52,7 @@ extensions = [
     "sphinx.ext.githubpages",
     "sphinx.ext.doctest",
     "sphinx.ext.autosummary",
+    "sphinx_autodoc_typehints",
     "sphinx.ext.napoleon",
     "sphinx_proof",
     "myst_nb",
