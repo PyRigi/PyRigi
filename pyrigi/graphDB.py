@@ -6,6 +6,8 @@ import networkx as nx
 
 import pyrigi._input_check as _input_check
 from pyrigi.graph import Graph
+from pyrigi.data_type import Vertex, Sequence
+from itertools import combinations
 
 
 def Cycle(n: int) -> Graph:
@@ -13,18 +15,49 @@ def Cycle(n: int) -> Graph:
     return Graph(nx.cycle_graph(n))
 
 
-def Complete(n: int) -> Graph:
-    """Return the complete graph on ``n`` vertices."""
-    return Graph(nx.complete_graph(n))
+def Complete(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
+    """
+    Return the complete graph on ``n`` vertices.
+
+    The vertex labels can also be specified explicitly via
+    the keyword ``vertices``.
+
+    Parameters
+    ----------
+    n:
+        The number of vertices.
+    vertices:
+        An optional parameter for the vertices.
+
+    Examples
+    --------
+    >>> print(Complete(5))
+    Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+    >>> print(Complete(5, [0, 1, 2, 3, 4]))
+    Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
+    >>> print(Complete(vertices=['a', 'b', 'c', 'd']))
+    Graph with vertices ['a', 'b', 'c', 'd'] and edges [['a', 'b'], ['a', 'c'], ['a', 'd'], ['b', 'c'], ['b', 'd'], ['c', 'd']]
+    """  # noqa: E501
+    if vertices is None:
+        _input_check.integrality_and_range(n, "number of vertices n", min_val=0)
+        return Graph(nx.complete_graph(n))
+    if n is None:
+        n = len(vertices)
+    _input_check.equal(len(vertices), n, "number of `vertices`", "the parameter `n`")
+    edges = list(combinations(vertices, 2))
+    return Graph.from_vertices_and_edges(vertices, edges)
 
 
 def Path(n: int) -> Graph:
     """Return the path graph with ``n`` vertices."""
+    _input_check.integrality_and_range(n, "number of vertices n", min_val=0)
     return Graph(nx.path_graph(n))
 
 
 def CompleteBipartite(n1: int, n2: int) -> Graph:
     """Return the complete bipartite graph on ``n1+n2`` vertices."""
+    _input_check.integrality_and_range(n1, "number of vertices n1", min_val=1)
+    _input_check.integrality_and_range(n2, "number of vertices n2", min_val=1)
     return Graph(nx.complete_multipartite_graph(n1, n2))
 
 
@@ -86,8 +119,8 @@ def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     >>> print(DoubleBanana(dim = 4))
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]]
     """  # noqa: E501
-    _input_check.greater_equal(dim, 3, "dimension")
-    _input_check.greater_equal(t, 2, "parameter t")
+    _input_check.integrality_and_range(dim, "dimension dim", min_val=3)
+    _input_check.integrality_and_range(dim, "parameter t", min_val=2)
     _input_check.smaller_equal(t, dim - 1, "parameter t", "dim - 1")
 
     r = (dim + 2) - t
@@ -201,10 +234,10 @@ def CnSymmetricFourRegular(n: int = 8) -> Graph:
     -----------
     * :prf:ref:`Example with a free group action <def-Cn-symmetric>`
     """
-    if not n % 2 == 0 or n < 8:
+    _input_check.integrality_and_range(n, "number of vertices n", min_val=8)
+    if not n % 2 == 0:
         raise ValueError(
-            "To generate this graph, the cyclic group "
-            + "must have an even order of at least 8!"
+            "To generate this graph, the cyclic group " + "must have an even order!"
         )
     G = Graph()
     G.add_edges([(0, n - 1), (n - 3, 0), (n - 2, 1), (n - 1, 2)])
@@ -228,10 +261,10 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Graph:
     -----------
     * :prf:ref:`Example with joint at origin <def-Cn-symmetric-joint-at-origin>`
     """
-    if not n % 2 == 0 or n < 8:
+    _input_check.integrality_and_range(n, "order of cyclic group n", min_val=8)
+    if not n % 2 == 0:
         raise ValueError(
-            "To generate this graph, the cyclic group "
-            + "must have an even order of at least 8!"
+            "To generate this graph, the cyclic group " + "must have an even order!"
         )
     G = CnSymmetricFourRegular(n)
     G.add_edges([(0, n), (n, 2 * n), (n + 1, 2 * n - 1), (n, 2 * n - 2)])
@@ -285,11 +318,11 @@ def ThreeConnectedR3Circuit():
     )
 
 
-def Wheel(k: int):
+def Wheel(n: int):
     """
-    Create the wheel graph on ``k+1`` vertices.
+    Create the wheel graph on ``n+1`` vertices.
     """
-    _input_check.integrality_and_range(k, "k", min_val=3)
-    G = Cycle(k)
-    G.add_edges([(i, k) for i in range(k)])
+    _input_check.integrality_and_range(n + 1, "number of vertices n+1", min_val=4)
+    G = Cycle(n)
+    G.add_edges([(i, n) for i in range(n)])
     return G
