@@ -396,7 +396,7 @@ def test_is_not_isostatic(framework):
     ],
 )
 def test_is_inf_redundantly_rigid(framework):
-    assert framework.is_inf_redundantly_rigid()
+    assert framework.is_redundantly_inf_rigid()
 
 
 @pytest.mark.parametrize(
@@ -419,7 +419,7 @@ def test_is_inf_redundantly_rigid(framework):
     ],
 )
 def test_is_not_inf_redundantly_rigid(framework):
-    assert not framework.is_inf_redundantly_rigid()
+    assert not framework.is_redundantly_inf_rigid()
 
 
 def test_dimension():
