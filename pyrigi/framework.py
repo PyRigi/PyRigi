@@ -2058,7 +2058,7 @@ class Framework(object):
             Numerical tolerance used for the check that something is
             an approximate zero.
         inf_flexes, stresses:
-            We can provide precomputed infinitesimal flexes and stresses
+            Precomputed infinitesimal flexes and equilibrium stresses can be provided
             to avoid recomputation. If not provided, they are computed here.
 
         Examples
@@ -2218,7 +2218,7 @@ class Framework(object):
             Numerical tolerance used for the check that something is
             an approximate zero.
         inf_flexes, stresses:
-            We can provide precomputed infinitesimal flexes and stresses
+            Precomputed infinitesimal flexes and equilibrium stresses can be provided
             to avoid recomputation. If not provided, they are computed here.
 
         Examples
