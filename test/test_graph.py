@@ -3,11 +3,10 @@ from random import randint
 import math
 import matplotlib.pyplot as plt
 
-from itertools import combinations
+from itertools import combinations, product
 import networkx as nx
 import pytest
 from sympy import Matrix
-from itertools import combinations, product
 
 import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
