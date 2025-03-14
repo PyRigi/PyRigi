@@ -53,6 +53,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
     "sphinx_proof",
     "myst_nb",
     "sphinxcontrib.bibtex",
@@ -88,14 +89,14 @@ napoleon_preprocess_types = True
 napoleon_custom_sections = ["Definitions", "Methods", "Suggested Improvements"]
 
 autodoc_type_aliases = {
-    "Vertex": "Vertex",
-    "Edge": "Edge",
-    "DirectedEdge": "DirectedEdge",
-    "Point": "Point",
-    "Number": "Number",
-    "Stress": "Stress",
-    "InfFlex": "InfFlex",
-    "Inf": "Inf",
+    "Vertex": ":type:`~pyrigi.data_type.Vertex`",
+    "Edge": ":type:`~pyrigi.data_type.Edge`",
+    "DirectedEdge": ":type:`~pyrigi.data_type.DirectedEdge`",
+    "Point": ":type:`~pyrigi.data_type.Point`",
+    "Number": ":type:`~pyrigi.data_type.Number`",
+    "Stress": ":type:`~pyrigi.data_type.Stress`",
+    "InfFlex": ":type:`~pyrigi.data_type.InfFlex`",
+    "Inf": ":type:`~pyrigi.data_type.Inf`",
 }
 napoleon_attr_annotations = True
 

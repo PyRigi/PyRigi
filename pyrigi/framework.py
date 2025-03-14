@@ -137,6 +137,10 @@ class Framework(object):
         """
         Return the coordinates of a given vertex in the realization.
 
+        Parameters
+        ----------
+        vertex
+
         Examples
         --------
         >>> F = Framework(Graph([[0,1]]), {0:[1,2], 1:[0,5]})
@@ -258,7 +262,6 @@ class Framework(object):
         Parameters
         ----------
         edges:
-            ``Sequence`` of edges.
 
         Notes
         -----
@@ -1148,6 +1151,10 @@ class Framework(object):
     def delete_vertex(self, vertex: Vertex) -> None:
         """
         Delete a vertex from the framework.
+
+        Parameters
+        ----------
+        vertex
         """
         self._graph.delete_vertex(vertex)
         del self._realization[vertex]
@@ -1156,6 +1163,10 @@ class Framework(object):
     def delete_vertices(self, vertices: Sequence[Vertex]) -> None:
         """
         Delete a list of vertices from the framework.
+
+        Parameters
+        ----------
+        vertices
         """
         for vertex in vertices:
             self.delete_vertex(vertex)
@@ -1164,6 +1175,10 @@ class Framework(object):
     def delete_edge(self, edge: Edge) -> None:
         """
         Delete an edge from the framework.
+
+        Parameters
+        ----------
+        edge
         """
         self._graph.delete_edge(edge)
 
@@ -1171,6 +1186,10 @@ class Framework(object):
     def delete_edges(self, edges: Sequence[Edge]) -> None:
         """
         Delete a list of edges from the framework.
+
+        Parameters
+        ----------
+        edges
         """
         self._graph.delete_edges(edges)
 
@@ -1352,6 +1371,11 @@ class Framework(object):
         We apply the method :meth:`~Framework.set_vertex_positions`
         to the corresponding pairs of ``vertices`` and ``points``.
 
+        Parameters
+        ----------
+        vertices
+        points
+
         Examples
         --------
         >>> F = Framework.Complete([(0,0),(0,0),(1,0),(1,0)])
@@ -1374,6 +1398,10 @@ class Framework(object):
     def set_vertex_positions(self, subset_of_realization: dict[Vertex, Point]) -> None:
         """
         Change the coordinates of vertices given by a dictionary.
+
+        Parameters
+        ----------
+        subset_of_realization
 
         Examples
         --------
@@ -1551,6 +1579,10 @@ class Framework(object):
         :meth:`.is_dict_stress`.
 
         One of the alias methods is called depending on the type of the input.
+
+        Parameters
+        ----------
+        stress
         """
         if isinstance(stress, list | Matrix):
             return self.is_vector_stress(stress, **kwargs)
@@ -3174,6 +3206,10 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Nontrivial infinitesimal flex <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        inf_flex
         """
         if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
@@ -3272,6 +3308,10 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Trivial infinitesimal flex <def-trivial-inf-flex>`
+
+        Parameters
+        ----------
+        inf_flex
         """
         if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
