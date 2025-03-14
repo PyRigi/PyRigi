@@ -51,5 +51,7 @@ To create a new version, the following steps should be taken by the **maintainer
 4. Merge the branch into `dev`.
 5. Continue on the release branch and remove the files that are not supposed to be in the release (e.g. `poetry.lock`).
 6. Merge the branch into `main`.
-7. Add a new release tag in Github and generate the corresponding release notes.
-8. Afterwards, run `poetry update` and commit `poetry.lock` to update the dependencies on `dev` .
+7. Check that the online documentation has been published correctly.
+8. Add a new release tag in Github and generate the corresponding release notes.
+9. Review the upload to PyPi.
+10. Run `poetry update` and commit `poetry.lock` to update the dependencies on `dev` .
