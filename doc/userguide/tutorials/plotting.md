@@ -369,7 +369,7 @@ F.plot(inf_flex=inf_flex,
        flex_length=0.25,
        stress_fontsize=11,
        axis_scales=(0.625,0.625,0.625),
-       stress_label_positions={e: 0.6 for e in F.graph().edges}
+       stress_label_positions={e: 0.6 for e in F.graph.edges}
 )
 ```
 

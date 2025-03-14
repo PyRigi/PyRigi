@@ -66,7 +66,7 @@ def resolve_inf_flex(
 
     if not framework.is_dict_inf_flex(inf_flex_pointwise, numerical=True):
         raise ValueError("The provided `inf_flex` is not an infinitesimal flex.")
-    if framework.dim() == 1:
+    if framework.dim == 1:
         inf_flex_pointwise = {
             v: [v_flex, 0] for v, v_flex in inf_flex_pointwise.items()
         }

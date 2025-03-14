@@ -110,7 +110,7 @@ TP_inf_flex.nontrivial_inf_flexes()
 Now we retrieve the underlying graph and check that it is (generically) {prf:ref}`2-rigid <def-gen-rigid>`.
 
 ```{code-cell} ipython3
-G_TP = TP_inf_flex.graph()
+G_TP = TP_inf_flex.graph
 G_TP.is_rigid()
 ```
 

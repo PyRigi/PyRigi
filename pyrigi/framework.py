@@ -114,7 +114,7 @@ class Framework(object):
         """Return the string representation."""
         return (
             self.__class__.__name__
-            + f" in {self.dim()}-dimensional space consisting of:\n{self._graph}\n"
+            + f" in {self.dim}-dimensional space consisting of:\n{self._graph}\n"
             + "Realization {"
             + ", ".join(
                 [
@@ -131,7 +131,7 @@ class Framework(object):
             v: [str(p) for p in pos]
             for v, pos in self.realization(as_points=True).items()
         }
-        return f"Framework({repr(self.graph())}, {str_realization})"
+        return f"Framework({repr(self.graph)}, {str_realization})"
 
     def __getitem__(self, vertex: Vertex) -> Matrix:
         """
@@ -151,15 +151,28 @@ class Framework(object):
         """
         return self._realization[vertex]
 
-    @doc_category("Attribute getters")
+    @property
     def dim(self) -> int:
         """Return the dimension of the framework."""
         return self._dim
 
-    @doc_category("Attribute getters")
+    @property
     def dimension(self) -> int:
         """Alias for :meth:`~Framework.dim`."""
-        return self.dim()
+        return self.dim
+
+    @property
+    def graph(self) -> Graph:
+        """
+        Return a copy of the underlying graph.
+
+        Examples
+        ----
+        >>> F = Framework.Random(Graph([(0,1), (1,2), (0,2)]))
+        >>> print(F.graph)
+        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
+        """
+        return deepcopy(self._graph)
 
     @doc_category("Framework manipulation")
     def add_vertex(self, point: Point, vertex: Vertex = None) -> None:
@@ -269,19 +282,6 @@ class Framework(object):
         """
         for edge in edges:
             self.add_edge(edge)
-
-    @doc_category("Attribute getters")
-    def graph(self) -> Graph:
-        """
-        Return a copy of the underlying graph.
-
-        Examples
-        ----
-        >>> F = Framework.Random(Graph([(0,1), (1,2), (0,2)]))
-        >>> print(F.graph())
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        """
-        return deepcopy(self._graph)
 
     @doc_category("Plotting")
     def plot2D(
@@ -593,7 +593,7 @@ class Framework(object):
 
         from pyrigi import Motion
 
-        motion = Motion(self.graph(), self.dim())
+        motion = Motion(self.graph, self.dim)
         duration = 2 * total_frames * delay / 1000
         return motion.animate3D(
             _realizations,
@@ -877,7 +877,7 @@ class Framework(object):
         """  # noqa: E501
 
         # check dimension
-        if self.dimension() != 2:
+        if self.dimension != 2:
             raise ValueError(
                 "TikZ code is only generated for frameworks in dimension 2."
             )
@@ -911,7 +911,7 @@ class Framework(object):
         figure_str = [fs for fs in figure_str if fs != ""]
         figure_str = ",".join(figure_str)
 
-        return self.graph().to_tikz(
+        return self.graph.to_tikz(
             placement=self.realization(),
             figure_opts=figure_str,
             vertex_style=vertex_style,
@@ -1263,7 +1263,7 @@ class Framework(object):
         See its documentation for the description of the parameters.
         """
 
-        for u, v in self._graph.edges:
+        for u, v in self.graph.edges:
             edge_vector = self[u] - self[v]
             if is_zero_vector(edge_vector, numerical, tolerance):
                 return False
@@ -1316,7 +1316,7 @@ class Framework(object):
         --------
         >>> F = Framework.Complete([(0,0), (1,0), (1,1)])
         >>> F.set_realization(
-        ...     {vertex: (vertex, vertex + 1) for vertex in F.graph().vertex_list()}
+        ...     {vertex: (vertex, vertex + 1) for vertex in F.graph.vertex_list()}
         ... )
         >>> print(F)
         Framework in 2-dimensional space consisting of:
@@ -1975,8 +1975,7 @@ class Framework(object):
         else:
             return (
                 self.rigidity_matrix_rank()
-                == self.dim() * self._graph.number_of_nodes()
-                - binomial(self.dim() + 1, 2)
+                == self.dim * self._graph.number_of_nodes() - binomial(self.dim + 1, 2)
             )
 
     @doc_category("Infinitesimal rigidity")
@@ -2557,7 +2556,7 @@ class Framework(object):
         vector = point_to_vector(vector)
 
         if inplace:
-            if vector.shape[0] != self.dim():
+            if vector.shape[0] != self.dim:
                 raise ValueError(
                     "The dimension of the vector has to be the same as of the framework!"
                 )
@@ -2608,7 +2607,7 @@ class Framework(object):
             Otherwise, a new rotated framework is returned.
         """
 
-        if self.dim() != 2:
+        if self.dim != 2:
             raise ValueError("This realization is not in dimension 2!")
 
         rotation_matrix = Matrix(
@@ -2941,7 +2940,7 @@ class Framework(object):
         """
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         return {
-            vertex_order[i]: [inf_flex[i * self.dim() + j] for j in range(self.dim())]
+            vertex_order[i]: [inf_flex[i * self.dim + j] for j in range(self.dim)]
             for i in range(len(vertex_order))
         }
 
@@ -3347,9 +3346,9 @@ class Framework(object):
         Check whether a point has the right dimension and
         raise an error otherwise.
         """
-        if not len(point) == self.dimension():
+        if not len(point) == self.dimension:
             raise ValueError(
-                f"The point {point} does not have the dimension {self.dimension()}!"
+                f"The point {point} does not have the dimension {self.dimension}!"
             )
 
 

@@ -931,7 +931,7 @@ class ApproximateMotion(Motion):
         """
         Create an instance of `ApproximateMotion`.
         """
-        super().__init__(framework.graph(), framework.dim())
+        super().__init__(framework.graph, framework.dim)
         self._warn_numerical_alg(self.__init__)
         self._stress_length = len(framework.stresses())
         self._starting_realization = framework.realization(

@@ -68,7 +68,7 @@ F2
 The dimension that a framework is embedded in can be accessed via the {meth}`~.Framework.dim` method.
 
 ```{code-cell} ipython3
-F2.dim()
+F2.dim
 ```
 
 ```{code-cell} ipython3
@@ -213,7 +213,7 @@ via the method {meth}`~.Framework.graph` and the rigidity of this graph can be d
 {meth}`~.Graph.is_rigid`.
 
 ```{code-cell} ipython3
-G_TP = TP_rigid.graph()
+G_TP = TP_rigid.graph
 G_TP.is_rigid()
 ```
 

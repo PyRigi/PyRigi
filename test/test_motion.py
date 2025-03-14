@@ -29,7 +29,7 @@ def test__str__():
 0: Matrix([[-1], [0]])
 1: Matrix([[0], [0]])
 2: Matrix([[sin(t)], [cos(t)]])"""
-    )  # noga: E501
+    )  # noqa: E501
     assert (
         str(ApproximateMotion(fws.Path(3), 2))
         == "ApproximateMotion of a Graph with vertices [0, 1, 2]"
@@ -316,7 +316,7 @@ def test_ApproximateMotion_from_framework(framework):
 )
 def test_ApproximateMotion_from_graph(framework):
     motion1 = ApproximateMotion.from_graph(
-        framework.graph(),
+        framework.graph,
         framework.realization(as_points=True, numerical=True),
         5,
         0.075,
@@ -330,7 +330,7 @@ def test_ApproximateMotion_from_graph(framework):
 
     try:
         motion2 = ApproximateMotion.from_graph(
-            framework.graph(),
+            framework.graph,
             framework.realization(as_points=True, numerical=True),
             5,
             0.075,
@@ -469,7 +469,7 @@ def test_fix_pair_of_vertices():
         for realization in motion.motion_samples
     )
     for i, realization in enumerate(motion.motion_samples):
-        _F = Framework(F.graph(), realization)
+        _F = Framework(F.graph, realization)
         assert (
             _F.is_congruent_realization(
                 _motion.motion_samples[i], numerical=True, tolerance=1e-4
@@ -512,7 +512,7 @@ def test_fix_vertex():
         for realization in motion.motion_samples
     )
     for i, realization in enumerate(motion.motion_samples):
-        _F = Framework(F.graph(), realization)
+        _F = Framework(F.graph, realization)
         assert (
             _F.is_congruent_realization(
                 _motion.motion_samples[i], numerical=True, tolerance=1e-4
