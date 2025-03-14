@@ -61,7 +61,7 @@ def test__str__():
             "ApproximateMotion.from_graph(Graph.from_vertices_and_edges([0, 1, 2], "
             "[(0, 1), (1, 2)]), {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [0.0, 1.0]},"
             " 2, step_size=0.1, chosen_flex=0, tolerance=1e-05, fixed_pair=None,"
-            " fixed_direction=None, pin_vertex=0)",
+            " fixed_direction=None, pinned_vertex=0)",
         ],
     ],
 )
@@ -423,7 +423,7 @@ def test_ApproximateMotion_Getters():
 
     F = fws.Cycle(5)
     motion = ApproximateMotion(
-        F, 15, pin_vertex=1, step_size=0.05, tolerance=1e-5, chosen_flex=1
+        F, 15, pinned_vertex=1, step_size=0.05, tolerance=1e-5, chosen_flex=1
     )
     assert is_zero_vector(
         [
@@ -502,7 +502,7 @@ def test_fix_vertex():
     motion = ApproximateMotion(
         F,
         10,
-        pin_vertex=0,
+        pinned_vertex=0,
         step_size=0.075,
     )
     _motion = deepcopy(motion)

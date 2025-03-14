@@ -859,6 +859,9 @@ class ParametricMotion(Motion):
 class ApproximateMotion(Motion):
     """
     Class representing an approximated motion of a framework.
+    
+    When constructed, motion samples, i.e., realizations
+    approximating a continuous flex of a given framework, are computed.
 
     Definitions
     -----------
@@ -866,11 +869,11 @@ class ApproximateMotion(Motion):
 
     Parameters
     ----------
-    F:
-        A framework.
+    framework:
+        A framework whose approximation of a continuous flex is computed.
     steps:
         The amount of retraction steps that are performed. This number is equal to the
-        amount of ``_motion_samples`` that are computed.
+        amount of motion samples that are computed.
     step_size:
         The step size of each retraction step. If the output seems too jumpy or instable,
         consider reducing the step size.
@@ -886,8 +889,8 @@ class ApproximateMotion(Motion):
     fixed_direction:
         Vector to which the first direction is fixed. By default, this is given by
         the first and second entry of ``fixed_pair``.
-    pin_vertex:
-        If the keyword ``fixed_pair`` is not set, we can use the keyword ``pin_vertex``
+    pinned_vertex:
+        If the keyword ``fixed_pair`` is not set, we can use the keyword ``pinned_vertex``
         to pin one of the vertices to the origin instead during the motion.
 
     Examples
@@ -916,28 +919,28 @@ class ApproximateMotion(Motion):
 
     def __init__(
         self,
-        F: Framework,
+        framework: Framework,
         steps: int,
         step_size: float = 0.1,
         chosen_flex: int = 0,
         tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
-        pin_vertex: Vertex = None,
+        pinned_vertex: Vertex = None,
     ) -> None:
         """
         Create an instance of `ApproximateMotion`.
         """
-        super().__init__(F.graph(), F.dim())
+        super().__init__(framework.graph(), framework.dim())
         self._warn_numerical_alg(self.__init__)
-        self._stress_length = len(F.stresses())
-        self._starting_realization = F.realization(as_points=True, numerical=True)
+        self._stress_length = len(framework.stresses())
+        self._starting_realization = framework.realization(as_points=True, numerical=True)
         self._tolerance = tolerance
         self._steps = steps
         self._chosen_flex = chosen_flex
         self._step_size = step_size
         self._current_step_size = step_size
-        self._edge_lengths = F.edge_lengths(numerical=True)
+        self._edge_lengths = framework.edge_lengths(numerical=True)
         self._compute_motion_samples(chosen_flex)
         if fixed_pair is not None:
             _input_check.dimension_for_algorithm(
@@ -953,25 +956,25 @@ class ApproximateMotion(Motion):
             self._motion_samples = self._fix_edge(
                 self._motion_samples, fixed_pair, fixed_direction
             )
-            self._pin_vertex = None
-        elif pin_vertex is None:
-            pin_result = self._pin_origin(self._motion_samples, pin_vertex)
+            self._pinned_vertex = None
+        elif pinned_vertex is None:
+            pin_result = self._pin_origin(self._motion_samples, pinned_vertex)
             self._motion_samples = pin_result[0]
-            self._pin_vertex = pin_result[1]
+            self._pinned_vertex = pin_result[1]
         else:
-            if pin_vertex not in self._graph.nodes:
+            if pinned_vertex not in self._graph.nodes:
                 raise ValueError(
-                    f"The pinned vertex {pin_vertex} is not part of the graph"
+                    f"The pinned vertex {pinned_vertex} is not part of the graph"
                 )
-            self._motion_samples = self._pin_origin(self._motion_samples, pin_vertex)[0]
-            self._pin_vertex = pin_vertex
+            self._motion_samples = self._pin_origin(self._motion_samples, pinned_vertex)[0]
+            self._pinned_vertex = pinned_vertex
         self._fixed_pair = fixed_pair
         self._fixed_direction = fixed_direction
 
     @classmethod
     def from_graph(
         cls,
-        G: Graph,
+        graph: Graph,
         realization: dict[Vertex, Point],
         steps: int,
         step_size: float = 0.1,
@@ -979,19 +982,19 @@ class ApproximateMotion(Motion):
         tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
-        pin_vertex: Vertex = None,
+        pinned_vertex: Vertex = None,
     ) -> Motion:
         """
         Instantiate an ``ApproximateMotion`` from a graph with a realization.
         """
-        if not len(realization) == G.number_of_nodes():
+        if not len(realization) == graph.number_of_nodes():
             raise ValueError(
                 "The realization does not contain the correct amount of vertices!"
             )
 
         realization = {v: sympy_expr_to_float(pos) for v, pos in realization.items()}
         realization_0 = realization[list(realization.keys())[0]]
-        for v in G.nodes:
+        for v in graph.nodes:
             if v not in realization:
                 raise KeyError(f"Vertex {v} is not a key of the given realization!")
             if len(realization[v]) != len(realization_0):
@@ -999,7 +1002,7 @@ class ApproximateMotion(Motion):
                     f"The point {realization[v]} in the parametrization"
                     f" corresponding to vertex {v} does not have the right dimension."
                 )
-        F = Framework(G, realization)
+        F = Framework(graph, realization)
         return ApproximateMotion(
             F,
             steps,
@@ -1008,7 +1011,7 @@ class ApproximateMotion(Motion):
             tolerance=tolerance,
             fixed_pair=fixed_pair,
             fixed_direction=fixed_direction,
-            pin_vertex=pin_vertex,
+            pinned_vertex=pinned_vertex,
         )
 
     def __str__(self) -> str:
@@ -1026,7 +1029,7 @@ class ApproximateMotion(Motion):
         o_str += f"step_size={self._step_size}, chosen_flex={self._chosen_flex}, "
         o_str += f"tolerance={self._tolerance}, fixed_pair={self._fixed_pair}, "
         o_str += (
-            f"fixed_direction={self._fixed_direction}, pin_vertex={self._pin_vertex})"
+            f"fixed_direction={self._fixed_direction}, pinned_vertex={self._pinned_vertex})"
         )
         return o_str
 
@@ -1091,7 +1094,7 @@ class ApproximateMotion(Motion):
         """
         Return the pinned vertex of the motion.
         """
-        return self._pin_vertex
+        return self._pinned_vertex
 
     @property
     def fixed_direction(self) -> Sequence[Number]:
@@ -1111,7 +1114,7 @@ class ApproximateMotion(Motion):
         """
         if vertex is None or vertex not in self.graph.nodes:
             raise ValueError(f"The pinned vertex {vertex} is not part of the graph")
-        self._pin_vertex = vertex
+        self._pinned_vertex = vertex
         self._motion_samples = self._pin_origin(self.motion_samples, vertex)[0]
 
     def fix_pair_of_vertices(
