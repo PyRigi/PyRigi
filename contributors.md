@@ -3,6 +3,17 @@
 (M) indicates maintainers
 <!-- start-input -->
 
+## Version 1.0.0 (March 14, 2025)
+
+* Mafalda Dal Cin
+* Angelo El Saliby
+* Matteo Gallet (M)
+* Georg Grasegger (M)
+* Hakan Güler
+* Matthias Himmelmann (M)
+* Jan Legerský (M)
+* András Mihálykó
+
 ## Version 0.4.0 (December 18, 2024)
 
 This version is related to the PyRigi Marathon (November 7, 2024, Linz, Austria).
