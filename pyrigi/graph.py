@@ -19,7 +19,7 @@ import pyrigi._input_check as _input_check
 import pyrigi._pebble_digraph
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.exception import LoopError, NotSupportedValueError
-from pyrigi.misc import generate_category_tables
+from pyrigi.misc import _generate_category_tables
 from pyrigi.misc import _doc_category as doc_category
 from pyrigi.plot_style import PlotStyle
 from pyrigi.warning import RandomizedAlgorithmWarning
@@ -3929,7 +3929,7 @@ class Graph(nx.Graph):
 
 Graph.__doc__ = Graph.__doc__.replace(
     "METHODS",
-    generate_category_tables(
+    _generate_category_tables(
         Graph,
         1,
         [

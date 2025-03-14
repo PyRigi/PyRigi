@@ -28,7 +28,7 @@ from pyrigi.data_type import (
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
-    generate_category_tables,
+    _generate_category_tables,
     is_zero,
     is_zero_vector,
     generate_two_orthonormal_vectors,
@@ -3355,7 +3355,7 @@ class Framework(object):
 
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
-    generate_category_tables(
+    _generate_category_tables(
         Framework,
         1,
         [

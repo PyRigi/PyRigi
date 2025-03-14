@@ -38,7 +38,7 @@ def _doc_category(category):
     return decorator_doc_category
 
 
-def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
+def _generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
     """
     Generate a formatted string that categorizes methods of a given class.
 
