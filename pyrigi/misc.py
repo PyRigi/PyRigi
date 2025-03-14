@@ -250,7 +250,7 @@ def sympy_expr_to_float(
         raise ValueError(f"The expression `{expression}` could not be parsed by sympy.")
 
 
-def normalize_flex(
+def _normalize_flex(
     inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-9
 ) -> InfFlex:
     """

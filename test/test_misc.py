@@ -12,7 +12,7 @@ from pyrigi.misc import (
     generate_two_orthonormal_vectors,
     sympy_expr_to_float,
     is_isomorphic_graph_list,
-    normalize_flex,
+    _normalize_flex,
     vector_distance_pointwise,
     point_to_vector,
     is_zero,
@@ -71,23 +71,23 @@ def test_sympy_expr_to_float():
     assert sympy_expr_to_float("1/4") == 0.25
 
 
-def test_normalize_flex():
-    flex = normalize_flex([1, 0, 1])
+def test__normalize_flex():
+    flex = _normalize_flex([1, 0, 1])
     assert sum(p**2 for p in flex) == 1
-    flex = normalize_flex([1, 0, 1, -2, 3], numerical=True)
+    flex = _normalize_flex([1, 0, 1, -2, 3], numerical=True)
     assert isclose(np.linalg.norm(flex), 1.0)
-    flex = normalize_flex(
+    flex = _normalize_flex(
         {0: [1.0, 0.0], 1: [1.0, -2.5], 2: [pi, np.sqrt(15)]}, numerical=True
     )
     assert isclose(np.linalg.norm(sum([list(val) for val in flex.values()], [])), 1.0)
-    flex = normalize_flex(
+    flex = _normalize_flex(
         {0: (1, 0), 1: (sp.cos(1), sp.sin(2)), 2: (sp.sqrt(5), sp.Rational(1 / 2))}
     )
     assert sp.simplify(sum(sum(p**2 for p in pt) for pt in flex.values())) == 1
 
     with pytest.raises(ValueError):
-        normalize_flex([0])
-        normalize_flex([0], numerical=True)
+        _normalize_flex([0])
+        _normalize_flex([0], numerical=True)
 
 
 def test_vector_distance_pointwise():
