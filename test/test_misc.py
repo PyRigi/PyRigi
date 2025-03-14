@@ -13,7 +13,7 @@ from pyrigi.misc import (
     sympy_expr_to_float,
     is_isomorphic_graph_list,
     _normalize_flex,
-    vector_distance_pointwise,
+    _vector_distance_pointwise,
     point_to_vector,
     is_zero,
 )
@@ -91,22 +91,23 @@ def test__normalize_flex():
 
 
 def test_vector_distance_pointwise():
-    assert is_zero(vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}))
+    assert is_zero(_vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}))
     assert is_zero(
-        vector_distance_pointwise({0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, -1]}) - 2
+        _vector_distance_pointwise({0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, -1]})
+        - 2
     )
     assert isclose(
-        vector_distance_pointwise({0: [1, 1]}, {0: [1, -1]}, numerical=True), 2
+        _vector_distance_pointwise({0: [1, 1]}, {0: [1, -1]}, numerical=True), 2
     )
     assert isclose(
-        vector_distance_pointwise(
+        _vector_distance_pointwise(
             {0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, 1]}, numerical=True
         ),
         math.sqrt(8),
     )
 
     with pytest.raises(ValueError):
-        vector_distance_pointwise({0: [1, 1]}, {1: [1, 1]})
+        _vector_distance_pointwise({0: [1, 1]}, {1: [1, 1]})
 
 
 @pytest.mark.parametrize(

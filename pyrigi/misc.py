@@ -298,7 +298,7 @@ def _normalize_flex(
         raise TypeError("`inf_flex` does not have the correct type.")
 
 
-def vector_distance_pointwise(
+def _vector_distance_pointwise(
     dict1: dict[Vertex, Sequence[Number]],
     dict2: dict[Vertex, Sequence[Number]],
     numerical: bool = False,

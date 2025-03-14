@@ -31,7 +31,7 @@ from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from pyrigi.misc import (
     point_to_vector,
     _normalize_flex,
-    vector_distance_pointwise,
+    _vector_distance_pointwise,
     sympy_expr_to_float,
     is_zero,
 )
@@ -1069,7 +1069,7 @@ class ApproximateMotion(Motion):
             self.motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
-                vector_distance_pointwise(
+                _vector_distance_pointwise(
                     self.motion_samples[-1], self.motion_samples[-2], numerical=True
                 )
                 > self.step_size * 2
@@ -1082,7 +1082,7 @@ class ApproximateMotion(Motion):
                     jump_indicator = [False, False]
                 continue
             elif (
-                vector_distance_pointwise(
+                _vector_distance_pointwise(
                     self.motion_samples[-1], self.motion_samples[-2], numerical=True
                 )
                 < self.step_size / 2
