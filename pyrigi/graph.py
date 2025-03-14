@@ -3508,7 +3508,7 @@ class Graph(nx.Graph):
         return not nx.is_connected(H)
 
     @doc_category("Generic rigidity")
-    def neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
+    def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
         """
         Return the set of neighbors of a set of vertices.
 
@@ -3516,12 +3516,12 @@ class Graph(nx.Graph):
         --------
         >>> import pyrigi.graphDB as graphs
         >>> G = graphs.Complete(5)
-        >>> G.neighbors_of_set([1,2])
+        >>> G._neighbors_of_set([1,2])
         {0, 3, 4}
         >>> G = Graph([[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
-        >>> G.neighbors_of_set([1,2])
+        >>> G._neighbors_of_set([1,2])
         {3, 4}
-        >>> G.neighbors_of_set([3,4])
+        >>> G._neighbors_of_set([3,4])
         {0, 1, 2}
 
         """  # noqa: E501
@@ -3569,7 +3569,7 @@ class Graph(nx.Graph):
 
         for conn_comp in conn_comps:
             H.delete_vertices(conn_comp)
-            K = graphs.Complete(vertices=self.neighbors_of_set(conn_comp))
+            K = graphs.Complete(vertices=self._neighbors_of_set(conn_comp))
             H += K
         return H
 
@@ -3645,7 +3645,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Rigidity Matroid")
-    def Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2) -> list[Edge]:
+    def _Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2) -> list[Edge]:
         """
         Return the fundamental circuit of ``uv`` in the generic ``dim``-rigidity matroid.
 
@@ -3663,16 +3663,16 @@ class Graph(nx.Graph):
         Examples
         --------
         >>> H = Graph([[0, 1], [0, 2], [1, 3], [1, 5], [2, 3], [2, 6], [3, 5], [3, 7], [5, 7], [6, 7], [3, 6]])
-        >>> H.Rd_fundamental_circuit(1, 7)
+        >>> H._Rd_fundamental_circuit(1, 7)
         [[1, 3], [1, 5], [3, 5], [3, 7], [5, 7]]
-        >>> H.Rd_fundamental_circuit(2,5)
+        >>> H._Rd_fundamental_circuit(2,5)
         [[2, 3], [2, 6], [3, 5], [3, 6], [3, 7], [5, 7], [6, 7]]
 
         The following example is the Figure 5 of the article :cite:p:`JordanVillanyi2024`
 
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
         >>> H = G._block_3(0,11)
-        >>> H.Rd_fundamental_circuit(0,11)
+        >>> H._Rd_fundamental_circuit(0,11)
         [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
 
         Suggested Improvements

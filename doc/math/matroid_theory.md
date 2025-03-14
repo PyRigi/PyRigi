@@ -74,8 +74,6 @@ Then the _fundamental circuit_ of $e$ with respect to $I$ is the (unique)
 {prf:ref}`circuit <def-matroid>` contained in $I+e$.
 
 {{references}} {cite:p}`BergJordan2003`
-
-{{pyrigi_crossref}} {meth}`~.Graph.Rd_fundamental_circuit`
 :::
 
 ## Rigidity Matroid
