@@ -872,7 +872,7 @@ class Framework(object):
         """  # noqa: E501
 
         # check dimension
-        if self.dimension != 2:
+        if self.dim != 2:
             raise ValueError(
                 "TikZ code is only generated for frameworks in dimension 2."
             )
@@ -3341,9 +3341,9 @@ class Framework(object):
         Check whether a point has the right dimension and
         raise an error otherwise.
         """
-        if not len(point) == self.dimension:
+        if not len(point) == self.dim:
             raise ValueError(
-                f"The point {point} does not have the dimension {self.dimension}!"
+                f"The point {point} does not have the dimension {self.dim}!"
             )
 
 

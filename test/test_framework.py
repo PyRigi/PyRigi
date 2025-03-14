@@ -423,7 +423,7 @@ def test_is_not_redundantly_inf_rigid(framework):
 
 
 def test_dimension():
-    assert fws.Complete(2, 2).dim == fws.Complete(2, 2).dimension
+    assert fws.Complete(2, 2).dim == fws.Complete(2, 2).dim
     assert fws.Complete(2, 2).dim == 2
     assert Framework.Empty(dim=3).dim == 3
 
