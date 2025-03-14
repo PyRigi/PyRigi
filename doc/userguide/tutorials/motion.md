@@ -83,13 +83,17 @@ motion.animate(animation_format="matplotlib")
 
 However, a parametric motion is not always available. If you still want to get an
 intuition for how a deformation path looks, it can be numerically approximated using
-the class {class}`~.ApproximateMotion`. As an example, consider the complete bipartite graph $K_{4,2}$.
+the class {class}`~.ApproximateMotion`. 
+Since a numerical algorithm is used for creating the motion, a {class}`~.warning.NumericalAlgorithmWarning`
+is thrown. It can be turned off using the command ``ApproximateMotion.silence_numerical_alg_warns=True``.
+As an example, consider the complete bipartite graph $K_{4,2}$.
 A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 
 ```{code-cell} ipython3
 %%skip_execution
 from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
+ApproximateMotion.silence_numerical_alg_warns=True
 F = frameworks.CompleteBipartite(2,4)
 motion = ApproximateMotion(F, 393, chosen_flex=0, step_size=0.15)
 motion.animate()
