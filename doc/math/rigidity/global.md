@@ -146,8 +146,6 @@ A pair $\{u,v\}$ is _weakly globally linked in $G$_ in $\RR^d$ (or _weakly globa
 a $d$-dimensional {prf:ref}`generic framework <def-gen-realization>` $(G,p)$ in which $\{u,v\}$
 is {prf:ref}`globally linked <def-globally-linked-p>`.
 
-If $\{u,v\}$ is not weakly globally $d$-linked in $G$, then it is called _globally loose in $G$_.
-
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
 
