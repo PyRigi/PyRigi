@@ -57,7 +57,7 @@ the relation $k_{min}(G,d) \geq d+1$ holds.
 :label: def-has-min-stress-kernel
 
 A graph $G$ is said to have
-a _minimal {prf:ref}`stress kernel <def-stress-kernel>` in $\mathbb{R}^d$_
+a _minimal {prf:ref}`stress kernel <def-stress-kernel>` in $\RR^d$_
 if $k_{min}(G,d) = d+1$.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
@@ -67,7 +67,7 @@ if $k_{min}(G,d) = d+1$.
 :label: thm-k-min-stress-matrix
 
 If a graph $G$ with $d+2$ or more vertices has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\mathbb{R}^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $p$ of $G$ are globally $d$-rigid.
+in $\RR^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $p$ of $G$ are globally $d$-rigid.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
@@ -78,7 +78,7 @@ The converse of this theorem is the following one:
 :label: thm-inverse-k-min-stress-matrix
 
 If a graph $G$ with $d+2$ or more vertices does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\mathbb{R}^d$, then any {prf:ref}`generic framework <def-gen-realization>` $p$ of $G$ is not globally $d$-rigid.
+in $\RR^d$, then any {prf:ref}`generic framework <def-gen-realization>` $p$ of $G$ in $\RR^d$ is not globally $d$-rigid.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
@@ -87,12 +87,12 @@ The following randomized algorithm from {cite:p}`GortlerHealyThurston2010` check
 
 :::{prf:algorithm}
 :label: alg-randomized-globally-rigid
-**Input:** A graph $G$ with at least $d + 2$ vertices and a dimension $d$
+**Input:** A natural number $d$ and a graph $G = (V, E)$ with at least $d + 2$ vertices
 
-**Output:** A statement on whether $G$ is globally $d$-rigid, `True` or `False`
+**Output:** `True` or `False`, whether or not $G$ is globally $d$-rigid
 
-Let $n$ be the number of vertices, $m$ be the number of edges,
-$t = n\cdot d - \binom{d+1}{2}$ and $N = A\cdot n\cdot \binom{n}{2} +2$, where $A$ is some constant.
+Let $n = |V|$ and $m = |E|$, let
+$t = n\cdot d - \binom{d+1}{2}$, and $N = A \cdot n\cdot \binom{n}{2} +2$, where $A$ is some constant.
 
 1. If $m < t$, output `False` (as the graph cannot even be generically $d$-rigid with so few edges), otherwise continue.
 2. Pick a framework with integer coordinates randomly chosen from 1 to $N$.
@@ -190,7 +190,7 @@ in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p
 :::{prf:lemma}
 :label: lem-linked-pair-rigid-component
 
-A pair $\{u, v\}$ is {prf:ref}`linked <def-linked-pair>` in $G$ if and only if
+A pair $\{u, v\}$ is $d$-{prf:ref}`linked <def-linked-pair>` in $G$ if and only if
 there exists a {prf:ref}`rigid component <def-rigid-components>` of $G$ containing
 $u$ and $v$.
 
@@ -212,7 +212,7 @@ such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`fundamental circuit <def-fund
 :::{prf:definition} augmented graph
 :label: def-augmented-graph
 
-Given a graph $G$ its _augmented graph_ is the graph obtained from $G$
+Given a graph $G$, its _augmented graph_ is the graph obtained from $G$
 by adding an edge between every {prf:ref}`separating pair <def-separating-set>` of $G$.
 :::
 
