@@ -9,7 +9,7 @@ import sympy as sp
 from pyrigi.graph import Graph
 from pyrigi.misc import (
     is_zero_vector,
-    generate_two_orthonormal_vectors,
+    _generate_two_orthonormal_vectors,
     sympy_expr_to_float,
     is_isomorphic_graph_list,
     _normalize_flex,
@@ -47,9 +47,9 @@ def test_is_zero_vector():
     assert not is_zero_vector(V6, numerical=True, tolerance=1e-9)
 
 
-def test_generate_two_orthonormal_vectors():
+def test__generate_two_orthonormal_vectors():
     for _ in range(15):
-        m = generate_two_orthonormal_vectors(randint(2, 10))
+        m = _generate_two_orthonormal_vectors(randint(2, 10))
         assert abs(np.dot(m[:, 0], m[:, 1])) < 1e-9
         assert abs(np.linalg.norm(m[:, 0])) - 1 < 1e-9
         assert abs(np.linalg.norm(m[:, 1])) - 1 < 1e-9

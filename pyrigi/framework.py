@@ -31,8 +31,8 @@ from pyrigi.misc import (
     _generate_category_tables,
     is_zero,
     is_zero_vector,
-    generate_two_orthonormal_vectors,
-    generate_three_orthonormal_vectors,
+    _generate_two_orthonormal_vectors,
+    _generate_three_orthonormal_vectors,
     sympy_expr_to_float,
     point_to_vector,
     _null_space,
@@ -2697,11 +2697,11 @@ class Framework(object):
 
         if projection_matrix is None:
             if proj_dim == 2:
-                projection_matrix = generate_two_orthonormal_vectors(
+                projection_matrix = _generate_two_orthonormal_vectors(
                     self._dim, random_seed=random_seed
                 )
             elif proj_dim == 3:
-                projection_matrix = generate_three_orthonormal_vectors(
+                projection_matrix = _generate_three_orthonormal_vectors(
                     self._dim, random_seed=random_seed
                 )
             else:

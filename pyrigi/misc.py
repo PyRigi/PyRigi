@@ -89,7 +89,7 @@ def _generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> s
     return ("\n" + indent).join(res.splitlines())
 
 
-def generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
+def _generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
     """
     Generate two random numeric orthonormal vectors in the given dimension.
 
@@ -126,7 +126,7 @@ def generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matri
     return matrix
 
 
-def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
+def _generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
     """
     Generate three random numeric orthonormal vectors in the given dimension.
 
