@@ -8,10 +8,10 @@ The framework $(G, p)$ is called
 
 * _redundantly (infinitesimally) $d$-rigid_ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
 * _vertex redundantly (infinitesimally) $d$-rigid_ if removing any vertex from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
-* _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ edges from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
-* _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of $k$ vertices from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`.
+* _$k$-redundantly (infinitesimally) $d$-rigid_ if removing any set of at most $k$ edges from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`;
+* _$k$-vertex redundantly (infinitesimally) $d$-rigid_ if removing any set of at most $k$ vertices from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigid-framework>`) {prf:ref}`rigid framework <def-cont-rigid-framework>`.
 
-{{pyrigi_crossref}} {meth}`~.Framework.is_redundantly_rigid`
+{{pyrigi_crossref}} {meth}`~.Framework.is_redundantly_inf_rigid`
 :::
 
 :::{prf:definition} Redundantly generically rigid graphs
@@ -55,6 +55,25 @@ Note, that the word generically is often omitted when talking about graphs.
 
 ## (Edge) Redundancy
 :::{prf:theorem}
+:label: thm-red-min-deg
+
+Let $G = (V, E)$ be a {prf:ref}`k-redundantly d-rigid <def-redundantly-rigid-graph>` graph with at least $d+k+1$ vertices,
+then the minimum degree of $G$ is at least $d+k$.
+
+{{references}} {cite:p}`Jordan2021{Lem 2}`
+:::
+
+
+:::{prf:theorem}
+:label: thm-redundant-edge-subset
+
+A graph $G = (V, E)$ is {prf:ref}`k-redundantly d-rigid <def-redundantly-rigid-graph>` if and only if the removal of any set of $k$ edges yields a $d$-rigid graph.
+
+{{references}} {cite:p}`YuAnderson2009{Obs 1}`
+:::
+
+
+:::{prf:theorem}
 :label: thm-k-edge-redundant-edge-bound-dim2
 
 Let $G = (V, E)$ be a {prf:ref}`k-redundantly 2-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq 6 (k + 1) + 23$ and let $k \geq 3$. Then
@@ -86,7 +105,7 @@ Let $G = (V, E)$ be a {prf:ref}`2-redundantly 3-rigid <def-redundantly-rigid-gra
   |E| \geq 3 |V| - 4 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Thm 4.5}`
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 4.5}`
 :::
 
 
@@ -98,7 +117,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-redundantly 3-rigid <def-redundantly-rigid-gra
   |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Thm 4.9}`
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 4.9}`
 :::
 
 
@@ -116,6 +135,25 @@ Let $G = (V, E)$ be a {prf:ref}`minimally 1-redundantly 2-rigid <def-redundantly
 
 ## Vertex Redundancy
 :::{prf:theorem}
+:label: thm-vertex-red-min-deg
+
+Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-rigid-graph>` graph with at least $d+k+1$ vertices,
+then the minimum degree of $G$ is at least $d+k$.
+
+{{references}} {cite:p}`Jordan2021{Lem 2}`
+:::
+
+:::{prf:theorem}
+:label: thm-redundant-vertex-subset
+
+Let $G = (V, E)$ be a graph with at least $k+2$ vertices.
+Then $G$ is {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-rigid-graph>` if and only if the removal of any set of $k$ vertices yields a $d$-rigid graph.
+
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Lem 1}`
+{cite:p}`YuAnderson2009{Obs 6}`
+:::
+
+:::{prf:theorem}
 :label: thm-k-vertex-redundant-edge-bound-general
 
 Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-rigid-graph>` graph with $|V|\geq d^2+d+k+1$. Then
@@ -123,7 +161,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-ri
   |E| \geq d |V| - \binom{d + 1}{2} + k d + max \left\{ 0, \left\lceil k - \frac{d + 1}{2} \right\rceil \right\} \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 5}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 5}`
 :::
 
 
@@ -135,7 +173,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-ri
   |E| \geq \left\lceil \frac{d + k}{2} |V| \right\rceil \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 6}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 6}`
 :::
 
 
@@ -148,7 +186,7 @@ Let $G = (V, E)$ be a {prf:ref}`1-vertex-redundantly 2-rigid <def-redundantly-ri
 \end{equation*}
 
 {{references}} {cite:p}`Servatius1989`
-{cite:p}`Summers2008{Lem 1}`
+{cite:p}`SummersYuAnderson2008{Lem 1}`
 :::
 
 
@@ -160,7 +198,7 @@ Let $G = (V, E)$ be a {prf:ref}`2-vertex-redundantly 2-rigid <def-redundantly-ri
   |E| \geq 2 |V| + 2 \,.
 \end{equation*}
 
-{{references}} {cite:p}`AlirezaMotevallian2014{Lem 4.9}`
+{{references}} {cite:p}`MotevallianYuAnderson2014{Lem 4.9}`
 :::
 
 
@@ -184,7 +222,7 @@ Let $G = (V, E)$ be a {prf:ref}`3-vertex-redundantly 3-rigid <def-redundantly-ri
   |E| \geq 3 |V| + 5 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Lem 2.12}`
+{{references}} {cite:p}`JordanPostonRoach2022{Lem 2.12}`
 :::
 
 
@@ -196,7 +234,7 @@ Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly 3-rigid <def-redundantly-ri
   |E| \geq \left\lceil \frac{k + 3}{2} |V| \right\rceil \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2022{Thm 3.3}`
+{{references}} {cite:p}`JordanPostonRoach2022{Thm 3.3}`
 :::
 
 
@@ -208,7 +246,7 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly d-rigid <def-redu
   |E| \leq (d + k) |V| - \binom{d + k + 1}{2} \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 7}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 7}`
 :::
 
 
@@ -220,6 +258,15 @@ Let $G = (V, E)$ be a {prf:ref}`minimally k-vertex-redundantly 1-rigid <def-redu
   |E| \leq (k + 1) |V| - (k + 1)^2 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Kaszanitzky2015{Thm 8}`
+{{references}} {cite:p}`KaszanitzkyKiraly2015{Thm 8}`
 :::
 
+
+:::{prf:theorem}
+:label: thm-vertex-implies_edge
+
+Let $G = (V, E)$ be a {prf:ref}`k-vertex-redundantly d-rigid <def-redundantly-rigid-graph>` graph with at least $d+k+1$ vertices,
+then $G$ is {prf:ref}`k-redundantly d-rigid <def-redundantly-rigid-graph>`.
+
+{{references}} {cite:p}`Jordan2021{Thm 1}`
+:::

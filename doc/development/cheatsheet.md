@@ -1,3 +1,4 @@
+(cheatsheet)=
 # Cheatsheet
 
 While `monospace` is done using `` `monospace` `` in MyST,
@@ -18,9 +19,9 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 :delim: ;
 `` {prf:ref}`def-framework` ``; {prf:ref}`def-framework`
 `` {prf:ref}`Framework <def-framework>` ``; {prf:ref}`Framework <def-framework>`
-`` {cite:p}`Geiringer1927` ``; {cite:p}`Geiringer1927`
+`` {cite:p}`PollaczekGeiringer1927` ``; {cite:p}`PollaczekGeiringer1927`
 `` {cite:p}`Laman1970{Thm 5.6}` ``; {cite:p}`Laman1970{Thm 5.6}`
-`` {cite:p}`Geiringer1927,Laman1970` ``; {cite:p}`Geiringer1927,Laman1970` 
+`` {cite:p}`PollaczekGeiringer1927,Laman1970` ``; {cite:p}`PollaczekGeiringer1927,Laman1970` 
 :::
 ::::
 
@@ -31,9 +32,9 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 :delim: ;
 `` :prf:ref:`def-framework` `` ; {prf:ref}`def-framework`
 `` :prf:ref:`Framework <def-framework>` `` ; {prf:ref}`Framework <def-framework>`
-`` :cite:p:`Geiringer1927` `` ; {cite:p}`Geiringer1927`
+`` :cite:p:`PollaczekGeiringer1927` `` ; {cite:p}`PollaczekGeiringer1927`
 `` :cite:p:`Laman1970{Thm 5.6}` ``; {cite:p}`Laman1970{Thm 5.6}`
-`` :cite:p:`Geiringer1927,Laman1970` ``; {cite:p}`Geiringer1927,Laman1970` 
+`` :cite:p:`PollaczekGeiringer1927,Laman1970` ``; {cite:p}`PollaczekGeiringer1927,Laman1970` 
 :::
 ::::
 
@@ -127,7 +128,7 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 {meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 % list of related references, no separating commas
 :::
 ````
@@ -146,7 +147,7 @@ Inline math can be used: $\omega\colon S_0 \rightarrow \RR^{d-1}$, and also disp
 {meth}`~.Framework.realization`
 % list of related objects, methods,..., no separating commas
 
-{{references}} {cite:p}`Lee2008`
+{{references}} {cite:p}`LeeStreinu2008`
 % list of related references, no separating commas
 :::
 

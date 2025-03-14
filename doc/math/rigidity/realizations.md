@@ -29,7 +29,7 @@ We define $f_{G,d}\colon (\CC^d)^V \rightarrow \CC^E$ by $p\mapsto \left(\frac{1
 :::{prf:definition} Realization Space
 :label: def-complex-realizations-space
 
-Let $G=(V,E)$ be a rigid graph and $p$ a complex realization, $p\in(\CC^d)^V$.
+Let $G=(V,E)$ be a $d$-rigid graph and $p$ a complex realization, $p\in(\CC^d)^V$.
 We define $C_d(G,p):=f^{-1}_{G,d}(f_{G,d}(p))/_\sim$ to be the _complex realization space_, where $\sim$ denotes the congruence of complex realizations.
 :::
 
@@ -49,7 +49,7 @@ We define the _number of complex realizations_ by $c_d(G)$, where
 {{pyrigi_crossref}} {meth}`~.Graph.number_of_realizations()`
 :::
 
-The implemented combinatorial algorithm for computing $2\cdot c_2(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`CapcoGalletGraseggerEtAl2018`.
+The implemented combinatorial algorithm for computing $2\cdot c_2(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`CapcoGalletEtAl2018`.
 Note that this algorithm does count reflections to be different realizations, while here we do not.
 
 ## Complex Sphere
@@ -77,7 +77,7 @@ We define $s_{G,d}\colon (\mathbb{S}_{\CC}^d)^V \rightarrow \CC^E$ by $p\mapsto 
 :::{prf:definition} Spherical Realization Space
 :label: def-complex-spherical-realizations-space
 
-Let $G=(V,E)$ be a rigid graph and $p$ a complex spherical realization, $p\in(\mathbb{S}_{\CC}^d)^V$.
+Let $G=(V,E)$ be a $d$-rigid graph and $p$ a complex spherical realization, $p\in(\mathbb{S}_{\CC}^d)^V$.
 We define $C_d^{\circ}(G,p):=s^{-1}_{G,d}(s_{G,d}(p))/_\sim$ to be the _complex spherical realization space_, where $\sim$ denotes the congruence of complex spherical realizations.
 :::
 

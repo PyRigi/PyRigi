@@ -22,7 +22,7 @@ The _rigidity matrix_ $R(G, p)$ of $(G, p)$ is the $|E| \times d|V|$ matrix whos
 :label: def-inf-flex
 
 Let $(G, p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` with $G = (V, E)$.
-An _infinitesimal flex_ of $(G, p)$ is a collection $(q_v)_{v \in V}$ of elements in $\RR^n$ such that
+An _infinitesimal flex_ of $(G, p)$ is a collection $(q_v)_{v \in V}$ of elements in $\RR^d$ such that
 
 \begin{equation*}
  (p_u - p_v) \cdot (q_u - q_v) = 0
@@ -123,7 +123,7 @@ if removing any edge from $G$ yields an ({prf:ref}`infinitesimally <def-inf-rigi
 :label: def-equilibrium-stress
 
 Let $(G,p)$ be a $d$-dimensional {prf:ref}`framework <def-framework>` with $G=(V,E)$.
-An _equilibrium stress_ of $(G,p)$ is a map $\omega\colon E\rightarrow \RR$ such that for every $v\in V$
+An _equilibrium stress_ (or just a _stress_) of $(G,p)$ is a map $\omega\colon E\rightarrow \RR$ such that for every $v\in V$
 \begin{equation*}
  \sum_{vw\in E}\omega(vw)(p(v)-p(w)) = 0.
 \end{equation*}
@@ -142,9 +142,9 @@ A _stress matrix_ of $(G,\omega)$ is the $|V|\times|V|$ matrix $\Omega(G,\omega)
 $$
 \Omega(G,\omega)_{(v,w)} :=
 \begin{cases}
- \sum_{vw\in E}\omega(vw) & \mbox{if $v=w$}\\
- -\omega(vw) & \mbox{if $vw\in E$ and $v\neq w$}\\
- 0 & \mbox{otherwise}
+ \sum_{vw\in E}\omega(vw) & \text{if $v=w$},\\
+ -\omega(vw) & \text{if $vw\in E$ and $v\neq w$},\\
+ 0 & \text{otherwise}.
 \end{cases}
 $$
 

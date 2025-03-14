@@ -16,6 +16,8 @@ import os
 import sys
 
 from sphinx.application import Sphinx
+from pyrigi import Graph, Framework
+import pyrigi._input_check as _input_check
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -26,9 +28,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "0.4"
+version = "1.0"
 # The full version, including alpha/beta/rc tags
-release = "0.4.0"
+release = "1.0.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -51,6 +53,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
     "sphinx_proof",
     "myst_nb",
     "sphinxcontrib.bibtex",
@@ -59,6 +62,9 @@ extensions = [
     "sphinx_design",
     "sphinx_tippy",
 ]
+coverage_modules = ["pyrigi"]
+coverage_statistics_to_stdout = True
+coverage_show_missing_items = True
 
 bibtex_bibfiles = ["refs.bib"]
 
@@ -80,13 +86,17 @@ napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_preprocess_types = True
-napoleon_custom_sections = ["Definitions", "Methods"]
+napoleon_custom_sections = ["Definitions", "Methods", "Suggested Improvements"]
 
 autodoc_type_aliases = {
-    "Vertex": "Vertex",
-    "Edge": "Edge",
-    "Point": "Point",
-    "Coordinate": "Coordinate",
+    "Vertex": ":type:`~pyrigi.data_type.Vertex`",
+    "Edge": ":type:`~pyrigi.data_type.Edge`",
+    "DirectedEdge": ":type:`~pyrigi.data_type.DirectedEdge`",
+    "Point": ":type:`~pyrigi.data_type.Point`",
+    "Number": ":type:`~pyrigi.data_type.Number`",
+    "Stress": ":type:`~pyrigi.data_type.Stress`",
+    "InfFlex": ":type:`~pyrigi.data_type.InfFlex`",
+    "Inf": ":type:`~pyrigi.data_type.Inf`",
 }
 napoleon_attr_annotations = True
 
@@ -122,6 +132,9 @@ myst_substitutions = {
 myst_heading_anchors = 3
 
 nb_execution_mode = "cache"
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
+nb_execution_timeout = 120
 
 tippy_enable_mathjax = True
 tippy_props = {
@@ -204,7 +217,6 @@ html_theme_options = {
     "sidebar_hide_name": False,
     "light_logo": "logo_nofont.png",
     "dark_logo": "logo_nofont_dark.png",
-    "announcement": "<em>The package has not reached a stable version yet!</em>",
     "footer_icons": [
         {
             "name": "GitHub",
@@ -223,7 +235,7 @@ html_theme_options = {
     "source_directory": "doc/",
 }
 
-html_title = "PyRigi"
+html_title = "PyRigi " + version
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -347,3 +359,35 @@ def setup(app: Sphinx):
     from myst_parser._docs import MystLexer
 
     app.add_lexer("myst", MystLexer)
+
+
+input_check_str = ""
+for cls in [Graph, Framework]:
+    methods = [
+        method
+        for method in dir(cls)
+        if method.startswith("_input_check_") and callable(getattr(cls, method))
+    ]
+    input_check_str += (
+        f"""
+Input check methods of {cls.__name__}
+======================={''.join(["=" for _ in range(len(cls.__name__))])}
+
+.. automethod:: {cls.__module__}.{cls.__name__}."""
+        + f"""
+
+.. automethod:: {cls.__module__}.{cls.__name__}.""".join(
+            methods
+        )
+        + "\n\n"
+    )
+
+input_check_str += """
+
+General input check methods
+===========================
+
+
+"""
+
+_input_check.__doc__ = input_check_str

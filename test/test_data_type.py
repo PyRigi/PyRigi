@@ -1,12 +1,12 @@
-from pyrigi.data_type import point_to_vector
-
+import numpy as np
 import pytest
 from sympy import Matrix, sqrt, Rational
-import numpy as np
+
+from pyrigi.misc import point_to_vector
 
 
 @pytest.mark.parametrize(
-    "input, output",
+    "input_vect, output",
     [
         [[1, 2, 3], Matrix([1, 2, 3])],
         [(1, 2, 3), Matrix([1, 2, 3])],
@@ -17,11 +17,11 @@ import numpy as np
         [np.array([[1.5234, 0.123]]), Matrix([1.5234, 0.123])],
     ],
 )
-def test_point_to_vector(input, output):
-    assert point_to_vector(input) == output
+def test_point_to_vector(input_vect, output):
+    assert point_to_vector(input_vect) == output
 
 
-def test_point_to_vector_errors():
+def test_point_to_vector_error():
     with pytest.raises(TypeError):
         point_to_vector("12mkcd")
     with pytest.raises(TypeError):

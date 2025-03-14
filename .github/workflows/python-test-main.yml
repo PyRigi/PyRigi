@@ -21,18 +21,31 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install poetry
       run: pipx install poetry
-    - name: Set up Python 3.10
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: "3.11"
     - name: Install dependencies
-      run: poetry install --without doc  --all-extras
+      run: poetry install --all-extras
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         poetry run flake8 . --count --show-source --statistics
     - name: Test with pytest
       run: |
-        poetry run pytest --doctest-modules -m 'not slow_main or slow_main'
-        # --doctes-modules overrides the default --doctest-plus
-
+        poetry run pytest --doctest-modules -m 'not long_local'
+        # --doctest-modules overrides the default --doctest-plus
+    - name: Remove skip-execution cell magic and convert notebooks from md to ipynb
+      run: |
+        python3 doc/remove_skip_execution_magic.py
+        cd doc/userguide/tutorials/
+        poetry run jupytext --to notebook  *.md
+        mkdir  --verbose ../../notebooks
+        cp --verbose *.ipynb ../../notebooks
+        cd ..
+        poetry run jupytext --to notebook  getting_started.md
+        cp --verbose getting_started.ipynb ../notebooks
+    - name: Test doc compilation
+      run: |
+        cd doc
+        poetry run make SPHINXOPTS=--fail-on-warning html
