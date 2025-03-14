@@ -83,7 +83,7 @@ It is {prf:ref}`second-order rigid <def-second-order-rigid>`,
 but not {prf:ref}`prestress stable <def-prestress-stability>`.
 {{references}} {cite:p}`ConnellyWhiteley1996{Exm 5.3.1}`
 
-{{pyrigi_crossref}} {func}`~.frameworkDB.ConnellyExampleSecondOrderRigidity`
+{{pyrigi_crossref}} {func}`~.frameworkDB.SecondOrderRigid`
 :::
 
 Checking prestress stability and second-order rigidity is generally computationally hard. In the case where

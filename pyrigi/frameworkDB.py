@@ -424,7 +424,7 @@ def CnSymmetricWithFixedVertex(n: int = 8) -> Framework:
     )
 
 
-def ConnellyExampleSecondOrderRigidity() -> Framework:
+def SecondOrderRigid() -> Framework:
     """
     Return an example by Connelly.
 
