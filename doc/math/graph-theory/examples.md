@@ -70,8 +70,8 @@ given by the rotation of the outer polygon while the inner polygon remains
 fixed. This infinitesimal flex does not extend to a 
 {prf:ref}`continuous flex <def-motion>`.
 
-{{pyrigi_crossref}} {func}`.graphDB.Frustum`
-{func}`.frameworkDB.Frustum`
+{{pyrigi_crossref}} {func}`~pyrigi.graphDB.Frustum`
+{func}`~pyrigi.frameworkDB.Frustum`
 :::
 
 
@@ -122,8 +122,8 @@ $m$ which satisfies the system of equations
 \end{equation*}
 where $1\leq i\leq n$.
 
-{{pyrigi_crossref}} {func}`~.graphDB.CnSymmetricFourRegular`
-{func}`~.frameworkDB.CnSymmetricFourRegular`
+{{pyrigi_crossref}} {func}`~pyrigi.graphDB.CnSymmetricFourRegular`
+{func}`~pyrigi.frameworkDB.CnSymmetricFourRegular`
 
 {{references}} {cite:p}`LaPortaSchulze2024`
 :::
@@ -155,8 +155,8 @@ from the previous example extends to a nontrivial infinitesimal
 motion of the new framework $(G_n,p)$ which rotates the two 
 $n/2$-gons clockwise and anti-clockwise, respectively.
 
-{{pyrigi_crossref}} {func}`~.graphDB.CnSymmetricFourRegularWithFixedVertex`
-{func}`~.frameworkDB.CnSymmetricFourRegularWithFixedVertex`
+{{pyrigi_crossref}} {func}`~pyrigi.graphDB.CnSymmetricWithFixedVertex`
+{func}`~pyrigi.frameworkDB.CnSymmetricWithFixedVertex`
 
 {{references}} {cite:p}`LaPortaSchulze2024`
 :::
