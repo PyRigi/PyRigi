@@ -78,7 +78,7 @@ The converse of this theorem is the following one:
 :label: thm-inverse-k-min-stress-matrix
 
 If a graph $G$ with $d+2$ or more vertices does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\RR^d$, then any {prf:ref}`generic framework <def-gen-realization>` $p$ of $G$ in $\RR^d$ is not globally $d$-rigid.
+in $\RR^d$, then any $d$-{prf:ref}`dimensional generic framework <def-gen-realization>` $p$ of $G$ is not globally $d$-rigid.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
 :::
@@ -155,7 +155,7 @@ If $\{u,v\}$ is not weakly globally $d$-linked in $G$, then it is called _global
 :::{prf:theorem}
 :label: thm-weakly-globally-linked-globally-rigid-graph
 
-A graph $G$ is {prf:ref}`globally rigid <def-globally-rigid-graph>` in $\RR^d$ if and only if every pair of
+A graph $G$ is {prf:ref}`globally d-rigid <def-globally-rigid-graph>` if and only if every pair of
 vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
 {{references}} {cite:p}`JordanVillanyi2024`
