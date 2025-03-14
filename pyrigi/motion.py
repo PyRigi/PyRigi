@@ -610,8 +610,8 @@ class Motion(object):
         Animate the continuous motion.
 
         The motion can be animated only if its dimension is less than 3.
-        This method calls :meth:`.Motion.animate2D`` or
-        :meth:`.Framework.animate3D`.
+        This method calls :meth:`.animate2D` or
+        :meth:`.animate3D`.
         For various formatting options, see :class:`.PlotStyle`.
 
         Parameters
@@ -873,7 +873,7 @@ class ApproximateMotion(Motion):
         The step size of each retraction step. If the output seems too jumpy or instable,
         consider reducing the step size.
     chosen_flex:
-        An integer indicating the ``i``-th flex from the list of :meth:`Framework.inf_flexes`
+        An integer indicating the ``i``-th flex from the list of :meth:`.Framework.inf_flexes`
         for ``i=chosen_flex``.
     tolerance:
         Tolerance for the Newton iteration.
@@ -887,13 +887,6 @@ class ApproximateMotion(Motion):
     pin_vertex:
         If the keyword ``fixed_pair`` is not set, we can use the keyword ``pin_vertex``
         to pin one of the vertices to the origin instead during the motion.
-
-    Attributes
-    ----------
-    edge_lengths:
-        The edge lengths that ought to be preserved.
-    motion_samples:
-        A list of numerical configurations on the configuration space.
 
     Examples
     --------
@@ -978,7 +971,7 @@ class ApproximateMotion(Motion):
         pin_vertex: Vertex = None,
     ) -> Motion:
         """
-        Instantiate an ``ApproximateMotion`` from a graph with a realization.
+        Create an instance from a graph with a realization.
         """
         if not len(realization) == G.number_of_nodes():
             raise ValueError(

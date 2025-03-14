@@ -9,7 +9,7 @@ from collections.abc import Callable
 
 class LoopError(ValueError):
     """
-    Error raised when the graph is not loop-free.
+    Error raised when a graph is not loop-free.
     """
 
     def __init__(self, msg: str = "The graph needs to be loop-free.", *args, **kwargs):

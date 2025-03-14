@@ -71,6 +71,64 @@ is called a $d$-dimensional _k-extension_ of $G$.
 :::
 
 
+## Connectivity
+
+:::{prf:definition} connected
+:label: def-connected
+
+In a graph $G$, two vertices $u$ and $v$ are called
+_connected_ if $G$ contains a path from $u$ to $v$.
+A graph $G$ is said to be _connected_ if every pair of
+vertices in the graph is connected.
+
+:::
+
+:::{prf:definition} k-connected
+:label: def-k-connected
+
+Let $k\in\NN$ and $k\geq 1$. A graph $G$ is _$k$-(vertex-)connected_ if it has
+at least $k+1$ vertices and it remains {prf:ref}`connected <def-connected>`
+when at most $k-1$ vertices are removed. In case $k=2$ it is called
+_biconnected_, and in case $k=3$ it is called _triconnected_.
+
+Given a graph $G$, a _$k$-(vertex)-connected component_ of $G$ is a
+$k$-connected subgraph of $G$ that is not strictly contained in any
+other $k$-connected subgraph of $G$.
+
+:::
+
+
+:::{prf:definition} local connectivity
+:label: def-kappa-G-u-v
+
+Let $G = (V,E)$ be a graph and $u,v\in V$, we use
+_$\kappa_G(u,v)$_ to denote the _local connectivity of $u,v$_, which is
+the maximum number of pairwise internally disjoint paths from $u$ to $v$ in $G$,
+where two paths are internally disjoint if they do not share any edge.
+
+{{references}} {cite:p}`JordanVillanyi2024`
+:::
+
+
+:::{prf:definition} separating set
+:label: def-separating-set
+
+The set $U\subset V$ is called a _separating set_ if
+$G-U$ is not {prf:ref}`connected <def-connected>`.
+
+In particular, if $U = \{u,v\}$ then U is called a _separating pair_.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_separating_set`
+:::
+
+
+:::{prf:definition} clique
+:label: def-clique
+
+A _clique_ of a graph $G$ is an induced subgraph of $G$ that is complete.
+
+:::
+
 ## Coning
 
 :::{prf:definition} Cone graph

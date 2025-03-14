@@ -38,18 +38,19 @@ whose length is the dimension of its affine space.
 
 InfFlex: TypeAlias = Sequence[Number] | dict[Vertex, Sequence[Number]]
 """
-Given a framework in dimension `dim` with `n` vertices, an infinitesimal flex is either
-given by a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`
-whose length is `dim*n` or by a dictionary from the set of vertices
+Given a framework in dimension ``dim`` with ``n`` vertices,
+an infinitesimal flex is either given by a :obj:`~collections.abc.Sequence`
+of :obj:`Numbers <pyrigi.data_type.Number>`
+whose length is ``dim*n`` or by a dictionary from the set of vertices
 to a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`
-of length `dim`.
+of length ``dim``.
 """
 
 Stress: TypeAlias = Sequence[Number] | dict[Edge, Number]
 """
-Given a framework in dimension with `m` edges, an equilibrium stress is either
+Given a framework with ``m`` edges, an equilibrium stress is either
 given by a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`
-whose length is `m` or by a dictionary from the set of edges
+whose length is ``m`` or by a dictionary from the set of edges
 to a :obj:`~collections.abc.Sequence` of :obj:`Numbers <pyrigi.data_type.Number>`.
 """
 

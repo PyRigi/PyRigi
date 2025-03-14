@@ -1,5 +1,5 @@
 """
-Module for defining styles for plotting.
+This module provides classes for defining style of plots.
 """
 
 from collections.abc import Sequence
@@ -460,12 +460,12 @@ class PlotStyle2D(PlotStyle):
     @classmethod
     def from_plot_style(cls, plot_style: PlotStyle) -> PlotStyle:
         """
-        Construct an instance of ``PlotStyle2D`` from a given instance of ``PlotStyle``.
+        Construct an instance from a given instance of :class:`.PlotStyle`.
 
         Parameters
         ----------
         plot_style:
-            A :obj:`.PlotStyle` instance to copy attributes from.
+            A :class:`.PlotStyle` instance to copy attributes from.
         """
         return cls(**{key[1:]: val for key, val in plot_style.__dict__.items()})
 
@@ -540,11 +540,11 @@ class PlotStyle3D(PlotStyle):
     @classmethod
     def from_plot_style(cls, plot_style: PlotStyle) -> PlotStyle:
         """
-        Construct an instance of ``PlotStyle3D`` from a given instance of ``PlotStyle``.
+        Construct an instance from a given instance of :class:`.PlotStyle`.
 
         Parameters
         ----------
         plot_style:
-            A :obj:`.PlotStyle` instance to copy attributes from.
+            A :class:`.PlotStyle` instance to copy attributes from.
         """
         return cls(**{key[1:]: val for key, val in plot_style.__dict__.items()})

@@ -1,15 +1,5 @@
 """
-
 Module for the functionality concerning frameworks.
-
-.. currentmodule:: pyrigi.framework
-
-Classes:
-
-.. autosummary::
-
-    Framework
-
 """
 
 from __future__ import annotations
@@ -75,7 +65,7 @@ class Framework(object):
         A dictionary mapping the vertices of the graph to points in $\RR^d$.
         The dimension $d$ is retrieved from the points in realization.
         If ``graph`` is empty, and hence also the ``realization``,
-        the dimension is set to 0 (:meth:`Framework.Empty`
+        the dimension is set to 0 (:meth:`.Empty`
         can be used to construct an empty framework with different dimension).
 
     Examples
@@ -168,7 +158,7 @@ class Framework(object):
 
     @doc_category("Attribute getters")
     def dimension(self) -> int:
-        """Alias for :meth:`~Framework.dim`"""
+        """Alias for :meth:`~Framework.dim`."""
         return self.dim()
 
     @doc_category("Framework manipulation")
@@ -313,14 +303,14 @@ class Framework(object):
         If the framework is in dimensions higher than 2 and ``projection_matrix``
         with ``coordinates`` are ``None``, a random projection matrix
         containing two orthonormal vectors is generated and used for projection into 2D.
-        For various formatting options, see :meth:`.PlotStyle`.
+        For various formatting options, see :class:`.PlotStyle`.
         Only ``coordinates`` or ``projection_matrix`` parameter can be used, not both!
 
         Parameters
         ----------
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
-            for plotting, see :class:`PlotStyle` for more details.
+            for plotting, see :class:`.PlotStyle` for more details.
         projection_matrix:
             The matrix used for projecting the realization
             when the dimension is greater than 2.
@@ -634,7 +624,7 @@ class Framework(object):
         If the framework is in a dimension higher than 3 and ``projection_matrix``
         with ``coordinates`` are ``None``, a random projection matrix
         containing three orthonormal vectors is generated and used for projection into 3D.
-        For various formatting options, see :meth:`.PlotStyle`.
+        For various formatting options, see :class:`.PlotStyle`.
         Only the parameter ``coordinates`` or ``projection_matrix`` can be used,
         not both at the same time.
 
@@ -642,7 +632,7 @@ class Framework(object):
         ----------
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
-            for plotting, see :class:`PlotStyle` for more details.
+            for plotting, see :class:`.PlotStyle` for more details.
         projection_matrix:
             The matrix used for projecting the realization
             when the dimension is greater than 3.
@@ -806,7 +796,7 @@ class Framework(object):
 
         The framework can be plotted only if its dimension is less than 3.
         For plotting a projection of a higher dimensional framework,
-        use :meth:`.Framework.plot2D` or :meth:`.Framework.plot3D` instead.
+        use :meth:`.plot2D` or :meth:`.plot3D` instead.
         For various formatting options, see :class:`.PlotStyle`.
         """
         if self._dim == 3:
@@ -836,6 +826,7 @@ class Framework(object):
 
         The framework must have dimension 2.
         For using it in ``LaTeX`` you need to use the ``tikz`` package.
+        For more examples on formatting options, see also :meth:`.Graph.to_tikz`.
 
         Parameters
         ----------
@@ -883,10 +874,6 @@ class Framework(object):
            \node[fvertex] (3) at (0, 1) {$3$};
            \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
         \end{tikzpicture}
-
-        Notes
-        -----
-        For more examples on formatting options, see also :meth:`.Graph.to_tikz`.
         """  # noqa: E501
 
         # check dimension
@@ -981,6 +968,8 @@ class Framework(object):
             Sets the range of random numbers from which the realization is
             sampled. The format is either an interval ``(a,b)`` or a single
             integer ``a``, which produces the range ``(-a,a)``.
+            If ``rand_range=None``, then the range is set to ``(-a,a)`` for
+            ``a = 10^4 * n * dim``, where ``n`` is the number of vertices.
 
         Examples
         --------
@@ -989,11 +978,6 @@ class Framework(object):
         Framework in 2-dimensional space consisting of:
         Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
         Realization {0:(122, 57), 1:(27, 144), 2:(50, 98)}
-
-        Notes
-        -----
-        If ``rand_range=None``, then the range is set to ``(-a,a)`` for
-        ``a = 10^4 * n * dim``, where ``n`` is the number of vertices.
         """
         _input_check.dimension(dim)
         if rand_range is None:
@@ -1259,7 +1243,11 @@ class Framework(object):
         self, numerical: bool = False, tolerance: float = 1e-9
     ) -> bool:
         """
-        Return whether the realization is :prf:ref:`quasi-injective <def-realization>`.
+        Return whether the realization is quasi-injective.
+
+        Definitions
+        -----------
+        :prf:ref:`Quasi-injectivity <def-realization>`
 
         Parameters
         ----------
@@ -1309,7 +1297,11 @@ class Framework(object):
     @doc_category("Framework manipulation")
     def set_realization(self, realization: dict[Vertex, Point]) -> None:
         r"""
-        Change the :prf:ref:`realization <def-realization>` of the framework.
+        Change the realization of the framework.
+
+        Definitions
+        -----------
+        :prf:ref:`Realization <def-realization>`
 
         Parameters
         ----------
@@ -1441,11 +1433,11 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the columns
             of the rigidity matrix.
-            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
+            If none is provided, the list from :meth:`.Graph.vertex_list` is taken.
         edge_order:
             A list of edges, providing the ordering for the rows
             of the rigidity matrix.
-            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
+            If none is provided, the list from :meth:`.Graph.edge_list` is taken.
 
         Examples
         --------
@@ -1506,7 +1498,7 @@ class Framework(object):
 
         Notes
         -----
-        See :meth:`.Framework.is_vector_stress`.
+        See :meth:`.is_vector_stress`.
         """
         stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
         self._graph._input_check_edge_order(stress_edge_list, "dict_stress")
@@ -1547,7 +1539,7 @@ class Framework(object):
             A vector to be checked whether it is a stress of the framework.
         edge_order:
             A list of edges, providing the ordering for the entries of the ``stress``.
-            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
+            If none is provided, the list from :meth:`.Graph.edge_list` is taken.
         numerical:
             A Boolean determining whether the evaluation of the product of the ``stress``
             and the rigidity matrix is symbolic or numerical.
@@ -1583,18 +1575,14 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_stress(self, stress: Stress, **kwargs) -> bool:
         """
-        Alias for :meth:`Framework.is_vector_stress` and
-        :meth:`Framework.is_dict_stress`.
+        Alias for :meth:`.is_vector_stress` and
+        :meth:`.is_dict_stress`.
+
+        One of the alias methods is called depending on the type of the input.
 
         Parameters
         ----------
         stress
-
-        Notes
-        -----
-        We distinguish between instances of ``List`` and instances of
-        ``Dict`` to call one of the alias methods.
-
         """
         if isinstance(stress, list | Matrix):
             return self.is_vector_stress(stress, **kwargs)
@@ -1625,10 +1613,10 @@ class Framework(object):
             A stress of the framework given as a vector.
         edge_order:
             A list of edges, providing the ordering of edges in ``stress``.
-            If ``None``, :meth:`~Graph.edge_list` is assumed.
+            If ``None``, :meth:`.Graph.edge_list` is assumed.
         vertex_order:
             Specification of row/column order of the stress matrix.
-            If ``None``, :meth:`~Graph.vertex_list` is assumed.
+            If ``None``, :meth:`.Graph.vertex_list` is assumed.
 
         Examples
         --------
@@ -1739,7 +1727,7 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-            If ``None``, the list from :meth:`~Graph.vertex_list` is taken.
+            If ``None``, the list from :meth:`.Graph.vertex_list` is taken.
 
         Examples
         --------
@@ -1781,7 +1769,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Infinitesimal flex <def-inf-flex>`
+        :prf:ref:`Infinitesimal flex <def-inf-flex>`
 
         Parameters
         ----------
@@ -1791,7 +1779,7 @@ class Framework(object):
         vertex_order:
             A list of vertices, providing the ordering for the entries
             of the infinitesimal flexes.
-            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
+            If none is provided, the list from :meth:`.Graph.vertex_list` is taken.
         numerical:
             Determines whether the output is symbolic (default) or numerical.
         tolerance
@@ -1905,7 +1893,7 @@ class Framework(object):
         ----------
         edge_order:
             A list of edges, providing the ordering for the entries of the stresses.
-            If none is provided, the list from :meth:`~Graph.edge_list` is taken.
+            If none is provided, the list from :meth:`.Graph.edge_list` is taken.
         numerical:
             Determines whether the output is symbolic (default) or numerical.
         tolerance:
@@ -1943,7 +1931,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
+        :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
 
         Examples
         --------
@@ -1968,7 +1956,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
+        :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
 
         Examples
         --------
@@ -1998,7 +1986,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
+        :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
         return not self.is_inf_rigid()
 
@@ -2053,16 +2041,24 @@ class Framework(object):
     @doc_category("Infinitesimal rigidity")
     def is_dependent(self) -> bool:
         """
-        Return whether the framework is :prf:ref:`dependent <def-independent-framework>`.
+        Return whether the framework is dependent.
 
         See also :meth:`~.Framework.is_independent`.
+
+        Definitions
+        -----------
+        :prf:ref:`Dependent framework <def-independent-framework>`
         """
         return not self.is_independent()
 
     @doc_category("Infinitesimal rigidity")
     def is_isostatic(self) -> bool:
         """
-        Return whether the framework is :prf:ref:`isostatic <def-isostatic-frameworks>`.
+        Return whether the framework is isostatic.
+
+        Definitions
+        -----------
+        :prf:ref:`Isostatic framework <def-isostatic-frameworks>`
         """
         return self.is_independent() and self.is_inf_rigid()
 
@@ -2077,15 +2073,19 @@ class Framework(object):
         """
         Return whether the framework is prestress stable.
 
+        See also :meth:`.is_second_order_rigid`.
+
         Definitions
         ----------
-        :prf:ref:`Prestress stability <def-prestress-stability>`.
+        :prf:ref:`Prestress stability <def-prestress-stability>`
 
         Parameters
         -------
         numerical:
             If ``True``, numerical infinitesimal flexes and stresses
             are used in the check for prestress stability.
+            In case that ``numerical=False``, this method only
+            properly works for symbolic coordinates.
         tolerance:
             Numerical tolerance used for the check that something is
             an approximate zero.
@@ -2099,13 +2099,6 @@ class Framework(object):
         >>> F = fws.Frustum(3)
         >>> F.is_prestress_stable()
         True
-
-        Notes
-        -----
-        The implementation details are specified in
-        the section on second-order rigiditiy.
-        In case that ``numerical=False``, this method only
-        properly works for symbolic coordinates.
         """
         edges = self._graph.edge_list(as_tuples=True)
         inf_flexes = self._process_list_of_inf_flexes(
@@ -2234,18 +2227,20 @@ class Framework(object):
         Checking second-order-rigidity for a general framework is computationally hard.
         If there is only one stress or only one infinitesimal flex, second-order rigidity
         is identical to :prf:ref:`prestress stability <def-prestress-stability>`,
-        so we can apply :meth:`.Framework.is_prestress_stable`. See also
-        :prf:ref:`this theorem <thm-second-order-implies-prestress-stability>`.
+        so we can apply :meth:`.is_prestress_stable`. See also
+        :prf:ref:`thm-second-order-implies-prestress-stability`.
 
         Definitions
         ----------
-        :prf:ref:`Second-order Rigidity <def-second-order-rigid>`.
+        :prf:ref:`Second-order rigidity <def-second-order-rigid>`
 
         Parameters
         -------
         numerical:
             If ``True``, numerical infinitesimal flexes and stresses
             are used in the check for prestress stability.
+            In case that ``numerical=False``, this method only
+            properly works for symbolic coordinates.
         tolerance:
             Numerical tolerance used for the check that something is
             an approximate zero.
@@ -2259,13 +2254,6 @@ class Framework(object):
         >>> F = fws.Frustum(3)
         >>> F.is_second_order_rigid()
         True
-
-        Notes
-        -----
-        The implementation details are specified in
-        the section on second-order rigiditiy.
-        In case that ``numerical=False``, this method only
-        properly works for symbolic coordinates.
         """
         inf_flexes = self._process_list_of_inf_flexes(
             inf_flexes, numerical=numerical, tolerance=tolerance
@@ -2382,7 +2370,7 @@ class Framework(object):
         return stresses
 
     @doc_category("Infinitesimal rigidity")
-    def is_inf_redundantly_rigid(self) -> bool:
+    def is_redundantly_inf_rigid(self) -> bool:
         """
         Return if the framework is infinitesimally redundantly rigid.
 
@@ -2395,10 +2383,10 @@ class Framework(object):
         >>> F = Framework.Empty(dim=2)
         >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
         >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
-        >>> F.is_inf_redundantly_rigid()
+        >>> F.is_redundantly_inf_rigid()
         True
         >>> F.delete_edge(('a','c'))
-        >>> F.is_inf_redundantly_rigid()
+        >>> F.is_redundantly_inf_rigid()
         False
         """  # noqa: E501
         for edge in self._graph.edge_list():
@@ -3000,7 +2988,7 @@ class Framework(object):
 
         Definitions
         -----------
-        * :prf:ref:`Infinitesimal Flex <def-inf-flex>`
+        * :prf:ref:`Infinitesimal flex <def-inf-flex>`
         * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
 
         Parameters
@@ -3009,7 +2997,7 @@ class Framework(object):
             An infinitesimal flex of the framework specified by a vector.
         vertex_order:
             A list of vertices specifying the order in which ``inf_flex`` is given.
-            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
+            If none is provided, the list from :meth:`~.Graph.vertex_list` is taken.
         numerical:
             A Boolean determining whether the evaluation of the product of
             the ``inf_flex`` and the rigidity matrix is symbolic or numerical.
@@ -3066,7 +3054,7 @@ class Framework(object):
 
         Notes
         -----
-        See :meth:`.Framework.is_vector_inf_flex`.
+        See :meth:`.is_vector_inf_flex`.
         """
         self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
 
@@ -3091,7 +3079,7 @@ class Framework(object):
 
         Definitions
         -----------
-        :prf:ref:`Nontrivial infinitesimal Flex <def-trivial-inf-flex>`
+        :prf:ref:`Nontrivial infinitesimal flex <def-trivial-inf-flex>`
 
         Parameters
         ----------
@@ -3099,7 +3087,7 @@ class Framework(object):
             An infinitesimal flex of the framework.
         vertex_order:
             A list of vertices specifying the order in which ``inf_flex`` is given.
-            If none is provided, the list from :meth:`~Graph.vertex_list` is taken.
+            If none is provided, the list from :meth:`.Graph.vertex_list` is taken.
         numerical:
             A Boolean determining whether the evaluation of the product of the `inf_flex`
             and the rigidity matrix is symbolic or numerical.
@@ -3123,16 +3111,16 @@ class Framework(object):
 
         Notes
         -----
-        This is done by solving a linear system composed of a matrix `A` whose columns
-        are given by a basis of the trivial flexes and the vector `b` given by the
-        input flex. `b` is trivial if and only if there is a linear combination of
-        the columns in `A` producing `b`. In other words, when there is a solution to
-        `Ax=b`, then `b` is a trivial infinitesimal motion. Otherwise, `b` is
+        This is done by solving a linear system composed of a matrix $A$ whose columns
+        are given by a basis of the trivial flexes and the vector $b$ given by the
+        input flex. $b$ is trivial if and only if there is a linear combination of
+        the columns in $A$ producing $b$. In other words, when there is a solution to
+        $Ax=b$, then $b$ is a trivial infinitesimal motion. Otherwise, $b$ is
         nontrivial.
 
-        In the `numerical=True` case we compute a least squares solution `x` of the
-        overdetermined linear system and compare the values in `Ax` to the values
-        in `b`.
+        In the ``numerical=True`` case we compute a least squares solution $x$ of the
+        overdetermined linear system and compare the values in $Ax$ to the values
+        in $b$.
         """
         vertex_order = self._graph._input_check_vertex_order(vertex_order)
         if not self.is_vector_inf_flex(
@@ -3169,12 +3157,12 @@ class Framework(object):
         r"""
         Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
 
-        See :meth:`Framework.is_vector_nontrivial_inf_flex` for details,
+        See :meth:`.is_vector_nontrivial_inf_flex` for details,
         particularly concerning the possible parameters.
 
         Definitions
         -----------
-        :prf:ref:`Nontrivial infinitesimal Flex <def-trivial-inf-flex>`
+        :prf:ref:`Nontrivial infinitesimal flex <def-trivial-inf-flex>`
 
         Parameters
         ----------
@@ -3209,8 +3197,11 @@ class Framework(object):
         **kwargs,
     ) -> bool:
         """
-        Alias for :meth:`Framework.is_vector_nontrivial_inf_flex` and
-        :meth:`Framework.is_dict_nontrivial_inf_flex`.
+        Alias for :meth:`.is_vector_nontrivial_inf_flex` and
+        :meth:`.is_dict_nontrivial_inf_flex`.
+
+        It is distinguished between instances of ``list`` and instances of ``dict`` to
+        call one of the alias methods.
 
         Definitions
         -----------
@@ -3219,11 +3210,6 @@ class Framework(object):
         Parameters
         ----------
         inf_flex
-
-        Notes
-        -----
-        We distinguish between instances of ``list`` and instances of ``dict`` to
-        call one of the alias methods.
         """
         if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
@@ -3239,12 +3225,12 @@ class Framework(object):
         r"""
         Return whether an infinitesimal flex is trivial.
 
-        See also :meth:`Framework.is_nontrivial_vector_inf_flex` for details,
+        See also :meth:`.is_nontrivial_vector_inf_flex` for details,
         particularly concerning the possible parameters.
 
         Definitions
         -----------
-        :prf:ref:`Trivial infinitesimal Flex <def-trivial-inf-flex>`
+        :prf:ref:`Trivial infinitesimal flex <def-trivial-inf-flex>`
 
         Parameters
         ----------
@@ -3273,7 +3259,7 @@ class Framework(object):
         r"""
         Return whether an infinitesimal flex specified by a dictionary is trivial.
 
-        See :meth:`Framework.is_vector_trivial_inf_flex` for details,
+        See :meth:`.is_vector_trivial_inf_flex` for details,
         particularly concerning the possible parameters.
 
         Definitions
@@ -3313,8 +3299,11 @@ class Framework(object):
         **kwargs,
     ) -> bool:
         """
-        Alias for :meth:`Framework.is_vector_trivial_inf_flex` and
-        :meth:`Framework.is_dict_trivial_inf_flex`.
+        Alias for :meth:`.is_vector_trivial_inf_flex` and
+        :meth:`.is_dict_trivial_inf_flex`.
+
+        Ii is distinguished between instances of ``list`` and instances of ``dict`` to
+        call one of the alias methods.
 
         Definitions
         -----------
@@ -3323,11 +3312,6 @@ class Framework(object):
         Parameters
         ----------
         inf_flex
-
-        Notes
-        -----
-        We distinguish between instances of ``list`` and instances of ``dict`` to
-        call one of the alias methods.
         """
         if isinstance(inf_flex, list | tuple | Matrix):
             return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)

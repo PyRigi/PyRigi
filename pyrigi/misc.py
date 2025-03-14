@@ -1,5 +1,5 @@
 """
-Module for miscellaneous functions.
+This module provides various following miscellaneous functions.
 """
 
 from math import isclose, log10
@@ -155,7 +155,7 @@ def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Mat
 
 def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> bool:
     """
-    Check if the given expression is zero.
+    Return if the given expression is zero.
 
     Parameters
     ----------
@@ -190,7 +190,7 @@ def is_zero_vector(
     vector: Sequence[Number], numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
     """
-    Check if the given vector is zero.
+    Return if the given vector is zero.
 
     Parameters
     ----------
@@ -216,7 +216,7 @@ def sympy_expr_to_float(
     """
     Convert a sympy expression to (numerical) floats.
 
-    If the given ``expression`` is a ``Sequence`` of ``Numbers``or a ``Matrix``,
+    If the given ``expression`` is a ``Sequence`` of ``Numbers`` or a ``Matrix``,
     then each individual element is evaluated and a list of ``float`` is returned.
     If the input is just a single sympy expression, it is evaluated and
     returned as a ``float``.
@@ -348,7 +348,7 @@ def vector_distance_pointwise(
 
 def is_isomorphic_graph_list(list1, list2) -> bool:
     """
-    Check whether two lists of graphs are the same up to graph isomorphism.
+    Return whether two lists of graphs are the same up to graph isomorphism.
     """
     if len(list1) != len(list2):
         return False
