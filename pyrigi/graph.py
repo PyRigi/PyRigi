@@ -3608,13 +3608,13 @@ class Graph(nx.Graph):
     def is_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
         Return whether a pair of vertices is ``dim``-linked.
-        
+
         :prf:ref:`lem-linked-pair-rigid-component` is used for the check.
 
         Definitions
         -----------
         :prf:ref:`dim-linked pair <def-linked-pair>`
-        
+
         Parameters
         ----------
         u,v:
@@ -3631,7 +3631,7 @@ class Graph(nx.Graph):
         False
         >>> H.is_linked(1,3)
         True
-        
+
         Suggested Improvements
         ----------------------
         Implement also for other dimensions.
@@ -3674,7 +3674,7 @@ class Graph(nx.Graph):
         >>> H = G._block_3(0,11)
         >>> H.Rd_fundamental_circuit(0,11)
         [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
-        
+
         Suggested Improvements
         ----------------------
         Implement also other dimensions.
