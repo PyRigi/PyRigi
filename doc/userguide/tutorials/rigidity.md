@@ -68,7 +68,7 @@ F2
 The dimension that a framework is embedded in can be accessed via the {meth}`~.Framework.dim` method.
 
 ```{code-cell} ipython3
-F2.dim()
+F2.dim
 ```
 
 ```{code-cell} ipython3
@@ -209,11 +209,11 @@ Omega = F.stress_matrix(stress)
 
 We can also use PyRigi to investigate the {prf:ref}`generic rigidity<def-gen-rigid>` of graphs.
 The underlying graph of a framework can be accessed
-via the method {meth}`~.Framework.graph` and the rigidity of this graph can be determined via
+via the property {attr}`.Framework.graph` and the rigidity of this graph can be determined via
 {meth}`~.Graph.is_rigid`.
 
 ```{code-cell} ipython3
-G_TP = TP_rigid.graph()
+G_TP = TP_rigid.graph
 G_TP.is_rigid()
 ```
 
@@ -232,8 +232,10 @@ G_TP.is_rigid(dim=3, algorithm="randomized")
 ```
 
 In fact, we can compute the maximal dimension, in which a graph is rigid using the method {meth}`~.Graph.max_rigid_dimension`.
+This method uses a randomized algorithm to determine rigidity in an arbitrary dimension, so it throws a {class}`~pyrigi.warning.RandomizedAlgorithmWarning`. To silence it, we can set `Graph.silence_rand_alg_warns=True`.
 
 ```{code-cell} ipython3
+Graph.silence_rand_alg_warns = True
 G_TP.max_rigid_dimension()
 ```
 

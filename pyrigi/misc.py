@@ -72,6 +72,12 @@ def _generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> s
                     categories["Not categorized"].append(func)
                 else:
                     categories["Not categorized"] = [func]
+        elif isinstance(getattr(cls, func), property):
+            category = "Attribute getters"
+            if category in categories:
+                categories[category].append(func)
+            else:
+                categories[category] = [func]
 
     for category in categories:
         if category not in cat_order:

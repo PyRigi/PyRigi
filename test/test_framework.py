@@ -215,7 +215,7 @@ def test_is_independent(framework):
         fws.ThreePrism(realization="parallel"),
         fws.Octahedron(realization="regular"),
         Framework(
-            fws.Cube().graph().cone(),
+            fws.Cube().graph.cone(),
             fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
         ),
     ],
@@ -234,7 +234,7 @@ def test_is_prestress_stable(framework):
         fws.Octahedron(realization="Bricard_line"),
         fws.Cube(),
         Framework(
-            fws.Cube().graph().cone(),
+            fws.Cube().graph.cone(),
             fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "7/6"]},
         ),
     ],
@@ -267,7 +267,7 @@ def test_is_prestress_stable_error(framework):
         fws.ThreePrism(realization="parallel"),
         fws.Octahedron(realization="regular"),
         Framework(
-            fws.Cube().graph().cone(),
+            fws.Cube().graph.cone(),
             fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
         ),
     ],
@@ -286,7 +286,7 @@ def test_is_second_order_rigid(framework):
         fws.Octahedron(realization="Bricard_line"),
         fws.Cube(),
         Framework(
-            fws.Cube().graph().cone(),
+            fws.Cube().graph.cone(),
             fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "7/6"]},
         ),
     ],
@@ -423,9 +423,9 @@ def test_is_not_redundantly_inf_rigid(framework):
 
 
 def test_dimension():
-    assert fws.Complete(2, 2).dim() == fws.Complete(2, 2).dimension()
-    assert fws.Complete(2, 2).dim() == 2
-    assert Framework.Empty(dim=3).dim() == 3
+    assert fws.Complete(2, 2).dim == fws.Complete(2, 2).dim
+    assert fws.Complete(2, 2).dim == 2
+    assert Framework.Empty(dim=3).dim == 3
 
 
 def test_vertex_addition():
@@ -436,10 +436,10 @@ def test_vertex_addition():
     F_.set_realization(F.realization())
     assert (
         F.realization() == F_.realization()
-        and F.graph().vertex_list() == F_.graph().vertex_list()
-        and F.dim() == F_.dim()
+        and F.graph.vertex_list() == F_.graph.vertex_list()
+        and F.dim == F_.dim
     )
-    assert F.graph().vertex_list() == [0, 1, 2] and len(F.graph().edges()) == 0
+    assert F.graph.vertex_list() == [0, 1, 2] and len(F.graph.edges()) == 0
     F.set_vertex_positions_from_lists([0, 2], [[3.0, 0.0], [0.0, 3.0]])
     F_.set_vertex_pos(1, [2.0, 2.0])
     array = F_.realization()

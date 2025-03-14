@@ -27,7 +27,8 @@ Let $G$ be a graph and let $p$ be a $d$-dimensional {prf:ref}`realization <def-r
 The pair $(G, p)$ is a called a _$d$-dimensional framework_.
 
 {{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
-{meth}`~.Framework.graph`
+{attr}`.Framework.dim`
+{attr}`.Framework.graph`
 {meth}`~.Framework.realization`
 :::
 
@@ -67,6 +68,7 @@ A _motion (continuous flex)_ is a continuous map $\alpha \colon [0, 1] \rightarr
 A motion is called _trivial_ if $(G, p)$ and $(G, \alpha(t))$ are congruent for every $t \in [0,1]$.
 
 {{pyrigi_crossref}} {class}`~.ParametricMotion`
+{class}`~.ApproximateMotion`
 :::
 
 

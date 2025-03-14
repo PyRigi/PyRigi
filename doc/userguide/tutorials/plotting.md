@@ -122,7 +122,7 @@ G.plot(plot_style, placement=realization, vertex_shape='v', edge_style='solid')
 ```
 
 We can also change some values of `plot_style` in two different ways.
-The first is using method `update`.
+The first is using method {meth}`.PlotStyle.update`.
 
 ```{code-cell} ipython3
 plot_style.update(vertex_color='green')
@@ -160,7 +160,7 @@ If a partition of the edges is specified, then each part is colored differently.
 P.plot(plot_style, placement=realization, edge_colors_custom=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]])
 ```
 
-If the partition is incomplete, the missing edges get `plot_style.edge_color`.
+If the partition is incomplete, the missing edges get {attr}`.PlotStyle.edge_color`.
 
 ```{code-cell} ipython3
 plot_style.update(edge_color='green')
@@ -179,7 +179,8 @@ P30.plot(
 )
 ```
 
-Another possibility is to provide a dictionary assigning to a color a list of edges. Missing edges are again get `plot_style.edge_color`.
+Another possibility is to provide a dictionary assigning to a color a list of edges.
+Missing edges again get {attr}`.PlotStyle.edge_color`.
 
 ```{code-cell} ipython3
 P.plot(plot_style,
@@ -369,7 +370,7 @@ F.plot(inf_flex=inf_flex,
        flex_length=0.25,
        stress_fontsize=11,
        axis_scales=(0.625,0.625,0.625),
-       stress_label_positions={e: 0.6 for e in F.graph().edges}
+       stress_label_positions={e: 0.6 for e in F.graph.edges}
 )
 ```
 
