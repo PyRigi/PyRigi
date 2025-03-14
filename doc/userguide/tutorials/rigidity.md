@@ -232,8 +232,10 @@ G_TP.is_rigid(dim=3, algorithm="randomized")
 ```
 
 In fact, we can compute the maximal dimension, in which a graph is rigid using the method {meth}`~.Graph.max_rigid_dimension`.
+This method uses a randomized algorithm to determine rigidity in an arbitrary dimension, so it throws a {class}`~pyrigi.warning.RandomizedAlgorithmWarning`. To silence it, we can set `Graph.silence_rand_alg_warns=True`.
 
 ```{code-cell} ipython3
+Graph.silence_rand_alg_warns = True
 G_TP.max_rigid_dimension()
 ```
 
