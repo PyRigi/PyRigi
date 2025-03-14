@@ -126,7 +126,7 @@ the class of randomized polynomial time algorithms.
 :::{prf:definition} globally linked in a framework
 :label: def-globally-linked-p
 
-We say that a pair of vertices $\{u,v\}$ is _globally $d$-linked
+We say that a pair of vertices $\{u,v\}$ is _globally linked
 in a $d$-{prf:ref}`dimensional framework <def-framework>` $(G,p)$_
 if for every {prf:ref}`equivalent <def-equivalent-framework>`
 $d$-{prf:ref}`dimensional framework <def-framework>` $(G,q)$ we have
@@ -138,11 +138,11 @@ $||p(u)-p(v)|| = ||q(u)-q(v)||$. This is not a generic property.
 :::{prf:definition} globally linked in a graph
 :label: def-globally-linked
 
-A pair of vertices $\{u,v\}$ is _globally linked in $G$_ in $\RR^d$ if it is
+A pair of vertices $\{u,v\}$ is _globally $d$-linked in $G$_ if it is
 {prf:ref}`globally linked <def-globally-linked-p>` in all $d$-dimensional
 {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$.
 
-A pair $\{u,v\}$ is _weakly globally linked in $G$_ in $\RR^d$ (or _weakly globally $d$-linked_) if there exists
+A pair $\{u,v\}$ is _weakly globally $d$-linked in $G$_ if there exists
 a $d$-dimensional {prf:ref}`generic framework <def-gen-realization>` $(G,p)$ in which $\{u,v\}$
 is {prf:ref}`globally linked <def-globally-linked-p>`.
 
@@ -163,7 +163,7 @@ vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 :::{prf:corollary}
 :label: cor-weakly-globally-linked-rigid-graph
 
-Given a rigid but not globally rigid graph $G$ in $\RR^d$,
+Given a $d$-rigid but not globally $d$-rigid graph $G$,
 there exists at least one pair of vertices of $G$
 that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 :::
@@ -172,13 +172,13 @@ that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 :::{prf:definition} linked pair
 :label: def-linked-pair
 
-A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked in a
+A pair of vertices $\{u,v\}$ of $G$ is _linked in a
 $d$-{prf:ref}`dimensional framework <def-framework>` $(G,p)$_
 (or that $uv$ is an _implied edge_ of $(G,p)$) if the set of distances
 $\{ \|q(u) - q(v) \| : (G,q) \text{ is equivalent to } (G,p) \}$
 is finite.
 
-A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked_ if it is $d$-linked
+A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked_ if it is linked
 in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$.
 
 {{references}} {cite:p}`Jordan2016`
@@ -189,7 +189,7 @@ in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p
 :label: lem-linked-pair-rigid-component
 
 A pair $\{u, v\}$ is $d$-{prf:ref}`linked <def-linked-pair>` in $G$ if and only if
-there exists a {prf:ref}`rigid component <def-rigid-components>` of $G$ containing
+there exists a $d$-{prf:ref}`rigid component <def-rigid-components>` of $G$ containing
 $u$ and $v$.
 
 {{references}} {cite:p}`Jordan2016`
@@ -199,7 +199,7 @@ $u$ and $v$.
 :::{prf:lemma}
 :label: lem-linked-pair-r2-circuit
 
-A pair $\{u, v\}$ of vertices is non-adjacent and {prf:ref}`linked <def-globally-linked>`
+A pair $\{u, v\}$ of vertices is non-adjacent and {prf:ref}`2-linked <def-globally-linked>`
 in $G$ if and only if there exists some subgraph $G_0 = (V_0,E_0)$ of $G$ with $u,v\in V_0$
 such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`fundamental circuit <def-fundamental-circuit>`.
 
@@ -237,8 +237,8 @@ a unique {prf:ref}`3-connected component <def-k-connected>` $B$ of the
 {prf:ref}`augmented graph <def-augmented-graph>` of $G$ such that $\{u,v\} \subset V(B)$.
 In the latter case the subgraph $B$ can be obtained from $G$ by a sequence of
 {prf:ref}`cleaving operations <def-cleaving-operation>`.
-Furthermore, $uv \notin E(B)$ and, in $\RR^2$, if the pair $\{u,v\}$ is linked in $G$ then it is also
-linked in $B$.
+Furthermore, $uv \notin E(B)$ and if the pair $\{u,v\}$ is 2-linked in $G$ then it is also
+2-linked in $B$.
 
 {{references}} {cite:p}`JordanVillanyi2024`
 :::
@@ -260,8 +260,8 @@ is called the _3-block_ of $\{u,v\}$ in $G$.
 :::{prf:theorem}
 :label: thm-weakly-globally-linked
 
-Let $G = (V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` in $\RR^2$ and let $\{u,v\}$ be
-a non-adjacent linked pair of vertices with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$.
+Let $G = (V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be
+a non-adjacent 2-linked pair of vertices with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$.
 Then $\{u,v\}$ is {prf:ref}`weakly globally 2-linked <def-globally-linked>` in $G$ if and only if either
 * $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-set>` in G, or
 * $C(B,V_0)$ is {prf:ref}`globally rigid <def-globally-rigid-graph>`,
