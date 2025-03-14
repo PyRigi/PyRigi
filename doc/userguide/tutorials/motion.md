@@ -26,7 +26,6 @@ import sympy as sp
 
 from pyrigi import graphDB as graphs
 from pyrigi import ParametricMotion
-from pyrigi.misc import skip_execution
 
 motion = ParametricMotion(
     graphs.Cycle(4),
@@ -48,7 +47,6 @@ It is also possible to provide trivial motions in a similar manner.
 The animation can be formatted using some parameters from {class}`~.PlotStyle` as keyword arguments.
 
 ```{code-cell} ipython3
-%%skip_execution
 motion = ParametricMotion(
     graphs.Complete(5),
     {
@@ -75,7 +73,6 @@ setting the parameter ``animation_format`` to be either ``"svg"`` or ``"matplotl
 2D and 3D animations can be displayed.
 
 ```{code-cell} ipython3
-%%skip_execution
 motion.animate(animation_format="matplotlib")
 ```
 
@@ -84,12 +81,14 @@ motion.animate(animation_format="matplotlib")
 However, a parametric motion is not always available. If you still want to get an
 intuition for how a deformation path looks, it can be numerically approximated using
 the class {class}`~.ApproximateMotion`. As an example, consider the complete bipartite graph $K_{4,2}$.
+Since a numerical algorithm is used for creating the motion, a {class}`~.warning.NumericalAlgorithmWarning`
+is thrown. It can be turned off using the command ``ApproximateMotion.silence_numerical_alg_warns=True``.
 A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 
 ```{code-cell} ipython3
-%%skip_execution
 from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
+ApproximateMotion.silence_numerical_alg_warns=True
 F = frameworks.CompleteBipartite(2,4)
 motion = ApproximateMotion(F, 393, chosen_flex=0, step_size=0.15)
 motion.animate()
@@ -105,7 +104,6 @@ to the placement of the second vertex. Alternatively, this vector can be specifi
 ``fixed_direction``.
 
 ```{code-cell} ipython3
-%%skip_execution
 F = frameworks.Path(5)
 motion = ApproximateMotion(F, 147, chosen_flex=1, fixed_pair=[0,4], fixed_direction=[0,1])
 motion.animate()

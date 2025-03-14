@@ -22,7 +22,6 @@ This notebook can be downloaded {download}`here <../../notebooks/plotting.ipynb>
 import pyrigi.frameworkDB as frameworks
 import pyrigi.graphDB as graphs
 from pyrigi import Graph, Framework
-from pyrigi.misc import skip_execution
 ```
 
 Methods {meth}`.Graph.plot` and {meth}`.Framework.plot` offer various plotting options.
@@ -343,7 +342,6 @@ F.plot3D()
 In addition, it is possible to animate a rotation sequence around a specified axis:
 
 ```{code-cell} ipython3
-%%skip_execution
 G = graphs.DoubleBanana()
 F = Framework(G, realization={0:(0,0,-2), 1:(0,0,3), 2:(1.25,1,0.5), 3:(1.25,-1,0.5), 4:(3,0,0.5), 
                               5:(-1.25,-1,0.5), 6:(-1.2,1,0.5), 7:(-3,0,0.5)})

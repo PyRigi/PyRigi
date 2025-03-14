@@ -457,7 +457,7 @@ class Motion(object):
 
             if plot_style.vertex_labels:
                 for i, (v, pos) in enumerate(realizations[frame].items()):
-                    annotated_text[i].set_position(*pos)
+                    annotated_text[i].set_position(pos)
             return lines + [vertices_plot] + annotated_text
 
         ani = FuncAnimation(
