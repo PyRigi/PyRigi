@@ -91,8 +91,8 @@ at least $k+1$ vertices and it remains {prf:ref}`connected <def-connected>`
 when at most $k-1$ vertices are removed. In case $k=2$ it is called
 _biconnected_, and in case $k=3$ it is called _triconnected_.
 
-Given a graph $G$, a _$k$-vertex-connected component_ of $G$ is a
-$k$-connected subgraph of $G$ that is not strictly contained into any
+Given a graph $G$, a _$k$-(vertex)-connected component_ of $G$ is a
+$k$-connected subgraph of $G$ that is not strictly contained in any
 other $k$-connected subgraph of $G$.
 
 :::

@@ -180,7 +180,7 @@ $d$-{prf:ref}`dimensional framework <def-framework>` $(G,p)$_
 $\{ \|q(u) - q(v) \| : (G,q) \text{ is equivalent to } (G,p) \}$
 is finite.
 
-A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked if it is $d$-linked
+A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked_ if it is $d$-linked
 in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$.
 
 {{references}} {cite:p}`Jordan2016`
@@ -269,7 +269,8 @@ Then $\{u,v\}$ is {prf:ref}`weakly globally 2-linked <def-globally-linked>` in $
 * $C(B,V_0)$ is {prf:ref}`globally rigid <def-globally-rigid-graph>`,
 
 where $B$ is the {prf:ref}`3-block <def-block-3>` of $\{u,v\}$ in $G$, $B_0 = (V_0,E_0)$
-is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`, and $C(B, V_0)$ is the graph obtained as follows.
+is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`,
+and $C(B, V_0)$ is the graph obtained as follows.
 
 Let $V_1,\dots, V_r$ be the vertex sets of the {prf:ref}`connected components <def-k-connected>` of $B-V_0$.
 Delete from $B$ the vertex sets $V_i$ for $1\leq i\leq r$
