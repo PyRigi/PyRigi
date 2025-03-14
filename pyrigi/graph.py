@@ -3486,10 +3486,6 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`separating-set <def-separating-set>`
 
-        Parameters
-        ----------
-        vertices: list of Vertex
-
         Examples
         --------
         >>> import pyrigi.graphDB as graphs
@@ -3515,11 +3511,6 @@ class Graph(nx.Graph):
     def neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
         """
         Return the set of neighbors of a set of vertices.
-
-        Parameters
-        ----------
-        vertices:
-            set or list of vertices
 
         Examples
         --------
@@ -3550,15 +3541,11 @@ class Graph(nx.Graph):
         Create a graph by selecting the subgraph of ``self`` induced by vertices,
         contracting each connected component of ``self`` minus ``vertices``
         to a single vertex, and making their neighbors in ``vertices`` into a clique.
+        See :prf:ref:`thm-weakly-globally-linked`.
 
         Definitions
         -----------
         :prf:ref:`clique <def-clique>`
-
-        Parameters
-        ----------
-        vertices:
-            set or list of vertices
 
         Examples
         --------
@@ -3595,13 +3582,6 @@ class Graph(nx.Graph):
         :prf:ref:`3-block <def-block-3>`
         :prf:ref:`3-block lemma <lem-3-block>`
 
-        Parameters
-        ----------
-        u:
-            vertex
-        v:
-            vertex
-
         Examples
         --------
         >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
@@ -3627,21 +3607,19 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
-        Return whether the pair of vertices ``u`` and ``v`` is ``dim``-linked.
+        Return whether a pair of vertices is ``dim``-linked.
+        
+        :prf:ref:`lem-linked-pair-rigid-component` is used for the check.
 
         Definitions
         -----------
-        :prf:ref:`linked pair <def-linked-pair>`
-        :prf:ref:`lemma linked pair <lem-linked-pair-rigid-component>`
-
+        :prf:ref:`dim-linked pair <def-linked-pair>`
+        
         Parameters
         ----------
-        u:
-            vertex
-        v:
-            vertex
+        u,v:
         dim:
-            dimension
+            Currently, only the dimension ``dim=2`` is supported.
 
         Examples
         --------
@@ -3653,6 +3631,10 @@ class Graph(nx.Graph):
         False
         >>> H.is_linked(1,3)
         True
+        
+        Suggested Improvements
+        ----------------------
+        Implement also for other dimensions.
         """  # noqa: E501
         _input_check.dimension_for_algorithm(
             dim, [2], "the algorithm to check linkedness"
@@ -3665,20 +3647,18 @@ class Graph(nx.Graph):
     @doc_category("Rigidity Matroid")
     def Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2) -> list[Edge]:
         """
-        Return the Rd circuit of ``self`` + ``uv``.
+        Return the fundamental circuit of ``uv`` in the generic ``dim``-rigidity matroid.
 
         Definitions
         -----------
-        :prf:ref:`fundamental circuit <def-fundamental-circuit>`
+        * :prf:ref:`Fundamental circuit <def-fundamental-circuit>`
+        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
 
         Parameters
         ----------
-        u:
-            vertex
-        v:
-            vertex
+        u, v:
         dim:
-            dimension
+            Currently, only the dimension ``dim=2`` is supported.
 
         Examples
         --------
@@ -3694,6 +3674,10 @@ class Graph(nx.Graph):
         >>> H = G._block_3(0,11)
         >>> H.Rd_fundamental_circuit(0,11)
         [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
+        
+        Suggested Improvements
+        ----------------------
+        Implement also other dimensions.
         """  # noqa: E501
 
         _input_check.dimension_for_algorithm(
@@ -3715,21 +3699,19 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         """
-        Return whether the vertices ``u`` and ``v`` are weakly globally ``dim``-linked in ``self``.
+        Return whether the vertices ``u`` and ``v`` are weakly globally ``dim``-linked.
+
+        :prf:ref:`thm-weakly-globally-linked` is used for the check.
 
         Definitions
         -----------
-        * :prf:ref:`weakly globally linked pair <def-globally-linked>`
-        * :prf:ref:`weakly globally linked theorem <thm-weakly-globally-linked>`
+        :prf:ref:`Weakly globally linked pair <def-globally-linked>`
 
         Parameters
         ----------
-        u:
-            vertex
-        v:
-            vertex
+        u, v:
         dim:
-            dimension
+            Currently, only the dimension ``dim=2`` is supported.
 
         Examples
         --------
