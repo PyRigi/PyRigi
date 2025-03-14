@@ -157,11 +157,6 @@ class Framework(object):
         return self._dim
 
     @property
-    def dimension(self) -> int:
-        """Alias for :meth:`~Framework.dim`."""
-        return self.dim
-
-    @property
     def graph(self) -> Graph:
         """
         Return a copy of the underlying graph.

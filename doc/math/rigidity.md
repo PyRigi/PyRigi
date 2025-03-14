@@ -27,8 +27,8 @@ Let $G$ be a graph and let $p$ be a $d$-dimensional {prf:ref}`realization <def-r
 The pair $(G, p)$ is a called a _$d$-dimensional framework_.
 
 {{pyrigi_crossref}} {class}`~pyrigi.framework.Framework`
-{attr}`~.Framework.dim`
-{attr}`~.Framework.graph`
+{attr}`.Framework.dim`
+{attr}`.Framework.graph`
 {meth}`~.Framework.realization`
 :::
 

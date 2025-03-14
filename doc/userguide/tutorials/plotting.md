@@ -160,7 +160,7 @@ If a partition of the edges is specified, then each part is colored differently.
 P.plot(plot_style, placement=realization, edge_colors_custom=[[[0, 1], [2, 3]], [[1, 2]], [[5, 4], [4, 3]]])
 ```
 
-If the partition is incomplete, the missing edges get {attr}`~.PlotStyle.edge_color`.
+If the partition is incomplete, the missing edges get {attr}`.PlotStyle.edge_color`.
 
 ```{code-cell} ipython3
 plot_style.update(edge_color='green')
@@ -179,7 +179,8 @@ P30.plot(
 )
 ```
 
-Another possibility is to provide a dictionary assigning to a color a list of edges. Missing edges are again get {attr}`~.PlotStyle.edge_color`.
+Another possibility is to provide a dictionary assigning to a color a list of edges.
+Missing edges again get {attr}`.PlotStyle.edge_color`.
 
 ```{code-cell} ipython3
 P.plot(plot_style,

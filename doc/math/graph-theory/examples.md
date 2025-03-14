@@ -70,8 +70,8 @@ given by the rotation of the outer polygon while the inner polygon remains
 fixed. This infinitesimal flex does not extend to a 
 {prf:ref}`continuous flex <def-motion>`.
 
-{{pyrigi_crossref}} {func}`~pyrigi.graphDB.Frustum`
-{func}`~pyrigi.frameworkDB.Frustum`
+{{pyrigi_crossref}} {func}`.graphDB.Frustum`
+{func}`.frameworkDB.Frustum`
 :::
 
 

@@ -209,7 +209,7 @@ Omega = F.stress_matrix(stress)
 
 We can also use PyRigi to investigate the {prf:ref}`generic rigidity<def-gen-rigid>` of graphs.
 The underlying graph of a framework can be accessed
-via the property {attr}`~.Framework.graph` and the rigidity of this graph can be determined via
+via the property {attr}`.Framework.graph` and the rigidity of this graph can be determined via
 {meth}`~.Graph.is_rigid`.
 
 ```{code-cell} ipython3
