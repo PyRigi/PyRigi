@@ -28,7 +28,6 @@ from pyrigi.data_type import (
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
-    doc_category,
     generate_category_tables,
     is_zero,
     is_zero_vector,
@@ -38,6 +37,7 @@ from pyrigi.misc import (
     point_to_vector,
     _null_space,
 )
+from pyrigi.misc import _doc_category as doc_category
 import pyrigi._input_check as _input_check
 
 

@@ -26,7 +26,7 @@ except NameError:
     pass
 
 
-def doc_category(category):
+def _doc_category(category):
     """
     Decorator for doc categories.
     """
