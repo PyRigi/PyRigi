@@ -1033,7 +1033,7 @@ class ApproximateMotion(Motion):
         o_str += f"step_size={self._step_size}, chosen_flex={self._chosen_flex}, "
         o_str += f"tolerance={self._tolerance}, fixed_pair={self._fixed_pair}, "
         o_str += f"fixed_direction={self._fixed_direction}, "
-        o_str += "pinned_vertex={self._pinned_vertex})"
+        o_str += f"pinned_vertex={self._pinned_vertex})"
         return o_str
 
     @property
