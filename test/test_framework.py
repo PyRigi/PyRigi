@@ -248,7 +248,7 @@ def test_is_not_prestress_stable(framework):
     "framework",
     [
         fws.CompleteBipartite(3, 3, realization="collinear"),
-        fws.ConnellyExampleSecondOrderRigidity(),
+        fws.SecondOrderRigid(),
     ],
 )
 def test_is_prestress_stable_error(framework):
@@ -300,7 +300,7 @@ def test_is_not_second_order_rigid(framework):
     "framework",
     [
         fws.CompleteBipartite(3, 3, realization="collinear"),
-        fws.ConnellyExampleSecondOrderRigidity(),
+        fws.SecondOrderRigid(),
     ],
 )
 def test_is_second_order_rigid_error(framework):
@@ -1118,7 +1118,7 @@ def test_stress_matrix():
         pytest.param(fws.Frustum(5), 1, marks=pytest.mark.long_local),
         [fws.ThreePrism(realization="flexible"), 1],
         [fws.ThreePrism(realization="parallel"), 1],
-        [fws.ConnellyExampleSecondOrderRigidity(), 2],
+        [fws.SecondOrderRigid(), 2],
         [fws.CompleteBipartite(3, 3, realization="collinear"), 4],
     ],
 )
@@ -1142,7 +1142,7 @@ def test_stresses(framework, num_stresses):
         [fws.Complete(6), 6],
         [fws.ThreePrism(realization="flexible"), 1],
         [fws.ThreePrism(realization="parallel"), 1],
-        [fws.ConnellyExampleSecondOrderRigidity(), 2],
+        [fws.SecondOrderRigid(), 2],
         [fws.CompleteBipartite(3, 3, realization="collinear"), 4],
     ]
     + [[fws.Frustum(i), 1] for i in range(3, 8)],

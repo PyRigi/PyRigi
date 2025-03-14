@@ -30,8 +30,8 @@ from pyrigi.framework import Framework
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from pyrigi.misc import (
     point_to_vector,
-    normalize_flex,
-    vector_distance_pointwise,
+    _normalize_flex,
+    _vector_distance_pointwise,
     sympy_expr_to_float,
     is_zero,
 )
@@ -1184,7 +1184,7 @@ class ApproximateMotion(Motion):
         _input_check.integrality_and_range(
             chosen_flex, "chosen_flex", max_val=len(inf_flexes)
         )
-        cur_inf_flex = normalize_flex(
+        cur_inf_flex = _normalize_flex(
             F._transform_inf_flex_to_pointwise(inf_flexes[chosen_flex]),
             numerical=True,
         )
@@ -1212,7 +1212,7 @@ class ApproximateMotion(Motion):
             self._motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
-                vector_distance_pointwise(
+                _vector_distance_pointwise(
                     self._motion_samples[-1], self._motion_samples[-2], numerical=True
                 )
                 > self.step_size * 2
@@ -1225,7 +1225,7 @@ class ApproximateMotion(Motion):
                     jump_indicator = [False, False]
                 continue
             elif (
-                vector_distance_pointwise(
+                _vector_distance_pointwise(
                     self._motion_samples[-1], self._motion_samples[-2], numerical=True
                 )
                 < self.step_size / 2
@@ -1410,7 +1410,7 @@ class ApproximateMotion(Motion):
         predicted_inf_flex = sum(
             np.dot(inf_flex_space.transpose(), flex_coefficients).tolist(), []
         )
-        predicted_inf_flex = normalize_flex(
+        predicted_inf_flex = _normalize_flex(
             F._transform_inf_flex_to_pointwise(predicted_inf_flex), numerical=True
         )
         realization = self._motion_samples[-1]

@@ -26,7 +26,7 @@ except NameError:
     pass
 
 
-def doc_category(category):
+def _doc_category(category):
     """
     Decorator for doc categories.
     """
@@ -38,7 +38,7 @@ def doc_category(category):
     return decorator_doc_category
 
 
-def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
+def _generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
     """
     Generate a formatted string that categorizes methods of a given class.
 
@@ -89,7 +89,7 @@ def generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> st
     return ("\n" + indent).join(res.splitlines())
 
 
-def generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
+def _generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
     """
     Generate two random numeric orthonormal vectors in the given dimension.
 
@@ -126,7 +126,7 @@ def generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matri
     return matrix
 
 
-def generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
+def _generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:
     """
     Generate three random numeric orthonormal vectors in the given dimension.
 
@@ -250,7 +250,7 @@ def sympy_expr_to_float(
         raise ValueError(f"The expression `{expression}` could not be parsed by sympy.")
 
 
-def normalize_flex(
+def _normalize_flex(
     inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-9
 ) -> InfFlex:
     """
@@ -298,7 +298,7 @@ def normalize_flex(
         raise TypeError("`inf_flex` does not have the correct type.")
 
 
-def vector_distance_pointwise(
+def _vector_distance_pointwise(
     dict1: dict[Vertex, Sequence[Number]],
     dict2: dict[Vertex, Sequence[Number]],
     numerical: bool = False,

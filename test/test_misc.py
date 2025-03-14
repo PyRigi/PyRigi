@@ -9,11 +9,11 @@ import sympy as sp
 from pyrigi.graph import Graph
 from pyrigi.misc import (
     is_zero_vector,
-    generate_two_orthonormal_vectors,
+    _generate_two_orthonormal_vectors,
     sympy_expr_to_float,
     is_isomorphic_graph_list,
-    normalize_flex,
-    vector_distance_pointwise,
+    _normalize_flex,
+    _vector_distance_pointwise,
     point_to_vector,
     is_zero,
 )
@@ -47,9 +47,9 @@ def test_is_zero_vector():
     assert not is_zero_vector(V6, numerical=True, tolerance=1e-9)
 
 
-def test_generate_two_orthonormal_vectors():
+def test__generate_two_orthonormal_vectors():
     for _ in range(15):
-        m = generate_two_orthonormal_vectors(randint(2, 10))
+        m = _generate_two_orthonormal_vectors(randint(2, 10))
         assert abs(np.dot(m[:, 0], m[:, 1])) < 1e-9
         assert abs(np.linalg.norm(m[:, 0])) - 1 < 1e-9
         assert abs(np.linalg.norm(m[:, 1])) - 1 < 1e-9
@@ -71,42 +71,43 @@ def test_sympy_expr_to_float():
     assert sympy_expr_to_float("1/4") == 0.25
 
 
-def test_normalize_flex():
-    flex = normalize_flex([1, 0, 1])
+def test__normalize_flex():
+    flex = _normalize_flex([1, 0, 1])
     assert sum(p**2 for p in flex) == 1
-    flex = normalize_flex([1, 0, 1, -2, 3], numerical=True)
+    flex = _normalize_flex([1, 0, 1, -2, 3], numerical=True)
     assert isclose(np.linalg.norm(flex), 1.0)
-    flex = normalize_flex(
+    flex = _normalize_flex(
         {0: [1.0, 0.0], 1: [1.0, -2.5], 2: [pi, np.sqrt(15)]}, numerical=True
     )
     assert isclose(np.linalg.norm(sum([list(val) for val in flex.values()], [])), 1.0)
-    flex = normalize_flex(
+    flex = _normalize_flex(
         {0: (1, 0), 1: (sp.cos(1), sp.sin(2)), 2: (sp.sqrt(5), sp.Rational(1 / 2))}
     )
     assert sp.simplify(sum(sum(p**2 for p in pt) for pt in flex.values())) == 1
 
     with pytest.raises(ValueError):
-        normalize_flex([0])
-        normalize_flex([0], numerical=True)
+        _normalize_flex([0])
+        _normalize_flex([0], numerical=True)
 
 
 def test_vector_distance_pointwise():
-    assert is_zero(vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}))
+    assert is_zero(_vector_distance_pointwise({0: [1, 1]}, {0: [1, 1]}))
     assert is_zero(
-        vector_distance_pointwise({0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, -1]}) - 2
+        _vector_distance_pointwise({0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, -1]})
+        - 2
     )
     assert isclose(
-        vector_distance_pointwise({0: [1, 1]}, {0: [1, -1]}, numerical=True), 2
+        _vector_distance_pointwise({0: [1, 1]}, {0: [1, -1]}, numerical=True), 2
     )
     assert isclose(
-        vector_distance_pointwise(
+        _vector_distance_pointwise(
             {0: [1, 1], 1: [1, -1]}, {0: [1, -1], 1: [1, 1]}, numerical=True
         ),
         math.sqrt(8),
     )
 
     with pytest.raises(ValueError):
-        vector_distance_pointwise({0: [1, 1]}, {1: [1, 1]})
+        _vector_distance_pointwise({0: [1, 1]}, {1: [1, 1]})
 
 
 @pytest.mark.parametrize(

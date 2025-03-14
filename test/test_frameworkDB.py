@@ -308,6 +308,17 @@ def test_Dodecahedron():
         assert sp.simplify(length - edge_lengths[0]) == 0
 
 
+def test_SecondOrderRigid():
+    F = fws.SecondOrderRigid()
+    assert (
+        F._dim == 3
+        and F._graph.number_of_nodes() == 7
+        and F._graph.number_of_edges() == 15
+        and len(F.inf_flexes()) == 2
+        and len(F.stresses()) == 2
+    )
+
+
 def test_Wheel():
     with pytest.raises(ValueError):
         fws.Wheel(1)

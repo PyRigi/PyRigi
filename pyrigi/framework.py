@@ -28,16 +28,16 @@ from pyrigi.data_type import (
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import (
-    doc_category,
-    generate_category_tables,
+    _generate_category_tables,
     is_zero,
     is_zero_vector,
-    generate_two_orthonormal_vectors,
-    generate_three_orthonormal_vectors,
+    _generate_two_orthonormal_vectors,
+    _generate_three_orthonormal_vectors,
     sympy_expr_to_float,
     point_to_vector,
     _null_space,
 )
+from pyrigi.misc import _doc_category as doc_category
 import pyrigi._input_check as _input_check
 
 
@@ -2697,11 +2697,11 @@ class Framework(object):
 
         if projection_matrix is None:
             if proj_dim == 2:
-                projection_matrix = generate_two_orthonormal_vectors(
+                projection_matrix = _generate_two_orthonormal_vectors(
                     self._dim, random_seed=random_seed
                 )
             elif proj_dim == 3:
-                projection_matrix = generate_three_orthonormal_vectors(
+                projection_matrix = _generate_three_orthonormal_vectors(
                     self._dim, random_seed=random_seed
                 )
             else:
@@ -3355,7 +3355,7 @@ class Framework(object):
 
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
-    generate_category_tables(
+    _generate_category_tables(
         Framework,
         1,
         [
