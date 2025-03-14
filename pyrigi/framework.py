@@ -268,7 +268,6 @@ class Framework(object):
         Parameters
         ----------
         edges:
-            ``Sequence`` of edges.
 
         Notes
         -----
