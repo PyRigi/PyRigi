@@ -190,6 +190,10 @@ class Graph(nx.Graph):
         """
         Create a graph with no edges from a list of vertices.
 
+        Parameters
+        ----------
+        vertices
+
         Examples
         --------
         >>> from pyrigi import Graph
@@ -452,37 +456,79 @@ class Graph(nx.Graph):
 
     @doc_category("Graph manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
-        """Alias for :meth:`networkx.Graph.remove_node`."""
+        """
+        Alias for :meth:`networkx.Graph.remove_node`.
+
+        Parameters
+        ----------
+        vertex
+        """
         self.remove_node(vertex)
 
     @doc_category("Graph manipulation")
     def delete_vertices(self, vertices: Sequence[Vertex]) -> None:
-        """Alias for :meth:`networkx.Graph.remove_nodes_from`."""
+        """
+        Alias for :meth:`networkx.Graph.remove_nodes_from`.
+
+        Parameters
+        ----------
+        vertices
+        """
         self.remove_nodes_from(vertices)
 
     @doc_category("Graph manipulation")
     def delete_edge(self, edge: Edge) -> None:
-        """Alias for :meth:`networkx.Graph.remove_edge`"""
+        """
+        Alias for :meth:`networkx.Graph.remove_edge`
+
+        Parameters
+        ----------
+        edge
+        """
         self.remove_edge(*edge)
 
     @doc_category("Graph manipulation")
     def delete_edges(self, edges: Sequence[Edge]) -> None:
-        """Alias for :meth:`networkx.Graph.remove_edges_from`."""
+        """
+        Alias for :meth:`networkx.Graph.remove_edges_from`.
+
+        Parameters
+        ----------
+        edges
+        """
         self.remove_edges_from(edges)
 
     @doc_category("Graph manipulation")
     def add_vertex(self, vertex: Vertex) -> None:
-        """Alias for :meth:`networkx.Graph.add_node`."""
+        """
+        Alias for :meth:`networkx.Graph.add_node`.
+
+        Parameters
+        ----------
+        vertex
+        """
         self.add_node(vertex)
 
     @doc_category("Graph manipulation")
     def add_vertices(self, vertices: Sequence[Vertex]) -> None:
-        """Alias for :meth:`networkx.Graph.add_nodes_from`."""
+        """
+        Alias for :meth:`networkx.Graph.add_nodes_from`.
+
+        Parameters
+        ----------
+        vertices
+        """
         self.add_nodes_from(vertices)
 
     @doc_category("Graph manipulation")
     def add_edges(self, edges: Sequence[Edge]) -> None:
-        """Alias for :meth:`networkx.Graph.add_edges_from`."""
+        """
+        Alias for :meth:`networkx.Graph.add_edges_from`.
+
+        Parameters
+        ----------
+        edges
+        """
         self.add_edges_from(edges)
 
     @doc_category("Graph manipulation")

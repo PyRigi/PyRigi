@@ -89,14 +89,14 @@ napoleon_preprocess_types = True
 napoleon_custom_sections = ["Definitions", "Methods", "Suggested Improvements"]
 
 autodoc_type_aliases = {
-    "Vertex": ":obj:`~pyrigi.data_type.Vertex`",
-    "Edge": ":obj:`~pyrigi.data_type.Edge`",
-    "DirectedEdge": ":obj:`~pyrigi.data_type.DirectedEdge`",
-    "Point": ":obj:`~pyrigi.data_type.Point`",
-    "Number": ":obj:`~pyrigi.data_type.Number`",
-    "Stress": ":obj:`~pyrigi.data_type.Stress`",
-    "InfFlex": ":obj:`~pyrigi.data_type.InfFlex`",
-    "Inf": ":obj:`~pyrigi.data_type.Inf`",
+    "Vertex": ":type:`~pyrigi.data_type.Vertex`",
+    "Edge": ":type:`~pyrigi.data_type.Edge`",
+    "DirectedEdge": ":type:`~pyrigi.data_type.DirectedEdge`",
+    "Point": ":type:`~pyrigi.data_type.Point`",
+    "Number": ":type:`~pyrigi.data_type.Number`",
+    "Stress": ":type:`~pyrigi.data_type.Stress`",
+    "InfFlex": ":type:`~pyrigi.data_type.InfFlex`",
+    "Inf": ":type:`~pyrigi.data_type.Inf`",
 }
 napoleon_attr_annotations = True
 
