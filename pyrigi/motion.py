@@ -859,7 +859,7 @@ class ParametricMotion(Motion):
 class ApproximateMotion(Motion):
     """
     Class representing an approximated motion of a framework.
-    
+
     When constructed, motion samples, i.e., realizations
     approximating a continuous flex of a given framework, are computed.
 
@@ -934,7 +934,9 @@ class ApproximateMotion(Motion):
         super().__init__(framework.graph(), framework.dim())
         self._warn_numerical_alg(self.__init__)
         self._stress_length = len(framework.stresses())
-        self._starting_realization = framework.realization(as_points=True, numerical=True)
+        self._starting_realization = framework.realization(
+            as_points=True, numerical=True
+        )
         self._tolerance = tolerance
         self._steps = steps
         self._chosen_flex = chosen_flex
@@ -966,7 +968,9 @@ class ApproximateMotion(Motion):
                 raise ValueError(
                     f"The pinned vertex {pinned_vertex} is not part of the graph"
                 )
-            self._motion_samples = self._pin_origin(self._motion_samples, pinned_vertex)[0]
+            self._motion_samples = self._pin_origin(
+                self._motion_samples, pinned_vertex
+            )[0]
             self._pinned_vertex = pinned_vertex
         self._fixed_pair = fixed_pair
         self._fixed_direction = fixed_direction
@@ -1028,9 +1032,8 @@ class ApproximateMotion(Motion):
         o_str += f"{self._starting_realization}, {self._steps}, "
         o_str += f"step_size={self._step_size}, chosen_flex={self._chosen_flex}, "
         o_str += f"tolerance={self._tolerance}, fixed_pair={self._fixed_pair}, "
-        o_str += (
-            f"fixed_direction={self._fixed_direction}, pinned_vertex={self._pinned_vertex})"
-        )
+        o_str += f"fixed_direction={self._fixed_direction}, "
+        o_str += "pinned_vertex={self._pinned_vertex})"
         return o_str
 
     @property
