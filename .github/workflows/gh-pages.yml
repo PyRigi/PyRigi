@@ -42,3 +42,4 @@ jobs:
       with:
         documentation_path: ./doc
         checkout: false
+        python-version: "3.11"
