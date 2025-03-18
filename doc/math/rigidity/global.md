@@ -69,7 +69,7 @@ if $k_{min}(G,d) = d+1$.
 Let $G$ be a graph with $d+2$ or more vertices. If $G$ has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
 in $\RR^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$ are globally $d$-rigid.
 
-{{references}} {cite:p}`GortlerHealyThurston2010{Thm 1.13}`
+{{references}} {cite:p}`Connelly2005{Thm 1.3}`, {cite:p}`GortlerHealyThurston2010{Thm 1.13}`
 :::
 
 The converse of this theorem is the following one:
@@ -102,14 +102,14 @@ $t = n\cdot d - \binom{d+1}{2}$, and $N = A \cdot n\cdot \binom{n}{2} +2$, where
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
 
-{{references}} {cite:p}`GortlerHealyThurston2010`
+{{references}} {cite:p}`GortlerHealyThurston2010{Alg 5.3}`
 :::
 
 The above algorithm may give false negatives as the following theorem tells.
 
 :::{prf:theorem}
 :label: thm-globally-randomize-algorithm
-The randomized {prf:ref}`algorithm for checking global d-rigidity<alg-randomized-globally-rigid>`  never returns a false positive answer,
+The randomized {prf:ref}`algorithm for checking global d-rigidity<alg-randomized-globally-rigid>` never returns a false positive answer,
 and returns a false negative answer with probability bounded above by $nm/N$, where $n$ is the
 number of vertices, $m$ is the number of edges and $N$ is an arbitrarily large integer.
 Given a number $A$, we chose $N \geq A\cdot nm + 2$
@@ -120,7 +120,7 @@ the class of randomized polynomial time algorithms.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
 
-{{references}} {cite:p}`GortlerHealyThurston2010`
+{{references}} {cite:p}`GortlerHealyThurston2010{Prop 5.7}`
 :::
 
 :::{prf:definition} globally linked in a framework
