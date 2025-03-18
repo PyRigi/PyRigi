@@ -188,8 +188,8 @@ in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p
 :::{prf:lemma}
 :label: lem-linked-pair-rigid-component
 
-A pair $\{u, v\}$ is $d$-{prf:ref}`linked <def-linked-pair>` in $G$ if and only if
-there exists a $d$-{prf:ref}`rigid component <def-rigid-components>` of $G$ containing
+A pair $\{u, v\}$ is 2-{prf:ref}`linked <def-linked-pair>` in $G$ if and only if
+there exists a 2-{prf:ref}`rigid component <def-rigid-components>` of $G$ containing
 $u$ and $v$.
 
 {{references}} {cite:p}`Jordan2016`
@@ -264,7 +264,7 @@ Let $G = (V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u
 a non-adjacent 2-linked pair of vertices with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$.
 Then $\{u,v\}$ is {prf:ref}`weakly globally 2-linked <def-globally-linked>` in $G$ if and only if either
 * $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-set>` in G, or
-* $C(B,V_0)$ is {prf:ref}`globally rigid <def-globally-rigid-graph>`,
+* $C(B,V_0)$ is {prf:ref}`globally 2-rigid <def-globally-rigid-graph>`,
 
 where $B$ is the {prf:ref}`3-block <def-block-3>` of $\{u,v\}$ in $G$, $B_0 = (V_0,E_0)$
 is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`,
@@ -278,5 +278,5 @@ The resulting graph is $C(B, V_0)$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
 
-{{references}} {cite:p}`JordanVillanyi2024`
+{{references}} {cite:p}`JordanVillanyi2024{Thm 5.8}`
 :::
