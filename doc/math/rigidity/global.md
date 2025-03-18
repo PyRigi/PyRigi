@@ -66,7 +66,7 @@ if $k_{min}(G,d) = d+1$.
 :::{prf:theorem}
 :label: thm-k-min-stress-matrix
 
-If a graph $G$ with $d+2$ or more vertices has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
+Let $G$ be a graph with $d+2$ or more vertices. If $G$ has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
 in $\RR^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $p$ of $G$ are globally $d$-rigid.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
@@ -77,7 +77,7 @@ The converse of this theorem is the following one:
 :::{prf:theorem}
 :label: thm-inverse-k-min-stress-matrix
 
-If a graph $G$ with $d+2$ or more vertices does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
+Let $G$ be a graph with $d+2$ or more vertices. If $G$ does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
 in $\RR^d$, then any $d$-{prf:ref}`dimensional generic framework <def-gen-realization>` $p$ of $G$ is not globally $d$-rigid.
 
 {{references}} {cite:p}`GortlerHealyThurston2010`
