@@ -174,7 +174,7 @@ that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
 A pair of vertices $\{u,v\}$ of $G$ is _linked in a
 $d$-{prf:ref}`dimensional framework <def-framework>` $(G,p)$_
-(or that $uv$ is an _implied edge_ of $(G,p)$) if the set of distances
+(or $uv$ is an _implied edge_ of $(G,p)$) if the set of distances
 $\{ \|q(u) - q(v) \| : (G,q) \text{ is equivalent to } (G,p) \}$
 is finite.
 
@@ -192,7 +192,7 @@ A pair $\{u, v\}$ is 2-{prf:ref}`linked <def-linked-pair>` in $G$ if and only if
 there exists a 2-{prf:ref}`rigid component <def-rigid-components>` of $G$ containing
 $u$ and $v$.
 
-{{references}} {cite:p}`Jordan2016`
+{{references}} compare {cite:p}`Jordan2016{p. 84}`
 :::
 
 
@@ -230,7 +230,7 @@ We say that $H + uv$ is obtained from $G$ by a _cleaving operation_ along $\{u,v
 :::{prf:lemma}
 :label: lem-3-block
 
-Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a
+Let $G$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a
 non-adjacent vertex pair in $G$ with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$.
 Then either $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-set>` in $G$ or there is
 a unique {prf:ref}`3-connected component <def-k-connected>` $B$ of the
@@ -240,14 +240,14 @@ In the latter case the subgraph $B$ can be obtained from $G$ by a sequence of
 Furthermore, $uv \notin E(B)$ and if the pair $\{u,v\}$ is 2-linked in $G$ then it is also
 2-linked in $B$.
 
-{{references}} {cite:p}`JordanVillanyi2024`
+{{references}} {cite:p}`JordanVillanyi2024{Lem 5.7}`
 :::
 
 
 :::{prf:definition} 3-block
 :label: def-block-3
 
-Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a
+Let $G$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a
 non-adjacent vertex pair in $G$ which is not a {prf:ref}`separating pair <def-separating-set>`.
 The unique {prf:ref}`3-connected component <def-k-connected>`
 $B$ of the {prf:ref}`augmented graph <def-augmented-graph>` of $G$ such that $\{u,v\}\subset V(B)$
@@ -260,7 +260,7 @@ is called the _3-block_ of $\{u,v\}$ in $G$.
 :::{prf:theorem}
 :label: thm-weakly-globally-linked
 
-Let $G = (V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be
+Let $G$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be
 a non-adjacent 2-linked pair of vertices with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$.
 Then $\{u,v\}$ is {prf:ref}`weakly globally 2-linked <def-globally-linked>` in $G$ if and only if either
 * $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-set>` in G, or
