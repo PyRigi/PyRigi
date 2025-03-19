@@ -201,9 +201,9 @@ $u$ and $v$.
 
 A pair $\{u, v\}$ of vertices is non-adjacent and {prf:ref}`2-linked <def-globally-linked>`
 in $G$ if and only if there exists some subgraph $G_0 = (V_0,E_0)$ of $G$ with $u,v\in V_0$
-such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`fundamental circuit <def-fundamental-circuit>`.
+such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`.
 
-{{references}} {cite:p}`JordanVillanyi2024`
+{{references}} {cite:p}`JordanVillanyi2024{Sec 5.1}`
 :::
 
 
