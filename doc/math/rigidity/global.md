@@ -154,9 +154,9 @@ is {prf:ref}`globally linked <def-globally-linked-p>`.
 :label: thm-weakly-globally-linked-globally-rigid-graph
 
 A graph $G$ is {prf:ref}`globally d-rigid <def-globally-rigid-graph>` if and only if every pair of
-vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
+vertices is {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
-{{references}} {cite:p}`JordanVillanyi2024`
+{{references}} {cite:p}`JordanVillanyi2024{Lem 3.2}`
 :::
 
 
