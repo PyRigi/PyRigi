@@ -124,6 +124,17 @@ In particular, if $U = \{u,v\}$ then U is called a _separating pair_.
 :::
 
 
+:::{prf:definition} stable cutset
+:label: def-stable-cutset
+
+The set $S \subset V$ is called a _stable cutset_ of $G$
+if it is a {prf:ref}`separating set <def-separating-set>` of $G$
+and also an independent set in $G$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_stable_cutset`
+:::
+
+
 :::{prf:definition} clique
 :label: def-clique
 
