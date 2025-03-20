@@ -42,7 +42,7 @@ A graph $G = (V, E)$ with $|V|\geq 2$ is minimally (generically) $2$-rigid if an
 
 Let $G = (V, E)$ be a minimally (generically) $d$-rigid graph with $|V|\geq d+1$. Then $G$ is $(d,\binom{d+1}{2})${prf:ref}`-tight <def-kl-sparse-tight>`.
 
-{{references}} compare {cite:p}`Whiteley1996`
+{{references}} compare {cite:p}`Whiteley1996{11.1.3}`
 :::
 
 :::{prf:theorem}
