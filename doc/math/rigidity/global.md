@@ -181,7 +181,7 @@ is finite.
 A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked_ if it is linked
 in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$.
 
-{{references}} {cite:p}`Jordan2016`
+{{references}} see {cite:p}`Jordan2016` for a different but equivalent definition
 :::
 
 
