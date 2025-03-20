@@ -1847,12 +1847,12 @@ class Framework(object):
                 tolerance=tolerance,
             )
             inf_flexes = [inf_flexes[:, i] for i in range(inf_flexes.shape[1])]
-            K = Framework(
+            Kn = Framework(
                 CompleteGraph(len(self._graph)),
                 self.realization(as_points=True, numerical=True),
             )
             inf_flexes_trivial = _null_space(
-                np.array(K.rigidity_matrix(vertex_order=vertex_order)).astype(
+                np.array(Kn.rigidity_matrix(vertex_order=vertex_order)).astype(
                     np.float64
                 ),
                 tolerance=tolerance,
@@ -1864,7 +1864,7 @@ class Framework(object):
                 tmp_matrix = np.hstack((inf_flexes_trivial, inf_flex))
                 if not np.linalg.matrix_rank(
                     tmp_matrix, tol=tolerance
-                ) == np.linalg.matrix_rank(inf_flexes_trivial):
+                ) == np.linalg.matrix_rank(inf_flexes_trivial, tol=tolerance):
                     extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
             Q, R = np.linalg.qr(extend_basis_matrix)
             Q = Q[:, s : np.linalg.matrix_rank(R, tol=tolerance)]
