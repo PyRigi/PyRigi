@@ -120,7 +120,7 @@ the class of randomized polynomial time algorithms.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
 
-{{references}} {cite:p}`GortlerHealyThurston2010{Prop 5.7}`
+{{references}} {cite:p}`GortlerHealyThurston2010{Thm 5.10}`
 :::
 
 :::{prf:definition} globally linked in a framework
