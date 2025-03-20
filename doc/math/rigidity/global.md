@@ -194,7 +194,7 @@ $u$ and $v$.
 
 {{references}} compare {cite:p}`Jordan2016{p. 84}`
 :::
-
+Note that {prf:ref}`lem-linked-pair-rigid-component` does not hold in higher dimensions.
 
 :::{prf:lemma}
 :label: lem-linked-pair-r2-circuit
