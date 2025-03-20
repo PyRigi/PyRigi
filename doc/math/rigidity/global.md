@@ -181,7 +181,7 @@ is finite.
 A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked_ if it is linked
 in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$.
 
-{{references}} see {cite:p}`Jordan2016` for a different but equivalent definition
+{{references}} see {cite:p}`Jordan2016{Sec 3.6.4}` for a different but equivalent definition
 :::
 
 
@@ -192,7 +192,7 @@ A pair $\{u, v\}$ is 2-{prf:ref}`linked <def-linked-pair>` in $G$ if and only if
 there exists a 2-{prf:ref}`rigid component <def-rigid-components>` of $G$ containing
 $u$ and $v$.
 
-{{references}} compare {cite:p}`Jordan2016{p. 84}`
+{{references}} compare {cite:p}`Jordan2016{Sec 3.6.4}`
 :::
 Note that {prf:ref}`lem-linked-pair-rigid-component` does not hold in higher dimensions.
 
