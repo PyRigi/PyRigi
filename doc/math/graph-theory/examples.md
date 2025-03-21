@@ -31,7 +31,7 @@ Then either
 * $d=3$ and $G\in \{B_{3,2}\}\cup \mathcal{B}_{3,2}^+$ or
 * $d\geq 4$ and $G\in \{B_{d,d-1}$, $B_{d,d-2}\}\cup \mathcal{B}_{d,d-1}^+$.
 
-{{references}} {cite:p}`GraseggerGulerEtAl2022`
+{{references}} {cite:p}`GraseggerGulerEtAl2022{Thm 1}`
 :::
 
 Using the {prf:ref}`2-sum lemma <lem-2-sum>` we can create one family of generalized bananas in which

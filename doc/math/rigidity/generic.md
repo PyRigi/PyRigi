@@ -42,7 +42,7 @@ A graph $G = (V, E)$ with $|V|\geq 2$ is minimally (generically) $2$-rigid if an
 
 Let $G = (V, E)$ be a minimally (generically) $d$-rigid graph with $|V|\geq d+1$. Then $G$ is $(d,\binom{d+1}{2})${prf:ref}`-tight <def-kl-sparse-tight>`.
 
-{{references}} compare {cite:p}`Whiteley1996`
+{{references}} compare {cite:p}`Whiteley1996{11.1.3}`
 :::
 
 :::{prf:theorem}
@@ -61,7 +61,7 @@ If $F$ is (minimally) infinitesimally $d$-rigid, then $G$ is (minimally) $d$-rig
 If $F$ is not (minimally) infinitesimally $d$-rigid, then $G$ is not (minimally) $d$-rigid with probability $1-(dn-\binom{d+1}{2})/N$.
 In other words, the probability of a false negative is $(dn-\binom{d+1}{2})/N$.
 
-{{references}} {cite:p}`GortlerHealyThurston2010`
+{{references}} {cite:p}`GortlerHealyThurston2010{Alg 5.2, Prop 5.7}`
 :::
 
 :::{prf:definition} Rigid components in $\RR^d$
