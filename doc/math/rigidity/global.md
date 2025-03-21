@@ -50,7 +50,7 @@ We denote by $k_{min}(G,d)$ the minimal value of $k(\Omega)$ as $\Omega$ ranges 
 For {prf:ref}`frameworks <def-framework>` of a graph $G$ with at least $d+1$ vertices,
 the relation $k_{min}(G,d) \geq d+1$ holds.
 
-{{references}} {cite:p}`GortlerHealyThurston2010`
+{{references}} {cite:p}`GortlerHealyThurston2010{Lem 1.11}`
 :::
 
 :::{prf:definition}
@@ -66,10 +66,10 @@ if $k_{min}(G,d) = d+1$.
 :::{prf:theorem}
 :label: thm-k-min-stress-matrix
 
-If a graph $G$ with $d+2$ or more vertices has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\RR^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $p$ of $G$ are globally $d$-rigid.
+Let $G$ be a graph with $d+2$ or more vertices. If $G$ has a minimal {prf:ref}`stress kernel <def-stress-kernel>`
+in $\RR^d$, then all {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$ are globally $d$-rigid.
 
-{{references}} {cite:p}`GortlerHealyThurston2010`
+{{references}} {cite:p}`Connelly2005{Thm 1.3}`, {cite:p}`GortlerHealyThurston2010{Thm 1.13}`
 :::
 
 The converse of this theorem is the following one:
@@ -77,10 +77,10 @@ The converse of this theorem is the following one:
 :::{prf:theorem}
 :label: thm-inverse-k-min-stress-matrix
 
-If a graph $G$ with $d+2$ or more vertices does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
-in $\RR^d$, then any $d$-{prf:ref}`dimensional generic framework <def-gen-realization>` $p$ of $G$ is not globally $d$-rigid.
+Let $G$ be a graph with $d+2$ or more vertices. If $G$ does not have a minimal {prf:ref}`stress kernel <def-stress-kernel>`
+in $\RR^d$, then any $d$-{prf:ref}`dimensional generic framework <def-gen-realization>` $(G,p)$ is not globally $d$-rigid.
 
-{{references}} {cite:p}`GortlerHealyThurston2010`
+{{references}} {cite:p}`GortlerHealyThurston2010{Thm 1.14}`
 :::
 
 The following randomized algorithm from {cite:p}`GortlerHealyThurston2010` checks for global $d$-rigidity.
@@ -102,14 +102,14 @@ $t = n\cdot d - \binom{d+1}{2}$, and $N = A \cdot n\cdot \binom{n}{2} +2$, where
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
 
-{{references}} {cite:p}`GortlerHealyThurston2010`
+{{references}} {cite:p}`GortlerHealyThurston2010{Alg 5.3}`
 :::
 
 The above algorithm may give false negatives as the following theorem tells.
 
 :::{prf:theorem}
 :label: thm-globally-randomize-algorithm
-The randomized {prf:ref}`algorithm for checking global d-rigidity<alg-randomized-globally-rigid>`  never returns a false positive answer,
+The randomized {prf:ref}`algorithm for checking global d-rigidity<alg-randomized-globally-rigid>` never returns a false positive answer,
 and returns a false negative answer with probability bounded above by $nm/N$, where $n$ is the
 number of vertices, $m$ is the number of edges and $N$ is an arbitrarily large integer.
 Given a number $A$, we chose $N \geq A\cdot nm + 2$
@@ -120,7 +120,7 @@ the class of randomized polynomial time algorithms.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_globally_rigid`
 
-{{references}} {cite:p}`GortlerHealyThurston2010`
+{{references}} {cite:p}`GortlerHealyThurston2010{Thm 5.10}`
 :::
 
 :::{prf:definition} globally linked in a framework
@@ -154,9 +154,9 @@ is {prf:ref}`globally linked <def-globally-linked-p>`.
 :label: thm-weakly-globally-linked-globally-rigid-graph
 
 A graph $G$ is {prf:ref}`globally d-rigid <def-globally-rigid-graph>` if and only if every pair of
-vertices are {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
+vertices is {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
-{{references}} {cite:p}`JordanVillanyi2024`
+{{references}} {cite:p}`JordanVillanyi2024{Lem 3.2}`
 :::
 
 
@@ -174,36 +174,36 @@ that are not {prf:ref}`weakly globally d-linked <def-globally-linked>` in $G$.
 
 A pair of vertices $\{u,v\}$ of $G$ is _linked in a
 $d$-{prf:ref}`dimensional framework <def-framework>` $(G,p)$_
-(or that $uv$ is an _implied edge_ of $(G,p)$) if the set of distances
+(or $uv$ is an _implied edge_ of $(G,p)$) if the set of distances
 $\{ \|q(u) - q(v) \| : (G,q) \text{ is equivalent to } (G,p) \}$
 is finite.
 
 A pair of vertices $\{u,v\}$ of $G$ is _$d$-linked_ if it is linked
 in all $d$-dimensional {prf:ref}`generic frameworks <def-gen-realization>` $(G,p)$.
 
-{{references}} {cite:p}`Jordan2016`
+{{references}} see {cite:p}`Jordan2016{Sec 3.6.4}` for a different but equivalent definition
 :::
 
 
 :::{prf:lemma}
 :label: lem-linked-pair-rigid-component
 
-A pair $\{u, v\}$ is $d$-{prf:ref}`linked <def-linked-pair>` in $G$ if and only if
-there exists a $d$-{prf:ref}`rigid component <def-rigid-components>` of $G$ containing
+A pair $\{u, v\}$ is 2-{prf:ref}`linked <def-linked-pair>` in $G$ if and only if
+there exists a 2-{prf:ref}`rigid component <def-rigid-components>` of $G$ containing
 $u$ and $v$.
 
-{{references}} {cite:p}`Jordan2016`
+{{references}} compare {cite:p}`Jordan2016{Sec 3.6.4}`
 :::
-
+Note that {prf:ref}`lem-linked-pair-rigid-component` does not hold in higher dimensions.
 
 :::{prf:lemma}
 :label: lem-linked-pair-r2-circuit
 
 A pair $\{u, v\}$ of vertices is non-adjacent and {prf:ref}`2-linked <def-globally-linked>`
 in $G$ if and only if there exists some subgraph $G_0 = (V_0,E_0)$ of $G$ with $u,v\in V_0$
-such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`fundamental circuit <def-fundamental-circuit>`.
+such that $G_0+uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`.
 
-{{references}} {cite:p}`JordanVillanyi2024`
+{{references}} {cite:p}`JordanVillanyi2024{Sec 5.1}`
 :::
 
 
@@ -230,7 +230,7 @@ We say that $H + uv$ is obtained from $G$ by a _cleaving operation_ along $\{u,v
 :::{prf:lemma}
 :label: lem-3-block
 
-Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a
+Let $G$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a
 non-adjacent vertex pair in $G$ with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$.
 Then either $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-set>` in $G$ or there is
 a unique {prf:ref}`3-connected component <def-k-connected>` $B$ of the
@@ -240,14 +240,14 @@ In the latter case the subgraph $B$ can be obtained from $G$ by a sequence of
 Furthermore, $uv \notin E(B)$ and if the pair $\{u,v\}$ is 2-linked in $G$ then it is also
 2-linked in $B$.
 
-{{references}} {cite:p}`JordanVillanyi2024`
+{{references}} {cite:p}`JordanVillanyi2024{Lem 5.7}`
 :::
 
 
 :::{prf:definition} 3-block
 :label: def-block-3
 
-Let $G=(V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a
+Let $G$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be a
 non-adjacent vertex pair in $G$ which is not a {prf:ref}`separating pair <def-separating-set>`.
 The unique {prf:ref}`3-connected component <def-k-connected>`
 $B$ of the {prf:ref}`augmented graph <def-augmented-graph>` of $G$ such that $\{u,v\}\subset V(B)$
@@ -260,11 +260,11 @@ is called the _3-block_ of $\{u,v\}$ in $G$.
 :::{prf:theorem}
 :label: thm-weakly-globally-linked
 
-Let $G = (V,E)$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be
+Let $G$ be a {prf:ref}`2-connected graph <def-k-connected>` and let $\{u,v\}$ be
 a non-adjacent 2-linked pair of vertices with {prf:ref}`local connectivity <def-kappa-G-u-v>` $\kappa_G(u,v) \geq 3$.
 Then $\{u,v\}$ is {prf:ref}`weakly globally 2-linked <def-globally-linked>` in $G$ if and only if either
 * $\{u,v\}$ is a {prf:ref}`separating pair <def-separating-set>` in G, or
-* $C(B,V_0)$ is {prf:ref}`globally rigid <def-globally-rigid-graph>`,
+* $C(B,V_0)$ is {prf:ref}`globally 2-rigid <def-globally-rigid-graph>`,
 
 where $B$ is the {prf:ref}`3-block <def-block-3>` of $\{u,v\}$ in $G$, $B_0 = (V_0,E_0)$
 is a subgraph of $B$ with $u,v \in V_0$ such that $B_0 + uv$ is an $\mathcal{R}_2$-{prf:ref}`circuit <def-matroid>`,
@@ -278,5 +278,5 @@ The resulting graph is $C(B, V_0)$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
 
-{{references}} {cite:p}`JordanVillanyi2024`
+{{references}} {cite:p}`JordanVillanyi2024{Thm 5.8}`
 :::

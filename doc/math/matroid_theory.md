@@ -97,7 +97,7 @@ Suppose that $G=(V,E)$ is the {prf:ref}`2-sum <def-t-sum>` of $G_1=(V_1,E_1)$ an
 Then $G$ is an $\mathcal{R}_d$-circuit if and only if $G_1$ and $G_2$ are both
 $\mathcal{R}_{d}$-circuits.
 
-{{references}} {cite:p}`GraseggerGulerEtAl2022`
+{{references}} {cite:p}`GraseggerGulerEtAl2022{Lem 10}`
 :::
 
 

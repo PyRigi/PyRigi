@@ -129,7 +129,7 @@ Let $G = (V, E)$ be a {prf:ref}`minimally 1-redundantly 2-rigid <def-redundantly
   |E| \leq 3 |V| - 9 \,.
 \end{equation*}
 
-{{references}} {cite:p}`Jordan2016`
+{{references}} {cite:p}`Jordan2016{Sec 3.6.1}`
 :::
 
 
