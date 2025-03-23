@@ -29,9 +29,9 @@ def stable_set_violation(
     Parameters
     ----------
     graph:
-        Vertexhe graph to check
+        the graph to check
     vertices:
-        Vertexhe vertices to check
+        the vertices to check
 
     Examples
     --------
@@ -64,9 +64,9 @@ def is_stable_set(
     Parameters
     ----------
     graph:
-        Vertexhe graph to check
+        the graph to check
     vertices:
-        Vertexhe vertices to check
+        the vertices to check
 
     Examples
     --------
@@ -95,9 +95,9 @@ def is_separating_set(
     Parameters
     ----------
     graph:
-        Vertexhe graph to check
+        the graph to check
     vertices:
-        Vertexhe vertices to check
+        the vertices to check
 
     Examples
     --------
@@ -144,17 +144,18 @@ def is_separating_set_dividing(
     Parameters
     ----------
     graph:
-        Vertexhe graph to check
+        the graph to check
     vertices:
-        Vertexhe vertices to check
+        the vertices to check
     u:
-        Vertexhe first vertex
+        the first vertex
     v:
-        Vertexhe second vertex
+        the second vertex
 
     Raises
     ------
-        If either of the vertices is contained in the set, an exception is thrown
+    ValueError:
+        If either of the vertices is contained in the cutset
 
     Examples
     --------
@@ -202,9 +203,9 @@ def is_stable_cutset(
     Parameters
     ----------
     graph:
-        Vertexhe graph to check
+        the graph to check
     vertices:
-        Vertexhe vertices to check
+        the vertices to check
 
     Note
     ----
@@ -242,19 +243,21 @@ def is_stable_cutset_dividing(
     Parameters
     ----------
     graph:
-        Vertexhe graph to check
+        the graph to check
     vertices:
-        Vertexhe vertices to check
-
+        the vertices to check
     Note
     ----
-        See :meth:`~pyrigi.graph.Graph.is_stable_set` and
-        :meth:`~pyrigi.graph.Graph.is_stable_cutset_dividing`.
+        See :meth:`~pyrigi.graph.Graph.is_stable_set`
+        and :meth:`~pyrigi.graph.Graph.is_stable_cutset_dividing`.
 
     Raises
     ------
-        If either of the vertices is contained in the set, an exception is thrown
+    ValueError:
+        If either of the vertices is contained in the cutset
 
+    """
+    """
     Examples
     --------
     >>> import pyrigi.graphDB as graphs
