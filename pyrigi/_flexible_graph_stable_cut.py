@@ -1,15 +1,18 @@
+"""
+Algorithm for a stable cut search in a flexible graph
+according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
+"""
+
 import logging
 from typing import Optional
 
-from more_itertools import partition
 
-from stablecut.types import StableCut
-from stablecut.util import stable_set_violation
+from pyrigi.data_type import StableCut
+from pyrigi._cuts import stable_set_violation
 import networkx as nx
 import numpy as np
 
 from pyrigi.data_type import Vertex
-from pyrigi import Graph as PRGraph
 
 
 def stable_cut_in_flexible_graph[T: Vertex](
@@ -20,7 +23,12 @@ def stable_cut_in_flexible_graph[T: Vertex](
 ) -> Optional[StableCut[T]]:
     """
     Finds a stable cut in a flexible graph
-    according to Algorithm 1 in 2412.16018v1
+    according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
+
+    Definitions
+    -----------
+    :prf:ref:`Stable cutset <def-stable-cutset>`
+    :prf:ref:`Contiguous rigidity <def-cont-rigid-framework>`
 
     Parameters
     ----------
@@ -38,10 +46,11 @@ def stable_cut_in_flexible_graph[T: Vertex](
 
     Returns
     -------
-    For a valid input a ``StableCut`` in the graph is returned.
-    For rigid graphs and cases when ``u`` and ``v`` are not in the same
-    rigid component, ``None`` is returned.
+        For a valid input a :class:`pyrigi.data_type.StableCut` in the graph is returned.
+        For rigid graphs and cases when ``u`` and ``v`` are not in the same
+        rigid component, ``None`` is returned.
     """
+    from pyrigi import Graph as PRGraph
 
     if graph.number_of_nodes() <= 1:
         return None
@@ -78,8 +87,9 @@ def stable_cut_in_flexible_graph[T: Vertex](
     # if v is not specified of lays in another component
 
     # separate a connected component that contains u
-    other, u_component = partition(lambda c: u in c, connected_components)
-    u_component = next(u_component)
+    # partition from more_itertools could have been used
+    u_component = next(filter(lambda c: u in c, connected_components))
+    other = filter(lambda c: u not in c, connected_components)
     subgraph = PRGraph(nx.induced_subgraph(graph, u_component))
 
     # if v is not specified, we just choose a different component and return the empty cut
@@ -110,17 +120,14 @@ def stable_cut_in_flexible_graph_fast[T: Vertex](
     ensure_rigid_components: bool = True,
 ) -> Optional[StableCut[T]]:
     """
-    Same as stable_cut_in_flexible_graph but faster.
-    Checks for connectivity are removed, the algorithm may fail in those cases
+    Same as :meth:`~pyrigi.graph.Graph.stable_cut_in_flexible_graph` but faster.
+    Checks for connectivity are removed,
+    the algorithms output is undefined in this cases.
 
-    Parameters
-    ----------
-    """
-    """
-    Finds a stable cut in a flexible graph
-    according to Algorithm 1 in 2412.16018v1.
-    The input graph needs to be connected otherwise
-    the output of the algorithm undefined.
+    Definitions
+    -----------
+    :prf:ref:`Stable cutset <def-stable-cutset>`
+    :prf:ref:`Contiguous rigidity <def-cont-rigid-framework>`
 
     Parameters
     ----------
@@ -142,10 +149,12 @@ def stable_cut_in_flexible_graph_fast[T: Vertex](
 
     Returns
     -------
-    For a valid input a ``StableCut`` in the graph is returned.
-    For rigid graphs and cases when ``u`` and ``v`` are not in the same
-    rigid component, ``None`` is returned.
+        For a valid input a :class:`pyrigi.data_type.StableCut` in the graph is returned.
+        For rigid graphs and cases when ``u`` and ``v`` are not in the same
+        rigid component, ``None`` is returned.
     """
+    from pyrigi import Graph as PRGraph
+
     if graph.number_of_nodes() <= 1:
         return None
 
@@ -175,7 +184,7 @@ def stable_cut_in_flexible_graph_fast[T: Vertex](
 
 
 def _find_and_validate_u_and_v[T: Vertex](
-    graph: PRGraph,
+    graph: nx.Graph,  # PRGraph,
     u: T,
     v: Optional[T],
 ) -> Optional[T]:
@@ -219,7 +228,7 @@ def _find_and_validate_u_and_v[T: Vertex](
 
 
 def _process[T: Vertex](
-    graph: PRGraph,
+    graph: nx.Graph,  # PRGraph,
     u: T,
     v: T,
 ) -> StableCut[T]:

@@ -4,13 +4,14 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
+from typing import Callable, TypeVar, ParamSpec
 import math
 import warnings
 from collections.abc import Callable
 from copy import deepcopy
 from itertools import combinations
 from random import randint
-from typing import Iterable
+from typing import Iterable, TypeVar
 
 import networkx as nx
 from sympy import Matrix, oo, zeros
@@ -23,9 +24,45 @@ from pyrigi.misc import _generate_category_tables
 from pyrigi.misc import _doc_category as doc_category
 from pyrigi.plot_style import PlotStyle
 from pyrigi.warning import RandomizedAlgorithmWarning
+from pyrigi._flexible_graph_stable_cut import (
+    stable_cut_in_flexible_graph,
+    stable_cut_in_flexible_graph_fast,
+)
+from pyrigi._cuts import (
+    stable_set_violation,
+    is_stable_set,
+    is_separating_set,
+    is_separating_set_dividing,
+    is_stable_cutset,
+    is_stable_cutset_dividing,
+)
 
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
+
+P = ParamSpec("P")
+T = TypeVar("T")
+
+
+def proxy_call(wrapper: Callable[P, T]):
+    """
+    Decorator that delegates calls to a function.
+    Also, function's doc string and signature is propagated.
+
+    Can be used to delegate method calls to external functions.
+    In that case the function should accept
+    the class type as the first argument.
+
+    Note
+    ----
+    For PyRight autocomplete to work it is necessary for the function
+    to be at the beginning of the same file it is used in.
+    """
+
+    def decorator(_: Callable) -> Callable[P, T]:
+        return wrapper
+
+    return decorator
 
 
 class Graph(nx.Graph):
@@ -1305,7 +1342,6 @@ class Graph(nx.Graph):
                 for k_possible_edges in combinations(
                     combinations(neighbors, 2), deg[1] - dim
                 ):
-
                     if all([not G.has_edge(*edge) for edge in k_possible_edges]):
                         for edge in k_possible_edges:
                             G.add_edge(*edge)
@@ -3525,34 +3561,44 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    def is_separating_set(self, vertices: list[Vertex] | set[Vertex]) -> bool:
-        """
-        Check if a set of vertices is a separating set.
+    @proxy_call(stable_set_violation)
+    def stable_set_violation(self):
+        pass
 
-        Definitions
-        -----------
-        :prf:ref:`separating-set <def-separating-set>`
+    @doc_category("Generic rigidity")
+    @proxy_call(is_stable_set)
+    def is_stable_set(self):
+        pass
 
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> H = graphs.Cycle(5)
-        >>> H.is_separating_set([1,3])
-        True
-        >>> G = Graph([[0,1],[1,2],[2,3],[2,4],[4,3],[4,5]])
-        >>> G.is_separating_set([2])
-        True
-        >>> G.is_separating_set([3])
-        False
-        >>> G.is_separating_set([3,4])
-        True
-        """
+    @doc_category("Generic rigidity")
+    @proxy_call(is_separating_set)
+    def is_separating_set(self):
+        pass
 
-        self._input_check_vertex_members(vertices)
+    @doc_category("Generic rigidity")
+    @proxy_call(is_separating_set_dividing)
+    def is_separating_set_dividing(self):
+        pass
 
-        H = self.copy()
-        H.delete_vertices(vertices)
-        return not nx.is_connected(H)
+    @doc_category("Generic rigidity")
+    @proxy_call(is_stable_cutset)
+    def is_stable_cutset(self):
+        pass
+
+    @doc_category("Generic rigidity")
+    @proxy_call(is_stable_cutset_dividing)
+    def is_stable_cutset_dividing(self):
+        pass
+
+    @doc_category("Generic rigidity")
+    @proxy_call(stable_cut_in_flexible_graph)
+    def stable_cut_in_flexible_graph(self):
+        pass
+
+    @doc_category("Generic rigidity")
+    @proxy_call(stable_cut_in_flexible_graph_fast)
+    def stable_cut_in_flexible_graph_fast(self):
+        pass
 
     @doc_category("Generic rigidity")
     def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
