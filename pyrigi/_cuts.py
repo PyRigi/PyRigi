@@ -37,9 +37,8 @@ def stable_set_violation(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
-    >>> stable_set_violation(H, [1,3])
-    None
-    >>> stable_set_violation(H, [0,2,4])
+    >>> H.stable_set_violation([1,3]) # -> None
+    >>> H.stable_set_violation([0,2,4])
     (0, 4)
     """
 
@@ -102,6 +101,7 @@ def is_separating_set(
 
     Examples
     --------
+    >>> from pyrigi.graph import Graph
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
     >>> H.is_separating_set([1,3])
@@ -152,20 +152,18 @@ def is_separating_set_dividing(
     v:
         Vertexhe second vertex
 
+    Raises
+    ------
+        If either of the vertices is contained in the set, an exception is thrown
+
     Examples
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
-    >>> H.is_stable_cutset_dividing([1,3], 0, 2)
+    >>> H.is_separating_set_dividing([1,3], 0, 2)
     True
-    >>> H.is_stable_cutset_dividing([3,5], 0, 1)
+    >>> H.is_separating_set_dividing([2,4], 0, 1)
     False
-    >>> H.is_stable_cutset_dividing([0,5], 0, 1)
-    ValueError
-
-    Raises
-    ------
-        If either of the vertices is contained in the set, exception is thrown
     """
     vertices = _to_vertices(vertices)
 
@@ -253,16 +251,18 @@ def is_stable_cutset_dividing(
         See :meth:`~pyrigi.graph.Graph.is_stable_set` and
         :meth:`~pyrigi.graph.Graph.is_stable_cutset_dividing`.
 
+    Raises
+    ------
+        If either of the vertices is contained in the set, an exception is thrown
+
     Examples
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
     >>> H.is_stable_cutset_dividing([1,3], 0, 2)
     True
-    >>> H.is_stable_cutset_dividing([3,5], 0, 1)
+    >>> H.is_stable_cutset_dividing([2,4], 0, 1)
     False
-    >>> H.is_stable_cutset_dividing([0,5], 0, 1)
-    ValueError
     """
     return is_stable_set(graph, vertices) and is_separating_set_dividing(
         graph, vertices, u, v, copy=copy
