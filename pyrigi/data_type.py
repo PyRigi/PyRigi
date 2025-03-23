@@ -61,7 +61,7 @@ Provides a data type that can become infinite.
 """
 
 
-class SeparatingCut[T: Vertex](NamedTuple):
+class SeparatingCut(NamedTuple):
     """
     Represents a separating cut in a graph.
 
@@ -79,9 +79,9 @@ class SeparatingCut[T: Vertex](NamedTuple):
         vertices of the cut
     """
 
-    a: set[T]
-    b: set[T]
-    cut: set[T]
+    a: set[Vertex]
+    b: set[Vertex]
+    cut: set[Vertex]
 
     def __repr__(self) -> str:
         return f"SeparatingCut({self.a}, {self.b} - {self.cut})"
@@ -94,7 +94,7 @@ class SeparatingCut[T: Vertex](NamedTuple):
         return self.a == other.b and self.b == other.a
 
 
-class StableCut[T: Vertex](SeparatingCut[T]):
+class StableCut(SeparatingCut):
     """
     Represents a stable cutset in a graph.
 
@@ -124,6 +124,6 @@ class StableCut[T: Vertex](SeparatingCut[T]):
         graph:
             The graph on which we check if the set is separating and stable.
         """
-        from pyrigi._cuts import is_stable_cut_set
+        from pyrigi._cuts import is_stable_cutset
 
-        return is_stable_cut_set(graph, self)
+        return is_stable_cutset(graph, self)

@@ -15,12 +15,12 @@ import numpy as np
 from pyrigi.data_type import Vertex
 
 
-def stable_cut_in_flexible_graph[T: Vertex](
+def stable_cut_in_flexible_graph(
     graph: nx.Graph,
-    u: Optional[T] = None,
-    v: Optional[T] = None,
+    u: Optional[Vertex] = None,
+    v: Optional[Vertex] = None,
     copy: bool = True,
-) -> Optional[StableCut[T]]:
+) -> Optional[StableCut]:
     """
     Finds a stable cut in a flexible graph
     according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
@@ -112,13 +112,13 @@ def stable_cut_in_flexible_graph[T: Vertex](
     return cut
 
 
-def stable_cut_in_flexible_graph_fast[T: Vertex](
+def stable_cut_in_flexible_graph_fast(
     graph: nx.Graph,
-    u: Optional[T] = None,
-    v: Optional[T] = None,
+    u: Optional[Vertex] = None,
+    v: Optional[Vertex] = None,
     copy: bool = True,
     ensure_rigid_components: bool = True,
-) -> Optional[StableCut[T]]:
+) -> Optional[StableCut]:
     """
     Same as :meth:`~pyrigi.graph.Graph.stable_cut_in_flexible_graph` but faster.
     Checks for connectivity are removed,
@@ -183,11 +183,11 @@ def stable_cut_in_flexible_graph_fast[T: Vertex](
     return _process(graph, u, v)
 
 
-def _find_and_validate_u_and_v[T: Vertex](
+def _find_and_validate_u_and_v(
     graph: nx.Graph,  # PRGraph,
-    u: T,
-    v: Optional[T],
-) -> Optional[T]:
+    u: Vertex,
+    v: Optional[Vertex],
+) -> Optional[Vertex]:
     """
     Makes sure ``u`` and ``v`` are in different rigid components and
     finds such ``v`` if not provided.
@@ -227,11 +227,11 @@ def _find_and_validate_u_and_v[T: Vertex](
     return v
 
 
-def _process[T: Vertex](
+def _process(
     graph: nx.Graph,  # PRGraph,
-    u: T,
-    v: T,
-) -> StableCut[T]:
+    u: Vertex,
+    v: Vertex,
+) -> StableCut:
     """
     Finds a stable cut in a flexible graph
     """
@@ -249,7 +249,9 @@ def _process[T: Vertex](
             neiborhood,
         )
 
-    def contract(graph: nx.Graph, u: T, x: T) -> tuple[set[T], set[T]]:
+    def contract(
+        graph: nx.Graph, u: Vertex, x: Vertex
+    ) -> tuple[set[Vertex], set[Vertex]]:
         """
         Contracts the vertices u and x
         and returns their original neighbors for easy restoration
@@ -261,7 +263,13 @@ def _process[T: Vertex](
             graph.add_edge(u, n)
         return u_neigh, x_neigh
 
-    def restore(graph: nx.Graph, u: T, x: T, u_neigh: set[T], x_neigh: set[T]):
+    def restore(
+        graph: nx.Graph,
+        u: Vertex,
+        x: Vertex,
+        u_neigh: set[Vertex],
+        x_neigh: set[Vertex],
+    ):
         """
         Restores contracted graph to it's original form.
         Inverse operation for contract.

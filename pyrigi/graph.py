@@ -4,14 +4,12 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
-from typing import Callable, TypeVar, ParamSpec
+from typing import Callable, TypeVar, ParamSpec, Iterable
 import math
 import warnings
-from collections.abc import Callable
 from copy import deepcopy
 from itertools import combinations
 from random import randint
-from typing import Iterable, TypeVar
 
 import networkx as nx
 from sympy import Matrix, oo, zeros

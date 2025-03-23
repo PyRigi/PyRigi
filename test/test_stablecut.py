@@ -207,7 +207,12 @@ def test_fuzzy_stable_cut_in_flexible_graph(
 
             except AssertionError as e:
                 # Changes the error message to include graph
-                error_message = f"Assertion failed: {e}\nGraph: {nx.nx_agraph.to_agraph(graph)}\nComponents: {rigid_components}\nVertices: [{u} {v}]"
+                error_message = (
+                    f"Assertion failed: {e}\n"
+                    + f"Graph: {nx.nx_agraph.to_agraph(graph)}\n"
+                    + f"Components: {rigid_components}\n"
+                    + f"Vertices: [{u} {v}]"
+                )
                 raise AssertionError(error_message) from None
 
         graphs += 1

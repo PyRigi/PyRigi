@@ -4,7 +4,7 @@ import networkx as nx
 from pyrigi.data_type import Vertex, SeparatingCut
 
 
-def _to_vertices[T](vertices: Iterable[T] | SeparatingCut[T]) -> set[T]:
+def _to_vertices(vertices: Iterable[Vertex] | SeparatingCut) -> set[Vertex]:
     """
     Converts multiple input formats into the graph separator.
     """
@@ -15,10 +15,10 @@ def _to_vertices[T](vertices: Iterable[T] | SeparatingCut[T]) -> set[T]:
     return set(vertices)
 
 
-def stable_set_violation[T: Vertex](
+def stable_set_violation(
     graph: nx.Graph,
-    vertices: Iterable[T] | SeparatingCut[T],
-) -> Optional[tuple[T, T]]:
+    vertices: Iterable[Vertex] | SeparatingCut,
+) -> Optional[tuple[Vertex, Vertex]]:
     """
     Checks if the given set of vertices is stable in the given graph.
 
@@ -29,9 +29,9 @@ def stable_set_violation[T: Vertex](
     Parameters
     ----------
     graph:
-        The graph to check
+        Vertexhe graph to check
     vertices:
-        The vertices to check
+        Vertexhe vertices to check
 
     Examples
     --------
@@ -51,9 +51,9 @@ def stable_set_violation[T: Vertex](
     return None
 
 
-def is_stable_set[T: Vertex](
+def is_stable_set(
     graph: nx.Graph,
-    vertices: Iterable[T] | SeparatingCut[T],
+    vertices: Iterable[Vertex] | SeparatingCut,
 ) -> bool:
     """
     Checks if the given set of vertices is stable in the given graph.
@@ -65,9 +65,9 @@ def is_stable_set[T: Vertex](
     Parameters
     ----------
     graph:
-        The graph to check
+        Vertexhe graph to check
     vertices:
-        The vertices to check
+        Vertexhe vertices to check
 
     Examples
     --------
@@ -81,9 +81,9 @@ def is_stable_set[T: Vertex](
     return stable_set_violation(graph, vertices) is None
 
 
-def is_separating_set[T: Vertex](
+def is_separating_set(
     graph: nx.Graph,
-    vertices: Iterable[T] | SeparatingCut[T],
+    vertices: Iterable[Vertex] | SeparatingCut,
     copy: bool = True,
 ) -> bool:
     """
@@ -96,9 +96,9 @@ def is_separating_set[T: Vertex](
     Parameters
     ----------
     graph:
-        The graph to check
+        Vertexhe graph to check
     vertices:
-        The vertices to check
+        Vertexhe vertices to check
 
     Examples
     --------
@@ -127,11 +127,11 @@ def is_separating_set[T: Vertex](
     return not nx.is_connected(graph)
 
 
-def is_separating_set_dividing[T: Vertex](
+def is_separating_set_dividing(
     graph: nx.Graph,
-    vertices: Iterable[T] | SeparatingCut[T],
-    u: T,
-    v: T,
+    vertices: Iterable[Vertex] | SeparatingCut,
+    u: Vertex,
+    v: Vertex,
     copy: bool = True,
 ) -> bool:
     """
@@ -144,13 +144,13 @@ def is_separating_set_dividing[T: Vertex](
     Parameters
     ----------
     graph:
-        The graph to check
+        Vertexhe graph to check
     vertices:
-        The vertices to check
+        Vertexhe vertices to check
     u:
-        The first vertex
+        Vertexhe first vertex
     v:
-        The second vertex
+        Vertexhe second vertex
 
     Examples
     --------
@@ -189,9 +189,9 @@ def is_separating_set_dividing[T: Vertex](
     return True
 
 
-def is_stable_cutset[T: Vertex](
+def is_stable_cutset(
     graph: nx.Graph,
-    vertices: Iterable[T] | SeparatingCut[T],
+    vertices: Iterable[Vertex] | SeparatingCut,
     copy: bool = True,
 ) -> bool:
     """
@@ -204,9 +204,9 @@ def is_stable_cutset[T: Vertex](
     Parameters
     ----------
     graph:
-        The graph to check
+        Vertexhe graph to check
     vertices:
-        The vertices to check
+        Vertexhe vertices to check
 
     Note
     ----
@@ -227,11 +227,11 @@ def is_stable_cutset[T: Vertex](
     )
 
 
-def is_stable_cutset_dividing[T: Vertex](
+def is_stable_cutset_dividing(
     graph: nx.Graph,
-    vertices: Iterable[T] | SeparatingCut[T],
-    u: T,
-    v: T,
+    vertices: Iterable[Vertex] | SeparatingCut,
+    u: Vertex,
+    v: Vertex,
     copy: bool = True,
 ) -> bool:
     """
@@ -244,9 +244,9 @@ def is_stable_cutset_dividing[T: Vertex](
     Parameters
     ----------
     graph:
-        The graph to check
+        Vertexhe graph to check
     vertices:
-        The vertices to check
+        Vertexhe vertices to check
 
     Note
     ----
