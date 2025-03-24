@@ -3199,7 +3199,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
             fprop_inf_rigid = F.is_inf_rigid()
             fprop_inf_flex = F.is_inf_flexible()
             fprop_min_inf_rigid = F.is_min_inf_rigid()
-            fprop_red_rigid = F.is_redundantly_rigid()
+            fprop_red_rigid = F.is_redundantly_inf_rigid()
             fprop_dep = F.is_dependent()
             fprop_indep = F.is_independent()
 
@@ -3253,6 +3253,8 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_sparse
             if prop_tight:
                 assert sprop_tight
+                if dim == 2 or dim == 1:
+                    assert prop_min_rigid
             if sprop_tight:
                 assert prop_tight
 
