@@ -3554,7 +3554,6 @@ class Graph(nx.Graph):
         H.delete_vertices(vertices)
         return not nx.is_connected(H)
 
-    @doc_category("Generic rigidity")
     def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
         """
         Return the set of neighbors of a set of vertices.
@@ -3580,7 +3579,6 @@ class Graph(nx.Graph):
             res.update(self.neighbors(v))
         return res.difference(vertices)
 
-    @doc_category("Generic rigidity")
     def _make_outside_neighbors_clique(
         self, vertices: list[Vertex] | set[Vertex]
     ) -> Graph:
@@ -3691,7 +3689,6 @@ class Graph(nx.Graph):
             [(u in C and v in C) for C in self.rigid_components(algorithm="default")]
         )
 
-    @doc_category("Rigidity Matroid")
     def _Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2) -> list[Edge]:
         """
         Return the fundamental circuit of ``uv`` in the generic ``dim``-rigidity matroid.
@@ -3944,5 +3941,6 @@ Graph.__doc__ = Graph.__doc__.replace(
             "Waiting for implementation",
         ],
         include_all=False,
+        add_attributes=False,
     ),
 )
