@@ -19,7 +19,6 @@ def stable_cutset_in_flexible_graph(
     graph: nx.Graph,
     u: Optional[Vertex] = None,
     v: Optional[Vertex] = None,
-    copy: bool = True,
 ) -> Optional[StableCut]:
     """
     Find a stable cut in a flexible graph
@@ -41,14 +40,17 @@ def stable_cutset_in_flexible_graph(
         The second vertex indicating the other rigid component used
         arbitrary vertex is chosen otherwise.
         Cannot share a same rigid component as ``u``.
-    copy:
-        Whether to make a copy of the graph before destructive modifications
 
     Returns
     -------
         For a valid input a :class:`pyrigi.data_type.StableCut` in the graph is returned.
         For rigid graphs and cases when ``u`` and ``v`` are not in the same
         rigid component, ``None`` is returned.
+
+    Note
+    ----
+        Vertex and edge metadata may be dropped, if you use them,
+        make copy of your graph first.
     """
     from pyrigi import Graph as PRGraph
 
@@ -79,7 +81,7 @@ def stable_cutset_in_flexible_graph(
 
     # if there is only a single component, fallback to a faster algorithm
     if len(connected_components) == 1:
-        return stable_cutset_in_flexible_graph_fast(graph, u, v, copy=copy)
+        return stable_cutset_in_flexible_graph_fast(graph, u, v)
 
     # if the graph is not connected, we can possibly reduce the work needed
     # by finding a connected component that contains u
@@ -103,9 +105,8 @@ def stable_cutset_in_flexible_graph(
         case _:
             v = v
 
-    if not copy:
-        logging.warning("Copy is not avoidable for disconnected graphs")
-    graph = PRGraph(subgraph)
+    if not isinstance(graph, PRGraph):
+        graph = PRGraph(subgraph)
 
     cut = _process(graph, u, v)
     StableCut(a=cut.a, b=cut.b | set(x for c in other for x in c), cut=cut.cut)
@@ -116,7 +117,6 @@ def stable_cutset_in_flexible_graph_fast(
     graph: nx.Graph,
     u: Optional[Vertex] = None,
     v: Optional[Vertex] = None,
-    copy: bool = True,
     ensure_rigid_components: bool = True,
 ) -> Optional[StableCut]:
     """
@@ -143,8 +143,6 @@ def stable_cutset_in_flexible_graph_fast(
         The second vertex indicating the other rigid component used
         arbitrary vertex is chosen otherwise.
         Cannot share a same rigid component as ``u``.
-    copy:
-        Whether to make a copy of the graph before destructive modifications
     ensure_rigid_components:
         Whether to ensure that ``u`` and ``v``
         are not in the same rigid component.
@@ -155,6 +153,11 @@ def stable_cutset_in_flexible_graph_fast(
         For a valid input a :class:`pyrigi.data_type.StableCut` in the graph is returned.
         For rigid graphs and cases when ``u`` and ``v`` are not in the same
         rigid component, ``None`` is returned.
+
+    Note
+    ----
+        Vertex and edge metadata may be dropped, if you use them,
+        make copy of your graph first.
     """
     from pyrigi import Graph as PRGraph
 
@@ -173,7 +176,7 @@ def stable_cutset_in_flexible_graph_fast(
     assert ensure_rigid_components or v is not None
 
     # graph will be modified in place
-    if copy or not isinstance(graph, PRGraph):
+    if not isinstance(graph, PRGraph):
         graph = PRGraph(graph)
 
     if ensure_rigid_components:
@@ -312,6 +315,8 @@ def _process(
         if problem_found:
             continue
 
-        return _process(graph, u, v)
+        res = _process(graph, u, v)
+        restore(graph, u, x, u_neigh, x_neigh)
+        return res
 
     raise RuntimeError("Rigid components are not maximal")

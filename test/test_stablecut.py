@@ -9,6 +9,7 @@ import numpy as np
 
 from pyrigi import Graph
 from pyrigi.data_type import StableCut
+from pyrigi._cuts import _revertable_set_removal
 
 
 def test_stable_set_eq():
@@ -26,6 +27,23 @@ def test_stable_set_violation():
     assert Graph.stable_set_violation(graph, {0, 1, 2}) in [(0, 1), (1, 2)]
     assert Graph.stable_set_violation(graph, {0, 1}) == (0, 1)
     assert Graph.stable_set_violation(graph, {0, 2}) is None
+
+
+def test__revertable_set_removal():
+    graph1 = nx.Graph([(0, 1), (1, 2), (2, 3)])
+    graph2 = graph1.copy()
+
+    def noop(_: nx.Graph):
+        pass
+
+    _revertable_set_removal(graph2, set(), noop)
+    assert nx.is_isomorphic(graph1, graph2)
+    _revertable_set_removal(graph2, {2}, noop)
+    assert nx.is_isomorphic(graph1, graph2)
+    _revertable_set_removal(graph2, {0, 1, 2, 3}, noop)
+    assert nx.is_isomorphic(graph1, graph2)
+    _revertable_set_removal(nx.induced_subgraph(graph2, [0, 1, 2]), {1}, noop)
+    assert nx.is_isomorphic(graph1, graph2)
 
 
 def test_is_separating_set():
@@ -48,29 +66,40 @@ def test_is_separating_set():
 def test_stable_cut_in_flexible_graph_edge_cases():
     # empty graph
     graph = nx.Graph()
+    orig = graph.copy()
+
     cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is None
+    assert nx.is_isomorphic(graph, orig)
 
     # more vertices
     graph = Graph.from_vertices_and_edges([0, 1, 2], [])
+    orig = graph.copy()
     cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is not None
     assert Graph.is_stable_cutset(graph, cut)
+    assert nx.is_isomorphic(graph, orig)
 
     # single vertex graph
     graph = Graph.from_vertices_and_edges([0], [])
+    orig = graph.copy()
     cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is None
+    assert nx.is_isomorphic(graph, orig)
 
     # single edge graph
     graph = Graph.from_vertices_and_edges([0, 1], [(0, 1)])
+    orig = graph.copy()
     cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is None
+    assert nx.is_isomorphic(graph, orig)
 
     # triangle graph
     graph = Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (1, 2), (2, 0)])
+    orig = graph.copy()
     cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is None
+    assert nx.is_isomorphic(graph, orig)
 
 
 def test_stable_cut_in_flexible_graph():
@@ -91,41 +120,50 @@ def test_stable_cut_in_flexible_graph():
             (3, 7),
         ],
     )
-    # print(nx.nx_agraph.to_agraph(graph))
+    orig = graph.copy()
+
     assert not graph.is_rigid()
 
     cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is not None
     assert Graph.is_stable_cutset(graph, cut)
+    assert nx.is_isomorphic(graph, orig)
 
     cut = Graph.stable_cutset_in_flexible_graph(graph, 0)
     assert cut is not None
     assert Graph.is_stable_cutset(graph, cut)
+    assert nx.is_isomorphic(graph, orig)
 
     cut = Graph.stable_cutset_in_flexible_graph(graph, 0, 1)
     assert cut is None
+    assert nx.is_isomorphic(graph, orig)
 
     cut = Graph.stable_cutset_in_flexible_graph(graph, 0, 4)
     assert cut is None
+    assert nx.is_isomorphic(graph, orig)
 
     for i in [5, 6, 7]:
         cut = Graph.stable_cutset_in_flexible_graph(graph, 0, i)
         assert cut is not None
         assert Graph.is_stable_cutset(graph, cut)
+        assert nx.is_isomorphic(graph, orig)
     for i in [0, 1, 2]:
         cut = Graph.stable_cutset_in_flexible_graph(graph, 7, i)
         assert cut is not None
         assert Graph.is_stable_cutset(graph, cut)
+        assert nx.is_isomorphic(graph, orig)
 
 
 def test_stable_cut_in_flexible_graph_prism():
     from pyrigi.graphDB import ThreePrism
 
     graph = ThreePrism()
+    orig = graph.copy()
 
     for u, v in product(graph.nodes, graph.nodes):
         cut = Graph.stable_cutset_in_flexible_graph(graph, u, v)
         assert cut is None
+        assert nx.is_isomorphic(graph, orig)
 
 
 @pytest.mark.slow_main

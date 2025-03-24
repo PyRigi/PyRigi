@@ -1,7 +1,9 @@
-from typing import Iterable, Optional
+from typing import Callable, Iterable, Optional, TypeVar
 import networkx as nx
 
 from pyrigi.data_type import Vertex, SeparatingCut
+
+T = TypeVar("T")
 
 
 def _to_vertices(vertices: Iterable[Vertex] | SeparatingCut) -> set[Vertex]:
@@ -81,10 +83,49 @@ def is_stable_set(
     return stable_set_violation(graph, vertices) is None
 
 
+def _revertable_set_removal(
+    graph: nx.Graph,
+    vertices: set[Vertex],
+    opt: Callable[[nx.Graph], T],
+) -> T:
+    """
+    Remove given vertices from the graph, perform operation,
+    return vertices along with edges back.
+
+    Parameters
+    ----------
+    graph:
+        The graph from which vertices will be removed
+    vertices:
+        Vertex set to remove
+    opt:
+        Operation to perform on a graph with vertices removed
+
+    Note
+    ----
+        Edge and vertex data are not preserved, make a copy yourself.
+    """
+    copy = nx.is_frozen(graph)
+
+    if copy:
+        graph = nx.Graph(graph)
+        neighbors = []
+    else:
+        neighbors = [(u, v) for u in vertices for v in graph.neighbors(u)]
+
+    graph.remove_nodes_from(vertices)
+
+    res = opt(graph)
+
+    if not copy:
+        graph.add_edges_from(neighbors)
+
+    return res
+
+
 def is_separating_set(
     graph: nx.Graph,
     vertices: Iterable[Vertex] | SeparatingCut,
-    copy: bool = True,
 ) -> bool:
     """
     Check if the given set of vertices is a separator in the given graph.
@@ -121,11 +162,7 @@ def is_separating_set(
 
     PRGraph._input_check_vertex_members(graph, vertices)
 
-    if copy:
-        graph = nx.Graph(graph)
-
-    graph.remove_nodes_from(vertices)
-    return not nx.is_connected(graph)
+    return _revertable_set_removal(graph, vertices, lambda g: not nx.is_connected(g))
 
 
 def is_separating_set_dividing(
@@ -133,7 +170,6 @@ def is_separating_set_dividing(
     vertices: Iterable[Vertex] | SeparatingCut,
     u: Vertex,
     v: Vertex,
-    copy: bool = True,
 ) -> bool:
     """
     Check if the given cut separates vertices u and v.
@@ -178,21 +214,19 @@ def is_separating_set_dividing(
 
     PRGraph._input_check_vertex_members(graph, vertices)
 
-    if copy:
-        graph = nx.Graph(graph)
+    def check_graph(g: nx.Graph) -> bool:
+        components = nx.connected_components(g)
+        for c in components:
+            if u in c and v in c:
+                return False
+        return True
 
-    graph.remove_nodes_from(vertices)
-    components = nx.connected_components(graph)
-    for c in components:
-        if u in c and v in c:
-            return False
-    return True
+    return _revertable_set_removal(graph, vertices, check_graph)
 
 
 def is_stable_cutset(
     graph: nx.Graph,
     vertices: Iterable[Vertex] | SeparatingCut,
-    copy: bool = True,
 ) -> bool:
     """
     Check if the given set of vertices is a stable cut in the given graph.
@@ -222,9 +256,7 @@ def is_stable_cutset(
         See :meth:`~pyrigi.graph.Graph.is_stable_set` and
         :meth:`~pyrigi.graph.Graph.is_separator`.
     """
-    return is_stable_set(graph, vertices) and is_separating_set(
-        graph, vertices, copy=copy
-    )
+    return is_stable_set(graph, vertices) and is_separating_set(graph, vertices)
 
 
 def is_stable_cutset_dividing(
@@ -232,7 +264,6 @@ def is_stable_cutset_dividing(
     vertices: Iterable[Vertex] | SeparatingCut,
     u: Vertex,
     v: Vertex,
-    copy: bool = True,
 ) -> bool:
     """
     Checks if the given set of vertices is a stable cut in the given graph
@@ -269,5 +300,5 @@ def is_stable_cutset_dividing(
         and :meth:`~pyrigi.graph.Graph.is_stable_cutset_dividing`.
     """
     return is_stable_set(graph, vertices) and is_separating_set_dividing(
-        graph, vertices, u, v, copy=copy
+        graph, vertices, u, v
     )
