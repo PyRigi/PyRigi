@@ -6,7 +6,7 @@ from pyrigi.data_type import Vertex, SeparatingCut
 
 def _to_vertices(vertices: Iterable[Vertex] | SeparatingCut) -> set[Vertex]:
     """
-    Converts multiple input formats into the graph separator.
+    Convert multiple input formats into a graph separator.
     """
     if isinstance(vertices, set):
         return vertices
@@ -20,7 +20,8 @@ def stable_set_violation(
     vertices: Iterable[Vertex] | SeparatingCut,
 ) -> Optional[tuple[Vertex, Vertex]]:
     """
-    Checks if the given set of vertices is stable in the given graph.
+    Check if the given set of vertices is stable in the given graph
+    and if not, find a pair of vertices in the set that are neighboring.
 
     Definitions
     -----------
@@ -31,7 +32,7 @@ def stable_set_violation(
     graph:
         the graph to check
     vertices:
-        the vertices to check
+        the set of vertices
 
     Examples
     --------
@@ -44,9 +45,9 @@ def stable_set_violation(
 
     vertices = _to_vertices(vertices)
     for v in vertices:
-        for n in graph.neighbors(v):
-            if n in vertices:
-                return v, n
+        for u in graph.neighbors(v):
+            if u in vertices:
+                return v, u
     return None
 
 
@@ -55,7 +56,7 @@ def is_stable_set(
     vertices: Iterable[Vertex] | SeparatingCut,
 ) -> bool:
     """
-    Checks if the given set of vertices is stable in the given graph.
+    Check if the given set of vertices is stable in the given graph.
 
     Definitions
     -----------
@@ -86,7 +87,7 @@ def is_separating_set(
     copy: bool = True,
 ) -> bool:
     """
-    Checks if the given set of vertices is a separator in the given graph.
+    Check if the given set of vertices is a separator in the given graph.
 
     Definitions
     -----------
@@ -135,7 +136,7 @@ def is_separating_set_dividing(
     copy: bool = True,
 ) -> bool:
     """
-    Checks if the given cut separates vertices u and v.
+    Check if the given cut separates vertices u and v.
 
     Definitions
     -----------
@@ -194,7 +195,7 @@ def is_stable_cutset(
     copy: bool = True,
 ) -> bool:
     """
-    Checks if the given set of vertices is a stable cut in the given graph.
+    Check if the given set of vertices is a stable cut in the given graph.
 
     Definitions
     -----------
@@ -205,12 +206,7 @@ def is_stable_cutset(
     graph:
         the graph to check
     vertices:
-        the vertices to check
-
-    Note
-    ----
-        See :meth:`~pyrigi.graph.Graph.is_stable_set` and
-        :meth:`~pyrigi.graph.Graph.is_separator`.
+        the cutset of vertices
 
     Examples
     --------
@@ -220,6 +216,11 @@ def is_stable_cutset(
     True
     >>> H.is_stable_cutset([1,2])
     False
+
+    Note
+    ----
+        See :meth:`~pyrigi.graph.Graph.is_stable_set` and
+        :meth:`~pyrigi.graph.Graph.is_separator`.
     """
     return is_stable_set(graph, vertices) and is_separating_set(
         graph, vertices, copy=copy
@@ -234,7 +235,8 @@ def is_stable_cutset_dividing(
     copy: bool = True,
 ) -> bool:
     """
-    Checks if the given set of vertices is a stable cut in the given graph.
+    Checks if the given set of vertices is a stable cut in the given graph
+    separating ``u`` and ``v``.
 
     Definitions
     -----------
@@ -246,18 +248,12 @@ def is_stable_cutset_dividing(
         the graph to check
     vertices:
         the vertices to check
-    Note
-    ----
-        See :meth:`~pyrigi.graph.Graph.is_stable_set`
-        and :meth:`~pyrigi.graph.Graph.is_stable_cutset_dividing`.
 
     Raises
     ------
     ValueError:
         If either of the vertices is contained in the cutset
 
-    """
-    """
     Examples
     --------
     >>> import pyrigi.graphDB as graphs
@@ -266,6 +262,11 @@ def is_stable_cutset_dividing(
     True
     >>> H.is_stable_cutset_dividing([2,4], 0, 1)
     False
+
+    Note
+    ----
+        See :meth:`~pyrigi.graph.Graph.is_stable_set`
+        and :meth:`~pyrigi.graph.Graph.is_stable_cutset_dividing`.
     """
     return is_stable_set(graph, vertices) and is_separating_set_dividing(
         graph, vertices, u, v, copy=copy

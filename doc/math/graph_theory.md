@@ -121,8 +121,7 @@ $G-U$ is not {prf:ref}`connected <def-connected>`.
 In particular, if $U = \{u,v\}$ then U is called a _separating pair_.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_separating_set`
-
-{{pyrigi_crossref}} {meth}`~.Graph.is_separating_set_dividing`
+{meth}`~.Graph.is_separating_set_dividing`
 :::
 
 
@@ -133,8 +132,7 @@ The set $S \subset V$ is called a _stable set_ of $G$
 if it is an independent set in $G$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_stable_set`
-
-{{pyrigi_crossref}} {meth}`~.Graph.stable_set_violation`
+{meth}`~.Graph.stable_set_violation`
 :::
 
 
@@ -148,12 +146,9 @@ and also a {prf:ref}`stable set <def-stable-set>` of $G$.
 {{references}} {cite:p}`LeMoscaMüller2008`
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_stable_cutset`
-
-{{pyrigi_crossref}} {meth}`~.Graph.is_stable_cutset_dividing`
-
-{{pyrigi_crossref}} {meth}`~.Graph.stable_cut_in_flexible_graph`
-
-{{pyrigi_crossref}} {meth}`~.Graph.stable_cut_in_flexible_graph_fast`
+{meth}`~.Graph.is_stable_cutset_dividing`
+{meth}`~.Graph.stable_cutset_in_flexible_graph`
+{meth}`~.Graph.stable_cutset_in_flexible_graph_fast`
 :::
 
 

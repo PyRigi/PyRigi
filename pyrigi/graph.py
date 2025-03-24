@@ -23,8 +23,8 @@ from pyrigi.misc import _doc_category as doc_category
 from pyrigi.plot_style import PlotStyle
 from pyrigi.warning import RandomizedAlgorithmWarning
 from pyrigi._flexible_graph_stable_cut import (
-    stable_cut_in_flexible_graph,
-    stable_cut_in_flexible_graph_fast,
+    stable_cutset_in_flexible_graph,
+    stable_cutset_in_flexible_graph_fast,
 )
 from pyrigi._cuts import (
     stable_set_violation,
@@ -3558,44 +3558,44 @@ class Graph(nx.Graph):
             [e for e in self.edges if e in other_graph.edges],
         )
 
-    @doc_category("Generic rigidity")
+    @doc_category("General graph theoretical properties")
     @proxy_call(stable_set_violation)
     def stable_set_violation(self):
         pass
 
-    @doc_category("Generic rigidity")
+    @doc_category("General graph theoretical properties")
     @proxy_call(is_stable_set)
     def is_stable_set(self):
         pass
 
-    @doc_category("Generic rigidity")
+    @doc_category("General graph theoretical properties")
     @proxy_call(is_separating_set)
     def is_separating_set(self):
         pass
 
-    @doc_category("Generic rigidity")
+    @doc_category("General graph theoretical properties")
     @proxy_call(is_separating_set_dividing)
     def is_separating_set_dividing(self):
         pass
 
-    @doc_category("Generic rigidity")
+    @doc_category("General graph theoretical properties")
     @proxy_call(is_stable_cutset)
     def is_stable_cutset(self):
         pass
 
-    @doc_category("Generic rigidity")
     @proxy_call(is_stable_cutset_dividing)
+    @doc_category("General graph theoretical properties")
     def is_stable_cutset_dividing(self):
         pass
 
-    @doc_category("Generic rigidity")
-    @proxy_call(stable_cut_in_flexible_graph)
-    def stable_cut_in_flexible_graph(self):
+    @doc_category("General graph theoretical properties")
+    @proxy_call(stable_cutset_in_flexible_graph)
+    def stable_cutset_in_flexible_graph(self):
         pass
 
-    @doc_category("Generic rigidity")
-    @proxy_call(stable_cut_in_flexible_graph_fast)
-    def stable_cut_in_flexible_graph_fast(self):
+    @doc_category("General graph theoretical properties")
+    @proxy_call(stable_cutset_in_flexible_graph_fast)
+    def stable_cutset_in_flexible_graph_fast(self):
         pass
 
     @doc_category("Generic rigidity")

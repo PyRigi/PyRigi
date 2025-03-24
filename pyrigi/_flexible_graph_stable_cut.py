@@ -15,14 +15,14 @@ import numpy as np
 from pyrigi.data_type import Vertex
 
 
-def stable_cut_in_flexible_graph(
+def stable_cutset_in_flexible_graph(
     graph: nx.Graph,
     u: Optional[Vertex] = None,
     v: Optional[Vertex] = None,
     copy: bool = True,
 ) -> Optional[StableCut]:
     """
-    Finds a stable cut in a flexible graph
+    Find a stable cut in a flexible graph
     according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 
     Definitions
@@ -79,7 +79,7 @@ def stable_cut_in_flexible_graph(
 
     # if there is only a single component, fallback to a faster algorithm
     if len(connected_components) == 1:
-        return stable_cut_in_flexible_graph_fast(graph, u, v, copy=copy)
+        return stable_cutset_in_flexible_graph_fast(graph, u, v, copy=copy)
 
     # if the graph is not connected, we can possibly reduce the work needed
     # by finding a connected component that contains u
@@ -112,7 +112,7 @@ def stable_cut_in_flexible_graph(
     return cut
 
 
-def stable_cut_in_flexible_graph_fast(
+def stable_cutset_in_flexible_graph_fast(
     graph: nx.Graph,
     u: Optional[Vertex] = None,
     v: Optional[Vertex] = None,
@@ -120,9 +120,12 @@ def stable_cut_in_flexible_graph_fast(
     ensure_rigid_components: bool = True,
 ) -> Optional[StableCut]:
     """
-    Same as :meth:`~pyrigi.graph.Graph.stable_cut_in_flexible_graph` but faster.
-    Checks for connectivity are removed,
-    the algorithms output is undefined in this cases.
+    Find a stable cut in a flexible graph
+    according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
+
+    Similar to :meth:`~pyrigi.graph.Graph.stable_cut_in_flexible_graph`,
+    but faster as connectivity are removed.
+    The algorithm's output is undefined in these cases.
 
     Definitions
     -----------
@@ -189,8 +192,8 @@ def _find_and_validate_u_and_v(
     v: Optional[Vertex],
 ) -> Optional[Vertex]:
     """
-    Makes sure ``u`` and ``v`` are in different rigid components and
-    finds such ``v`` if not provided.
+    Make sure ``u`` and ``v`` are in different rigid components and
+    find such ``v`` if not provided.
 
     Parameters
     ----------
@@ -203,8 +206,8 @@ def _find_and_validate_u_and_v(
 
     Returns
     -------
-    None if the graph is rigid or
-    if ``u`` and ``v`` are in the same rigid component.
+        None if the graph is rigid or
+        if ``u`` and ``v`` are in the same rigid component.
     otherwise, returns valid ``v``.
     """
     rigid_components = graph.rigid_components()
@@ -233,7 +236,18 @@ def _process(
     v: Vertex,
 ) -> StableCut:
     """
-    Finds a stable cut in a flexible graph
+    Find a stable cut in a flexible graph.
+
+    This is the main body of Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
+
+    Parameters
+    ----------
+    graph:
+        mutable graph to find a stable cutset in
+    u:
+        the vertex around which we look for a stable cutset
+    v:
+        the vertex marking another rigid component
     """
 
     # Checks neighborhood of u

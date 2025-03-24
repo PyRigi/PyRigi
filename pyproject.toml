@@ -79,7 +79,6 @@ markers = [
     "long_local: marks long tests run locally",
     "realization_counting: marks tests using extra realization-counting",
     "meshing: marks tests using extra meshing",
-    "stable_cutset: makrs tests for stable cutsets",
 ]
 filterwarnings = [
     'ignore::pyrigi.warning.RandomizedAlgorithmWarning',

@@ -11,7 +11,6 @@ from pyrigi import Graph
 from pyrigi.data_type import StableCut
 
 
-@pytest.mark.stable_cutset
 def test_stable_set_eq():
     set1 = StableCut({1, 2}, {3, 4}, {5})
     set2 = StableCut({3, 4}, {1, 2}, {5})
@@ -21,7 +20,6 @@ def test_stable_set_eq():
     assert set1 != set3
 
 
-@pytest.mark.stable_cutset
 def test_stable_set_violation():
     graph = nx.Graph([(0, 1), (1, 2), (2, 3)])
 
@@ -30,7 +28,6 @@ def test_stable_set_violation():
     assert Graph.stable_set_violation(graph, {0, 2}) is None
 
 
-@pytest.mark.stable_cutset
 def test_is_separating_set():
     graph = nx.Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)])
 
@@ -48,36 +45,34 @@ def test_is_separating_set():
         Graph.is_separating_set_dividing(graph, {2}, 0, 2)
 
 
-@pytest.mark.stable_cutset
 def test_stable_cut_in_flexible_graph_edge_cases():
     # empty graph
     graph = nx.Graph()
-    cut = Graph.stable_cut_in_flexible_graph(graph)
+    cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is None
 
     # more vertices
     graph = Graph.from_vertices_and_edges([0, 1, 2], [])
-    cut = Graph.stable_cut_in_flexible_graph(graph)
+    cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is not None
     assert Graph.is_stable_cutset(graph, cut)
 
     # single vertex graph
     graph = Graph.from_vertices_and_edges([0], [])
-    cut = Graph.stable_cut_in_flexible_graph(graph)
+    cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is None
 
     # single edge graph
     graph = Graph.from_vertices_and_edges([0, 1], [(0, 1)])
-    cut = Graph.stable_cut_in_flexible_graph(graph)
+    cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is None
 
     # triangle graph
     graph = Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (1, 2), (2, 0)])
-    cut = Graph.stable_cut_in_flexible_graph(graph)
+    cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is None
 
 
-@pytest.mark.stable_cutset
 def test_stable_cut_in_flexible_graph():
     from pyrigi import Graph as Graph
 
@@ -99,42 +94,40 @@ def test_stable_cut_in_flexible_graph():
     # print(nx.nx_agraph.to_agraph(graph))
     assert not graph.is_rigid()
 
-    cut = Graph.stable_cut_in_flexible_graph(graph)
+    cut = Graph.stable_cutset_in_flexible_graph(graph)
     assert cut is not None
     assert Graph.is_stable_cutset(graph, cut)
 
-    cut = Graph.stable_cut_in_flexible_graph(graph, 0)
+    cut = Graph.stable_cutset_in_flexible_graph(graph, 0)
     assert cut is not None
     assert Graph.is_stable_cutset(graph, cut)
 
-    cut = Graph.stable_cut_in_flexible_graph(graph, 0, 1)
+    cut = Graph.stable_cutset_in_flexible_graph(graph, 0, 1)
     assert cut is None
 
-    cut = Graph.stable_cut_in_flexible_graph(graph, 0, 4)
+    cut = Graph.stable_cutset_in_flexible_graph(graph, 0, 4)
     assert cut is None
 
     for i in [5, 6, 7]:
-        cut = Graph.stable_cut_in_flexible_graph(graph, 0, i)
+        cut = Graph.stable_cutset_in_flexible_graph(graph, 0, i)
         assert cut is not None
         assert Graph.is_stable_cutset(graph, cut)
     for i in [0, 1, 2]:
-        cut = Graph.stable_cut_in_flexible_graph(graph, 7, i)
+        cut = Graph.stable_cutset_in_flexible_graph(graph, 7, i)
         assert cut is not None
         assert Graph.is_stable_cutset(graph, cut)
 
 
-@pytest.mark.stable_cutset
 def test_stable_cut_in_flexible_graph_prism():
     from pyrigi.graphDB import ThreePrism
 
     graph = ThreePrism()
 
     for u, v in product(graph.nodes, graph.nodes):
-        cut = Graph.stable_cut_in_flexible_graph(graph, u, v)
+        cut = Graph.stable_cutset_in_flexible_graph(graph, u, v)
         assert cut is None
 
 
-@pytest.mark.stable_cutset
 @pytest.mark.slow_main
 @pytest.mark.parametrize(
     ("n", "p"), [(4, 0.3), (8, 0.3), (13, 0.4), (16, 0.4), (16, 0.4)]
@@ -193,14 +186,14 @@ def test_fuzzy_stable_cut_in_flexible_graph(
                 if u == v or (vertex_to_comp_id[u] & vertex_to_comp_id[v]):
                     # invalid input
                     logging.disable(logging.WARNING)
-                    cut = Graph.stable_cut_in_flexible_graph(graph, u, v)
+                    cut = Graph.stable_cutset_in_flexible_graph(graph, u, v)
                     logging.disable(0)
 
                     assert cut is None
                     tests_negative += 1
                 else:
                     # valid input
-                    cut = Graph.stable_cut_in_flexible_graph(graph, u, v)
+                    cut = Graph.stable_cutset_in_flexible_graph(graph, u, v)
                     assert cut is not None
                     assert Graph.is_stable_cutset_dividing(graph, cut, u, v)
                     tests_positive += 1
