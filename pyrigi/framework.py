@@ -290,6 +290,8 @@ class Framework(object):
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
+        save_figure: bool = False,
+        filename: str = "pyrigi_plot2D_output",
         **kwargs,
     ) -> None:
         """
@@ -352,6 +354,11 @@ class Framework(object):
             Optional parameter to specify custom arc angle for edges. Can be a
             ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
             the curvature angle of edges in radians.
+        save_figure:
+            A boolean indicating whether the figure is saved as a `.png` file.
+        filename:
+            The filename under which the produced figure is saved. The default is
+            `"pyrigi_plot2D_output"`.
 
         Examples
         --------
@@ -456,6 +463,9 @@ class Framework(object):
                 arc_angles_dict=arc_angles_dict,
                 stress_label_positions=stress_label_positions,
             )
+
+        if save_figure:
+            plt.savefig(f"{filename}.png")
 
     @doc_category("Plotting")
     def animate3D_rotation(
@@ -611,6 +621,8 @@ class Framework(object):
             Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
         ) = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
+        save_figure: bool = False,
+        filename: str = "pyrigi_plot3D_output",
         **kwargs,
     ) -> None:
         """
@@ -670,6 +682,11 @@ class Framework(object):
             Dictionary specifying the position of stress labels along the edges. Keys are
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
             Ommited edges are given the value ``0.5``.
+        save_figure:
+            A boolean indicating whether the figure is saved as a `.png` file.
+        filename:
+            The filename under which the produced figure is saved. The default is
+            `"pyrigi_plot3D_output"`.
 
         Examples
         --------
@@ -779,6 +796,9 @@ class Framework(object):
                 plot_style=plot_style,
                 stress_label_positions=stress_label_positions,
             )
+
+        if save_figure:
+            plt.savefig(f"{filename}.png")
 
     @doc_category("Plotting")
     def plot(
