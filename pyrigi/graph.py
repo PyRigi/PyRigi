@@ -723,6 +723,7 @@ class Graph(nx.Graph):
         """
         _input_check.integrality_and_range(K, "K", min_val=1)
         _input_check.integrality_and_range(L, "L", min_val=0)
+        self._input_check_no_loop()
 
         if algorithm == "default":
             try:
