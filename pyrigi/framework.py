@@ -480,6 +480,9 @@ class Framework(object):
         """
         Plot this framework in 3D and animate a rotation around an axis.
 
+        For additional parameters and implementation details, see
+        :meth:`~.Motion.animate3D`.
+
         Parameters
         ----------
         plot_style:
