@@ -930,14 +930,14 @@ class ApproximateMotion(Motion):
     >>> print(motion)
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
-    10 retraction steps and initial step size 0.1.
+    10 retraction steps and initial step size 0.05.
 
     >>> F = Framework(graphs.Cycle(4), {0:(0,0), 1:(1,0), 2:(1,1), 3:(0,1)})
     >>> motion = ApproximateMotion(F, 10)
     >>> print(motion)
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
-    10 retraction steps and initial step size 0.1.
+    10 retraction steps and initial step size 0.05.
     """  # noqa: E501
 
     silence_numerical_alg_warns = False
