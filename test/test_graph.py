@@ -3467,8 +3467,12 @@ def test_randomized_sparsity_properties():  # noqa: C901
     for n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
+            loops = [randint(0, 1) for i in range(n)]
+            VV = G.vertex_list()
+            loops = [[VV[i],VV[i]] for i in loops if i == 1]
+            G.add_edges(loops)
             assert G.number_of_nodes() == n
-            assert G.number_of_edges() == m
+            assert G.number_of_edges() == m + len(loops)
 
             prop_sparse = {k: [G.is_kl_sparse(k,ell) for ell in range(math.comb(k+1,2)+2)] for k in range(1,5)}
             prop_tight = {k: [G.is_kl_tight(k,ell) for ell in range(math.comb(k+1,2)+2)] for k in range(1,5)}
