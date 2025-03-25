@@ -136,7 +136,7 @@ class Graph(nx.Graph):
 
     def __add__(self, other: Graph) -> Graph:
         r"""
-        Return the union of ``self`` and ``other``.
+        Return the union of the given graph and ``other``.
 
         Definitions
         -----------
@@ -221,7 +221,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         to_check:
-            A vertex or ``Iterable`` of vertices for which the containment in ``self``
+            A vertex or ``Iterable`` of vertices for which the containment in the graph
             is checked.
         name:
             A name of the ``Iterable`` ``to_check`` can be picked.
@@ -248,7 +248,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         edge:
-            Edge for which the containment in the graph ``self`` is checked.
+            Edge for which the containment in the given graph is checked.
         loopfree:
             If ``True``, an error is raised if ``edge`` is a loop.
         """
@@ -3585,8 +3585,8 @@ class Graph(nx.Graph):
         self, vertices: list[Vertex] | set[Vertex]
     ) -> Graph:
         """
-        Create a graph by selecting the subgraph of ``self`` induced by vertices,
-        contracting each connected component of ``self`` minus ``vertices``
+        Create a graph by selecting the subgraph of the given graph induced by ``vertices``,
+        contracting each connected component of the graph minus ``vertices``
         to a single vertex, and making their neighbors in ``vertices`` into a clique.
         See :prf:ref:`thm-weakly-globally-linked`.
 

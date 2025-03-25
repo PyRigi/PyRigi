@@ -2637,7 +2637,7 @@ class Framework(object):
         projection_matrix:
             The matrix used for projecting the placement of vertices.
             The matrix must have dimensions ``(proj_dim, dim)``,
-            where ``dim`` is the dimension of the framework ``self``.
+            where ``dim`` is the dimension of the given framework.
             If ``None``, a numerical random projection matrix is generated.
         random_seed:
             The random seed used for generating the projection matrix.
