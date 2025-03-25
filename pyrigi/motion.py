@@ -313,7 +313,7 @@ class Motion(object):
 
         plt.tight_layout()
         if save_animation:
-            ani.save(f"{filename}.gif", fps=25)
+            ani.save(f"{filename}.gif", fps=30)
         # Checking if we are running from the terminal or from a notebook
         import sys
 
@@ -486,7 +486,7 @@ class Motion(object):
         )
 
         if save_animation:
-            ani.save(f"{filename}.gif", fps=25)
+            ani.save(f"{filename}.gif", fps=30)
         # Checking if we are running from the terminal or from a notebook
         import sys
 
@@ -946,7 +946,7 @@ class ApproximateMotion(Motion):
         self,
         framework: Framework,
         steps: int,
-        step_size: float = 0.1,
+        step_size: float = 0.05,
         chosen_flex: int = 0,
         tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
@@ -1006,7 +1006,7 @@ class ApproximateMotion(Motion):
         graph: Graph,
         realization: dict[Vertex, Point],
         steps: int,
-        step_size: float = 0.1,
+        step_size: float = 0.05,
         chosen_flex: int = 0,
         tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
