@@ -948,7 +948,11 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, dim: int = 2, rand_range: int | Sequence[int] = None
+        cls,
+        graph: Graph,
+        dim: int = 2,
+        rand_range: int | Sequence[int] = None,
+        numerical: bool = False,
     ) -> Framework:
         """
         Return a framework with random realization with integral coordinates.
@@ -965,6 +969,8 @@ class Framework(object):
             integer ``a``, which produces the range ``(-a,a)``.
             If ``rand_range=None``, then the range is set to ``(-a,a)`` for
             ``a = 10^4 * n * dim``, where ``n`` is the number of vertices.
+        numerical:
+            A boolean indicating whether numerical coordinates should be used
 
         Examples
         --------
@@ -990,7 +996,18 @@ class Framework(object):
         else:
             raise TypeError("`rand_range` must be either a list or a single int.")
 
-        realization = {v: [randrange(a, b) for _ in range(dim)] for v in graph.nodes}
+        if numerical:
+            realization = {
+                v: [
+                    2 * (np.random.rand() - 0.5) * (rand_range[1] - rand_range[0])
+                    for _ in range(dim)
+                ]
+                for v in graph.nodes
+            }
+        else:
+            realization = {
+                v: [randrange(a, b) for _ in range(dim)] for v in graph.nodes
+            }
 
         return Framework(graph, realization)
 
@@ -1920,7 +1937,9 @@ class Framework(object):
         return [list(stresses[:, i]) for i in range(stresses.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
-    def rigidity_matrix_rank(self) -> int:
+    def rigidity_matrix_rank(
+        self, numerical: bool = False, tolerance: bool = 1e-9
+    ) -> int:
         """
         Return the rank of the rigidity matrix.
 
@@ -1940,14 +1959,21 @@ class Framework(object):
         >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
         4
         """
+        if numerical:
+            F = Framework(self._graph, self.realization(as_points=True, numerical=True))
+            return np.linalg.matrix_rank(
+                np.array(F.rigidity_matrix()).astype(np.float64), tol=tolerance
+            )
         return self.rigidity_matrix().rank()
 
     @doc_category("Infinitesimal rigidity")
-    def is_inf_rigid(self) -> bool:
+    def is_inf_rigid(self, **kwargs) -> bool:
         """
         Return whether the framework is infinitesimally rigid.
 
-        The check is based on :meth:`~Framework.rigidity_matrix_rank`.
+        This method is based on :meth:`~Framework.rigidity_matrix_rank`, so
+        you can see that method for implementation details and possible
+        parameters.
 
         Definitions
         -----------
@@ -1963,31 +1989,37 @@ class Framework(object):
         >>> F2.is_inf_rigid()
         False
         """
+
         if self._graph.number_of_nodes() <= self._dim + 1:
-            return self.rigidity_matrix_rank() == binomial(
+            return self.rigidity_matrix_rank(**kwargs) == binomial(
                 self._graph.number_of_nodes(), 2
             )
         else:
-            return (
-                self.rigidity_matrix_rank()
-                == self.dim * self._graph.number_of_nodes() - binomial(self.dim + 1, 2)
-            )
+            return self.rigidity_matrix_rank(
+                **kwargs
+            ) == self.dim * self._graph.number_of_nodes() - binomial(self.dim + 1, 2)
 
     @doc_category("Infinitesimal rigidity")
-    def is_inf_flexible(self) -> bool:
+    def is_inf_flexible(self, **kwargs) -> bool:
         """
         Return whether the framework is infinitesimally flexible.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.is_inf_rigid`.
 
         Definitions
         -----------
         :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
-        return not self.is_inf_rigid()
+        return not self.is_inf_rigid(**kwargs)
 
     @doc_category("Infinitesimal rigidity")
-    def is_min_inf_rigid(self) -> bool:
+    def is_min_inf_rigid(self, **kwargs) -> bool:
         """
         Return whether the framework is minimally infinitesimally rigid.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.is_inf_rigid`.
 
         Definitions
         -----
@@ -2002,20 +2034,23 @@ class Framework(object):
         >>> F.is_min_inf_rigid()
         True
         """
-        if not self.is_inf_rigid():
+        if not self.is_inf_rigid(**kwargs):
             return False
         for edge in self._graph.edge_list():
             self.delete_edge(edge)
-            if self.is_inf_rigid():
+            if self.is_inf_rigid(**kwargs):
                 self.add_edge(edge)
                 return False
             self.add_edge(edge)
         return True
 
     @doc_category("Infinitesimal rigidity")
-    def is_independent(self) -> bool:
+    def is_independent(self, **kwargs) -> bool:
         """
         Return whether the framework is independent.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.rigidity_matrix_rank`.
 
         Definitions
         -----------
@@ -2030,10 +2065,10 @@ class Framework(object):
         >>> F.is_independent()
         True
         """
-        return self.rigidity_matrix_rank() == self._graph.number_of_edges()
+        return self.rigidity_matrix_rank(**kwargs) == self._graph.number_of_edges()
 
     @doc_category("Infinitesimal rigidity")
-    def is_dependent(self) -> bool:
+    def is_dependent(self, **kwargs) -> bool:
         """
         Return whether the framework is dependent.
 
@@ -2043,18 +2078,22 @@ class Framework(object):
         -----------
         :prf:ref:`Dependent framework <def-independent-framework>`
         """
-        return not self.is_independent()
+        return not self.is_independent(**kwargs)
 
     @doc_category("Infinitesimal rigidity")
-    def is_isostatic(self) -> bool:
+    def is_isostatic(self, **kwargs) -> bool:
         """
         Return whether the framework is isostatic.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.is_independent` and
+        :meth:`~Framework.is_inf_rigid`.
 
         Definitions
         -----------
         :prf:ref:`Isostatic framework <def-isostatic-frameworks>`
         """
-        return self.is_independent() and self.is_inf_rigid()
+        return self.is_independent(**kwargs) and self.is_inf_rigid(**kwargs)
 
     @doc_category("Other")
     def is_prestress_stable(
@@ -2364,9 +2403,12 @@ class Framework(object):
         return stresses
 
     @doc_category("Infinitesimal rigidity")
-    def is_redundantly_inf_rigid(self) -> bool:
+    def is_redundantly_inf_rigid(self, **kwargs) -> bool:
         """
         Return if the framework is infinitesimally redundantly rigid.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.is_inf_rigid`.
 
         Definitions
         -----------
@@ -2385,7 +2427,7 @@ class Framework(object):
         """  # noqa: E501
         for edge in self._graph.edge_list():
             self.delete_edge(edge)
-            if not self.is_inf_rigid():
+            if not self.is_inf_rigid(**kwargs):
                 self.add_edge(edge)
                 return False
             self.add_edge(edge)

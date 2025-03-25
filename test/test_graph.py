@@ -58,6 +58,7 @@ def test_is_rigid_d2(graph):
     assert graph.is_rigid(dim=2, algorithm="default")
     assert graph.is_rigid(dim=2, algorithm="sparsity")
     assert graph.is_rigid(dim=2, algorithm="randomized")
+    assert graph.is_rigid(dim=2, algorithm="numerical")
 
 
 @pytest.mark.parametrize(
@@ -75,6 +76,7 @@ def test_not_is_rigid_d2(graph):
     assert not graph.is_rigid(dim=2, algorithm="default")
     assert not graph.is_rigid(dim=2, algorithm="sparsity")
     assert not graph.is_rigid(dim=2, algorithm="randomized")
+    assert not graph.is_rigid(dim=2, algorithm="numerical")
 
 
 @pytest.mark.parametrize(
@@ -91,6 +93,7 @@ def test_not_is_rigid_d2(graph):
 def test_is_not_rigid_d2(graph):
     assert not graph.is_rigid(dim=2, algorithm="sparsity")
     assert not graph.is_rigid(dim=2, algorithm="randomized")
+    assert not graph.is_rigid(dim=2, algorithm="numerical")
 
 
 @pytest.mark.parametrize(
@@ -112,6 +115,7 @@ def test_is_rigid_d1(graph):
     assert graph.is_rigid(dim=1, algorithm="default")
     assert graph.is_rigid(dim=1, algorithm="graphic")
     assert graph.is_rigid(dim=1, algorithm="randomized")
+    assert graph.is_rigid(dim=1, algorithm="numerical")
 
 
 @pytest.mark.parametrize(
@@ -121,6 +125,7 @@ def test_is_rigid_d1(graph):
 def test_is_not_rigid_d1(graph):
     assert not graph.is_rigid(dim=1, algorithm="sparsity")
     assert not graph.is_rigid(dim=1, algorithm="randomized")
+    assert not graph.is_rigid(dim=1, algorithm="numerical")
 
 
 @pytest.mark.parametrize(
@@ -134,6 +139,7 @@ def test_is_not_rigid_d1(graph):
 def test_is_rigid(graph, dim):
     assert graph.is_rigid(dim, algorithm="sparsity" if (dim < 3) else "randomized")
     assert graph.is_rigid(dim, algorithm="default")
+    assert graph.is_rigid(dim, algorithm="numerical")
 
 
 @pytest.mark.parametrize(

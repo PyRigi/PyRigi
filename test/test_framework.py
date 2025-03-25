@@ -68,6 +68,7 @@ def test__repr__():
 )
 def test_is_inf_rigid(framework):
     assert framework.is_inf_rigid()
+    assert framework.is_inf_rigid(numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -97,8 +98,9 @@ def test_is_inf_rigid(framework):
     + [fws.Cycle(n, dim=n) for n in range(4, 10)]
     + [fws.Cycle(n + 1, dim=n) for n in range(3, 10)],
 )
-def test_is_not_inf_rigid(framework):
-    assert not framework.is_inf_rigid()
+def test_is_inf_flexible(framework):
+    assert framework.is_inf_flexible()
+    assert framework.is_inf_flexible(numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -125,6 +127,7 @@ def test_is_not_inf_rigid(framework):
 )
 def test_is_min_inf_rigid(framework):
     assert framework.is_min_inf_rigid()
+    assert framework.is_min_inf_rigid(numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -202,6 +205,7 @@ def test_is_not_min_inf_rigid(framework):
 )
 def test_is_independent(framework):
     assert framework.is_independent()
+    assert framework.is_independent(numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -329,6 +333,7 @@ def test_is_second_order_rigid_error(framework):
 )
 def test_is_dependent(framework):
     assert framework.is_dependent()
+    assert framework.is_dependent(numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -350,6 +355,7 @@ def test_is_dependent(framework):
 )
 def test_is_isostatic(framework):
     assert framework.is_isostatic()
+    assert framework.is_isostatic(numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -397,6 +403,7 @@ def test_is_not_isostatic(framework):
 )
 def test_is_redundantly_inf_rigid(framework):
     assert framework.is_redundantly_inf_rigid()
+    assert framework.is_redundantly_inf_rigid(numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -420,6 +427,7 @@ def test_is_redundantly_inf_rigid(framework):
 )
 def test_is_not_redundantly_inf_rigid(framework):
     assert not framework.is_redundantly_inf_rigid()
+    assert not framework.is_redundantly_inf_rigid(numerical=True)
 
 
 def test_dimension():
@@ -1078,6 +1086,7 @@ def test_rigidity_matrix():
 )
 def test_rigidity_matrix_rank(framework, rank):
     assert framework.rigidity_matrix_rank() == rank
+    assert framework.rigidity_matrix_rank(numerical=True) == rank
 
 
 def test_stress_matrix():

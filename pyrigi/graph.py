@@ -2064,6 +2064,8 @@ class Graph(nx.Graph):
             It may give false negatives (with probability at most ``prob``),
             but no false positives. See :prf:ref:`thm-probabilistic-rigidity-check`.
 
+            If ``"numerical"``, a numerical check on the matrix rank is performed.
+
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``
             and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
         prob:
@@ -2117,6 +2119,12 @@ class Graph(nx.Graph):
 
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
+        
+        if algorithm == "numerical":
+            from pyrigi.framework import Framework
+
+            F = Framework.Random(self, dim, rand_range=[-1/math.sqrt(prob), 1/math.sqrt(prob)], numerical=True)
+            return F.is_inf_rigid(numerical=True)
 
         raise NotSupportedValueError(algorithm, "algorithm", self.is_rigid)
 
