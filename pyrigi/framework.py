@@ -955,7 +955,11 @@ class Framework(object):
         numerical: bool = False,
     ) -> Framework:
         """
-        Return a framework with random realization with integral coordinates.
+        Return a framework with random realization.
+
+        Depending on the parameter ``numerical``, the realization either
+        consists of random integers (``numerical=False``) or random floats
+        (``numerical=True``).
 
         Parameters
         ----------
@@ -968,9 +972,11 @@ class Framework(object):
             sampled. The format is either an interval ``(a,b)`` or a single
             integer ``a``, which produces the range ``(-a,a)``.
             If ``rand_range=None``, then the range is set to ``(-a,a)`` for
-            ``a = 10^4 * n * dim``, where ``n`` is the number of vertices.
+            ``a = 10^4 * n * dim`` in the case that ``numerical=False``, where
+            ``n`` is the number of vertices. For ``numerical=True``, we set the
+            default interval to ``(-1,1)``.
         numerical:
-            A boolean indicating whether numerical coordinates should be used
+            A boolean indicating whether numerical coordinates should be used.
 
         Examples
         --------
@@ -982,8 +988,11 @@ class Framework(object):
         """
         _input_check.dimension(dim)
         if rand_range is None:
-            b = 10**4 * graph.number_of_nodes() * dim
-            a = -b
+            if numerical:
+                a, b = -1, 1
+            else:
+                b = 10**4 * graph.number_of_nodes() * dim
+                a = -b
         elif isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
                 raise ValueError("If `rand_range` is a list, it must be of length 2.")
@@ -1947,6 +1956,17 @@ class Framework(object):
         -----------
         :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
 
+        Parameters
+        ----------
+        numerical:
+            If ``True``, the rank computation is numerical.
+
+            *Warning:* For ``numerical=True`` the numerical rank computation
+            may produce different results than the computation over symbolic
+            coordinates.
+        tolerance:
+            Numerical tolerance used for computing the rigidity matrix rank.
+
         Examples
         --------
         >>> K4 = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
@@ -1978,6 +1998,18 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
+
+        Parameters
+        ----------
+        numerical:
+            If ``True``, the rigidity matrix rank computation for determining
+            rigidity is numerical.
+
+            *Warning:* For ``numerical=True`` the numerical rank computation
+            may produce different results than the computation over symbolic
+            coordinates.
+        tolerance:
+            Numerical tolerance used for computing the rigidity matrix rank.
 
         Examples
         --------
