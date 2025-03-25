@@ -2497,23 +2497,47 @@ def test_from_vertices_and_edges():
         Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 4]])
 
 
-def test_is_3_6_sparse():
-    """The Double Banana is (3,6)-tight."""
-    G = graphs.DoubleBanana()
-    assert G.is_kl_sparse(3, 6)
-    G.add_edge(0, 1)
-    assert not G.is_kl_sparse(3, 6)
-    G = graphs.K66MinusPerfectMatching()
-    assert G.is_kl_sparse(3, 6)
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.Complete(4), 2, 2],
+        [graphs.K66MinusPerfectMatching(), 3, 6],
+        [graphs.DoubleBanana(), 3, 6],
+    ],
+)
+def test_is_kl_tight(graph, K, L):
+    assert graph.is_kl_tight(K, L)
 
 
-def test_is_kl_tight():
-    G = graphs.Complete(4)
-    assert G.is_kl_tight(2, 2)
-    G = graphs.CompleteBipartite(4, 4)
-    assert not G.is_kl_tight(3, 6)
-    G = graphs.K66MinusPerfectMatching()
-    assert G.is_kl_tight(3, 6)
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.CompleteBipartite(4, 4), 3, 6],
+    ],
+)
+def test_is_not_kl_tight(graph, K, L):
+    assert not graph.is_kl_tight(K, L)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.K66MinusPerfectMatching(), 3, 6],
+        [graphs.DoubleBanana(), 3, 6],
+    ],
+)
+def test_is_kl_sparse(graph, K, L):
+    assert graph.is_kl_sparse(K, L)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.DoubleBanana() + Graph([[0, 1]]), 3, 6],
+    ],
+)
+def test_is_not_kl_sparse(graph, K, L):
+    assert not graph.is_kl_sparse(K, L)
 
 
 @pytest.mark.parametrize(
