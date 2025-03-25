@@ -2501,6 +2501,7 @@ def test_from_vertices_and_edges():
     "graph, K, L",
     [
         [graphs.Complete(4), 2, 2],
+        [Graph([[0, 0], [0, 1], [1, 1]]), 2, 1],
         [graphs.K66MinusPerfectMatching(), 3, 6],
         [graphs.DoubleBanana(), 3, 6],
     ],
@@ -2522,6 +2523,7 @@ def test_is_not_kl_tight(graph, K, L):
 @pytest.mark.parametrize(
     "graph, K, L",
     [
+        [Graph([[0, 0], [0, 1], [1, 1]]), 2, 1],
         [graphs.K66MinusPerfectMatching(), 3, 6],
         [graphs.DoubleBanana(), 3, 6],
     ],
@@ -2533,6 +2535,7 @@ def test_is_kl_sparse(graph, K, L):
 @pytest.mark.parametrize(
     "graph, K, L",
     [
+        [Graph([[0, 1], [1, 1]]), 1, 1],
         [graphs.DoubleBanana() + Graph([[0, 1]]), 3, 6],
     ],
 )
