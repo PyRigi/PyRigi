@@ -1254,6 +1254,33 @@ def test__input_check_vertex_key(framework, realization, v):
     assert framework._input_check_vertex_key(v, realization) is None
 
 
+@pytest.mark.parametrize("dim", range(1, 5))
+def test_Random(dim):
+    graph = graphs.Complete(dim + 1)
+    framework = Framework.Random(graph, dim=dim)
+    assert framework.dim == dim
+
+    framework = Framework.Random(graph, dim=dim, rand_range=10)
+    maximum = max([max(framework[u]) for u in graph])
+    minimum = min([min(framework[u]) for u in graph])
+    assert -10 <= minimum and maximum <= 10
+
+    framework = Framework.Random(graph, dim=dim, rand_range=[10, 100])
+    maximum = max([max(framework[u]) for u in graph])
+    minimum = min([min(framework[u]) for u in graph])
+    assert 10 <= minimum and maximum <= 100
+
+    framework = Framework.Random(graph, dim=dim, numerical=True)
+    maximum = max([max(framework[u]) for u in graph])
+    minimum = min([min(framework[u]) for u in graph])
+    assert -1 <= minimum and maximum <= 1
+
+    framework = Framework.Random(graph, dim=dim, rand_range=[10, 100], numerical=True)
+    maximum = max([max(framework[u]) for u in graph])
+    minimum = min([min(framework[u]) for u in graph])
+    assert 10 <= minimum and maximum <= 100
+
+
 @pytest.mark.parametrize(
     "framework, realization, v",
     [
