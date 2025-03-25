@@ -2119,11 +2119,16 @@ class Graph(nx.Graph):
 
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
-        
+
         if algorithm == "numerical":
             from pyrigi.framework import Framework
 
-            F = Framework.Random(self, dim, rand_range=[-1/math.sqrt(prob), 1/math.sqrt(prob)], numerical=True)
+            F = Framework.Random(
+                self,
+                dim,
+                rand_range=[-1 / math.sqrt(prob), 1 / math.sqrt(prob)],
+                numerical=True,
+            )
             return F.is_inf_rigid(numerical=True)
 
         raise NotSupportedValueError(algorithm, "algorithm", self.is_rigid)
