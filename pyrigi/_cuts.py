@@ -1,7 +1,10 @@
-from typing import Callable, Iterable, Optional, TypeVar
+from typing import Callable, Iterable, Optional, TypeVar, TYPE_CHECKING
 import networkx as nx
 
 from pyrigi.data_type import Vertex, SeparatingCut
+
+if TYPE_CHECKING:
+    from pyrigi import Graph as PRGraph
 
 T = TypeVar("T")
 
@@ -17,48 +20,13 @@ def _to_vertices(vertices: Iterable[Vertex] | SeparatingCut) -> set[Vertex]:
     return set(vertices)
 
 
-def stable_set_violation(
-    graph: nx.Graph,
-    vertices: Iterable[Vertex] | SeparatingCut,
-) -> Optional[tuple[Vertex, Vertex]]:
-    """
-    Check if the given set of vertices is stable in the given graph
-    and if not, find a pair of vertices in the set that are neighboring.
-
-    Definitions
-    -----------
-    :prf:ref:`Stable set <def-stable-set>`
-
-    Parameters
-    ----------
-    graph:
-        the graph to check
-    vertices:
-        the set of vertices
-
-    Examples
-    --------
-    >>> import pyrigi.graphDB as graphs
-    >>> H = graphs.Cycle(5)
-    >>> H.stable_set_violation([1,3]) # -> None
-    >>> H.stable_set_violation([0,2,4])
-    (0, 4)
-    """
-
-    vertices = _to_vertices(vertices)
-    for v in vertices:
-        for u in graph.neighbors(v):
-            if u in vertices:
-                return v, u
-    return None
-
-
 def is_stable_set(
     graph: nx.Graph,
     vertices: Iterable[Vertex] | SeparatingCut,
-) -> bool:
+) -> tuple[bool, Optional[tuple[Vertex, Vertex]]]:
     """
     Check if the given set of vertices is stable in the given graph.
+    and if not, find a pair of vertices in the set that are neighboring.
 
     Definitions
     -----------
@@ -71,16 +39,28 @@ def is_stable_set(
     vertices:
         the vertices to check
 
+    Returns:
+        A tuple where first boolean states whenever the set is stable
+        and second item gives a pair of vertices contradicting the stable
+        property if applicable.
+
     Examples
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
     >>> H.is_stable_set([1,3])
-    True
+    (True, None)
     >>> H.is_stable_set([1,2])
-    False
+    (False, (1, 2))
+    >>> H.is_stable_set([0,2,4])
+    (False, (0, 4))
     """
-    return stable_set_violation(graph, vertices) is None
+    vertices = _to_vertices(vertices)
+    for v in vertices:
+        for u in graph.neighbors(v):
+            if u in vertices:
+                return False, (v, u)
+    return True, None
 
 
 def _revertable_set_removal(
@@ -124,7 +104,7 @@ def _revertable_set_removal(
 
 
 def is_separating_set(
-    graph: nx.Graph,
+    graph: "PRGraph",
     vertices: Iterable[Vertex] | SeparatingCut,
 ) -> bool:
     """
@@ -166,7 +146,7 @@ def is_separating_set(
 
 
 def is_separating_set_dividing(
-    graph: nx.Graph,
+    graph: "PRGraph",
     vertices: Iterable[Vertex] | SeparatingCut,
     u: Vertex,
     v: Vertex,
@@ -192,7 +172,7 @@ def is_separating_set_dividing(
     Raises
     ------
     ValueError:
-        If either of the vertices is contained in the cutset
+        If either of the vertices is contained in the separating set
 
     Examples
     --------
@@ -224,8 +204,8 @@ def is_separating_set_dividing(
     return _revertable_set_removal(graph, vertices, check_graph)
 
 
-def is_stable_cutset(
-    graph: nx.Graph,
+def is_stable_separating_set(
+    graph: "PRGraph",
     vertices: Iterable[Vertex] | SeparatingCut,
 ) -> bool:
     """
@@ -233,34 +213,34 @@ def is_stable_cutset(
 
     Definitions
     -----------
-    :prf:ref:`Stable cutset <def-stable-cutset>`
+    :prf:ref:`Stable separating set <def-stable-separating-set>`
 
     Parameters
     ----------
     graph:
         the graph to check
     vertices:
-        the cutset of vertices
+        the separating set of vertices
 
     Examples
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
-    >>> H.is_stable_cutset([1,3])
+    >>> H.is_stable_separating_set([1,3])
     True
-    >>> H.is_stable_cutset([1,2])
+    >>> H.is_stable_separating_set([1,2])
     False
 
     Note
     ----
         See :meth:`~pyrigi.graph.Graph.is_stable_set` and
-        :meth:`~pyrigi.graph.Graph.is_separator`.
+        :meth:`~pyrigi.graph.Graph.is_separating_set`.
     """
-    return is_stable_set(graph, vertices) and is_separating_set(graph, vertices)
+    return is_stable_set(graph, vertices)[0] and is_separating_set(graph, vertices)
 
 
-def is_stable_cutset_dividing(
-    graph: nx.Graph,
+def is_stable_separating_set_dividing(
+    graph: "PRGraph",
     vertices: Iterable[Vertex] | SeparatingCut,
     u: Vertex,
     v: Vertex,
@@ -271,7 +251,7 @@ def is_stable_cutset_dividing(
 
     Definitions
     -----------
-    :prf:ref:`Stable cutset <def-stable-cutset>`
+    :prf:ref:`Stable separating set <def-stable-separating-set>`
 
     Parameters
     ----------
@@ -283,21 +263,21 @@ def is_stable_cutset_dividing(
     Raises
     ------
     ValueError:
-        If either of the vertices is contained in the cutset
+        If either of the vertices is contained in the separating set
 
     Examples
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
-    >>> H.is_stable_cutset_dividing([1,3], 0, 2)
+    >>> H.is_stable_separating_set_dividing([1,3], 0, 2)
     True
-    >>> H.is_stable_cutset_dividing([2,4], 0, 1)
+    >>> H.is_stable_separating_set_dividing([2,4], 0, 1)
     False
 
     Note
     ----
         See :meth:`~pyrigi.graph.Graph.is_stable_set`
-        and :meth:`~pyrigi.graph.Graph.is_stable_cutset_dividing`.
+        and :meth:`~pyrigi.graph.Graph.is_stable_separating_set_dividing`.
     """
     return is_stable_set(graph, vertices) and is_separating_set_dividing(
         graph, vertices, u, v

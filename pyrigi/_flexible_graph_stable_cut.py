@@ -4,29 +4,32 @@ according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 """
 
 import logging
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 
-from pyrigi.data_type import StableCut
-from pyrigi._cuts import stable_set_violation
+from pyrigi._cuts import is_stable_set
+from pyrigi.data_type import StableSeparatingCut
 import networkx as nx
 import numpy as np
 
 from pyrigi.data_type import Vertex
 
+if TYPE_CHECKING:
+    from pyrigi import Graph as PRGraph
 
-def stable_cutset_in_flexible_graph(
+
+def stable_separating_set_in_flexible_graph(
     graph: nx.Graph,
     u: Optional[Vertex] = None,
     v: Optional[Vertex] = None,
-) -> Optional[StableCut]:
+) -> Optional[StableSeparatingCut]:
     """
     Find a stable cut in a flexible graph
     according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 
     Definitions
     -----------
-    :prf:ref:`Stable cutset <def-stable-cutset>`
+    :prf:ref:`Stable separating set <def-stable-separating-set>`
     :prf:ref:`Contiguous rigidity <def-cont-rigid-framework>`
 
     Parameters
@@ -81,7 +84,7 @@ def stable_cutset_in_flexible_graph(
 
     # if there is only a single component, fallback to a faster algorithm
     if len(connected_components) == 1:
-        return stable_cutset_in_flexible_graph_fast(graph, u, v)
+        return stable_separating_set_in_flexible_graph_fast(graph, u, v)
 
     # if the graph is not connected, we can possibly reduce the work needed
     # by finding a connected component that contains u
@@ -96,7 +99,9 @@ def stable_cutset_in_flexible_graph(
 
     # if v is not specified, we just choose a different component and return the empty cut
     if v is None or v not in u_component:
-        return StableCut(set(u_component), set(x for c in other for x in c), set())
+        return StableSeparatingCut(
+            set(u_component), set(x for c in other for x in c), set()
+        )
 
     # Makes sure v is in different rigid component
     match _find_and_validate_u_and_v(subgraph, u, v):
@@ -109,27 +114,29 @@ def stable_cutset_in_flexible_graph(
         graph = PRGraph(subgraph)
 
     cut = _process(graph, u, v)
-    StableCut(a=cut.a, b=cut.b | set(x for c in other for x in c), cut=cut.cut)
+    StableSeparatingCut(
+        a=cut.a, b=cut.b | set(x for c in other for x in c), cut=cut.cut
+    )
     return cut
 
 
-def stable_cutset_in_flexible_graph_fast(
+def stable_separating_set_in_flexible_graph_fast(
     graph: nx.Graph,
     u: Optional[Vertex] = None,
     v: Optional[Vertex] = None,
     ensure_rigid_components: bool = True,
-) -> Optional[StableCut]:
+) -> Optional[StableSeparatingCut]:
     """
     Find a stable cut in a flexible graph
     according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 
-    Similar to :meth:`~pyrigi.graph.Graph.stable_cut_in_flexible_graph`,
+    Similar to :meth:`~pyrigi.graph.Graph.stable_separating_set_in_flexible_graph`,
     but faster as connectivity are removed.
     The algorithm's output is undefined in these cases.
 
     Definitions
     -----------
-    :prf:ref:`Stable cutset <def-stable-cutset>`
+    :prf:ref:`Stable separating set <def-stable-separating-set>`
     :prf:ref:`Contiguous rigidity <def-cont-rigid-framework>`
 
     Parameters
@@ -150,7 +157,7 @@ def stable_cutset_in_flexible_graph_fast(
 
     Returns
     -------
-        For a valid input a :class:`pyrigi.data_type.StableCut` in the graph is returned.
+        For a valid input a :class:`pyrigi.data_type.StableSeparatingCut` in the graph is returned.
         For rigid graphs and cases when ``u`` and ``v`` are not in the same
         rigid component, ``None`` is returned.
 
@@ -190,7 +197,7 @@ def stable_cutset_in_flexible_graph_fast(
 
 
 def _find_and_validate_u_and_v(
-    graph: nx.Graph,  # PRGraph,
+    graph: "PRGraph",
     u: Vertex,
     v: Optional[Vertex],
 ) -> Optional[Vertex]:
@@ -234,10 +241,10 @@ def _find_and_validate_u_and_v(
 
 
 def _process(
-    graph: nx.Graph,  # PRGraph,
+    graph: "PRGraph",
     u: Vertex,
     v: Vertex,
-) -> StableCut:
+) -> StableSeparatingCut:
     """
     Find a stable cut in a flexible graph.
 
@@ -246,9 +253,9 @@ def _process(
     Parameters
     ----------
     graph:
-        mutable graph to find a stable cutset in
+        mutable graph to find a stable separating set in
     u:
-        the vertex around which we look for a stable cutset
+        the vertex around which we look for a stable separating set
     v:
         the vertex marking another rigid component
     """
@@ -256,11 +263,11 @@ def _process(
     # Checks neighborhood of u
     # if it is a stable set, we are done
     neiborhood = set(graph.neighbors(u))
-    violation = stable_set_violation(graph, neiborhood)
+    violation = is_stable_set(graph, neiborhood)[1]
 
     # found a stable set around u
     if violation is None:
-        return StableCut(
+        return StableSeparatingCut(
             neiborhood | {u},
             set(graph.nodes) - {u},
             neiborhood,

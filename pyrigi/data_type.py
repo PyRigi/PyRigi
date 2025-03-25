@@ -67,7 +67,7 @@ class SeparatingCut(NamedTuple):
 
     Definitions
     -----------
-    :prf:ref:`Stable cutset <def-separating-set>`
+    :prf:ref:`Separating set <def-separating-set>`
 
     Parameters
     ----------
@@ -94,13 +94,13 @@ class SeparatingCut(NamedTuple):
         return self.a == other.b and self.b == other.a
 
 
-class StableCut(SeparatingCut):
+class StableSeparatingCut(SeparatingCut):
     """
-    Represents a stable cutset in a graph.
+    Represents a stable separating set in a graph.
 
     Definitions
     -----------
-    :prf:ref:`Stable cutset <def-stable-cutset>`
+    :prf:ref:`Stable separating set <def-stable-separating-set>`
 
     Parameters
     ----------
@@ -113,7 +113,7 @@ class StableCut(SeparatingCut):
     """
 
     def __repr__(self) -> str:
-        return f"StableCut({self.a}, {self.b} - {self.cut})"
+        return f"StableSeparatingCut({self.a}, {self.b} - {self.cut})"
 
     def validate(self, graph: nx.Graph) -> bool:
         """
@@ -124,6 +124,6 @@ class StableCut(SeparatingCut):
         graph:
             The graph on which we check if the set is separating and stable.
         """
-        from pyrigi._cuts import is_stable_cutset
+        from pyrigi._cuts import is_stable_separating_set
 
-        return is_stable_cutset(graph, self)
+        return is_stable_separating_set(graph, self)

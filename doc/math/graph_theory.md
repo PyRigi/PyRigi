@@ -129,26 +129,25 @@ In particular, if $U = \{u,v\}$ then U is called a _separating pair_.
 :label: def-stable-set
 
 The set $S \subset V$ is called a _stable set_ of $G$
-if it is an independent set in $G$.
+if there is no edge $uv$ in $G$ such that $u,v \in S$
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_stable_set`
-{meth}`~.Graph.stable_set_violation`
 :::
 
 
-:::{prf:definition} stable cutset
-:label: def-stable-cutset
+:::{prf:definition} stable separating set
+:label: def-stable-separating-set
 
-The set $S \subset V$ is called a _stable cutset_ of $G$
+The set $S \subset V$ is called a _stable separating set_ of $G$
 if it is a {prf:ref}`separating set <def-separating-set>` of $G$
 and also a {prf:ref}`stable set <def-stable-set>` of $G$.
 
 {{references}} {cite:p}`LeMoscaMüller2008`
 
-{{pyrigi_crossref}} {meth}`~.Graph.is_stable_cutset`
-{meth}`~.Graph.is_stable_cutset_dividing`
-{meth}`~.Graph.stable_cutset_in_flexible_graph`
-{meth}`~.Graph.stable_cutset_in_flexible_graph_fast`
+{{pyrigi_crossref}} {meth}`~.Graph.is_stable_separating_set`
+{meth}`~.Graph.is_stable_separating_set_dividing`
+{meth}`~.Graph.stable_separating_set_in_flexible_graph`
+{meth}`~.Graph.stable_separating_set_in_flexible_graph_fast`
 :::
 
 

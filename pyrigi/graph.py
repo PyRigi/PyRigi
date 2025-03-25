@@ -23,16 +23,15 @@ from pyrigi.misc import _doc_category as doc_category
 from pyrigi.plot_style import PlotStyle
 from pyrigi.warning import RandomizedAlgorithmWarning
 from pyrigi._flexible_graph_stable_cut import (
-    stable_cutset_in_flexible_graph,
-    stable_cutset_in_flexible_graph_fast,
+    stable_separating_set_in_flexible_graph,
+    stable_separating_set_in_flexible_graph_fast,
 )
 from pyrigi._cuts import (
-    stable_set_violation,
     is_stable_set,
     is_separating_set,
     is_separating_set_dividing,
-    is_stable_cutset,
-    is_stable_cutset_dividing,
+    is_stable_separating_set,
+    is_stable_separating_set_dividing,
 )
 
 
@@ -3559,11 +3558,6 @@ class Graph(nx.Graph):
         )
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(stable_set_violation)
-    def stable_set_violation(self):
-        pass
-
-    @doc_category("General graph theoretical properties")
     @proxy_call(is_stable_set)
     def is_stable_set(self):
         pass
@@ -3579,23 +3573,23 @@ class Graph(nx.Graph):
         pass
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(is_stable_cutset)
-    def is_stable_cutset(self):
+    @proxy_call(is_stable_separating_set)
+    def is_stable_separating_set(self):
         pass
 
-    @proxy_call(is_stable_cutset_dividing)
+    @proxy_call(is_stable_separating_set_dividing)
     @doc_category("General graph theoretical properties")
-    def is_stable_cutset_dividing(self):
-        pass
-
-    @doc_category("General graph theoretical properties")
-    @proxy_call(stable_cutset_in_flexible_graph)
-    def stable_cutset_in_flexible_graph(self):
+    def is_stable_separating_set_dividing(self):
         pass
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(stable_cutset_in_flexible_graph_fast)
-    def stable_cutset_in_flexible_graph_fast(self):
+    @proxy_call(stable_separating_set_in_flexible_graph)
+    def stable_separating_set_in_flexible_graph(self):
+        pass
+
+    @doc_category("General graph theoretical properties")
+    @proxy_call(stable_separating_set_in_flexible_graph_fast)
+    def stable_separating_set_in_flexible_graph_fast(self):
         pass
 
     @doc_category("Generic rigidity")
@@ -3990,3 +3984,4 @@ Graph.__doc__ = Graph.__doc__.replace(
         include_all=False,
     ),
 )
+
