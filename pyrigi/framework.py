@@ -1956,10 +1956,11 @@ class Framework(object):
         Parameters
         ----------
         numerical:
-            If ``True``, the rank computation is numerical.
+            If ``True``, the rank of the rigidity matrix with entries as floats
+            is computed.
 
             *Warning:* For ``numerical=True`` the numerical rank computation
-            may produce different results than the computation over symbolic
+            may produce different results than the computation over exact
             coordinates.
         tolerance:
             Numerical tolerance used for computing the rigidity matrix rank.
@@ -1984,13 +1985,9 @@ class Framework(object):
         return self.rigidity_matrix().rank()
 
     @doc_category("Infinitesimal rigidity")
-    def is_inf_rigid(self, **kwargs) -> bool:
+    def is_inf_rigid(self, numerical: bool = False, tolerance: bool = 1e-9) -> bool:
         """
         Return whether the framework is infinitesimally rigid.
-
-        This method is based on :meth:`~Framework.rigidity_matrix_rank`, so
-        you can see that method for implementation details and possible
-        parameters.
 
         Definitions
         -----------
@@ -2020,12 +2017,12 @@ class Framework(object):
         """
 
         if self._graph.number_of_nodes() <= self._dim + 1:
-            return self.rigidity_matrix_rank(**kwargs) == binomial(
-                self._graph.number_of_nodes(), 2
-            )
+            return self.rigidity_matrix_rank(
+                numerical=numerical, tolerance=tolerance
+            ) == binomial(self._graph.number_of_nodes(), 2)
         else:
             return self.rigidity_matrix_rank(
-                **kwargs
+                numerical=numerical, tolerance=tolerance
             ) == self.dim * self._graph.number_of_nodes() - binomial(self.dim + 1, 2)
 
     @doc_category("Infinitesimal rigidity")

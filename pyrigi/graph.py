@@ -2065,7 +2065,7 @@ class Graph(nx.Graph):
             but no false positives. See :prf:ref:`thm-probabilistic-rigidity-check`.
 
             If ``"numerical"``, a numerical check on the rigidity matrix rank
-            is performed. See :meth:`.Framework.is-inf_rigid` for further details.
+            is performed. See :meth:`.Framework.is_inf_rigid` for further details.
 
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``
             and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
