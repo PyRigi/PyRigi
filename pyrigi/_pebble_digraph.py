@@ -139,8 +139,10 @@ class PebbleDiGraph(nx.MultiDiGraph):
         if self.has_node(vertex_to) and vertex_to in edge:
             tail = edge[0]
             head = edge[1]
-            self.remove_edge(tail, head)
-            self.add_edge(head, vertex_to)
+            # ignore loops, obviously
+            if tail != head:
+                self.remove_edge(tail, head)
+                self.add_edge(head, vertex_to)
 
     def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:
         """
@@ -197,44 +199,65 @@ class PebbleDiGraph(nx.MultiDiGraph):
                 edge_path.pop()
             return False, visited
 
-        max_degree_u_v_together = 2 * self.K - self.L - 1
-
         if not self.has_node(u):
             raise ValueError(f"Vertex {u} is not present in the graph.")
 
         if not self.has_node(v):
             raise ValueError(f"Vertex {v} is not present in the graph.")
 
-        while self.out_degree(u) + self.out_degree(v) > max_degree_u_v_together:
-            visited_vertices = {u, v}
+        # the edge to be added is a loop
+        if u == v:
+            max_degree_of_v = self.K - self.L - 1
+            while self.out_degree(v) > max_degree_of_v:
+                visited_vertices = {v}
+                edge_path_v = []
+                # Perform DFS from v
+                found_from_v, visited_vertices = dfs(v, visited_vertices, edge_path_v)
 
-            edge_path_u, edge_path_v = [], []
+                if not found_from_v:
+                    break
 
-            # Perform DFS from u
-            found_from_u, visited_vertices = dfs(u, visited_vertices, edge_path_u)
+            can_add_edge = self.out_degree(v) <= max_degree_of_v
+            if can_add_edge:
+                # The edge is independent
+                return None
 
-            if found_from_u:
-                continue
+            return visited_vertices
 
-            # Perform DFS from v
-            found_from_v, visited_vertices = dfs(v, visited_vertices, edge_path_v)
+        else:
+            # u!=v
+            max_degree_u_v_together = 2 * self.K - self.L - 1
 
-            if found_from_v:
-                continue
+            while self.out_degree(u) + self.out_degree(v) > max_degree_u_v_together:
+                visited_vertices = {u, v}
 
-            # not found_from_u and not found_from_v
-            # so we reached the maximal extent of the reachable points
-            # which is the fundamental circuit
-            break
+                edge_path_u, edge_path_v = [], []
 
-        can_add_edge = (
-            self.out_degree(u) + self.out_degree(v) <= max_degree_u_v_together
-        )
-        if can_add_edge:
-            # The edge is independent
-            return None
+                # Perform DFS from u
+                found_from_u, visited_vertices = dfs(u, visited_vertices, edge_path_u)
 
-        return visited_vertices
+                if found_from_u:
+                    continue
+
+                # Perform DFS from v
+                found_from_v, visited_vertices = dfs(v, visited_vertices, edge_path_v)
+
+                if found_from_v:
+                    continue
+
+                # not found_from_u and not found_from_v
+                # so we reached the maximal extent of the reachable points
+                # which is the fundamental circuit
+                break
+
+            can_add_edge = (
+                self.out_degree(u) + self.out_degree(v) <= max_degree_u_v_together
+            )
+            if can_add_edge:
+                # The edge is independent
+                return None
+
+            return visited_vertices
 
     def can_add_edge_between_vertices(self, u: Vertex, v: Vertex) -> bool:
         """
@@ -253,12 +276,16 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         # if the vertex u is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
-        if not self.has_node(u):
+        # Unless of course it is a loop. Then we can add it
+        # only if K>L, thus i(X)<=K-L is maintained.
+        if not self.has_node(u) and (u != v or self.K > self.L):
             self.add_edges_from([(u, v)])
             return True
         # if the vertex v is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
-        if not self.has_node(v):
+        # Unless of course it is a loop. Then we can add it
+        # only if K>L, thus i(X)<=K-L is maintained.
+        if not self.has_node(v) and (u != v or self.K > self.L):
             self.add_edges_from([(v, u)])
             return True
 
