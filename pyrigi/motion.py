@@ -179,9 +179,9 @@ class Motion(object):
             The duration of one period of the animation in seconds.
         filename:
             A name under which the produced animation is saved. If ``None``, the animation
-            is not saved. Otherwise, the `Animation.save` method from `matplotlib` is
-            invoked, which uses external writers to create the `.gif` file, such as
-            `ffmpeg` (default) or `pillow`. The standard video codec is ``h264``.
+            is not saved. Otherwise, the ``Animation.save`` method from ``matplotlib`` is
+            invoked, which uses external writers to create the ``.gif`` file, such as
+            ``ffmpeg`` (default) or ``pillow``. The standard video codec is ``h264``.
         """
         _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
         if plot_style is None:
@@ -364,9 +364,9 @@ class Motion(object):
             The duration of one period of the animation in seconds.
         filename:
             A name under which the produced animation is saved. If ``None``, the animation
-            is not saved. Otherwise, the `Animation.save` method from `matplotlib` is
-            invoked, which uses external writers to create the `.gif` file, such as
-            `ffmpeg` (default) or `pillow`. The standard video codec is ``h264``.
+            is not saved. Otherwise, the ``Animation.save`` method from ``matplotlib`` is
+            invoked, which uses external writers to create the ``.gif`` file, such as
+            ``ffmpeg`` (default) or ``pillow``. The standard video codec is ``h264``.
         """
         if self._dim == 1:
             realizations = [

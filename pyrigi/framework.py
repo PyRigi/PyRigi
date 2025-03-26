@@ -356,8 +356,8 @@ class Framework(object):
         filename:
             The filename under which the produced figure is saved. The default value is
             ``None`` which indicates that the figure is currently not saved.
-            The figure is saved as a `.png` file using the `save` method from
-            `matplotlib`.
+            The figure is saved as a ``.png`` file using the ``save`` method from
+            ``matplotlib``.
 
         Examples
         --------
@@ -688,8 +688,8 @@ class Framework(object):
         filename:
             The filename under which the produced figure is saved. The default value is
             ``None`` which indicates that the figure is currently not saved.
-            The figure is saved as a `.png` file using the `save` method from
-            `matplotlib`.
+            The figure is saved as a ``.png`` file using the ``save`` method from
+            ``matplotlib``.
 
         Examples
         --------
