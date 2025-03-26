@@ -15,12 +15,12 @@ These are the tasks to be performed:
 
 1. they branch from `dev`, creating a branch called `feature-X`, and there they develop the intended functionality;
 2. once they are done, they push `feature-X` to GitHub and solicit a pull request of `feature-X` into `dev`;
-3. After creating a pull request, but before your code is merged into the `dev` branch, the code is checked
+3. After creating a pull request, but before the branch is merged into `dev`, the code is checked
 by the maintainers, who may ask some other collaborator to serve as reviewer to ensure that the coding
 standards and other requirements are satisfied. In a review, Alice and Bob will get comments about specific
 pieces of code or other further suggestions. Once they think that they have adequately
-addressed a comment, Alica and Bob can use a tick in the GitHub GUI (`:white_check_mark:`✅ or
-`:heavy_check_mark:`✔️ ) to indicate that. If the reviewer agrees, they will resolve the comment. 
+addressed a comment, Alice and Bob can use a tick in the GitHub GUI (`:white_check_mark:`✅ or
+`:heavy_check_mark:`✔️ ) to indicate that. If the reviewer agrees, they will resolve the comment.
 4. Once the pull request is approved, a maintainer merges `feature-X` into `dev` and during the next version release
 cycle, it will be merged into `main`, making the code available through the `pip` installation of PyRigi.
 
@@ -41,17 +41,17 @@ The branch prefixes should be named according the following convention:
 \* Only in backward compatible manner.
 
 :::{warning}
-The changes that are not backward compatible can be introduced only on `major-` branch.
-When such a branch is merged to `dev`, only major release can follow.
+Changes that are not backward compatible can only be introduced on a `major-` branch.
+When such a branch is merged to `dev`, only a major release can follow.
 :::
 
 ## Pull request titles
 
 The pull request titles are used for [Release Notes](https://github.com/PyRigi/PyRigi/releases).
 Hence, each PR title has to start with one of the prefixes from the table above
-followed by a capitalized verb in past tense.
+followed by a capitalized verb as a past participle.
 The maintainer who approves and merges a PR is responsible for checking (and possible adjusting)
-the prefix to match the section in which it should be listed in Release Notes according to the following tables.   
+the prefix to match the section in which it should be listed in the Release Notes according to the following tables.
 The first part of Release Notes is aimed at users:
 
 | PR prefix  | Release notes section | Information about                           |
@@ -75,9 +75,9 @@ After automatic grouping according to the prefixes, manual adjustments should be
 For instance:
 
 * If a feature was developed (and bug fixed) on several PRs,
-  they should be listed under the same item in New features.
+  the latter should be listed under the same item under New features.
 * If a bug is discovered on `main`, only hot fixed on `main` by disabling the functionality
-  and properly fixed on `dev` via a `feature-` branch, all corresponding PRs should be in the same item in Bug fixes. 
+  and properly fixed on `dev` via a `feature-` branch, all corresponding PRs should be in the same item under Bug fixes.
 
 ## Version Release
 
@@ -107,4 +107,4 @@ To release a new PATCH version, the following should be taken using some steps f
 * Steps 6.-10.
 * Create branch `release-x.y.z-main-to-dev` on `dev`.
 * Merge `main` into `release-x.y.z-main-to-dev` while keeping the `poetry.lock` file from `release-x.y.z-main-to-dev`.
-* Merge the branch `release-x.y.z-main-to-dev` via a PR to `dev`. 
+* Merge the branch `release-x.y.z-main-to-dev` via a PR to `dev`.
