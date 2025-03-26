@@ -353,9 +353,6 @@ class Framework(object):
             Optional parameter to specify custom arc angle for edges. Can be a
             ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
             the curvature angle of edges in radians.
-        save_figure:
-            A boolean indicating whether the figure is saved as a `.png` file.
-            If ``True``, the `save` method from `matplotlib` is invoked.
         filename:
             The filename under which the produced figure is saved. The default value is
             ``None`` which indicates that the figure is currently not saved.
@@ -688,8 +685,6 @@ class Framework(object):
             Dictionary specifying the position of stress labels along the edges. Keys are
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
             Ommited edges are given the value ``0.5``.
-        save_figure:
-            A boolean indicating whether
         filename:
             The filename under which the produced figure is saved. The default value is
             ``None`` which indicates that the figure is currently not saved.
