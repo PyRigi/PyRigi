@@ -9,7 +9,7 @@ In a nutshell, this means that there are two prominent branches in PyRigi's Git 
 - `dev`, which is used for the development.
 
 Collaborators are not allowed to push their Git commits directly to these two branches.
-Rather, they should employ _pull requests_.
+Rather, they should employ _pull requests_ (PR).
 Say Alice and Bob want to implement feature X in PyRigi.
 These are the tasks to be performed:
 
@@ -24,17 +24,60 @@ addressed a comment, Alica and Bob can use a tick in the GitHub GUI (`:white_che
 4. Once the pull request is approved, a maintainer merges `feature-X` into `dev` and during the next version release
 cycle, it will be merged into `main`, making the code available through the `pip` installation of PyRigi.
 
+The branch prefixes should be named according the following convention:
 
-We propose a few categories for contributing branches:
-* _features_: branches to implement new features/improvements to the current status; their name should start by `feature-`
-* _documentation_: branches to modify the documentation; their name should start by `doc-`, or `docfix-` when solving an error
-* _bugs_: branches to solve known bugs; their name should start by `bugfix-`
-* _hotfix_: branches to solve an urgent error; their name should start by `hotfix-`
-* _testing_: branches to add tests; their name should start by `test-`
-* _refactoring_: branches to refactor the code; their name should start by `refactor-`
+| Branch prefix | Usage                                                    | Usual PR prefix                |
+|---------------|----------------------------------------------------------|--------------------------------|
+| `feature-`    | adding new features, parameters or algorithms\*          | `Feature:`                     |
+| `bugfix-`     | fixing bugs on `dev` introduced since the latest release | `Feature:`                     |
+| `doc-`        | changing the documentation (including fixes)             | `Doc:`, `Guide:` or `Minor`    |
+| `hotfix-`     | fixing bugs on `main`                                    | `Fix:`                         |
+| `test-`       | adding and refactoring tests                             | `Test:` or `Minor:`            |
+| `refactor-`   | refactoring the package source code\*                    | `Code:`, `Minor:` or `Update:` |
+| `release-`    | creating new release                                     | `Setup:`                       |
+| `setup-`      | changing technical setting (e.g. GitHub workflows)       | `Setup:`                       |
+| `major-`      | introducing backward incompatible changes                | `Update:`                      |
 
-When a bug is discovered on `main`, the corresponding `bugfix-`/`hotfix-` branch should be created on `main`.
+\* Only in backward compatible manner.
 
+:::{warning}
+The changes that are not backward compatible can be introduced only on `major-` branch.
+When such a branch is merged to `dev`, only major release can follow.
+:::
+
+## Pull request titles
+
+The pull request titles are used for [Release Notes](https://github.com/PyRigi/PyRigi/releases).
+Hence, each PR title has to start with one of the prefixes from the table above
+followed by a capitalized verb in past tense.
+The maintainer who approves and merges a PR is responsible for checking (and possible adjusting)
+the prefix to match the section in which it should be listed in Release Notes according to the following tables.   
+The first part of Release Notes is aimed at users:
+
+| PR prefix  | Release notes section | Information about                           |
+|------------|-----------------------|---------------------------------------------|
+| `Feature:` | New features          | new functionality                           |
+| `Update:`  | Updates               | improvements, interface changes             |
+| `Fix:`     | Bug fixes             | fixed bugs since the last release           |
+| `Doc:`     | Documentation         | changes to User guide or Math documentation |
+
+The second part is meant for developers:
+
+| PR prefix | Release notes section | Information about                      |
+|-----------|-----------------------|----------------------------------------|
+| `Test:`   | Testing               | new or changed tests                   |
+| `Setup:`  | Technical setup       | changes to technical setting           |
+| `Code:`   | Code changes          | refactoring and restructuring the code |
+| `Guide:`  | Development guide     | changes to Development guide           |
+| `Minor:`  | Minor changes         | fixed typos, minor refactoring etc.    |
+
+After automatic grouping according to the prefixes, manual adjustments should be made.
+For instance:
+
+* If a feature was developed (and bug fixed) on several PRs,
+  they should be listed under the same item in New features.
+* If a bug is discovered on `main`, only hot fixed on `main` by disabling the functionality
+  and properly fixed on `dev` via a `feature-` branch, all corresponding PRs should be in the same item in Bug fixes. 
 
 ## Version Release
 
@@ -54,7 +97,7 @@ To create a new MAJOR/MINOR version, the following steps should be taken by the 
 5. Continue on the release branch and remove the files that are not supposed to be in the release (e.g. `poetry.lock`).
 6. Merge the branch into `main`.
 7. Check that the online documentation has been deployed correctly.
-8. Add a new release tag in GitHub and generate the corresponding release notes.
+8. Add a new release tag in GitHub and generate the corresponding release notes according to the instructions above.
 9. Review the upload to PyPi.
 10. Run `poetry update` and commit `poetry.lock` to update the dependencies on `dev` .
 
