@@ -356,6 +356,9 @@ class Framework(object):
             the curvature angle of edges in radians.
         save_figure:
             A boolean indicating whether the figure is saved as a `.png` file.
+            If ``True``, the `save` method from `matplotlib` is invoked, which
+            uses external writers to create the `.png` file, such as `ffmpeg` (default)
+            or `pillow`.
         filename:
             The filename under which the produced figure is saved. The default is
             `"pyrigi_plot2D_output"`.
@@ -687,6 +690,9 @@ class Framework(object):
             Ommited edges are given the value ``0.5``.
         save_figure:
             A boolean indicating whether the figure is saved as a `.png` file.
+            If ``True``, the `save` method from `matplotlib` is invoked, which
+            uses external writers to create the `.png` file, such as `ffmpeg` (default)
+            or `pillow`.
         filename:
             The filename under which the produced figure is saved. The default is
             `"pyrigi_plot3D_output"`.

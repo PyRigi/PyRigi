@@ -179,7 +179,10 @@ class Motion(object):
         duration:
             The duration of one period of the animation in seconds.
         save_animation:
-            A boolean indicating whether the figure is saved as a `.gif` file.
+            A boolean indicating whether the animation is saved as a `.gif` file.
+            If ``True``, the `Animation.save` method from `matplotlib` is invoked, which
+            uses external writers to create the `.gif` file, such as `ffmpeg` (default)
+            or `pillow`. The standard video codec is ``h264``.
         filename:
             The filename under which the produced figure is saved. The default is
             `"pyrigi_animate3D_output"`.
@@ -363,9 +366,12 @@ class Motion(object):
         duration:
             The duration of one period of the animation in seconds.
         save_animation:
-            A boolean indicating whether the figure is saved as a `.gif` file.
+            A boolean indicating whether the animation is saved as a `.gif` file.
+            If ``True``, the `Animation.save` method from `matplotlib` is invoked, which
+            uses external writers to create the `.gif` file, such as `ffmpeg` (default)
+            or `pillow`. The standard video codec is ``h264``.
         filename:
-            The filename under which the produced figure is saved. The default is
+            The filename under which the produced animation is saved. The default is
             `"pyrigi_animate2D_output"`.
         """
         if self._dim == 1:
@@ -528,7 +534,10 @@ class Motion(object):
         duration:
             The duration of one period of the animation in seconds.
         save_animation:
-            A boolean indicating whether the figure is saved as a `.gif` file.
+            A boolean indicating whether the animation is saved as a `.svg` file.
+            This method creates the `.svg` as a string representation and setting
+            ``save_animation=True`` saves that string representation to a ``.svg``
+            file.
         filename:
             The filename under which the produced animation is saved. The default
             is `"pyrigi_animate2D_output"`.
