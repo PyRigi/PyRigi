@@ -2040,7 +2040,7 @@ class Framework(object):
         return not self.is_inf_rigid(**kwargs)
 
     @doc_category("Infinitesimal rigidity")
-    def is_min_inf_rigid(self, inplace: bool = False, **kwargs) -> bool:
+    def is_min_inf_rigid(self, use_copy: bool = True, **kwargs) -> bool:
         """
         Return whether the framework is minimally infinitesimally rigid.
 
@@ -2053,8 +2053,8 @@ class Framework(object):
 
         Parameters
         ----------
-        inplace:
-            If ``True``, the framework is modified during the algorithm
+        use_copy:
+            If ``False``, the framework is modified during the algorithm
             and later restored to its initial status.
             Otherwise, a new modified framework is created,
             while the original framework remains unchanged (default).
@@ -2072,7 +2072,7 @@ class Framework(object):
             return False
 
         F = self
-        if not inplace:
+        if use_copy:
             F = deepcopy(self)
         for edge in F._graph.edge_list():
             F.delete_edge(edge)
@@ -2441,7 +2441,7 @@ class Framework(object):
         return stresses
 
     @doc_category("Infinitesimal rigidity")
-    def is_redundantly_inf_rigid(self, inplace: bool = False, **kwargs) -> bool:
+    def is_redundantly_inf_rigid(self, use_copy: bool = True, **kwargs) -> bool:
         """
         Return if the framework is infinitesimally redundantly rigid.
 
@@ -2454,8 +2454,8 @@ class Framework(object):
 
         Parameters
         ----------
-        inplace:
-            If ``True``, the framework is modified during the algorithm
+        use_copy:
+            If ``False``, the framework is modified during the algorithm
             and later restored to its initial status.
             Otherwise, a new modified framework is created,
             while the original framework remains unchanged (default).
@@ -2472,7 +2472,7 @@ class Framework(object):
         False
         """  # noqa: E501
         F = self
-        if not inplace:
+        if use_copy:
             F = deepcopy(self)
 
         for edge in F._graph.edge_list():
