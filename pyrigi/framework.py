@@ -1007,10 +1007,7 @@ class Framework(object):
 
         if numerical:
             realization = {
-                v: [
-                    2 * (np.random.rand() - 0.5) * (rand_range[1] - rand_range[0])
-                    for _ in range(dim)
-                ]
+                v: [a + np.random.rand() * (b - a) for _ in range(dim)]
                 for v in graph.nodes
             }
         else:
