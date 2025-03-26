@@ -2054,8 +2054,8 @@ class Framework(object):
         Parameters
         ----------
         use_copy:
-            If ``False``, the framework is modified during the algorithm
-            and later restored to its initial status.
+            If ``False``, the framework's edges are deleted and added back
+            during runtime.
             Otherwise, a new modified framework is created,
             while the original framework remains unchanged (default).
 
@@ -2455,8 +2455,8 @@ class Framework(object):
         Parameters
         ----------
         use_copy:
-            If ``False``, the framework is modified during the algorithm
-            and later restored to its initial status.
+            If ``False``, the framework's edges are deleted and added back
+            during runtime.
             Otherwise, a new modified framework is created,
             while the original framework remains unchanged (default).
 
