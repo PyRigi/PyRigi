@@ -2054,8 +2054,9 @@ class Framework(object):
         Parameters
         ----------
         inplace:
-            If ``True``, the framework is modified,
-            otherwise a new modified framework is created,
+            If ``True``, the framework is modified during the algorithm
+            and later restored to its initial status.
+            Otherwise, a new modified framework is created,
             while the original framework remains unchanged (default).
 
         Examples
@@ -2454,8 +2455,9 @@ class Framework(object):
         Parameters
         ----------
         inplace:
-            If ``True``, the framework is modified,
-            otherwise a new modified framework is created,
+            If ``True``, the framework is modified during the algorithm
+            and later restored to its initial status.
+            Otherwise, a new modified framework is created,
             while the original framework remains unchanged (default).
 
         Examples
