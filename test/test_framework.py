@@ -1260,25 +1260,26 @@ def test_Random(dim):
     framework = Framework.Random(graph, dim=dim)
     assert framework.dim == dim
 
+    def min_coord(F):
+        return min([min(F[u]) for u in graph])
+
+    def max_coord(F):
+        return max([max(F[u]) for u in graph])
+
     framework = Framework.Random(graph, dim=dim, rand_range=10)
-    maximum = max([max(framework[u]) for u in graph])
-    minimum = min([min(framework[u]) for u in graph])
-    assert -10 <= minimum and maximum <= 10
+    assert -10 <= min_coord(framework) and max_coord(framework) <= 10
 
     framework = Framework.Random(graph, dim=dim, rand_range=[10, 100])
-    maximum = max([max(framework[u]) for u in graph])
-    minimum = min([min(framework[u]) for u in graph])
-    assert 10 <= minimum and maximum <= 100
+    assert 10 <= min_coord(framework) and max_coord(framework) <= 100
 
     framework = Framework.Random(graph, dim=dim, numerical=True)
-    maximum = max([max(framework[u]) for u in graph])
-    minimum = min([min(framework[u]) for u in graph])
-    assert -1 <= minimum and maximum <= 1
+    assert -1 <= min_coord(framework) and max_coord(framework) <= 1
+
+    framework = Framework.Random(graph, dim=dim, rand_range=10, numerical=True)
+    assert -10 <= min_coord(framework) and max_coord(framework) <= 10
 
     framework = Framework.Random(graph, dim=dim, rand_range=[10, 100], numerical=True)
-    maximum = max([max(framework[u]) for u in graph])
-    minimum = min([min(framework[u]) for u in graph])
-    assert 10 <= minimum and maximum <= 100
+    assert 10 <= min_coord(framework) and max_coord(framework) <= 100
 
 
 @pytest.mark.parametrize(
