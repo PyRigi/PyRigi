@@ -152,8 +152,7 @@ class Motion(object):
         plot_style: PlotStyle,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
-        save_animation: bool = False,
-        filename: str = "pyrigi_animate3D_output",
+        filename: str = None,
         **kwargs,
     ) -> Any:
         """
@@ -178,14 +177,11 @@ class Motion(object):
             The omitted edges are given the value ``plot_style.edge_color``.
         duration:
             The duration of one period of the animation in seconds.
-        save_animation:
-            A boolean indicating whether the animation is saved as a `.gif` file.
-            If ``True``, the `Animation.save` method from `matplotlib` is invoked, which
-            uses external writers to create the `.gif` file, such as `ffmpeg` (default)
-            or `pillow`. The standard video codec is ``h264``.
         filename:
-            The filename under which the produced figure is saved. The default is
-            `"pyrigi_animate3D_output"`.
+            A name under which the produced animation is saved. If ``None``, the animation
+            is not saved. Otherwise, the `Animation.save` method from `matplotlib` is
+            invoked, which uses external writers to create the `.gif` file, such as
+            `ffmpeg` (default) or `pillow`. The standard video codec is ``h264``.
         """
         _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
         if plot_style is None:
@@ -315,8 +311,10 @@ class Motion(object):
         )
 
         plt.tight_layout()
-        if save_animation:
-            ani.save(f"{filename}.gif", fps=30)
+        if filename is not None:
+            if not filename.endswith(".gif"):
+                filename = filename + ".gif"
+            ani.save(f"{filename}", fps=30)
         # Checking if we are running from the terminal or from a notebook
         import sys
 
@@ -338,8 +336,7 @@ class Motion(object):
         plot_style: PlotStyle,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
-        save_animation: bool = False,
-        filename: str = "pyrigi_animate2D_output",
+        filename: str = None,
         **kwargs,
     ) -> Any:
         r"""
@@ -365,14 +362,11 @@ class Motion(object):
             The omitted edges are given the value ``plot_style.edge_color``.
         duration:
             The duration of one period of the animation in seconds.
-        save_animation:
-            A boolean indicating whether the animation is saved as a `.gif` file.
-            If ``True``, the `Animation.save` method from `matplotlib` is invoked, which
-            uses external writers to create the `.gif` file, such as `ffmpeg` (default)
-            or `pillow`. The standard video codec is ``h264``.
         filename:
-            The filename under which the produced animation is saved. The default is
-            `"pyrigi_animate2D_output"`.
+            A name under which the produced animation is saved. If ``None``, the animation
+            is not saved. Otherwise, the `Animation.save` method from `matplotlib` is
+            invoked, which uses external writers to create the `.gif` file, such as
+            `ffmpeg` (default) or `pillow`. The standard video codec is ``h264``.
         """
         if self._dim == 1:
             realizations = [
@@ -491,8 +485,10 @@ class Motion(object):
             blit=True,
         )
 
-        if save_animation:
-            ani.save(f"{filename}.gif", fps=30)
+        if filename is not None:
+            if not filename.endswith(".gif"):
+                filename = filename + ".gif"
+            ani.save(f"{filename}", fps=30)
         # Checking if we are running from the terminal or from a notebook
         import sys
 
@@ -513,8 +509,7 @@ class Motion(object):
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
         duration: float = 8,
-        save_animation: bool = False,
-        filename: str = "pyrigi_animate2D_output",
+        filename: str = None,
         **kwargs,
     ) -> Any:
         """
@@ -529,18 +524,11 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
-        filename:
-            A name used to store the svg. If ``None``, the svg is not saved.
         duration:
             The duration of one period of the animation in seconds.
-        save_animation:
-            A boolean indicating whether the animation is saved as a `.svg` file.
-            This method creates the `.svg` as a string representation and setting
-            ``save_animation=True`` saves that string representation to a ``.svg``
-            file.
         filename:
-            The filename under which the produced animation is saved. The default
-            is `"pyrigi_animate2D_output"`.
+            A name under which the produced animation is saved. If ``None``, the svg
+            is not saved.
 
         Notes
         -----
@@ -627,7 +615,7 @@ class Motion(object):
             svg = svg + "\n" + animation
         svg = svg + "\n</svg>"
 
-        if save_animation:
+        if filename is not None:
             if not filename.endswith(".svg"):
                 filename = filename + ".svg"
             with open(filename, "wt") as file:

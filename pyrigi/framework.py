@@ -290,8 +290,7 @@ class Framework(object):
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
-        save_figure: bool = False,
-        filename: str = "pyrigi_plot2D_output",
+        filename: str = None,
         **kwargs,
     ) -> None:
         """
@@ -358,8 +357,10 @@ class Framework(object):
             A boolean indicating whether the figure is saved as a `.png` file.
             If ``True``, the `save` method from `matplotlib` is invoked.
         filename:
-            The filename under which the produced figure is saved. The default is
-            `"pyrigi_plot2D_output"`.
+            The filename under which the produced figure is saved. The default value is
+            ``None`` which indicates that the figure is currently not saved.
+            The figure is saved as a `.png` file using the `save` method from
+            `matplotlib`.
 
         Examples
         --------
@@ -465,7 +466,9 @@ class Framework(object):
                 stress_label_positions=stress_label_positions,
             )
 
-        if save_figure:
+        if filename is not None:
+            if not filename.endswith(".png"):
+                filename = filename + ".png"
             plt.savefig(f"{filename}.png")
 
     @doc_category("Plotting")
@@ -625,8 +628,7 @@ class Framework(object):
             Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
         ) = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
-        save_figure: bool = False,
-        filename: str = "pyrigi_plot3D_output",
+        filename: str = None,
         **kwargs,
     ) -> None:
         """
@@ -687,11 +689,12 @@ class Framework(object):
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
             Ommited edges are given the value ``0.5``.
         save_figure:
-            A boolean indicating whether the figure is saved as a `.png` file.
-            If ``True``, the `save` method from `matplotlib` is invoked.
+            A boolean indicating whether
         filename:
-            The filename under which the produced figure is saved. The default is
-            `"pyrigi_plot3D_output"`.
+            The filename under which the produced figure is saved. The default value is
+            ``None`` which indicates that the figure is currently not saved.
+            The figure is saved as a `.png` file using the `save` method from
+            `matplotlib`.
 
         Examples
         --------
@@ -802,7 +805,9 @@ class Framework(object):
                 stress_label_positions=stress_label_positions,
             )
 
-        if save_figure:
+        if filename is not None:
+            if not filename.endswith(".png"):
+                filename = filename + ".png"
             plt.savefig(f"{filename}.png")
 
     @doc_category("Plotting")
