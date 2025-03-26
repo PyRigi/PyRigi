@@ -2040,7 +2040,7 @@ class Framework(object):
         return not self.is_inf_rigid(**kwargs)
 
     @doc_category("Infinitesimal rigidity")
-    def is_min_inf_rigid(self, **kwargs) -> bool:
+    def is_min_inf_rigid(self, inplace: bool = False, **kwargs) -> bool:
         """
         Return whether the framework is minimally infinitesimally rigid.
 
@@ -2050,6 +2050,13 @@ class Framework(object):
         Definitions
         -----
         :prf:ref:`Minimal infinitesimal rigidity <def-min-rigid-framework>`
+
+        Parameters
+        ----------
+        inplace:
+            If ``True``, the framework is modified,
+            otherwise a new modified framework is created,
+            while the original framework remains unchanged (default).
 
         Examples
         --------
@@ -2062,12 +2069,16 @@ class Framework(object):
         """
         if not self.is_inf_rigid(**kwargs):
             return False
-        for edge in self._graph.edge_list():
-            self.delete_edge(edge)
-            if self.is_inf_rigid(**kwargs):
-                self.add_edge(edge)
+
+        F = self
+        if not inplace:
+            F = deepcopy(self)
+        for edge in F._graph.edge_list():
+            F.delete_edge(edge)
+            if F.is_inf_rigid(**kwargs):
+                F.add_edge(edge)
                 return False
-            self.add_edge(edge)
+            F.add_edge(edge)
         return True
 
     @doc_category("Infinitesimal rigidity")
@@ -2429,7 +2440,7 @@ class Framework(object):
         return stresses
 
     @doc_category("Infinitesimal rigidity")
-    def is_redundantly_inf_rigid(self, **kwargs) -> bool:
+    def is_redundantly_inf_rigid(self, inplace: bool = False, **kwargs) -> bool:
         """
         Return if the framework is infinitesimally redundantly rigid.
 
@@ -2439,6 +2450,13 @@ class Framework(object):
         Definitions
         -----------
         :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
+
+        Parameters
+        ----------
+        inplace:
+            If ``True``, the framework is modified,
+            otherwise a new modified framework is created,
+            while the original framework remains unchanged (default).
 
         Examples
         --------
@@ -2451,12 +2469,16 @@ class Framework(object):
         >>> F.is_redundantly_inf_rigid()
         False
         """  # noqa: E501
-        for edge in self._graph.edge_list():
-            self.delete_edge(edge)
-            if not self.is_inf_rigid(**kwargs):
-                self.add_edge(edge)
+        F = self
+        if not inplace:
+            F = deepcopy(self)
+
+        for edge in F._graph.edge_list():
+            F.delete_edge(edge)
+            if not F.is_inf_rigid(**kwargs):
+                F.add_edge(edge)
                 return False
-            self.add_edge(edge)
+            F.add_edge(edge)
         return True
 
     @doc_category("Framework properties")
