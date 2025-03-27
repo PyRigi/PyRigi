@@ -71,7 +71,9 @@ The second part is meant for developers:
 | `Guide:`  | Development guide     | changes to Development guide           |
 | `Minor:`  | Minor changes         | fixed typos, minor refactoring etc.    |
 
-After automatic grouping according to the prefixes, manual adjustments should be made.
+The release notes generated on GitHub stored in `doc/release_notes.txt` can be automatically
+grouped according to the prefixes by `python sort_release_notes.py release_notes.txt` in the `doc` folder.
+After that, manual adjustments should be made.
 For instance:
 
 * If a feature was developed (and bug fixed) on several PRs,
