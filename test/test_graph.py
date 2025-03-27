@@ -3473,33 +3473,35 @@ def test_randomized_sparsity_properties():  # noqa: C901
             G.add_edges(loops)
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m + len(loops)
+            kmax = 6
+            loff = 2
 
             prop_sparse = {
-                k: [G.is_kl_sparse(k, ell) for ell in range(math.comb(k + 1, 2) + 2)]
-                for k in range(1, 5)
+                k: [G.is_kl_sparse(k, ell) for ell in range(math.comb(k + 1, 2) + loff)]
+                for k in range(1, kmax)
             }
             prop_tight = {
-                k: [G.is_kl_tight(k, ell) for ell in range(math.comb(k + 1, 2) + 2)]
-                for k in range(1, 5)
+                k: [G.is_kl_tight(k, ell) for ell in range(math.comb(k + 1, 2) + loff)]
+                for k in range(1, kmax)
             }
 
             prop_sparse_s = {
                 k: [
                     G.is_kl_sparse(k, ell, algorithm="subgraph")
-                    for ell in range(math.comb(k + 1, 2) + 2)
+                    for ell in range(math.comb(k + 1, 2) + loff)
                 ]
-                for k in range(1, 5)
+                for k in range(1, kmax)
             }
             prop_tight_s = {
                 k: [
                     G.is_kl_tight(k, ell, algorithm="subgraph")
-                    for ell in range(math.comb(k + 1, 2) + 2)
+                    for ell in range(math.comb(k + 1, 2) + loff)
                 ]
-                for k in range(1, 5)
+                for k in range(1, kmax)
             }
 
-            for k in range(1, 4):
-                for ell in range(math.comb(k + 1, 2) + 1):
+            for k in range(1, kmax):
+                for ell in range(math.comb(k + 1, 2) + loff):
                     if prop_tight[k][ell]:
                         assert prop_sparse[k][ell]
                         assert prop_tight_s[k][ell]
