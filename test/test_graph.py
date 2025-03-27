@@ -3470,7 +3470,7 @@ def test_randomized_sparsity_properties_loops():  # noqa: C901
             G = Graph(nx.gnm_random_graph(n, m))
             loops = [randint(0, 1) for i in range(n)]
             VV = G.vertex_list()
-            loops = [[VV[i], VV[i]] for i in loops if i == 1]
+            loops = [[VV[i],VV[i]] for i in range(n) if loops[i] == 1]
             G.add_edges(loops)
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m + len(loops)
@@ -3502,11 +3502,11 @@ def test_randomized_sparsity_properties_loops():  # noqa: C901
                         assert prop_tight_s[k][ell]
                         assert prop_sparse_s[k][ell]
                         if n >= k:
-                            assert m == k * n - ell
+                            assert G.number_of_edges() == k * n - ell
                     if prop_sparse[k][ell]:
                         assert prop_sparse_s[k][ell]
                         if n >= k:
-                            assert m <= k * n - ell
+                            assert G.number_of_edges() <= k * n - ell
                         for ell2 in range(ell):
                             assert prop_sparse[k][ell2]
                     if prop_sparse_s[k][ell]:
