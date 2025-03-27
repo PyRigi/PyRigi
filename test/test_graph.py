@@ -3462,8 +3462,9 @@ def test_randomized_rigidity_properties():  # noqa: C901
 
 
 @pytest.mark.long_local
-def test_randomized_sparsity_properties():  # noqa: C901
+def test_randomized_sparsity_properties_loops():  # noqa: C901
     search_space = [range(1, 8), range(10)]
+    kmax = 6
     for n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
@@ -3473,35 +3474,87 @@ def test_randomized_sparsity_properties():  # noqa: C901
             G.add_edges(loops)
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m + len(loops)
-            kmax = 6
-            loff = 2
 
             prop_sparse = {
-                k: [G.is_kl_sparse(k, ell) for ell in range(math.comb(k + 1, 2) + loff)]
+                k: [G.is_kl_sparse(k, ell) for ell in range(2 * k)]
                 for k in range(1, kmax)
             }
             prop_tight = {
-                k: [G.is_kl_tight(k, ell) for ell in range(math.comb(k + 1, 2) + loff)]
+                k: [G.is_kl_tight(k, ell) for ell in range(2 * k)]
+                for k in range(1, kmax)
+            }
+
+            prop_sparse_s = {
+                k: [
+                    G.is_kl_sparse(k, ell, algorithm="subgraph") for ell in range(2 * k)
+                ]
+                for k in range(1, kmax)
+            }
+            prop_tight_s = {
+                k: [G.is_kl_tight(k, ell, algorithm="subgraph") for ell in range(2 * k)]
+                for k in range(1, kmax)
+            }
+
+            for k in range(1, kmax):
+                for ell in range(2 * k):
+                    if prop_tight[k][ell]:
+                        assert prop_sparse[k][ell]
+                        assert prop_tight_s[k][ell]
+                        assert prop_sparse_s[k][ell]
+                        if n >= k:
+                            assert m == k * n - ell
+                    if prop_sparse[k][ell]:
+                        assert prop_sparse_s[k][ell]
+                        if n >= k:
+                            assert m <= k * n - ell
+                        for ell2 in range(ell):
+                            assert prop_sparse[k][ell2]
+                    if prop_sparse_s[k][ell]:
+                        assert prop_sparse[k][ell]
+                    if prop_tight_s[k][ell]:
+                        assert prop_tight[k][ell]
+
+            if prop_sparse[1][1]:
+                if nx.is_connected(G):
+                    assert nx.is_tree(G)
+
+
+@pytest.mark.long_local
+def test_randomized_sparsity_properties_no_loops():  # noqa: C901
+    search_space = [range(1, 8), range(10)]
+    kmax = 6
+    for n, _ in product(*search_space):
+        for m in range(1, math.comb(n, 2) + 1):
+            G = Graph(nx.gnm_random_graph(n, m))
+            assert G.number_of_nodes() == n
+            assert G.number_of_edges() == m
+
+            prop_sparse = {
+                k: [G.is_kl_sparse(k, ell) for ell in range(math.comb(k + 1, 2))]
+                for k in range(1, kmax)
+            }
+            prop_tight = {
+                k: [G.is_kl_tight(k, ell) for ell in range(math.comb(k + 1, 2))]
                 for k in range(1, kmax)
             }
 
             prop_sparse_s = {
                 k: [
                     G.is_kl_sparse(k, ell, algorithm="subgraph")
-                    for ell in range(math.comb(k + 1, 2) + loff)
+                    for ell in range(math.comb(k + 1, 2))
                 ]
                 for k in range(1, kmax)
             }
             prop_tight_s = {
                 k: [
                     G.is_kl_tight(k, ell, algorithm="subgraph")
-                    for ell in range(math.comb(k + 1, 2) + loff)
+                    for ell in range(math.comb(k + 1, 2))
                 ]
                 for k in range(1, kmax)
             }
 
             for k in range(1, kmax):
-                for ell in range(math.comb(k + 1, 2) + loff):
+                for ell in range(math.comb(k + 1, 2)):
                     if prop_tight[k][ell]:
                         assert prop_sparse[k][ell]
                         assert prop_tight_s[k][ell]
