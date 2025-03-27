@@ -744,7 +744,7 @@ class Graph(nx.Graph):
                     for vertex_set in combinations(self.nodes, i):
                         G = self.subgraph(vertex_set)
                         m = G.number_of_edges()
-                        if m > 1 and m > K * G.number_of_nodes() - L:
+                        if m >= 1 and m > K * G.number_of_nodes() - L:
                             return False
                 return True
             else:
