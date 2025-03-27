@@ -157,7 +157,8 @@ def stable_separating_set_in_flexible_graph_fast(
 
     Returns
     -------
-        For a valid input a :class:`pyrigi.data_type.StableSeparatingCut` in the graph is returned.
+        For a valid input a :class:`pyrigi.data_type.StableSeparatingCut`
+        in the graph is returned.
         For rigid graphs and cases when ``u`` and ``v`` are not in the same
         rigid component, ``None`` is returned.
 

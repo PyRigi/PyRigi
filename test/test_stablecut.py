@@ -26,7 +26,7 @@ def test_is_stable_set():
 
     assert Graph.is_stable_set(graph, {0, 1, 2}) in [(False, (0, 1)), (False, (1, 2))]
     assert Graph.is_stable_set(graph, {0, 1}) == (False, (0, 1))
-    assert Graph.is_stable_set(graph, {0, 2}) is (True, None)
+    assert Graph.is_stable_set(graph, {0, 2}) == (True, None)
 
 
 def test__revertable_set_removal():
@@ -47,13 +47,13 @@ def test__revertable_set_removal():
 
 
 def test_is_separating_set():
-    graph = nx.Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)])
+    graph = Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)])
 
-    assert Graph.is_separating_set(graph, {2})
-    assert Graph.is_separating_set(graph, {0, 2})
-    assert Graph.is_separating_set(graph, {0, 1})
-    assert not Graph.is_separating_set(graph, set())
-    assert not Graph.is_separating_set(graph, {4, 3})
+    assert graph.is_separating_set({2})
+    assert graph.is_separating_set({0, 2})
+    assert graph.is_separating_set({0, 1})
+    assert not graph.is_separating_set(set())
+    assert not graph.is_separating_set({4, 3})
 
     assert Graph.is_separating_set_dividing(graph, {2}, 0, 3)
     assert Graph.is_separating_set_dividing(graph, {2}, 4, 3)
@@ -75,29 +75,29 @@ def test_stable_separating_cut_in_flexible_graph_edge_cases():
     # more vertices
     graph = Graph.from_vertices_and_edges([0, 1, 2], [])
     orig = graph.copy()
-    cut = Graph.stable_separating_set_in_flexible_graph(graph)
+    cut = graph.stable_separating_set_in_flexible_graph()
     assert cut is not None
-    assert Graph.is_stable_cutset(graph, cut)
+    assert graph.is_stable_separating_set(cut)
     assert nx.is_isomorphic(graph, orig)
 
     # single vertex graph
     graph = Graph.from_vertices_and_edges([0], [])
     orig = graph.copy()
-    cut = Graph.stable_separating_set_in_flexible_graph(graph)
+    cut = graph.stable_separating_set_in_flexible_graph()
     assert cut is None
     assert nx.is_isomorphic(graph, orig)
 
     # single edge graph
     graph = Graph.from_vertices_and_edges([0, 1], [(0, 1)])
     orig = graph.copy()
-    cut = Graph.stable_separating_set_in_flexible_graph(graph)
+    cut = graph.stable_separating_set_in_flexible_graph()
     assert cut is None
     assert nx.is_isomorphic(graph, orig)
 
     # triangle graph
     graph = Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (1, 2), (2, 0)])
     orig = graph.copy()
-    cut = Graph.stable_separating_set_in_flexible_graph(graph)
+    cut = graph.stable_separating_set_in_flexible_graph()
     assert cut is None
     assert nx.is_isomorphic(graph, orig)
 
@@ -124,33 +124,33 @@ def test_stable_separating_cut_in_flexible_graph():
 
     assert not graph.is_rigid()
 
-    cut = Graph.stable_separating_set_in_flexible_graph(graph)
+    cut = graph.stable_separating_set_in_flexible_graph()
     assert cut is not None
-    assert Graph.is_stable_cutset(graph, cut)
+    assert Graph.is_stable_separating_set(graph, cut)
     assert nx.is_isomorphic(graph, orig)
 
-    cut = Graph.stable_separating_set_in_flexible_graph(graph, 0)
+    cut = graph.stable_separating_set_in_flexible_graph(0)
     assert cut is not None
-    assert Graph.is_stable_cutset(graph, cut)
+    assert Graph.is_stable_separating_set(graph, cut)
     assert nx.is_isomorphic(graph, orig)
 
-    cut = Graph.stable_separating_set_in_flexible_graph(graph, 0, 1)
+    cut = graph.stable_separating_set_in_flexible_graph(0, 1)
     assert cut is None
     assert nx.is_isomorphic(graph, orig)
 
-    cut = Graph.stable_separating_set_in_flexible_graph(graph, 0, 4)
+    cut = graph.stable_separating_set_in_flexible_graph(0, 4)
     assert cut is None
     assert nx.is_isomorphic(graph, orig)
 
     for i in [5, 6, 7]:
-        cut = Graph.stable_separating_set_in_flexible_graph(graph, 0, i)
+        cut = graph.stable_separating_set_in_flexible_graph(0, i)
         assert cut is not None
-        assert Graph.is_stable_cutset(graph, cut)
+        assert Graph.is_stable_separating_set(graph, cut)
         assert nx.is_isomorphic(graph, orig)
     for i in [0, 1, 2]:
-        cut = Graph.stable_separating_set_in_flexible_graph(graph, 7, i)
+        cut = graph.stable_separating_set_in_flexible_graph(7, i)
         assert cut is not None
-        assert Graph.is_stable_cutset(graph, cut)
+        assert Graph.is_stable_separating_set(graph, cut)
         assert nx.is_isomorphic(graph, orig)
 
 
@@ -161,7 +161,7 @@ def test_stable_separating_cut_in_flexible_graph_prism():
     orig = graph.copy()
 
     for u, v in product(graph.nodes, graph.nodes):
-        cut = Graph.stable_separating_set_in_flexible_graph(graph, u, v)
+        cut = graph.stable_separating_set_in_flexible_graph(u, v)
         assert cut is None
         assert nx.is_isomorphic(graph, orig)
 
@@ -233,7 +233,9 @@ def test_fuzzy_stable_separating_cut_in_flexible_graph(
                     # valid input
                     cut = Graph.stable_separating_set_in_flexible_graph(graph, u, v)
                     assert cut is not None
-                    assert Graph.is_stable_separating_set_dividing(graph, cut, u, v)
+                    assert Graph.is_stable_separating_set_dividing(
+                        Graph(graph), cut, u, v
+                    )
                     tests_positive += 1
 
             except AssertionError as e:
