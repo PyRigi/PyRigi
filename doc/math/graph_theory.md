@@ -31,16 +31,27 @@ $G_1\cap G_2=K_t$ and $e\in E_1\cap E_2$.
 :::{prf:definition} $(k, \ell)$-sparse and $(k, \ell)$-tight
 :label: def-kl-sparse-tight
 
-Let $G = (V, E)$ be a (multi)graph and let $k, \ell \in \NN$.
-The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices with $k\leq n' \leq |V|$ spans at most $kn' - \ell$ edges.
-The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $k|V| - \ell = |E|$.
+Let $G = (V, E)$ be a multigraph and let $k, \ell \in \NN$ such that $0\leq \ell < 2k$.
+Then $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices spans at most $\max(0,kn' - \ell)$ edges,
+or equivalently if every set of $n'$ vertices with at least one edge spans at most $kn' - \ell$ edges.
+
+Let $G = (V, E)$ be a simple graph without loops and let $k, \ell \in \NN$ such that $0\leq \ell \leq \binom{k+1}{2}$.
+The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices with $n' \geq k$ spans at most $kn' - \ell$ edges.
+
+A (multi)graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $|E| = k|V| - \ell$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_kl_sparse`
 {meth}`~.Graph.is_sparse`
 {meth}`~.Graph.is_tight`
 {meth}`~.Graph.is_kl_tight`
 
-{{references}} {cite:p}`LeeStreinu2008`
+{{references}} {cite:p}`LeeStreinu2008`, {cite:p}`KiralyMihalyko2022`
+:::
+
+:::{prf:lemma}
+:label: lem-sparsity-definitions
+
+For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity definitions from {prf:ref}`def-kl-sparse-tight` are equivalent.
 :::
 
 
