@@ -3470,7 +3470,7 @@ def test_randomized_sparsity_properties_loops():  # noqa: C901
             G = Graph(nx.gnm_random_graph(n, m))
             loops = [randint(0, 1) for i in range(n)]
             VV = G.vertex_list()
-            loops = [[VV[i],VV[i]] for i in range(n) if loops[i] == 1]
+            loops = [[VV[i], VV[i]] for i in range(n) if loops[i] == 1]
             G.add_edges(loops)
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m + len(loops)
@@ -3530,31 +3530,31 @@ def test_randomized_sparsity_properties_no_loops():  # noqa: C901
             assert G.number_of_edges() == m
 
             prop_sparse = {
-                k: [G.is_kl_sparse(k, ell) for ell in range(math.comb(k + 1, 2))]
+                k: [G.is_kl_sparse(k, ell) for ell in range(math.comb(k + 1, 2) + 1)]
                 for k in range(1, kmax)
             }
             prop_tight = {
-                k: [G.is_kl_tight(k, ell) for ell in range(math.comb(k + 1, 2))]
+                k: [G.is_kl_tight(k, ell) for ell in range(math.comb(k + 1, 2) + 1)]
                 for k in range(1, kmax)
             }
 
             prop_sparse_s = {
                 k: [
                     G.is_kl_sparse(k, ell, algorithm="subgraph")
-                    for ell in range(math.comb(k + 1, 2))
+                    for ell in range(math.comb(k + 1, 2) + 1)
                 ]
                 for k in range(1, kmax)
             }
             prop_tight_s = {
                 k: [
                     G.is_kl_tight(k, ell, algorithm="subgraph")
-                    for ell in range(math.comb(k + 1, 2))
+                    for ell in range(math.comb(k + 1, 2) + 1)
                 ]
                 for k in range(1, kmax)
             }
 
             for k in range(1, kmax):
-                for ell in range(math.comb(k + 1, 2)):
+                for ell in range(math.comb(k + 1, 2) + 1):
                     if prop_tight[k][ell]:
                         assert prop_sparse[k][ell]
                         assert prop_tight_s[k][ell]
