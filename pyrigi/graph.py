@@ -16,6 +16,7 @@ import networkx as nx
 from sympy import Matrix, oo, zeros
 
 import pyrigi._input_check as _input_check
+import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.exception import LoopError, NotSupportedValueError
@@ -181,7 +182,7 @@ class Graph(nx.Graph):
         """  # noqa: E501
         G = Graph()
         G.add_nodes_from(vertices)
-        G._input_check_edge_format_list(edges)
+        _graph_input_check.edge_format_list(G, edges)
         G.add_edges(edges)
         return G
 
@@ -203,168 +204,6 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3, 7, 12] and edges []
         """
         return Graph.from_vertices_and_edges(vertices, [])
-
-    def _input_check_no_loop(self) -> None:
-        """
-        Check whether a graph has loops and raise an error in case.
-        """
-        if nx.number_of_selfloops(self) > 0:
-            raise LoopError()
-
-    def _input_check_vertex_members(
-        self, to_check: Iterable[Vertex] | Vertex, name: str = ""
-    ) -> None:
-        """
-        Check whether the elements of a list are indeed vertices and
-        raise error otherwise.
-
-        Parameters
-        ----------
-        to_check:
-            A vertex or ``Iterable`` of vertices for which the containment in the graph
-            is checked.
-        name:
-            A name of the ``Iterable`` ``to_check`` can be picked.
-        """
-        if not isinstance(to_check, Iterable):
-            if not self.has_node(to_check):
-                raise ValueError(
-                    f"The element {to_check} is not a vertex of the graph!"
-                )
-        else:
-            for vertex in to_check:
-                if not self.has_node(vertex):
-                    raise ValueError(
-                        f"The element {vertex} from "
-                        + name
-                        + f" {to_check} is not a vertex of the graph!"
-                    )
-
-    def _input_check_edge_format(self, edge: Edge, loopfree: bool = False) -> None:
-        """
-        Check if an ``edge`` is a pair of (distinct) vertices of the graph and
-        raise an error otherwise.
-
-        Parameters
-        ----------
-        edge:
-            Edge for which the containment in the given graph is checked.
-        loopfree:
-            If ``True``, an error is raised if ``edge`` is a loop.
-        """
-        if not isinstance(edge, list | tuple) or not len(edge) == 2:
-            raise TypeError(f"The input {edge} must be a tuple or list of length 2!")
-        self._input_check_vertex_members(edge, "the input pair")
-        if loopfree and edge[0] == edge[1]:
-            raise LoopError(f"The input {edge} must be two distinct vertices.")
-
-    def _input_check_edge(self, edge: Edge, vertices: Sequence[Vertex] = None) -> None:
-        """
-        Check if the given input is an edge of the graph with endvertices in vertices and
-        raise an error otherwise.
-
-        Parameters
-        ----------
-        edge:
-            an edge to be checked
-        vertices:
-            Check if the endvertices of the edge are contained in the list ``vertices``.
-            If ``None``, the function considers all vertices of the graph.
-        """
-        self._input_check_edge_format(edge)
-        if vertices and (not edge[0] in vertices or not edge[1] in vertices):
-            raise ValueError(
-                f"The elements of the edge {edge} are not among vertices {vertices}!"
-            )
-        if not self.has_edge(edge[0], edge[1]):
-            raise ValueError(f"Edge {edge} is not contained in the graph!")
-
-    def _input_check_edge_list(
-        self, edges: Sequence[Edge], vertices: Sequence[Vertex] = None
-    ) -> None:
-        """
-        Apply :meth:`~Graph._input_check_edge` to all edges in a list.
-
-        Parameters
-        ----------
-        edges:
-            A list of edges to be checked.
-        vertices:
-            Check if the endvertices of the edges are contained in the list ``vertices``.
-            If ``None`` (default), the function considers all vertices of the graph.
-        """
-        for edge in edges:
-            self._input_check_edge(edge, vertices)
-
-    def _input_check_edge_format_list(self, edges: Sequence[Edge]) -> None:
-        """
-        Apply :meth:`~Graph._input_check_edge_format` to all edges in a list.
-
-        Parameters
-        ----------
-        edges:
-            A list of pairs to be checked.
-        """
-        for edge in edges:
-            self._input_check_edge_format(edge)
-
-    def _input_check_vertex_order(
-        self, vertex_order: Sequence[Vertex], name: str = ""
-    ) -> list[Vertex]:
-        """
-        Check whether the provided ``vertex_order`` contains the same elements
-        as the graph vertex set and raise an error otherwise.
-
-        The ``vertex_order`` is also returned.
-
-        Parameters
-        ----------
-        vertex_order:
-            List of vertices in the preferred order.
-            If ``None``, then all vertices are returned
-            using :meth:`~Graph.vertex_list`.
-        """
-        if vertex_order is None:
-            return self.vertex_list()
-        else:
-            if not self.number_of_nodes() == len(vertex_order) or not set(
-                self.vertex_list()
-            ) == set(vertex_order):
-                raise ValueError(
-                    "The vertices in `"
-                    + name
-                    + "` must be exactly "
-                    + "the same vertices as in the graph!"
-                )
-            return list(vertex_order)
-
-    def _input_check_edge_order(
-        self, edge_order: Sequence[Edge], name: str = ""
-    ) -> list[Edge]:
-        """
-        Check whether the provided `edge_order` contains the same elements
-        as the graph edge set and raise an error otherwise.
-
-        The ``edge_order`` is also returned.
-
-        Parameters
-        ----------
-        edge_order:
-            List of edges in the preferred order.
-            If ``None``, then all edges are returned
-            using :meth:`~Graph.edge_list`.
-        """
-        if edge_order is None:
-            return self.edge_list()
-        else:
-            if not self.number_of_edges() == len(edge_order) or not all(
-                [set(e) in [set(e) for e in edge_order] for e in self.edge_list()]
-            ):
-                raise ValueError(
-                    "The edges in `" + name + "` must be exactly "
-                    "the same edges as in the graph!"
-                )
-            return list(edge_order)
 
     @classmethod
     def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None) -> None:
@@ -560,7 +399,7 @@ class Graph(nx.Graph):
         >>> G.degree_sequence()
         [1, 2, 1]
         """
-        vertex_order = self._input_check_vertex_order(vertex_order)
+        vertex_order = _graph_input_check.is_vertex_order(self, vertex_order)
         return [int(self.degree(v)) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
@@ -1025,13 +864,13 @@ class Graph(nx.Graph):
         """  # noqa: E501
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
-        self._input_check_no_loop()
-        self._input_check_vertex_members(vertices, "'the vertices'")
+        _graph_input_check.no_loop(self)
+        _graph_input_check.vertex_members(self, vertices, "'the vertices'")
         if len(set(vertices)) != dim + k:
             raise ValueError(
                 f"List of vertices must contain {dim + k} distinct vertices!"
             )
-        self._input_check_edge_list(edges, vertices)
+        _graph_input_check.is_edge_list(self, edges, vertices)
         if len(edges) != k:
             raise ValueError(f"List of edges must contain {k} distinct edges!")
         for edge in edges:
@@ -1099,7 +938,7 @@ class Graph(nx.Graph):
         not when it is created.
         """
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
         _input_check.integrality_and_range(k, "k", min_val=0)
         _input_check.greater_equal(
             self.number_of_nodes(),
@@ -1185,7 +1024,7 @@ class Graph(nx.Graph):
         not when it is created.
         """  # noqa: E501
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
         _input_check.integrality_and_range(k_min, "k_min", min_val=0)
         if k_max is None:
             k_max = dim - 1
@@ -1266,7 +1105,7 @@ class Graph(nx.Graph):
         [Graph.from_vertices_and_edges([2, 3], [(2, 3)]), [0, [3, 2], [], 0], [0, [0, 2], [], 1]]
         """  # noqa: E501
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         if not self.number_of_edges() == dim * self.number_of_nodes() - math.comb(
             dim + 1, 2
@@ -1578,7 +1417,7 @@ class Graph(nx.Graph):
         """
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1719,7 +1558,7 @@ class Graph(nx.Graph):
 
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1860,7 +1699,7 @@ class Graph(nx.Graph):
         """
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -1984,7 +1823,7 @@ class Graph(nx.Graph):
 
         _input_check.dimension(dim)
         _input_check.integrality_and_range(k, "k", min_val=0)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         n = self.number_of_nodes()
         m = self.number_of_edges()
@@ -2084,7 +1923,7 @@ class Graph(nx.Graph):
         True
         """
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         n = self.number_of_nodes()
         # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
@@ -2193,7 +2032,7 @@ class Graph(nx.Graph):
         False
         """
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         n = self.number_of_nodes()
         # small graphs are minimally rigid iff complete
@@ -2300,7 +2139,7 @@ class Graph(nx.Graph):
         False
         """
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         # small graphs are globally rigid iff complete
         # :pref:ref:`thm-gen-rigidity-small-complete`
@@ -2441,7 +2280,7 @@ class Graph(nx.Graph):
         ``prob`` parameter for the randomized algorithm.
         """  # noqa: E501
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         if algorithm == "default":
             if dim == 1:
@@ -2533,7 +2372,7 @@ class Graph(nx.Graph):
         ``prob`` parameter for the randomized algorithm
         """
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         if algorithm == "default":
             if dim == 1:
@@ -2674,7 +2513,7 @@ class Graph(nx.Graph):
         ``prob`` parameter for the randomized algorithm
         """
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         if algorithm == "default":
             if dim == 1:
@@ -2792,7 +2631,7 @@ class Graph(nx.Graph):
         consists of edge disjoint cliques, so we only have to determine them.
         """
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         if algorithm == "default":
             if dim == 1:
@@ -2926,7 +2765,7 @@ class Graph(nx.Graph):
         This method returns ``sympy.oo`` (infinity) if and only if the graph
         is complete. It has the data type ``Inf``.
         """
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         if not nx.is_connected(self):
             return 0
@@ -2999,7 +2838,7 @@ class Graph(nx.Graph):
                 "The integer representation only works "
                 "for graphs without isolated vertices!"
             )
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
 
         adj_matrix = self.adjacency_matrix(vertex_order)
         upper_diag = [
@@ -3090,7 +2929,7 @@ class Graph(nx.Graph):
         :func:`networkx.linalg.graphmatrix.adjacency_matrix`
         requires ``scipy``. To avoid unnecessary imports, the method is implemented here.
         """
-        vertex_order = self._input_check_vertex_order(vertex_order)
+        vertex_order = _graph_input_check.is_vertex_order(self, vertex_order)
 
         row_list = [
             [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order
@@ -3580,7 +3419,7 @@ class Graph(nx.Graph):
         True
         """
 
-        self._input_check_vertex_members(vertices)
+        _graph_input_check.vertex_members(self, vertices)
 
         H = self.copy()
         H.delete_vertices(vertices)
@@ -3605,7 +3444,7 @@ class Graph(nx.Graph):
 
         """  # noqa: E501
 
-        self._input_check_vertex_members(vertices)
+        _graph_input_check.vertex_members(self, vertices)
 
         res = set()
         for v in vertices:
@@ -3638,7 +3477,7 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
         """  # noqa: E501
 
-        self._input_check_vertex_members(vertices)
+        _graph_input_check.vertex_members(self, vertices)
 
         H = self.copy()
         H.delete_vertices(vertices)
@@ -3718,7 +3557,7 @@ class Graph(nx.Graph):
         _input_check.dimension_for_algorithm(
             dim, [2], "the algorithm to check linkedness"
         )
-        self._input_check_vertex_members([u, v])
+        _graph_input_check.vertex_members(self, [u, v])
         return any(
             [(u in C and v in C) for C in self.rigid_components(algorithm="default")]
         )
@@ -3762,8 +3601,8 @@ class Graph(nx.Graph):
         _input_check.dimension_for_algorithm(
             dim, [2], "the algorithm that computes a circuit"
         )
-        self._input_check_no_loop()
-        self._input_check_vertex_members([u, v])
+        _graph_input_check.no_loop(self)
+        _graph_input_check.vertex_members(self, [u, v])
         # check (u, v) are non-adjacent linked pair
         if self.has_edge(u, v):
             raise ValueError("The vertices must not be connected by an edge.")
@@ -3814,7 +3653,7 @@ class Graph(nx.Graph):
         _input_check.dimension_for_algorithm(
             dim, [2], "the weakly globally linked method"
         )
-        self._input_check_vertex_members([u, v])
+        _graph_input_check.vertex_members(self, [u, v])
         # we focus on the 2-connected components of the graph
         # and check if the two given vertices are in the same 2-connected component
         if not nx.is_biconnected(self):
