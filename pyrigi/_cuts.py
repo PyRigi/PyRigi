@@ -23,7 +23,8 @@ def _to_vertices(vertices: Iterable[Vertex] | SeparatingCut) -> set[Vertex]:
 def is_stable_set(
     graph: nx.Graph,
     vertices: Iterable[Vertex] | SeparatingCut,
-) -> tuple[bool, Optional[tuple[Vertex, Vertex]]]:
+    certificate: bool = False,
+) -> bool | tuple[bool, Optional[tuple[Vertex, Vertex]]]:
     """
     Check if the given set of vertices is stable in the given graph.
     and if not, find a pair of vertices in the set that are neighboring.
@@ -38,9 +39,15 @@ def is_stable_set(
         the graph to check
     vertices:
         the vertices to check
+    certificate:
+        if True, return also a pair of vertices that are in the set
+        and are neighboring. See returns.
 
     Returns:
-        A tuple where first boolean states whenever the set is stable
+        If certificate is ``False``,
+        returns a boolean whether the set is stable or not.
+        If certificate is ``True``,
+        a tuple where first boolean states whenever the set is stable
         and second item gives a pair of vertices contradicting the stable
         property if applicable.
 
@@ -49,18 +56,28 @@ def is_stable_set(
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
     >>> H.is_stable_set([1,3])
+    True
+    >>> H.is_stable_set([1,3], certificate=False)
+    True
+    >>> H.is_stable_set([1,3], certificate=True)
     (True, None)
-    >>> H.is_stable_set([1,2])
+    >>> H.is_stable_set([1,2], certificate=True)
     (False, (1, 2))
-    >>> H.is_stable_set([0,2,4])
+    >>> H.is_stable_set([0,2,4], certificate=True)
     (False, (0, 4))
     """
     vertices = _to_vertices(vertices)
     for v in vertices:
         for u in graph.neighbors(v):
             if u in vertices:
-                return False, (v, u)
-    return True, None
+                if certificate:
+                    return False, (v, u)
+                else:
+                    return False
+    if certificate:
+        return True, None
+    else:
+        return True
 
 
 def _revertable_set_removal(
@@ -236,7 +253,7 @@ def is_stable_separating_set(
         See :meth:`~pyrigi.graph.Graph.is_stable_set` and
         :meth:`~pyrigi.graph.Graph.is_separating_set`.
     """
-    return is_stable_set(graph, vertices)[0] and is_separating_set(graph, vertices)
+    return is_stable_set(graph, vertices) and is_separating_set(graph, vertices)
 
 
 def is_stable_separating_set_dividing(

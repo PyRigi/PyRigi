@@ -264,7 +264,7 @@ def _process(
     # Checks neighborhood of u
     # if it is a stable set, we are done
     neiborhood = set(graph.neighbors(u))
-    violation = is_stable_set(graph, neiborhood)[1]
+    violation = is_stable_set(graph, neiborhood, certificate=True)[1]
 
     # found a stable set around u
     if violation is None:

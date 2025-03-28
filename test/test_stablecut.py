@@ -24,9 +24,13 @@ def test_stable_set_eq():
 def test_is_stable_set():
     graph = nx.Graph([(0, 1), (1, 2), (2, 3)])
 
-    assert Graph.is_stable_set(graph, {0, 1, 2}) in [(False, (0, 1)), (False, (1, 2))]
-    assert Graph.is_stable_set(graph, {0, 1}) == (False, (0, 1))
-    assert Graph.is_stable_set(graph, {0, 2}) == (True, None)
+    assert not Graph.is_stable_set(graph, {0, 1, 2}, certificate=False)
+    assert Graph.is_stable_set(graph, {0, 1, 2}, certificate=True) in [
+        (False, (0, 1)),
+        (False, (1, 2)),
+    ]
+    assert Graph.is_stable_set(graph, {0, 1}, certificate=True) == (False, (0, 1))
+    assert Graph.is_stable_set(graph, {0, 2}, certificate=True) == (True, None)
 
 
 def test__revertable_set_removal():
