@@ -4,17 +4,18 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
+from typing import Callable, Iterable
 import math
 import warnings
-from collections.abc import Callable
 from copy import deepcopy
 from itertools import combinations
 from random import randint
-from typing import Iterable
+
 
 import networkx as nx
 from sympy import Matrix, oo, zeros
 
+from pyrigi._wrap import wraps
 import pyrigi._input_check as _input_check
 import pyrigi._pebble_digraph
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
@@ -23,6 +24,17 @@ from pyrigi.misc import _generate_category_tables
 from pyrigi.misc import _doc_category as doc_category
 from pyrigi.plot_style import PlotStyle
 from pyrigi.warning import RandomizedAlgorithmWarning
+from pyrigi._flexible_graph_stable_cut import (
+    stable_separating_set_in_flexible_graph,
+    stable_separating_set_in_flexible_graph_fast,
+)
+from pyrigi._cuts import (
+    is_stable_set,
+    is_separating_set,
+    is_separating_set_dividing,
+    is_stable_separating_set,
+    is_stable_separating_set_dividing,
+)
 
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
@@ -1305,7 +1317,6 @@ class Graph(nx.Graph):
                 for k_possible_edges in combinations(
                     combinations(neighbors, 2), deg[1] - dim
                 ):
-
                     if all([not G.has_edge(*edge) for edge in k_possible_edges]):
                         for edge in k_possible_edges:
                             G.add_edge(*edge)
@@ -3556,35 +3567,40 @@ class Graph(nx.Graph):
             [e for e in self.edges if e in other_graph.edges],
         )
 
-    @doc_category("Generic rigidity")
-    def is_separating_set(self, vertices: list[Vertex] | set[Vertex]) -> bool:
-        """
-        Check if a set of vertices is a separating set.
+    @doc_category("General graph theoretical properties")
+    @wraps(is_stable_set)
+    def is_stable_set(self, *args, **kwargs):
+        return is_stable_set(self, *args, **kwargs)
 
-        Definitions
-        -----------
-        :prf:ref:`separating-set <def-separating-set>`
+    @doc_category("General graph theoretical properties")
+    @wraps(is_separating_set)
+    def is_separating_set(self, *args, **kwargs):
+        return is_separating_set(self, *args, **kwargs)
 
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> H = graphs.Cycle(5)
-        >>> H.is_separating_set([1,3])
-        True
-        >>> G = Graph([[0,1],[1,2],[2,3],[2,4],[4,3],[4,5]])
-        >>> G.is_separating_set([2])
-        True
-        >>> G.is_separating_set([3])
-        False
-        >>> G.is_separating_set([3,4])
-        True
-        """
+    @doc_category("General graph theoretical properties")
+    @wraps(is_separating_set_dividing)
+    def is_separating_set_dividing(self, *args, **kwargs):
+        return is_separating_set_dividing(self, *args, **kwargs)
 
-        self._input_check_vertex_members(vertices)
+    @doc_category("General graph theoretical properties")
+    @wraps(is_stable_separating_set)
+    def is_stable_separating_set(self, *args, **kwargs):
+        return is_stable_separating_set(self, *args, **kwargs)
 
-        H = self.copy()
-        H.delete_vertices(vertices)
-        return not nx.is_connected(H)
+    @wraps(is_stable_separating_set_dividing)
+    @doc_category("General graph theoretical properties")
+    def is_stable_separating_set_dividing(self, *args, **kwargs):
+        return is_stable_separating_set_dividing(self, *args, **kwargs)
+
+    @doc_category("General graph theoretical properties")
+    @wraps(stable_separating_set_in_flexible_graph)
+    def stable_separating_set_in_flexible_graph(self, *args, **kwargs):
+        return stable_separating_set_in_flexible_graph(self, *args, **kwargs)
+
+    @doc_category("General graph theoretical properties")
+    @wraps(stable_separating_set_in_flexible_graph_fast)
+    def stable_separating_set_in_flexible_graph_fast(self, *args, **kwargs):
+        return stable_separating_set_in_flexible_graph_fast(self, *args, **kwargs)
 
     @doc_category("Generic rigidity")
     def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
