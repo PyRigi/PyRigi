@@ -15,7 +15,7 @@ from pyrigi.exception import LoopError
         Graph([[1, 2], [2, 3]]),
     ],
 )
-def test__input_check_no_loop(graph):
+def test_no_loop(graph):
     assert _graph_input_check.no_loop(graph) is None
 
 
@@ -26,7 +26,7 @@ def test__input_check_no_loop(graph):
         Graph([[1, 2], [2, 3], [3, 3]]),
     ],
 )
-def test__input_check_no_loop_error(graph):
+def test_no_loop_error(graph):
     with pytest.raises(LoopError):
         _graph_input_check.no_loop(graph)
 
@@ -38,7 +38,7 @@ def test__input_check_no_loop_error(graph):
         [[1, 2, 3], [[1, 2], [2, 3], [3, 3]]],
     ],
 )
-def test__input_check_no_loop_error2(vertices, edges):
+def test_no_loop_error2(vertices, edges):
     with pytest.raises(LoopError):
         _graph_input_check.no_loop(Graph.from_vertices_and_edges(vertices, edges))
 
@@ -67,7 +67,7 @@ def test__input_check_no_loop_error2(vertices, edges):
         [Graph([[-1, -2], [-2, 3]]), [-1, 3]],
     ],
 )
-def test__input_check_vertex_members(graph, vertex):
+def test_vertex_members(graph, vertex):
     assert _graph_input_check.vertex_members(graph, vertex) is None
 
 
@@ -96,7 +96,7 @@ def test__input_check_vertex_members(graph, vertex):
         [Graph([[-1, -2], [-2, 3]]), [-1, 3, -3]],
     ],
 )
-def test__input_check_vertex_members_error(graph, vertex):
+def test_vertex_members_error(graph, vertex):
     with pytest.raises(ValueError):
         _graph_input_check.vertex_members(graph, vertex)
 
@@ -118,7 +118,7 @@ def test__input_check_vertex_members_error(graph, vertex):
         [Graph([[-1, -2], [-2, 3]]), [-2, 3]],
     ],
 )
-def test__input_check_edge(graph, edge):
+def test_is_edge(graph, edge):
     assert _graph_input_check.is_edge(graph, edge) is None
     assert _graph_input_check.edge_format(graph, edge) is None
 
@@ -143,7 +143,7 @@ def test__input_check_edge(graph, edge):
         [Graph([[-1, -2], [-2, 3]]), [-2, 3], [-2, 3]],
     ],
 )
-def test__input_check_edge_on_vertices(graph, edge, vertices):
+def test_is_edge_on_vertices(graph, edge, vertices):
     assert _graph_input_check.is_edge(graph, edge, vertices) is None
 
 
@@ -165,7 +165,7 @@ def test__input_check_edge_on_vertices(graph, edge, vertices):
         [Graph([[1, 2], [1, 1]]), [2, 2]],
     ],
 )
-def test__input_check_edge_value_error(graph, edge):
+def test_is_edge_value_error(graph, edge):
     with pytest.raises(ValueError):
         _graph_input_check.is_edge(graph, edge)
 
@@ -180,7 +180,7 @@ def test__input_check_edge_value_error(graph, edge):
         [Graph([[1, 2], [1, 1]]), [1, 1]],
     ],
 )
-def test__input_check_edge_format_loopfree_loop_error(graph, edge):
+def test_edge_format_loopfree_loop_error(graph, edge):
     assert _graph_input_check.edge_format(graph, edge, loopfree=False) is None
     assert _graph_input_check.edge_format(graph, edge) is None
     with pytest.raises(LoopError):
@@ -209,7 +209,7 @@ def test__input_check_edge_format_loopfree_loop_error(graph, edge):
         [graphs.Diamond(), [[1, 2], [2, 3]], [1, 2, 3]],
     ],
 )
-def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
+def test_is_edge_on_vertices_value_error(graph, edge, vertices):
     with pytest.raises(ValueError):
         _graph_input_check.is_edge(graph, edge, vertices)
 
@@ -226,7 +226,7 @@ def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
         [graphs.Complete(3), [[0, 1]]],
     ],
 )
-def test__input_check_edge_type_error(graph, edge):
+def test_is_edge_type_error(graph, edge):
     with pytest.raises(TypeError):
         _graph_input_check.is_edge(graph, edge)
     with pytest.raises(TypeError):
@@ -251,7 +251,7 @@ def test__input_check_edge_type_error(graph, edge):
         [Graph([[1, 2], [2, 3]]), [1, 2], 1],
     ],
 )
-def test__input_check_edge_on_vertices_type_error(graph, edge, vertices):
+def test_is_edge_on_vertices_type_error(graph, edge, vertices):
     with pytest.raises(TypeError):
         _graph_input_check.is_edge(graph, edge, vertices)
 
@@ -284,7 +284,7 @@ def test__input_check_edge_on_vertices_type_error(graph, edge, vertices):
         [Graph([[-1, -2], [-2, 3]]), [[-2, 3], [-1, -2]]],
     ],
 )
-def test__input_check_edge_list(graph, edge):
+def test_is_edge_list(graph, edge):
     assert _graph_input_check.is_edge_list(graph, edge) is None
     assert _graph_input_check.edge_format_list(graph, edge) is None
 
@@ -317,7 +317,7 @@ def test__input_check_edge_list(graph, edge):
         [graphs.Diamond(), [[[1, 2], [2, 3]]]],
     ],
 )
-def test__input_check_edge_list_value_error(graph, edge):
+def test_is_edge_list_value_error(graph, edge):
     with pytest.raises(ValueError):
         _graph_input_check.is_edge_list(graph, edge)
 
@@ -335,7 +335,7 @@ def test__input_check_edge_list_value_error(graph, edge):
         [graphs.Diamond(), (1, 2)],
     ],
 )
-def test__input_check_edge_list_type_error(graph, edge):
+def test_is_edge_list_type_error(graph, edge):
     with pytest.raises(TypeError):
         _graph_input_check.is_edge_list(graph, edge)
     with pytest.raises(TypeError):
@@ -351,7 +351,7 @@ def test__input_check_edge_list_type_error(graph, edge):
         [graphs.Complete(3), [0, 1, 2]],
     ],
 )
-def test__input_check_vertex_order(graph, vertex_order):
+def test_is_vertex_order(graph, vertex_order):
     assert _graph_input_check.is_vertex_order(graph, vertex_order) == vertex_order
 
 
@@ -366,7 +366,7 @@ def test__input_check_vertex_order(graph, vertex_order):
         [graphs.Complete(3), [1, 2, 3]],
     ],
 )
-def test__input_check_vertex_order_error(graph, vertex_order):
+def test_is_vertex_order_error(graph, vertex_order):
     with pytest.raises(ValueError):
         _graph_input_check.is_vertex_order(graph, vertex_order)
 
@@ -384,7 +384,7 @@ def test__input_check_vertex_order_error(graph, vertex_order):
         [graphs.Complete(3), [[0, 1], [1, 2], [2, 0]]],
     ],
 )
-def test__input_check_edge_order(graph, edge_order):
+def test_is_edge_order(graph, edge_order):
     assert _graph_input_check.is_edge_order(graph, edge_order) == edge_order
 
 
@@ -401,6 +401,6 @@ def test__input_check_edge_order(graph, edge_order):
         [graphs.Complete(3), [[0, 1], [1, 2], [1, 2]]],
     ],
 )
-def test__input_check_edge_order_error(graph, edge_order):
+def test_is_edge_order_error(graph, edge_order):
     with pytest.raises(ValueError):
         _graph_input_check.is_edge_order(graph, edge_order)
