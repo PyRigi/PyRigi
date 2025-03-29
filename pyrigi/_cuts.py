@@ -35,15 +35,14 @@ def is_stable_set(
 
     Parameters
     ----------
-    graph:
-        the graph to check
     vertices:
         the vertices to check
     certificate:
         if True, return also a pair of vertices that are in the set
         and are neighboring. See returns.
 
-    Returns:
+    Returns
+    -------
         If certificate is ``False``,
         returns a boolean whether the set is stable or not.
         If certificate is ``True``,
@@ -91,8 +90,6 @@ def _revertable_set_removal(
 
     Parameters
     ----------
-    graph:
-        The graph from which vertices will be removed
     vertices:
         Vertex set to remove
     opt:
@@ -133,8 +130,6 @@ def is_separating_set(
 
     Parameters
     ----------
-    graph:
-        the graph to check
     vertices:
         the vertices to check
 
@@ -177,8 +172,6 @@ def is_separating_set_dividing(
 
     Parameters
     ----------
-    graph:
-        the graph to check
     vertices:
         the vertices to check
     u:
@@ -234,8 +227,6 @@ def is_stable_separating_set(
 
     Parameters
     ----------
-    graph:
-        the graph to check
     vertices:
         the separating set of vertices
 
@@ -272,8 +263,6 @@ def is_stable_separating_set_dividing(
 
     Parameters
     ----------
-    graph:
-        the graph to check
     vertices:
         the vertices to check
 

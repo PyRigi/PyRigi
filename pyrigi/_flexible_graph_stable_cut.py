@@ -34,8 +34,6 @@ def stable_separating_set_in_flexible_graph(
 
     Parameters
     ----------
-    graph:
-        The flexible graph to search
     u:
         The first vertex indicating the rigid component used,
         arbitrary vertex is chosen otherwise
@@ -141,8 +139,6 @@ def stable_separating_set_in_flexible_graph_fast(
 
     Parameters
     ----------
-    graph:
-        The flexible graph to search
     u:
         The first vertex indicating the rigid component used,
         arbitrary vertex is chosen otherwise

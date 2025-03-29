@@ -4,16 +4,18 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
-from typing import Callable, TypeVar, ParamSpec, Iterable
+from typing import Callable, Iterable
 import math
 import warnings
 from copy import deepcopy
 from itertools import combinations
 from random import randint
 
+
 import networkx as nx
 from sympy import Matrix, oo, zeros
 
+from pyrigi._wrap import wraps
 import pyrigi._input_check as _input_check
 import pyrigi._pebble_digraph
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
@@ -36,30 +38,6 @@ from pyrigi._cuts import (
 
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
-
-P = ParamSpec("P")
-T = TypeVar("T")
-
-
-def proxy_call(wrapper: Callable[P, T]):
-    """
-    Decorator that delegates calls to a function.
-    Also, function's doc string and signature is propagated.
-
-    Can be used to delegate method calls to external functions.
-    In that case the function should accept
-    the class type as the first argument.
-
-    Note
-    ----
-    For PyRight autocomplete to work it is necessary for the function
-    to be at the beginning of the same file it is used in.
-    """
-
-    def decorator(_: Callable) -> Callable[P, T]:
-        return wrapper
-
-    return decorator
 
 
 class Graph(nx.Graph):
@@ -3558,39 +3536,39 @@ class Graph(nx.Graph):
         )
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(is_stable_set)
-    def is_stable_set(self):
-        pass
+    @wraps(is_stable_set)
+    def is_stable_set(self, *args, **kwargs):
+        return is_stable_set(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(is_separating_set)
-    def is_separating_set(self):
-        pass
+    @wraps(is_separating_set)
+    def is_separating_set(self, *args, **kwargs):
+        return is_separating_set(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(is_separating_set_dividing)
-    def is_separating_set_dividing(self):
-        pass
+    @wraps(is_separating_set_dividing)
+    def is_separating_set_dividing(self, *args, **kwargs):
+        return is_separating_set_dividing(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(is_stable_separating_set)
-    def is_stable_separating_set(self):
-        pass
+    @wraps(is_stable_separating_set)
+    def is_stable_separating_set(self, *args, **kwargs):
+        return is_stable_separating_set(self, *args, **kwargs)
 
-    @proxy_call(is_stable_separating_set_dividing)
+    @wraps(is_stable_separating_set_dividing)
     @doc_category("General graph theoretical properties")
-    def is_stable_separating_set_dividing(self):
-        pass
-
-    @doc_category("General graph theoretical properties")
-    @proxy_call(stable_separating_set_in_flexible_graph)
-    def stable_separating_set_in_flexible_graph(self):
-        pass
+    def is_stable_separating_set_dividing(self, *args, **kwargs):
+        return is_stable_separating_set_dividing(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(stable_separating_set_in_flexible_graph_fast)
-    def stable_separating_set_in_flexible_graph_fast(self):
-        pass
+    @wraps(stable_separating_set_in_flexible_graph)
+    def stable_separating_set_in_flexible_graph(self, *args, **kwargs):
+        return stable_separating_set_in_flexible_graph(self, *args, **kwargs)
+
+    @doc_category("General graph theoretical properties")
+    @wraps(stable_separating_set_in_flexible_graph_fast)
+    def stable_separating_set_in_flexible_graph_fast(self, *args, **kwargs):
+        return stable_separating_set_in_flexible_graph_fast(self, *args, **kwargs)
 
     @doc_category("Generic rigidity")
     def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
