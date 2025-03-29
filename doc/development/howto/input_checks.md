@@ -10,26 +10,25 @@ see the [list below](#input-check-functions).
 For instance {func}`pyrigi._input_check.dimension`  checks whether
 the parameter `dim` is a positive integer and raises an error otherwise.
 
-Checks which need properties of the calling object
-are in the respective class of the object and
-have a name starting with `_input_check_`.
-For instance {meth}`.Graph._input_check_no_loop` checks whether
+Checks related to the class {class}`.Graph` are in {mod}`._graph_input_check`.
+For instance {func}`._graph_input_check.no_loop` checks whether
 a graph is loop free and raises an error otherwise.
 
 Example:
 ```python
 import pyrigi._input_check as _input_check
+import pyrigi._graph_input_check as _graph_input_check
 
 class Graph(nx.Graph):
     ...
 
     def method(self, dim: int):
         _input_check.dimension(dim)
-        self._input_check_no_loop()
+        _graph_input_check.no_loop(self)
         ...
 ```
 
-Note that these input checks are considered private methods.
+Note that these input checks are in a private module.
 However, we do test them.
 
 
@@ -42,7 +41,9 @@ For instance a parameter `algorithm` might have several supported values.
 
 Example:
 ```python
-def method(algorithm: str = test):
+from pyrigi.exception import NotSupportedValueError
+
+def method(self, algorithm: str = "default"):
     if algorithm == "alg1":
         ...
     elif algorithm == "alg2":
@@ -51,6 +52,13 @@ def method(algorithm: str = test):
         raise NotSupportedValueError(algorithm, "algorithm", self.method)
 ```
 
+## Input check functions of Graph
+
+```{eval-rst}
+.. automodule:: pyrigi._graph_input_check
+   :members:
+   :show-inheritance:
+```
 
 ## Input check functions
 
