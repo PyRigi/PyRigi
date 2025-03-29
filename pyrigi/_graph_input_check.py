@@ -1,6 +1,8 @@
 """
-Module for graph input checks.
+The following functions can be used for input checks of :class:`.Graph`.
 """
+
+from __future__ import annotations
 
 from typing import Iterable
 
@@ -91,7 +93,7 @@ def is_edge_list(
     graph: nx.Graph, edges: Sequence[Edge], vertices: Sequence[Vertex] = None
 ) -> None:
     """
-    Apply :meth:`~.is_edge` to all edges in a list.
+    Apply :func:`~.is_edge` to all edges in a list.
 
     Parameters
     ----------
@@ -107,7 +109,7 @@ def is_edge_list(
 
 def edge_format_list(graph: nx.Graph, edges: Sequence[Edge]) -> None:
     """
-    Apply :meth:`~.edge_format` to all edges in a list.
+    Apply :func:`~.edge_format` to all edges in a list.
 
     Parameters
     ----------
@@ -155,7 +157,7 @@ def is_edge_order(
     graph: nx.Graph, edge_order: Sequence[Edge], name: str = ""
 ) -> list[Edge]:
     """
-    Check whether the provided `edge_order` contains the same elements
+    Check whether the provided ``edge_order`` contains the same elements
     as the graph edge set and raise an error otherwise.
 
     The ``edge_order`` is also returned.
