@@ -2501,7 +2501,6 @@ def test_from_vertices_and_edges():
     "graph, K, L",
     [
         [graphs.Complete(4), 2, 2],
-        [Graph([[0, 0], [0, 1], [1, 1]]), 2, 1],
         [graphs.K66MinusPerfectMatching(), 3, 6],
         [graphs.DoubleBanana(), 3, 6],
     ],
@@ -2513,7 +2512,22 @@ def test_is_kl_tight(graph, K, L):
 @pytest.mark.parametrize(
     "graph, K, L",
     [
+        [Graph([[0, 0]]), 2, 1], # corner case, only one vertex
+        [Graph([[0, 0], [1, 1]]), 1, 0], # Two disjoint loops
+        [Graph([[0, 0], [0, 1], [1, 1]]), 2, 1],
+        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 0]]), 2, 0],
+        [graphs.Complete(6) + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]), 4, 3]
+    ],
+)
+def test_is_kl_tight_with_loops(graph, K, L):
+    assert graph.is_kl_tight(K, L)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
         [graphs.CompleteBipartite(4, 4), 3, 6],
+        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 0]]), 2, 1],
     ],
 )
 def test_is_not_kl_tight(graph, K, L):
@@ -2535,7 +2549,23 @@ def test_is_kl_sparse(graph, K, L):
 @pytest.mark.parametrize(
     "graph, K, L",
     [
+        [Graph([[0, 0]]), 2, 1], # corner case, only one vertex
+        [Graph([[0, 0], [1, 1]]), 3, 0], # Two disjoint loops
+        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2]]), 2, 1],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, 0],
+        [graphs.Complete(6) + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]), 4, 2]
+
+    ],
+)
+def test_is_kl_sparse_with_loops(graph, K, L):
+    assert graph.is_kl_sparse(K, L)
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
         [Graph([[0, 1], [1, 1]]), 1, 1],
+        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 0]]), 2, 1],
+        [Graph([[0, 0]]), 2, 2], # corner case, only one vertex
         [graphs.DoubleBanana() + Graph([[0, 1]]), 3, 6],
     ],
 )
