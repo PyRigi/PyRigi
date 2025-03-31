@@ -1,11 +1,11 @@
 # Based on https://github.com/Tinche/tightwrap/blob/main/src/tightwrap/__init__.py
 
+from collections import OrderedDict
 import functools
-from inspect import Signature, _empty
+from inspect import Parameter, Signature, _empty
 from typing import Any, Callable, TypeVar, cast
 import sys
 from types import GetSetDescriptorType, ModuleType
-
 from typing import ParamSpec
 
 P = ParamSpec("P")
@@ -19,8 +19,8 @@ GetAnnotationsResults = tuple[Annotations, Globals, Locals]
 
 
 def _get_annotations(
-    obj: Callable[..., Any],
-    remove_params: list[str],
+        obj: Callable[..., Any],
+        ignored_params: list[str],
 ) -> GetAnnotationsResults:
     # Copied from https://github.com/python/cpython/blob/3.12/Lib/inspect.py#L176-L288
 
@@ -89,7 +89,7 @@ def _get_annotations(
     return_value = {
         key: _eval_if_necessary(value, obj_globals, obj_locals)
         for key, value in cast(dict[str, Any], ann).items()
-        if key not in remove_params
+        if key not in ignored_params
     }
 
     return cast(GetAnnotationsResults, (return_value, obj_globals, obj_locals))
@@ -103,45 +103,61 @@ def _eval_if_necessary(source: Any, globals: Globals, locals: Locals) -> Any:
 
 
 def _get_resolved_signature(
-    fn: Callable[..., Any],
-    remove_params: list[str] = [],
+        fn: Callable[..., Any],
+        convert_first_to_self: bool,
+        ignored_params: list[str],
 ) -> Signature:
     signature = Signature.from_callable(fn)
-    evaluated_annotations, fn_globals, fn_locals = _get_annotations(fn, remove_params)
 
-    filtered_parameters = [
-        (n, p) for n, p in signature.parameters.items() if n not in remove_params
-    ]
+    # We don't care what the first parameters type is as we replace it with
+    # self anyway. Also, often it cannot be resolved as its type is set by a string.
+    if convert_first_to_self:
+        ignored_params.append(next(iter(signature.parameters)))
 
-    for name, parameter in filtered_parameters:
-        parameter._annotation = evaluated_annotations.get(name, _empty)  # type: ignore
+    # Get's annotations like return types
+    evaluated_annotations, fn_globals, fn_locals = _get_annotations(fn, ignored_params)
 
-    signature = signature.replace(
-        parameters=[p for _, p in filtered_parameters],
-    )
+    new_parameters: list[Parameter] = []
+
+    # Replaces the first argument by self and adds annotations to the rest
+    params_iter = iter(signature.parameters.items())
+    if convert_first_to_self:
+        next(params_iter)
+        new_parameters.append(Parameter("self", Parameter.POSITIONAL_OR_KEYWORD))
+
+    # Copies the other annotations (with string names resolved)
+    for name, parameter in params_iter:
+        new_parameters.append(parameter)
+        if name not in ignored_params:
+            parameter._annotation = evaluated_annotations.get(name, _empty)  # type: ignore
 
     new_return_annotation = _eval_if_necessary(
         signature.return_annotation, fn_globals, fn_locals
     )
-    signature._return_annotation = new_return_annotation  # type: ignore
+
+    signature = signature.replace(
+        parameters=new_parameters,
+        return_annotation=new_return_annotation,  # type: ignore
+    )
 
     return signature
 
 
-def wraps(
-    source_func: Callable[P, Any],
-    remove_params: list[str] = ["graph"],
+def wraps_method_to_func(
+        source_func: Callable[P, Any],
+        ignored_params: list[str] = [],
 ) -> Callable[[Callable[..., R]], Callable[P, R]]:
     """
     Apply ``functools.wraps``
     while updating signatures and docs from ``source_func``.
+    First parameter is renamed to ``self`` and its type is removed.
 
     Parameters
     ----------
     source_func:
         Function from which signature and documentation is copied.
-    remove_params:
-        Parameters to remove from the ``source_func`` signature.
+    ignored_params:
+        Parameters with unresolvable types, like types typed as string, e.g. "Graph"
 
     Note
     ----
@@ -156,7 +172,8 @@ def wraps(
         res = functools.wraps(source_func)(orig_func)
         res.__signature__ = _get_resolved_signature(  # type: ignore
             source_func,
-            remove_params,
+            convert_first_to_self=True,
+            ignored_params=ignored_params,
         )
 
         return cast(Callable[P, R], res)

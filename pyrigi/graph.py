@@ -15,7 +15,7 @@ from random import randint
 import networkx as nx
 from sympy import Matrix, oo, zeros
 
-from pyrigi._wrap import wraps
+from pyrigi._wrap import wraps_method_to_func
 import pyrigi._input_check as _input_check
 import pyrigi._pebble_digraph
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
@@ -3536,37 +3536,37 @@ class Graph(nx.Graph):
         )
 
     @doc_category("General graph theoretical properties")
-    @wraps(is_stable_set)
+    @wraps_method_to_func(is_stable_set)
     def is_stable_set(self, *args, **kwargs):
         return is_stable_set(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @wraps(is_separating_set)
+    @wraps_method_to_func(is_separating_set)
     def is_separating_set(self, *args, **kwargs):
         return is_separating_set(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @wraps(is_separating_set_dividing)
+    @wraps_method_to_func(is_separating_set_dividing)
     def is_separating_set_dividing(self, *args, **kwargs):
         return is_separating_set_dividing(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @wraps(is_stable_separating_set)
+    @wraps_method_to_func(is_stable_separating_set)
     def is_stable_separating_set(self, *args, **kwargs):
         return is_stable_separating_set(self, *args, **kwargs)
 
-    @wraps(is_stable_separating_set_dividing)
+    @wraps_method_to_func(is_stable_separating_set_dividing)
     @doc_category("General graph theoretical properties")
     def is_stable_separating_set_dividing(self, *args, **kwargs):
         return is_stable_separating_set_dividing(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @wraps(stable_separating_set_in_flexible_graph)
+    @wraps_method_to_func(stable_separating_set_in_flexible_graph)
     def stable_separating_set_in_flexible_graph(self, *args, **kwargs):
         return stable_separating_set_in_flexible_graph(self, *args, **kwargs)
 
     @doc_category("General graph theoretical properties")
-    @wraps(stable_separating_set_in_flexible_graph_fast)
+    @wraps_method_to_func(stable_separating_set_in_flexible_graph_fast)
     def stable_separating_set_in_flexible_graph_fast(self, *args, **kwargs):
         return stable_separating_set_in_flexible_graph_fast(self, *args, **kwargs)
 
