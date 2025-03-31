@@ -3502,9 +3502,8 @@ def test_randomized_rigidity_properties():  # noqa: C901
 
 
 @pytest.mark.long_local
-def test_sparsity_properties_random_graphs_with_loops():  # noqa: C901
+def test_sparsity_properties_random_graphs_with_loops():
     search_space = [range(1, 8), range(10)]
-    kmax = 6
     for n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
@@ -3519,7 +3518,7 @@ def test_sparsity_properties_random_graphs_with_loops():  # noqa: C901
 
 
 @pytest.mark.long_local
-def test_sparsity_properties_random_graphs_without_loops():  # noqa: C901
+def test_sparsity_properties_random_graphs_without_loops():
     search_space = [range(1, 8), range(10)]
     for n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
@@ -3591,3 +3590,31 @@ def _run_sparsity_test_on_graph(G: Graph) -> None:
     if prop_sparse[1][1]:
         if nx.is_connected(G):
             assert nx.is_tree(G)
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_small_graphs_without_loops():
+    for n in range(1, 5):
+        for i in range(math.comb(n, 2) + 1):
+            for edges in combinations(combinations(range(n), 2), i):
+                G = Graph.from_vertices_and_edges(range(n), edges)
+                assert G.number_of_nodes() == n
+                assert G.number_of_edges() == len(edges)
+
+                _run_sparsity_test_on_graph(G)
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_small_graphs_with_loops():
+    for n in range(1, 5):
+        for i in range(math.comb(n, 2) + 1):
+            for edges in combinations(combinations(range(n), 2), i):
+                G = Graph.from_vertices_and_edges(range(n), edges)
+                for j in range(n + 1):
+                    for loops in combinations(range(n), j):
+                        G.add_edges([[jj, jj] for jj in loops])
+                        assert G.number_of_nodes() == n
+                        assert G.number_of_edges() == len(edges) + len(loops)
+
+                        _run_sparsity_test_on_graph(G)
+                        G.delete_edges([[jj, jj] for jj in loops])
