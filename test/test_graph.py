@@ -2512,11 +2512,16 @@ def test_is_kl_tight(graph, K, L):
 @pytest.mark.parametrize(
     "graph, K, L",
     [
-        [Graph([[0, 0]]), 2, 1], # corner case, only one vertex
-        [Graph([[0, 0], [1, 1]]), 1, 0], # Two disjoint loops
+        [Graph([[0, 0]]), 2, 1],  # corner case, only one vertex
+        [Graph([[0, 0], [1, 1]]), 1, 0],  # Two disjoint loops
         [Graph([[0, 0], [0, 1], [1, 1]]), 2, 1],
         [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 0]]), 2, 0],
-        [graphs.Complete(6) + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]), 4, 3]
+        [
+            graphs.Complete(6)
+            + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]),
+            4,
+            3,
+        ],
     ],
 )
 def test_is_kl_tight_with_loops(graph, K, L):
@@ -2549,23 +2554,28 @@ def test_is_kl_sparse(graph, K, L):
 @pytest.mark.parametrize(
     "graph, K, L",
     [
-        [Graph([[0, 0]]), 2, 1], # corner case, only one vertex
-        [Graph([[0, 0], [1, 1]]), 3, 0], # Two disjoint loops
+        [Graph([[0, 0]]), 2, 1],  # corner case, only one vertex
+        [Graph([[0, 0], [1, 1]]), 3, 0],  # Two disjoint loops
         [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2]]), 2, 1],
         [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, 0],
-        [graphs.Complete(6) + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]), 4, 2]
-
+        [
+            graphs.Complete(6)
+            + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]),
+            4,
+            2,
+        ],
     ],
 )
 def test_is_kl_sparse_with_loops(graph, K, L):
     assert graph.is_kl_sparse(K, L)
+
 
 @pytest.mark.parametrize(
     "graph, K, L",
     [
         [Graph([[0, 1], [1, 1]]), 1, 1],
         [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 0]]), 2, 1],
-        [Graph([[0, 0]]), 2, 2], # corner case, only one vertex
+        [Graph([[0, 0]]), 2, 2],  # corner case, only one vertex
         [graphs.DoubleBanana() + Graph([[0, 1]]), 3, 6],
     ],
 )
@@ -3505,103 +3515,79 @@ def test_sparsity_properties_random_graphs_with_loops():  # noqa: C901
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m + len(loops)
 
-            prop_sparse = {
-                k: [G.is_kl_sparse(k, ell) for ell in range(2 * k)]
-                for k in range(1, kmax)
-            }
-            prop_tight = {
-                k: [G.is_kl_tight(k, ell) for ell in range(2 * k)]
-                for k in range(1, kmax)
-            }
-
-            prop_sparse_s = {
-                k: [
-                    G.is_kl_sparse(k, ell, algorithm="subgraph") for ell in range(2 * k)
-                ]
-                for k in range(1, kmax)
-            }
-            prop_tight_s = {
-                k: [G.is_kl_tight(k, ell, algorithm="subgraph") for ell in range(2 * k)]
-                for k in range(1, kmax)
-            }
-
-            for k in range(1, kmax):
-                for ell in range(2 * k):
-                    if prop_tight[k][ell]:
-                        assert prop_sparse[k][ell]
-                        assert prop_tight_s[k][ell]
-                        assert prop_sparse_s[k][ell]
-                        if n >= k:
-                            assert G.number_of_edges() == k * n - ell
-                    if prop_sparse[k][ell]:
-                        assert prop_sparse_s[k][ell]
-                        if n >= k:
-                            assert G.number_of_edges() <= k * n - ell
-                        for ell2 in range(ell):
-                            assert prop_sparse[k][ell2]
-                    if prop_sparse_s[k][ell]:
-                        assert prop_sparse[k][ell]
-                    if prop_tight_s[k][ell]:
-                        assert prop_tight[k][ell]
-
-            if prop_sparse[1][1]:
-                if nx.is_connected(G):
-                    assert nx.is_tree(G)
+            _run_sparsity_test_on_graph(G)
 
 
 @pytest.mark.long_local
 def test_sparsity_properties_random_graphs_without_loops():  # noqa: C901
     search_space = [range(1, 8), range(10)]
-    kmax = 6
     for n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m
 
-            prop_sparse = {
-                k: [G.is_kl_sparse(k, ell) for ell in range(math.comb(k + 1, 2) + 1)]
-                for k in range(1, kmax)
-            }
-            prop_tight = {
-                k: [G.is_kl_tight(k, ell) for ell in range(math.comb(k + 1, 2) + 1)]
-                for k in range(1, kmax)
-            }
+            _run_sparsity_test_on_graph(G)
 
-            prop_sparse_s = {
-                k: [
-                    G.is_kl_sparse(k, ell, algorithm="subgraph")
-                    for ell in range(math.comb(k + 1, 2) + 1)
-                ]
-                for k in range(1, kmax)
-            }
-            prop_tight_s = {
-                k: [
-                    G.is_kl_tight(k, ell, algorithm="subgraph")
-                    for ell in range(math.comb(k + 1, 2) + 1)
-                ]
-                for k in range(1, kmax)
-            }
 
-            for k in range(1, kmax):
-                for ell in range(math.comb(k + 1, 2) + 1):
-                    if prop_tight[k][ell]:
-                        assert prop_sparse[k][ell]
-                        assert prop_tight_s[k][ell]
-                        assert prop_sparse_s[k][ell]
-                        if n >= k:
-                            assert m == k * n - ell
-                    if prop_sparse[k][ell]:
-                        assert prop_sparse_s[k][ell]
-                        if n >= k:
-                            assert m <= k * n - ell
-                        for ell2 in range(ell):
-                            assert prop_sparse[k][ell2]
-                    if prop_sparse_s[k][ell]:
-                        assert prop_sparse[k][ell]
-                    if prop_tight_s[k][ell]:
-                        assert prop_tight[k][ell]
+def _run_sparsity_test_on_graph(G: Graph) -> None:
+    """
+    Run a set of sparsity tests on a given graph
+    """
+    kmax = 6
+    m = G.number_of_edges()
+    n = G.number_of_nodes()
 
-            if prop_sparse[1][1]:
-                if nx.is_connected(G):
-                    assert nx.is_tree(G)
+    # distinguish range for ell depending on loops
+    def get_max_ell(G: Graph, k: int):
+        if nx.number_of_selfloops(G) > 0:
+            return 2 * k
+        else:
+            return math.comb(k + 1, 2) + 1
+
+    prop_sparse = {
+        k: [G.is_kl_sparse(k, ell) for ell in range(get_max_ell(G, k))]
+        for k in range(1, kmax)
+    }
+    prop_tight = {
+        k: [G.is_kl_tight(k, ell) for ell in range(get_max_ell(G, k))]
+        for k in range(1, kmax)
+    }
+
+    prop_sparse_s = {
+        k: [
+            G.is_kl_sparse(k, ell, algorithm="subgraph")
+            for ell in range(get_max_ell(G, k))
+        ]
+        for k in range(1, kmax)
+    }
+    prop_tight_s = {
+        k: [
+            G.is_kl_tight(k, ell, algorithm="subgraph")
+            for ell in range(get_max_ell(G, k))
+        ]
+        for k in range(1, kmax)
+    }
+
+    for k in range(1, kmax):
+        for ell in range(get_max_ell(G, k)):
+            if prop_tight[k][ell]:
+                assert prop_sparse[k][ell]
+                assert prop_tight_s[k][ell]
+                assert prop_sparse_s[k][ell]
+                if n >= k:
+                    assert m == k * n - ell
+            if prop_sparse[k][ell]:
+                assert prop_sparse_s[k][ell]
+                if n >= k:
+                    assert m <= k * n - ell
+                for ell2 in range(ell):
+                    assert prop_sparse[k][ell2]
+            if prop_sparse_s[k][ell]:
+                assert prop_sparse[k][ell]
+            if prop_tight_s[k][ell]:
+                assert prop_tight[k][ell]
+
+    if prop_sparse[1][1]:
+        if nx.is_connected(G):
+            assert nx.is_tree(G)
