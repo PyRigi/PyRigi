@@ -3492,7 +3492,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
 
 
 @pytest.mark.long_local
-def test_randomized_sparsity_properties_loops():  # noqa: C901
+def test_sparsity_properties_random_graphs_with_loops():  # noqa: C901
     search_space = [range(1, 8), range(10)]
     kmax = 6
     for n, _ in product(*search_space):
@@ -3550,7 +3550,7 @@ def test_randomized_sparsity_properties_loops():  # noqa: C901
 
 
 @pytest.mark.long_local
-def test_randomized_sparsity_properties_no_loops():  # noqa: C901
+def test_sparsity_properties_random_graphs_without_loops():  # noqa: C901
     search_space = [range(1, 8), range(10)]
     kmax = 6
     for n, _ in product(*search_space):
