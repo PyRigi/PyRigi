@@ -6,10 +6,7 @@ from typing import Any, Callable, TypeVar, cast
 import sys
 from types import GetSetDescriptorType, ModuleType
 
-if sys.version_info >= (3, 10):
-    from typing import ParamSpec
-else:
-    from typing_extensions import ParamSpec
+from typing import ParamSpec
 
 P = ParamSpec("P")
 T = TypeVar("T")
