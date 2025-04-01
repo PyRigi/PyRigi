@@ -3766,9 +3766,7 @@ def test_sparsity_properties_random_graphs_with_loops():
     for n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
-            loops = [randint(0, 1) for i in range(n)]
-            VV = G.vertex_list()
-            loops = [[VV[i], VV[i]] for i in range(n) if loops[i] == 1]
+            loops = [[v, v] for v in G.vertex_list() if randint(0, 1)]
             G.add_edges(loops)
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m + len(loops)
