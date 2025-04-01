@@ -2501,12 +2501,20 @@ def test_from_vertices_and_edges():
     "graph, K, L",
     [
         [graphs.Complete(4), 2, 2],
+        [graphs.Complete(5), 2, 0],
+        [graphs.CompleteMinusOne(5), 2, 1],
         [graphs.K66MinusPerfectMatching(), 3, 6],
         [graphs.DoubleBanana(), 3, 6],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 3],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 1, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2]]), 1, 0],
+        [Graph.from_int(32766), 4, 10],
     ],
 )
 def test_is_kl_tight(graph, K, L):
+    assert nx.number_of_selfloops(graph) == 0
     assert graph.is_kl_tight(K, L)
+    assert graph.is_kl_tight(K, L, algorithm="subgraph")
 
 
 @pytest.mark.parametrize(
@@ -2525,35 +2533,77 @@ def test_is_kl_tight(graph, K, L):
     ],
 )
 def test_is_kl_tight_with_loops(graph, K, L):
+    assert nx.number_of_selfloops(graph) > 0
     assert graph.is_kl_tight(K, L)
+    assert graph.is_kl_tight(K, L, algorithm="subgraph")
 
 
 @pytest.mark.parametrize(
     "graph, K, L",
     [
         [graphs.CompleteBipartite(4, 4), 3, 6],
-        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 0]]), 2, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 1, 0],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]), 2, 0],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 2],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2]]), 2, 3],
+        [Graph.from_int(32764), 4, 10],
+        [graphs.Cycle(4), 1, 1],
     ],
 )
 def test_is_not_kl_tight(graph, K, L):
+    assert nx.number_of_selfloops(graph) == 0
     assert not graph.is_kl_tight(K, L)
+    assert not graph.is_kl_tight(K, L, algorithm="subgraph")
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 0]]), 2, 1],
+    ],
+)
+def test_is_not_kl_tight_with_loops(graph, K, L):
+    assert nx.number_of_selfloops(graph) > 0
+    assert not graph.is_kl_tight(K, L)
+    assert not graph.is_kl_tight(K, L, algorithm="subgraph")
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.K66MinusPerfectMatching(), 3, 6],
+        [graphs.DoubleBanana(), 3, 6],
+        [graphs.CompleteBipartite(4, 4), 3, 6],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 1, 0],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]), 2, 0],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 2],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2]]), 2, 3],
+        [graphs.Complete(4), 2, 2],
+        [graphs.Complete(5), 2, 0],
+        [graphs.CompleteMinusOne(5), 2, 1],
+        [graphs.K66MinusPerfectMatching(), 3, 6],
+        [graphs.DoubleBanana(), 3, 6],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 3],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 1, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2]]), 1, 0],
+        [Graph.from_int(32766), 4, 10],
+        [Graph.from_int(32764), 4, 10],
+    ],
+)
+def test_is_kl_sparse(graph, K, L):
+    assert nx.number_of_selfloops(graph) == 0
+    assert graph.is_kl_sparse(K, L)
+    assert graph.is_kl_sparse(K, L, algorithm="subgraph")
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert graph2.is_kl_sparse(K, L)
 
 
 @pytest.mark.parametrize(
     "graph, K, L",
     [
         [Graph([[0, 0], [0, 1], [1, 1]]), 2, 1],
-        [graphs.K66MinusPerfectMatching(), 3, 6],
-        [graphs.DoubleBanana(), 3, 6],
-    ],
-)
-def test_is_kl_sparse(graph, K, L):
-    assert graph.is_kl_sparse(K, L)
-
-
-@pytest.mark.parametrize(
-    "graph, K, L",
-    [
         [Graph([[0, 0]]), 2, 1],  # corner case, only one vertex
         [Graph([[0, 0], [1, 1]]), 3, 0],  # Two disjoint loops
         [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2]]), 2, 1],
@@ -2567,7 +2617,33 @@ def test_is_kl_sparse(graph, K, L):
     ],
 )
 def test_is_kl_sparse_with_loops(graph, K, L):
+    assert nx.number_of_selfloops(graph) > 0
     assert graph.is_kl_sparse(K, L)
+    assert graph.is_kl_sparse(K, L, algorithm="subgraph")
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert graph2.is_kl_sparse(K, L)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.DoubleBanana() + Graph([[0, 1]]), 3, 6],
+        [graphs.Complete(6), 4, 10],
+        [graphs.Complete(6) + Graph.from_vertices_and_edges([7], []), 4, 10],
+        [Graph.from_int(2097136), 3, 6],
+        [Graph.from_int(32764), 2, 0],
+        [Graph.from_int(32692), 2, 1],
+        [graphs.CompleteMinusOne(5), 2, 2],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [2, 3]]), 2, 3],
+        [graphs.Cycle(4), 1, 1],
+    ],
+)
+def test_is_not_kl_sparse(graph, K, L):
+    assert nx.number_of_selfloops(graph) == 0
+    assert not graph.is_kl_sparse(K, L)
+    assert not graph.is_kl_sparse(K, L, algorithm="subgraph")
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert not graph2.is_kl_sparse(K, L)
 
 
 @pytest.mark.parametrize(
@@ -2576,11 +2652,85 @@ def test_is_kl_sparse_with_loops(graph, K, L):
         [Graph([[0, 1], [1, 1]]), 1, 1],
         [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2], [2, 0]]), 2, 1],
         [Graph([[0, 0]]), 2, 2],  # corner case, only one vertex
-        [graphs.DoubleBanana() + Graph([[0, 1]]), 3, 6],
     ],
 )
-def test_is_not_kl_sparse(graph, K, L):
+def test_is_not_kl_sparse_with_loops(graph, K, L):
+    assert nx.number_of_selfloops(graph) > 0
     assert not graph.is_kl_sparse(K, L)
+    assert not graph.is_kl_sparse(K, L, algorithm="subgraph")
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert not graph2.is_kl_sparse(K, L)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 1], [1, 2]]), 2, 4],
+        [Graph([[0, 1], [1, 2]]), 3, 7],
+        [Graph([[0, 1], [2, 0]]), 0, 0],
+        [Graph([[0, 1], [2, 0]]), 1, -1],
+        [Graph([[0, 1], [2, 0]]), -1, 1],
+    ],
+)
+def test_is_kl_sparse_value_error(graph, K, L):
+    assert nx.number_of_selfloops(graph) == 0
+    with pytest.raises(ValueError):
+        graph.is_kl_sparse(K, L)
+    with pytest.raises(ValueError):
+        graph.is_kl_sparse(K, L, algorithm="subgraph")
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 1], [1, 2], [2, 0]]), 1.2, 0],
+        [Graph([[0, 1], [1, 2], [2, 0]]), 2, 0.5],
+        [Graph([[0, 1], [1, 2], [2, 0]]), "1", 0],
+        [Graph([[0, 1], [1, 2], [2, 0]]), 2, "0"],
+    ],
+)
+def test_is_kl_sparse_type_error(graph, K, L):
+    assert nx.number_of_selfloops(graph) == 0
+    with pytest.raises(TypeError):
+        graph.is_kl_sparse(K, L)
+    with pytest.raises(TypeError):
+        graph.is_kl_sparse(K, L, algorithm="subgraph")
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0]]), 2, 4],  # corner case, only one vertex
+        [Graph([[0, 0], [1, 1]]), 3, 6],  # Two disjoint loops
+        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2]]), 2, 4],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 0, 0],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 1, -1],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), -1, 0],
+    ],
+)
+def test_is_kl_sparse_with_loops_value_error(graph, K, L):
+    assert nx.number_of_selfloops(graph) > 0
+    with pytest.raises(ValueError):
+        graph.is_kl_sparse(K, L)
+    with pytest.raises(ValueError):
+        graph.is_kl_sparse(K, L, algorithm="subgraph")
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 1.2, 0],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, 0.5],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), "1", 0],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, "0"],
+    ],
+)
+def test_is_kl_sparse_with_loops_type_error(graph, K, L):
+    assert nx.number_of_selfloops(graph) > 0
+    with pytest.raises(TypeError):
+        graph.is_kl_sparse(K, L)
+    with pytest.raises(TypeError):
+        graph.is_kl_sparse(K, L, algorithm="subgraph")
 
 
 @pytest.mark.parametrize(
