@@ -3796,55 +3796,48 @@ def _run_sparsity_test_on_graph(G: Graph) -> None:
     m = G.number_of_edges()
     n = G.number_of_nodes()
 
-    # distinguish range for ell depending on loops
-    def get_max_ell(G: Graph, k: int):
+    # distinguish range for L depending on loops
+    def get_max_L(G: Graph, K: int):
         if nx.number_of_selfloops(G) > 0:
-            return 2 * k
+            return 2 * K
         else:
-            return math.comb(k + 1, 2) + 1
+            return math.comb(K + 1, 2) + 1
 
     prop_sparse = {
-        k: [G.is_kl_sparse(k, ell) for ell in range(get_max_ell(G, k))]
-        for k in range(1, kmax)
+        K: [G.is_kl_sparse(K, L) for L in range(get_max_L(G, K))]
+        for K in range(1, kmax)
     }
     prop_tight = {
-        k: [G.is_kl_tight(k, ell) for ell in range(get_max_ell(G, k))]
-        for k in range(1, kmax)
+        K: [G.is_kl_tight(K, L) for L in range(get_max_L(G, K))] for K in range(1, kmax)
     }
 
     prop_sparse_s = {
-        k: [
-            G.is_kl_sparse(k, ell, algorithm="subgraph")
-            for ell in range(get_max_ell(G, k))
-        ]
-        for k in range(1, kmax)
+        K: [G.is_kl_sparse(K, L, algorithm="subgraph") for L in range(get_max_L(G, K))]
+        for K in range(1, kmax)
     }
     prop_tight_s = {
-        k: [
-            G.is_kl_tight(k, ell, algorithm="subgraph")
-            for ell in range(get_max_ell(G, k))
-        ]
-        for k in range(1, kmax)
+        K: [G.is_kl_tight(K, L, algorithm="subgraph") for L in range(get_max_L(G, K))]
+        for K in range(1, kmax)
     }
 
-    for k in range(1, kmax):
-        for ell in range(get_max_ell(G, k)):
-            if prop_tight[k][ell]:
-                assert prop_sparse[k][ell]
-                assert prop_tight_s[k][ell]
-                assert prop_sparse_s[k][ell]
-                if n >= k:
-                    assert m == k * n - ell
-            if prop_sparse[k][ell]:
-                assert prop_sparse_s[k][ell]
-                if n >= k:
-                    assert m <= k * n - ell
-                for ell2 in range(ell):
-                    assert prop_sparse[k][ell2]
-            if prop_sparse_s[k][ell]:
-                assert prop_sparse[k][ell]
-            if prop_tight_s[k][ell]:
-                assert prop_tight[k][ell]
+    for K in range(1, kmax):
+        for L in range(get_max_L(G, K)):
+            if prop_tight[K][L]:
+                assert prop_sparse[K][L]
+                assert prop_tight_s[K][L]
+                assert prop_sparse_s[K][L]
+                if n >= K:
+                    assert m == K * n - L
+            if prop_sparse[K][L]:
+                assert prop_sparse_s[K][L]
+                if n >= K:
+                    assert m <= K * n - L
+                for L2 in range(L):
+                    assert prop_sparse[K][L2]
+            if prop_sparse_s[K][L]:
+                assert prop_sparse[K][L]
+            if prop_tight_s[K][L]:
+                assert prop_tight[K][L]
 
     if prop_sparse[1][1]:
         if nx.is_connected(G):
