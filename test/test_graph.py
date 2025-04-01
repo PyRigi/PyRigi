@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, sample
 
 import math
 import matplotlib.pyplot as plt
@@ -3605,6 +3605,33 @@ def test_sparsity_properties_small_graphs_without_loops():
 
 
 @pytest.mark.long_local
+def test_sparsity_properties_small_graphs_without_loops_different_vertex_names():
+    for n in range(1, 4):
+        encodings = product(
+            *list(
+                zip(
+                    range(n),
+                    sample(range(n, 2 * n), n),
+                    [chr(i) for i in sample(range(97, 122), n)],
+                    [
+                        tuple([chr(i) if randint(0, 1) == 0 else i for i in elem])
+                        for elem in product(sample(range(97, 122), n), repeat=2)
+                    ],
+                )
+            )
+        )
+        for vertices in encodings:
+            for i in range(math.comb(n, 2) + 1):
+                for edges in combinations(combinations(vertices, 2), i):
+                    G = Graph.from_vertices_and_edges(vertices, edges)
+                    assert G.number_of_nodes() == n
+                    assert len(vertices) == n
+                    assert G.number_of_edges() == len(edges)
+
+                    _run_sparsity_test_on_graph(G)
+
+
+@pytest.mark.long_local
 def test_sparsity_properties_small_graphs_with_loops():
     for n in range(1, 5):
         for i in range(math.comb(n, 2) + 1):
@@ -3618,3 +3645,34 @@ def test_sparsity_properties_small_graphs_with_loops():
 
                         _run_sparsity_test_on_graph(G)
                         G.delete_edges([[jj, jj] for jj in loops])
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_small_graphs_with_loops_different_vertex_names():
+    for n in range(1, 4):
+        encodings = product(
+            *list(
+                zip(
+                    range(n),
+                    sample(range(n, 2 * n), n),
+                    [chr(i) for i in sample(range(97, 122), n)],
+                    [
+                        tuple([chr(i) if randint(0, 1) == 0 else i for i in elem])
+                        for elem in product(sample(range(97, 122), n), repeat=2)
+                    ],
+                )
+            )
+        )
+        for vertices in encodings:
+            for i in range(math.comb(n, 2) + 1):
+                for edges in combinations(combinations(vertices, 2), i):
+                    G = Graph.from_vertices_and_edges(vertices, edges)
+                    for j in range(n + 1):
+                        for loops in combinations(vertices, j):
+                            G.add_edges([[jj, jj] for jj in loops])
+                            assert G.number_of_nodes() == n
+                            assert len(vertices) == n
+                            assert G.number_of_edges() == len(edges) + len(loops)
+
+                            _run_sparsity_test_on_graph(G)
+                            G.delete_edges([[jj, jj] for jj in loops])
