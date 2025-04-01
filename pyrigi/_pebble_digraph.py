@@ -110,7 +110,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         vertex: Vertex, whose indegree we want to know.
         """
-        self._input_check_vertex_members(vertex, "vertex")
+        self._input_check_vertex_member(vertex, "vertex")
         return int(super().in_degree(vertex))
 
     def out_degree(self, vertex: Vertex) -> int:
@@ -121,7 +121,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         vertex: Vertex, whose outdegree we want to know.
         """
-        self._input_check_vertex_members(vertex, "vertex")
+        self._input_check_vertex_member(vertex, "vertex")
         return int(super().out_degree(vertex))
 
     def redirect_edge_to_head(self, edge: DirectedEdge, vertex_to: Vertex) -> None:
@@ -199,11 +199,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
                 edge_path.pop()
             return False, visited
 
-        if not self.has_node(u):
-            raise ValueError(f"Vertex {u} is not present in the graph.")
-
-        if not self.has_node(v):
-            raise ValueError(f"Vertex {v} is not present in the graph.")
+        self._input_check_vertex_member(u)
+        self._input_check_vertex_member(v)
 
         # the edge to be added is a loop
         if u == v:
@@ -329,3 +326,11 @@ class PebbleDiGraph(nx.MultiDiGraph):
                         + name
                         + f" {to_check} is not a vertex of the graph!"
                     )
+
+    def _input_check_vertex_member(self, to_check: Vertex, name: str = "") -> None:
+        """
+        Check whether a given element is indeed vertices and
+        raise error otherwise.
+        """
+        if not self.has_node(to_check):
+            raise ValueError(f"The element {to_check} is not a vertex of the graph!")
