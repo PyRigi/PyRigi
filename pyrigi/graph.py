@@ -4,7 +4,7 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Optional
 import math
 import warnings
 from copy import deepcopy
@@ -15,10 +15,18 @@ from random import randint
 import networkx as nx
 from sympy import Matrix, oo, zeros
 
-from pyrigi._wrap import wraps_method_to_func
+from pyrigi._wrap import proxy_call
 import pyrigi._input_check as _input_check
 import pyrigi._pebble_digraph
-from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
+from pyrigi.data_type import (
+    SeparatingCut,
+    StableSeparatingCut,
+    Vertex,
+    Edge,
+    Point,
+    Inf,
+    Sequence,
+)
 from pyrigi.exception import LoopError, NotSupportedValueError
 from pyrigi.misc import _generate_category_tables
 from pyrigi.misc import _doc_category as doc_category
@@ -3536,39 +3544,61 @@ class Graph(nx.Graph):
         )
 
     @doc_category("General graph theoretical properties")
-    @wraps_method_to_func(is_stable_set)
-    def is_stable_set(self, *args, **kwargs):
-        return is_stable_set(self, *args, **kwargs)
+    @proxy_call(is_stable_set)
+    def is_stable_set(
+        self,
+        vertices: Iterable[Vertex] | SeparatingCut,
+        certificate: bool = False,
+    ) -> bool | tuple[bool, Optional[tuple[Vertex, Vertex]]]: ...
 
     @doc_category("General graph theoretical properties")
-    @wraps_method_to_func(is_separating_set)
-    def is_separating_set(self, *args, **kwargs):
-        return is_separating_set(self, *args, **kwargs)
+    @proxy_call(is_separating_set)
+    def is_separating_set(
+        self,
+        vertices: Iterable[Vertex] | SeparatingCut,
+    ) -> bool: ...
 
     @doc_category("General graph theoretical properties")
-    @wraps_method_to_func(is_separating_set_dividing)
-    def is_separating_set_dividing(self, *args, **kwargs):
-        return is_separating_set_dividing(self, *args, **kwargs)
+    @proxy_call(is_separating_set_dividing)
+    def is_separating_set_dividing(
+        self,
+        vertices: Iterable[Vertex] | SeparatingCut,
+        u: Vertex,
+        v: Vertex,
+    ) -> bool: ...
 
     @doc_category("General graph theoretical properties")
-    @wraps_method_to_func(is_stable_separating_set)
-    def is_stable_separating_set(self, *args, **kwargs):
-        return is_stable_separating_set(self, *args, **kwargs)
+    @proxy_call(is_stable_separating_set)
+    def is_stable_separating_set(
+        self,
+        vertices: Iterable[Vertex] | SeparatingCut,
+    ) -> bool: ...
 
-    @wraps_method_to_func(is_stable_separating_set_dividing)
+    @proxy_call(is_stable_separating_set_dividing)
     @doc_category("General graph theoretical properties")
-    def is_stable_separating_set_dividing(self, *args, **kwargs):
-        return is_stable_separating_set_dividing(self, *args, **kwargs)
+    def is_stable_separating_set_dividing(
+        self,
+        vertices: Iterable[Vertex] | SeparatingCut,
+        u: Vertex,
+        v: Vertex,
+    ) -> bool: ...
 
     @doc_category("General graph theoretical properties")
-    @wraps_method_to_func(stable_separating_set_in_flexible_graph)
-    def stable_separating_set_in_flexible_graph(self, *args, **kwargs):
-        return stable_separating_set_in_flexible_graph(self, *args, **kwargs)
+    @proxy_call(stable_separating_set_in_flexible_graph)
+    def stable_separating_set_in_flexible_graph(
+        graph: nx.Graph,
+        u: Optional[Vertex] = None,
+        v: Optional[Vertex] = None,
+    ) -> Optional[StableSeparatingCut]: ...
 
     @doc_category("General graph theoretical properties")
-    @wraps_method_to_func(stable_separating_set_in_flexible_graph_fast)
-    def stable_separating_set_in_flexible_graph_fast(self, *args, **kwargs):
-        return stable_separating_set_in_flexible_graph_fast(self, *args, **kwargs)
+    @proxy_call(stable_separating_set_in_flexible_graph_fast)
+    def stable_separating_set_in_flexible_graph_fast(
+        graph: nx.Graph,
+        u: Optional[Vertex] = None,
+        v: Optional[Vertex] = None,
+        ensure_rigid_components: bool = True,
+    ) -> Optional[StableSeparatingCut]: ...
 
     @doc_category("Generic rigidity")
     def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:

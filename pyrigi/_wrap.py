@@ -1,12 +1,12 @@
 # Based on https://github.com/Tinche/tightwrap/blob/main/src/tightwrap/__init__.py
 
-from collections import OrderedDict
-import functools
 from inspect import Parameter, Signature, _empty
 from typing import Any, Callable, TypeVar, cast
 import sys
 from types import GetSetDescriptorType, ModuleType
 from typing import ParamSpec
+import os
+import functools
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -19,8 +19,8 @@ GetAnnotationsResults = tuple[Annotations, Globals, Locals]
 
 
 def _get_annotations(
-        obj: Callable[..., Any],
-        ignored_params: list[str],
+    obj: Callable[..., Any],
+    ignored_params: list[str],
 ) -> GetAnnotationsResults:
     # Copied from https://github.com/python/cpython/blob/3.12/Lib/inspect.py#L176-L288
 
@@ -103,9 +103,9 @@ def _eval_if_necessary(source: Any, globals: Globals, locals: Locals) -> Any:
 
 
 def _get_resolved_signature(
-        fn: Callable[..., Any],
-        convert_first_to_self: bool,
-        ignored_params: list[str],
+    fn: Callable[..., Any],
+    convert_first_to_self: bool,
+    ignored_params: list[str],
 ) -> Signature:
     signature = Signature.from_callable(fn)
 
@@ -129,7 +129,9 @@ def _get_resolved_signature(
     for name, parameter in params_iter:
         new_parameters.append(parameter)
         if name not in ignored_params:
-            parameter._annotation = evaluated_annotations.get(name, _empty)  # type: ignore
+            parameter._annotation = (  # type: ignore
+                evaluated_annotations.get(name, _empty)
+            )
 
     new_return_annotation = _eval_if_necessary(
         signature.return_annotation, fn_globals, fn_locals
@@ -143,39 +145,59 @@ def _get_resolved_signature(
     return signature
 
 
-def wraps_method_to_func(
-        source_func: Callable[P, Any],
-        ignored_params: list[str] = [],
-) -> Callable[[Callable[..., R]], Callable[P, R]]:
-    """
-    Apply ``functools.wraps``
-    while updating signatures and docs from ``source_func``.
-    First parameter is renamed to ``self`` and its type is removed.
+@functools.cache
+def _is_pytest() -> bool:
+    return "PYTEST_CURRENT_TEST" in os.environ
 
-    Parameters
-    ----------
-    source_func:
-        Function from which signature and documentation is copied.
-    ignored_params:
-        Parameters with unresolvable types, like types typed as string, e.g. "Graph"
+
+def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
+    """
+    Make sure both the callable objects provided share the same signature except
+    for the first parameter. The intended use is to check if a method and
+    a function replacing it have the same signature.
+    """
+    sgn_method = _get_resolved_signature(
+        method, convert_first_to_self=True, ignored_params=[]
+    )
+    sgn_func = _get_resolved_signature(
+        func, convert_first_to_self=True, ignored_params=[]
+    )
+
+    if sgn_method.return_annotation != sgn_func.return_annotation:
+        print("Method's return type does not match the one of proxy function")
+        print(f"method={sgn_method.return_annotation}")
+        print(f"function={sgn_func.return_annotation}")
+    assert sgn_method.return_annotation == sgn_func.return_annotation
+
+    params_method = list(sgn_method.parameters.values())
+    params_func = list(sgn_func.parameters.values())
+    if params_method[1:] != params_func[1:]:
+        print("Method's parameters signature does not match the one of proxy function")
+        print(f"method={params_method[1:]}")
+        print(f"function={params_func[1:]}")
+    assert params_method[1:] == params_func[1:]
+
+
+def proxy_call(
+    proxy_func: Callable[P, T],
+) -> Callable[[Callable[..., T]], Callable[P, T]]:
+    """
+    Call the provided function instead of the decorated method.
+    Intended use is to replace a method's implementation with
+    an another function's implementation.
 
     Note
     ----
-    Other approaches were also tried. This is the only one working for
-    doc generation, pyright and PyCharm.
-    The other approach tried is based on idea that decorator
-    directly returns the ``source_func``.
-    For that configuration PyCharm does not work.
+    From listed bellow all the integrations work just fine:
+    Docs are correctly generated, help() gives correct doc string,
+    ? works i Jupyter notebook, pyright provides correct hints.
+    Only PyCharm missed doc string and finds correct signature only
+    because the signature has to be copied exactly to the calling class.
     """
 
-    def wrapper(orig_func: Callable[..., R]) -> Callable[P, R]:
-        res = functools.wraps(source_func)(orig_func)
-        res.__signature__ = _get_resolved_signature(  # type: ignore
-            source_func,
-            convert_first_to_self=True,
-            ignored_params=ignored_params,
-        )
+    def wrapped(method: Callable[..., T]) -> Callable[P, T]:
+        if _is_pytest:
+            _assert_same_sign(method, proxy_func)
+        return proxy_func
 
-        return cast(Callable[P, R], res)
-
-    return wrapper
+    return wrapped
