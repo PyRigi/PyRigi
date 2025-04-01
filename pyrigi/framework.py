@@ -290,6 +290,7 @@ class Framework(object):
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
+        filename: str = None,
         **kwargs,
     ) -> None:
         """
@@ -352,6 +353,11 @@ class Framework(object):
             Optional parameter to specify custom arc angle for edges. Can be a
             ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
             the curvature angle of edges in radians.
+        filename:
+            The filename under which the produced figure is saved. The default value is
+            ``None`` which indicates that the figure is currently not saved.
+            The figure is saved as a ``.png`` file using the ``save`` method from
+            ``matplotlib``.
 
         Examples
         --------
@@ -457,6 +463,11 @@ class Framework(object):
                 stress_label_positions=stress_label_positions,
             )
 
+        if filename is not None:
+            if not filename.endswith(".png"):
+                filename = filename + ".png"
+            plt.savefig(f"{filename}.png")
+
     @doc_category("Plotting")
     def animate3D_rotation(
         self,
@@ -469,6 +480,9 @@ class Framework(object):
     ) -> Any:
         """
         Plot this framework in 3D and animate a rotation around an axis.
+
+        For additional parameters and implementation details, see
+        :meth:`~.Motion.animate3D`.
 
         Parameters
         ----------
@@ -611,6 +625,7 @@ class Framework(object):
             Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
         ) = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
+        filename: str = None,
         **kwargs,
     ) -> None:
         """
@@ -670,6 +685,11 @@ class Framework(object):
             Dictionary specifying the position of stress labels along the edges. Keys are
             ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
             Ommited edges are given the value ``0.5``.
+        filename:
+            The filename under which the produced figure is saved. The default value is
+            ``None`` which indicates that the figure is currently not saved.
+            The figure is saved as a ``.png`` file using the ``save`` method from
+            ``matplotlib``.
 
         Examples
         --------
@@ -779,6 +799,11 @@ class Framework(object):
                 plot_style=plot_style,
                 stress_label_positions=stress_label_positions,
             )
+
+        if filename is not None:
+            if not filename.endswith(".png"):
+                filename = filename + ".png"
+            plt.savefig(f"{filename}.png")
 
     @doc_category("Plotting")
     def plot(
@@ -948,10 +973,18 @@ class Framework(object):
     @classmethod
     @doc_category("Class methods")
     def Random(
-        cls, graph: Graph, dim: int = 2, rand_range: int | Sequence[int] = None
+        cls,
+        graph: Graph,
+        dim: int = 2,
+        rand_range: int | Sequence[int] = None,
+        numerical: bool = False,
     ) -> Framework:
         """
-        Return a framework with random realization with integral coordinates.
+        Return a framework with random realization.
+
+        Depending on the parameter ``numerical``, the realization either
+        consists of random integers (``numerical=False``) or random floats
+        (``numerical=True``).
 
         Parameters
         ----------
@@ -964,7 +997,11 @@ class Framework(object):
             sampled. The format is either an interval ``(a,b)`` or a single
             integer ``a``, which produces the range ``(-a,a)``.
             If ``rand_range=None``, then the range is set to ``(-a,a)`` for
-            ``a = 10^4 * n * dim``, where ``n`` is the number of vertices.
+            ``a = 10^4 * n * dim`` in the case that ``numerical=False``, where
+            ``n`` is the number of vertices. For ``numerical=True``, we set the
+            default interval to ``(-1,1)``.
+        numerical:
+            A boolean indicating whether numerical coordinates should be used.
 
         Examples
         --------
@@ -976,8 +1013,11 @@ class Framework(object):
         """
         _input_check.dimension(dim)
         if rand_range is None:
-            b = 10**4 * graph.number_of_nodes() * dim
-            a = -b
+            if numerical:
+                a, b = -1, 1
+            else:
+                b = 10**4 * graph.number_of_nodes() * dim
+                a = -b
         elif isinstance(rand_range, list | tuple):
             if not len(rand_range) == 2:
                 raise ValueError("If `rand_range` is a list, it must be of length 2.")
@@ -990,7 +1030,15 @@ class Framework(object):
         else:
             raise TypeError("`rand_range` must be either a list or a single int.")
 
-        realization = {v: [randrange(a, b) for _ in range(dim)] for v in graph.nodes}
+        if numerical:
+            realization = {
+                v: [a + np.random.rand() * (b - a) for _ in range(dim)]
+                for v in graph.nodes
+            }
+        else:
+            realization = {
+                v: [randrange(a, b) for _ in range(dim)] for v in graph.nodes
+            }
 
         return Framework(graph, realization)
 
@@ -1920,13 +1968,27 @@ class Framework(object):
         return [list(stresses[:, i]) for i in range(stresses.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
-    def rigidity_matrix_rank(self) -> int:
+    def rigidity_matrix_rank(
+        self, numerical: bool = False, tolerance: bool = 1e-9
+    ) -> int:
         """
         Return the rank of the rigidity matrix.
 
         Definitions
         -----------
         :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
+
+        Parameters
+        ----------
+        numerical:
+            If ``True``, the rank of the rigidity matrix with entries as floats
+            is computed.
+
+            *Warning:* For ``numerical=True`` the numerical rank computation
+            may produce different results than the computation over exact
+            coordinates.
+        tolerance:
+            Numerical tolerance used for computing the rigidity matrix rank.
 
         Examples
         --------
@@ -1940,18 +2002,33 @@ class Framework(object):
         >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
         4
         """
+        if numerical:
+            F = Framework(self._graph, self.realization(as_points=True, numerical=True))
+            return np.linalg.matrix_rank(
+                np.array(F.rigidity_matrix()).astype(np.float64), tol=tolerance
+            )
         return self.rigidity_matrix().rank()
 
     @doc_category("Infinitesimal rigidity")
-    def is_inf_rigid(self) -> bool:
+    def is_inf_rigid(self, numerical: bool = False, tolerance: bool = 1e-9) -> bool:
         """
         Return whether the framework is infinitesimally rigid.
-
-        The check is based on :meth:`~Framework.rigidity_matrix_rank`.
 
         Definitions
         -----------
         :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
+
+        Parameters
+        ----------
+        numerical:
+            If ``True``, the rigidity matrix rank computation for determining
+            rigidity is numerical.
+
+            *Warning:* For ``numerical=True`` the numerical rank computation
+            may produce different results than the computation over symbolic
+            coordinates.
+        tolerance:
+            Numerical tolerance used for computing the rigidity matrix rank.
 
         Examples
         --------
@@ -1963,35 +2040,49 @@ class Framework(object):
         >>> F2.is_inf_rigid()
         False
         """
+
         if self._graph.number_of_nodes() <= self._dim + 1:
-            return self.rigidity_matrix_rank() == binomial(
-                self._graph.number_of_nodes(), 2
-            )
+            return self.rigidity_matrix_rank(
+                numerical=numerical, tolerance=tolerance
+            ) == binomial(self._graph.number_of_nodes(), 2)
         else:
-            return (
-                self.rigidity_matrix_rank()
-                == self.dim * self._graph.number_of_nodes() - binomial(self.dim + 1, 2)
-            )
+            return self.rigidity_matrix_rank(
+                numerical=numerical, tolerance=tolerance
+            ) == self.dim * self._graph.number_of_nodes() - binomial(self.dim + 1, 2)
 
     @doc_category("Infinitesimal rigidity")
-    def is_inf_flexible(self) -> bool:
+    def is_inf_flexible(self, **kwargs) -> bool:
         """
         Return whether the framework is infinitesimally flexible.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.is_inf_rigid`.
 
         Definitions
         -----------
         :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
         """
-        return not self.is_inf_rigid()
+        return not self.is_inf_rigid(**kwargs)
 
     @doc_category("Infinitesimal rigidity")
-    def is_min_inf_rigid(self) -> bool:
+    def is_min_inf_rigid(self, use_copy: bool = True, **kwargs) -> bool:
         """
         Return whether the framework is minimally infinitesimally rigid.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.is_inf_rigid`.
 
         Definitions
         -----
         :prf:ref:`Minimal infinitesimal rigidity <def-min-rigid-framework>`
+
+        Parameters
+        ----------
+        use_copy:
+            If ``False``, the framework's edges are deleted and added back
+            during runtime.
+            Otherwise, a new modified framework is created,
+            while the original framework remains unchanged (default).
 
         Examples
         --------
@@ -2002,20 +2093,27 @@ class Framework(object):
         >>> F.is_min_inf_rigid()
         True
         """
-        if not self.is_inf_rigid():
+        if not self.is_inf_rigid(**kwargs):
             return False
-        for edge in self._graph.edge_list():
-            self.delete_edge(edge)
-            if self.is_inf_rigid():
-                self.add_edge(edge)
+
+        F = self
+        if use_copy:
+            F = deepcopy(self)
+        for edge in F._graph.edge_list():
+            F.delete_edge(edge)
+            if F.is_inf_rigid(**kwargs):
+                F.add_edge(edge)
                 return False
-            self.add_edge(edge)
+            F.add_edge(edge)
         return True
 
     @doc_category("Infinitesimal rigidity")
-    def is_independent(self) -> bool:
+    def is_independent(self, **kwargs) -> bool:
         """
         Return whether the framework is independent.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.rigidity_matrix_rank`.
 
         Definitions
         -----------
@@ -2030,10 +2128,10 @@ class Framework(object):
         >>> F.is_independent()
         True
         """
-        return self.rigidity_matrix_rank() == self._graph.number_of_edges()
+        return self.rigidity_matrix_rank(**kwargs) == self._graph.number_of_edges()
 
     @doc_category("Infinitesimal rigidity")
-    def is_dependent(self) -> bool:
+    def is_dependent(self, **kwargs) -> bool:
         """
         Return whether the framework is dependent.
 
@@ -2043,18 +2141,22 @@ class Framework(object):
         -----------
         :prf:ref:`Dependent framework <def-independent-framework>`
         """
-        return not self.is_independent()
+        return not self.is_independent(**kwargs)
 
     @doc_category("Infinitesimal rigidity")
-    def is_isostatic(self) -> bool:
+    def is_isostatic(self, **kwargs) -> bool:
         """
         Return whether the framework is isostatic.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.is_independent` and
+        :meth:`~Framework.is_inf_rigid`.
 
         Definitions
         -----------
         :prf:ref:`Isostatic framework <def-isostatic-frameworks>`
         """
-        return self.is_independent() and self.is_inf_rigid()
+        return self.is_independent(**kwargs) and self.is_inf_rigid(**kwargs)
 
     @doc_category("Other")
     def is_prestress_stable(
@@ -2364,13 +2466,24 @@ class Framework(object):
         return stresses
 
     @doc_category("Infinitesimal rigidity")
-    def is_redundantly_inf_rigid(self) -> bool:
+    def is_redundantly_inf_rigid(self, use_copy: bool = True, **kwargs) -> bool:
         """
         Return if the framework is infinitesimally redundantly rigid.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.is_inf_rigid`.
 
         Definitions
         -----------
         :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
+
+        Parameters
+        ----------
+        use_copy:
+            If ``False``, the framework's edges are deleted and added back
+            during runtime.
+            Otherwise, a new modified framework is created,
+            while the original framework remains unchanged (default).
 
         Examples
         --------
@@ -2383,12 +2496,16 @@ class Framework(object):
         >>> F.is_redundantly_inf_rigid()
         False
         """  # noqa: E501
-        for edge in self._graph.edge_list():
-            self.delete_edge(edge)
-            if not self.is_inf_rigid():
-                self.add_edge(edge)
+        F = self
+        if use_copy:
+            F = deepcopy(self)
+
+        for edge in F._graph.edge_list():
+            F.delete_edge(edge)
+            if not F.is_inf_rigid(**kwargs):
+                F.add_edge(edge)
                 return False
-            self.add_edge(edge)
+            F.add_edge(edge)
         return True
 
     @doc_category("Framework properties")
@@ -2637,7 +2754,7 @@ class Framework(object):
         projection_matrix:
             The matrix used for projecting the placement of vertices.
             The matrix must have dimensions ``(proj_dim, dim)``,
-            where ``dim`` is the dimension of the framework ``self``.
+            where ``dim`` is the dimension of the given framework.
             If ``None``, a numerical random projection matrix is generated.
         random_seed:
             The random seed used for generating the projection matrix.

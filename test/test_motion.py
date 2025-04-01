@@ -35,7 +35,7 @@ def test__str__():
         == "ApproximateMotion of a Graph with vertices [0, 1, 2]"
         """ and edges [[0, 1], [1, 2]] with starting configuration
 {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [0.0, 1.0]},
-2 retraction steps and initial step size 0.1."""
+2 retraction steps and initial step size 0.05."""
     )
 
 
@@ -60,7 +60,7 @@ def test__str__():
             ApproximateMotion(fws.Path(3), 2),
             "ApproximateMotion.from_graph(Graph.from_vertices_and_edges([0, 1, 2], "
             "[(0, 1), (1, 2)]), {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [0.0, 1.0]},"
-            " 2, step_size=0.1, chosen_flex=0, tolerance=1e-05, fixed_pair=None,"
+            " 2, step_size=0.05, chosen_flex=0, tolerance=1e-05, fixed_pair=None,"
             " fixed_direction=None, pinned_vertex=0)",
         ],
     ],

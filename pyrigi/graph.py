@@ -136,7 +136,7 @@ class Graph(nx.Graph):
 
     def __add__(self, other: Graph) -> Graph:
         r"""
-        Return the union of ``self`` and ``other``.
+        Return the union of the given graph and ``other``.
 
         Definitions
         -----------
@@ -221,7 +221,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         to_check:
-            A vertex or ``Iterable`` of vertices for which the containment in ``self``
+            A vertex or ``Iterable`` of vertices for which the containment in the graph
             is checked.
         name:
             A name of the ``Iterable`` ``to_check`` can be picked.
@@ -248,7 +248,7 @@ class Graph(nx.Graph):
         Parameters
         ----------
         edge:
-            Edge for which the containment in the graph ``self`` is checked.
+            Edge for which the containment in the given graph is checked.
         loopfree:
             If ``True``, an error is raised if ``edge`` is a loop.
         """
@@ -2077,6 +2077,9 @@ class Graph(nx.Graph):
             It may give false negatives (with probability at most ``prob``),
             but no false positives. See :prf:ref:`thm-probabilistic-rigidity-check`.
 
+            If ``"numerical"``, a numerical check on the rigidity matrix rank
+            is performed. See :meth:`.Framework.is_inf_rigid` for further details.
+
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``
             and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
         prob:
@@ -2130,6 +2133,17 @@ class Graph(nx.Graph):
 
             F = Framework.Random(self, dim, rand_range=[1, N])
             return F.is_inf_rigid()
+
+        if algorithm == "numerical":
+            from pyrigi.framework import Framework
+
+            F = Framework.Random(
+                self,
+                dim,
+                rand_range=[-1, 1],
+                numerical=True,
+            )
+            return F.is_inf_rigid(numerical=True)
 
         raise NotSupportedValueError(algorithm, "algorithm", self.is_rigid)
 
@@ -2755,7 +2769,10 @@ class Graph(nx.Graph):
             is used.
 
             If ``"randomized"``, all subgraphs are checked
-            using randomized :meth:`.is_rigid`.
+            using :meth:`.is_rigid` with ``algorithm="randomized"``.
+
+            If ``"numerical"``, all subgraphs are checked
+            using :meth:`.is_rigid` with ``algorithm="numerical"``.
 
             If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
             ``"pebble"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
@@ -2823,7 +2840,7 @@ class Graph(nx.Graph):
 
             return components + [[v] for v in self.nodes if nx.is_isolate(self, v)]
 
-        if algorithm in ["randomized", "subgraphs-pebble"]:
+        if algorithm in ["randomized", "numerical", "subgraphs-pebble"]:
             if not nx.is_connected(self):
                 res = []
                 for comp in nx.connected_components(self):
@@ -2838,7 +2855,7 @@ class Graph(nx.Graph):
                 )
                 alg_is_rigid = "sparsity"
             else:
-                alg_is_rigid = "randomized"
+                alg_is_rigid = algorithm
 
             if self.is_rigid(dim, algorithm=alg_is_rigid, prob=prob):
                 return [list(self)]
@@ -2865,7 +2882,9 @@ class Graph(nx.Graph):
         raise NotSupportedValueError(algorithm, "algorithm", self.rigid_components)
 
     @doc_category("Generic rigidity")
-    def max_rigid_dimension(self, prob: float = 0.0001) -> int | Inf:
+    def max_rigid_dimension(
+        self, algorithm: str = "randomized", prob: float = 0.0001
+    ) -> int | Inf:
         """
         Compute the maximum dimension in which the graph is generically rigid.
 
@@ -2878,6 +2897,19 @@ class Graph(nx.Graph):
 
         Parameters
         ----------
+        algorithm:
+            If ``"randomized"``, the rigidity of the graph is checked
+            in each dimension using :meth:`.is_rigid` with
+            ``algorithm="randomized"``.
+            Since this is a randomized algorithm, false negatives are possible.
+            However, the actual maximum rigid dimension is never lower than
+            the output of this method.
+
+            If ``"numerical"``, the rigidity of the graph is checked
+            in each dimension using :meth:`.is_rigid` with
+            ``algorithm="numerical"``.
+            With this choice of algorithm, we do not have the guarantee that
+            is mentioned above on the maximum rigid dimension.
         prob:
             A bound on the probability for false negatives of the rigidity testing.
 
@@ -2923,7 +2955,7 @@ class Graph(nx.Graph):
         )
         self._warn_randomized_alg(self.max_rigid_dimension)
         for dim in range(max_dim, 0, -1):
-            if self.is_rigid(dim, algorithm="randomized", prob=prob):
+            if self.is_rigid(dim, algorithm=algorithm, prob=prob):
                 return dim
 
     @doc_category("General graph theoretical properties")
@@ -3598,8 +3630,8 @@ class Graph(nx.Graph):
         self, vertices: list[Vertex] | set[Vertex]
     ) -> Graph:
         """
-        Create a graph by selecting the subgraph of ``self`` induced by vertices,
-        contracting each connected component of ``self`` minus ``vertices``
+        Create a graph by selecting the subgraph of the given graph induced by ``vertices``,
+        contracting each connected component of the graph minus ``vertices``
         to a single vertex, and making their neighbors in ``vertices`` into a clique.
         See :prf:ref:`thm-weakly-globally-linked`.
 

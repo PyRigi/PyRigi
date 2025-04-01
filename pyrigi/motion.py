@@ -152,6 +152,7 @@ class Motion(object):
         plot_style: PlotStyle,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
+        filename: str = None,
         **kwargs,
     ) -> Any:
         """
@@ -176,6 +177,11 @@ class Motion(object):
             The omitted edges are given the value ``plot_style.edge_color``.
         duration:
             The duration of one period of the animation in seconds.
+        filename:
+            A name under which the produced animation is saved. If ``None``, the animation
+            is not saved. Otherwise, the ``Animation.save`` method from ``matplotlib`` is
+            invoked, which uses external writers to create the ``.gif`` file, such as
+            ``ffmpeg`` (default) or ``pillow``. The standard video codec is ``h264``.
         """
         _input_check.dimension_for_algorithm(self._dim, [3], "animate3D")
         if plot_style is None:
@@ -305,6 +311,10 @@ class Motion(object):
         )
 
         plt.tight_layout()
+        if filename is not None:
+            if not filename.endswith(".gif"):
+                filename = filename + ".gif"
+            ani.save(f"{filename}", fps=30)
         # Checking if we are running from the terminal or from a notebook
         import sys
 
@@ -326,6 +336,7 @@ class Motion(object):
         plot_style: PlotStyle,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
+        filename: str = None,
         **kwargs,
     ) -> Any:
         r"""
@@ -351,6 +362,11 @@ class Motion(object):
             The omitted edges are given the value ``plot_style.edge_color``.
         duration:
             The duration of one period of the animation in seconds.
+        filename:
+            A name under which the produced animation is saved. If ``None``, the animation
+            is not saved. Otherwise, the ``Animation.save`` method from ``matplotlib`` is
+            invoked, which uses external writers to create the ``.gif`` file, such as
+            ``ffmpeg`` (default) or ``pillow``. The standard video codec is ``h264``.
         """
         if self._dim == 1:
             realizations = [
@@ -469,6 +485,10 @@ class Motion(object):
             blit=True,
         )
 
+        if filename is not None:
+            if not filename.endswith(".gif"):
+                filename = filename + ".gif"
+            ani.save(f"{filename}", fps=30)
         # Checking if we are running from the terminal or from a notebook
         import sys
 
@@ -488,8 +508,8 @@ class Motion(object):
         self,
         realizations: Sequence[dict[Vertex, Point]],
         plot_style: PlotStyle,
-        filename: str = None,
         duration: float = 8,
+        filename: str = None,
         **kwargs,
     ) -> Any:
         """
@@ -504,10 +524,11 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
-        filename:
-            A name used to store the svg. If ``None``, the svg is not saved.
         duration:
             The duration of one period of the animation in seconds.
+        filename:
+            A name under which the produced animation is saved. If ``None``, the svg
+            is not saved.
 
         Notes
         -----
@@ -599,6 +620,7 @@ class Motion(object):
                 filename = filename + ".svg"
             with open(filename, "wt") as file:
                 file.write(svg)
+
         return SVG(data=svg)
 
     def animate(
@@ -905,14 +927,14 @@ class ApproximateMotion(Motion):
     >>> print(motion)
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
-    10 retraction steps and initial step size 0.1.
+    10 retraction steps and initial step size 0.05.
 
     >>> F = Framework(graphs.Cycle(4), {0:(0,0), 1:(1,0), 2:(1,1), 3:(0,1)})
     >>> motion = ApproximateMotion(F, 10)
     >>> print(motion)
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
-    10 retraction steps and initial step size 0.1.
+    10 retraction steps and initial step size 0.05.
     """  # noqa: E501
 
     silence_numerical_alg_warns = False
@@ -921,7 +943,7 @@ class ApproximateMotion(Motion):
         self,
         framework: Framework,
         steps: int,
-        step_size: float = 0.1,
+        step_size: float = 0.05,
         chosen_flex: int = 0,
         tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
@@ -981,7 +1003,7 @@ class ApproximateMotion(Motion):
         graph: Graph,
         realization: dict[Vertex, Point],
         steps: int,
-        step_size: float = 0.1,
+        step_size: float = 0.05,
         chosen_flex: int = 0,
         tolerance: float = 1e-5,
         fixed_pair: DirectedEdge = None,
