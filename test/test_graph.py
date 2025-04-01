@@ -3820,22 +3820,26 @@ def _run_sparsity_test_on_graph(G: Graph) -> None:
 
     for K in range(1, kmax):
         for L in range(get_max_L(G, K)):
+            # check output type
+            assert isinstance(prop_sparse[K][L], bool)
+            assert isinstance(prop_sparse_s[K][L], bool)
+            assert isinstance(prop_tight[K][L], bool)
+            assert isinstance(prop_tight_s[K][L], bool)
+
+            # compare different algorithms
+            assert prop_tight[K][L] == prop_tight_s[K][L]
+            assert prop_sparse[K][L] == prop_sparse_s[K][L]
+
+            # sanity checks on properties
             if prop_tight[K][L]:
                 assert prop_sparse[K][L]
-                assert prop_tight_s[K][L]
-                assert prop_sparse_s[K][L]
                 if n >= K:
                     assert m == K * n - L
             if prop_sparse[K][L]:
-                assert prop_sparse_s[K][L]
                 if n >= K:
                     assert m <= K * n - L
                 for L2 in range(L):
                     assert prop_sparse[K][L2]
-            if prop_sparse_s[K][L]:
-                assert prop_sparse[K][L]
-            if prop_tight_s[K][L]:
-                assert prop_tight[K][L]
 
     if prop_sparse[1][1]:
         if nx.is_connected(G):
