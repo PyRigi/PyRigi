@@ -3761,8 +3761,10 @@ def test_sparsity_properties_small_graphs_without_loops_different_vertex_names()
             *list(
                 zip(
                     range(n),
-                    sample(range(n, 2 * n), n),
-                    [chr(i) for i in sample(range(97, 122), n)],
+                    sample(range(n, 3 * n), n),
+                    [
+                        chr(i) for i in sample(range(97, 122), n)
+                    ],  # does not work for graphs with more than 26 vertices
                     [
                         tuple([chr(i) if randint(0, 1) == 0 else i for i in elem])
                         for elem in product(sample(range(97, 122), n), repeat=2)
@@ -3804,8 +3806,10 @@ def test_sparsity_properties_small_graphs_with_loops_different_vertex_names():
             *list(
                 zip(
                     range(n),
-                    sample(range(n, 2 * n), n),
-                    [chr(i) for i in sample(range(97, 122), n)],
+                    sample(range(n, 3 * n), n),
+                    [
+                        chr(i) for i in sample(range(97, 122), n)
+                    ],  # does not work for graphs with more than 26 vertices
                     [
                         tuple([chr(i) if randint(0, 1) == 0 else i for i in elem])
                         for elem in product(sample(range(97, 122), n), repeat=2)
