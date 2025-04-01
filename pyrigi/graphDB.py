@@ -48,6 +48,34 @@ def Complete(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
     return Graph.from_vertices_and_edges(vertices, edges)
 
 
+def CompleteLooped(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
+    """
+    Return the complete graph on ``n`` vertices with a loop on every vertex.
+
+    The vertex labels can also be specified explicitly via
+    the keyword ``vertices``.
+
+    Parameters
+    ----------
+    n:
+        The number of vertices.
+    vertices:
+        An optional parameter for the vertices.
+
+    Examples
+    --------
+    >>> print(CompleteLooped(3))
+    Graph with vertices [0, 1, 2] and edges [[0, 0], [0, 1], [0, 2], [1, 1], [1, 2], [2, 2]]
+    >>> print(CompleteLooped(vertices=['a', 'b']))
+    Graph with vertices ['a', 'b'] and edges [['a', 'a'], ['a', 'b'], ['b', 'b']]
+    """  # noqa: E501
+    graph = Complete(n=n, vertices=vertices)
+    graph = Graph.from_vertices_and_edges(
+        graph.vertex_list(), graph.edge_list() + [[v, v] for v in graph.vertex_list()]
+    )
+    return graph
+
+
 def Path(n: int) -> Graph:
     """Return the path graph with ``n`` vertices."""
     _input_check.integrality_and_range(n, "number of vertices n", min_val=0)
