@@ -2,8 +2,6 @@
 Auxiliary class for directed graph used in pebble game style algorithms.
 """
 
-from typing import Iterable
-
 import networkx as nx
 
 import pyrigi._input_check as _input_check
@@ -144,7 +142,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
                 self.remove_edge(tail, head)
                 self.add_edge(head, vertex_to)
 
-    def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:
+    def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:  # noqa: C901
         """
         Return the fundamental (k, l)-matroid circuit of the edge uv.
 
@@ -306,31 +304,10 @@ class PebbleDiGraph(nx.MultiDiGraph):
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
 
-    def _input_check_vertex_members(
-        self, to_check: Iterable[Vertex] | Vertex, name: str = ""
-    ) -> None:
-        """
-        Check whether the elements of a list are indeed vertices and
-        raise error otherwise.
-        """
-        if not isinstance(to_check, Iterable):
-            if not self.has_node(to_check):
-                raise ValueError(
-                    f"The element {to_check} is not a vertex of the graph!"
-                )
-        else:
-            for vertex in to_check:
-                if not self.has_node(vertex):
-                    raise ValueError(
-                        f"The element {vertex} from "
-                        + name
-                        + f" {to_check} is not a vertex of the graph!"
-                    )
-
     def _input_check_vertex_member(self, to_check: Vertex, name: str = "") -> None:
         """
-        Check whether a given element is indeed vertices and
-        raise error otherwise.
+        Check whether a given element is indeed a vertex and
+        raise an error otherwise.
         """
         if not self.has_node(to_check):
             raise ValueError(f"The element {to_check} is not a vertex of the graph!")
