@@ -33,7 +33,7 @@ def vertex_members(
         A vertex or ``Iterable`` of vertices for which the containment in the graph
         is checked.
     name:
-        A name of the ``Iterable`` ``to_check`` can be picked.
+        The name of the variable ``to_check`` passed to the function.
     """
     if not isinstance(to_check, Iterable):
         if not graph.has_node(to_check):
@@ -44,7 +44,7 @@ def vertex_members(
                 raise ValueError(
                     f"The element {vertex} from "
                     + name
-                    + f" {to_check} is not a vertex of the graph!"
+                    + f", which is {to_check}, is not a vertex of the graph!"
                 )
 
 
@@ -121,7 +121,7 @@ def edge_format_list(graph: nx.Graph, edges: Sequence[Edge]) -> None:
 
 
 def is_vertex_order(
-    graph: nx.Graph, vertex_order: Sequence[Vertex], name: str = ""
+    graph: nx.Graph, vertex_order: Sequence[Vertex], name: str = "vertex_order"
 ) -> list[Vertex]:
     """
     Check whether the provided ``vertex_order`` contains the same elements
@@ -135,6 +135,8 @@ def is_vertex_order(
         List of vertices in the preferred order.
         If ``None``, then all vertices are returned
         using :meth:`~Graph.vertex_list`.
+    name:
+        The name of the variable ``vertex_order`` passed to the function.
     """
     from pyrigi import Graph as PyRigiGraph
 
@@ -154,7 +156,7 @@ def is_vertex_order(
 
 
 def is_edge_order(
-    graph: nx.Graph, edge_order: Sequence[Edge], name: str = ""
+    graph: nx.Graph, edge_order: Sequence[Edge], name: str = "edge_order"
 ) -> list[Edge]:
     """
     Check whether the provided ``edge_order`` contains the same elements
@@ -168,6 +170,8 @@ def is_edge_order(
         List of edges in the preferred order.
         If ``None``, then all edges are returned
         using :meth:`~Graph.edge_list`.
+    name:
+        The name of the variable ``edge_order`` passed to the function.
     """
     from pyrigi import Graph as PyRigiGraph
 
