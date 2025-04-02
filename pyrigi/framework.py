@@ -15,6 +15,7 @@ import numpy as np
 import sympy as sp
 from sympy import Matrix, flatten, binomial
 
+import pyrigi._graph_input_check as _graph_input_check
 from pyrigi.data_type import (
     Vertex,
     Edge,
@@ -94,7 +95,7 @@ class Framework(object):
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
-        graph._input_check_no_loop()
+        _graph_input_check.no_loop(graph)
         if not len(realization.keys()) == graph.number_of_nodes():
             raise KeyError(
                 "The length of realization has to be equal to "
@@ -259,7 +260,7 @@ class Framework(object):
         -----
         This method only alters the graph attribute.
         """
-        self._graph._input_check_edge_format(edge, loopfree=True)
+        _graph_input_check.edge_format(self._graph, edge, loopfree=True)
         self._graph.add_edge(*edge)
 
     @doc_category("Framework manipulation")
@@ -1491,8 +1492,8 @@ class Framework(object):
         [-1, -3, 0,  0,  1, 3],
         [ 0,  0, 1, -3, -1, 3]])
         """
-        vertex_order = self._graph._input_check_vertex_order(vertex_order)
-        edge_order = self._graph._input_check_edge_order(edge_order)
+        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
+        edge_order = _graph_input_check.is_edge_order(self._graph, edge_order)
 
         # ``delta`` is responsible for distinguishing the edges (i,j) and (j,i)
         def delta(e, w):
@@ -1544,7 +1545,7 @@ class Framework(object):
         See :meth:`.is_vector_stress`.
         """
         stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
-        self._graph._input_check_edge_order(stress_edge_list, "dict_stress")
+        _graph_input_check.is_edge_order(self._graph, stress_edge_list, "dict_stress")
         graph_edge_list = [tuple(e) for e in self._graph.edge_list()]
         dict_to_list = []
 
@@ -1608,7 +1609,9 @@ class Framework(object):
         >>> F.is_stress(stresses[0])
         True
         """
-        edge_order = self._graph._input_check_edge_order(edge_order=edge_order)
+        edge_order = _graph_input_check.is_edge_order(
+            self._graph, edge_order=edge_order
+        )
         return is_zero_vector(
             Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order),
             numerical=numerical,
@@ -1674,8 +1677,8 @@ class Framework(object):
         [  4, -2, -1, -1],
         [  4, -2, -1, -1]])
         """
-        vertex_order = self._graph._input_check_vertex_order(vertex_order)
-        edge_order = self._graph._input_check_edge_order(edge_order)
+        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
+        edge_order = _graph_input_check.is_edge_order(self._graph, edge_order)
         if not self.is_stress(stress, edge_order=edge_order, numerical=True):
             raise ValueError(
                 "The provided stress does not lie in the cokernel of the rigidity matrix!"
@@ -1734,7 +1737,7 @@ class Framework(object):
         [-2],
         [ 0]])]
         """
-        vertex_order = self._graph._input_check_vertex_order(vertex_order)
+        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
         dim = self._dim
         translations = [
             Matrix.vstack(*[A for _ in vertex_order])
@@ -1859,7 +1862,7 @@ class Framework(object):
         [0],
         [0]])]
         """
-        vertex_order = self._graph._input_check_vertex_order(vertex_order)
+        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
         if include_trivial:
             if not numerical:
                 return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
@@ -2531,8 +2534,8 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        self._graph._input_check_vertex_order(
-            list(other_realization.keys()), "other_realization"
+        _graph_input_check.is_vertex_order(
+            self._graph, list(other_realization.keys()), "other_realization"
         )
 
         for u, v in combinations(self._graph.nodes, 2):
@@ -2602,8 +2605,8 @@ class Framework(object):
         tolerance
             Used tolerance when checking numerically.
         """
-        self._graph._input_check_vertex_order(
-            list(other_realization.keys()), "other_realization"
+        _graph_input_check.is_vertex_order(
+            self._graph, list(other_realization.keys()), "other_realization"
         )
 
         for u, v in self._graph.edges:
@@ -3050,7 +3053,7 @@ class Framework(object):
         For example, this method can be used for generating an
         infinitesimal flex for plotting purposes.
         """
-        vertex_order = self._graph._input_check_vertex_order(vertex_order)
+        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
         return {
             vertex_order[i]: [inf_flex[i * self.dim + j] for j in range(self.dim)]
             for i in range(len(vertex_order))
@@ -3083,7 +3086,7 @@ class Framework(object):
         For example, this method can be used for generating an
         equilibrium stresss for plotting purposes.
         """
-        edge_order = self._graph._input_check_edge_order(edge_order)
+        edge_order = _graph_input_check.is_edge_order(self._graph, edge_order)
         return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
 
     @doc_category("Infinitesimal rigidity")
@@ -3131,7 +3134,7 @@ class Framework(object):
         >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
         True
         """
-        vertex_order = self._graph._input_check_vertex_order(vertex_order)
+        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
         return is_zero_vector(
             self.rigidity_matrix(vertex_order=vertex_order) * Matrix(inf_flex),
             numerical=numerical,
@@ -3167,7 +3170,9 @@ class Framework(object):
         -----
         See :meth:`.is_vector_inf_flex`.
         """
-        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
+        _graph_input_check.is_vertex_order(
+            self._graph, list(vert_to_flex.keys()), "vert_to_flex"
+        )
 
         dict_to_list = []
         for v in self._graph.vertex_list():
@@ -3233,7 +3238,7 @@ class Framework(object):
         overdetermined linear system and compare the values in $Ax$ to the values
         in $b$.
         """
-        vertex_order = self._graph._input_check_vertex_order(vertex_order)
+        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
         if not self.is_vector_inf_flex(
             inf_flex,
             vertex_order=vertex_order,
@@ -3291,7 +3296,9 @@ class Framework(object):
         >>> F.is_dict_nontrivial_inf_flex(q)
         False
         """
-        self._graph._input_check_vertex_order(list(vert_to_flex.keys()), "vert_to_flex")
+        _graph_input_check.is_vertex_order(
+            self._graph, list(vert_to_flex.keys()), "vert_to_flex"
+        )
 
         dict_to_list = []
         for v in self._graph.vertex_list():
@@ -3393,7 +3400,9 @@ class Framework(object):
         >>> F.is_dict_trivial_inf_flex(q)
         True
         """
-        self._graph._input_check_vertex_order(list(inf_flex.keys()), "vert_to_flex")
+        _graph_input_check.is_vertex_order(
+            self._graph, list(inf_flex.keys()), "vert_to_flex"
+        )
 
         dict_to_list = []
         for v in self._graph.vertex_list():
