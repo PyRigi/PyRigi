@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, sample
 
 import math
 import matplotlib.pyplot as plt
@@ -13,6 +13,16 @@ import pyrigi.misc as misc
 from pyrigi.graph import Graph
 from pyrigi.exception import LoopError, NotSupportedValueError
 from pyrigi.warning import RandomizedAlgorithmWarning
+
+
+is_kl_sparse_algorithms_sparsity_all_kl = ["default", "subgraph"]
+is_kl_sparse_algorithms_sparsity_pebble = is_kl_sparse_algorithms_sparsity_all_kl + [
+    "pebble"
+]
+
+is_rigid_algorithms_all_d = ["default", "randomized", "numerical"]
+is_rigid_algorithms_d1 = is_rigid_algorithms_all_d + ["graphic"]
+is_rigid_algorithms_d2 = is_rigid_algorithms_all_d + ["sparsity"]
 
 
 def relabeled_inc(graph: Graph, increment: int = None) -> Graph:
@@ -54,10 +64,9 @@ def test__add__():
         graphs.K66MinusPerfectMatching(),
     ],
 )
-def test_is_rigid_d2(graph):
-    assert graph.is_rigid(dim=2, algorithm="default")
-    assert graph.is_rigid(dim=2, algorithm="sparsity")
-    assert graph.is_rigid(dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
+def test_is_rigid_d2(graph, algorithm):
+    assert graph.is_rigid(dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -71,26 +80,9 @@ def test_is_rigid_d2(graph):
         graphs.CompleteBipartite(2, 3),
     ],
 )
-def test_not_is_rigid_d2(graph):
-    assert not graph.is_rigid(dim=2, algorithm="default")
-    assert not graph.is_rigid(dim=2, algorithm="sparsity")
-    assert not graph.is_rigid(dim=2, algorithm="randomized")
-
-
-@pytest.mark.parametrize(
-    "graph",
-    [
-        graphs.CompleteBipartite(1, 3),
-        graphs.CompleteBipartite(2, 3),
-        graphs.Cycle(4),
-        graphs.Cycle(5),
-        graphs.Path(3),
-        graphs.Path(4),
-    ],
-)
-def test_is_not_rigid_d2(graph):
-    assert not graph.is_rigid(dim=2, algorithm="sparsity")
-    assert not graph.is_rigid(dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
+def test_not_is_rigid_d2(graph, algorithm):
+    assert not graph.is_rigid(dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -108,19 +100,22 @@ def test_is_not_rigid_d2(graph):
         graphs.Dodecahedral(),
     ],
 )
-def test_is_rigid_d1(graph):
-    assert graph.is_rigid(dim=1, algorithm="default")
-    assert graph.is_rigid(dim=1, algorithm="graphic")
-    assert graph.is_rigid(dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
+def test_is_rigid_d1(graph, algorithm):
+    assert graph.is_rigid(dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
     "graph",
-    [Graph.from_vertices(range(3)), Graph([[0, 1], [2, 3]])],
+    [
+        Graph.from_vertices(range(3)),
+        Graph([[0, 1], [2, 3]]),
+        graphs.Cycle(3) + relabeled_inc(graphs.Cycle(3)),
+    ],
 )
-def test_is_not_rigid_d1(graph):
-    assert not graph.is_rigid(dim=1, algorithm="sparsity")
-    assert not graph.is_rigid(dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
+def test_is_not_rigid_d1(graph, algorithm):
+    assert not graph.is_rigid(dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -131,9 +126,9 @@ def test_is_not_rigid_d1(graph):
     ]
     + [[graphs.Complete(n), d] for d in range(1, 5) for n in range(1, d + 2)],
 )
-def test_is_rigid(graph, dim):
-    assert graph.is_rigid(dim, algorithm="sparsity" if (dim < 3) else "randomized")
-    assert graph.is_rigid(dim, algorithm="default")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_rigid(graph, dim, algorithm):
+    assert graph.is_rigid(dim, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -668,9 +663,9 @@ def test_is_weakly_globally_linked_articles_graphs(graph, u, v):
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"], ["b", "d"]]),
     ],
 )
-def test_is_vertex_redundantly_rigid_d2(graph):
-    assert graph.is_vertex_redundantly_rigid(dim=2)
-    assert graph.is_vertex_redundantly_rigid(dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_vertex_redundantly_rigid_d2(graph, algorithm):
+    assert graph.is_vertex_redundantly_rigid(dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -688,9 +683,9 @@ def test_is_vertex_redundantly_rigid_d2(graph):
         [Graph.from_int(16351), 3],
     ],
 )
-def test_is_k_vertex_redundantly_rigid_d1(graph, k):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=1)
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
+    assert graph.is_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -709,9 +704,9 @@ def test_is_k_vertex_redundantly_rigid_d1(graph, k):
         [graphs.CompleteMinusOne(7), 3],
     ],
 )
-def test_is_k_vertex_redundantly_rigid_d2(graph, k):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=2)
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
+    assert graph.is_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -737,8 +732,9 @@ def test_is_k_vertex_redundantly_rigid_d2(graph, k):
         ],
     ],
 )
-def test_is_k_vertex_redundantly_rigid_d3(graph, k):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=3, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
+    assert graph.is_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -750,9 +746,9 @@ def test_is_k_vertex_redundantly_rigid_d3(graph, k):
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]),
     ],
 )
-def test_is_not_vertex_redundantly_rigid_d2(graph):
-    assert not graph.is_vertex_redundantly_rigid(dim=2)
-    assert not graph.is_vertex_redundantly_rigid(dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_vertex_redundantly_rigid_d2(graph, algorithm):
+    assert not graph.is_vertex_redundantly_rigid(dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -764,9 +760,9 @@ def test_is_not_vertex_redundantly_rigid_d2(graph):
         [Graph([["a", "b"], ["b", "c"], ["c", "a"], ["d", "a"], ["e", "d"]]), 1],
     ],
 )
-def test_is_not_k_vertex_redundantly_rigid_d1(graph, k):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=1)
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
+    assert not graph.is_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -781,9 +777,9 @@ def test_is_not_k_vertex_redundantly_rigid_d1(graph, k):
         [graphs.Diamond(), 1],
     ],
 )
-def test_is_not_k_vertex_redundantly_rigid_d2(graph, k):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=2)
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
+    assert not graph.is_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -808,8 +804,9 @@ def test_is_not_k_vertex_redundantly_rigid_d2(graph, k):
         ],
     ],
 )
-def test_is_not_k_vertex_redundantly_rigid_d3(graph, k):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=3, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
+    assert not graph.is_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -827,9 +824,9 @@ def test_is_not_k_vertex_redundantly_rigid_d3(graph, k):
         [Graph.from_int(16350), 3],
     ],
 )
-def test_is_min_k_vertex_redundantly_rigid_d1(graph, k):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1)
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_min_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
+    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -847,9 +844,9 @@ def test_is_min_k_vertex_redundantly_rigid_d1(graph, k):
         [Graph.from_int(1048575), 3],
     ],
 )
-def test_is_min_k_vertex_redundantly_rigid_d2(graph, k):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2)
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_min_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
+    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -859,8 +856,9 @@ def test_is_min_k_vertex_redundantly_rigid_d2(graph, k):
         [Graph.from_int(1048575), 2],
     ],
 )
-def test_is_min_k_vertex_redundantly_rigid_d3(graph, k):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=3, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
+    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -872,9 +870,9 @@ def test_is_min_k_vertex_redundantly_rigid_d3(graph, k):
         [Graph.from_int(16351), 3],
     ],
 )
-def test_is_not_min_k_vertex_redundantly_rigid_d1(graph, k):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1)
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_min_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
+    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -886,9 +884,9 @@ def test_is_not_min_k_vertex_redundantly_rigid_d1(graph, k):
         [Graph.from_int(2097151), 3],
     ],
 )
-def test_is_not_min_k_vertex_redundantly_rigid_d2(graph, k):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2)
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_min_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
+    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -915,8 +913,9 @@ def test_is_not_min_k_vertex_redundantly_rigid_d2(graph, k):
         ],
     ],
 )
-def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=3, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
+    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -931,9 +930,9 @@ def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k):
         pytest.param(graphs.Complete(7), marks=pytest.mark.slow_main),
     ],
 )
-def test_is_redundantly_rigid_d2(graph):
-    assert graph.is_redundantly_rigid(dim=2)
-    assert graph.is_redundantly_rigid(dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_redundantly_rigid_d2(graph, algorithm):
+    assert graph.is_redundantly_rigid(dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -953,9 +952,9 @@ def test_is_redundantly_rigid_d2(graph):
         [graphs.Complete(5), 3],
     ],
 )
-def test_is_k_redundantly_rigid_d1(graph, k):
-    assert graph.is_k_redundantly_rigid(k, dim=1)
-    assert graph.is_k_redundantly_rigid(k, dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_k_redundantly_rigid_d1(graph, k, algorithm):
+    assert graph.is_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -976,9 +975,9 @@ def test_is_k_redundantly_rigid_d1(graph, k):
         # [Graph.from_int(2097151), 3],
     ],
 )
-def test_is_k_redundantly_rigid_d2(graph, k):
-    assert graph.is_k_redundantly_rigid(k, dim=2)
-    assert graph.is_k_redundantly_rigid(k, dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_k_redundantly_rigid_d2(graph, k, algorithm):
+    assert graph.is_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1005,8 +1004,9 @@ def test_is_k_redundantly_rigid_d2(graph, k):
         ],
     ],
 )
-def test_is_k_redundantly_rigid_d3(graph, k):
-    assert graph.is_k_redundantly_rigid(k, dim=3, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_k_redundantly_rigid_d3(graph, k, algorithm):
+    assert graph.is_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1026,9 +1026,9 @@ def test_is_k_redundantly_rigid_d3(graph, k):
         Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]),
     ],
 )
-def test_is_not_redundantly_rigid_d2(graph):
-    assert not graph.is_redundantly_rigid(dim=2)
-    assert not graph.is_redundantly_rigid(dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_redundantly_rigid_d2(graph, algorithm):
+    assert not graph.is_redundantly_rigid(dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1039,9 +1039,9 @@ def test_is_not_redundantly_rigid_d2(graph):
         [Graph([["a", "b"], ["b", "c"], ["c", "d"], ["d", "a"], ["a", "c"]]), 3],
     ],
 )
-def test_is_not_k_redundantly_rigid_d1(graph, k):
-    assert not graph.is_k_redundantly_rigid(k, dim=1)
-    assert not graph.is_k_redundantly_rigid(k, dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_k_redundantly_rigid_d1(graph, k, algorithm):
+    assert not graph.is_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1064,9 +1064,9 @@ def test_is_not_k_redundantly_rigid_d1(graph, k):
         ],
     ],
 )
-def test_is_not_k_redundantly_rigid_d2(graph, k):
-    assert not graph.is_k_redundantly_rigid(k, dim=2)
-    assert not graph.is_k_redundantly_rigid(k, dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_k_redundantly_rigid_d2(graph, k, algorithm):
+    assert not graph.is_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1087,8 +1087,9 @@ def test_is_not_k_redundantly_rigid_d2(graph, k):
         ],
     ],
 )
-def test_is_not_k_redundantly_rigid_d3(graph, k):
-    assert not graph.is_k_redundantly_rigid(k, dim=3, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_k_redundantly_rigid_d3(graph, k, algorithm):
+    assert not graph.is_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1106,9 +1107,9 @@ def test_is_not_k_redundantly_rigid_d3(graph, k):
         [graphs.Complete(5), 3],
     ],
 )
-def test_is_min_k_redundantly_rigid_d1(graph, k):
-    assert graph.is_min_k_redundantly_rigid(k, dim=1)
-    assert graph.is_min_k_redundantly_rigid(k, dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_min_k_redundantly_rigid_d1(graph, k, algorithm):
+    assert graph.is_min_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1126,9 +1127,9 @@ def test_is_min_k_redundantly_rigid_d1(graph, k):
         # [Graph.from_int(1048059), 3],
     ],
 )
-def test_is_min_k_redundantly_rigid_d2(graph, k):
-    assert graph.is_min_k_redundantly_rigid(k, dim=2)
-    assert graph.is_min_k_redundantly_rigid(k, dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_min_k_redundantly_rigid_d2(graph, k, algorithm):
+    assert graph.is_min_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1139,8 +1140,9 @@ def test_is_min_k_redundantly_rigid_d2(graph, k):
         [Graph.from_int(32767), 2],
     ],
 )
-def test_is_min_k_redundantly_rigid_d3(graph, k):
-    assert graph.is_min_k_redundantly_rigid(k, dim=3, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_min_k_redundantly_rigid_d3(graph, k, algorithm):
+    assert graph.is_min_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1154,9 +1156,9 @@ def test_is_min_k_redundantly_rigid_d3(graph, k):
         [Graph.from_int(16351), 3],
     ],
 )
-def test_is_not_min_k_redundantly_rigid_d1(graph, k):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=1)
-    assert not graph.is_min_k_redundantly_rigid(k, dim=1, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_min_k_redundantly_rigid_d1(graph, k, algorithm):
+    assert not graph.is_min_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1169,9 +1171,9 @@ def test_is_not_min_k_redundantly_rigid_d1(graph, k):
         # [Graph.from_int(1048063), 3],
     ],
 )
-def test_is_not_min_k_redundantly_rigid_d2(graph, k):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=2)
-    assert not graph.is_min_k_redundantly_rigid(k, dim=2, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_min_k_redundantly_rigid_d2(graph, k, algorithm):
+    assert not graph.is_min_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1185,8 +1187,9 @@ def test_is_not_min_k_redundantly_rigid_d2(graph, k):
         # [Graph.from_int(134201311), 3],
     ],
 )
-def test_is_not_min_k_redundantly_rigid_d3(graph, k):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=3, algorithm="randomized")
+@pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
+def test_is_not_min_k_redundantly_rigid_d3(graph, k, algorithm):
+    assert not graph.is_min_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -1247,6 +1250,9 @@ def test_rigid_components(graph, components, dim):
         assert (
             to_sets(graph.rigid_components(dim=dim, algorithm="randomized"))
             == comps_set
+        )
+        assert (
+            to_sets(graph.rigid_components(dim=dim, algorithm="numerical")) == comps_set
         )
 
 
@@ -1391,7 +1397,6 @@ def test_integer_representation_error():
         ["is_Rd_circuit", []],
         ["is_Rd_closed", []],
         ["rigid_components", []],
-        ["_input_check_no_loop", []],
         ["k_extension", [0, [1, 2], []]],
         ["zero_extension", [[1, 2], []]],
         ["one_extension", [[1, 2, 3], [1, 2]]],
@@ -2079,406 +2084,6 @@ def test_extension_sequence_error():
         graphs.Complete(3).extension_sequence(return_type="Test")
 
 
-@pytest.mark.parametrize(
-    "graph",
-    [
-        Graph.from_vertices([]),
-        Graph.from_vertices([1, 2, 3]),
-        Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]),
-        Graph([[1, 2], [2, 3]]),
-    ],
-)
-def test__input_check_no_loop(graph):
-    assert graph._input_check_no_loop() is None
-
-
-@pytest.mark.parametrize(
-    "graph",
-    [
-        Graph([[1, 1]]),
-        Graph([[1, 2], [2, 3], [3, 3]]),
-    ],
-)
-def test__input_check_no_loop_error(graph):
-    with pytest.raises(LoopError):
-        graph._input_check_no_loop()
-
-
-@pytest.mark.parametrize(
-    "vertices, edges",
-    [
-        [[1], [[1, 1]]],
-        [[1, 2, 3], [[1, 2], [2, 3], [3, 3]]],
-    ],
-)
-def test__input_check_no_loop_error2(vertices, edges):
-    with pytest.raises(LoopError):
-        Graph.from_vertices_and_edges(vertices, edges)._input_check_no_loop()
-
-
-@pytest.mark.parametrize(
-    "graph, vertex",
-    [
-        [Graph.from_vertices([1]), 1],
-        [Graph.from_vertices([1, 2, 3]), 3],
-        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), 3],
-        [Graph([[1, 2], [2, 3]]), 2],
-        [Graph([[1, 2], [1, 1]]), 1],
-        [graphs.Complete(3), 0],
-        [graphs.Diamond(), 3],
-        [Graph.from_vertices([1]), [1]],
-        [Graph.from_vertices([1, 2, 3]), [2, 3]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), [1, 3]],
-        [Graph([[1, 2], [2, 3]]), [2, 2]],
-        [graphs.Complete(3), [0, 1]],
-        [graphs.Diamond(), [1, 3]],
-        [Graph([["a", "b"], ["b", 3]]), "a"],
-        [Graph([["a", "b"], ["b", 3]]), ["a", "b"]],
-        [Graph([["a", "b"], ["b", 3]]), ["a", 3]],
-        [Graph([[-1, -2], [-2, 3]]), -1],
-        [Graph([[-1, -2], [-2, 3]]), [-1, -2]],
-        [Graph([[-1, -2], [-2, 3]]), [-1, 3]],
-    ],
-)
-def test__input_check_vertex_members(graph, vertex):
-    assert graph._input_check_vertex_members(vertex) is None
-
-
-@pytest.mark.parametrize(
-    "graph, vertex",
-    [
-        [Graph([]), 1],
-        [Graph.from_vertices([1]), 2],
-        [Graph.from_vertices([1, 2, 3]), 4],
-        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), -1],
-        [Graph([[1, 2], [2, 3]]), 0],
-        [Graph([[1, 2], [1, 1]]), 3],
-        [graphs.Complete(3), "a"],
-        [graphs.Diamond(), 10],
-        [Graph.from_vertices([1]), [2]],
-        [Graph.from_vertices([1, 2, 3]), [3, 4]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 3]]), [5, 6]],
-        [Graph([[1, 2], [2, 3]]), [2, 2, 4]],
-        [graphs.Complete(3), [0, 4]],
-        [graphs.Diamond(), [1, 2, 12]],
-        [Graph([["a", "b"], ["b", 3]]), "c"],
-        [Graph([["a", "b"], ["b", 3]]), ["a", "c"]],
-        [Graph([["a", "b"], ["b", 3]]), ["a", 4]],
-        [Graph([[-1, -2], [-2, 3]]), -3],
-        [Graph([[-1, -2], [-2, 3]]), [-1, -2, 4]],
-        [Graph([[-1, -2], [-2, 3]]), [-1, 3, -3]],
-    ],
-)
-def test__input_check_vertex_members_error(graph, vertex):
-    with pytest.raises(ValueError):
-        graph._input_check_vertex_members(vertex)
-
-
-@pytest.mark.parametrize(
-    "graph, edge",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 2)],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 2]],
-        [Graph([[1, 2], [2, 3]]), [1, 2]],
-        [Graph([[1, 2], [1, 1]]), [1, 1]],
-        [graphs.Complete(3), [0, 1]],
-        [graphs.Diamond(), [1, 2]],
-        [Graph([["a", "b"], ["b", 3]]), ["a", "b"]],
-        [Graph([["a", "b"], ["b", 3]]), (3, "b")],
-        [Graph([["a", "b"], ["b", 3]]), ["b", "a"]],
-        [Graph([[-1, -2], [-2, 3]]), [-2, -1]],
-        [Graph([[-1, -2], [-2, 3]]), [-1, -2]],
-        [Graph([[-1, -2], [-2, 3]]), [-2, 3]],
-    ],
-)
-def test__input_check_edge(graph, edge):
-    assert graph._input_check_edge(edge) is None
-    assert graph._input_check_edge_format(edge) is None
-
-
-@pytest.mark.parametrize(
-    "graph, edge, vertices",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 2), [1, 2, 2]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 2], [1, 2, 3]],
-        [Graph([[1, 2], [2, 3]]), [1, 2], [2, 1]],
-        [Graph([[1, 2], [2, 3], [3, 4]]), [1, 2], [3, 2, 1]],
-        [Graph([[1, 2], [1, 1]]), [1, 1], [1, 2]],
-        [Graph([[1, 2], [1, 1]]), [1, 1], [1, 1]],
-        [Graph([[1, 2], [1, 1]]), [1, 1], [1]],
-        [graphs.Complete(3), [0, 1], [0, 1, 2, 3, 4]],
-        [graphs.Diamond(), [1, 2], [1, 2, 3]],
-        [Graph([["a", "b"], ["b", 3]]), ["a", "b"], ["a", "b"]],
-        [Graph([["a", "b"], ["b", 3]]), (3, "b"), ["a", "b", 3]],
-        [Graph([["a", "b"], ["b", 3]]), ["b", "a"], ["a", "b", 3]],
-        [Graph([[-1, -2], [-2, 3]]), [-2, -1], [-3, -2, -1, 0, 1, 2, 3]],
-        [Graph([[-1, -2], [-2, 3]]), [-1, -2], [-1, -2, 3]],
-        [Graph([[-1, -2], [-2, 3]]), [-2, 3], [-2, 3]],
-    ],
-)
-def test__input_check_edge_on_vertices(graph, edge, vertices):
-    assert graph._input_check_edge(edge, vertices) is None
-
-
-@pytest.mark.parametrize(
-    "graph, edge",
-    [
-        [Graph([]), (1, 3)],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 3)],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 1]],
-        [Graph([[1, 2], [2, 3]]), [1, 3]],
-        [graphs.Complete(3), [0, 4]],
-        [graphs.Diamond(), [1, -2]],
-        [Graph([["a", "b"], ["b", 3]]), ["a", "c"]],
-        [Graph([["a", "b"], ["b", 3]]), (3, "a")],
-        [Graph([["a", "b"], ["b", 3]]), ["3", "a"]],
-        [Graph([[-1, -2], [-2, 3]]), [3, -1]],
-        [Graph([[-1, -2], [-2, 3]]), [-1, 0]],
-        [Graph([[-1, -2], [-2, 3]]), [-2, -3]],
-        [Graph([[1, 2], [1, 1]]), [2, 2]],
-    ],
-)
-def test__input_check_edge_value_error(graph, edge):
-    with pytest.raises(ValueError):
-        graph._input_check_edge(edge)
-
-
-@pytest.mark.parametrize(
-    "graph, edge",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 1)],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 3]],
-        [Graph([["a", "b"], ["b", 3]]), ["a", "a"]],
-        [Graph([[-1, -2], [-2, 3]]), [-2, -2]],
-        [Graph([[1, 2], [1, 1]]), [1, 1]],
-    ],
-)
-def test__input_check_edge_format_loopfree_loop_error(graph, edge):
-    assert graph._input_check_edge_format(edge, loopfree=False) is None
-    assert graph._input_check_edge_format(edge) is None
-    with pytest.raises(LoopError):
-        graph._input_check_edge_format(edge, loopfree=True)
-
-
-@pytest.mark.parametrize(
-    "graph, edge, vertices",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1, 2), [1, 3, 3]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [3, 2], [1, 3]],
-        [Graph([[1, 2], [2, 3]]), [1, 2], [2, 2]],
-        [Graph([[1, 2], [2, 3], [3, 4]]), [1, 2], [3, 2]],
-        [Graph([[1, 2], [1, 1]]), [1, 1], [2, 2]],
-        [Graph([[1, 2], [1, 1]]), [1, 1], [2, 3]],
-        [Graph([[1, 2], [1, 1]]), [1, 1], [0]],
-        [graphs.Complete(3), [0, 1], [1, 2, 3, 4]],
-        [graphs.Diamond(), [1, 2], [1, 3]],
-        [Graph([["a", "b"], ["b", 3]]), ["a", "b"], ["a", "c"]],
-        [Graph([["a", "b"], ["b", 3]]), (3, "b"), ["a", "b", 2]],
-        [Graph([["a", "b"], ["b", 3]]), ["b", "a"], ["a"]],
-        [Graph([[-1, -2], [-2, 3]]), [-2, -1], [-3, -2, 0, 1, 2, 3]],
-        [Graph([[-1, -2], [-2, 3]]), [-1, -2], [-2, 3]],
-        [Graph([[-1, -2], [-2, 3]]), [-2, 3], [3]],
-        [graphs.Diamond(), [[1, 2], [2, 3]], None],
-        [graphs.Diamond(), [[1, 2], [2, 3]], [1, 2, 3]],
-    ],
-)
-def test__input_check_edge_on_vertices_value_error(graph, edge, vertices):
-    with pytest.raises(ValueError):
-        graph._input_check_edge(edge, vertices)
-
-
-@pytest.mark.parametrize(
-    "graph, edge",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,)],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), 1],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1, 2, 3]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
-        [Graph([[1, 2], [2, 3]]), "12"],
-        [graphs.Complete(3), [[0, 1]]],
-    ],
-)
-def test__input_check_edge_type_error(graph, edge):
-    with pytest.raises(TypeError):
-        graph._input_check_edge(edge)
-    with pytest.raises(TypeError):
-        graph._input_check_edge_format(edge)
-
-
-@pytest.mark.parametrize(
-    "graph, edge, vertices",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,), [1, 2, 3]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), 1, [1, 2, 3]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1], [1, 2, 3]],
-        [Graph([(1, 2), (2, 3)]), [1, 2, 3], [1, 2, 3]],
-        [
-            Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]),
-            "[3, 2]",
-            [1, 2, 3],
-        ],
-        [Graph([[1, 2], [2, 3]]), "12", [1, 2, 3]],
-        [graphs.Complete(3), [[0, 1]], [1, 2, 3]],
-        [Graph([[1, 2], [2, 3]]), [1, 2], "1"],
-        [Graph([[1, 2], [2, 3]]), [1, 2], 1],
-    ],
-)
-def test__input_check_edge_on_vertices_type_error(graph, edge, vertices):
-    with pytest.raises(TypeError):
-        graph._input_check_edge(edge, vertices)
-
-
-@pytest.mark.parametrize(
-    "graph, edge",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 2)]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2]]],
-        [Graph([[1, 2], [2, 3]]), [[1, 2]]],
-        # [Graph([[1, 2], [1, 1]]), [[1, 1]]],
-        [graphs.Complete(3), [[0, 1]]],
-        [graphs.Diamond(), [[1, 2]]],
-        [Graph([["a", "b"], ["b", 3]]), [["a", "b"]]],
-        [Graph([["a", "b"], ["b", 3]]), [(3, "b")]],
-        [Graph([["a", "b"], ["b", 3]]), [["b", "a"]]],
-        [Graph([[-1, -2], [-2, 3]]), [[-2, -1]]],
-        [Graph([[-1, -2], [-2, 3]]), [[-1, -2]]],
-        [Graph([[-1, -2], [-2, 3]]), [[-2, 3]]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 2), (3, 2)]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2], [1, 2]]],
-        [Graph([[1, 2], [2, 3]]), [[1, 2], (2, 3)]],
-        [graphs.Complete(3), [[0, 1], [1, 2]]],
-        [graphs.Diamond(), [[1, 2], [2, 3]]],
-        [Graph([["a", "b"], ["b", 3]]), [["a", "b"], ["b", 3]]],
-        [Graph([["a", "b"], ["b", 3]]), [(3, "b"), ("a", "b")]],
-        [Graph([["a", "b"], ["b", 3]]), [["b", "a"], (3, "b")]],
-        [Graph([[-1, -2], [-2, 3]]), [[-2, -1], [-2, 3]]],
-        [Graph([[-1, -2], [-2, 3]]), [[-1, -2], (-2, 3)]],
-        [Graph([[-1, -2], [-2, 3]]), [[-2, 3], [-1, -2]]],
-    ],
-)
-def test__input_check_edge_list(graph, edge):
-    assert graph._input_check_edge_list(edge) is None
-    assert graph._input_check_edge_format_list(edge) is None
-
-
-@pytest.mark.parametrize(
-    "graph, edge",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 3)]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 1]]],
-        [Graph([[1, 2], [2, 3]]), [[1, 3]]],
-        [graphs.Complete(3), [[0, 4]]],
-        [graphs.Diamond(), [[1, -2]]],
-        [Graph([["a", "b"], ["b", 3]]), [["a", "c"]]],
-        [Graph([["a", "b"], ["b", 3]]), [(3, "a")]],
-        [Graph([["a", "b"], ["b", 3]]), [["3", "a"]]],
-        [Graph([[-1, -2], [-2, 3]]), [[3, -1]]],
-        [Graph([[-1, -2], [-2, 3]]), [[-1, 0]]],
-        [Graph([[-1, -2], [-2, 3]]), [[-2, -3]]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1, 2), (3, 3)]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [[3, 2], [1, 3]]],
-        [Graph([[1, 2], [2, 3]]), [[1, 2], (2, 4)]],
-        [graphs.Complete(3), [[0, 1], [1, -2]]],
-        [graphs.Diamond(), [[1, 5], [2, 3]]],
-        [Graph([["a", "b"], ["b", 3]]), [["a", "c"], ["b", 3]]],
-        [Graph([["a", "b"], ["b", 3]]), [(3, "b"), ("a", "d")]],
-        [Graph([["a", "b"], ["b", 3]]), [["b", "3"], (3, "b")]],
-        [Graph([[-1, -2], [-2, 3]]), [[-2, -1], [1, 3]]],
-        [Graph([[-1, -2], [-2, 3]]), [[-1, 5], (-2, 3)]],
-        [Graph([[-1, -2], [-2, 3]]), [[-2, -3], [-1, -2]]],
-        [graphs.Diamond(), [[[1, 2], [2, 3]]]],
-    ],
-)
-def test__input_check_edge_list_value_error(graph, edge):
-    with pytest.raises(ValueError):
-        graph._input_check_edge_list(edge)
-
-
-@pytest.mark.parametrize(
-    "graph, edge",
-    [
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), (1,)],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), 1],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [(1,)]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), [1]],
-        [Graph.from_vertices_and_edges([1, 2, 3], [(1, 2), (2, 3)]), "[3, 2]"],
-        [Graph([[1, 2], [2, 3]]), "12"],
-        [graphs.Complete(3), [0, 1]],
-        [graphs.Diamond(), (1, 2)],
-    ],
-)
-def test__input_check_edge_list_type_error(graph, edge):
-    with pytest.raises(TypeError):
-        graph._input_check_edge_list(edge)
-    with pytest.raises(TypeError):
-        graph._input_check_edge_format_list(edge)
-
-
-@pytest.mark.parametrize(
-    "graph, vertex_order",
-    [
-        [Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]), ["a", "#", 0, 1.8]],
-        [Graph([[1, 2], [2, 3]]), [1, 2, 3]],
-        [Graph([[1, 2], [2, 3]]), [1, 3, 2]],
-        [graphs.Complete(3), [0, 1, 2]],
-    ],
-)
-def test__input_check_vertex_order(graph, vertex_order):
-    assert graph._input_check_vertex_order(vertex_order) == vertex_order
-
-
-@pytest.mark.parametrize(
-    "graph, vertex_order",
-    [
-        [Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]), ["a", "#", 0, "s"]],
-        [Graph([[1, 2], [2, 3]]), [1, 3]],
-        [Graph([[1, 2], [2, 3]]), [1, 2, 2]],
-        [Graph([[1, 2], [2, 3]]), [1, 2, 2, 3]],
-        [Graph([[1, 2], [2, 3]]), [1, 2, 3, 4]],
-        [graphs.Complete(3), [1, 2, 3]],
-    ],
-)
-def test__input_check_vertex_order_error(graph, vertex_order):
-    with pytest.raises(ValueError):
-        graph._input_check_vertex_order(vertex_order)
-
-
-@pytest.mark.parametrize(
-    "graph, edge_order",
-    [
-        [
-            Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]),
-            [(0, "#"), ("a", 1.8), (0, 1.8), ("#", "a")],
-        ],
-        [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3]]],
-        [Graph([[1, 2], [2, 3]]), [[2, 1], [3, 2]]],
-        [Graph([[1, 2], [2, 3]]), [[2, 3], [1, 2]]],
-        [graphs.Complete(3), [[0, 1], [1, 2], [2, 0]]],
-    ],
-)
-def test__input_check_edge_order(graph, edge_order):
-    assert graph._input_check_edge_order(edge_order) == edge_order
-
-
-@pytest.mark.parametrize(
-    "graph, edge_order",
-    [
-        [
-            Graph([("a", 1.8), ("a", "#"), ("#", 0), (0, 1.8)]),
-            [("#", "#"), ("a", 1.8), (0, 1.8), ("#", "a")],
-        ],
-        [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 4]]],
-        [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3], [1, 3]]],
-        [Graph([[1, 2], [2, 3]]), [[1, 2], [2, 3], [1, 2]]],
-        [graphs.Complete(3), [[0, 1], [1, 2], [1, 2]]],
-    ],
-)
-def test__input_check_edge_order_error(graph, edge_order):
-    with pytest.raises(ValueError):
-        graph._input_check_edge_order(edge_order)
-
-
 def test_from_vertices_and_edges():
     G = Graph.from_vertices_and_edges([], [])
     assert G.vertex_list() == [] and G.edge_list() == []
@@ -2497,23 +2102,343 @@ def test_from_vertices_and_edges():
         Graph.from_vertices_and_edges([1, 2, 3], [[1, 2], [2, 4]])
 
 
-def test_is_3_6_sparse():
-    """The Double Banana is (3,6)-tight."""
-    G = graphs.DoubleBanana()
-    assert G.is_kl_sparse(3, 6)
-    G.add_edge(0, 1)
-    assert not G.is_kl_sparse(3, 6)
-    G = graphs.K66MinusPerfectMatching()
-    assert G.is_kl_sparse(3, 6)
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.Complete(4), 2, 2],
+        [graphs.Complete(5), 2, 0],
+        [graphs.CompleteMinusOne(5), 2, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 3],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 1, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2]]), 1, 0],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_kl_tight_pebble(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    assert graph.is_kl_tight(K, L, algorithm=algorithm)
 
 
-def test_is_kl_tight():
-    G = graphs.Complete(4)
-    assert G.is_kl_tight(2, 2)
-    G = graphs.CompleteBipartite(4, 4)
-    assert not G.is_kl_tight(3, 6)
-    G = graphs.K66MinusPerfectMatching()
-    assert G.is_kl_tight(3, 6)
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.K66MinusPerfectMatching(), 3, 6],
+        [graphs.DoubleBanana(), 3, 6],
+        [Graph.from_int(32766), 4, 10],
+        [graphs.Complete(3), 4, 9],
+        [graphs.Complete(6), 4, 9],
+        [Graph.from_int(2097150), 4, 8],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
+def test_is_kl_tight(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    assert graph.is_kl_tight(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0]]), 2, 1],  # corner case, only one vertex
+        [Graph([[0, 0], [1, 1]]), 1, 0],  # Two disjoint loops
+        [Graph([[0, 0], [0, 1], [1, 1]]), 2, 1],
+        [graphs.CompleteLooped(3), 2, 0],
+        [
+            graphs.Complete(6)
+            + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]),
+            4,
+            3,
+        ],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_kl_tight_with_loops(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) > 0
+    assert graph.is_kl_tight(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 1, 0],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]), 2, 0],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 2],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2]]), 2, 3],
+        [graphs.Cycle(4), 1, 1],
+        # not sparse either
+        [Graph.from_int(32764), 2, 0],
+        [Graph.from_int(32692), 2, 1],
+        [graphs.CompleteMinusOne(5), 2, 2],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [2, 3]]), 2, 3],
+        [graphs.Cycle(4), 1, 1],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_not_kl_tight_pebble(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    assert not graph.is_kl_tight(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.CompleteBipartite(4, 4), 3, 6],
+        [Graph.from_int(32764), 4, 10],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 4, 8],
+        # not sparse either
+        [graphs.DoubleBanana() + Graph([[0, 1]]), 3, 6],
+        [graphs.Complete(6), 4, 10],
+        [graphs.Complete(6) + Graph.from_vertices_and_edges([7], []), 4, 10],
+        [graphs.Complete(7), 4, 8],
+        [Graph.from_int(2097136), 3, 6],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
+def test_is_not_kl_tight(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    assert not graph.is_kl_tight(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, 0],
+        [
+            graphs.Complete(6)
+            + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]),
+            4,
+            2,
+        ],
+        [graphs.CompleteLooped(2), 2, 0],
+        # not sparse either
+        [Graph([[0, 1], [1, 1]]), 1, 1],
+        [Graph([[0, 0]]), 2, 2],
+        [graphs.CompleteLooped(3), 1, 0],
+        [graphs.CompleteLooped(3), 1, 1],
+        [graphs.CompleteLooped(3), 2, 1],
+        [graphs.CompleteLooped(3), 2, 2],
+        [graphs.CompleteLooped(3), 2, 3],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_not_kl_tight_with_loops(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) > 0
+    assert not graph.is_kl_tight(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 1, 0],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]), 2, 0],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 2],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2]]), 2, 3],
+        [graphs.Complete(4), 2, 2],
+        [graphs.Complete(5), 2, 0],
+        [graphs.CompleteMinusOne(5), 2, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]), 2, 3],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 1, 1],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2]]), 1, 0],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_kl_sparse_pebble(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    assert graph.is_kl_sparse(K, L, algorithm=algorithm)
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert graph2.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.CompleteBipartite(4, 4), 3, 6],
+        [Graph.from_int(32764), 4, 10],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4]]), 4, 8],
+        # tight also
+        [graphs.K66MinusPerfectMatching(), 3, 6],
+        [graphs.DoubleBanana(), 3, 6],
+        [Graph.from_int(32766), 4, 10],
+        [graphs.Complete(3), 4, 9],
+        [graphs.Complete(6), 4, 9],
+        [Graph.from_int(2097150), 4, 8],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
+def test_is_kl_sparse(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    assert graph.is_kl_sparse(K, L, algorithm=algorithm)
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert graph2.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0], [0, 1], [1, 1]]), 2, 1],
+        [Graph([[0, 0]]), 2, 1],  # corner case, only one vertex
+        [Graph([[0, 0], [1, 1]]), 3, 0],  # Two disjoint loops
+        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2]]), 2, 1],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, 0],
+        [
+            graphs.Complete(6)
+            + Graph([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]),
+            4,
+            2,
+        ],
+        [graphs.CompleteLooped(2), 2, 0],
+        [graphs.CompleteLooped(3), 2, 0],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_kl_sparse_with_loops(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) > 0
+    assert graph.is_kl_sparse(K, L, algorithm=algorithm)
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert graph2.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph.from_int(32764), 2, 0],
+        [Graph.from_int(32692), 2, 1],
+        [graphs.CompleteMinusOne(5), 2, 2],
+        [Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [2, 3]]), 2, 3],
+        [graphs.Cycle(4), 1, 1],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_not_kl_sparse_pebble(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    assert not graph.is_kl_sparse(K, L, algorithm=algorithm)
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert not graph2.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [graphs.DoubleBanana() + Graph([[0, 1]]), 3, 6],
+        [graphs.Complete(6), 4, 10],
+        [graphs.Complete(6) + Graph.from_vertices_and_edges([7], []), 4, 10],
+        [graphs.Complete(7), 4, 8],
+        [Graph.from_int(2097136), 3, 6],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
+def test_is_not_kl_sparse(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    assert not graph.is_kl_sparse(K, L, algorithm=algorithm)
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert not graph2.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 1], [1, 1]]), 1, 1],
+        [Graph([[0, 0]]), 2, 2],  # corner case, only one vertex
+        [graphs.CompleteLooped(3), 1, 0],
+        [graphs.CompleteLooped(3), 1, 1],
+        [graphs.CompleteLooped(3), 2, 1],
+        [graphs.CompleteLooped(3), 2, 2],
+        [graphs.CompleteLooped(3), 2, 3],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_not_kl_sparse_with_loops(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) > 0
+    assert not graph.is_kl_sparse(K, L, algorithm=algorithm)
+    graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
+    assert not graph2.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 1], [1, 2]]), 2, 4],
+        [Graph([[0, 1], [1, 2]]), 3, 6],
+        [Graph([[0, 1], [1, 2]]), 4, 10],
+        [Graph([[0, 1], [1, 2]]), 3, 7],
+        [Graph([[0, 1], [2, 0]]), 0, 0],
+        [Graph([[0, 1], [2, 0]]), 1, -1],
+        [Graph([[0, 1], [2, 0]]), -1, 1],
+    ],
+)
+def test_is_kl_sparse_pebble_value_error(graph, K, L):
+    assert nx.number_of_selfloops(graph) == 0
+    with pytest.raises(ValueError):
+        graph.is_kl_sparse(K, L, algorithm="pebble")
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 1], [1, 2]]), 2, 4],
+        [Graph([[0, 1], [1, 2]]), 3, 7],
+        [Graph([[0, 1], [2, 0]]), 0, 0],
+        [Graph([[0, 1], [2, 0]]), 1, -1],
+        [Graph([[0, 1], [2, 0]]), -1, 1],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
+def test_is_kl_sparse_value_error(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    with pytest.raises(ValueError):
+        graph.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 1], [1, 2], [2, 0]]), 1.2, 0],
+        [Graph([[0, 1], [1, 2], [2, 0]]), 2, 0.5],
+        [Graph([[0, 1], [1, 2], [2, 0]]), "1", 0],
+        [Graph([[0, 1], [1, 2], [2, 0]]), 2, "0"],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
+def test_is_kl_sparse_type_error(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) == 0
+    with pytest.raises(TypeError):
+        graph.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0]]), 2, 4],  # corner case, only one vertex
+        [Graph([[0, 0], [1, 1]]), 3, 6],  # Two disjoint loops
+        [Graph([[0, 0], [0, 1], [1, 1], [1, 2], [2, 2]]), 2, 4],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 0, 0],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 1, -1],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), -1, 0],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
+def test_is_kl_sparse_with_loops_value_error(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) > 0
+    with pytest.raises(ValueError):
+        graph.is_kl_sparse(K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 1.2, 0],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, 0.5],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), "1", 0],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, "0"],
+    ],
+)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
+def test_is_kl_sparse_with_loops_type_error(graph, K, L, algorithm):
+    assert nx.number_of_selfloops(graph) > 0
+    with pytest.raises(TypeError):
+        graph.is_kl_sparse(K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -2866,12 +2791,14 @@ def test_is_Rd_independent_d3_warning():
 )
 def test_max_rigid_dimension(graph, k):
     assert graph.max_rigid_dimension() == k
+    assert graph.max_rigid_dimension(algorithm="numerical") == k
 
 
 def test_max_rigid_dimension_warning():
     G = graphs.K66MinusPerfectMatching()
     with pytest.warns(RandomizedAlgorithmWarning):
         G.max_rigid_dimension()
+        G.max_rigid_dimension(algorithm="numerical")
 
 
 def test_cone():
@@ -3172,7 +3099,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
             fprop_inf_rigid = F.is_inf_rigid()
             fprop_inf_flex = F.is_inf_flexible()
             fprop_min_inf_rigid = F.is_min_inf_rigid()
-            fprop_red_rigid = F.is_redundantly_rigid()
+            fprop_red_rigid = F.is_redundantly_inf_rigid()
             fprop_dep = F.is_dependent()
             fprop_indep = F.is_independent()
 
@@ -3226,6 +3153,8 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_sparse
             if prop_tight:
                 assert sprop_tight
+                if dim == 2 or dim == 1:
+                    assert prop_min_rigid
             if sprop_tight:
                 assert prop_tight
 
@@ -3430,3 +3359,179 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_dep
             if fprop_inf_flex:
                 assert not fprop_inf_rigid
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_random_graphs_with_loops():
+    search_space = [range(1, 8), range(10)]
+    for n, _ in product(*search_space):
+        for m in range(1, math.comb(n, 2) + 1):
+            G = Graph(nx.gnm_random_graph(n, m))
+            loops = [[v, v] for v in G.vertex_list() if randint(0, 1)]
+            G.add_edges(loops)
+            assert G.number_of_nodes() == n
+            assert G.number_of_edges() == m + len(loops)
+
+            _run_sparsity_test_on_graph(G)
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_random_graphs_without_loops():
+    search_space = [range(1, 8), range(10)]
+    for n, _ in product(*search_space):
+        for m in range(1, math.comb(n, 2) + 1):
+            G = Graph(nx.gnm_random_graph(n, m))
+            assert G.number_of_nodes() == n
+            assert G.number_of_edges() == m
+
+            _run_sparsity_test_on_graph(G)
+
+
+def _run_sparsity_test_on_graph(G: Graph) -> None:
+    """
+    Run a set of sparsity tests on a given graph
+    """
+    kmax = 6
+    m = G.number_of_edges()
+    n = G.number_of_nodes()
+
+    # distinguish range for L depending on loops
+    def get_max_L(G: Graph, K: int):
+        if nx.number_of_selfloops(G) > 0:
+            return 2 * K
+        else:
+            return math.comb(K + 1, 2) + 1
+
+    prop_sparse = {
+        K: [G.is_kl_sparse(K, L) for L in range(get_max_L(G, K))]
+        for K in range(1, kmax)
+    }
+    prop_tight = {
+        K: [G.is_kl_tight(K, L) for L in range(get_max_L(G, K))] for K in range(1, kmax)
+    }
+
+    prop_sparse_s = {
+        K: [G.is_kl_sparse(K, L, algorithm="subgraph") for L in range(get_max_L(G, K))]
+        for K in range(1, kmax)
+    }
+    prop_tight_s = {
+        K: [G.is_kl_tight(K, L, algorithm="subgraph") for L in range(get_max_L(G, K))]
+        for K in range(1, kmax)
+    }
+
+    for K in range(1, kmax):
+        for L in range(get_max_L(G, K)):
+            # check output type
+            assert isinstance(prop_sparse[K][L], bool)
+            assert isinstance(prop_sparse_s[K][L], bool)
+            assert isinstance(prop_tight[K][L], bool)
+            assert isinstance(prop_tight_s[K][L], bool)
+
+            # compare different algorithms
+            assert prop_tight[K][L] == prop_tight_s[K][L]
+            assert prop_sparse[K][L] == prop_sparse_s[K][L]
+
+            # sanity checks on properties
+            if prop_tight[K][L]:
+                assert prop_sparse[K][L]
+                if n >= K:
+                    assert m == K * n - L
+            if prop_sparse[K][L]:
+                if n >= K:
+                    assert m <= K * n - L
+                for L2 in range(L):
+                    assert prop_sparse[K][L2]
+
+    if prop_sparse[1][1]:
+        if nx.is_connected(G):
+            assert nx.is_tree(G)
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_small_graphs_without_loops():
+    for n in range(1, 5):
+        for i in range(math.comb(n, 2) + 1):
+            for edges in combinations(combinations(range(n), 2), i):
+                G = Graph.from_vertices_and_edges(range(n), edges)
+                assert G.number_of_nodes() == n
+                assert G.number_of_edges() == len(edges)
+
+                _run_sparsity_test_on_graph(G)
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_small_graphs_without_loops_different_vertex_names():
+    for n in range(1, 4):
+        encodings = product(
+            *list(
+                zip(
+                    range(n),
+                    sample(range(n, 3 * n), n),
+                    [
+                        chr(i) for i in sample(range(97, 122), n)
+                    ],  # does not work for graphs with more than 26 vertices
+                    [
+                        tuple([chr(i) if randint(0, 1) == 0 else i for i in elem])
+                        for elem in product(sample(range(97, 122), n), repeat=2)
+                    ],
+                )
+            )
+        )
+        for vertices in encodings:
+            for i in range(math.comb(n, 2) + 1):
+                for edges in combinations(combinations(vertices, 2), i):
+                    G = Graph.from_vertices_and_edges(vertices, edges)
+                    assert G.number_of_nodes() == n
+                    assert len(vertices) == n
+                    assert G.number_of_edges() == len(edges)
+
+                    _run_sparsity_test_on_graph(G)
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_small_graphs_with_loops():
+    for n in range(1, 5):
+        for i in range(math.comb(n, 2) + 1):
+            for edges in combinations(combinations(range(n), 2), i):
+                G = Graph.from_vertices_and_edges(range(n), edges)
+                for j in range(n + 1):
+                    for loops in combinations(range(n), j):
+                        G.add_edges([[jj, jj] for jj in loops])
+                        assert G.number_of_nodes() == n
+                        assert G.number_of_edges() == len(edges) + len(loops)
+
+                        _run_sparsity_test_on_graph(G)
+                        G.delete_edges([[jj, jj] for jj in loops])
+
+
+@pytest.mark.long_local
+def test_sparsity_properties_small_graphs_with_loops_different_vertex_names():
+    for n in range(1, 4):
+        encodings = product(
+            *list(
+                zip(
+                    range(n),
+                    sample(range(n, 3 * n), n),
+                    [
+                        chr(i) for i in sample(range(97, 122), n)
+                    ],  # does not work for graphs with more than 26 vertices
+                    [
+                        tuple([chr(i) if randint(0, 1) == 0 else i for i in elem])
+                        for elem in product(sample(range(97, 122), n), repeat=2)
+                    ],
+                )
+            )
+        )
+        for vertices in encodings:
+            for i in range(math.comb(n, 2) + 1):
+                for edges in combinations(combinations(vertices, 2), i):
+                    G = Graph.from_vertices_and_edges(vertices, edges)
+                    for j in range(n + 1):
+                        for loops in combinations(vertices, j):
+                            G.add_edges([[jj, jj] for jj in loops])
+                            assert G.number_of_nodes() == n
+                            assert len(vertices) == n
+                            assert G.number_of_edges() == len(edges) + len(loops)
+
+                            _run_sparsity_test_on_graph(G)
+                            G.delete_edges([[jj, jj] for jj in loops])

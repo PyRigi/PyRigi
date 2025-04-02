@@ -2,8 +2,6 @@
 Auxiliary class for directed graph used in pebble game style algorithms.
 """
 
-from typing import Iterable
-
 import networkx as nx
 
 import pyrigi._input_check as _input_check
@@ -110,7 +108,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         vertex: Vertex, whose indegree we want to know.
         """
-        self._input_check_vertex_members(vertex, "vertex")
+        self._input_check_vertex_member(vertex, "vertex")
         return int(super().in_degree(vertex))
 
     def out_degree(self, vertex: Vertex) -> int:
@@ -121,7 +119,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         vertex: Vertex, whose outdegree we want to know.
         """
-        self._input_check_vertex_members(vertex, "vertex")
+        self._input_check_vertex_member(vertex, "vertex")
         return int(super().out_degree(vertex))
 
     def redirect_edge_to_head(self, edge: DirectedEdge, vertex_to: Vertex) -> None:
@@ -139,10 +137,12 @@ class PebbleDiGraph(nx.MultiDiGraph):
         if self.has_node(vertex_to) and vertex_to in edge:
             tail = edge[0]
             head = edge[1]
-            self.remove_edge(tail, head)
-            self.add_edge(head, vertex_to)
+            # ignore loops, obviously
+            if tail != head:
+                self.remove_edge(tail, head)
+                self.add_edge(head, vertex_to)
 
-    def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:
+    def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:  # noqa: C901
         """
         Return the fundamental (k, l)-matroid circuit of the edge uv.
 
@@ -197,44 +197,62 @@ class PebbleDiGraph(nx.MultiDiGraph):
                 edge_path.pop()
             return False, visited
 
-        max_degree_u_v_together = 2 * self.K - self.L - 1
+        self._input_check_vertex_member(u)
+        self._input_check_vertex_member(v)
 
-        if not self.has_node(u):
-            raise ValueError(f"Vertex {u} is not present in the graph.")
+        # the edge to be added is a loop
+        if u == v:
+            max_degree_of_v = self.K - self.L - 1
+            while self.out_degree(v) > max_degree_of_v:
+                visited_vertices = {v}
+                edge_path_v = []
+                # Perform DFS from v
+                found_from_v, visited_vertices = dfs(v, visited_vertices, edge_path_v)
 
-        if not self.has_node(v):
-            raise ValueError(f"Vertex {v} is not present in the graph.")
+                if not found_from_v:
+                    break
 
-        while self.out_degree(u) + self.out_degree(v) > max_degree_u_v_together:
-            visited_vertices = {u, v}
+            can_add_edge = self.out_degree(v) <= max_degree_of_v
+            if can_add_edge:
+                # The edge is independent
+                return None
 
-            edge_path_u, edge_path_v = [], []
+            return visited_vertices
 
-            # Perform DFS from u
-            found_from_u, visited_vertices = dfs(u, visited_vertices, edge_path_u)
+        else:
+            # u!=v
+            max_degree_u_v_together = 2 * self.K - self.L - 1
 
-            if found_from_u:
-                continue
+            while self.out_degree(u) + self.out_degree(v) > max_degree_u_v_together:
+                visited_vertices = {u, v}
 
-            # Perform DFS from v
-            found_from_v, visited_vertices = dfs(v, visited_vertices, edge_path_v)
+                edge_path_u, edge_path_v = [], []
 
-            if found_from_v:
-                continue
+                # Perform DFS from u
+                found_from_u, visited_vertices = dfs(u, visited_vertices, edge_path_u)
 
-            # not found_from_u and not found_from_v
-            # so we reached the maximal extent of the reachable points
-            # which is the fundamental circuit
-            break
+                if found_from_u:
+                    continue
 
-        can_add_edge = (
-            self.out_degree(u) + self.out_degree(v) <= max_degree_u_v_together
-        )
-        if can_add_edge:
-            # The edge is independent
-            return None
+                # Perform DFS from v
+                found_from_v, visited_vertices = dfs(v, visited_vertices, edge_path_v)
 
-        return visited_vertices
+                if found_from_v:
+                    continue
+
+                # not found_from_u and not found_from_v
+                # so we reached the maximal extent of the reachable points
+                # which is the fundamental circuit
+                break
+
+            can_add_edge = (
+                self.out_degree(u) + self.out_degree(v) <= max_degree_u_v_together
+            )
+            if can_add_edge:
+                # The edge is independent
+                return None
+
+            return visited_vertices
 
     def can_add_edge_between_vertices(self, u: Vertex, v: Vertex) -> bool:
         """
@@ -253,12 +271,16 @@ class PebbleDiGraph(nx.MultiDiGraph):
         """
         # if the vertex u is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
-        if not self.has_node(u):
+        # Unless of course it is a loop. Then we can add it
+        # only if K>L, thus i(X)<=K-L is maintained.
+        if not self.has_node(u) and (u != v or self.K > self.L):
             self.add_edges_from([(u, v)])
             return True
         # if the vertex v is not present (yet), then it has outdegree 0
         # => it is ok to add the directed edge from there
-        if not self.has_node(v):
+        # Unless of course it is a loop. Then we can add it
+        # only if K>L, thus i(X)<=K-L is maintained.
+        if not self.has_node(v) and (u != v or self.K > self.L):
             self.add_edges_from([(v, u)])
             return True
 
@@ -282,23 +304,10 @@ class PebbleDiGraph(nx.MultiDiGraph):
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
 
-    def _input_check_vertex_members(
-        self, to_check: Iterable[Vertex] | Vertex, name: str = ""
-    ) -> None:
+    def _input_check_vertex_member(self, to_check: Vertex, name: str = "") -> None:
         """
-        Check whether the elements of a list are indeed vertices and
-        raise error otherwise.
+        Check whether a given element is indeed a vertex and
+        raise an error otherwise.
         """
-        if not isinstance(to_check, Iterable):
-            if not self.has_node(to_check):
-                raise ValueError(
-                    f"The element {to_check} is not a vertex of the graph!"
-                )
-        else:
-            for vertex in to_check:
-                if not self.has_node(vertex):
-                    raise ValueError(
-                        f"The element {vertex} from "
-                        + name
-                        + f" {to_check} is not a vertex of the graph!"
-                    )
+        if not self.has_node(to_check):
+            raise ValueError(f"The element {to_check} is not a vertex of the graph!")

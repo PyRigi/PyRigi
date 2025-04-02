@@ -31,9 +31,9 @@ This version is related to the PyRigi Marathon (November 7, 2024, Linz, Austria)
 
 Contributions by comments, testing, definitions and examples:
   * Sean Dewar
+  * Alison La Porta
   * Rebecca Monks
   * Anthony Nixon
-  * Alison La Porta
 
 ## Version 0.3.0 (November 5, 2024)
 

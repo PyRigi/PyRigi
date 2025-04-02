@@ -48,6 +48,34 @@ def Complete(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
     return Graph.from_vertices_and_edges(vertices, edges)
 
 
+def CompleteLooped(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
+    """
+    Return the complete graph on ``n`` vertices with a loop on every vertex.
+
+    The vertex labels can also be specified explicitly via
+    the keyword ``vertices``.
+
+    Parameters
+    ----------
+    n:
+        The number of vertices.
+    vertices:
+        An optional parameter for the vertices.
+
+    Examples
+    --------
+    >>> print(CompleteLooped(3))
+    Graph with vertices [0, 1, 2] and edges [[0, 0], [0, 1], [0, 2], [1, 1], [1, 2], [2, 2]]
+    >>> print(CompleteLooped(vertices=['a', 'b']))
+    Graph with vertices ['a', 'b'] and edges [['a', 'a'], ['a', 'b'], ['b', 'b']]
+    """  # noqa: E501
+    graph = Complete(n=n, vertices=vertices)
+    graph = Graph.from_vertices_and_edges(
+        graph.vertex_list(), graph.edge_list() + [[v, v] for v in graph.vertex_list()]
+    )
+    return graph
+
+
 def Path(n: int) -> Graph:
     """Return the path graph with ``n`` vertices."""
     _input_check.integrality_and_range(n, "number of vertices n", min_val=0)
@@ -120,7 +148,7 @@ def DoubleBanana(dim: int = 3, t: int = 2) -> Graph:
     Graph with vertices [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] and edges [[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9], [1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [1, 7], [1, 8], [1, 9], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5], [6, 7], [6, 8], [6, 9], [7, 8], [7, 9], [8, 9]]
     """  # noqa: E501
     _input_check.integrality_and_range(dim, "dimension dim", min_val=3)
-    _input_check.integrality_and_range(dim, "parameter t", min_val=2)
+    _input_check.integrality_and_range(t, "parameter t", min_val=2)
     _input_check.smaller_equal(t, dim - 1, "parameter t", "dim - 1")
 
     r = (dim + 2) - t

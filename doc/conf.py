@@ -16,7 +16,7 @@ import os
 import sys
 
 from sphinx.application import Sphinx
-from pyrigi import Graph, Framework
+from pyrigi import Framework
 import pyrigi._input_check as _input_check
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -30,7 +30,7 @@ author = "The PyRigi Developers"
 # The short X.Y version
 version = "1.0"
 # The full version, including alpha/beta/rc tags
-release = "1.0.0"
+release = "1.0.1"
 
 
 # -- General configuration ---------------------------------------------------
@@ -362,7 +362,7 @@ def setup(app: Sphinx):
 
 
 input_check_str = ""
-for cls in [Graph, Framework]:
+for cls in [Framework]:
     methods = [
         method
         for method in dir(cls)
@@ -384,8 +384,8 @@ Input check methods of {cls.__name__}
 
 input_check_str += """
 
-General input check methods
-===========================
+General input check functions
+=============================
 
 
 """
