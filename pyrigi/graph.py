@@ -577,12 +577,25 @@ class Graph(nx.Graph):
             )
 
         if algorithm == "subgraph":
-            for i in range(K, self.number_of_nodes() + 1):
-                for vertex_set in combinations(self.nodes, i):
-                    G = self.subgraph(vertex_set)
-                    if G.number_of_edges() > K * G.number_of_nodes() - L:
-                        return False
-            return True
+            if nx.number_of_selfloops(self) > 0:
+                _input_check.pebble_values(K, L)
+                for i in range(1, self.number_of_nodes() + 1):
+                    for vertex_set in combinations(self.nodes, i):
+                        G = self.subgraph(vertex_set)
+                        m = G.number_of_edges()
+                        if m >= 1 and m > K * G.number_of_nodes() - L:
+                            return False
+                return True
+            else:
+                _input_check.integrality_and_range(
+                    L, "L", min_val=0, max_val=math.comb(K + 1, 2)
+                )
+                for i in range(K, self.number_of_nodes() + 1):
+                    for vertex_set in combinations(self.nodes, i):
+                        G = self.subgraph(vertex_set)
+                        if G.number_of_edges() > K * G.number_of_nodes() - L:
+                            return False
+                return True
 
         # reaching this position means that the algorithm is unknown
         raise NotSupportedValueError(algorithm, "algorithm", self.is_kl_sparse)
