@@ -3428,6 +3428,7 @@ class Graph(nx.Graph):
     def is_separating_set(
         self,
         vertices: Collection[Vertex],
+        copy: bool = True,
     ) -> bool: ...
 
     @doc_category("General graph theoretical properties")
@@ -3437,6 +3438,7 @@ class Graph(nx.Graph):
         vertices: Collection[Vertex],
         u: Vertex,
         v: Vertex,
+        copy: bool = True,
     ) -> bool: ...
 
     @doc_category("General graph theoretical properties")
@@ -3444,6 +3446,7 @@ class Graph(nx.Graph):
     def is_stable_separating_set(
         self,
         vertices: Collection[Vertex],
+        copy: bool = True,
     ) -> bool: ...
 
     @doc_category("General graph theoretical properties")

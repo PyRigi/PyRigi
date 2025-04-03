@@ -11,6 +11,7 @@ from typing import (
     Any,
     Callable,
     Collection,
+    FrozenSet,
     Optional,
     Tuple,
     TYPE_CHECKING,
@@ -88,6 +89,7 @@ def _revertable_set_removal(
     graph: nx.Graph,
     vertices: Collection[Vertex],
     opt: Callable[[nx.Graph], T],
+    copy: bool,
 ) -> T:
     """
     Remove given vertices from the graph, perform operation,
@@ -99,8 +101,13 @@ def _revertable_set_removal(
         Vertex set to remove
     opt:
         Operation to perform on a graph with vertices removed
+    copy:
+        Create a copy of the graph before the vertices are removed
+        and connectivity is checked. Otherwise, the graph is modified in-place.
+        In that case, some metadata may be lost or
+        the graph may not be reconstructed if an exception occurs.
     """
-    copy = nx.is_frozen(graph)
+    copy = copy or nx.is_frozen(graph)
     vertex_data: dict[Vertex, dict[str, Any]]
     edge_data: dict[Edge, dict[str, Any]]
     neighbors: list[Tuple[Vertex, Vertex]]
@@ -128,6 +135,7 @@ def _revertable_set_removal(
 def is_separating_set(
     graph: nx.Graph,
     vertices: Collection[Vertex],
+    copy: bool = True,
 ) -> bool:
     """
     Check if the given set of vertices is a separator in the given graph.
@@ -140,6 +148,11 @@ def is_separating_set(
     ----------
     vertices:
         the vertices to check
+    copy:
+        Create a copy of the graph before the vertices are removed
+        and connectivity is checked. Otherwise, the graph is modified in-place.
+        In that case, some metadata may be lost or
+        the graph may not be reconstructed if an exception occurs.
 
     Examples
     --------
@@ -159,7 +172,9 @@ def is_separating_set(
 
     pyrigi._graph_input_check.vertex_members(graph, vertices)
 
-    return _revertable_set_removal(graph, vertices, lambda g: not nx.is_connected(g))
+    return _revertable_set_removal(
+        graph, vertices, lambda g: not nx.is_connected(g), copy=copy
+    )
 
 
 def is_uv_separating_set(
@@ -167,6 +182,7 @@ def is_uv_separating_set(
     vertices: Collection[Vertex],
     u: Vertex,
     v: Vertex,
+    copy: bool = True,
 ) -> bool:
     """
     Check if the given set separates vertices u and v.
@@ -183,6 +199,11 @@ def is_uv_separating_set(
         the first vertex
     v:
         the second vertex
+    copy:
+        Create a copy of the graph before the vertices are removed
+        and connectivity is checked. Otherwise, the graph is modified in-place.
+        In that case, some metadata may be lost or
+        the graph may not be reconstructed if an exception occurs.
 
     Raises
     ------
@@ -212,12 +233,13 @@ def is_uv_separating_set(
                 return False
         return True
 
-    return _revertable_set_removal(graph, vertices, check_graph)
+    return _revertable_set_removal(graph, vertices, check_graph, copy=copy)
 
 
 def is_stable_separating_set(
     graph: nx.Graph,
     vertices: Collection[Vertex],
+    copy: bool = True,
 ) -> bool:
     """
     Check if the given set of vertices is a stable separating in the given graph.
@@ -230,6 +252,11 @@ def is_stable_separating_set(
     ----------
     vertices:
         the separating set of vertices
+    copy:
+        Create a copy of the graph before the vertices are removed
+        and connectivity is checked. Otherwise, the graph is modified in-place.
+        In that case, some metadata may be lost or
+        the graph may not be reconstructed if an exception occurs.
 
     Examples
     --------
@@ -245,7 +272,9 @@ def is_stable_separating_set(
         See :meth:`~pyrigi.graph.Graph.is_stable_set` and
         :meth:`~pyrigi.graph.Graph.is_separating_set`.
     """
-    return is_stable_set(graph, vertices) and is_separating_set(graph, vertices)
+    return is_stable_set(graph, vertices) and is_separating_set(
+        graph, vertices, copy=copy
+    )
 
 
 ################################################################################
@@ -318,7 +347,10 @@ def stable_separating_set(
 
     # choose a vertex at random
     if u is None:
-        u = next(iter(connected_components[0]))
+        if is_connected:
+            u = next(iter(graph.nodes))
+        else:
+            u = next(iter(connected_components[0]))
     else:
         assert u in graph
 
@@ -345,7 +377,7 @@ def stable_separating_set(
 
     # Makes sure v is in different rigid component
     if v is None or check_distinct_rigid_components:
-        match _find_and_validate_u_and_v(subgraph, u, v):
+        match _validate_uv_different_rigid_comps(subgraph, u, v):
             case None:
                 raise ValueError(
                     "Chosen vertices must not be in the same rigid component"
@@ -353,10 +385,10 @@ def stable_separating_set(
             case new_v:
                 v = new_v
 
-    return _process(graph, u, v)
+    return _find_stable_uv_separating_set(graph, u, v)
 
 
-def _find_and_validate_u_and_v(
+def _validate_uv_different_rigid_comps(
     graph: "PRGraph",
     u: Vertex,
     v: Optional[Vertex],
@@ -400,7 +432,7 @@ def _find_and_validate_u_and_v(
     return v
 
 
-def _process(
+def _find_stable_uv_separating_set(
     graph: "PRGraph",
     u: Vertex,
     v: Vertex,
@@ -431,7 +463,7 @@ def _process(
 
     # used to preserve graph's metadata
     vertex_data: dict[Vertex, dict[str, Any]] = {}
-    edge_data: dict[Edge, dict[str, Any]] = {}
+    edge_data: dict[FrozenSet[Vertex], dict[str, Any]] = {}
 
     def contract(
         graph: nx.Graph, u: Vertex, x: Vertex
@@ -445,7 +477,7 @@ def _process(
 
         # Store graphs metadata
         for n in graph.neighbors(x):
-            edge_data[(n, x)] = edge_data[(x, n)] = graph.edges[x, n]
+            edge_data[frozenset((n, x))] = graph.edges[x, n]
         vertex_data[x] = graph.nodes[x]
 
         graph.remove_node(x)
@@ -468,7 +500,7 @@ def _process(
             graph.remove_edge(u, n)
         graph.add_node(x, **vertex_data[x])
         for n in x_neigh:
-            graph.add_edge(x, n, **edge_data[(n, x)])
+            graph.add_edge(x, n, **edge_data[frozenset((n, x))])
 
     # Tries both the vertices forming a triable with u
     # Pass has to succeed with at least one of them,
@@ -488,7 +520,7 @@ def _process(
         if problem_found:
             continue
 
-        res = _process(graph, u, v)
+        res = _find_stable_uv_separating_set(graph, u, v)
         restore(graph, u, x, u_neigh, x_neigh)
         return res
 
