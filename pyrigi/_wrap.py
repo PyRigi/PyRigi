@@ -178,26 +178,18 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
     assert params_method[1:] == params_func[1:]
 
 
-def proxy_call(
+def copy_doc(
     proxy_func: Callable[P, T],
 ) -> Callable[[Callable[..., T]], Callable[P, T]]:
     """
-    Call the provided function instead of the decorated method.
-    Intended use is to replace a method's implementation with
-    an another function's implementation.
-
-    Note
-    ----
-    From listed bellow all the integrations work just fine:
-    Docs are correctly generated, help() gives correct doc string,
-    ? works i Jupyter notebook, pyright provides correct hints.
-    Only PyCharm missed doc string and finds correct signature only
-    because the signature has to be copied exactly to the calling class.
+    Copy documentation from the provided function.
+    In tests it also ensures that the signatures match.
     """
 
     def wrapped(method: Callable[..., T]) -> Callable[P, T]:
         if _is_pytest:
             _assert_same_sign(method, proxy_func)
-        return proxy_func
+        method.__doc__ = proxy_func.__doc__
+        return method
 
     return wrapped

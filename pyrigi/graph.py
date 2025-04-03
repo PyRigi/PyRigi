@@ -15,7 +15,7 @@ from random import randint
 import networkx as nx
 from sympy import Matrix, oo, zeros
 
-from pyrigi._wrap import proxy_call
+from pyrigi._wrap import copy_doc
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
@@ -3416,41 +3416,53 @@ class Graph(nx.Graph):
         )
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(pyrigi.separating_set.is_stable_set)
+    @copy_doc(pyrigi.separating_set.is_stable_set)
     def is_stable_set(
         self,
         vertices: Collection[Vertex],
         certificate: bool = False,
-    ) -> bool | tuple[bool, Optional[tuple[Vertex, Vertex]]]: ...
+    ) -> bool | tuple[bool, Optional[tuple[Vertex, Vertex]]]:
+        return pyrigi.separating_set.is_stable_set(
+            self, vertices=vertices, certificate=certificate
+        )
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(pyrigi.separating_set.is_separating_set)
+    @copy_doc(pyrigi.separating_set.is_separating_set)
     def is_separating_set(
         self,
         vertices: Collection[Vertex],
         copy: bool = True,
-    ) -> bool: ...
+    ) -> bool:
+        return pyrigi.separating_set.is_separating_set(
+            self, vertices=vertices, copy=copy
+        )
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(pyrigi.separating_set.is_uv_separating_set)
+    @copy_doc(pyrigi.separating_set.is_uv_separating_set)
     def is_uv_separating_set(
         self,
         vertices: Collection[Vertex],
         u: Vertex,
         v: Vertex,
         copy: bool = True,
-    ) -> bool: ...
+    ) -> bool:
+        return pyrigi.separating_set.is_uv_separating_set(
+            self, vertices=vertices, u=u, v=v, copy=copy
+        )
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(pyrigi.separating_set.is_stable_separating_set)
+    @copy_doc(pyrigi.separating_set.is_stable_separating_set)
     def is_stable_separating_set(
         self,
         vertices: Collection[Vertex],
         copy: bool = True,
-    ) -> bool: ...
+    ) -> bool:
+        return pyrigi.separating_set.is_stable_separating_set(
+            self, vertices=vertices, copy=copy
+        )
 
     @doc_category("General graph theoretical properties")
-    @proxy_call(pyrigi.separating_set.stable_separating_set)
+    @copy_doc(pyrigi.separating_set.stable_separating_set)
     def stable_separating_set(
         self,
         u: Optional[Vertex] = None,
@@ -3458,7 +3470,15 @@ class Graph(nx.Graph):
         check_flexible: bool = True,
         check_connected: bool = True,
         check_distinct_rigid_components: bool = True,
-    ) -> set[Vertex]: ...
+    ) -> set[Vertex]:
+        return pyrigi.separating_set.stable_separating_set(
+            self,
+            u=u,
+            v=v,
+            check_flexible=check_flexible,
+            check_connected=check_connected,
+            check_distinct_rigid_components=check_distinct_rigid_components,
+        )
 
     @doc_category("Generic rigidity")
     def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
