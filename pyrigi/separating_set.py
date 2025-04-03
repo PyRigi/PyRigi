@@ -104,8 +104,7 @@ def _revertable_set_removal(
     copy:
         Create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
-        In that case, some metadata may be lost or
-        the graph may not be reconstructed if an exception occurs.
+        In that case, some metadata may be lost.
     """
     copy = copy or nx.is_frozen(graph)
     vertex_data: dict[Vertex, dict[str, Any]]
@@ -121,15 +120,14 @@ def _revertable_set_removal(
 
     graph.remove_nodes_from(vertices)
 
-    res = opt(graph)
-
-    if not copy:
-        for v in vertices:
-            graph.add_node(v, **vertex_data[v])
-        for u, v in neighbors:
-            graph.add_edge(u, v, **edge_data[(u, v)])
-
-    return res
+    try:
+        return opt(graph)
+    finally:
+        if not copy:
+            for v in vertices:
+                graph.add_node(v, **vertex_data[v])
+            for u, v in neighbors:
+                graph.add_edge(u, v, **edge_data[(u, v)])
 
 
 def is_separating_set(
@@ -151,8 +149,7 @@ def is_separating_set(
     copy:
         Create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
-        In that case, some metadata may be lost or
-        the graph may not be reconstructed if an exception occurs.
+        In that case, some metadata may be lost.
 
     Examples
     --------
@@ -202,8 +199,7 @@ def is_uv_separating_set(
     copy:
         Create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
-        In that case, some metadata may be lost or
-        the graph may not be reconstructed if an exception occurs.
+        In that case, some metadata may be lost.
 
     Raises
     ------
@@ -255,8 +251,7 @@ def is_stable_separating_set(
     copy:
         Create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
-        In that case, some metadata may be lost or
-        the graph may not be reconstructed if an exception occurs.
+        In that case, some metadata may be lost.
 
     Examples
     --------
@@ -520,8 +515,10 @@ def _find_stable_uv_separating_set(
         if problem_found:
             continue
 
-        res = _find_stable_uv_separating_set(graph, u, v)
-        restore(graph, u, x, u_neigh, x_neigh)
-        return res
+        # ensures that graph gets always restored to the original form properly
+        try:
+            return _find_stable_uv_separating_set(graph, u, v)
+        finally:
+            restore(graph, u, x, u_neigh, x_neigh)
 
     raise RuntimeError("Rigid components are not maximal")
