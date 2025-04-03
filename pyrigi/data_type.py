@@ -5,10 +5,9 @@ Module for defining data type used for type hinting.
 """
 
 from collections.abc import Sequence
-from typing import Hashable, NamedTuple, TypeAlias
+from typing import Hashable, TypeAlias
 
 import sympy as sp
-import networkx as nx
 
 
 Vertex: TypeAlias = Hashable
@@ -59,71 +58,3 @@ Inf: TypeAlias = sp.core.numbers.Infinity
 """
 Provides a data type that can become infinite.
 """
-
-
-class SeparatingCut(NamedTuple):
-    """
-    Represents a separating cut in a graph.
-
-    Definitions
-    -----------
-    :prf:ref:`Separating set <def-separating-set>`
-
-    Parameters
-    ----------
-    a:
-        vertices in the first component **excluding** the cut vertices
-    b:
-        vertices in the second component **excluding** the cut vertices
-    cut:
-        vertices of the cut
-    """
-
-    a: set[Vertex]
-    b: set[Vertex]
-    cut: set[Vertex]
-
-    def __repr__(self) -> str:
-        return f"SeparatingCut({self.a}, {self.b} - {self.cut})"
-
-    def __eq__(self, other) -> bool:
-        if self.cut != other.cut:
-            return False
-        if self.a == other.a:
-            return self.b == other.b
-        return self.a == other.b and self.b == other.a
-
-
-class StableSeparatingCut(SeparatingCut):
-    """
-    Represents a stable separating set in a graph.
-
-    Definitions
-    -----------
-    :prf:ref:`Stable separating set <def-stable-separating-set>`
-
-    Parameters
-    ----------
-    a:
-        vertices in the first component **excluding** the cut vertices
-    b:
-        vertices in the second component **excluding** the cut vertices
-    cut:
-        vertices of the cut
-    """
-
-    def __repr__(self) -> str:
-        return f"StableSeparatingCut({self.a}, {self.b} - {self.cut})"
-
-    def validate(self, graph: nx.Graph) -> bool:
-        """
-        Checks if the this cut is a stable cut of the given graph
-
-        Parameters
-        ----------
-        graph:
-            The graph on which we check if the set is separating and stable.
-        """
-        from pyrigi._cuts import is_stable_separating_set
-
-        return is_stable_separating_set(graph, self)

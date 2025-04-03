@@ -165,16 +165,16 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
 
     if sgn_method.return_annotation != sgn_func.return_annotation:
         print("Method's return type does not match the one of proxy function")
-        print(f"method={sgn_method.return_annotation}")
-        print(f"function={sgn_func.return_annotation}")
+        print(f"method[{method.__name__}]={sgn_method.return_annotation}")
+        print(f"function[{func.__name__}]={sgn_func.return_annotation}")
     assert sgn_method.return_annotation == sgn_func.return_annotation
 
     params_method = list(sgn_method.parameters.values())
     params_func = list(sgn_func.parameters.values())
     if params_method[1:] != params_func[1:]:
         print("Method's parameters signature does not match the one of proxy function")
-        print(f"method={params_method[1:]}")
-        print(f"function={params_func[1:]}")
+        print(f"method[{method.__name__}]={params_method[1:]}")
+        print(f"function[{func.__name__}]={params_func[1:]}")
     assert params_method[1:] == params_func[1:]
 
 

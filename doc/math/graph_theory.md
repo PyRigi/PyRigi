@@ -132,7 +132,7 @@ $G-U$ is not {prf:ref}`connected <def-connected>`.
 In particular, if $U = \{u,v\}$ then U is called a _separating pair_.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_separating_set`
-{meth}`~.Graph.is_separating_set_dividing`
+{meth}`~.Graph.is_uv_separating_set`
 :::
 
 
@@ -156,9 +156,7 @@ and also a {prf:ref}`stable set <def-stable-set>` of $G$.
 {{references}} {cite:p}`LeMoscaMüller2008`
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_stable_separating_set`
-{meth}`~.Graph.is_stable_separating_set_dividing`
-{meth}`~.Graph.stable_separating_set_in_flexible_graph`
-{meth}`~.Graph.stable_separating_set_in_flexible_graph_fast`
+{meth}`~.Graph.stable_separating_set`
 :::
 
 

@@ -8,17 +8,26 @@ import pytest
 import numpy as np
 
 from pyrigi import Graph
-from pyrigi.data_type import StableSeparatingCut
-from pyrigi._cuts import _revertable_set_removal
+from pyrigi.separating_set import _revertable_set_removal
 
 
-def test_stable_set_eq():
-    set1 = StableSeparatingCut({1, 2}, {3, 4}, {5})
-    set2 = StableSeparatingCut({3, 4}, {1, 2}, {5})
-    set3 = StableSeparatingCut({3, 4}, {1, 2}, {6})
-    assert set1 == set1
-    assert set1 == set2
-    assert set1 != set3
+def _eq(g1: Graph, g2: nx.Graph):
+    if g1 != g2:
+        return False
+    for v in g1.nodes:
+        if g1.nodes[v] != g2.nodes[v]:
+            return False
+    for u, v in g1.edges:
+        if g1.edges[u, v] != g2.edges[u, v]:
+            return False
+    return True
+
+
+def _add_metadata(graph: nx.Graph):
+    for v in graph.nodes:
+        graph.nodes[v]["test_prop"] = v
+    for u, v in graph.edges:
+        graph.edges[u, v]["test_prop"] = (u, v)
 
 
 def test_is_stable_set():
@@ -34,20 +43,21 @@ def test_is_stable_set():
 
 
 def test__revertable_set_removal():
-    graph1 = nx.Graph([(0, 1), (1, 2), (2, 3)])
+    graph1 = Graph([(0, 1), (1, 2), (2, 3)])
+    _add_metadata(graph1)
     graph2 = graph1.copy()
 
     def noop(_: nx.Graph):
         pass
 
     _revertable_set_removal(graph2, set(), noop)
-    assert nx.is_isomorphic(graph1, graph2)
+    assert _eq(graph1, graph2)
     _revertable_set_removal(graph2, {2}, noop)
-    assert nx.is_isomorphic(graph1, graph2)
+    assert _eq(graph1, graph2)
     _revertable_set_removal(graph2, {0, 1, 2, 3}, noop)
-    assert nx.is_isomorphic(graph1, graph2)
+    assert _eq(graph1, graph2)
     _revertable_set_removal(nx.induced_subgraph(graph2, [0, 1, 2]), {1}, noop)
-    assert nx.is_isomorphic(graph1, graph2)
+    assert _eq(graph1, graph2)
 
 
 def test_is_separating_set():
@@ -59,54 +69,58 @@ def test_is_separating_set():
     assert not graph.is_separating_set(set())
     assert not graph.is_separating_set({4, 3})
 
-    assert Graph.is_separating_set_dividing(graph, {2}, 0, 3)
-    assert Graph.is_separating_set_dividing(graph, {2}, 4, 3)
-    assert not Graph.is_separating_set_dividing(graph, {2}, 0, 1)
+    assert Graph.is_uv_separating_set(graph, {2}, 0, 3)
+    assert Graph.is_uv_separating_set(graph, {2}, 4, 3)
+    assert not Graph.is_uv_separating_set(graph, {2}, 0, 1)
 
     with pytest.raises(ValueError):
-        Graph.is_separating_set_dividing(graph, {2}, 0, 2)
+        Graph.is_uv_separating_set(graph, {2}, 0, 2)
 
 
-def test_stable_separating_cut_in_flexible_graph_edge_cases():
+def test_stable_separating_set_edge_cases():
     # empty graph
-    graph = nx.Graph()
+    graph = Graph()
+    _add_metadata(graph)
     orig = graph.copy()
 
-    cut = Graph.stable_separating_set_in_flexible_graph(graph)
-    assert cut is None
-    assert nx.is_isomorphic(graph, orig)
+    with pytest.raises(ValueError):
+        Graph.stable_separating_set(graph)
+    assert _eq(graph, orig)
 
     # more vertices
     graph = Graph.from_vertices_and_edges([0, 1, 2], [])
+    _add_metadata(graph)
     orig = graph.copy()
-    cut = graph.stable_separating_set_in_flexible_graph()
-    assert cut is not None
+    cut = graph.stable_separating_set()
     assert graph.is_stable_separating_set(cut)
-    assert nx.is_isomorphic(graph, orig)
+    assert _eq(graph, orig)
 
     # single vertex graph
     graph = Graph.from_vertices_and_edges([0], [])
+    _add_metadata(graph)
     orig = graph.copy()
-    cut = graph.stable_separating_set_in_flexible_graph()
-    assert cut is None
-    assert nx.is_isomorphic(graph, orig)
+    with pytest.raises(ValueError):
+        graph.stable_separating_set()
+    assert _eq(graph, orig)
 
     # single edge graph
     graph = Graph.from_vertices_and_edges([0, 1], [(0, 1)])
+    _add_metadata(graph)
     orig = graph.copy()
-    cut = graph.stable_separating_set_in_flexible_graph()
-    assert cut is None
-    assert nx.is_isomorphic(graph, orig)
+    with pytest.raises(ValueError):
+        graph.stable_separating_set()
+    assert _eq(graph, orig)
 
     # triangle graph
     graph = Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (1, 2), (2, 0)])
+    _add_metadata(graph)
     orig = graph.copy()
-    cut = graph.stable_separating_set_in_flexible_graph()
-    assert cut is None
-    assert nx.is_isomorphic(graph, orig)
+    with pytest.raises(ValueError):
+        graph.stable_separating_set()
+    assert _eq(graph, orig)
 
 
-def test_stable_separating_cut_in_flexible_graph():
+def test_stable_separating_set():
     from pyrigi import Graph as Graph
 
     graph = Graph.from_vertices_and_edges(
@@ -128,56 +142,50 @@ def test_stable_separating_cut_in_flexible_graph():
 
     assert not graph.is_rigid()
 
-    cut = graph.stable_separating_set_in_flexible_graph()
-    assert cut is not None
+    cut = graph.stable_separating_set()
     assert Graph.is_stable_separating_set(graph, cut)
-    assert nx.is_isomorphic(graph, orig)
+    assert _eq(graph, orig)
 
-    cut = graph.stable_separating_set_in_flexible_graph(0)
-    assert cut is not None
+    cut = graph.stable_separating_set(0)
     assert Graph.is_stable_separating_set(graph, cut)
-    assert nx.is_isomorphic(graph, orig)
+    assert _eq(graph, orig)
 
-    cut = graph.stable_separating_set_in_flexible_graph(0, 1)
-    assert cut is None
-    assert nx.is_isomorphic(graph, orig)
+    with pytest.raises(ValueError):
+        graph.stable_separating_set(0, 1)
+    assert _eq(graph, orig)
 
-    cut = graph.stable_separating_set_in_flexible_graph(0, 4)
-    assert cut is None
-    assert nx.is_isomorphic(graph, orig)
+    with pytest.raises(ValueError):
+        graph.stable_separating_set(0, 4)
+    assert _eq(graph, orig)
 
     for i in [5, 6, 7]:
-        cut = graph.stable_separating_set_in_flexible_graph(0, i)
-        assert cut is not None
+        cut = graph.stable_separating_set(0, i)
         assert Graph.is_stable_separating_set(graph, cut)
-        assert nx.is_isomorphic(graph, orig)
+        assert _eq(graph, orig)
     for i in [0, 1, 2]:
-        cut = graph.stable_separating_set_in_flexible_graph(7, i)
-        assert cut is not None
+        cut = graph.stable_separating_set(7, i)
         assert Graph.is_stable_separating_set(graph, cut)
-        assert nx.is_isomorphic(graph, orig)
+        assert _eq(graph, orig)
 
 
-def test_stable_separating_cut_in_flexible_graph_prism():
+def test_stable_separating_set_prism():
     from pyrigi.graphDB import ThreePrism
 
     graph = ThreePrism()
-    orig = graph.copy()
 
     for u, v in product(graph.nodes, graph.nodes):
-        cut = graph.stable_separating_set_in_flexible_graph(u, v)
-        assert cut is None
-        assert nx.is_isomorphic(graph, orig)
+        with pytest.raises(ValueError):
+            graph.stable_separating_set(u, v)
 
 
 @pytest.mark.slow_main
 @pytest.mark.parametrize(
-    ("n", "p"), [(4, 0.3), (8, 0.3), (13, 0.4), (16, 0.4), (16, 0.4)]
+    ("n", "p"), [(4, 0.3), (8, 0.3), (13, 0.3), (16, 0.2), (16, 0.3)]
 )
 @pytest.mark.parametrize("graph_no", [69])
 @pytest.mark.parametrize("seed", [42, None])
 @pytest.mark.parametrize("connected", [True, False])
-def test_fuzzy_stable_separating_cut_in_flexible_graph(
+def test_fuzzy_stable_separating_set(
     n: int,
     p: float,
     graph_no: int,
@@ -194,7 +202,7 @@ def test_fuzzy_stable_separating_cut_in_flexible_graph(
         graph = Graph(nx.gnp_random_graph(n, p, seed=rand.randint(0, 2**30)))
 
         # Filter out unreasonable graphs
-        if nx.is_connected(graph) != connected or graph.is_rigid():
+        if nx.is_connected(graph) != connected or graph.is_rigid(dim=2):
             continue
 
         # Create mapping from vertex to rigid component ids
@@ -204,9 +212,6 @@ def test_fuzzy_stable_separating_cut_in_flexible_graph(
         for i, comp in enumerate(rigid_components):
             for v in comp:
                 vertex_to_comp_id[v].add(i)
-
-        # Makes sure that the underlying code does not require pyrigi.Graph
-        graph = nx.Graph(graph)
 
         # Take first pairs_per_graph pairs of vertices
         pairs = list(product(graph.nodes, graph.nodes))
@@ -228,18 +233,16 @@ def test_fuzzy_stable_separating_cut_in_flexible_graph(
                 if u == v or (vertex_to_comp_id[u] & vertex_to_comp_id[v]):
                     # invalid input
                     logging.disable(logging.WARNING)
-                    cut = Graph.stable_separating_set_in_flexible_graph(graph, u, v)
+                    with pytest.raises(ValueError):
+                        Graph.stable_separating_set(graph, u, v)
                     logging.disable(0)
 
-                    assert cut is None
                     tests_negative += 1
                 else:
                     # valid input
-                    cut = Graph.stable_separating_set_in_flexible_graph(graph, u, v)
-                    assert cut is not None
-                    assert Graph.is_stable_separating_set_dividing(
-                        Graph(graph), cut, u, v
-                    )
+                    cut = Graph.stable_separating_set(graph, u, v)
+                    assert Graph.is_uv_separating_set(graph, cut, u, v)
+                    assert Graph.is_stable_set(graph, cut)
                     tests_positive += 1
 
             except AssertionError as e:
