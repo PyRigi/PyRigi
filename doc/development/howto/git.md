@@ -106,7 +106,8 @@ To create a new MAJOR/MINOR version, the following steps should be taken by the 
 To release a new PATCH version, the following should be taken using some steps from above:
 * Create a release branch `release-x.y.z` on `main`.
 * Step 2. (and 3. if the patch involves a new contributor).
-* Steps 6.-10.
+* Steps 6.-9.
+* Pull `main`.
 * Create branch `release-x.y.z-main-to-dev` on `dev`.
 * Merge `main` into `release-x.y.z-main-to-dev` while keeping the `poetry.lock` file from `release-x.y.z-main-to-dev`.
 * Merge the branch `release-x.y.z-main-to-dev` via a PR to `dev`.
