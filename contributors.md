@@ -35,6 +35,7 @@ Contributions by comments, testing, definitions and examples:
   * Rebecca Monks
   * Anthony Nixon
 
+
 ## Version 0.3.0 (November 5, 2024)
 
 * Matteo Gallet (M)
@@ -43,6 +44,7 @@ Contributions by comments, testing, definitions and examples:
 * Matthias Himmelmann (M)
 * Jan Legerský (M)
 * András Mihálykó
+
 
 ## Version 0.2.0 (August 8, 2024)
 

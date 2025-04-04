@@ -38,7 +38,9 @@ def _doc_category(category):
     return decorator_doc_category
 
 
-def _generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> str:
+def _generate_category_tables(
+    cls, tabs, cat_order=None, include_all=False, add_attributes=True
+) -> str:
     """
     Generate a formatted string that categorizes methods of a given class.
 
@@ -54,6 +56,9 @@ def _generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> s
     include_all:
         Optional boolean determining whether methods without a specific category
         should be included.
+    add_attributes:
+        Optional boolean determining whether the public attributes should
+        be listed among attribute getters.
     """
     if cat_order is None:
         cat_order = []
@@ -72,7 +77,7 @@ def _generate_category_tables(cls, tabs, cat_order=None, include_all=False) -> s
                     categories["Not categorized"].append(func)
                 else:
                     categories["Not categorized"] = [func]
-        elif isinstance(getattr(cls, func), property):
+        elif isinstance(getattr(cls, func), property) and add_attributes:
             category = "Attribute getters"
             if category in categories:
                 categories[category].append(func)
