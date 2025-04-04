@@ -4,34 +4,27 @@ Module for rigidity related graph properties.
 
 from __future__ import annotations
 
-from typing import Callable, Collection, Iterable, Optional
 import math
+from typing import Callable, Collection, Iterable, Optional
 import warnings
 from copy import deepcopy
 from itertools import combinations
 from random import randint
 
-
 import networkx as nx
 from sympy import Matrix, oo, zeros
 
-from pyrigi._wrap import copy_doc
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
-from pyrigi.data_type import (
-    Vertex,
-    Edge,
-    Point,
-    Inf,
-    Sequence,
-)
+import pyrigi.separating_set
+from pyrigi._wrap import copy_doc
+from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.misc import _generate_category_tables
 from pyrigi.misc import _doc_category as doc_category
 from pyrigi.plot_style import PlotStyle
 from pyrigi.warning import RandomizedAlgorithmWarning
-import pyrigi.separating_set
 
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}

@@ -2,12 +2,13 @@ from collections import defaultdict
 from itertools import product
 import logging
 import random
+
 import networkx as nx
-from pyrigi.data_type import Vertex
-import pytest
 import numpy as np
+import pytest
 
 from pyrigi import Graph
+from pyrigi.data_type import Vertex
 from pyrigi.separating_set import _revertable_set_removal
 
 

@@ -5,6 +5,7 @@ according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 """
 
 import logging
+
 import networkx as nx
 import numpy as np
 from typing import (
