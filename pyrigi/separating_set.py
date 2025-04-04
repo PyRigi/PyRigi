@@ -1,6 +1,7 @@
 """
-algorithms related to separating sets.
-Also includes an algorithm for a stable separating set search in a flexible graph
+This module provides algorithms related to separating sets.
+
+It includes an algorithm for a stable separating set search in a 2-flexible graph
 according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 """
 
@@ -34,8 +35,10 @@ def is_stable_set(
     certificate: bool = False,
 ) -> bool | tuple[bool, Optional[tuple[Vertex, Vertex]]]:
     """
-    Check if the given set of vertices is stable in the given graph.
-    and if not, find a pair of vertices in the set that are neighboring.
+    Return if given ``vertices`` form a stable set.
+
+    If the set is not stable, a pair of adjacent vertices
+    is also returned depending on `certificate`.
 
     Definitions
     -----------
@@ -44,19 +47,12 @@ def is_stable_set(
     Parameters
     ----------
     vertices:
-        the vertices to check
+        A set of vertices to be checked.
     certificate:
-        if True, return also a pair of vertices that are in the set
-        and are neighboring. See returns.
-
-    Returns
-    -------
-        If certificate is ``False``,
-        returns a boolean whether the set is stable or not.
-        If certificate is ``True``,
-        a tuple where first boolean states whenever the set is stable
-        and second item gives a pair of vertices contradicting the stable
-        property if applicable.
+        If ``False``, just a boolean whether the set is stable or not is returned.
+        If ``True``, a tuple is returned where first boolean states
+        whether the set is stable and the second item gives a pair of vertices
+        contradicting the stable property if applicable (otherwise ``None``).
 
     Examples
     --------
@@ -93,18 +89,19 @@ def _revertable_set_removal(
     copy: bool,
 ) -> T:
     """
-    Remove given vertices from the graph, perform operation,
-    return vertices along with edges back.
+    Remove given ``vertices`` from the graph, return the result of ``opt(graph)``,
+    and restore the original graph.
 
     Parameters
     ----------
     vertices:
-        Vertex set to remove
+        Vertex set to remove.
     opt:
-        Operation to perform on a graph with vertices removed
+        A function whose result is returned for the graph with vertices removed.
     copy:
         Create a copy of the graph before the vertices are removed
-        and connectivity is checked. Otherwise, the graph is modified in-place.
+        and ``property`` is checked.
+        Otherwise, the graph is modified in-place.
         In that case, some metadata may be lost.
     """
     copy = copy or nx.is_frozen(graph)
@@ -137,7 +134,7 @@ def is_separating_set(
     copy: bool = True,
 ) -> bool:
     """
-    Check if the given set of vertices is a separator in the given graph.
+    Return if ``vertices`` are a separating set.
 
     Definitions
     -----------
@@ -183,7 +180,7 @@ def is_uv_separating_set(
     copy: bool = True,
 ) -> bool:
     """
-    Check if the given set separates vertices u and v.
+    Return if ``vertices`` separate the vertices ``u`` and ``v``.
 
     Definitions
     -----------
@@ -192,20 +189,14 @@ def is_uv_separating_set(
     Parameters
     ----------
     vertices:
-        the vertices to check
-    u:
-        the first vertex
-    v:
-        the second vertex
+        The set of vertices to be checked to separate ``u`` and ``v``.
+        If ``u`` or ``v`` is contained in ``vertices``,
+        ``ValueError`` is raised.
+    u, v:
     copy:
         Create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
         In that case, some metadata may be lost.
-
-    Raises
-    ------
-    ValueError:
-        If either of the vertices is contained in the separating set
 
     Examples
     --------
@@ -239,20 +230,15 @@ def is_stable_separating_set(
     copy: bool = True,
 ) -> bool:
     """
-    Check if the given set of vertices is a stable separating in the given graph.
+    Return if ``vertices`` are a stable separating set.
+
+    See :meth:`~pyrigi.graph.Graph.is_stable_set` and
+    :meth:`~pyrigi.graph.Graph.is_separating_set` for the parameters.
 
     Definitions
     -----------
-    :prf:ref:`Stable separating set <def-stable-separating-set>`
-
-    Parameters
-    ----------
-    vertices:
-        the separating set of vertices
-    copy:
-        Create a copy of the graph before the vertices are removed
-        and connectivity is checked. Otherwise, the graph is modified in-place.
-        In that case, some metadata may be lost.
+    * :prf:ref:`Stable set <def-stable-set>`
+    * :prf:ref:`Separating set <def-separating-set>`
 
     Examples
     --------
@@ -262,11 +248,6 @@ def is_stable_separating_set(
     True
     >>> H.is_stable_separating_set([1,2])
     False
-
-    Note
-    ----
-        See :meth:`~pyrigi.graph.Graph.is_stable_set` and
-        :meth:`~pyrigi.graph.Graph.is_separating_set`.
     """
     return is_stable_set(graph, vertices) and is_separating_set(
         graph, vertices, copy=copy
@@ -283,41 +264,45 @@ def stable_separating_set(
     check_distinct_rigid_components: bool = True,
 ) -> set[Vertex]:
     """
-    Find a stable separating set in a flexible graph
-    according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
+    Find a stable separating set in a 2-flexible graph.
+
+    Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024` is used.
+    The algorithm allows to specify two vertices ``u`` and ``v``
+    that are separated by the returned stable separating set,
+    provided that they are not in the same
+    :prf:ref:`2-rigid component <def-rigid-components>`.
+    Alternatively, a single vertex ``u`` can be specified that is
+    avoided in the returned stable separating set.
 
     Definitions
     -----------
-    :prf:ref:`Stable separating set <def-stable-separating-set>`
-    :prf:ref:`Contiguous rigidity <def-cont-rigid-framework>`
+    * :prf:ref:`Stable set <def-stable-set>`
+    * :prf:ref:`Separating set <def-separating-set>`
+    * :prf:ref:`Flexible graph <def-gen-rigid>`
 
     Parameters
     ----------
     u:
-        The first vertex indicating the rigid component used,
-        arbitrary vertex is chosen otherwise
+        See the description above,
+        an arbitrary vertex is chosen if none is specified.
     v:
-        The second vertex indicating the other rigid component used
-        arbitrary vertex is chosen otherwise.
-        Cannot share a same rigid component as ``u``.
+        See the description above,
+        an arbitrary vertex is chosen if none is specified.
+        It cannot be in the same 2-rigid component as ``u``.
     check_flexible:
-        If ``True``, ensure that graph is flexible as
-        the algorithm only works for flexible graphs.
+        If ``True``, it is checked that the graph is
+        2-flexible as the algorithm only works for those.
+        If ``False`` and the graph is 2-rigid,
+        the output is undefined.
     check_connected:
-        If ``True``, checks for graph connectivity are run and result
-        may altered based on them.
-        If disconnected graph is passed as argument
-        when the check is disabled, algorithms output is undefined.
+        If ``True``, checks for graph connectivity are run and
+        the result may alter based on them.
+        If ``False`` and the graph is disconnected,
+        the output is undefined.
     check_distinct_rigid_components:
-        Whether to check that ``u`` and ``v``
-        are in different rigid components.
-        If set to ``False`` Both ``u`` and ``v`` must be specified.
-
-    Returns
-    -------
-        For a valid input a stable separating set in the graph is returned.
-        For rigid graphs and cases when ``u`` and ``v`` are not in the same
-        rigid component, ``None`` is returned.
+        If ``True``, it is checked that ``u`` and ``v``
+        are in different 2-rigid components.
+        If ``False``, both ``u`` and ``v`` must be specified.
     """
     from pyrigi import Graph as PRGraph
 
@@ -357,7 +342,7 @@ def stable_separating_set(
     # if the graph is not connected, we can possibly reduce the work needed
     # by finding a connected component that contains u
     # and find a separating set in it or just calling it the day
-    # if v is not specified of lays in another component
+    # if v is not specified or lies in another component
 
     # separate a connected component that contains u
     if is_connected:
@@ -393,20 +378,18 @@ def _validate_uv_different_rigid_comps(
     Make sure ``u`` and ``v`` are in different rigid components and
     find such ``v`` if not provided.
 
+    If the graph is rigid or if ``u`` and ``v`` are in the same rigid component,
+    then ``None`` is returned.
+    Otherwise, a valid ``v`` is returned.
+
     Parameters
     ----------
     graph:
-        The graph to check
+        The graph to check.
     u:
-        The first vertex
+        The first vertex.
     v:
-        The second vertex, will be chosen arbitrary if not provided
-
-    Returns
-    -------
-        None if the graph is rigid or
-        if ``u`` and ``v`` are in the same rigid component.
-    otherwise, returns valid ``v``.
+        The second vertex, will be chosen arbitrary if not provided.
     """
     rigid_components = graph.rigid_components()
 
@@ -441,21 +424,21 @@ def _find_stable_uv_separating_set(
     Parameters
     ----------
     graph:
-        mutable graph to find a stable separating set in
+        A mutable graph to find a stable separating set in.
     u:
-        the vertex around which we look for a stable separating set
+        The vertex around which we look for a stable separating set.
     v:
-        the vertex marking another rigid component
+        The vertex marking another rigid component.
     """
 
     # Checks neighborhood of u
     # if it is a stable set, we are done
-    neiborhood = set(graph.neighbors(u))
-    violation = is_stable_set(graph, neiborhood, certificate=True)[1]
+    neighborhood = set(graph.neighbors(u))
+    violation = is_stable_set(graph, neighborhood, certificate=True)[1]
 
     # found a stable set around u
     if violation is None:
-        return neiborhood
+        return neighborhood
 
     # used to preserve graph's metadata
     vertex_data: dict[Vertex, dict[str, Any]] = {}
@@ -465,8 +448,8 @@ def _find_stable_uv_separating_set(
         graph: nx.Graph, u: Vertex, x: Vertex
     ) -> tuple[set[Vertex], set[Vertex]]:
         """
-        Contracts the vertices u and x
-        and returns their original neighbors for easy restoration
+        Contract the vertices u and x
+        and return their original neighbors for easy restoration.
         """
         u_neigh = set(graph.neighbors(u))
         x_neigh = set(graph.neighbors(x))
@@ -489,7 +472,7 @@ def _find_stable_uv_separating_set(
         x_neigh: set[Vertex],
     ):
         """
-        Restores contracted graph to it's original form.
+        Restore the contracted graph to its original form.
         Inverse operation for contract.
         """
         for n in x_neigh - u_neigh - {u}:
@@ -498,7 +481,7 @@ def _find_stable_uv_separating_set(
         for n in x_neigh:
             graph.add_edge(x, n, **edge_data[frozenset((n, x))])
 
-    # Tries both the vertices forming a triable with u
+    # Try the both vertices forming a triangle with u
     # Pass has to succeed with at least one of them,
     # otherwise the rigid components are not maximal or the graph is rigid.
     for x in violation:
@@ -516,7 +499,7 @@ def _find_stable_uv_separating_set(
         if problem_found:
             continue
 
-        # ensures that graph gets always restored to the original form properly
+        # ensure that graph gets always restored to the original form properly
         try:
             return _find_stable_uv_separating_set(graph, u, v)
         finally:

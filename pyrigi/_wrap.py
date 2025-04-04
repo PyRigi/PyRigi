@@ -118,18 +118,18 @@ def _get_resolved_signature(
     if convert_first_to_self:
         ignored_params.append(next(iter(signature.parameters)))
 
-    # Get's annotations like return types
+    # Get annotations like return types
     evaluated_annotations, fn_globals, fn_locals = _get_annotations(fn, ignored_params)
 
     new_parameters: list[Parameter] = []
 
-    # Replaces the first argument by self and adds annotations to the rest
+    # Replace the first argument by self and add annotations to the rest
     params_iter = iter(signature.parameters.items())
     if convert_first_to_self:
         next(params_iter)
         new_parameters.append(Parameter("self", Parameter.POSITIONAL_OR_KEYWORD))
 
-    # Copies the other annotations (with string names resolved)
+    # Copy the other annotations (with string names resolved)
     for name, parameter in params_iter:
         new_parameters.append(parameter)
         if name not in ignored_params:
@@ -156,8 +156,10 @@ def _is_pytest() -> bool:
 
 def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
     """
-    Make sure both the callable objects provided share the same signature except
-    for the first parameter. The intended use is to check if a method and
+    Make sure both provided callable objects share the same signature except
+    for the first parameter.
+
+    The intended use is to check if a method and
     a function replacing it have the same signature.
     """
     sgn_method = _get_resolved_signature(
@@ -186,8 +188,9 @@ def copy_doc(
     proxy_func: Callable[P, T],
 ) -> Callable[[Callable[..., T]], Callable[P, T]]:
     """
-    Copy documentation from the provided function.
-    In tests it also ensures that the signatures match.
+    Copy the docstring from the provided function.
+
+    In tests, it also ensures that the signatures match.
     """
 
     def wrapped(method: Callable[..., T]) -> Callable[P, T]:
