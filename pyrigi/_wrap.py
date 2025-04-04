@@ -1,4 +1,8 @@
 # Based on https://github.com/Tinche/tightwrap/blob/main/src/tightwrap/__init__.py
+# which is released under
+# Apache License
+# Version 2.0, January 2004
+# http://www.apache.org/licenses/
 
 from inspect import Parameter, Signature, _empty
 from typing import Any, Callable, TypeVar, cast
