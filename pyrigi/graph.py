@@ -3414,7 +3414,7 @@ class Graph(nx.Graph):
         self,
         vertices: Collection[Vertex],
         certificate: bool = False,
-    ) -> bool | tuple[bool, Optional[tuple[Vertex, Vertex]]]:
+    ) -> bool | tuple[bool, Optional[Edge]]:
         return pyrigi.separating_set.is_stable_set(
             self, vertices=vertices, certificate=certificate
         )

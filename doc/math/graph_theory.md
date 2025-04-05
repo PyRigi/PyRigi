@@ -131,8 +131,8 @@ $G-U$ is not {prf:ref}`connected <def-connected>`.
 
 In particular, if $|U| = 2$ then U is called a _separating pair_.
 
-We say that $U$ separates vertices $u$ and $v$, or that $U$ is a $(u,v)$-separating set
-$u$ and $v$ are in different connected components of $G-U$. 
+We say that $U$ _separates_ the vertices $u$ and $v$, or that $U$ is a _$(u,v)$-separating set_,
+if $u$ and $v$ are in different connected components of $G-U$. 
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_separating_set`
 {meth}`~.Graph.is_uv_separating_set`

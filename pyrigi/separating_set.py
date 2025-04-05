@@ -33,12 +33,12 @@ def is_stable_set(
     graph: nx.Graph,
     vertices: Collection[Vertex],
     certificate: bool = False,
-) -> bool | tuple[bool, Optional[tuple[Vertex, Vertex]]]:
+) -> bool | tuple[bool, Optional[Edge]]:
     """
     Return if given ``vertices`` form a stable set.
 
     If the set is not stable, a pair of adjacent vertices
-    is also returned depending on `certificate`.
+    is also returned depending on ``certificate``.
 
     Definitions
     -----------
@@ -50,7 +50,7 @@ def is_stable_set(
         A set of vertices to be checked.
     certificate:
         If ``False``, just a boolean whether the set is stable or not is returned.
-        If ``True``, a tuple is returned where first boolean states
+        If ``True``, a tuple is returned where the first boolean states
         whether the set is stable and the second item gives a pair of vertices
         contradicting the stable property if applicable (otherwise ``None``).
 
@@ -143,7 +143,7 @@ def is_separating_set(
     Parameters
     ----------
     vertices:
-        the vertices to check
+        The vertices to check.
     copy:
         Create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
@@ -233,12 +233,18 @@ def is_stable_separating_set(
     Return if ``vertices`` are a stable separating set.
 
     See :meth:`~pyrigi.graph.Graph.is_stable_set` and
-    :meth:`~pyrigi.graph.Graph.is_separating_set` for the parameters.
+    :meth:`~pyrigi.graph.Graph.is_separating_set` for
+    the description of the parameters.
 
     Definitions
     -----------
     * :prf:ref:`Stable set <def-stable-set>`
     * :prf:ref:`Separating set <def-separating-set>`
+
+    Parameters
+    ----------
+    vertices:
+    copy:
 
     Examples
     --------
@@ -264,7 +270,7 @@ def stable_separating_set(
     check_distinct_rigid_components: bool = True,
 ) -> set[Vertex]:
     """
-    Find a stable separating set in a 2-flexible graph.
+    Find a stable separating set if the graph is 2-flexible.
 
     Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024` is used.
     The algorithm allows to specify two vertices ``u`` and ``v``
@@ -272,7 +278,8 @@ def stable_separating_set(
     provided that they are not in the same
     :prf:ref:`2-rigid component <def-rigid-components>`.
     Alternatively, a single vertex ``u`` can be specified that is
-    avoided in the returned stable separating set.
+    avoided in the returned stable separating set,
+    provided it does not separate the graph.
 
     Definitions
     -----------
@@ -287,7 +294,7 @@ def stable_separating_set(
         an arbitrary vertex is chosen if none is specified.
     v:
         See the description above,
-        an arbitrary vertex is chosen if none is specified.
+        a suitable vertex is chosen if none is specified.
         It cannot be in the same 2-rigid component as ``u``.
     check_flexible:
         If ``True``, it is checked that the graph is
