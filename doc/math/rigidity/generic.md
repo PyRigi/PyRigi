@@ -11,7 +11,12 @@ A {prf:ref}`framework <def-framework>` $(G, p)$, where $p$ is generic, is called
 :label: def-gen-rigid
 
 Let $G$ be a graph and $d \in \NN$.
-The graph $G$ is called _(generically) $d$-rigid_ if any {prf:ref}`generic d-dimensional framework <def-gen-realization>` $(G, p)$ is {prf:ref}`rigid <def-cont-rigid-framework>`; this is equivalent to $(G, p)$ being {prf:ref}`infinitesimally rigid <def-inf-rigid-framework>`.
+The graph $G$ is called _(generically) $d$-rigid_ if any
+{prf:ref}`generic d-dimensional framework <def-gen-realization>` $(G, p)$ is
+{prf:ref}`rigid <def-cont-rigid-framework>`;
+this is equivalent to $(G, p)$ being {prf:ref}`infinitesimally rigid <def-inf-rigid-framework>`.
+
+The graph $G$ is called _(generically) $d$-flexible_ if it is not (generically) $d$-rigid.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_rigid`
 :::
