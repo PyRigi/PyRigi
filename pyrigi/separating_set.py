@@ -86,7 +86,7 @@ def _revertable_set_removal(
     graph: nx.Graph,
     vertices: Collection[Vertex],
     opt: Callable[[nx.Graph], T],
-    copy: bool,
+    use_copy: bool,
 ) -> T:
     """
     Remove given ``vertices`` from the graph, return the result of ``opt(graph)``,
@@ -98,18 +98,18 @@ def _revertable_set_removal(
         Vertex set to remove.
     opt:
         A function whose result is returned for the graph with vertices removed.
-    copy:
+    use_copy:
         Create a copy of the graph before the vertices are removed
         and ``property`` is checked.
         Otherwise, the graph is modified in-place.
         In that case, some metadata may be lost.
     """
-    copy = copy or nx.is_frozen(graph)
+    use_copy = use_copy or nx.is_frozen(graph)
     vertex_data: dict[Vertex, dict[str, Any]]
     edge_data: dict[Edge, dict[str, Any]]
     neighbors: list[Tuple[Vertex, Vertex]]
 
-    if copy:
+    if use_copy:
         graph = nx.Graph(graph)
     else:
         neighbors = [(u, v) for u in vertices for v in graph.neighbors(u)]
@@ -121,7 +121,7 @@ def _revertable_set_removal(
     try:
         return opt(graph)
     finally:
-        if not copy:
+        if not use_copy:
             for v in vertices:
                 graph.add_node(v, **vertex_data[v])
             for u, v in neighbors:
@@ -131,7 +131,7 @@ def _revertable_set_removal(
 def is_separating_set(
     graph: nx.Graph,
     vertices: Collection[Vertex],
-    copy: bool = True,
+    use_copy: bool = True,
 ) -> bool:
     """
     Return if ``vertices`` are a separating set.
@@ -144,7 +144,7 @@ def is_separating_set(
     ----------
     vertices:
         The vertices to check.
-    copy:
+    use_copy:
         Create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
         In that case, some metadata may be lost.
@@ -168,7 +168,7 @@ def is_separating_set(
     pyrigi._graph_input_check.vertex_members(graph, vertices)
 
     return _revertable_set_removal(
-        graph, vertices, lambda g: not nx.is_connected(g), copy=copy
+        graph, vertices, lambda g: not nx.is_connected(g), use_copy=use_copy
     )
 
 
@@ -177,7 +177,7 @@ def is_uv_separating_set(
     vertices: Collection[Vertex],
     u: Vertex,
     v: Vertex,
-    copy: bool = True,
+    use_copy: bool = True,
 ) -> bool:
     """
     Return if ``vertices`` separate the vertices ``u`` and ``v``.
@@ -193,7 +193,7 @@ def is_uv_separating_set(
         If ``u`` or ``v`` is contained in ``vertices``,
         ``ValueError`` is raised.
     u, v:
-    copy:
+    use_copy:
         Create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
         In that case, some metadata may be lost.
@@ -221,13 +221,13 @@ def is_uv_separating_set(
                 return False
         return True
 
-    return _revertable_set_removal(graph, vertices, check_graph, copy=copy)
+    return _revertable_set_removal(graph, vertices, check_graph, use_copy=use_copy)
 
 
 def is_stable_separating_set(
     graph: nx.Graph,
     vertices: Collection[Vertex],
-    copy: bool = True,
+    use_copy: bool = True,
 ) -> bool:
     """
     Return if ``vertices`` are a stable separating set.
@@ -244,7 +244,7 @@ def is_stable_separating_set(
     Parameters
     ----------
     vertices:
-    copy:
+    use_copy:
 
     Examples
     --------
@@ -256,7 +256,7 @@ def is_stable_separating_set(
     False
     """
     return is_stable_set(graph, vertices) and is_separating_set(
-        graph, vertices, copy=copy
+        graph, vertices, use_copy=use_copy
     )
 
 

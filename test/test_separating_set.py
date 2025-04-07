@@ -51,15 +51,15 @@ def test__revertable_set_removal():
     def noop(_: nx.Graph):
         pass
 
-    _revertable_set_removal(graph2, set(), noop, copy=True)
-    _revertable_set_removal(graph2, set(), noop, copy=False)
+    _revertable_set_removal(graph2, set(), noop, use_copy=True)
+    _revertable_set_removal(graph2, set(), noop, use_copy=False)
     assert _eq(graph1, graph2)
-    _revertable_set_removal(graph2, {2}, noop, copy=False)
+    _revertable_set_removal(graph2, {2}, noop, use_copy=False)
     assert _eq(graph1, graph2)
-    _revertable_set_removal(graph2, {0, 1, 2, 3}, noop, copy=False)
+    _revertable_set_removal(graph2, {0, 1, 2, 3}, noop, use_copy=False)
     assert _eq(graph1, graph2)
     _revertable_set_removal(
-        nx.induced_subgraph(graph2, [0, 1, 2]), {1}, noop, copy=False
+        nx.induced_subgraph(graph2, [0, 1, 2]), {1}, noop, use_copy=False
     )
     assert _eq(graph1, graph2)
 

@@ -3424,10 +3424,10 @@ class Graph(nx.Graph):
     def is_separating_set(
         self,
         vertices: Collection[Vertex],
-        copy: bool = True,
+        use_copy: bool = True,
     ) -> bool:
         return pyrigi.separating_set.is_separating_set(
-            self, vertices=vertices, copy=copy
+            self, vertices=vertices, use_copy=use_copy
         )
 
     @doc_category("General graph theoretical properties")
@@ -3437,10 +3437,10 @@ class Graph(nx.Graph):
         vertices: Collection[Vertex],
         u: Vertex,
         v: Vertex,
-        copy: bool = True,
+        use_copy: bool = True,
     ) -> bool:
         return pyrigi.separating_set.is_uv_separating_set(
-            self, vertices=vertices, u=u, v=v, copy=copy
+            self, vertices=vertices, u=u, v=v, use_copy=use_copy
         )
 
     @doc_category("General graph theoretical properties")
@@ -3448,10 +3448,10 @@ class Graph(nx.Graph):
     def is_stable_separating_set(
         self,
         vertices: Collection[Vertex],
-        copy: bool = True,
+        use_copy: bool = True,
     ) -> bool:
         return pyrigi.separating_set.is_stable_separating_set(
-            self, vertices=vertices, copy=copy
+            self, vertices=vertices, use_copy=use_copy
         )
 
     @doc_category("General graph theoretical properties")
