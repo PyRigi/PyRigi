@@ -7,6 +7,7 @@ import networkx as nx
 import numpy as np
 import pytest
 
+import pyrigi.graphDB as graphs
 from pyrigi import Graph
 from pyrigi.data_type import Vertex
 from pyrigi.separating_set import _revertable_set_removal
@@ -31,10 +32,43 @@ def _add_metadata(graph: nx.Graph):
         graph.edges[u, v]["test_prop"] = (u, v)
 
 
-def test_is_stable_set():
+@pytest.mark.parametrize(
+    "graph, stable_set",
+    [
+        [graphs.Complete(2), [0]],
+        [graphs.Complete(3), []],
+        [graphs.CompleteBipartite(3, 3), [0, 1]],
+        [graphs.CompleteBipartite(3, 4), [0, 1, 2]],
+        [graphs.CompleteBipartite(4, 4), [4, 5, 6, 7]],
+        [graphs.Diamond(), [1, 3]],
+        [graphs.ThreePrism(), [0, 4]],
+        [Graph([(0, 1), (2, 3)]), [0, 2]],
+    ],
+)
+def test_is_stable_set(graph, stable_set):
+    assert graph.is_stable_set(stable_set)
+
+
+@pytest.mark.parametrize(
+    "graph, stable_set",
+    [
+        [graphs.Complete(2), [0, 1]],
+        [graphs.Complete(3), [0, 1]],
+        [graphs.Complete(4), [2, 3]],
+        [graphs.CompleteBipartite(3, 3), [0, 3, 4]],
+        [graphs.CompleteBipartite(3, 4), [0, 3, 4, 5]],
+        [graphs.Diamond(), [0, 2]],
+        [graphs.K33plusEdge(), [0, 1, 5]],
+        [Graph([(0, 1), (2, 3)]), [3, 2]],
+    ],
+)
+def test_is_not_stable_set(graph, stable_set):
+    assert not graph.is_stable_set(stable_set)
+
+
+def test_is_stable_set_certificate():
     graph = nx.Graph([(0, 1), (1, 2), (2, 3)])
 
-    assert not Graph.is_stable_set(graph, {0, 1, 2}, certificate=False)
     assert Graph.is_stable_set(graph, {0, 1, 2}, certificate=True) in [
         (False, (0, 1)),
         (False, (1, 2)),
@@ -44,7 +78,7 @@ def test_is_stable_set():
 
 
 def test__revertable_set_removal():
-    graph1 = Graph([(0, 1), (1, 2), (2, 3)])
+    graph1 = graphs.Complete(4)
     _add_metadata(graph1)
     graph2 = graph1.copy()
 
@@ -52,9 +86,12 @@ def test__revertable_set_removal():
         pass
 
     _revertable_set_removal(graph2, set(), noop, use_copy=True)
+    assert _eq(graph1, graph2)
     _revertable_set_removal(graph2, set(), noop, use_copy=False)
     assert _eq(graph1, graph2)
     _revertable_set_removal(graph2, {2}, noop, use_copy=False)
+    assert _eq(graph1, graph2)
+    _revertable_set_removal(graph2, {2}, noop, use_copy=True)
     assert _eq(graph1, graph2)
     _revertable_set_removal(graph2, {0, 1, 2, 3}, noop, use_copy=False)
     assert _eq(graph1, graph2)
@@ -64,15 +101,54 @@ def test__revertable_set_removal():
     assert _eq(graph1, graph2)
 
 
-def test_is_separating_set():
+@pytest.mark.parametrize(
+    "graph, separating_set",
+    [
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {2}],
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {0, 2}],
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {0, 1}],
+        [graphs.CompleteBipartite(3, 4), [0, 1, 2]],
+        [graphs.CompleteBipartite(4, 4), [0, 4, 5, 6, 7]],
+        [graphs.Diamond(), [0, 2]],
+        [graphs.ThreePrism(), [0, 4, 5]],
+        [Graph([(0, 1), (2, 3)]), [0, 2]],
+        [Graph([(0, 1), (2, 3)]), [0]],
+        [Graph([(0, 1), (2, 3)]), []],
+    ],
+)
+def test_is_separating_set(graph, separating_set):
+    assert graph.is_separating_set(separating_set)
+
+
+@pytest.mark.parametrize(
+    "graph, separating_set",
+    [
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), set()],
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {4, 3}],
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {1}],
+        [graphs.Complete(2), [0]],
+        [graphs.Complete(3), []],
+        [graphs.CompleteBipartite(3, 3), [0, 1]],
+        [graphs.Diamond(), [1, 3]],
+        [graphs.ThreePrism(), [0, 4]],
+        [graphs.Complete(3), [0, 1]],
+        [graphs.Complete(4), [2, 3]],
+        [graphs.CompleteBipartite(3, 3), [0, 3, 4]],
+        [graphs.CompleteBipartite(3, 4), [0, 3, 4, 5]],
+        [graphs.K33plusEdge(), [0, 1, 5]],
+    ],
+)
+def test_is_not_separating_set(graph, separating_set):
+    assert not graph.is_separating_set(separating_set)
+
+
+def test_is_separating_set_error():
+    with pytest.raises(ValueError):
+        graphs.Complete(2).is_separating_set([0, 1])
+
+
+def test_is_uv_separating_set():
     graph = Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)])
-
-    assert graph.is_separating_set({2})
-    assert graph.is_separating_set({0, 2})
-    assert graph.is_separating_set({0, 1})
-    assert not graph.is_separating_set(set())
-    assert not graph.is_separating_set({4, 3})
-
     assert Graph.is_uv_separating_set(graph, {2}, 0, 3)
     assert Graph.is_uv_separating_set(graph, {2}, 4, 3)
     assert not Graph.is_uv_separating_set(graph, {2}, 0, 1)

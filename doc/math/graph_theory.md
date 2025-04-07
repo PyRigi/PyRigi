@@ -126,7 +126,7 @@ where two paths are internally disjoint if they do not share any edge.
 :::{prf:definition} separating set
 :label: def-separating-set
 
-The set $U\subset V$ is called a _separating set_ of a graph $G=(V,E)$ if
+A proper subset $U\subset V$ is called a _separating set_ of a graph $G=(V,E)$ if
 $G-U$ is not {prf:ref}`connected <def-connected>`.
 
 In particular, if $|U| = 2$ then U is called a _separating pair_.
@@ -143,7 +143,7 @@ if $u$ and $v$ are in different connected components of $G-U$.
 :label: def-stable-set
 
 The set $S \subset V$ is called a _stable set_ of $G$
-if there is no edge $uv$ in $G$ such that $u,v \in S$
+if there is no edge $uv$ in $G$ such that $u,v \in S$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_stable_set`
 {meth}`~.Graph.is_stable_separating_set`
