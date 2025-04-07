@@ -147,14 +147,52 @@ def test_is_separating_set_error():
         graphs.Complete(2).is_separating_set([0, 1])
 
 
-def test_is_uv_separating_set():
-    graph = Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)])
-    assert Graph.is_uv_separating_set(graph, {2}, 0, 3)
-    assert Graph.is_uv_separating_set(graph, {2}, 4, 3)
-    assert not Graph.is_uv_separating_set(graph, {2}, 0, 1)
+@pytest.mark.parametrize(
+    "graph, separating_set, u, v",
+    [
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {2}, 0, 3],
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {2}, 4, 3],
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {0, 2}, 1, 3],
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {0, 1}, 2, 4],
+        [graphs.CompleteBipartite(3, 4), [0, 1, 2], 3, 4],
+        [graphs.Diamond(), [0, 2], 1, 3],
+        [graphs.ThreePrism(), [0, 4, 5], 1, 3],
+        [Graph([(0, 1), (2, 3)]), [0, 2], 1, 3],
+        [Graph([(0, 1), (2, 3)]), [0], 1, 3],
+        [Graph([(0, 1), (2, 3)]), [], 1, 3],
+    ],
+)
+def test_is_uv_separating_set(graph, separating_set, u, v):
+    assert graph.is_uv_separating_set(separating_set, u, v)
 
+
+@pytest.mark.parametrize(
+    "graph, separating_set, u, v",
+    [
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {2}, 0, 1],
+        [Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]), {4, 3}, 0, 1],
+        [graphs.Complete(3), [], 1, 2],
+        [graphs.CompleteBipartite(3, 3), [0, 1], 4, 5],
+        [graphs.Diamond(), [1, 3], 0, 2],
+        [graphs.ThreePrism(), [0, 4], 1, 3],
+        [graphs.Complete(4), [2, 3], 0, 1],
+        [graphs.CompleteBipartite(3, 4), [0, 3, 4, 5], 1, 2],
+        [graphs.K33plusEdge(), [0, 1, 5], 3, 4],
+    ],
+)
+def test_is_not_uv_separating_set(graph, separating_set, u, v):
+    assert not graph.is_uv_separating_set(separating_set, u, v)
+
+
+def test_is_uv_separating_set_error():
     with pytest.raises(ValueError):
-        Graph.is_uv_separating_set(graph, {2}, 0, 2)
+        Graph([(0, 1), (1, 2), (0, 2), (2, 3), (0, 4), (1, 4)]).is_uv_separating_set(
+            {2}, 0, 2
+        )
+    with pytest.raises(ValueError):
+        graphs.CompleteBipartite(4, 4).is_uv_separating_set([0, 4, 5, 6, 7], 0, 2)
+    with pytest.raises(ValueError):
+        graphs.Complete(2).is_uv_separating_set([0], 1, 2)
 
 
 def test_stable_separating_set_edge_cases():
