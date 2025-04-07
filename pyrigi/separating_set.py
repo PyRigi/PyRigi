@@ -167,9 +167,13 @@ def is_separating_set(
 
     pyrigi._graph_input_check.vertex_members(graph, vertices)
 
-    return _revertable_set_removal(
-        graph, vertices, lambda g: not nx.is_connected(g), use_copy=use_copy
-    )
+    def check_graph(g: nx.Graph) -> bool:
+        if g.number_of_nodes() == 0:
+            raise ValueError("vertices must be a proper subset of graph's vertices.")
+
+        return not nx.is_connected(g)
+
+    return _revertable_set_removal(graph, vertices, check_graph, use_copy=use_copy)
 
 
 def is_uv_separating_set(
@@ -213,8 +217,12 @@ def is_uv_separating_set(
         raise ValueError(f"v={v} is in the separating set")
 
     pyrigi._graph_input_check.vertex_members(graph, vertices)
+    pyrigi._graph_input_check.vertex_members(graph, (u, v))
 
     def check_graph(g: nx.Graph) -> bool:
+        if g.number_of_nodes() == 0:
+            raise ValueError("vertices must be a proper subset of graph's vertices.")
+
         components = nx.connected_components(g)
         for c in components:
             if u in c and v in c:
@@ -331,7 +339,11 @@ def stable_separating_set(
     # if v is set, u must be also set
     if u is None and v is not None:
         u, v = v, u
-    assert check_distinct_rigid_components or v is not None
+    if not check_distinct_rigid_components and v is None:
+        raise ValueError(
+            "Both u and v must be specified"
+            + "when check for distinct rigid components is skipped"
+        )
 
     # choose a vertex at random
     if u is None:
@@ -340,11 +352,11 @@ def stable_separating_set(
         else:
             u = next(iter(connected_components[0]))
     else:
-        assert u in graph
+        pyrigi._graph_input_check.vertex_members(graph, u)
 
     # make sure node is valid node
     if v is not None:
-        assert v in graph
+        pyrigi._graph_input_check.vertex_members(graph, v)
 
     # if the graph is not connected, we can possibly reduce the work needed
     # by finding a connected component that contains u
@@ -462,13 +474,13 @@ def _find_stable_uv_separating_set(
         x_neigh = set(graph.neighbors(x))
 
         # Store graphs metadata
-        for n in graph.neighbors(x):
-            edge_data[frozenset((n, x))] = graph.edges[x, n]
+        for neighbor in graph.neighbors(x):
+            edge_data[frozenset((neighbor, x))] = graph.edges[x, neighbor]
         vertex_data[x] = graph.nodes[x]
 
         graph.remove_node(x)
-        for n in x_neigh - {u}:
-            graph.add_edge(u, n)
+        for neighbor in x_neigh - {u}:
+            graph.add_edge(u, neighbor)
         return u_neigh, x_neigh
 
     def restore(
@@ -482,11 +494,11 @@ def _find_stable_uv_separating_set(
         Restore the contracted graph to its original form.
         Inverse operation for contract.
         """
-        for n in x_neigh - u_neigh - {u}:
-            graph.remove_edge(u, n)
+        for neighbor in x_neigh - u_neigh - {u}:
+            graph.remove_edge(u, neighbor)
         graph.add_node(x, **vertex_data[x])
-        for n in x_neigh:
-            graph.add_edge(x, n, **edge_data[frozenset((n, x))])
+        for neighbor in x_neigh:
+            graph.add_edge(x, neighbor, **edge_data[frozenset((neighbor, x))])
 
     # Try the both vertices forming a triangle with u
     # Pass has to succeed with at least one of them,
