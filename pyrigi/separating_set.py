@@ -169,7 +169,9 @@ def is_separating_set(
 
     def check_graph(g: nx.Graph) -> bool:
         if g.number_of_nodes() == 0:
-            raise ValueError("vertices must be a proper subset of graph's vertices.")
+            raise ValueError(
+                "The parameter `vertices` must be a proper subset of graph vertex set."
+            )
 
         return not nx.is_connected(g)
 
@@ -221,7 +223,9 @@ def is_uv_separating_set(
 
     def check_graph(g: nx.Graph) -> bool:
         if g.number_of_nodes() == 0:
-            raise ValueError("vertices must be a proper subset of graph's vertices.")
+            raise ValueError(
+                "The parameter `vertices` must be a proper subset of graph vertex set."
+            )
 
         components = nx.connected_components(g)
         for c in components:
@@ -341,8 +345,8 @@ def stable_separating_set(
         u, v = v, u
     if not check_distinct_rigid_components and v is None:
         raise ValueError(
-            "Both u and v must be specified"
-            + "when check for distinct rigid components is skipped"
+            "Both `u` and `v` must be specified"
+            + "when `check_distinct_rigid_components=False`."
         )
 
     # choose a vertex at random
@@ -380,7 +384,7 @@ def stable_separating_set(
         match _validate_uv_different_rigid_comps(subgraph, u, v):
             case None:
                 raise ValueError(
-                    "Chosen vertices must not be in the same rigid component"
+                    "The vertices `u` and `v` must not be in the same rigid component."
                 )
             case new_v:
                 v = new_v
@@ -413,7 +417,7 @@ def _validate_uv_different_rigid_comps(
     rigid_components = graph.rigid_components()
 
     if len(rigid_components) < 2:
-        logging.warning("Provided graph is not flexible")
+        logging.warning("Provided graph is not 2-flexible.")
         return None
 
     # vertices that share a component with u
@@ -422,7 +426,9 @@ def _validate_uv_different_rigid_comps(
     # Check that input is valid
     if v is not None:
         if v in disallowed:
-            logging.warning(f"Both vertices {u} and {v} share the same rigid component")
+            logging.warning(
+                f"Both vertices {u} and {v} are in the same rigid component."
+            )
             return None
     else:
         # choose a vertex at random
@@ -524,4 +530,4 @@ def _find_stable_uv_separating_set(
         finally:
             restore(graph, u, x, u_neigh, x_neigh)
 
-    raise RuntimeError("Rigid components are not maximal")
+    raise RuntimeError("Rigid components are not maximal!")
