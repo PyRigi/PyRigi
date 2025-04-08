@@ -2,12 +2,13 @@
 This is a module for providing common types of graphs.
 """
 
+from itertools import combinations
+
 import networkx as nx
 
 import pyrigi._input_check as _input_check
 from pyrigi.graph import Graph
 from pyrigi.data_type import Vertex, Sequence
-from itertools import combinations
 
 
 def Cycle(n: int) -> Graph:
@@ -360,3 +361,16 @@ def Wheel(n: int) -> Graph:
     G = Cycle(n)
     G.add_edges([(i, n) for i in range(n)])
     return G
+
+
+def Grid(n1: int, n2: int) -> Graph:
+    """
+    Create the grid graph on with ``n1`` rows and ``n2`` columns.
+    """
+    _input_check.integrality_and_range(n1, "number of rows ``n1``", min_val=1)
+    _input_check.integrality_and_range(n2, "number of columns ``n2``", min_val=1)
+    horizontal = [
+        (i + j * n2, i + 1 + j * n2) for i in range(n2 - 1) for j in range(n1)
+    ]
+    vertical = [(i + j * n2, i + n2 + j * n2) for i in range(n2) for j in range(n1 - 1)]
+    return Graph.from_vertices_and_edges(range(n1 * n2), vertical + horizontal)
