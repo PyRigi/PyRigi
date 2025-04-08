@@ -1,5 +1,6 @@
 from collections import defaultdict
 from itertools import product
+import math
 import logging
 import random
 
@@ -70,12 +71,12 @@ def test_is_not_stable_set(graph, stable_set):
 def test_is_stable_set_certificate():
     graph = nx.Graph([(0, 1), (1, 2), (2, 3)])
 
-    assert Graph.is_stable_set(graph, {0, 1, 2}, certificate=True) in [
+    assert graph.is_stable_set({0, 1, 2}, certificate=True) in [
         (False, (0, 1)),
         (False, (1, 2)),
     ]
-    assert Graph.is_stable_set(graph, {0, 1}, certificate=True) == (False, (0, 1))
-    assert Graph.is_stable_set(graph, {0, 2}, certificate=True) == (True, None)
+    assert graph.is_stable_set({0, 1}, certificate=True) == (False, (0, 1))
+    assert graph.is_stable_set({0, 2}, certificate=True) == (True, None)
 
 
 def test__revertable_set_removal():
@@ -203,7 +204,7 @@ def test_stable_separating_set_edge_cases():
     orig = graph.copy()
 
     with pytest.raises(ValueError):
-        Graph.stable_separating_set(graph)
+        graph.stable_separating_set()
     assert _eq(graph, orig)
 
     # more vertices
@@ -335,36 +336,43 @@ def test_stable_separating_set_prism():
             graph.stable_separating_set(u, v)
 
 
-@pytest.mark.slow_main
+@pytest.mark.parametrize("threshold", ["connectivity", "rigidity"])
+@pytest.mark.parametrize("n", [13, 16, 20, 30])
 @pytest.mark.parametrize(
-    ("n", "p"), [(4, 0.3), (8, 0.3), (13, 0.3), (16, 0.2), (16, 0.3)]
+    "graph_no",
+    [
+        pytest.param(1, marks=pytest.mark.slow_main),
+        pytest.param(20, marks=pytest.mark.long_local),
+    ],
 )
-@pytest.mark.parametrize("graph_no", [69])
 @pytest.mark.parametrize("seed", [42, None])
-@pytest.mark.parametrize("connected", [True, False])
-def test_fuzzy_stable_separating_set(
+def test_stable_separating_set_random_graphs(
+    threshold: str,
     n: int,
-    p: float,
     graph_no: int,
     seed: int | None,
-    connected: bool,
 ):
-    from pyrigi import Graph
-
-    pairs_per_graph = int(np.sqrt(n))
+    pairs_per_graph = n
 
     rand = random.Random(seed)
-    graphs = 0
-    while graphs < graph_no:
+    num_tested = 0
+    if threshold == "connectivity":
+        # it is very likely that graph is disconnected if the probability is below this threshold
+        p = math.log(n) / n
+    if threshold == "rigidity":
+        # it is very likely that graph is 2-flexible if the probability is below this threshold
+        # https://doi.org/10.1112/blms.12740
+        p = (math.log(n) + math.log(math.log(n))) / n
+    while num_tested < graph_no:
         graph = Graph(nx.gnp_random_graph(n, p, seed=rand.randint(0, 2**30)))
 
         # Filter out unreasonable graphs
-        if nx.is_connected(graph) != connected or graph.is_rigid(dim=2):
+        if graph.is_rigid(dim=2):
             continue
 
         # Create mapping from vertex to rigid component ids
         # used later to assert expected result
-        rigid_components = graph.rigid_components()
+        rigid_components = graph.rigid_components(dim=2)
         vertex_to_comp_id: dict[Vertex, set[int]] = defaultdict(set)
         for i, comp in enumerate(rigid_components):
             for v in comp:
@@ -391,25 +399,25 @@ def test_fuzzy_stable_separating_set(
                     # invalid input
                     logging.disable(logging.WARNING)
                     with pytest.raises(ValueError):
-                        Graph.stable_separating_set(graph, u, v)
+                        graph.stable_separating_set(u, v)
                     logging.disable(0)
 
                     tests_negative += 1
                 else:
                     # valid input
-                    cut = Graph.stable_separating_set(graph, u, v)
-                    assert Graph.is_uv_separating_set(graph, cut, u, v)
-                    assert Graph.is_stable_set(graph, cut)
+                    cut = graph.stable_separating_set(u, v)
+                    assert graph.is_uv_separating_set(cut, u, v)
+                    assert graph.is_stable_set(cut)
                     tests_positive += 1
 
             except AssertionError as e:
                 # Changes the error message to include graph
                 error_message = (
                     f"Assertion failed: {e}\n"
-                    + f"Graph: {nx.nx_agraph.to_agraph(graph)}\n"
+                    + f"Graph: {repr(graph)}\n"
                     + f"Components: {rigid_components}\n"
                     + f"Vertices: [{u} {v}]"
                 )
                 raise AssertionError(error_message) from None
 
-        graphs += 1
+        num_tested += 1
