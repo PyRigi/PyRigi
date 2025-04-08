@@ -270,7 +270,6 @@ def is_stable_separating_set(
     )
 
 
-################################################################################
 def stable_separating_set(
     graph: "PRGraph",
     u: Optional[Vertex] = None,
@@ -289,7 +288,7 @@ def stable_separating_set(
     :prf:ref:`2-rigid component <def-rigid-components>`.
     Alternatively, a single vertex ``u`` can be specified that is
     avoided in the returned stable separating set,
-    provided it does not separate the graph.
+    provided it is not contained in all 2-rigid components.
 
     Definitions
     -----------
@@ -330,7 +329,7 @@ def stable_separating_set(
 
     # if v is set, u must be also set
     if u is None and v is not None:
-        u, v = v, u
+        raise ValueError("If `v` is specified, `u` is required as well.")
 
     if not check_distinct_rigid_components and v is None:
         raise ValueError(
@@ -338,7 +337,7 @@ def stable_separating_set(
             + "when `check_distinct_rigid_components=False`."
         )
 
-    # make sure node is valid node
+    # make sure inputs are valid vertices
     if u is not None:
         pyrigi._graph_input_check.vertex_members(graph, u)
     if v is not None:
@@ -403,13 +402,7 @@ def stable_separating_set(
 
     # Makes sure v is in a different rigid component
     if v is None or check_distinct_rigid_components:
-        match _validate_uv_different_rigid_comps(graph, u, v):
-            case None:
-                raise ValueError(
-                    "The vertices `u` and `v` must not be in the same rigid component."
-                )
-            case new_v:
-                v = new_v
+        v = _validate_uv_different_rigid_comps(graph, u, v)
 
     return _find_stable_uv_separating_set(graph, u, v)
 
@@ -418,7 +411,7 @@ def _validate_uv_different_rigid_comps(
     graph: "PRGraph",
     u: Vertex,
     v: Optional[Vertex],
-) -> Optional[Vertex]:
+) -> Vertex:
     """
     Make sure ``u`` and ``v`` are in different rigid components and
     find such ``v`` if not provided.
@@ -448,11 +441,15 @@ def _validate_uv_different_rigid_comps(
     if v is not None:
         if v in disallowed:
             raise ValueError(
-                f"Both vertices {u} and {v} are in the same rigid component."
+                f"Both vertices {u} and {v} are in the same 2-rigid component."
             )
     else:
         # choose a vertex at random
         v = next((x for x in graph.nodes if x not in disallowed), None)
+        if v is None:
+            raise ValueError(
+                f"The vertex `u={u}` is contained in all 2-rigid components."
+            )
     return v
 
 
