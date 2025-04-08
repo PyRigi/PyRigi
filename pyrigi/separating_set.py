@@ -5,8 +5,6 @@ It includes an algorithm for a stable separating set search in a 2-flexible grap
 according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 """
 
-import logging
-
 import networkx as nx
 import numpy as np
 from typing import (
@@ -228,8 +226,8 @@ def is_uv_separating_set(
             )
 
         components = nx.connected_components(g)
-        for c in components:
-            if u in c and v in c:
+        for comp in components:
+            if u in comp and v in comp:
                 return False
         return True
 
@@ -414,22 +412,20 @@ def _validate_uv_different_rigid_comps(
     v:
         The second vertex, will be chosen arbitrary if not provided.
     """
-    rigid_components = graph.rigid_components()
+    rigid_components = graph.rigid_components(dim=2)
 
     if len(rigid_components) < 2:
-        logging.warning("Provided graph is not 2-flexible.")
-        return None
+        raise ValueError("The given graph is not 2-flexible.")
 
     # vertices that share a component with u
-    disallowed = set(v for c in rigid_components for v in c if u in c)
+    disallowed = set(v for comp in rigid_components for v in comp if u in comp)
 
     # Check that input is valid
     if v is not None:
         if v in disallowed:
-            logging.warning(
+            raise ValueError(
                 f"Both vertices {u} and {v} are in the same rigid component."
             )
-            return None
     else:
         # choose a vertex at random
         v = next(x for x in graph.nodes if x not in disallowed)
@@ -512,7 +508,7 @@ def _find_stable_uv_separating_set(
     for x in violation:
         u_neigh, x_neigh = contract(graph, u, x)
 
-        rigid_components = graph.rigid_components()
+        rigid_components = graph.rigid_components(dim=2)
 
         # The contracted vertex is in the same rigid component as v
         problem_found = False

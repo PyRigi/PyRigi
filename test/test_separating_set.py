@@ -1,11 +1,9 @@
 from collections import defaultdict
 from itertools import product
 import math
-import logging
 import random
 
 import networkx as nx
-import numpy as np
 import pytest
 
 import pyrigi.graphDB as graphs
@@ -69,7 +67,7 @@ def test_is_not_stable_set(graph, stable_set):
 
 
 def test_is_stable_set_certificate():
-    graph = nx.Graph([(0, 1), (1, 2), (2, 3)])
+    graph = graphs.Path(4)
 
     assert graph.is_stable_set({0, 1, 2}, certificate=True) in [
         (False, (0, 1)),
@@ -357,10 +355,12 @@ def test_stable_separating_set_random_graphs(
     rand = random.Random(seed)
     num_tested = 0
     if threshold == "connectivity":
-        # it is very likely that graph is disconnected if the probability is below this threshold
+        # it is likely that graph is disconnected
+        # if the probability is below this threshold
         p = math.log(n) / n
     if threshold == "rigidity":
-        # it is very likely that graph is 2-flexible if the probability is below this threshold
+        # it is likely that graph is 2-flexible
+        # if the probability is below this threshold
         # https://doi.org/10.1112/blms.12740
         p = (math.log(n) + math.log(math.log(n))) / n
     while num_tested < graph_no:
@@ -397,10 +397,8 @@ def test_stable_separating_set_random_graphs(
             try:
                 if u == v or (vertex_to_comp_id[u] & vertex_to_comp_id[v]):
                     # invalid input
-                    logging.disable(logging.WARNING)
                     with pytest.raises(ValueError):
                         graph.stable_separating_set(u, v)
-                    logging.disable(0)
 
                     tests_negative += 1
                 else:
