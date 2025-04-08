@@ -83,19 +83,21 @@ def is_stable_set(
 def _revertable_set_removal(
     graph: nx.Graph,
     vertices: Collection[Vertex],
-    opt: Callable[[nx.Graph], T],
+    func: Callable[[nx.Graph], T],
     use_copy: bool,
 ) -> T:
     """
-    Remove given ``vertices`` from the graph, return the result of ``opt(graph)``,
+    Remove given ``vertices`` from the graph, return the result of ``func(graph)``,
     and restore the original graph.
 
     Parameters
     ----------
     vertices:
         Vertex set to remove.
-    opt:
+    func:
         A function whose result is returned for the graph with vertices removed.
+        Warning: if ``func`` modifies its input graph, then it is not guaranteed
+        that the ``graph`` is restored correctly by ``_revertable_set_removal``.
     use_copy:
         Create a copy of the graph before the vertices are removed
         and ``property`` is checked.
@@ -117,7 +119,7 @@ def _revertable_set_removal(
     graph.remove_nodes_from(vertices)
 
     try:
-        return opt(graph)
+        return func(graph)
     finally:
         if not use_copy:
             for v in vertices:
