@@ -237,6 +237,13 @@ def test_stable_separating_set_edge_cases():
         graph.stable_separating_set()
     assert _eq(graph, orig)
 
+    graph = graphs.Complete(3) + relabeled_inc(graphs.CompleteBipartite(2, 3), 2)
+    _add_metadata(graph)
+    orig = graph.copy()
+    cut = graph.stable_separating_set(2)
+    assert graph.is_stable_separating_set(cut)
+    assert _eq(graph, orig)
+
 
 @pytest.mark.parametrize(
     "graph, one_chosen_vertex, two_chosen_vertices",
@@ -314,7 +321,6 @@ def test_stable_separating_set(
         [graphs.Complete(3) + relabeled_inc(graphs.Complete(3), 2), 2],
         [graphs.CompleteMinusOne(5) + relabeled_inc(graphs.Complete(5), 4), 4],
         [graphs.Complete(3) + relabeled_inc(graphs.CompleteBipartite(3, 3), 2), 2],
-        [graphs.Complete(3) + relabeled_inc(graphs.CompleteBipartite(2, 3), 2), 2],
     ],
 )
 def test_stable_separating_set_error_single_vertex_separating_set(

@@ -12,6 +12,14 @@ from pyrigi.data_type import Vertex, Edge, Sequence
 from pyrigi.exception import LoopError
 
 
+def non_empty(graph: nx.Graph) -> None:
+    """
+    Check whether the graph is an empty graph and raise an error in that case.
+    """
+    if nx.number_of_nodes(graph) == 0:
+        raise ValueError("Graph is empty!")
+
+
 def no_loop(graph: nx.Graph) -> None:
     """
     Check whether the graph has loops and raise an error in case.

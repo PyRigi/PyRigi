@@ -323,63 +323,87 @@ def stable_separating_set(
     """
     from pyrigi import Graph as PRGraph
 
-    if check_flexible and graph.is_rigid(dim=2):
-        raise ValueError("The graph must be 2-flexible!")
-
-    # find the smallest connected component and put it first
-    if not check_connected:
-        is_connected = True
-    else:
-        connected_components = list(nx.connected_components(graph))
-        smallest_component_index = np.argmin(map(len, connected_components))
-        connected_components[0], connected_components[smallest_component_index] = (
-            connected_components[smallest_component_index],
-            connected_components[0],
-        )
-        is_connected = len(connected_components) == 1
+    ############################################################################
+    # Preconditions
+    ############################################################################
+    pyrigi._graph_input_check.non_empty(graph)
 
     # if v is set, u must be also set
     if u is None and v is not None:
         u, v = v, u
+
     if not check_distinct_rigid_components and v is None:
         raise ValueError(
             "Both `u` and `v` must be specified"
             + "when `check_distinct_rigid_components=False`."
         )
 
-    # choose a vertex at random
-    if u is None:
-        if is_connected:
-            u = next(iter(graph.nodes))
-        else:
-            u = next(iter(connected_components[0]))
-    else:
-        pyrigi._graph_input_check.vertex_members(graph, u)
-
     # make sure node is valid node
+    if u is not None:
+        pyrigi._graph_input_check.vertex_members(graph, u)
     if v is not None:
         pyrigi._graph_input_check.vertex_members(graph, v)
+
+    ############################################################################
+    # Connectivity
+    ############################################################################
 
     # if the graph is not connected, we can possibly reduce the work needed
     # by finding a connected component that contains u
     # and find a separating set in it or just calling it the day
     # if v is not specified or lies in another component
 
-    # separate a connected component that contains u
-    if is_connected:
-        subgraph = graph
-    else:
-        u_component = next(filter(lambda c: u in c, connected_components))
-        subgraph = PRGraph(nx.induced_subgraph(graph, u_component))
+    if check_connected:
+        connected_components = list(nx.connected_components(graph))
 
-        # if v is not specified, we just choose a different component
-        # and return the empty separating set
-        if v is None or v not in u_component:
-            return set()
+        # prefer the smallest component
+        smallest_component_index = np.argmin(map(len, connected_components))
+        connected_components[0], connected_components[smallest_component_index] = (
+            connected_components[smallest_component_index],
+            connected_components[0],
+        )
 
-    # Makes sure v is in different rigid component
+        if len(connected_components) > 1:
+            if v is not None:
+                u_component = next(filter(lambda c: u in c, connected_components))
+                v_component = next(filter(lambda c: v in c, connected_components))
+
+                # if u and v are in different components
+                if u_component is not v_component:
+                    return set()
+
+                # u and v are set and are in the same component
+                graph = PRGraph(nx.induced_subgraph(graph, u_component))
+            else:
+                # We can choose v arbitrarily from the another component
+                return set()
+
+    # Make sure that the graph or the connected component with u & v is not rigid
+    if check_flexible and graph.is_rigid(dim=2):
+        raise ValueError("The graph/component must be 2-flexible!")
+
+    ############################################################################
+    # Vertices validation and initialization
+    ############################################################################
+
+    # At this point the graph is connected.
+    # We don't know anything about u and v
+
+    # u needs to be chosen
+    if u is None:  # v is also None
+        # u cannot be an articulation point as if the graph is not 2-connected
+        # {u} may be the only separating set of the graph
+        articulation_points = list(nx.articulation_points(graph))
+
+        if len(articulation_points) > 0:
+            return set(articulation_points[:1])
+
+        # now it is safe to continue with the rest of the algorithm
+        u = next(iter(graph.nodes))
+
+    # Makes sure v is in a different rigid component
     if v is None or check_distinct_rigid_components:
-        match _validate_uv_different_rigid_comps(subgraph, u, v):
+        match _validate_uv_different_rigid_comps(graph, u, v):
             case None:
                 raise ValueError(
                     "The vertices `u` and `v` must not be in the same rigid component."
@@ -428,7 +452,7 @@ def _validate_uv_different_rigid_comps(
             )
     else:
         # choose a vertex at random
-        v = next(x for x in graph.nodes if x not in disallowed)
+        v = next((x for x in graph.nodes if x not in disallowed), None)
     return v
 
 
