@@ -11,6 +11,7 @@ import pyrigi.graphDB as graphs
 from pyrigi import Graph
 from pyrigi.data_type import Vertex
 from pyrigi.separating_set import _revertable_set_removal
+from test.test_graph import relabeled_inc
 
 
 def _eq(g1: Graph, g2: nx.Graph):
@@ -230,7 +231,7 @@ def test_stable_separating_set_edge_cases():
     assert _eq(graph, orig)
 
     # triangle graph
-    graph = Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (1, 2), (2, 0)])
+    graph = graphs.Complete(3)
     _add_metadata(graph)
     orig = graph.copy()
     with pytest.raises(ValueError):
@@ -238,58 +239,77 @@ def test_stable_separating_set_edge_cases():
     assert _eq(graph, orig)
 
 
-def test_stable_separating_set():
-    from pyrigi import Graph as Graph
-
-    graph = Graph.from_vertices_and_edges(
-        list(range(8)),
+@pytest.mark.parametrize(
+    "graph, one_chosen_vertex, two_chosen_vertices",
+    [
+        [graphs.Cycle(4), [0, 1], [[0, 2], [1, 3]]],
+        [graphs.Cycle(5), [0, 2], [[0, 2], [0, 3]]],
+        [graphs.Path(3), [0], [[0, 2]]],
+        [graphs.Path(4), [0, 1], [[0, 2], [0, 3]]],
+        [graphs.Grid(2, 4), [2, 7], [[0, 2], [0, 6]]],
+        [graphs.Grid(3, 4), [0, 1, 4, 5], [[0, 11], [1, 10]]],
+        [graphs.CompleteBipartite(2, 4), [0, 5], [[0, 1], [2, 3]]],
+        [graphs.CompleteBipartite(2, 3), [0, 2], [[0, 1], [2, 3]]],
+        [graphs.Complete(3) + relabeled_inc(graphs.Complete(3), 2), [0], [[0, 3]]],
         [
-            (0, 1),
-            (1, 2),
-            (2, 3),
-            (3, 0),
-            (4, 5),
-            (5, 6),
-            (6, 7),
-            (7, 4),
-            (0, 4),
-            (3, 7),
+            graphs.Complete(3) + relabeled_inc(graphs.Complete(3), 3) + Graph([(2, 3)]),
+            [0, 2],
+            [[0, 3], [1, 5]],
         ],
-    )
+        [
+            graphs.CompleteMinusOne(5) + relabeled_inc(graphs.Complete(5), 4),
+            [1, 2, 3, 8],
+            [[1, 5], [3, 8]],
+        ],
+        [
+            graphs.Complete(4) + relabeled_inc(graphs.Complete(5), 4) + Graph([(3, 4)]),
+            [0, 3, 8],
+            [[3, 6], [2, 4]],
+        ],
+    ],
+)
+def test_stable_separating_set(graph, one_chosen_vertex, two_chosen_vertices):
     orig = graph.copy()
 
-    assert not graph.is_rigid()
-
     cut = graph.stable_separating_set()
-    assert Graph.is_stable_separating_set(graph, cut)
+    assert graph.is_stable_separating_set(cut)
     assert _eq(graph, orig)
 
-    cut = graph.stable_separating_set(0)
-    assert Graph.is_stable_separating_set(graph, cut)
-    assert _eq(graph, orig)
+    for vertex in one_chosen_vertex:
+        cut = graph.stable_separating_set(vertex)
+        assert graph.is_stable_separating_set(cut)
+        assert _eq(graph, orig)
+
+    for u, v in two_chosen_vertices:
+        cut = graph.stable_separating_set(u, v)
+        assert graph.is_stable_separating_set(cut)
+        assert _eq(graph, orig)
+
+
+def test_stable_separating_set_2by4_Grid():
+    graph = graphs.Grid(2, 4)
+    orig = graph.copy()
 
     with pytest.raises(ValueError):
         graph.stable_separating_set(0, 1)
     assert _eq(graph, orig)
 
     with pytest.raises(ValueError):
-        graph.stable_separating_set(0, 4)
+        graph.stable_separating_set(1, 2)
     assert _eq(graph, orig)
 
-    for i in [5, 6, 7]:
-        cut = graph.stable_separating_set(0, i)
-        assert Graph.is_stable_separating_set(graph, cut)
+    for i in [3, 6, 7]:
+        cut = graph.stable_separating_set(1, i)
+        assert graph.is_stable_separating_set(cut)
         assert _eq(graph, orig)
-    for i in [0, 1, 2]:
-        cut = graph.stable_separating_set(7, i)
-        assert Graph.is_stable_separating_set(graph, cut)
+    for i in [0, 1, 4]:
+        cut = graph.stable_separating_set(6, i)
+        assert graph.is_stable_separating_set(cut)
         assert _eq(graph, orig)
 
 
 def test_stable_separating_set_prism():
-    from pyrigi.graphDB import ThreePrism
-
-    graph = ThreePrism()
+    graph = graphs.ThreePrism()
 
     for u, v in product(graph.nodes, graph.nodes):
         with pytest.raises(ValueError):
