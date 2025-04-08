@@ -286,6 +286,25 @@ def test_stable_separating_set(graph, one_chosen_vertex, two_chosen_vertices):
         assert _eq(graph, orig)
 
 
+@pytest.mark.parametrize(
+    "graph, separating_vertex",
+    [
+        [graphs.Path(3), 1],
+        [graphs.Complete(3) + relabeled_inc(graphs.Complete(3), 2), 2],
+        [graphs.CompleteMinusOne(5) + relabeled_inc(graphs.Complete(5), 4), 4],
+    ],
+)
+def test_stable_separating_set_error_single_vertex_separating_set(
+    graph, separating_vertex
+):
+    """
+    Test that an error is raised when a vertex that is a unique separating set
+    is asked to be avoided.
+    """
+    with pytest.raises(ValueError):
+        graph.stable_separating_set(separating_vertex)
+
+
 def test_stable_separating_set_2by4_Grid():
     graph = graphs.Grid(2, 4)
     orig = graph.copy()
