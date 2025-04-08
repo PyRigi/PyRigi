@@ -267,22 +267,44 @@ def test_stable_separating_set_edge_cases():
         ],
     ],
 )
-def test_stable_separating_set(graph, one_chosen_vertex, two_chosen_vertices):
+@pytest.mark.parametrize("check_flexible", [True, False])
+@pytest.mark.parametrize("check_connected", [True, False])
+def test_stable_separating_set(
+    graph,
+    one_chosen_vertex,
+    two_chosen_vertices,
+    check_flexible,
+    check_connected,
+):
     orig = graph.copy()
 
-    cut = graph.stable_separating_set()
+    cut = graph.stable_separating_set(
+        check_flexible=check_flexible,
+        check_connected=check_connected,
+    )
     assert graph.is_stable_separating_set(cut)
     assert _eq(graph, orig)
 
     for vertex in one_chosen_vertex:
-        cut = graph.stable_separating_set(vertex)
+        cut = graph.stable_separating_set(
+            vertex,
+            check_flexible=check_flexible,
+            check_connected=check_connected,
+        )
         assert graph.is_stable_separating_set(cut)
         assert _eq(graph, orig)
 
-    for u, v in two_chosen_vertices:
-        cut = graph.stable_separating_set(u, v)
-        assert graph.is_stable_separating_set(cut)
-        assert _eq(graph, orig)
+    for check_distinct_rigid_components in [True, False]:
+        for u, v in two_chosen_vertices:
+            cut = graph.stable_separating_set(
+                u,
+                v,
+                check_flexible=check_flexible,
+                check_connected=check_connected,
+                check_distinct_rigid_components=check_distinct_rigid_components,
+            )
+            assert graph.is_stable_separating_set(cut)
+            assert _eq(graph, orig)
 
 
 @pytest.mark.parametrize(
@@ -330,10 +352,14 @@ def test_stable_separating_set_2by4_Grid():
 
 def test_stable_separating_set_prism():
     graph = graphs.ThreePrism()
+    with pytest.raises(ValueError):
+        graph.stable_separating_set(check_flexible=False)
 
     for u, v in product(graph.nodes, graph.nodes):
         with pytest.raises(ValueError):
             graph.stable_separating_set(u, v)
+        with pytest.raises(ValueError):
+            graph.stable_separating_set(u, v, check_flexible=False)
 
 
 @pytest.mark.parametrize("threshold", ["connectivity", "rigidity"])
