@@ -5,12 +5,11 @@ Module for rigidity related graph properties.
 from __future__ import annotations
 
 import math
+from typing import Callable, Collection, Iterable, Optional
 import warnings
-from collections.abc import Callable
 from copy import deepcopy
 from itertools import combinations
 from random import randint
-from typing import Iterable
 
 import networkx as nx
 from sympy import Matrix, oo, zeros
@@ -18,6 +17,8 @@ from sympy import Matrix, oo, zeros
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
+import pyrigi.separating_set
+from pyrigi._wrap import copy_doc
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.misc import _generate_category_tables
@@ -1157,7 +1158,6 @@ class Graph(nx.Graph):
                 for k_possible_edges in combinations(
                     combinations(neighbors, 2), deg[1] - dim
                 ):
-
                     if all([not G.has_edge(*edge) for edge in k_possible_edges]):
                         for edge in k_possible_edges:
                             G.add_edge(*edge)
@@ -3408,35 +3408,70 @@ class Graph(nx.Graph):
             [e for e in self.edges if e in other_graph.edges],
         )
 
-    @doc_category("Generic rigidity")
-    def is_separating_set(self, vertices: list[Vertex] | set[Vertex]) -> bool:
-        """
-        Check if a set of vertices is a separating set.
+    @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.separating_set.is_stable_set)
+    def is_stable_set(
+        self,
+        vertices: Collection[Vertex],
+        certificate: bool = False,
+    ) -> bool | tuple[bool, Optional[Edge]]:
+        return pyrigi.separating_set.is_stable_set(
+            self, vertices=vertices, certificate=certificate
+        )
 
-        Definitions
-        -----------
-        :prf:ref:`separating-set <def-separating-set>`
+    @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.separating_set.is_separating_set)
+    def is_separating_set(
+        self,
+        vertices: Collection[Vertex],
+        use_copy: bool = True,
+    ) -> bool:
+        return pyrigi.separating_set.is_separating_set(
+            self, vertices=vertices, use_copy=use_copy
+        )
 
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> H = graphs.Cycle(5)
-        >>> H.is_separating_set([1,3])
-        True
-        >>> G = Graph([[0,1],[1,2],[2,3],[2,4],[4,3],[4,5]])
-        >>> G.is_separating_set([2])
-        True
-        >>> G.is_separating_set([3])
-        False
-        >>> G.is_separating_set([3,4])
-        True
-        """
+    @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.separating_set.is_uv_separating_set)
+    def is_uv_separating_set(
+        self,
+        vertices: Collection[Vertex],
+        u: Vertex,
+        v: Vertex,
+        use_copy: bool = True,
+    ) -> bool:
+        return pyrigi.separating_set.is_uv_separating_set(
+            self, vertices=vertices, u=u, v=v, use_copy=use_copy
+        )
 
-        _graph_input_check.vertex_members(self, vertices)
+    @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.separating_set.is_stable_separating_set)
+    def is_stable_separating_set(
+        self,
+        vertices: Collection[Vertex],
+        use_copy: bool = True,
+    ) -> bool:
+        return pyrigi.separating_set.is_stable_separating_set(
+            self, vertices=vertices, use_copy=use_copy
+        )
 
-        H = self.copy()
-        H.delete_vertices(vertices)
-        return not nx.is_connected(H)
+    @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.separating_set.stable_separating_set)
+    def stable_separating_set(
+        self,
+        u: Optional[Vertex] = None,
+        v: Optional[Vertex] = None,
+        check_flexible: bool = True,
+        check_connected: bool = True,
+        check_distinct_rigid_components: bool = True,
+    ) -> set[Vertex]:
+        return pyrigi.separating_set.stable_separating_set(
+            self,
+            u=u,
+            v=v,
+            check_flexible=check_flexible,
+            check_connected=check_connected,
+            check_distinct_rigid_components=check_distinct_rigid_components,
+        )
 
     def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
         """

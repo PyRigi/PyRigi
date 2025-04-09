@@ -176,3 +176,15 @@ def test_Wheel():
             and G.number_of_edges() == 2 * k
             and all([G.degree[v] in [3, k] for v in G.nodes])
         )
+
+
+def test_Grid():
+    with pytest.raises(ValueError):
+        graphs.Grid(0, 1)
+    with pytest.raises(ValueError):
+        graphs.Grid(1, 0)
+    for n1 in range(1, 5):
+        for n2 in range(1, 5):
+            G = graphs.Grid(n1, n2)
+            assert G.number_of_nodes() == n1 * n2
+            assert G.number_of_edges() == 2 * n1 * n2 - n1 - n2

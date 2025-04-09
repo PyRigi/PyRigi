@@ -78,7 +78,7 @@ markers = [
     "slow_main: marks slower tests run at merge to main",
     "long_local: marks long tests run locally",
     "realization_counting: marks tests using extra realization-counting",
-    "meshing: marks tests using extra meshing"
+    "meshing: marks tests using extra meshing",
 ]
 filterwarnings = [
     'ignore::pyrigi.warning.RandomizedAlgorithmWarning',
