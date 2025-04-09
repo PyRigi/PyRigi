@@ -9,7 +9,7 @@ import pytest
 import pyrigi.graphDB as graphs
 from pyrigi import Graph
 from pyrigi.data_type import Vertex
-from pyrigi.separating_set import _revertable_set_removal
+from pyrigi.separating_set import _remove_apply_restore_vertices
 from test_graph import relabeled_inc
 
 
@@ -77,7 +77,7 @@ def test_is_stable_set_certificate():
     assert graph.is_stable_set({0, 2}, certificate=True) == (True, None)
 
 
-def test__revertable_set_removal():
+def test__remove_apply_restore_vertices():
     graph1 = graphs.Complete(4)
     _add_metadata(graph1)
     graph2 = graph1.copy()
@@ -85,17 +85,17 @@ def test__revertable_set_removal():
     def noop(_: nx.Graph):
         pass
 
-    _revertable_set_removal(graph2, set(), noop, use_copy=True)
+    _remove_apply_restore_vertices(graph2, set(), noop, use_copy=True)
     assert _eq(graph1, graph2)
-    _revertable_set_removal(graph2, set(), noop, use_copy=False)
+    _remove_apply_restore_vertices(graph2, set(), noop, use_copy=False)
     assert _eq(graph1, graph2)
-    _revertable_set_removal(graph2, {2}, noop, use_copy=False)
+    _remove_apply_restore_vertices(graph2, {2}, noop, use_copy=False)
     assert _eq(graph1, graph2)
-    _revertable_set_removal(graph2, {2}, noop, use_copy=True)
+    _remove_apply_restore_vertices(graph2, {2}, noop, use_copy=True)
     assert _eq(graph1, graph2)
-    _revertable_set_removal(graph2, {0, 1, 2, 3}, noop, use_copy=False)
+    _remove_apply_restore_vertices(graph2, {0, 1, 2, 3}, noop, use_copy=False)
     assert _eq(graph1, graph2)
-    _revertable_set_removal(
+    _remove_apply_restore_vertices(
         nx.induced_subgraph(graph2, [0, 1, 2]), {1}, noop, use_copy=False
     )
     assert _eq(graph1, graph2)

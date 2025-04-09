@@ -80,7 +80,7 @@ def is_stable_set(
         return True
 
 
-def _revertable_set_removal(
+def _remove_apply_restore_vertices(
     graph: nx.Graph,
     vertices: Collection[Vertex],
     func: Callable[[nx.Graph], T],
@@ -178,7 +178,9 @@ def is_separating_set(
 
         return not nx.is_connected(g)
 
-    return _revertable_set_removal(graph, vertices, check_graph, use_copy=use_copy)
+    return _remove_apply_restore_vertices(
+        graph, vertices, check_graph, use_copy=use_copy
+    )
 
 
 def is_uv_separating_set(
@@ -241,7 +243,9 @@ def is_uv_separating_set(
                 return False
         return True
 
-    return _revertable_set_removal(graph, vertices, check_graph, use_copy=use_copy)
+    return _remove_apply_restore_vertices(
+        graph, vertices, check_graph, use_copy=use_copy
+    )
 
 
 def is_stable_separating_set(
