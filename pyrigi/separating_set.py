@@ -218,9 +218,13 @@ def is_uv_separating_set(
     False
     """
     if u in vertices:
-        raise ValueError(f"u={u} is in the separating set")
+        raise ValueError(
+            f"The vertex u={u} should not be among the ones in the parameter `vertices`."
+        )
     if v in vertices:
-        raise ValueError(f"v={v} is in the separating set")
+        raise ValueError(
+            f"The vertex v={v} should not be among the ones in the parameter `vertices`."
+        )
 
     pyrigi._graph_input_check.vertex_members(graph, vertices)
     pyrigi._graph_input_check.vertex_members(graph, (u, v))
@@ -355,7 +359,7 @@ def stable_separating_set(
 
     # if the graph is not connected, we can possibly reduce the work needed
     # by finding a connected component that contains u
-    # and find a separating set in it or just calling it the day
+    # and find a separating set in it or return an empty set
     # if v is not specified or lies in another component
 
     if check_connected:
