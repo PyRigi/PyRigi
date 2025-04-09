@@ -73,6 +73,12 @@ For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity defi
 {{references}} {cite:p}`JacobsHendrickson1997` {cite:p}`LeeStreinu2008`
 :::
 
+:::{prf:definition} Pebble Digraph
+:label: def-pebble-digraph
+The graph $G'$ after running the {prf:ref}`pebble game algorithm <alg-pebble-game>` is called the _pebble digraph_.
+
+:::
+
 ## Graph extensions
 
 :::{prf:definition} k-extension

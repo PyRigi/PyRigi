@@ -471,7 +471,8 @@ class Graph(nx.Graph):
         K:
         L:
         use_precomputed_pebble_digraph:
-            If ``True``, the pebble digraph present in the cache is used.
+            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
+            present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
@@ -498,6 +499,10 @@ class Graph(nx.Graph):
     ) -> bool:
         """
         Return whether the pebble digraph has the same number of edges as the graph.
+
+        Definitions
+        -----------
+        :prf:ref:`pebble digraph <def-pebble-digraph>`
 
         Parameters
         ----------
@@ -545,7 +550,8 @@ class Graph(nx.Graph):
             It defaults to ``"pebble"`` whenever ``K>0`` and ``0<=L<2K``,
             otherwise to ``"subgraph"``.
         use_precomputed_pebble_digraph:
-            If ``True``, the pebble digraph present in the cache is used.
+            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
+            present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
@@ -650,7 +656,8 @@ class Graph(nx.Graph):
         algorithm:
             See :meth:`.is_kl_sparse`.
         use_precomputed_pebble_digraph:
-            If ``True``, the pebble digraph present in the cache is used.
+            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
+            present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
@@ -2036,7 +2043,8 @@ class Graph(nx.Graph):
             and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
         use_precomputed_pebble_digraph:
             Only relevant if ``algorithm="sparsity"``.
-            If ``True``, the pebble digraph present in the cache is used.
+            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
+            present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
@@ -2288,7 +2296,8 @@ class Graph(nx.Graph):
             ``"sparsity"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
         use_precomputed_pebble_digraph:
             Only relevant if ``algorithm="sparsity"``.
-            If ``True``, the pebble digraph present in the cache is used.
+            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
+            present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
@@ -2377,7 +2386,8 @@ class Graph(nx.Graph):
             ``"sparsity"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
         use_precomputed_pebble_digraph:
             Only relevant if ``algorithm="sparsity"``.
-            If ``True``, the pebble digraph present in the cache is used.
+            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
+            present in the cache is used.
             If ``False``, recompute the pebble digraph.
             Use ``True`` only if you are certain that the pebble game digraph
             is consistent with the graph.
