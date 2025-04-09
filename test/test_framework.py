@@ -807,6 +807,45 @@ def test_rotate2D():
     assert newF[2].equals(Matrix([[0], [sqrt(2)]]))
 
 
+def test_rotate3D():
+    G = graphs.Complete(3)
+    F = Framework(G, {0: (0, 0, 0), 1: (2, 0, 0), 2: (1, 1, 0)})
+
+    newF = F.rotate3D(0, [0, 0, 1], False)
+    for v, pos in newF.realization().items():
+        assert pos.equals(F[v])
+
+    newF = F.rotate3D(pi * 4, [0, 0, 1], False)
+    for v, pos in newF.realization().items():
+        assert pos.equals(F[v])
+
+    newF = F.rotate3D(pi / 2, [0, 0, 1], False)
+    assert newF[0].equals(Matrix([[0], [0], [0]]))
+    assert newF[1].equals(Matrix([[0], [2], [0]]))
+    assert newF[2].equals(Matrix([[-1], [1], [0]]))
+
+    newF = F.rotate3D(pi / 4, [0, 0, 1], False)
+    assert newF[0].equals(Matrix([[0], [0], [0]]))
+    assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))], [0]]))
+    assert newF[2].equals(Matrix([[0], [sqrt(2)], [0]]))
+
+    newF = F.rotate3D(pi / 2, [0, 1, 0], False)
+    assert newF[0].equals(Matrix([[0], [0], [0]]))
+    assert newF[1].equals(Matrix([[0], [0], [-2]]))
+    assert newF[2].equals(Matrix([[0], [1], [-1]]))
+
+    F = Framework(G, {0: (1, 0, 0), 1: (0, 1, 0), 2: (0, 0, 1)})
+    newF = F.rotate3D(2 * pi / 3, [1, 1, 1], False)
+    assert newF[0].equals(Matrix([[0], [1], [0]]))
+    assert newF[1].equals(Matrix([[0], [0], [1]]))
+    assert newF[2].equals(Matrix([[1], [0], [0]]))
+
+    newF = F.rotate3D(4 * pi / 3, [1, 1, 1], False)
+    assert newF[0].equals(Matrix([[0], [0], [1]]))
+    assert newF[1].equals(Matrix([[1], [0], [0]]))
+    assert newF[2].equals(Matrix([[0], [1], [0]]))
+
+
 def test_is_equivalent():
     F1 = fws.Complete(4, 2)
     assert F1.is_equivalent_realization(F1.realization(), numerical=False)
