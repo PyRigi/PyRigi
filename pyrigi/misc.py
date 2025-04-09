@@ -15,7 +15,7 @@ try:
     from IPython.core.magic import register_cell_magic
 
     @register_cell_magic
-    def skip_execution(line, cell):
+    def skip_execution(line, cell):  # noqa: U100
         print(
             "This cell was marked to be skipped (probably due to long execution time)."
         )

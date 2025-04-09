@@ -108,7 +108,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         vertex: Vertex, whose indegree we want to know.
         """
-        self._input_check_vertex_member(vertex, "vertex")
+        self._input_check_vertex_member(vertex)
         return int(super().in_degree(vertex))
 
     def out_degree(self, vertex: Vertex) -> int:
@@ -119,7 +119,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         ----------
         vertex: Vertex, whose outdegree we want to know.
         """
-        self._input_check_vertex_member(vertex, "vertex")
+        self._input_check_vertex_member(vertex)
         return int(super().out_degree(vertex))
 
     def redirect_edge_to_head(self, edge: DirectedEdge, vertex_to: Vertex) -> None:
@@ -304,7 +304,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
 
-    def _input_check_vertex_member(self, to_check: Vertex, name: str = "") -> None:
+    def _input_check_vertex_member(self, to_check: Vertex) -> None:
         """
         Check whether a given element is indeed a vertex and
         raise an error otherwise.
