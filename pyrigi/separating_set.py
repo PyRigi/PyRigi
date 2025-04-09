@@ -33,7 +33,7 @@ def is_stable_set(
     certificate: bool = False,
 ) -> bool | tuple[bool, Optional[Edge]]:
     """
-    Return if given ``vertices`` form a stable set.
+    Return whether given ``vertices`` form a stable set.
 
     If the set is not stable, a pair of adjacent vertices
     is also returned depending on ``certificate``.
@@ -134,7 +134,7 @@ def is_separating_set(
     use_copy: bool = True,
 ) -> bool:
     """
-    Return if ``vertices`` are a separating set.
+    Return whether ``vertices`` are a separating set.
 
     Definitions
     -----------
@@ -186,7 +186,7 @@ def is_uv_separating_set(
     use_copy: bool = True,
 ) -> bool:
     """
-    Return if ``vertices`` separate the vertices ``u`` and ``v``.
+    Return whether ``vertices`` separate the vertices ``u`` and ``v``.
 
     Definitions
     -----------
@@ -242,7 +242,7 @@ def is_stable_separating_set(
     use_copy: bool = True,
 ) -> bool:
     """
-    Return if ``vertices`` are a stable separating set.
+    Return whether ``vertices`` are a stable separating set.
 
     See :meth:`~pyrigi.graph.Graph.is_stable_set` and
     :meth:`~pyrigi.graph.Graph.is_separating_set` for
