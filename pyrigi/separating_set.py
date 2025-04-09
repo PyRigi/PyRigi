@@ -295,14 +295,14 @@ def stable_separating_set(
     """
     Find a stable separating set if the graph is 2-flexible.
 
+    If two vertices ``u`` and ``v`` that are not in the same
+    :prf:ref:`2-rigid component <def-rigid-components>` are provided,
+    then the returned stable separating set separates them.
+    If a single vertex ``u`` is specified,
+    the returned stable separating set avoids ``u``,
+    provided ``u`` is not contained in all 2-rigid components.
     Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024` is used.
-    The algorithm allows to specify two vertices ``u`` and ``v``
-    that are separated by the returned stable separating set,
-    provided that they are not in the same
-    :prf:ref:`2-rigid component <def-rigid-components>`.
-    Alternatively, a single vertex ``u`` can be specified that is
-    avoided in the returned stable separating set,
-    provided it is not contained in all 2-rigid components.
+    An empty set can be returned when the graph is disconnected.
 
     Definitions
     -----------
@@ -323,12 +323,12 @@ def stable_separating_set(
         If ``True``, it is checked that the graph is
         2-flexible as the algorithm only works for those.
         If ``False`` and the graph is 2-rigid,
-        the output is undefined.
+        the behaviour might be arbitrary.
     check_connected:
         If ``True``, checks for graph connectivity are run and
         the result may alter based on them.
         If ``False`` and the graph is disconnected,
-        the output is undefined.
+        the behaviour might be arbitrary.
     check_distinct_rigid_components:
         If ``True``, it is checked that ``u`` and ``v``
         are in different 2-rigid components.
@@ -387,7 +387,8 @@ def stable_separating_set(
                 # u and v are set and are in the same component
                 graph = PRGraph(nx.induced_subgraph(graph, u_component))
             else:
-                # We can choose v arbitrarily from the another component
+                # v can be assumed to be in another component
+                # so the empty set is a stable separating set
                 return set()
 
     # Make sure that the graph or the connected component with u & v is not rigid
@@ -399,11 +400,12 @@ def stable_separating_set(
     ############################################################################
 
     # At this point the graph is connected.
-    # We don't know anything about u and v
+    # We do not know anything about u and v
 
     # u needs to be chosen
     if u is None:  # v is also None
-        # u cannot be an articulation point as if the graph is not 2-connected
+        # u cannot be an articulation point (i.e. a separating vertex)
+        # as if the graph is not 2-connected
         # {u} may be the only separating set of the graph
         articulation_points = list(nx.articulation_points(graph))
 
@@ -503,7 +505,7 @@ def _find_stable_uv_separating_set(
         graph: nx.Graph, u: Vertex, x: Vertex
     ) -> tuple[set[Vertex], set[Vertex]]:
         """
-        Contract the vertices u and x
+        Contract the vertices ``u`` and ``x``
         and return their original neighbors for easy restoration.
         """
         u_neigh = set(graph.neighbors(u))
@@ -528,7 +530,7 @@ def _find_stable_uv_separating_set(
     ):
         """
         Restore the contracted graph to its original form.
-        Inverse operation for contract.
+        Inverse operation for ``contract``.
         """
         for neighbor in x_neigh - u_neigh - {u}:
             graph.remove_edge(u, neighbor)
@@ -536,9 +538,9 @@ def _find_stable_uv_separating_set(
         for neighbor in x_neigh:
             graph.add_edge(x, neighbor, **edge_data[frozenset((neighbor, x))])
 
-    # Try the both vertices forming a triangle with u
-    # Pass has to succeed with at least one of them,
-    # otherwise the rigid components are not maximal or the graph is rigid.
+    # Try both the vertices in `violation` forming a triangle with u
+    # It is guaranteed by the proof of Algorithm 1 :cite:p:`ClinchGaramvölgyiEtAl2024`
+    # that at least one of them yields a result.
     for x in violation:
         u_neigh, x_neigh = contract(graph, u, x)
 
@@ -560,4 +562,4 @@ def _find_stable_uv_separating_set(
         finally:
             restore(graph, u, x, u_neigh, x_neigh)
 
-    raise RuntimeError("Rigid components are not maximal!")
+    raise RuntimeError("Something went wrong!")

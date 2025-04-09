@@ -126,7 +126,7 @@ where two paths are internally disjoint if they do not share any edge.
 :::{prf:definition} separating set
 :label: def-separating-set
 
-A proper subset $U\subset V$ is called a _separating set_ of a graph $G=(V,E)$ if
+A subset $U\subsetneq V$ is called a _separating set_ of a graph $G=(V,E)$ if
 $G-U$ is not {prf:ref}`connected <def-connected>`.
 
 In particular, if $|U| = 2$ then U is called a _separating pair_.
