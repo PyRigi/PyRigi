@@ -2744,8 +2744,7 @@ class Framework(object):
         inplace: bool = True,
     ) -> None | Framework:
         """
-        Rotate the spatial framework counterclockwise around a specified
-        rotation axis.
+        Rotate the spatial framework counterclockwise around a specified rotation axis.
 
         Parameters
         ----------
