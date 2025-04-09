@@ -304,7 +304,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         for edge in edges:
             self.add_edge_maintaining_digraph(edge[0], edge[1])
 
-    def _input_check_vertex_member(self, to_check: Vertex, name: str = "") -> None:
+    def _input_check_vertex_member(self, to_check: Vertex) -> None:
         """
         Check whether a given element is indeed a vertex and
         raise an error otherwise.

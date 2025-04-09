@@ -82,7 +82,7 @@ def test__remove_apply_restore_vertices():
     _add_metadata(graph1)
     graph2 = graph1.copy()
 
-    def noop(_: nx.Graph):
+    def noop(_: nx.Graph):  # noqa: U101
         pass
 
     _remove_apply_restore_vertices(graph2, set(), noop, use_copy=True)
