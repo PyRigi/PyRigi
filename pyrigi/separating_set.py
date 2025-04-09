@@ -87,7 +87,8 @@ def _revertable_set_removal(
     use_copy: bool,
 ) -> T:
     """
-    Remove given ``vertices`` from the graph, return the result of ``func(graph)``,
+    Remove given ``vertices`` from the graph,
+    return the result of ``func`` applied to this subgraph,
     and restore the original graph.
 
     Parameters
@@ -99,7 +100,8 @@ def _revertable_set_removal(
         Warning: if ``func`` modifies its input graph, then it is not guaranteed
         that the ``graph`` is restored correctly by ``_revertable_set_removal``.
     use_copy:
-        Create a copy of the graph before the vertices are removed
+        If ``True`` (default),
+        create a copy of the graph before the vertices are removed
         and ``property`` is checked.
         Otherwise, the graph is modified in-place.
         In that case, some metadata may be lost.
@@ -145,7 +147,8 @@ def is_separating_set(
     vertices:
         The vertices to check.
     use_copy:
-        Create a copy of the graph before the vertices are removed
+        If ``True`` (default),
+        create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
         In that case, some metadata may be lost.
 
@@ -200,7 +203,8 @@ def is_uv_separating_set(
         ``ValueError`` is raised.
     u, v:
     use_copy:
-        Create a copy of the graph before the vertices are removed
+        If ``True`` (default),
+        create a copy of the graph before the vertices are removed
         and connectivity is checked. Otherwise, the graph is modified in-place.
         In that case, some metadata may be lost.
 
