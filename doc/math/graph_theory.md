@@ -58,7 +58,7 @@ For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity defi
 :label: alg-pebble-game
 **Input:** A simple graph $G$ (with loops), integers $k>0$ and $\ell$ with $0\leq \ell < 2k$
 
-**Output:** `True` or `False`, whether or not $G$ is $(k,\ell)$-sparse
+**Output:** `True` or `False`, whether or not $G$ is $(k,\ell)$-{prf:ref}`sparse<def-kl-sparse-tight>`
 
 1. Start with a graph $G'$ on $|V|$ vertices and no edges and put $k$ pebbles on every vertex.
 2. Loop over all edges of $G$.
@@ -68,7 +68,7 @@ For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity defi
         * Try to find a pebble by a path in $G'$ from a vertex $v$ of the edge with less than $k$ pebbles.
         * If such a path is found, revert all edges in the path and move the pebble to $v$ and go to step 2.1.
         * If no such path is found, return `False`.
-3. When all edges are covered, return `True`.
+3. When all edges are covered and at least $\ell$ pebbles remain in the game, return `True`.
 
 {{references}} {cite:p}`JacobsHendrickson1997` {cite:p}`LeeStreinu2008`
 :::

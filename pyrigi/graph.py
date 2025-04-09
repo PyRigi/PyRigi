@@ -457,7 +457,7 @@ class Graph(nx.Graph):
         r"""
         Return a maximal (``K``, ``L``)-sparse subgraph.
 
-        Based on the directed graph calculated by the pebble game algorithm, return
+        Based on the directed graph calculated by the :prf:ref:`pebble game algorithm <alg-pebble-game>`, return
         a maximal :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>` of the graph.
         There are multiple possible maximal (``K``, ``L``)-sparse subgraphs, all of which have
         the same number of edges.
@@ -540,7 +540,7 @@ class Graph(nx.Graph):
         L:
         algorithm:
             If ``"pebble"``, the function uses the pebble game algorithm to check
-            for sparseness.
+            for sparseness (see :prf:ref:`alg-pebble-game`).
             If ``"subgraph"``, it checks each subgraph following the definition.
             It defaults to ``"pebble"`` whenever ``K>0`` and ``0<=L<2K``,
             otherwise to ``"subgraph"``.
@@ -620,7 +620,12 @@ class Graph(nx.Graph):
         False
         >>> graphs.ThreePrism().is_sparse()
         True
+
+        Notes
+        -----
+        The pebble game algorithm is used (see :prf:ref:`alg-pebble-game`).
         """
+
         return self.is_kl_sparse(2, 3, algorithm="pebble")
 
     @doc_category("Sparseness")
@@ -688,6 +693,10 @@ class Graph(nx.Graph):
         False
         >>> graphs.ThreePrism().is_tight()
         True
+
+        Notes
+        -----
+        The pebble game algorithm is used (see :prf:ref:`alg-pebble-game`).
         """
         return self.is_kl_tight(2, 3, algorithm="pebble")
 
@@ -1910,7 +1919,8 @@ class Graph(nx.Graph):
             If ``"sparsity"`` (only if ``dim=2``),
             then the existence of a spanning
             :prf:ref:`(2,3)-tight <def-kl-sparse-tight>` subgraph and
-            :prf:ref:`thm-2-gen-rigidity` are used.
+            :prf:ref:`thm-2-gen-rigidity` are used
+            with the pebble game algorithm (:prf:ref:`alg-pebble-game`).
 
             If ``"randomized"``, a probabilistic check is performed.
             It may give false negatives (with probability at most ``prob``),
@@ -2266,7 +2276,8 @@ class Graph(nx.Graph):
             then the (non-)presence of cycles is checked.
 
             If ``"sparsity"`` (only if ``dim=2``),
-            then :prf:ref:`(2,3)-sparsity <def-kl-sparse-tight>` is checked.
+            then :prf:ref:`(2,3)-sparsity <def-kl-sparse-tight>` is checked
+            using the :prf:ref:`pebble game algorithm <alg-pebble-game>`.
 
             If ``"randomized"``, the following check is performed on a random framework:
             a set of edges forms an independent set in the rigidity matroid
@@ -2353,7 +2364,8 @@ class Graph(nx.Graph):
 
             If ``"sparsity"`` (only if ``dim=2``),
             a :prf:ref:`(2,3)-sparse <def-kl-sparse-tight>` spanning subgraph
-            is computed and it is checked (using pebble games)
+            is computed and it is checked
+            (using :prf:ref:`pebble games <alg-pebble-game>`)
             whether it misses only a single edge
             whose fundamental circuit is the whole graph.
 
@@ -2497,7 +2509,8 @@ class Graph(nx.Graph):
             then the closure is computed using connected components.
 
             If ``"pebble"`` (only if ``dim=2``),
-            then pebble games are used.
+            then pebble games are used
+            (see notes below and :prf:ref:`alg-pebble-game`).
 
             If ``"randomized"``, then adding
             non-edges is tested one by one on a random framework.
