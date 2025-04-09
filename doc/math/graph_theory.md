@@ -142,6 +142,7 @@ if $u$ and $v$ are in different connected components of $G-U$.
 :::{prf:definition} stable set
 :label: def-stable-set
 
+Let $G = (V, E)$ be a graph.
 The set $S \subset V$ is called a _stable set_ of $G$
 if there is no edge $uv$ in $G$ such that $u,v \in S$.
 

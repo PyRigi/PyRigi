@@ -47,7 +47,7 @@ def is_stable_set(
     vertices:
         A set of vertices to be checked.
     certificate:
-        If ``False``, just a boolean whether the set is stable or not is returned.
+        If ``False``, a boolean is returned whether the set is stable or not.
         If ``True``, a tuple is returned where the first boolean states
         whether the set is stable and the second item gives a pair of vertices
         contradicting the stable property if applicable (otherwise ``None``).
