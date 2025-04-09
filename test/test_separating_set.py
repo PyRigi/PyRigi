@@ -196,16 +196,6 @@ def test_is_uv_separating_set_error():
 
 
 def test_stable_separating_set_edge_cases():
-    # empty graph
-    graph = Graph()
-    _add_metadata(graph)
-    orig = graph.copy()
-
-    with pytest.raises(ValueError):
-        graph.stable_separating_set()
-    assert _eq(graph, orig)
-
-    # more vertices
     graph = Graph.from_vertices_and_edges([0, 1, 2], [])
     _add_metadata(graph)
     orig = graph.copy()

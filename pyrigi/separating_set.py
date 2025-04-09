@@ -335,7 +335,6 @@ def stable_separating_set(
     ############################################################################
     # Preconditions
     ############################################################################
-    pyrigi._graph_input_check.non_empty(graph)
 
     # if v is set, u must be also set
     if u is None and v is not None:
