@@ -1,8 +1,7 @@
-from typing import Callable, ParamSpec, TypeVar, TypeVarTuple
+from typing import Callable, ParamSpec, TypeVar
 
 P = ParamSpec("P")
 T = TypeVar("T")
-R = TypeVarTuple("R")
 
 
 def copy_doc(

@@ -16,7 +16,6 @@ from pyrigi.graph import Graph
 
 P = ParamSpec("P")
 T = TypeVar("T")
-R = TypeVar("R")
 
 Annotations = dict[str, Any]
 Globals = dict[str, Any]
