@@ -69,7 +69,7 @@ For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity defi
         * Pick a vertex $v$ of $e$ with less than $k$ pebbles.
         * Try to find a pebble reachable by a path in $G'$ starting at $v$.
         * If such a path is found, revert all edges in the path, move the pebble to $v$ and go to step 3.1 considering $e$ again.
-        * If no such path is found for both vertices of the edge, return `False`.
+        * If no such path is found for both vertices of the edge, reject the edge and return `False`.
 4. If no edge was rejected there are at least $\ell$ pebbles left.
    For Sparsity return `True`.
    For Tighness return `True` only if there are exactly $\ell$ pebbles left.
