@@ -2373,9 +2373,8 @@ class Graph(nx.Graph):
 
             If ``"sparsity"`` (only if ``dim=2``),
             a :prf:ref:`(2,3)-sparse <def-kl-sparse-tight>` spanning subgraph
-            is computed and it is checked
-            (using :prf:ref:`pebble games <alg-pebble-game>`)
-            whether it misses only a single edge
+            is computed (using :prf:ref:`pebble games <alg-pebble-game>`)
+            and checked whether it misses only a single edge
             whose fundamental circuit is the whole graph.
 
             If ``"randomized"``, it is checked using randomized
