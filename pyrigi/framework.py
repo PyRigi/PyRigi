@@ -2727,6 +2727,7 @@ class Framework(object):
             Otherwise, a new rotated framework is returned.
         """
         _input_check.dimension_for_algorithm(self.dim, [2], "rotate2D")
+        _input_check.equal(len(point_axis), 2, "length of the `point_axis`")
 
         rotation_matrix = Matrix(
             [[sp.cos(angle), -sp.sin(angle)], [sp.sin(angle), sp.cos(angle)]]
@@ -2774,6 +2775,7 @@ class Framework(object):
         """
         _input_check.dimension_for_algorithm(self.dim, [3], "rotate3D")
         _input_check.equal(len(direction_axis), 3, "length of the `rotation_axis`")
+        _input_check.equal(len(point_axis), 3, "length of the `point_axis`")
         if is_zero_vector(direction_axis):
             raise ValueError(
                 "The parameter `direction_axis` needs to be a non-zero vector."
