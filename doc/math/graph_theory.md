@@ -58,18 +58,21 @@ For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity defi
 :label: alg-pebble-game
 **Input:** A simple graph $G$ (with loops), integers $k>0$ and $\ell$ with $0\leq \ell < 2k$
 
-**Output:** `True` or `False`, whether or not $G$ is $(k,\ell)$-{prf:ref}`sparse<def-kl-sparse-tight>`
+**Output:** `True` or `False`, whether or not $G$ is $(k,\ell)$-{prf:ref}`sparse<def-kl-sparse-tight>` resp. $(k,\ell)$-tight
 
-1. Start with a graph $G'$ on $|V|$ vertices and no edges and put $k$ pebbles on every vertex.
-2. Loop over all edges of $G$.
-    1. If the vertices of the edge have together at least $\ell+1$ pebbles:
-        * Add a directed edge to $G'$ and remove one pebble from its starting vertex.
+1. Start with a new graph $G'$ on the same set of vertices $V$, but no edges.
+2. Put $k$ pebbles on every vertex.
+3. Loop over all edges of $G$. For an edge $e$:
+    1. If the vertices of $e$ have together at least $\ell+1$ pebbles:
+        * Add a directed edge to $G'$ between these vertices and remove one pebble from its starting vertex.
     2. Else:
-        * Pick a vertex $v$ of the edge with less than $k$ pebbles.
+        * Pick a vertex $v$ of $e$ with less than $k$ pebbles.
         * Try to find a pebble reachable by a path in $G'$ starting at $v$.
-        * If such a path is found, revert all edges in the path, move the pebble to $v$ and go to step 2.1.
+        * If such a path is found, revert all edges in the path, move the pebble to $v$ and go to step 3.1 considering $e$ again.
         * If no such path is found for both vertices of the edge, return `False`.
-3. When all edges are covered and at least $\ell$ pebbles remain in the game, return `True`.
+4. If no edge was rejected there are at least $\ell$ pebbles left.
+   For Sparsity return `True`.
+   For Tighness return `True` only if there are exactly $\ell$ pebbles left.
 
 {{references}} {cite:p}`JacobsHendrickson1997` {cite:p}`LeeStreinu2008`
 :::
