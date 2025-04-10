@@ -788,23 +788,29 @@ def test_rotate2D():
     G = graphs.Complete(3)
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (1, 1)})
 
-    newF = F.rotate2D(0, False)
+    newF = F.rotate2D(0, inplace=False)
     for v, pos in newF.realization().items():
         assert pos.equals(F[v])
 
-    newF = F.rotate2D(pi * 4, False)
+    newF = F.rotate2D(pi * 4, inplace=False)
     for v, pos in newF.realization().items():
         assert pos.equals(F[v])
 
-    newF = F.rotate2D(pi / 2, False)
+    newF = F.rotate2D(pi / 2, inplace=False)
     assert newF[0].equals(Matrix([[0], [0]]))
     assert newF[1].equals(Matrix([[0], [2]]))
     assert newF[2].equals(Matrix([[-1], [1]]))
 
-    newF = F.rotate2D(pi / 4, False)
+    newF = F.rotate2D(pi / 4, inplace=False)
     assert newF[0].equals(Matrix([[0], [0]]))
     assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))]]))
     assert newF[2].equals(Matrix([[0], [sqrt(2)]]))
+
+    F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (0, 2)})
+    newF = F.rotate2D(pi, point_axis=[1, 1], inplace=False)
+    assert newF[0].equals(Matrix([[2], [2]]))
+    assert newF[1].equals(Matrix([[0], [2]]))
+    assert newF[2].equals(Matrix([[2], [0]]))
 
 
 def test_rotate3D():
@@ -845,6 +851,12 @@ def test_rotate3D():
     assert F[1].equals(Matrix([[1], [0], [0]]))
     assert F[2].equals(Matrix([[0], [1], [0]]))
 
+    F = Framework(G, {0: (0, 0, 0), 1: (2, 0, 0), 2: (0, 2, 0)})
+    F.rotate3D(pi, [0, 0, 1], point_axis=[1, 1, 0], inplace=True)
+    assert F[0].equals(Matrix([[2], [2], [0]]))
+    assert F[1].equals(Matrix([[0], [2], [0]]))
+    assert F[2].equals(Matrix([[2], [0], [0]]))
+
 
 def test_is_equivalent():
     F1 = fws.Complete(4, 2)
@@ -864,11 +876,11 @@ def test_is_equivalent():
 
     F3 = Framework(G1, {0: [0, 0], 1: [3, 0], 2: [2, 1], 3: [0, 4], 4: ["5/2", "9/7"]})
 
-    F4 = F3.translate((1, 1), False)
+    F4 = F3.translate((1, 1), inplace=False)
     assert F3.is_equivalent(F4, numerical=True)
     assert F3.is_equivalent(F4)
 
-    F5 = F3.rotate2D(pi / 2, False)
+    F5 = F3.rotate2D(pi / 2, inplace=False)
     assert F5.is_equivalent(F3)
     assert F5.is_equivalent(F4)
     assert F5.is_equivalent_realization(F4.realization())
@@ -966,7 +978,7 @@ def test_is_congruent():
     assert not F2.is_congruent(F3, numerical=True)  # equivalent, but not congruent
 
     F4 = F1.translate((pi, "2/3"), False)
-    F5 = F1.rotate2D(pi / 2, False)
+    F5 = F1.rotate2D(pi / 2, inplace=False)
     assert F1.is_congruent(F4)
     assert F1.is_congruent(F5)
     assert F5.is_congruent(F4)

@@ -2709,7 +2709,9 @@ class Framework(object):
         return new_framework
 
     @doc_category("Framework manipulation")
-    def rotate2D(self, angle: float, inplace: bool = True) -> None | Framework:
+    def rotate2D(
+        self, angle: float, point_axis: Point = [0, 0], inplace: bool = True
+    ) -> None | Framework:
         """
         Rotate the planar framework counterclockwise.
 
@@ -2717,6 +2719,9 @@ class Framework(object):
         ----------
         angle:
             Rotation angle
+        point_axis:
+            A point through which the rotation axis passes, as a ``Sequence[float]``.
+            By default, this is given by the origin.
         inplace:
             If ``True`` (default), then this framework is rotated.
             Otherwise, a new rotated framework is returned.
@@ -2727,13 +2732,19 @@ class Framework(object):
             [[sp.cos(angle), -sp.sin(angle)], [sp.sin(angle), sp.cos(angle)]]
         )
 
+        opposite_point_axis = [-point_axis[0], -point_axis[1]]
+
         if inplace:
+            self.translate(opposite_point_axis, inplace=True)
             for v, pos in self._realization.items():
                 self._realization[v] = rotation_matrix * pos
+            self.translate(point_axis, inplace=True)
             return
 
         new_framework = deepcopy(self)
-        new_framework.rotate2D(angle, True)
+        new_framework.translate(opposite_point_axis, inplace=True)
+        new_framework.rotate2D(angle, inplace=True)
+        new_framework.translate(point_axis, inplace=True)
         return new_framework
 
     @doc_category("Framework manipulation")
