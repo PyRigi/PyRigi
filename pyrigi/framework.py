@@ -467,7 +467,7 @@ class Framework(object):
         if filename is not None:
             if not filename.endswith(".png"):
                 filename = filename + ".png"
-            plt.savefig(f"{filename}.png")
+            plt.savefig(f"{filename}")
 
     @doc_category("Plotting")
     def animate3D_rotation(
@@ -804,7 +804,7 @@ class Framework(object):
         if filename is not None:
             if not filename.endswith(".png"):
                 filename = filename + ".png"
-            plt.savefig(f"{filename}.png")
+            plt.savefig(f"{filename}")
 
     @doc_category("Plotting")
     def plot(
