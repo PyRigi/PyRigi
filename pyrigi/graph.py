@@ -12,12 +12,14 @@ from itertools import combinations
 from random import randint
 
 import networkx as nx
-from sympy import Matrix, oo, zeros
+from sympy import Matrix, zeros
 
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
+import pyrigi.generic_rigidity as generic_rigidity  # TODO: remove when all methods moved
 import pyrigi.separating_set
+import pyrigi.sparsity
 from pyrigi._wrap import copy_doc
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.exception import NotSupportedValueError
@@ -429,103 +431,17 @@ class Graph(nx.Graph):
         """
         return max([int(self.degree(v)) for v in self.nodes])
 
-    def _build_pebble_digraph(self, K: int, L: int) -> None:
-        r"""
-        Build and save the pebble digraph from scratch.
-
-        Edges are added one-by-one, as long as they can.
-        Discard edges that are not :prf:ref:`(K, L)-independent <def-kl-sparse-tight>`
-        from the rest of the graph.
-
-        Parameters
-        ----------
-        K:
-        L:
-        """
-        _input_check.pebble_values(K, L)
-
-        dir_graph = pyrigi._pebble_digraph.PebbleDiGraph(K, L)
-        dir_graph.add_nodes_from(self.nodes)
-        for edge in self.edges:
-            u, v = edge[0], edge[1]
-            dir_graph.add_edge_maintaining_digraph(u, v)
-        self._pebble_digraph = dir_graph
-
     @doc_category("Sparseness")
+    @copy_doc(pyrigi.sparsity.spanning_kl_sparse_subgraph)
     def spanning_kl_sparse_subgraph(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> Graph:
-        r"""
-        Return a maximal (``K``, ``L``)-sparse subgraph.
-
-        Based on the directed graph calculated by the :prf:ref:`pebble game algorithm <alg-pebble-game>`, return
-        a maximal :prf:ref:`(K, L)-sparse <def-kl-sparse-tight>` of the graph.
-        There are multiple possible maximal (``K``, ``L``)-sparse subgraphs, all of which have
-        the same number of edges.
-
-        Definitions
-        -----------
-        :prf:ref:`(K, L)-sparsity <def-kl-sparse-tight>`
-
-        Parameters
-        ----------
-        K:
-        L:
-        use_precomputed_pebble_digraph:
-            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
-            present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-
-        Examples
-        --------
-        >>> from pyrigi import graphDB
-        >>> G = graphDB.Complete(4)
-        >>> H = G.spanning_kl_sparse_subgraph(2,3)
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
-        """  # noqa: E501
-        if (
-            not use_precomputed_pebble_digraph
-            or K != self._pebble_digraph.K
-            or L != self._pebble_digraph.L
-        ):
-            self._build_pebble_digraph(K, L)
-
-        return Graph(self._pebble_digraph.to_undirected())
-
-    def _is_pebble_digraph_sparse(
-        self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
-    ) -> bool:
-        """
-        Return whether the pebble digraph has the same number of edges as the graph.
-
-        Definitions
-        -----------
-        :prf:ref:`pebble digraph <def-pebble-digraph>`
-
-        Parameters
-        ----------
-        K:
-        L:
-        use_precomputed_pebble_digraph:
-            If ``True``, the pebble digraph present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-        """
-        if (
-            not use_precomputed_pebble_digraph
-            or K != self._pebble_digraph.K
-            or L != self._pebble_digraph.L
-        ):
-            self._build_pebble_digraph(K, L)
-
-        # all edges are in fact inside the pebble digraph
-        return self.number_of_edges() == self._pebble_digraph.number_of_edges()
+        return pyrigi.sparsity.spanning_kl_sparse_subgraph(
+            self, K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+        )
 
     @doc_category("Sparseness")
+    @copy_doc(pyrigi.sparsity.is_kl_sparse)
     def is_kl_sparse(
         self,
         K: int,
@@ -533,79 +449,13 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        r"""
-        Return whether the graph is (``K``, ``L``)-sparse.
-
-        Definitions
-        -----------
-        :prf:ref:`(K, L)-sparsity <def-kl-sparse-tight>`
-
-        Parameters
-        ----------
-        K:
-        L:
-        algorithm:
-            If ``"pebble"``, the function uses the pebble game algorithm to check
-            for sparseness (see :prf:ref:`alg-pebble-game`).
-            If ``"subgraph"``, it checks each subgraph following the definition.
-            It defaults to ``"pebble"`` whenever ``K>0`` and ``0<=L<2K``,
-            otherwise to ``"subgraph"``.
-        use_precomputed_pebble_digraph:
-            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
-            present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.DoubleBanana()
-        >>> G.is_kl_sparse(3,6)
-        True
-        >>> G.add_edge(0,1)
-        >>> G.is_kl_sparse(3,6)
-        False
-        """
-        _input_check.integrality_and_range(K, "K", min_val=1)
-        _input_check.integrality_and_range(L, "L", min_val=0)
-
-        if algorithm == "default":
-            try:
-                _input_check.pebble_values(K, L)
-                algorithm = "pebble"
-            except ValueError:
-                algorithm = "subgraph"
-
-        if algorithm == "pebble":
-            _input_check.pebble_values(K, L)
-            return self._is_pebble_digraph_sparse(
-                K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
-            )
-
-        if algorithm == "subgraph":
-            if nx.number_of_selfloops(self) > 0:
-                _input_check.pebble_values(K, L)
-                for i in range(1, self.number_of_nodes() + 1):
-                    for vertex_set in combinations(self.nodes, i):
-                        G = self.subgraph(vertex_set)
-                        m = G.number_of_edges()
-                        if m >= 1 and m > K * G.number_of_nodes() - L:
-                            return False
-                return True
-            else:
-                _input_check.integrality_and_range(
-                    L, "L", min_val=0, max_val=math.comb(K + 1, 2)
-                )
-                for i in range(K, self.number_of_nodes() + 1):
-                    for vertex_set in combinations(self.nodes, i):
-                        G = self.subgraph(vertex_set)
-                        if G.number_of_edges() > K * G.number_of_nodes() - L:
-                            return False
-                return True
-
-        # reaching this position means that the algorithm is unknown
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_kl_sparse)
+        return pyrigi.sparsity.is_kl_sparse(
+            self,
+            K,
+            L,
+            algorithm=algorithm,
+            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+        )
 
     @doc_category("Sparseness")
     def is_sparse(self) -> bool:
@@ -632,10 +482,10 @@ class Graph(nx.Graph):
         -----
         The pebble game algorithm is used (see :prf:ref:`alg-pebble-game`).
         """
-
         return self.is_kl_sparse(2, 3, algorithm="pebble")
 
     @doc_category("Sparseness")
+    @copy_doc(pyrigi.sparsity.is_kl_tight)
     def is_kl_tight(
         self,
         K: int,
@@ -643,44 +493,12 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        r"""
-        Return whether the graph is (``K``, ``L``)-tight.
-
-        Definitions
-        -----------
-        :prf:ref:`(K, L)-tightness <def-kl-sparse-tight>`
-
-        Parameters
-        ----------
-        K:
-        L:
-        algorithm:
-            See :meth:`.is_kl_sparse`.
-        use_precomputed_pebble_digraph:
-            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
-            present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(4)
-        >>> G.is_kl_tight(2,2)
-        True
-        >>> G1 = graphs.CompleteBipartite(4,4)
-        >>> G1.is_kl_tight(3,6)
-        False
-        """
-        return (
-            self.number_of_edges() == K * self.number_of_nodes() - L
-            and self.is_kl_sparse(
-                K,
-                L,
-                algorithm,
-                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-            )
+        return pyrigi.sparsity.is_kl_tight(
+            self,
+            K,
+            L,
+            algorithm=algorithm,
+            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
         )
 
     @doc_category("Sparseness")
@@ -1350,7 +1168,7 @@ class Graph(nx.Graph):
         try:
             import lnumber
 
-            if check_min_rigid and not self.is_min_rigid():
+            if check_min_rigid and not generic_rigidity.is_min_rigid(self):
                 raise ValueError("The graph must be minimally 2-rigid!")
 
             if self.number_of_nodes() == 1:
@@ -1499,7 +1317,7 @@ class Graph(nx.Graph):
         # in all other cases check by definition
         # and :prf:ref:`thm-redundant-vertex-subset`
         if self.number_of_nodes() < k + 2:
-            if not self.is_rigid(dim, algorithm, prob):
+            if not generic_rigidity.is_rigid(self, dim, algorithm, prob):
                 return False
             for cur_k in range(1, k):
                 if not self.is_k_vertex_redundantly_rigid(cur_k, dim, algorithm, prob):
@@ -1905,105 +1723,16 @@ class Graph(nx.Graph):
         return True
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.generic_rigidity.is_rigid)
     def is_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is ``dim``-rigid.
-
-        Definitions
-        -----------
-        :prf:ref:`Generic dim-rigidity <def-gen-rigid>`
-
-        Parameters
-        ----------
-        dim:
-            Dimension.
-        algorithm:
-            If ``"graphic"`` (only if ``dim=1``), then the graphic matroid
-            is used, namely, it is checked whether the graph is connected.
-
-            If ``"sparsity"`` (only if ``dim=2``),
-            then the existence of a spanning
-            :prf:ref:`(2,3)-tight <def-kl-sparse-tight>` subgraph and
-            :prf:ref:`thm-2-gen-rigidity` are used
-            with the pebble game algorithm (:prf:ref:`alg-pebble-game`).
-
-            If ``"randomized"``, a probabilistic check is performed.
-            It may give false negatives (with probability at most ``prob``),
-            but no false positives. See :prf:ref:`thm-probabilistic-rigidity-check`.
-
-            If ``"numerical"``, a numerical check on the rigidity matrix rank
-            is performed. See :meth:`.Framework.is_inf_rigid` for further details.
-
-            If ``"default"``, then ``"graphic"`` is used for ``dim=1``
-            and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
-        prob:
-            Only relevant if ``algorithm="randomized"``.
-            It determines the bound on the probability of
-            the randomized algorithm to yield false negatives.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.is_rigid()
-        False
-        >>> G.add_edge(0,2)
-        >>> G.is_rigid()
-        True
-        """
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-
-        n = self.number_of_nodes()
-        # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
-        if self.number_of_edges() < dim * n - math.comb(dim + 1, 2):
-            return False
-        # small graphs are rigid iff complete :prf:ref:`thm-gen-rigidity-small-complete`
-        elif n <= dim + 1:
-            return self.number_of_edges() == math.comb(n, 2)
-
-        if algorithm == "default":
-            if dim == 1:
-                algorithm = "graphic"
-            elif dim == 2:
-                algorithm = "sparsity"
-            else:
-                algorithm = "randomized"
-                self._warn_randomized_alg(self.is_rigid, "algorithm='randomized'")
-
-        if algorithm == "graphic":
-            _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
-            return nx.is_connected(self)
-
-        if algorithm == "sparsity":
-            _input_check.dimension_for_algorithm(dim, [2], "the sparsity algorithm")
-            self._build_pebble_digraph(2, 3)
-            return self._pebble_digraph.number_of_edges() == 2 * n - 3
-
-        if algorithm == "randomized":
-            N = int((n * dim - math.comb(dim + 1, 2)) / prob)
-            if N < 1:
-                raise ValueError("The parameter prob is too large!")
-            from pyrigi.framework import Framework
-
-            F = Framework.Random(self, dim, rand_range=[1, N])
-            return F.is_inf_rigid()
-
-        if algorithm == "numerical":
-            from pyrigi.framework import Framework
-
-            F = Framework.Random(
-                self,
-                dim,
-                rand_range=[-1, 1],
-                numerical=True,
-            )
-            return F.is_inf_rigid(numerical=True)
-
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_rigid)
+        return pyrigi.generic_rigidity.is_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.generic_rigidity.is_rigid)
     def is_min_rigid(
         self,
         dim: int = 2,
@@ -2011,109 +1740,13 @@ class Graph(nx.Graph):
         use_precomputed_pebble_digraph: bool = False,
         prob: float = 0.0001,
     ) -> bool:
-        """
-        Return whether the graph is minimally ``dim``-rigid.
-
-        Definitions
-        -----------
-        :prf:ref:`Minimal dim-rigidity <def-min-rigid-graph>`
-
-        Parameters
-        ----------
-        dim:
-            Dimension.
-        algorithm:
-            If ``"graphic"`` (only if ``dim=1``), then the graphic matroid
-            is used, namely, it is checked whether the graph is a tree.
-
-            If ``"sparsity"`` (only if ``dim=2``),
-            then :prf:ref:`(2,3)-tightness <def-kl-sparse-tight>` and
-            :prf:ref:`thm-2-gen-rigidity` are used.
-
-            If ``"randomized"``, a probabilistic check is performed.
-            It may give false negatives (with probability at most ``prob``),
-            but no false positives. See :prf:ref:`thm-probabilistic-rigidity-check`.
-
-            If ``"extension_sequence"`` (only if ``dim=2``),
-            then the existence of a sequence
-            of rigidity preserving extensions is checked,
-            see :meth:`.has_extension_sequence`.
-
-            If ``"default"``, then ``"graphic"`` is used for ``dim=1``
-            and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
-        use_precomputed_pebble_digraph:
-            Only relevant if ``algorithm="sparsity"``.
-            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
-            present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-        prob:
-            Only relevant if ``algorithm="randomized"``.
-            It determines the bound on the probability of
-            the randomized algorithm to yield false negatives.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (2,3), (3,0), (1,3)])
-        >>> G.is_min_rigid()
-        True
-        >>> G.add_edge(0,2)
-        >>> G.is_min_rigid()
-        False
-        """
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-
-        n = self.number_of_nodes()
-        # small graphs are minimally rigid iff complete
-        # :pref:ref:`thm-gen-rigidity-small-complete`
-        if n <= dim + 1:
-            return self.number_of_edges() == math.comb(n, 2)
-        # edge count, compare :prf:ref:`thm-gen-rigidity-tight`
-        if self.number_of_edges() != dim * n - math.comb(dim + 1, 2):
-            return False
-
-        if algorithm == "default":
-            if dim == 1:
-                algorithm = "graphic"
-            elif dim == 2:
-                algorithm = "sparsity"
-            else:
-                algorithm = "randomized"
-                self._warn_randomized_alg(self.is_min_rigid, "algorithm='randomized'")
-
-        if algorithm == "graphic":
-            _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
-            return nx.is_tree(self)
-
-        if algorithm == "sparsity":
-            _input_check.dimension_for_algorithm(
-                dim, [2], "the (2,3)-sparsity/tightness algorithm"
-            )
-            return self.is_kl_tight(
-                2,
-                3,
-                algorithm="pebble",
-                use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
-            )
-
-        if algorithm == "extension_sequence":
-            _input_check.dimension_for_algorithm(
-                dim, [1, 2], "the algorithm using extension sequences"
-            )
-            return self.has_extension_sequence(dim=dim)
-
-        if algorithm == "randomized":
-            N = int((n * dim - math.comb(dim + 1, 2)) / prob)
-            if N < 1:
-                raise ValueError("The parameter prob is too large!")
-            from pyrigi.framework import Framework
-
-            F = Framework.Random(self, dim, rand_range=[1, N])
-            return F.is_min_inf_rigid()
-
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_min_rigid)
+        return pyrigi.generic_rigidity.is_min_rigid(
+            self,
+            dim=dim,
+            algorithm=algorithm,
+            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+            prob=prob,
+        )
 
     @doc_category("Generic rigidity")
     def is_globally_rigid(
@@ -2572,7 +2205,7 @@ class Graph(nx.Graph):
                 dim, [2], "the algorithm based on pebble games"
             )
 
-            self._build_pebble_digraph(2, 3)
+            pyrigi.sparsity._build_pebble_digraph(self, 2, 3)
             if self._pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
                 return list(combinations(self.nodes, 2))
             else:
@@ -2603,221 +2236,22 @@ class Graph(nx.Graph):
         raise NotSupportedValueError(algorithm, "algorithm", self.Rd_closure)
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.generic_rigidity.rigid_components)
     def rigid_components(  # noqa: 901
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> list[list[Vertex]]:
-        """
-        Return the list of the vertex sets of ``dim``-rigid components.
-
-        Definitions
-        -----
-        :prf:ref:`Rigid components <def-rigid-components>`
-
-        Parameters
-        ---------
-        dim:
-            The dimension that is used for the rigidity check.
-        algorithm:
-            If ``"graphic"`` (only if ``dim=1``),
-            then the connected components are returned.
-
-            If ``"subgraphs-pebble"`` (only if ``dim=2``),
-            then all subgraphs are checked
-            using :meth:`.is_rigid` with ``algorithm="pebble"``.
-
-            If ``"pebble"`` (only if ``dim=2``),
-            then :meth:`.Rd_closure` with ``algorithm="pebble"``
-            is used.
-
-            If ``"randomized"``, all subgraphs are checked
-            using :meth:`.is_rigid` with ``algorithm="randomized"``.
-
-            If ``"numerical"``, all subgraphs are checked
-            using :meth:`.is_rigid` with ``algorithm="numerical"``.
-
-            If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
-            ``"pebble"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
-        prob:
-            A bound on the probability for false negatives of the rigidity testing
-            when ``algorithm="randomized"``.
-
-            *Warning:* this is not the probability of wrong results in this method,
-            but is just passed on to rigidity testing.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.rigid_components(algorithm="randomized")
-        [[0, 1], [0, 3], [1, 2], [2, 3]]
-
-        >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
-        >>> G.is_rigid()
-        False
-        >>> G.rigid_components(algorithm="randomized")
-        [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
-
-        Notes
-        -----
-        If the graph itself is rigid, it is clearly maximal and is returned.
-        Every edge is part of a rigid component. Isolated vertices form
-        additional rigid components.
-
-        For the pebble game algorithm we use the fact that the ``R2_closure``
-        consists of edge disjoint cliques, so we only have to determine them.
-        """
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-
-        if algorithm == "default":
-            if dim == 1:
-                algorithm = "graphic"
-            elif dim == 2:
-                algorithm = "pebble"
-            else:
-                algorithm = "randomized"
-                self._warn_randomized_alg(
-                    self.rigid_components, "algorithm='randomized'"
-                )
-
-        if algorithm == "graphic":
-            _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
-            return [list(comp) for comp in nx.connected_components(self)]
-
-        if algorithm == "pebble":
-            _input_check.dimension_for_algorithm(
-                dim, [2], "the rigid component algorithm based on pebble games"
-            )
-            components = []
-            closure = Graph(self.Rd_closure(dim=2, algorithm="pebble"))
-            for u, v in closure.edges:
-                closure.edges[u, v]["used"] = False
-            for u, v in closure.edges:
-                if not closure.edges[u, v]["used"]:
-                    common_neighs = nx.common_neighbors(closure, u, v)
-                    comp = [u, v] + list(common_neighs)
-                    components.append(comp)
-                    for w1, w2 in combinations(comp, 2):
-                        closure.edges[w1, w2]["used"] = True
-
-            return components + [[v] for v in self.nodes if nx.is_isolate(self, v)]
-
-        if algorithm in ["randomized", "numerical", "subgraphs-pebble"]:
-            if not nx.is_connected(self):
-                res = []
-                for comp in nx.connected_components(self):
-                    res += self.subgraph(comp).rigid_components(
-                        dim, algorithm=algorithm
-                    )
-                return res
-
-            if algorithm == "subgraphs-pebble":
-                _input_check.dimension_for_algorithm(
-                    dim, [2], "the subgraph algorithm using pebble games"
-                )
-                alg_is_rigid = "sparsity"
-            else:
-                alg_is_rigid = algorithm
-
-            if self.is_rigid(dim, algorithm=alg_is_rigid, prob=prob):
-                return [list(self)]
-
-            rigid_subgraphs = {
-                tuple(vertex_subset): True
-                for n in range(2, self.number_of_nodes() - 1)
-                for vertex_subset in combinations(self.nodes, n)
-                if self.subgraph(vertex_subset).is_rigid(
-                    dim, algorithm=alg_is_rigid, prob=prob
-                )
-            }
-
-            sorted_rigid_subgraphs = sorted(
-                rigid_subgraphs.keys(), key=lambda t: len(t), reverse=True
-            )
-            for i, H1 in enumerate(sorted_rigid_subgraphs):
-                if rigid_subgraphs[H1] and i + 1 < len(sorted_rigid_subgraphs):
-                    for H2 in sorted_rigid_subgraphs[i + 1 :]:
-                        if set(H2).issubset(set(H1)):
-                            rigid_subgraphs[H2] = False
-            return [list(H) for H, is_max in rigid_subgraphs.items() if is_max]
-
-        raise NotSupportedValueError(algorithm, "algorithm", self.rigid_components)
+        return pyrigi.generic_rigidity.rigid_components(
+            self, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.generic_rigidity.max_rigid_dimension)
     def max_rigid_dimension(
         self, algorithm: str = "randomized", prob: float = 0.0001
     ) -> int | Inf:
-        """
-        Compute the maximum dimension in which the graph is generically rigid.
-
-        For checking rigidity, the method uses a randomized algorithm,
-        see :meth:`~.is_rigid` for details.
-
-        Definitions
-        -----------
-        :prf:ref:`Generical rigidity <def-gen-rigid>`
-
-        Parameters
-        ----------
-        algorithm:
-            If ``"randomized"``, the rigidity of the graph is checked
-            in each dimension using :meth:`.is_rigid` with
-            ``algorithm="randomized"``.
-            Since this is a randomized algorithm, false negatives are possible.
-            However, the actual maximum rigid dimension is never lower than
-            the output of this method.
-
-            If ``"numerical"``, the rigidity of the graph is checked
-            in each dimension using :meth:`.is_rigid` with
-            ``algorithm="numerical"``.
-            With this choice of algorithm, we do not have the guarantee that
-            is mentioned above on the maximum rigid dimension.
-        prob:
-            A bound on the probability for false negatives of the rigidity testing.
-
-            *Warning:* this is not the probability of wrong results in this method,
-            but is just passed on to rigidity testing.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(3)
-        >>> rigid_dim = G.max_rigid_dimension(); rigid_dim
-        oo
-        >>> rigid_dim.is_infinite
-        True
-
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(4)
-        >>> G.add_edges([(0,4),(1,4),(2,4)])
-        >>> G.max_rigid_dimension()
-        3
-
-        Notes
-        -----
-        This is done by taking the dimension predicted by the Maxwell count
-        as a starting point and iteratively reducing the dimension until
-        generic rigidity is found.
-        This method returns ``sympy.oo`` (infinity) if and only if the graph
-        is complete. It has the data type ``Inf``.
-        """
-        _graph_input_check.no_loop(self)
-
-        if not nx.is_connected(self):
-            return 0
-
-        n = self.number_of_nodes()
-        m = self.number_of_edges()
-        # Only the complete graph is rigid in all dimensions
-        if m == n * (n - 1) / 2:
-            return oo
-        # Find the largest d such that d*(d+1)/2 - d*n + m = 0
-        max_dim = int(
-            math.floor(0.5 * (2 * n + math.sqrt((1 - 2 * n) ** 2 - 8 * m) - 1))
+        return pyrigi.generic_rigidity.max_rigid_dimension(
+            self, algorithm=algorithm, prob=prob
         )
-        self._warn_randomized_alg(self.max_rigid_dimension)
-        for dim in range(max_dim, 0, -1):
-            if self.is_rigid(dim, algorithm=algorithm, prob=prob):
-                return dim
 
     @doc_category("General graph theoretical properties")
     def is_isomorphic(self, graph: Graph) -> bool:
@@ -3591,44 +3025,9 @@ class Graph(nx.Graph):
             return self
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.generic_rigidity.is_linked)
     def is_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
-        """
-        Return whether a pair of vertices is ``dim``-linked.
-
-        :prf:ref:`lem-linked-pair-rigid-component` is used for the check.
-
-        Definitions
-        -----------
-        :prf:ref:`dim-linked pair <def-linked-pair>`
-
-        Parameters
-        ----------
-        u,v:
-        dim:
-            Currently, only the dimension ``dim=2`` is supported.
-
-        Examples
-        --------
-        >>> H = Graph([[0, 1], [0, 2], [1, 3], [1, 5], [2, 3], [2, 6], [3, 5], [3, 7], [5, 7], [6, 7], [3, 6]])
-        >>> H.is_linked(1,7)
-        True
-        >>> H = Graph([[0, 1], [0, 2], [1, 3], [2, 3]])
-        >>> H.is_linked(0,3)
-        False
-        >>> H.is_linked(1,3)
-        True
-
-        Suggested Improvements
-        ----------------------
-        Implement also for other dimensions.
-        """  # noqa: E501
-        _input_check.dimension_for_algorithm(
-            dim, [2], "the algorithm to check linkedness"
-        )
-        _graph_input_check.vertex_members(self, [u, v])
-        return any(
-            [(u in C and v in C) for C in self.rigid_components(algorithm="default")]
-        )
+        return pyrigi.generic_rigidity.is_linked(self, u, v, dim=dim)
 
     def _Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2) -> list[Edge]:
         """
@@ -3673,10 +3072,10 @@ class Graph(nx.Graph):
         # check (u, v) are non-adjacent linked pair
         if self.has_edge(u, v):
             raise ValueError("The vertices must not be connected by an edge.")
-        elif not self.is_linked(u, v, dim=dim):
+        elif not generic_rigidity.is_linked(self, u, v, dim=dim):
             raise ValueError("The vertices must be a linked pair.")
 
-        self._build_pebble_digraph(K=2, L=3)
+        pyrigi.sparsity._build_pebble_digraph(self, K=2, L=3)
         set_nodes = self._pebble_digraph.fundamental_circuit(u, v)
         F = Graph(self._pebble_digraph.to_undirected())
         return nx.subgraph(F, set_nodes).edge_list()
@@ -3733,7 +3132,7 @@ class Graph(nx.Graph):
         if self.has_edge(u, v):
             return True  # they are actually globally linked, not just weakly
         # check (u,v) are linked pair
-        if not self.is_linked(u, v, dim=dim):
+        if not generic_rigidity.is_linked(self, u, v, dim=dim):
             return False
 
         # check (u,v) are such that kappa_self(u,v) > 2
@@ -3748,7 +3147,7 @@ class Graph(nx.Graph):
         # OR
         # elif Clique(B,V_0) is globally rigid
         B = self._block_3(u, v)
-        B._build_pebble_digraph(K=2, L=3)
+        pyrigi.sparsity._build_pebble_digraph(B, K=2, L=3)
         V_0 = B._pebble_digraph.fundamental_circuit(u, v)
         return B._make_outside_neighbors_clique(V_0).is_globally_rigid()
 
