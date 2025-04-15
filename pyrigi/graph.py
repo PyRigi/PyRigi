@@ -17,7 +17,8 @@ from sympy import Matrix, zeros
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
-import pyrigi.generic_rigidity as generic_rigidity  # TODO: remove the alias when all methods moved
+import pyrigi.generic_rigidity as generic_rigidity
+# TODO: remove the alias when all methods moved
 import pyrigi.separating_set
 import pyrigi.sparsity as sparsity  # TODO: remove the alias when all methods moved
 from pyrigi._wrap import copy_doc
