@@ -188,6 +188,10 @@ def is_min_rigid(
     >>> G.add_edge(0,2)
     >>> G.is_min_rigid()
     False
+
+    Suggested Improvements
+    ----------------------
+    Implement ``algorithm="numerical"``.
     """
     _input_check.dimension(dim)
     _graph_input_check.no_loop(graph)

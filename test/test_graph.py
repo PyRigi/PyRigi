@@ -18,6 +18,7 @@ is_rigid_algorithms_all_d = ["default", "randomized", "numerical"]
 is_rigid_algorithms_d1 = is_rigid_algorithms_all_d + ["graphic"]
 is_rigid_algorithms_d2 = is_rigid_algorithms_all_d + ["sparsity"]
 
+
 TEST_WRAPPED_FUNCTIONS = True
 
 
