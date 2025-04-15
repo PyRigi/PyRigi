@@ -17,9 +17,9 @@ from sympy import Matrix, zeros
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
-import pyrigi.generic_rigidity as generic_rigidity  # TODO: remove when all methods moved
+import pyrigi.generic_rigidity as generic_rigidity  # TODO: remove the alias when all methods moved
 import pyrigi.separating_set
-import pyrigi.sparsity
+import pyrigi.sparsity as sparsity  # TODO: remove the alias when all methods moved
 from pyrigi._wrap import copy_doc
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.exception import NotSupportedValueError
@@ -2085,9 +2085,12 @@ class Graph(nx.Graph):
                 # this should not happen
                 raise RuntimeError
 
+            pebble_digraph = sparsity._get_pebble_digraph(
+                self, K=2, L=3, use_precomputed_pebble_digraph=True
+            )
             return (
                 len(
-                    self._pebble_digraph.fundamental_circuit(
+                    pebble_digraph.fundamental_circuit(
                         u=remaining_edges[0][0],
                         v=remaining_edges[0][1],
                     )
@@ -2205,15 +2208,15 @@ class Graph(nx.Graph):
                 dim, [2], "the algorithm based on pebble games"
             )
 
-            pyrigi.sparsity._build_pebble_digraph(self, 2, 3)
-            if self._pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
+            pebble_digraph = sparsity._get_pebble_digraph(self, 2, 3)
+            if pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
                 return list(combinations(self.nodes, 2))
             else:
                 closure = deepcopy(self)
                 for connected_comp in nx.connected_components(self):
                     for u, v in combinations(connected_comp, 2):
                         if not closure.has_edge(u, v):
-                            circuit = self._pebble_digraph.fundamental_circuit(u, v)
+                            circuit = pebble_digraph.fundamental_circuit(u, v)
                             if circuit is not None:
                                 for e in combinations(circuit, 2):
                                     closure.add_edge(*e)
@@ -3075,9 +3078,9 @@ class Graph(nx.Graph):
         elif not generic_rigidity.is_linked(self, u, v, dim=dim):
             raise ValueError("The vertices must be a linked pair.")
 
-        pyrigi.sparsity._build_pebble_digraph(self, K=2, L=3)
-        set_nodes = self._pebble_digraph.fundamental_circuit(u, v)
-        F = Graph(self._pebble_digraph.to_undirected())
+        pebble_digraph = sparsity._get_pebble_digraph(self, K=2, L=3)
+        set_nodes = pebble_digraph.fundamental_circuit(u, v)
+        F = Graph(pebble_digraph.to_undirected())
         return nx.subgraph(F, set_nodes).edge_list()
 
     @doc_category("Generic rigidity")
@@ -3147,8 +3150,8 @@ class Graph(nx.Graph):
         # OR
         # elif Clique(B,V_0) is globally rigid
         B = self._block_3(u, v)
-        pyrigi.sparsity._build_pebble_digraph(B, K=2, L=3)
-        V_0 = B._pebble_digraph.fundamental_circuit(u, v)
+        pebble_digraph = sparsity._get_pebble_digraph(B, K=2, L=3)
+        V_0 = pebble_digraph.fundamental_circuit(u, v)
         return B._make_outside_neighbors_clique(V_0).is_globally_rigid()
 
     @doc_category("Other")

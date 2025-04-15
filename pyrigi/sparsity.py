@@ -6,13 +6,10 @@ import math
 from itertools import combinations
 
 import networkx as nx
-from typing import TypeVar
 
 import pyrigi._input_check as _input_check
-import pyrigi._pebble_digraph as _pebble_digraph
+from pyrigi._pebble_digraph import PebbleDiGraph
 from pyrigi.exception import NotSupportedValueError
-
-T = TypeVar("T")
 
 
 def _build_pebble_digraph(graph: nx.Graph, K: int, L: int) -> None:
@@ -30,12 +27,37 @@ def _build_pebble_digraph(graph: nx.Graph, K: int, L: int) -> None:
     """
     _input_check.pebble_values(K, L)
 
-    dir_graph = _pebble_digraph.PebbleDiGraph(K, L)
+    dir_graph = PebbleDiGraph(K, L)
     dir_graph.add_nodes_from(graph.nodes)
     for edge in graph.edges:
         u, v = edge[0], edge[1]
         dir_graph.add_edge_maintaining_digraph(u, v)
     graph._pebble_digraph = dir_graph
+
+
+def _get_pebble_digraph(
+    graph: nx.Graph, K: int, L: int, use_precomputed_pebble_digraph: bool = False
+) -> PebbleDiGraph:
+    """
+    Return the pebble digraph for the graph.
+
+    Parameters
+    ----------
+    use_precomputed_pebble_digraph:
+        If ``use_precomputed_pebble_digraph`` is ``True``,
+        then the cached one is used. Otherwise,
+        :func:`_build_pebble_digraph` is called first.
+        Use ``True`` only if you are certain that the pebble game digraph
+        is consistent with the graph.
+    """
+    if (
+        not use_precomputed_pebble_digraph
+        or not hasattr(graph, "_pebble_digraph")
+        or K != graph._pebble_digraph.K
+        or L != graph._pebble_digraph.L
+    ):
+        _build_pebble_digraph(graph, K, L)
+    return graph._pebble_digraph
 
 
 def spanning_kl_sparse_subgraph(
@@ -72,14 +94,9 @@ def spanning_kl_sparse_subgraph(
     >>> print(H)
     Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
     """  # noqa: E501
-    if (
-        not use_precomputed_pebble_digraph
-        or K != graph._pebble_digraph.K
-        or L != graph._pebble_digraph.L
-    ):
-        _build_pebble_digraph(graph, K, L)
+    pebble_digraph = _get_pebble_digraph(graph, K, L, use_precomputed_pebble_digraph)
 
-    return graph.__class__(graph._pebble_digraph.to_undirected())
+    return graph.__class__(pebble_digraph.to_undirected())
 
 
 def _is_pebble_digraph_sparse(
@@ -102,15 +119,10 @@ def _is_pebble_digraph_sparse(
         Use ``True`` only if you are certain that the pebble game digraph
         is consistent with the graph.
     """
-    if (
-        not use_precomputed_pebble_digraph
-        or K != graph._pebble_digraph.K
-        or L != graph._pebble_digraph.L
-    ):
-        _build_pebble_digraph(graph, K, L)
+    pebble_digraph = _get_pebble_digraph(graph, K, L, use_precomputed_pebble_digraph)
 
     # all edges are in fact inside the pebble digraph
-    return graph.number_of_edges() == graph._pebble_digraph.number_of_edges()
+    return graph.number_of_edges() == pebble_digraph.number_of_edges()
 
 
 def is_kl_sparse(

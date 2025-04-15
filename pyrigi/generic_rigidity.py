@@ -19,7 +19,11 @@ T = TypeVar("T")
 
 
 def is_rigid(
-    graph: nx.Graph, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
+    graph: nx.Graph,
+    dim: int = 2,
+    algorithm: str = "default",
+    use_precomputed_pebble_digraph: bool = False,
+    prob: float = 0.0001,
 ) -> bool:
     """
     Return whether the graph is ``dim``-rigid.
@@ -51,6 +55,13 @@ def is_rigid(
 
         If ``"default"``, then ``"graphic"`` is used for ``dim=1``
         and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
+    use_precomputed_pebble_digraph:
+        Only relevant if ``algorithm="sparsity"``.
+        If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
+        present in the cache is used.
+        If ``False``, recompute the pebble digraph.
+        Use ``True`` only if you are certain that the pebble game digraph
+        is consistent with the graph.
     prob:
         Only relevant if ``algorithm="randomized"``.
         It determines the bound on the probability of
@@ -92,8 +103,10 @@ def is_rigid(
 
     if algorithm == "sparsity":
         _input_check.dimension_for_algorithm(dim, [2], "the sparsity algorithm")
-        sparsity._build_pebble_digraph(graph, 2, 3)
-        return graph._pebble_digraph.number_of_edges() == 2 * n - 3
+        pebble_digraph = sparsity._get_pebble_digraph(
+            graph, 2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
+        )
+        return pebble_digraph.number_of_edges() == 2 * n - 3
 
     if algorithm == "randomized":
         N = int((n * dim - math.comb(dim + 1, 2)) / prob)
