@@ -235,7 +235,9 @@ def is_min_rigid(
         _input_check.dimension_for_algorithm(
             dim, [1, 2], "the algorithm using extension sequences"
         )
-        return graph.has_extension_sequence(dim=dim)
+        from pyrigi import Graph
+
+        return Graph(graph).has_extension_sequence(dim=dim)
 
     if algorithm == "randomized":
         N = int((n * dim - math.comb(dim + 1, 2)) / prob)
