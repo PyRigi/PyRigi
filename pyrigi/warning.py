@@ -5,6 +5,9 @@ Module for defining warnings.
 """
 
 from collections.abc import Callable
+import warnings
+
+import networkx as nx
 
 
 class RandomizedAlgorithmWarning(UserWarning):
@@ -70,3 +73,34 @@ class NumericalAlgorithmWarning(UserWarning):
                 )
             msg_str += "\n"
             super().__init__(msg_str, *args)
+
+
+def _warn_randomized_alg(
+    graph: nx.Graph, method: Callable, explicit_call: str = None
+) -> None:
+    """
+    Raise a warning if a randomized algorithm is silently called.
+
+    Parameters
+    ----------
+    graph:
+        Instance from which the warning is raised.
+    method:
+        Reference to the method that is called.
+    explicit_call:
+        Parameter and its value specifying
+        when the warning is not raised (e.g. ``algorithm="randomized"``).
+    """
+    cls = type(graph)
+
+    from pyrigi import Graph
+
+    if isinstance(graph, Graph):
+        if not cls.silence_rand_alg_warns:
+            warnings.warn(
+                RandomizedAlgorithmWarning(
+                    method, explicit_call=explicit_call, class_off=cls
+                )
+            )
+    else:
+        warnings.warn(RandomizedAlgorithmWarning(method, explicit_call=explicit_call))

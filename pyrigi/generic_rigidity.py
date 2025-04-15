@@ -14,6 +14,7 @@ import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
 import pyrigi.sparsity as sparsity
 from pyrigi.exception import NotSupportedValueError
+from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
 
 T = TypeVar("T")
 
@@ -95,7 +96,7 @@ def is_rigid(
             algorithm = "sparsity"
         else:
             algorithm = "randomized"
-            graph._warn_randomized_alg(is_rigid, "algorithm='randomized'")
+            warn_randomized_alg(graph, is_rigid, "algorithm='randomized'")
 
     if algorithm == "graphic":
         _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
@@ -212,7 +213,7 @@ def is_min_rigid(
             algorithm = "sparsity"
         else:
             algorithm = "randomized"
-            graph._warn_randomized_alg(is_min_rigid, "algorithm='randomized'")
+            warn_randomized_alg(graph, is_min_rigid, "algorithm='randomized'")
 
     if algorithm == "graphic":
         _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
@@ -355,7 +356,7 @@ def max_rigid_dimension(
         return oo
     # Find the largest d such that d*(d+1)/2 - d*n + m = 0
     max_dim = int(math.floor(0.5 * (2 * n + math.sqrt((1 - 2 * n) ** 2 - 8 * m) - 1)))
-    graph._warn_randomized_alg(max_rigid_dimension)
+    warn_randomized_alg(graph, max_rigid_dimension)
     for dim in range(max_dim, 0, -1):
         if is_rigid(graph, dim, algorithm=algorithm, prob=prob):
             return dim
@@ -433,7 +434,7 @@ def rigid_components(  # noqa: 901
             algorithm = "pebble"
         else:
             algorithm = "randomized"
-            graph._warn_randomized_alg(rigid_components, "algorithm='randomized'")
+            warn_randomized_alg(graph, rigid_components, "algorithm='randomized'")
 
     if algorithm == "graphic":
         _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")

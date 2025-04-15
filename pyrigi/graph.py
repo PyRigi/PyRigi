@@ -5,8 +5,7 @@ Module for rigidity related graph properties.
 from __future__ import annotations
 
 import math
-from typing import Callable, Collection, Iterable, Optional
-import warnings
+from typing import Collection, Iterable, Optional
 from copy import deepcopy
 from itertools import combinations
 from random import randint
@@ -28,7 +27,7 @@ from pyrigi.exception import NotSupportedValueError
 from pyrigi.misc import _generate_category_tables
 from pyrigi.misc import _doc_category as doc_category
 from pyrigi.plot_style import PlotStyle
-from pyrigi.warning import RandomizedAlgorithmWarning
+from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
 
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
@@ -209,26 +208,6 @@ class Graph(nx.Graph):
         Graph with vertices [0, 1, 2, 3, 7, 12] and edges []
         """
         return Graph.from_vertices_and_edges(vertices, [])
-
-    @classmethod
-    def _warn_randomized_alg(cls, method: Callable, explicit_call: str = None) -> None:
-        """
-        Raise a warning if a randomized algorithm is silently called.
-
-        Parameters
-        ----------
-        method:
-            Reference to the method that is called.
-        explicit_call:
-            Parameter and its value specifying
-            when the warning is not raised (e.g. ``algorithm="randomized"``).
-        """
-        if not cls.silence_rand_alg_warns:
-            warnings.warn(
-                RandomizedAlgorithmWarning(
-                    method, explicit_call=explicit_call, class_off=cls
-                )
-            )
 
     @doc_category("Attribute getters")
     def vertex_list(self) -> list[Vertex]:
@@ -1828,8 +1807,8 @@ class Graph(nx.Graph):
                 algorithm = "redundancy"
             else:
                 algorithm = "randomized"
-                self._warn_randomized_alg(
-                    self.is_globally_rigid, "algorithm='randomized'"
+                warn_randomized_alg(
+                    self, self.is_globally_rigid, "algorithm='randomized'"
                 )
 
         if algorithm == "graphic":
@@ -1965,8 +1944,8 @@ class Graph(nx.Graph):
                 algorithm = "sparsity"
             else:
                 algorithm = "randomized"
-                self._warn_randomized_alg(
-                    self.is_Rd_independent, explicit_call="algorithm='randomized"
+                warn_randomized_alg(
+                    self, self.is_Rd_independent, explicit_call="algorithm='randomized"
                 )
 
         if algorithm == "graphic":
@@ -2058,8 +2037,8 @@ class Graph(nx.Graph):
                 algorithm = "sparsity"
             else:
                 algorithm = "randomized"
-                self._warn_randomized_alg(
-                    self.is_Rd_circuit, explicit_call="algorithm='randomized'"
+                warn_randomized_alg(
+                    self, self.is_Rd_circuit, explicit_call="algorithm='randomized'"
                 )
 
         if algorithm == "graphic":
@@ -2203,7 +2182,7 @@ class Graph(nx.Graph):
                 algorithm = "pebble"
             else:
                 algorithm = "randomized"
-                self._warn_randomized_alg(self.Rd_closure, "algorithm='randomized'")
+                warn_randomized_alg(self, self.Rd_closure, "algorithm='randomized'")
 
         if algorithm == "graphic":
             _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm ")
