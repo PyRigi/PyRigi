@@ -444,7 +444,9 @@ def rigid_components(  # noqa: 901
             dim, [2], "the rigid component algorithm based on pebble games"
         )
         components = []
-        closure = graph.__class__(graph.Rd_closure(dim=2, algorithm="pebble"))
+        from pyrigi import Graph
+
+        closure = Graph(Graph(graph).Rd_closure(dim=2, algorithm="pebble"))
         for u, v in closure.edges:
             closure.edges[u, v]["used"] = False
         for u, v in closure.edges:
