@@ -166,13 +166,18 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
     )
 
     if sgn_method.return_annotation != sgn_func.return_annotation:
-        raise TypeError(
-            f"""
-                Method's return type does not match the one of proxy function
-                method  [{method.__name__}]={sgn_method.return_annotation}
-                function[{func.__name__}]={sgn_func.return_annotation}
-                """.strip()
-        )
+        if sgn_method.return_annotation == Graph and issubclass(
+            sgn_method.return_annotation, sgn_func.return_annotation
+        ):
+            pass
+        else:
+            raise TypeError(
+                f"""
+                    Method's return type does not match the one of proxy function
+                    method  [{method.__name__}]={sgn_method.return_annotation}
+                    function[{func.__name__}]={sgn_func.return_annotation}
+                    """.strip()
+            )
 
     params_method = list(sgn_method.parameters.values())
     params_func = list(sgn_func.parameters.values())
