@@ -14,15 +14,12 @@ from typing import (
     FrozenSet,
     Optional,
     Tuple,
-    TYPE_CHECKING,
     TypeVar,
 )
 
-from pyrigi.data_type import Edge, Vertex
 import pyrigi._graph_input_check
-
-if TYPE_CHECKING:
-    from pyrigi import Graph as PRGraph
+import pyrigi.generic_rigidity as generic_rigidity
+from pyrigi.data_type import Edge, Vertex
 
 T = TypeVar("T")
 
@@ -285,7 +282,7 @@ def is_stable_separating_set(
 
 
 def stable_separating_set(
-    graph: "PRGraph",
+    graph: nx.Graph,
     u: Optional[Vertex] = None,
     v: Optional[Vertex] = None,
     check_flexible: bool = True,
@@ -334,7 +331,6 @@ def stable_separating_set(
         are in different 2-rigid components.
         If ``False``, both ``u`` and ``v`` must be specified.
     """
-    from pyrigi import Graph as PRGraph
 
     ############################################################################
     # Preconditions
@@ -385,14 +381,14 @@ def stable_separating_set(
                     return set()
 
                 # u and v are set and are in the same component
-                graph = PRGraph(nx.induced_subgraph(graph, u_component))
+                graph = graph.__class__(nx.induced_subgraph(graph, u_component))
             else:
                 # v can be assumed to be in another component
                 # so the empty set is a stable separating set
                 return set()
 
     # Make sure that the graph or the connected component with u & v is not rigid
-    if check_flexible and graph.is_rigid(dim=2):
+    if check_flexible and generic_rigidity.is_rigid(graph, dim=2):
         raise ValueError("The graph/component must be 2-flexible!")
 
     ############################################################################
@@ -423,7 +419,7 @@ def stable_separating_set(
 
 
 def _validate_uv_different_rigid_comps(
-    graph: "PRGraph",
+    graph: nx.Graph,
     u: Vertex,
     v: Optional[Vertex],
 ) -> Vertex:
@@ -444,7 +440,7 @@ def _validate_uv_different_rigid_comps(
     v:
         The second vertex, will be chosen arbitrary if not provided.
     """
-    rigid_components = graph.rigid_components(dim=2)
+    rigid_components = generic_rigidity.rigid_components(graph, dim=2)
 
     if len(rigid_components) < 2:
         raise ValueError("The given graph is not 2-flexible.")
@@ -469,7 +465,7 @@ def _validate_uv_different_rigid_comps(
 
 
 def _find_stable_uv_separating_set(
-    graph: "PRGraph",
+    graph: nx.Graph,
     u: Vertex,
     v: Vertex,
 ) -> set[Vertex]:
@@ -544,7 +540,7 @@ def _find_stable_uv_separating_set(
     for x in violation:
         u_neigh, x_neigh = contract(graph, u, x)
 
-        rigid_components = graph.rigid_components(dim=2)
+        rigid_components = generic_rigidity.rigid_components(graph, dim=2)
 
         # The contracted vertex is in the same rigid component as v
         problem_found = False
