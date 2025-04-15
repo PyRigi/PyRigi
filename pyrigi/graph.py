@@ -17,8 +17,9 @@ from sympy import Matrix, zeros
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
+
+# TODO: remove the following alias when all methods moved
 import pyrigi.generic_rigidity as generic_rigidity
-# TODO: remove the alias when all methods moved
 import pyrigi.separating_set
 import pyrigi.sparsity as sparsity  # TODO: remove the alias when all methods moved
 from pyrigi._wrap import copy_doc
@@ -1726,10 +1727,18 @@ class Graph(nx.Graph):
     @doc_category("Generic rigidity")
     @copy_doc(pyrigi.generic_rigidity.is_rigid)
     def is_rigid(
-        self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
+        self,
+        dim: int = 2,
+        algorithm: str = "default",
+        use_precomputed_pebble_digraph: bool = False,
+        prob: float = 0.0001,
     ) -> bool:
         return pyrigi.generic_rigidity.is_rigid(
-            self, dim=dim, algorithm=algorithm, prob=prob
+            self,
+            dim=dim,
+            algorithm=algorithm,
+            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+            prob=prob,
         )
 
     @doc_category("Generic rigidity")
