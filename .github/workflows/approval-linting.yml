@@ -22,4 +22,5 @@ jobs:
         git config --global user.email "no-email"
         git config --global user.name "Linter"
         git commit -a -m "Run linter."
+        git push
 
