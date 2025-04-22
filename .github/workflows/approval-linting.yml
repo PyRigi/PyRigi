@@ -14,16 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install poetry
-      run: pipx install poetry
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-        cache: 'poetry'
-    - name: Install dependencies
-      run: poetry install black
+      run: pipx install black
     - name: Run black
-      run: poetry run black .
+      run: black .
     - name: Commit changes
       run: git commit -a -m "Run linter."
 
