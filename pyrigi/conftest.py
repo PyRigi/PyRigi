@@ -1,5 +1,5 @@
 """
-This file allows to skip `from pyrigi import Graph`
+This file allows skipping `from pyrigi import Graph`
 in section Examples in docstrings.
 """
 

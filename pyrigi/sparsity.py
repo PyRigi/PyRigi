@@ -1,5 +1,5 @@
 """
-This module provides algorithms related generic rigidity.
+This module provides algorithms related to graph sparsity.
 """
 
 import math
