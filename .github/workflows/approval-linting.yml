@@ -6,6 +6,8 @@ on:
   pull_request_review:
     branches: [ "dev" ]
     types: [submitted]
+permissions:
+  contents: write
 
 jobs:
   approved:
@@ -19,8 +21,8 @@ jobs:
       run: black .
     - name: Commit changes
       run: |
-        git config --global user.email "no-email"
-        git config --global user.name "Linter"
+        git config user.name github-actions
+        git config user.email github-actions@github.com
         git commit -a -m "Run linter."
         git push
 
