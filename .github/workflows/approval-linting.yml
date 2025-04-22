@@ -1,0 +1,29 @@
+# Workflow that runs the linter once a PR is approved
+
+name: Linting on approval
+
+on:
+  pull_request_review:
+    branches: [ "dev" ]
+    types: [submitted]
+
+jobs:
+  approved:
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install poetry
+      run: pipx install poetry
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+        cache: 'poetry'
+    - name: Install dependencies
+      run: poetry install --all-extras
+    - name: Run black
+      run: poetry run black .
+    - name: Commit changes
+      run: git commit -a -m "Run linter."
+
