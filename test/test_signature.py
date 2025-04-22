@@ -173,10 +173,11 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
         else:
             raise TypeError(
                 f"""
-                    Method's return type does not match the one of proxy function
-                    method  [{method.__name__}]={sgn_method.return_annotation}
-                    function[{func.__name__}]={sgn_func.return_annotation}
-                    """.strip()
+                The return type of the method does not match
+                the one of the proxy function:
+                method  [{method.__name__}]={sgn_method.return_annotation}
+                function[{func.__name__}]={sgn_func.return_annotation}
+                """.strip()
             )
 
     params_method = list(sgn_method.parameters.values())
@@ -184,7 +185,8 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
     if params_method[1:] != params_func[1:]:
         raise TypeError(
             f"""
-            Method's parameters signature does not match the one of proxy function
+            The parameters signature of the method does not match
+            the one of the proxy function:
             method  [{method.__name__}]={params_method[1:]}
             function[{func.__name__}]={params_func[1:]}
             """.strip()

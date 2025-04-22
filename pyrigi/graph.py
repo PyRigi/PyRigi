@@ -1721,7 +1721,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.generic_rigidity.is_rigid)
+    @copy_doc(pyrigi.generic_rigidity.is_min_rigid)
     def is_min_rigid(
         self,
         dim: int = 2,
