@@ -11,6 +11,7 @@ from random import randrange
 from typing import Any
 
 import matplotlib.pyplot as plt
+import networkx as nx
 import numpy as np
 import sympy as sp
 from sympy import Matrix, flatten, binomial
@@ -93,6 +94,9 @@ class Framework(object):
     """
 
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
+        if isinstance(graph, nx.Graph):
+            graph = Graph(graph)
+
         if not isinstance(graph, Graph):
             raise TypeError("The graph has to be an instance of class Graph.")
         _graph_input_check.no_loop(graph)
