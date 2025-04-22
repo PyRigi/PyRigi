@@ -187,9 +187,9 @@ def _make_outside_neighbors_clique(
     import pyrigi.graphDB as graphs
 
     for conn_comp in conn_comps:
-        H.delete_vertices(conn_comp)
+        H.remove_nodes_from(conn_comp)
         K = graphs.Complete(vertices=_neighbors_of_set(graph, conn_comp))
-        H += K
+        H = K + H
     return H
 
 

@@ -1329,7 +1329,7 @@ class Graph(nx.Graph):
         """
         Return whether the edge set is dependent in the generic ``dim``-rigidity matroid.
 
-        See :meth:`.is_Rd_dependent` for the possible parameters.
+        See :meth:`.is_Rd_independent` for the possible parameters.
 
         Definitions
         -----------
