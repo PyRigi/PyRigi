@@ -13,10 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install poetry
+    - name: Install black
       run: pipx install black
     - name: Run black
       run: black .
     - name: Commit changes
-      run: git commit -a -m "Run linter."
+      run: |
+        git commit -a -m "Run linter."
+        git config --global user.email "no-email"
+        git config --global user.name "Linter"
 
