@@ -8,26 +8,25 @@ import math
 from typing import Collection, Iterable, Optional
 from copy import deepcopy
 from itertools import combinations
-from random import randint
 
 import networkx as nx
-from sympy import Matrix, zeros
+from sympy import Matrix
 
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
-
-# TODO: remove the following alias when all methods moved
-import pyrigi.generic_rigidity as generic_rigidity
+import pyrigi.generic_rigidity
+import pyrigi.global_rigidity
+import pyrigi.graph_general
+import pyrigi.matroidal_rigidity
+import pyrigi.redundant_rigidity
 import pyrigi.separating_set
-import pyrigi.sparsity as sparsity  # TODO: remove the alias when all methods moved
 from pyrigi._wrap import copy_doc
 from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.misc import _generate_category_tables
 from pyrigi.misc import _doc_category as doc_category
 from pyrigi.plot_style import PlotStyle
-from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
 
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
@@ -387,30 +386,14 @@ class Graph(nx.Graph):
         return [int(self.degree(v)) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.graph_general.min_degree)
     def min_degree(self) -> int:
-        """
-        Return the minimum of the vertex degrees.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2)])
-        >>> G.min_degree()
-        1
-        """
-        return min([int(self.degree(v)) for v in self.nodes])
+        return pyrigi.graph_general.min_degree(self)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.graph_general.max_degree)
     def max_degree(self) -> int:
-        """
-        Return the maximum of the vertex degrees.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2)])
-        >>> G.max_degree()
-        2
-        """
-        return max([int(self.degree(v)) for v in self.nodes])
+        return pyrigi.graph_general.max_degree(self)
 
     @doc_category("Sparseness")
     @copy_doc(pyrigi.sparsity.spanning_kl_sparse_subgraph)
@@ -1149,7 +1132,7 @@ class Graph(nx.Graph):
         try:
             import lnumber
 
-            if check_min_rigid and not generic_rigidity.is_min_rigid(self):
+            if check_min_rigid and not pyrigi.generic_rigidity.is_min_rigid(self):
                 raise ValueError("The graph must be minimally 2-rigid!")
 
             if self.number_of_nodes() == 1:
@@ -1187,10 +1170,12 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`vertex redundantly dim-rigid <def-redundantly-rigid-graph>`
         """
-        _input_check.dimension(dim)
-        return self.is_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
+        return pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid(
+            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid)
     def is_k_vertex_redundantly_rigid(
         self,
         k: int,
@@ -1198,123 +1183,13 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         prob: float = 0.0001,
     ) -> bool:
-        """
-        Return whether the graph is ``k``-vertex redundantly ``dim``-rigid.
-
-        Preliminary checks from
-        :prf:ref:`thm-k-vertex-redundant-edge-bound-general`,
-        :prf:ref:`thm-k-vertex-redundant-edge-bound-general2`,
-        :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3` and
-        :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
-        are used.
-
-        Definitions
-        -----------
-        :prf:ref:`k-vertex redundant dim-rigidity <def-redundantly-rigid-graph>`
-
-        Parameters
-        ----------
-        k:
-            level of redundancy
-        dim:
-            dimension
-        algorithm:
-            See :meth:`.is_rigid` for the possible algorithms used
-            for checking rigidity in this method.
-        prob:
-            bound on the probability for false negatives of the rigidity testing
-            when ``algorithm="randomized"``.
-
-            *Warning:* this is not the probability of wrong results in this method
-            but is just passed on to rigidity testing.
-
-        Examples
-        --------
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3],
-        ...            [1, 4], [2, 3], [2, 4], [3, 4]])
-        >>> G.is_k_vertex_redundantly_rigid(1, 2)
-        True
-        >>> G.is_k_vertex_redundantly_rigid(2, 2)
-        False
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
-        >>> G.is_k_vertex_redundantly_rigid(1, 2)
-        False
-        """
-        _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_val=0)
-        _graph_input_check.no_loop(self)
-
-        n = self.number_of_nodes()
-        m = self.number_of_edges()
-
-        # :prf:ref:`from thm-vertex-red-min-deg`
-        if n >= dim + k + 1 and self.min_degree() < dim + k:
-            return False
-        if dim == 1:
-            return self.vertex_connectivity() >= k + 1
-        if (
-            dim == 2
-            and (
-                # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
-                (k == 1 and n >= 5 and m < 2 * n - 1)
-                or
-                # edge bound from :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`
-                (k == 2 and n >= 6 and m < 2 * n + 2)
-                or
-                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`
-                (k >= 3 and n >= 6 * (k + 1) + 23 and m < ((k + 2) * n + 1) // 2)
-            )
-        ) or (
-            dim == 3
-            and (
-                # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
-                (k == 3 and n >= 15 and m < 3 * n + 5)
-                or
-                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
-                (
-                    k >= 4
-                    and n >= 12 * (k + 1) + 10
-                    and n % 2 == 0
-                    and m < ((k + 3) * n + 1) // 2
-                )
-            )
-        ):
-            return False
-        # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
-        if (
-            #
-            n >= dim * dim + dim + k + 1
-            and m
-            < dim * n - math.comb(dim + 1, 2) + k * dim + max(0, k - (dim + 1) // 2)
-        ):
-            return False
-        # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
-        if k >= dim + 1 and n >= dim + k + 1 and m < ((dim + k) * n + 1) // 2:
-            return False
-
-        # in all other cases check by definition
-        # and :prf:ref:`thm-redundant-vertex-subset`
-        if self.number_of_nodes() < k + 2:
-            if not generic_rigidity.is_rigid(self, dim, algorithm, prob):
-                return False
-            for cur_k in range(1, k):
-                if not self.is_k_vertex_redundantly_rigid(cur_k, dim, algorithm, prob):
-                    return False
-        G = deepcopy(self)
-        for vertex_set in combinations(self.nodes, k):
-            adj = [[v, list(G.neighbors(v))] for v in vertex_set]
-            G.delete_vertices(vertex_set)
-            if not G.is_rigid(dim, algorithm, prob):
-                return False
-            # add vertices and edges back
-            G.add_vertices(vertex_set)
-            for v, neighbors in adj:
-                for neighbor in neighbors:
-                    G.add_edge(v, neighbor)
-        return True
+        return pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid(
+            self,
+            k,
+            dim=dim,
+            algorithm=algorithm,
+            prob=prob,
+        )
 
     @doc_category("Generic rigidity")
     def is_min_vertex_redundantly_rigid(
@@ -1329,10 +1204,12 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`Minimal vertex redundant dim-rigidity <def-min-redundantly-rigid-graph>`
         """
-        _input_check.dimension(dim)
-        return self.is_min_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
+        return pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid)
     def is_min_k_vertex_redundantly_rigid(
         self,
         k: int,
@@ -1340,116 +1217,9 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         prob: float = 0.0001,
     ) -> bool:
-        """
-        Return whether the graph is minimally ``k``-vertex redundantly ``dim``-rigid.
-
-        Preliminary checks from
-        :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound`,
-        :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound-dim1`
-        are used.
-
-        Definitions
-        -----------
-        :prf:ref:`Minimal k-vertex redundant dim-rigidity <def-redundantly-rigid-graph>`
-
-        Parameters
-        ----------
-        k:
-            Level of redundancy.
-        dim:
-            Dimension.
-        algorithm:
-            See :meth:`.is_rigid` for the possible algorithms used
-            for checking rigidity in this method.
-        prob:
-            A bound on the probability for false negatives of the rigidity testing
-            when ``algorithm="randomized"``.
-
-            *Warning:* this is not the probability of wrong results in this method,
-            but is just passed on to rigidity testing.
-
-        Examples
-        --------
-        >>> G = Graph([[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5],
-        ...            [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
-        >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
-        True
-        >>> G.is_min_k_vertex_redundantly_rigid(2, 2)
-        False
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3],
-        ...            [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]])
-        >>> G.is_k_vertex_redundantly_rigid(1, 2)
-        True
-        >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
-        False
-        """
-
-        _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_val=0)
-        _graph_input_check.no_loop(self)
-
-        n = self.number_of_nodes()
-        m = self.number_of_edges()
-        # edge bound from :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound`
-        if m > (dim + k) * n - math.comb(dim + k + 1, 2):
-            return False
-        # edge bound from :prf:ref:`thm-minimal-k-vertex-redundant-upper-edge-bound-dim1`
-        if dim == 1:
-            if n >= 3 * (k + 1) - 1 and m > (k + 1) * n - (k + 1) * (k + 1):
-                return False
-
-        if not self.is_k_vertex_redundantly_rigid(k, dim, algorithm, prob):
-            return False
-
-        # for the following we need to know that the graph is k-vertex-redundantly rigid
-        if (
-            dim == 2
-            and (
-                # edge bound from :prf:ref:`thm-1-vertex-redundant-edge-bound-dim2`
-                (k == 1 and n >= 5 and m == 2 * n - 1)
-                or
-                # edge bound from :prf:ref:`thm-2-vertex-redundant-edge-bound-dim2`
-                (k == 2 and n >= 6 and m == 2 * n + 2)
-                or
-                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim2`
-                (k >= 3 and n >= 6 * (k + 1) + 23 and m == ((k + 2) * n + 1) // 2)
-            )
-        ) or (
-            dim == 3
-            and (
-                # edge bound from :prf:ref:`thm-3-vertex-redundant-edge-bound-dim3`
-                (k == 3 and n >= 15 and m == 3 * n + 5)
-                or
-                # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-dim3`
-                (
-                    k >= 4
-                    and n >= 12 * (k + 1) + 10
-                    and n % 2 == 0
-                    and m == ((k + 3) * n + 1) // 2
-                )
-            )
-        ):
-            return True
-        # edge bound from :prf:ref:`thm-k-vertex-redundant-edge-bound-general`
-        if (
-            #
-            n >= dim * dim + dim + k + 1
-            and m
-            == dim * n - math.comb(dim + 1, 2) + k * dim + max(0, k - (dim + 1) // 2)
-        ):
-            return True
-        # edge bound from :prf:ref:`thm-vertex-redundant-edge-bound-general2`
-        if k >= dim + 1 and n >= dim + k + 1 and m == ((dim + k) * n + 1) // 2:
-            return True
-
-        # in all other cases check by definition
-        G = deepcopy(self)
-        for e in self.edges:
-            G.delete_edge(e)
-            if G.is_k_vertex_redundantly_rigid(k, dim, algorithm, prob):
-                return False
-            G.add_edge(*e)
-        return True
+        return pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+            self, k, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
     def is_redundantly_rigid(
@@ -1464,9 +1234,12 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`Redundant dim-rigidity<def-redundantly-rigid-graph>`
         """
-        return self.is_k_redundantly_rigid(1, dim, algorithm, prob)
+        return pyrigi.redundant_rigidity.is_k_redundantly_rigid(
+            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_k_redundantly_rigid)
     def is_k_redundantly_rigid(
         self,
         k: int,
@@ -1474,113 +1247,9 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         prob: float = 0.0001,
     ) -> bool:
-        """
-        Return whether the graph is ``k``-redundantly ``dim``-rigid.
-
-        Preliminary checks from
-        :prf:ref:`thm-globally-mindeg6-dim2`,
-        :prf:ref:`thm-globally-redundant-3connected`,
-        :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`,
-        :prf:ref:`thm-2-edge-redundant-edge-bound-dim3` and
-        :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
-        are used.
-
-        Definitions
-        -----------
-        :prf:ref:`k-redundant dim-rigidity <def-redundantly-rigid-graph>`
-
-        Parameters
-        ----------
-        k:
-            Level of redundancy.
-        dim:
-            Dimension.
-        algorithm:
-            See :meth:`.is_rigid` for the possible algorithms used
-            for checking rigidity in this method.
-        prob:
-            A bound on the probability for false negatives of the rigidity testing
-            when ``algorithm="randomized"``.
-
-            *Warning:* this is not the probability of wrong results in this method,
-            but is just passed on to rigidity testing.
-
-        Examples
-        --------
-        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 5], [1, 2],
-        ...            [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
-        >>> G.is_k_redundantly_rigid(1, 2)
-        True
-        >>> G = Graph([[0, 3], [0, 4], [1, 2], [1, 3], [1, 4],
-        ...            [2, 3], [2, 4], [3, 4]])
-        >>> G.is_k_redundantly_rigid(1, 2)
-        False
-        >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2],
-        ...            [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
-        >>> G.is_k_redundantly_rigid(2, 2)
-        True
-
-        Suggested Improvements
-        ----------------------
-        Improve with pebble games.
-        """
-        _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_val=0)
-        _graph_input_check.no_loop(self)
-
-        n = self.number_of_nodes()
-        m = self.number_of_edges()
-
-        if m < dim * n - math.comb(dim + 1, 2) + k:
-            return False
-        if self.min_degree() < dim + k:
-            return False
-        if dim == 1:
-            return nx.edge_connectivity(self) >= k + 1
-        # edge bounds
-        if (
-            dim == 2
-            and (
-                # basic edge bound
-                (k == 1 and m < 2 * n - 2)
-                or
-                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`
-                (k == 2 and n >= 5 and m < 2 * n)
-                or
-                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
-                (k >= 3 and n >= 6 * (k + 1) + 23 and m < ((k + 2) * n + 1) // 2)
-            )
-        ) or (
-            dim == 3
-            and (
-                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
-                (k == 2 and n >= 14 and m < 3 * n - 4)
-                or
-                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
-                (
-                    k >= 4
-                    and n >= 12 * (k + 1) + 10
-                    and n % 2 == 0
-                    and m < ((k + 3) * n + 1) // 2
-                )
-            )
-        ):
-            return False
-        # use global rigidity property of :prf:ref:`thm-globally-redundant-3connected`
-        # and :prf:ref:`thm-globally-mindeg6-dim2`
-        if dim == 2 and k == 1 and self.vertex_connectivity() >= 6:
-            return True
-
-        # in all other cases check by definition
-        # and :prf:ref:`thm-redundant-edge-subset`
-        G = deepcopy(self)
-        for edge_set in combinations(self.edge_list(), k):
-            G.delete_edges(edge_set)
-            if not G.is_rigid(dim, algorithm, prob):
-                return False
-            G.add_edges(edge_set)
-        return True
+        return pyrigi.redundant_rigidity.is_k_redundantly_rigid(
+            self, k, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
     def is_min_redundantly_rigid(
@@ -1595,10 +1264,12 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`Minimal redundant dim-rigidity <def-min-redundantly-rigid-graph>`
         """
-        _input_check.dimension(dim)
-        return self.is_min_k_redundantly_rigid(1, dim, algorithm, prob)
+        return pyrigi.redundant_rigidity.is_min_k_redundantly_rigid(
+            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_min_k_redundantly_rigid)
     def is_min_k_redundantly_rigid(
         self,
         k: int,
@@ -1606,102 +1277,9 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         prob: float = 0.0001,
     ) -> bool:
-        """
-        Return whether the graph is minimally ``k``-redundantly ``dim``-rigid.
-
-        Preliminary checks from
-        :prf:ref:`thm-minimal-1-edge-redundant-upper-edge-bound-dim2`
-        are used.
-
-        Definitions
-        -----------
-        :prf:ref:`Minimal k-redundant dim-rigidity <def-redundantly-rigid-graph>`
-
-        Parameters
-        ----------
-        k:
-            Level of redundancy.
-        dim:
-            Dimension.
-        algorithm:
-            See :meth:`.is_rigid` for the possible algorithms used
-            for checking rigidity in this method.
-        prob:
-            A bound on the probability for false negatives of the rigidity testing
-            when ``algorithm="randomized"``.
-
-            *Warning:* this is not the probability of wrong results in this method,
-            but is just passed on to rigidity testing.
-
-        Examples
-        --------
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2],
-        ...            [1, 3], [1, 4], [2, 4], [3, 4]])
-        >>> G.is_min_k_redundantly_rigid(1, 2)
-        True
-        >>> G.is_min_k_redundantly_rigid(2, 2)
-        False
-        >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3],
-        ...            [1, 4], [2, 3], [2, 4], [3, 4]])
-        >>> G.is_k_redundantly_rigid(1, 2)
-        True
-        >>> G.is_min_k_redundantly_rigid(1, 2)
-        False
-        """
-
-        _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_val=0)
-        _graph_input_check.no_loop(self)
-
-        n = self.number_of_nodes()
-        m = self.number_of_edges()
-        # use bound from thm-minimal-1-edge-redundant-upper-edge-bound-dim2
-        if dim == 2:
-            if k == 1:
-                if n >= 7 and m > 3 * n - 9:
-                    return False
-
-        if not self.is_k_redundantly_rigid(k, dim, algorithm, prob):
-            return False
-
-        # for the following we need to know that the graph is k-redundantly rigid
-        if (
-            dim == 2
-            and (
-                # basic edge bound
-                (k == 1 and m == 2 * n - 2)
-                or
-                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim2`
-                (k == 2 and n >= 5 and m == 2 * n)
-                or
-                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim2`
-                (k >= 3 and n >= 6 * (k + 1) + 23 and m == ((k + 2) * n + 1) // 2)
-            )
-        ) or (
-            dim == 3
-            and (
-                # edge bound from :prf:ref:`thm-2-edge-redundant-edge-bound-dim3`
-                (k == 2 and n >= 14 and m == 3 * n - 4)
-                or
-                # edge bound from :prf:ref:`thm-k-edge-redundant-edge-bound-dim3`
-                (
-                    k >= 4
-                    and n >= 12 * (k + 1) + 10
-                    and n % 2 == 0
-                    and m == ((k + 3) * n + 1) // 2
-                )
-            )
-        ):
-            return True
-
-        # in all other cases check by definition
-        G = deepcopy(self)
-        for e in self.edge_list():
-            G.delete_edge(e)
-            if G.is_k_redundantly_rigid(k, dim, algorithm, prob):
-                return False
-            G.add_edge(*e)
-        return True
+        return pyrigi.redundant_rigidity.is_min_k_redundantly_rigid(
+            self, k, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
     @copy_doc(pyrigi.generic_rigidity.is_rigid)
@@ -1738,115 +1316,13 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.global_rigidity.is_globally_rigid)
     def is_globally_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is globally ``dim``-rigid.
-
-        Definitions
-        -----------
-        :prf:ref:`Global dim-rigidity <def-globally-rigid-graph>`
-
-        Parameters
-        ----------
-        dim:
-            Dimension.
-        algorithm:
-            If ``"graphic"`` (only if ``dim=1``), then 2-connectivity is checked.
-
-            If ``"redundancy"`` (only if ``dim=2``),
-            then :prf:ref:`thm-globally-redundant-3connected` is used.
-
-            If ``"randomized"``, a probabilistic check is performed.
-            It may give false negatives (with probability at most ``prob``),
-            but no false positives. See :prf:ref:`thm-globally-randomize-algorithm`.
-
-            If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
-            ``"redundancy"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
-        prob:
-            Only relevant if ``algorithm="randomized"``.
-            It determines the bound on the probability of
-            the randomized algorithm to yield false negatives.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (2,0)])
-        >>> G.is_globally_rigid()
-        True
-        >>> import pyrigi.graphDB as graphs
-        >>> J = graphs.ThreePrism()
-        >>> J.is_globally_rigid(dim=3)
-        False
-        >>> J.is_globally_rigid()
-        False
-        >>> K = graphs.Complete(6)
-        >>> K.is_globally_rigid()
-        True
-        >>> K.is_globally_rigid(dim=3)
-        True
-        >>> C = graphs.CompleteMinusOne(5)
-        >>> C.is_globally_rigid()
-        True
-        >>> C.is_globally_rigid(dim=3)
-        False
-        """
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-
-        # small graphs are globally rigid iff complete
-        # :pref:ref:`thm-gen-rigidity-small-complete`
-        n = self.number_of_nodes()
-        if n <= dim + 1:
-            return self.number_of_edges() == math.comb(n, 2)
-
-        if algorithm == "default":
-            if dim == 1:
-                algorithm = "graphic"
-            elif dim == 2:
-                algorithm = "redundancy"
-            else:
-                algorithm = "randomized"
-                warn_randomized_alg(
-                    self, self.is_globally_rigid, "algorithm='randomized'"
-                )
-
-        if algorithm == "graphic":
-            _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
-            return self.vertex_connectivity() >= 2
-
-        if algorithm == "redundancy":
-            _input_check.dimension_for_algorithm(
-                dim, [2], "the algorithm using redundancy"
-            )
-            return self.is_redundantly_rigid() and self.vertex_connectivity() >= 3
-
-        if algorithm == "randomized":
-            n = self.number_of_nodes()
-            m = self.number_of_edges()
-            t = n * dim - math.comb(dim + 1, 2)  # rank of the rigidity matrix
-            N = int(1 / prob) * n * math.comb(n, 2) + 2
-
-            if m < t:
-                return False
-            # take a random framework with integer coordinates
-            from pyrigi.framework import Framework
-
-            F = Framework.Random(self, dim=dim, rand_range=[1, N])
-            stresses = F.stresses()
-            if m == t:
-                omega = zeros(F.rigidity_matrix().rows, 1)
-                return F.stress_matrix(omega).rank() == n - dim - 1
-            elif stresses:
-                omega = sum(
-                    [randint(1, N) * stress for stress in stresses], stresses[0]
-                )
-                return F.stress_matrix(omega).rank() == n - dim - 1
-            else:
-                raise RuntimeError(
-                    "There must be at least one stress but none was found!"
-                )
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_globally_rigid)
+        return pyrigi.global_rigidity.is_globally_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Rigidity Matroid")
     def is_Rd_dependent(
@@ -1858,7 +1334,7 @@ class Graph(nx.Graph):
         """
         Return whether the edge set is dependent in the generic ``dim``-rigidity matroid.
 
-        See :meth:`.is_Rd_dependent` for the possible parameters.
+        See :meth:`.is_Rd_independent` for the possible parameters.
 
         Definitions
         -----------
@@ -1876,356 +1352,54 @@ class Graph(nx.Graph):
         -----
         See :meth:`.is_independent` for details.
         """
-        return not self.is_Rd_independent(
+        return not pyrigi.matroidal_rigidity.is_Rd_independent(
+            self,
             dim,
             algorithm=algorithm,
             use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
         )
 
     @doc_category("Rigidity Matroid")
+    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_independent)
     def is_Rd_independent(
         self,
         dim: int = 2,
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        """
-        Return whether the edge set is independent in the generic ``dim``-rigidity matroid.
-
-        Definitions
-        ---------
-        * :prf:ref:`Independence <def-matroid>`
-        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
-
-        Parameters
-        ---------
-        dim:
-            Dimension of the rigidity matroid.
-        algorithm:
-            If ``"graphic"`` (only if ``dim=1``),
-            then the (non-)presence of cycles is checked.
-
-            If ``"sparsity"`` (only if ``dim=2``),
-            then :prf:ref:`(2,3)-sparsity <def-kl-sparse-tight>` is checked
-            using the :prf:ref:`pebble game algorithm <alg-pebble-game>`.
-
-            If ``"randomized"``, the following check is performed on a random framework:
-            a set of edges forms an independent set in the rigidity matroid
-            if and only if it has no self-stress, i.e.,
-            there are no linear relations between the rows of the rigidity matrix.
-
-            If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
-            ``"sparsity"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
-        use_precomputed_pebble_digraph:
-            Only relevant if ``algorithm="sparsity"``.
-            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
-            present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-        >>> G.is_Rd_independent()
-        True
-
-        Suggested Improvements
-        ----------------------
-        ``prob`` parameter for the randomized algorithm.
-        """  # noqa: E501
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-
-        if algorithm == "default":
-            if dim == 1:
-                algorithm = "graphic"
-            elif dim == 2:
-                algorithm = "sparsity"
-            else:
-                algorithm = "randomized"
-                warn_randomized_alg(
-                    self, self.is_Rd_independent, explicit_call="algorithm='randomized"
-                )
-
-        if algorithm == "graphic":
-            _input_check.dimension_for_algorithm(
-                dim,
-                [
-                    1,
-                ],
-                "the graphic algorithm",
-            )
-            return len(nx.cycle_basis(self)) == 0
-
-        if algorithm == "sparsity":
-            _input_check.dimension_for_algorithm(dim, [2], "the sparsity algorithm")
-            return self.is_kl_sparse(
-                2, 3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
-            )
-
-        elif algorithm == "randomized":
-            F = self.random_framework(dim=dim)
-            return len(F.stresses()) == 0
-
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_Rd_independent)
+        return pyrigi.matroidal_rigidity.is_Rd_independent(
+            self,
+            dim=dim,
+            algorithm=algorithm,
+            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+        )
 
     @doc_category("Rigidity Matroid")
+    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_circuit)
     def is_Rd_circuit(  # noqa: C901
         self,
         dim: int = 2,
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        """
-        Return whether the edge set is a circuit in the generic ``dim``-rigidity matroid.
-
-        Definitions
-        ---------
-        * :prf:ref:`Circuit <def-matroid>`
-        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
-
-        Parameters
-        ---------
-        dim:
-            Dimension of the rigidity matroid.
-        algorithm:
-            If ``"graphic"`` (only if ``dim=1``),
-            it is checked whether the graph is a union of cycles.
-
-            If ``"sparsity"`` (only if ``dim=2``),
-            a :prf:ref:`(2,3)-sparse <def-kl-sparse-tight>` spanning subgraph
-            is computed (using :prf:ref:`pebble games <alg-pebble-game>`)
-            and checked whether it misses only a single edge
-            whose fundamental circuit is the whole graph.
-
-            If ``"randomized"``, it is checked using randomized
-            :meth:`.is_Rd_independent` whether removing
-            every single edge from the graph results in an Rd-independent graph.
-
-            If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
-            ``"sparsity"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
-        use_precomputed_pebble_digraph:
-            Only relevant if ``algorithm="sparsity"``.
-            If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
-            present in the cache is used.
-            If ``False``, recompute the pebble digraph.
-            Use ``True`` only if you are certain that the pebble game digraph
-            is consistent with the graph.
-
-        Examples
-        --------
-        >>> from pyrigi import graphDB
-        >>> G = graphDB.K33plusEdge()
-        >>> G.is_Rd_circuit()
-        True
-        >>> G.add_edge(1,2)
-        >>> G.is_Rd_circuit()
-        False
-
-        Suggested Improvements
-        ----------------------
-        ``prob`` parameter for the randomized algorithm
-        """
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-
-        if algorithm == "default":
-            if dim == 1:
-                algorithm = "graphic"
-            elif dim == 2:
-                algorithm = "sparsity"
-            else:
-                algorithm = "randomized"
-                warn_randomized_alg(
-                    self, self.is_Rd_circuit, explicit_call="algorithm='randomized'"
-                )
-
-        if algorithm == "graphic":
-            _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm")
-            # Check if every vertex has degree 2 or 0
-            V = []
-            for vertex in self.nodes:
-                if self.degree(vertex) != 2 and self.degree(vertex) != 0:
-                    return False
-                if self.degree(vertex) == 2:
-                    V.append(vertex)
-            H = self.subgraph(V)
-            if not nx.is_connected(H):
-                return False
-            return True
-
-        if algorithm == "sparsity":
-            _input_check.dimension_for_algorithm(dim, [2], "the sparsity algorithm")
-            # get max sparse sugraph and check the fundamental circuit of
-            # the one last edge
-            if self.number_of_edges() != 2 * self.number_of_nodes() - 2:
-                return False
-            max_sparse_subgraph = self.spanning_kl_sparse_subgraph(
-                K=2, L=3, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
-            )
-            if max_sparse_subgraph.number_of_edges() != 2 * self.number_of_nodes() - 3:
-                return False
-
-            remaining_edges = [
-                e for e in self.edges() if not max_sparse_subgraph.has_edge(*e)
-            ]
-            if len(remaining_edges) != 1:
-                # this should not happen
-                raise RuntimeError
-
-            pebble_digraph = sparsity._get_pebble_digraph(
-                self, K=2, L=3, use_precomputed_pebble_digraph=True
-            )
-            return (
-                len(
-                    pebble_digraph.fundamental_circuit(
-                        u=remaining_edges[0][0],
-                        v=remaining_edges[0][1],
-                    )
-                )
-                == self.number_of_nodes()
-            )
-        elif algorithm == "randomized":
-            if self.is_Rd_independent(dim=dim, algorithm="randomized"):
-                return False
-            G = deepcopy(self)
-            for e in G.edges:
-                G.delete_edge(e)
-                if G.is_Rd_dependent(dim=dim, algorithm="randomized"):
-                    return False
-                G.add_edge(*e)
-            return True
-
-        raise NotSupportedValueError(algorithm, "algorithm", self.is_Rd_circuit)
+        return pyrigi.matroidal_rigidity.is_Rd_circuit(
+            self,
+            dim=dim,
+            algorithm=algorithm,
+            use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+        )
 
     @doc_category("Rigidity Matroid")
+    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_closed)
     def is_Rd_closed(self, dim: int = 2, algorithm: str = "default") -> bool:
-        """
-        Return whether the edge set is closed in the generic ``dim``-rigidity matroid.
-
-        Definitions
-        -----------
-        * :prf:ref:`Rd-closed <def-rank-function-closure>`
-        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
-
-        Parameters
-        ---------
-        dim:
-            Dimension of the rigidity matroid.
-        algorithm:
-            See :meth:`.Rd_closure` for the options.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1),(1,2),(0,2),(3,4)])
-        >>> G.is_Rd_closed(dim=1)
-        True
-        """
-        return Graph(self.Rd_closure(dim, algorithm)) == self
+        return pyrigi.matroidal_rigidity.is_Rd_closed(
+            self, dim=dim, algorithm=algorithm
+        )
 
     @doc_category("Rigidity Matroid")
+    @copy_doc(pyrigi.matroidal_rigidity.Rd_closure)
     def Rd_closure(self, dim: int = 2, algorithm: str = "default") -> list[Edge]:
-        """
-        Return the set of edges given by closure in the generic ``dim``-rigidity matroid.
-
-        Definitions
-        -----------
-        * :prf:ref:`Rd-closure <def-rank-function-closure>`
-        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
-
-        Parameters
-        ---------
-        dim:
-            Dimension of the rigidity matroid.
-        algorithm:
-            If ``"graphic"`` (only if ``dim=1``),
-            then the closure is computed using connected components.
-
-            If ``"pebble"`` (only if ``dim=2``),
-            then pebble games are used
-            (see notes below and :prf:ref:`alg-pebble-game`).
-
-            If ``"randomized"``, then adding
-            non-edges is tested one by one on a random framework.
-
-            If ``"default"``, then ``"graphic"`` is used
-            for ``dim=1``, ``"pebble"`` for ``dim=2``
-            and ``"randomized"`` for ``dim>=3``.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1),(0,2),(3,4)])
-        >>> G.Rd_closure(dim=1)
-        [[0, 1], [0, 2], [1, 2], [3, 4]]
-
-        Notes
-        -----
-        The pebble game algorithm proceeds as follows:
-        Iterate through the vertex pairs of each connected component
-        and check if there exists a rigid component containing both.
-        This can be done by trying to add a new edge between the vertices.
-        If there is such a rigid component, we can add every vertex pair from there:
-        they are certainly within a rigid component.
-
-        Suggested Improvements
-        ----------------------
-        ``prob`` parameter for the randomized algorithm
-        """
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-
-        if algorithm == "default":
-            if dim == 1:
-                algorithm = "graphic"
-            elif dim == 2:
-                algorithm = "pebble"
-            else:
-                algorithm = "randomized"
-                warn_randomized_alg(self, self.Rd_closure, "algorithm='randomized'")
-
-        if algorithm == "graphic":
-            _input_check.dimension_for_algorithm(dim, [1], "the graphic algorithm ")
-            return [
-                [u, v]
-                for comp in nx.connected_components(self)
-                for u, v in combinations(comp, 2)
-            ]
-
-        if algorithm == "pebble":
-            _input_check.dimension_for_algorithm(
-                dim, [2], "the algorithm based on pebble games"
-            )
-
-            pebble_digraph = sparsity._get_pebble_digraph(self, 2, 3)
-            if pebble_digraph.number_of_edges() == 2 * self.number_of_nodes() - 3:
-                return list(combinations(self.nodes, 2))
-            else:
-                closure = deepcopy(self)
-                for connected_comp in nx.connected_components(self):
-                    for u, v in combinations(connected_comp, 2):
-                        if not closure.has_edge(u, v):
-                            circuit = pebble_digraph.fundamental_circuit(u, v)
-                            if circuit is not None:
-                                for e in combinations(circuit, 2):
-                                    closure.add_edge(*e)
-                return list(closure.edges)
-
-        if algorithm == "randomized":
-            F_rank = self.random_framework(dim=dim).rigidity_matrix_rank()
-            G = deepcopy(self)
-            result = G.edge_list()
-            for e in combinations(self.vertex_list(), 2):
-                if G.has_edge(*e):
-                    continue
-                G.add_edge(*e)
-                F1 = G.random_framework(dim=dim)
-                if F_rank == F1.rigidity_matrix_rank():
-                    result.append(e)
-                G.remove_edge(*e)
-            return result
-
-        raise NotSupportedValueError(algorithm, "algorithm", self.Rd_closure)
+        return pyrigi.matroidal_rigidity.Rd_closure(self, dim=dim, algorithm=algorithm)
 
     @doc_category("Generic rigidity")
     @copy_doc(pyrigi.generic_rigidity.rigid_components)
@@ -2921,227 +2095,15 @@ class Graph(nx.Graph):
             check_distinct_rigid_components=check_distinct_rigid_components,
         )
 
-    def _neighbors_of_set(self, vertices: list[Vertex] | set[Vertex]) -> set[Vertex]:
-        """
-        Return the set of neighbors of a set of vertices.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(5)
-        >>> G._neighbors_of_set([1,2])
-        {0, 3, 4}
-        >>> G = Graph([[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
-        >>> G._neighbors_of_set([1,2])
-        {3, 4}
-        >>> G._neighbors_of_set([3,4])
-        {0, 1, 2}
-
-        """  # noqa: E501
-
-        _graph_input_check.vertex_members(self, vertices)
-
-        res = set()
-        for v in vertices:
-            res.update(self.neighbors(v))
-        return res.difference(vertices)
-
-    def _make_outside_neighbors_clique(
-        self, vertices: list[Vertex] | set[Vertex]
-    ) -> Graph:
-        """
-        Create a graph by selecting the subgraph of the given graph induced by ``vertices``,
-        contracting each connected component of the graph minus ``vertices``
-        to a single vertex, and making their neighbors in ``vertices`` into a clique.
-        See :prf:ref:`thm-weakly-globally-linked`.
-
-        Definitions
-        -----------
-        :prf:ref:`clique <def-clique>`
-
-        Examples
-        --------
-        >>> G = Graph([[0, 1], [0, 3], [0, 4], [1, 2], [1, 5], [2, 3], [2, 4], [3, 5]])
-        >>> H = G._make_outside_neighbors_clique([0,1,2,3])
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
-        >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]])
-        >>> H = G._make_outside_neighbors_clique([0,1,4,5,6,7,8,11,12])
-        >>> print(H)
-        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 11, 12] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 7], [5, 8], [6, 7], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
-        """  # noqa: E501
-
-        _graph_input_check.vertex_members(self, vertices)
-
-        H = self.copy()
-        H.delete_vertices(vertices)
-        conn_comps = nx.connected_components(H)
-        H = self.copy()
-        import pyrigi.graphDB as graphs
-
-        for conn_comp in conn_comps:
-            H.delete_vertices(conn_comp)
-            K = graphs.Complete(vertices=self._neighbors_of_set(conn_comp))
-            H += K
-        return H
-
-    def _block_3(self, u: Vertex, v: Vertex) -> Graph:
-        """
-        Return the 3-block of (``u``, ``v``) via cleaving operations.
-
-        Definitions
-        -----------
-        :prf:ref:`3-block <def-block-3>`
-        :prf:ref:`3-block lemma <lem-3-block>`
-
-        Examples
-        --------
-        >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
-        >>> print(G._block_3(0,11))
-        Graph with vertices [0, 1, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14] and edges [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [10, 13], [10, 14], [11, 12], [13, 14]]
-        """  # noqa: E501
-        try:
-            cut = next(nx.all_node_cuts(self))
-            if len(cut) >= 3:
-                return self
-            H = self.copy()
-            H.delete_vertices(cut)
-            for conn_comp in nx.connected_components(H):
-                conn_comp.update(cut)
-                if u in conn_comp and v in conn_comp:
-                    break
-            B = nx.subgraph(self, conn_comp).copy()
-            B.add_edge(*(cut))
-            return B._block_3(u, v)
-        except StopIteration:
-            return self
-
     @doc_category("Generic rigidity")
     @copy_doc(pyrigi.generic_rigidity.is_linked)
     def is_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
         return pyrigi.generic_rigidity.is_linked(self, u, v, dim=dim)
 
-    def _Rd_fundamental_circuit(self, u: Vertex, v: Vertex, dim: int = 2) -> list[Edge]:
-        """
-        Return the fundamental circuit of ``uv`` in the generic ``dim``-rigidity matroid.
-
-        Definitions
-        -----------
-        * :prf:ref:`Fundamental circuit <def-fundamental-circuit>`
-        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
-
-        Parameters
-        ----------
-        u, v:
-        dim:
-            Currently, only the dimension ``dim=2`` is supported.
-
-        Examples
-        --------
-        >>> H = Graph([[0, 1], [0, 2], [1, 3], [1, 5], [2, 3], [2, 6], [3, 5], [3, 7], [5, 7], [6, 7], [3, 6]])
-        >>> H._Rd_fundamental_circuit(1, 7)
-        [[1, 3], [1, 5], [3, 5], [3, 7], [5, 7]]
-        >>> H._Rd_fundamental_circuit(2,5)
-        [[2, 3], [2, 6], [3, 5], [3, 6], [3, 7], [5, 7], [6, 7]]
-
-        The following example is the Figure 5 of the article :cite:p:`JordanVillanyi2024`
-
-        >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
-        >>> H = G._block_3(0,11)
-        >>> H._Rd_fundamental_circuit(0,11)
-        [[0, 1], [0, 5], [0, 7], [1, 4], [1, 7], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [6, 11], [6, 12], [7, 8], [8, 12], [11, 12]]
-
-        Suggested Improvements
-        ----------------------
-        Implement also other dimensions.
-        """  # noqa: E501
-
-        _input_check.dimension_for_algorithm(
-            dim, [2], "the algorithm that computes a circuit"
-        )
-        _graph_input_check.no_loop(self)
-        _graph_input_check.vertex_members(self, [u, v])
-        # check (u, v) are non-adjacent linked pair
-        if self.has_edge(u, v):
-            raise ValueError("The vertices must not be connected by an edge.")
-        elif not generic_rigidity.is_linked(self, u, v, dim=dim):
-            raise ValueError("The vertices must be a linked pair.")
-
-        pebble_digraph = sparsity._get_pebble_digraph(self, K=2, L=3)
-        set_nodes = pebble_digraph.fundamental_circuit(u, v)
-        F = Graph(pebble_digraph.to_undirected())
-        return nx.subgraph(F, set_nodes).edge_list()
-
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.global_rigidity.is_weakly_globally_linked)
     def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
-        """
-        Return whether the vertices ``u`` and ``v`` are weakly globally ``dim``-linked.
-
-        :prf:ref:`thm-weakly-globally-linked` is used for the check.
-
-        Definitions
-        -----------
-        :prf:ref:`Weakly globally linked pair <def-globally-linked>`
-
-        Parameters
-        ----------
-        u, v:
-        dim:
-            Currently, only the dimension ``dim=2`` is supported.
-
-        Examples
-        --------
-        >>> G = Graph([[0,4],[0,6],[0,7],[1,3],[1,6],[1,7],[2,6],[2,7],[3,5],[4,5],[4,7],[5,6],[5,7],[6,7]])
-        >>> G.is_weakly_globally_linked(0,1)
-        True
-        >>> G.is_weakly_globally_linked(1,5)
-        True
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(10)
-        >>> G.is_weakly_globally_linked(0,1)
-        True
-
-        The following example is Figure 1 of the article :cite:p:`JordanVillanyi2024`
-
-        >>> G = Graph([[0,1],[0,2],[0,4],[1,2],[1,4],[2,3],[3,4]])
-        >>> G.is_weakly_globally_linked(2,4)
-        True
-        """  # noqa: E501
-
-        _input_check.dimension_for_algorithm(
-            dim, [2], "the weakly globally linked method"
-        )
-        _graph_input_check.vertex_members(self, [u, v])
-        # we focus on the 2-connected components of the graph
-        # and check if the two given vertices are in the same 2-connected component
-        if not nx.is_biconnected(self):
-            for bicon_comp in nx.biconnected_components(self):
-                if u in bicon_comp and v in bicon_comp:
-                    F = nx.subgraph(self, bicon_comp)
-                    return F.is_weakly_globally_linked(u, v)
-            return False
-        # check (u,v) are non adjacent
-        if self.has_edge(u, v):
-            return True  # they are actually globally linked, not just weakly
-        # check (u,v) are linked pair
-        if not generic_rigidity.is_linked(self, u, v, dim=dim):
-            return False
-
-        # check (u,v) are such that kappa_self(u,v) > 2
-        if nx.algorithms.connectivity.local_node_connectivity(self, u, v) <= 2:
-            return False
-
-        # if (u,v) separating pair in self
-        H = self.copy()
-        H.delete_vertices([u, v])
-        if not nx.is_connected(H):
-            return True
-        # OR
-        # elif Clique(B,V_0) is globally rigid
-        B = self._block_3(u, v)
-        pebble_digraph = sparsity._get_pebble_digraph(B, K=2, L=3)
-        V_0 = pebble_digraph.fundamental_circuit(u, v)
-        return B._make_outside_neighbors_clique(V_0).is_globally_rigid()
+        return pyrigi.global_rigidity.is_weakly_globally_linked(self, u, v, dim=dim)
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:

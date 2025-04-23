@@ -237,6 +237,8 @@ def is_min_rigid(
         )
         from pyrigi import Graph
 
+        # TODO rewrite once extensions are moved to a separate file
+
         return Graph(graph).has_extension_sequence(dim=dim)
 
     if algorithm == "randomized":
@@ -447,9 +449,12 @@ def rigid_components(  # noqa: 901
             dim, [2], "the rigid component algorithm based on pebble games"
         )
         components = []
-        from pyrigi import Graph
 
-        closure = Graph(Graph(graph).Rd_closure(dim=2, algorithm="pebble"))
+        import pyrigi.matroidal_rigidity
+
+        closure = nx.Graph(
+            pyrigi.matroidal_rigidity.Rd_closure(graph, dim=2, algorithm="pebble")
+        )
         for u, v in closure.edges:
             closure.edges[u, v]["used"] = False
         for u, v in closure.edges:
