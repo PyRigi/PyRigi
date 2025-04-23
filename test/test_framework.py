@@ -803,7 +803,7 @@ def test_rotate2D():
 
     newF = F.rotate2D(pi / 4, False)
     assert newF[0].equals(Matrix([[0], [0]]))
-    assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))]]))
+    assert newF[1].equals(Matrix([[sqrt(2)], [sqrt(2)]]))
     assert newF[2].equals(Matrix([[0], [sqrt(2)]]))
 
 
