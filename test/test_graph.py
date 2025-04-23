@@ -8,9 +8,8 @@ import pytest
 from sympy import Matrix
 
 import pyrigi.graphDB as graphs
-import pyrigi.misc as misc
 from pyrigi.graph import Graph
-from pyrigi.exception import LoopError, NotSupportedValueError
+from pyrigi.exception import LoopError
 
 
 is_rigid_algorithms_all_d = ["default", "randomized", "numerical"]
