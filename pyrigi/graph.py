@@ -1170,8 +1170,9 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`vertex redundantly dim-rigid <def-redundantly-rigid-graph>`
         """
-        _input_check.dimension(dim)
-        return self.is_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
+        return pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid(
+            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
     @copy_doc(pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid)
@@ -1203,8 +1204,9 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`Minimal vertex redundant dim-rigidity <def-min-redundantly-rigid-graph>`
         """
-        _input_check.dimension(dim)
-        return self.is_min_k_vertex_redundantly_rigid(1, dim, algorithm, prob)
+        return pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
     @copy_doc(pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid)
@@ -1232,7 +1234,9 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`Redundant dim-rigidity<def-redundantly-rigid-graph>`
         """
-        return self.is_k_redundantly_rigid(1, dim, algorithm, prob)
+        return pyrigi.redundant_rigidity.is_k_redundantly_rigid(
+            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
     @copy_doc(pyrigi.redundant_rigidity.is_k_redundantly_rigid)
@@ -1260,8 +1264,9 @@ class Graph(nx.Graph):
         -----------
         :prf:ref:`Minimal redundant dim-rigidity <def-min-redundantly-rigid-graph>`
         """
-        _input_check.dimension(dim)
-        return self.is_min_k_redundantly_rigid(1, dim, algorithm, prob)
+        return pyrigi.redundant_rigidity.is_min_k_redundantly_rigid(
+            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        )
 
     @doc_category("Generic rigidity")
     @copy_doc(pyrigi.redundant_rigidity.is_min_k_redundantly_rigid)
@@ -1347,7 +1352,8 @@ class Graph(nx.Graph):
         -----
         See :meth:`.is_independent` for details.
         """
-        return not self.is_Rd_independent(
+        return not pyrigi.matroidal_rigidity.is_Rd_independent(
+            self,
             dim,
             algorithm=algorithm,
             use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
