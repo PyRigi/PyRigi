@@ -136,13 +136,13 @@ def is_vertex_order(
         If ``None``, then all vertices are returned
         using :meth:`~Graph.vertex_list`.
     """
-    from pyrigi import Graph as PyRigiGraph
+    from pyrigi import Graph
 
     if vertex_order is None:
-        return PyRigiGraph.vertex_list(graph)
+        return Graph.vertex_list(graph)
     else:
         if not graph.number_of_nodes() == len(vertex_order) or not set(
-            PyRigiGraph.vertex_list(graph)
+            Graph.vertex_list(graph)
         ) == set(vertex_order):
             raise ValueError(
                 "The vertices in `"
@@ -169,16 +169,13 @@ def is_edge_order(
         If ``None``, then all edges are returned
         using :meth:`~Graph.edge_list`.
     """
-    from pyrigi import Graph as PyRigiGraph
+    from pyrigi import Graph
 
     if edge_order is None:
-        return PyRigiGraph.edge_list(graph)
+        return Graph.edge_list(graph)
     else:
         if not graph.number_of_edges() == len(edge_order) or not all(
-            [
-                set(e) in [set(e) for e in edge_order]
-                for e in PyRigiGraph.edge_list(graph)
-            ]
+            [set(e) in [set(e) for e in edge_order] for e in Graph.edge_list(graph)]
         ):
             raise ValueError(
                 "The edges in `" + name + "` must be exactly "
