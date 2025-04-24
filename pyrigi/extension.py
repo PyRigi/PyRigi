@@ -228,7 +228,7 @@ def k_extension(
     G.remove_edges_from(edges)
     for vertex in vertices:
         G.add_edge(vertex, new_vertex)
-    return graph.__class__(G)
+    return G
 
 
 def all_k_extensions(
@@ -368,7 +368,7 @@ def all_extensions(
     extensions = []
     for k in range(k_min, k_max + 1):
         if graph.number_of_nodes() >= dim + k and graph.number_of_edges() >= k:
-            extensions.extend(graph.all_k_extensions(k, dim, only_non_isomorphic))
+            extensions.extend(all_k_extensions(graph, k, dim, only_non_isomorphic))
 
     solutions = []
     for current in extensions:
@@ -457,7 +457,7 @@ def extension_sequence(  # noqa: C901
             G = deepcopy(graph)
             neighbors = list(graph.neighbors(deg[0]))
             G.remove_node(deg[0])
-            branch = G.extension_sequence(dim, return_type)
+            branch = extension_sequence(G, dim, return_type)
             extension = [0, neighbors, [], deg[0]]
             if branch is not None:
                 if return_type == "extensions":
@@ -468,7 +468,7 @@ def extension_sequence(  # noqa: C901
                     return branch + [[graph, extension]]
                 else:
                     raise NotSupportedValueError(
-                        return_type, "return_type", graph.extension_sequence
+                        return_type, "return_type", extension_sequence
                     )
             return branch
         else:
@@ -497,7 +497,7 @@ def extension_sequence(  # noqa: C901
                             return branch + [[graph, extension]]
                         else:
                             raise NotSupportedValueError(
-                                return_type, "return_type", graph.extension_sequence
+                                return_type, "return_type", extension_sequence
                             )
                     for edge in k_possible_edges:
                         G.remove_edge(*edge)
