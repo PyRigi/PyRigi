@@ -499,7 +499,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> nx.Graph:
+    ) -> Graph:
         return pyrigi.extension.zero_extension(
             self, vertices=vertices, new_vertex=new_vertex, dim=dim, inplace=inplace
         )
@@ -513,7 +513,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> nx.Graph:
+    ) -> Graph:
         return pyrigi.extension.one_extension(
             self,
             vertices=vertices,
@@ -533,7 +533,7 @@ class Graph(nx.Graph):
         new_vertex: Vertex = None,
         dim: int = 2,
         inplace: bool = False,
-    ) -> nx.Graph:
+    ) -> Graph:
         return pyrigi.extension.k_extension(
             self,
             k=k,
@@ -551,7 +551,7 @@ class Graph(nx.Graph):
         k: int,
         dim: int = 2,
         only_non_isomorphic: bool = False,
-    ) -> Iterable[nx.Graph]:
+    ) -> Iterable[Graph]:
         return pyrigi.extension.all_k_extensions(
             self, k=k, dim=dim, only_non_isomorphic=only_non_isomorphic
         )
@@ -564,7 +564,7 @@ class Graph(nx.Graph):
         only_non_isomorphic: bool = False,
         k_min: int = 0,
         k_max: int | None = None,
-    ) -> Iterable[nx.Graph]:
+    ) -> Iterable[Graph]:
         return pyrigi.extension.all_extensions(
             self,
             dim=dim,
@@ -577,7 +577,7 @@ class Graph(nx.Graph):
     @copy_doc(pyrigi.extension.extension_sequence)
     def extension_sequence(  # noqa: C901
         self, dim: int = 2, return_type: str = "extensions"
-    ) -> list[nx.Graph] | list | None:
+    ) -> list[Graph] | list | None:
         return pyrigi.extension.extension_sequence(
             self, dim=dim, return_type=return_type
         )

@@ -300,7 +300,7 @@ def all_k_extensions(
             current = k_extension(graph, k, list(vertices) + w, edges, dim=dim)
             if only_non_isomorphic:
                 for other in solutions:
-                    if current.is_isomorphic(other):
+                    if nx.is_isomorphic(current, other):
                         break
                 else:
                     solutions.append(current)
@@ -374,7 +374,7 @@ def all_extensions(
     for current in extensions:
         if only_non_isomorphic:
             for other in solutions:
-                if current.is_isomorphic(other):
+                if nx.is_isomorphic(current, other):
                     break
             else:
                 solutions.append(current)
