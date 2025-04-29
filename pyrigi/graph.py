@@ -732,20 +732,12 @@ class Graph(nx.Graph):
             )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_vertex_redundantly_rigid)
     def is_vertex_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is vertex redundantly ``dim``-rigid.
-
-        See :meth:`.is_k_vertex_redundantly_rigid` (using ``k=1``) for details.
-
-        Definitions
-        -----------
-        :prf:ref:`vertex redundantly dim-rigid <def-redundantly-rigid-graph>`
-        """
-        return pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid(
-            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        return pyrigi.redundant_rigidity.is_vertex_redundantly_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
@@ -766,20 +758,12 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_min_vertex_redundantly_rigid)
     def is_min_vertex_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is minimally vertex redundantly ``dim``-rigid.
-
-        See :meth:`.is_min_k_vertex_redundantly_rigid` (using ``k=1``) for details.
-
-        Definitions
-        -----------
-        :prf:ref:`Minimal vertex redundant dim-rigidity <def-min-redundantly-rigid-graph>`
-        """
-        return pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        return pyrigi.redundant_rigidity.is_min_vertex_redundantly_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
@@ -796,20 +780,12 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_redundantly_rigid)
     def is_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is redundantly ``dim``-rigid.
-
-        See :meth:`.is_k_redundantly_rigid` (using ``k=1``) for details.
-
-        Definitions
-        -----------
-        :prf:ref:`Redundant dim-rigidity<def-redundantly-rigid-graph>`
-        """
-        return pyrigi.redundant_rigidity.is_k_redundantly_rigid(
-            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        return pyrigi.redundant_rigidity.is_redundantly_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
@@ -826,20 +802,12 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_min_redundantly_rigid)
     def is_min_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is minimally redundantly ``dim``-rigid.
-
-        See :meth:`.is_min_k_redundantly_rigid` (using ``k=1``) for details.
-
-        Definitions
-        -----------
-        :prf:ref:`Minimal redundant dim-rigidity <def-min-redundantly-rigid-graph>`
-        """
-        return pyrigi.redundant_rigidity.is_min_k_redundantly_rigid(
-            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        return pyrigi.redundant_rigidity.is_min_redundantly_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
@@ -899,36 +867,16 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Rigidity Matroid")
+    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_dependent)
     def is_Rd_dependent(
         self,
         dim: int = 2,
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        """
-        Return whether the edge set is dependent in the generic ``dim``-rigidity matroid.
-
-        See :meth:`.is_Rd_independent` for the possible parameters.
-
-        Definitions
-        -----------
-        * :prf:ref:`Dependence <def-matroid>`
-        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
-
-        Examples
-        --------
-        >>> from pyrigi import graphDB
-        >>> G = graphDB.K33plusEdge()
-        >>> G.is_Rd_dependent()
-        True
-
-        Notes
-        -----
-        See :meth:`.is_independent` for details.
-        """
-        return not pyrigi.matroidal_rigidity.is_Rd_independent(
+        return pyrigi.matroidal_rigidity.is_Rd_dependent(
             self,
-            dim,
+            dim=dim,
             algorithm=algorithm,
             use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
         )

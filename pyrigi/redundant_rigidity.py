@@ -143,6 +143,23 @@ def is_k_vertex_redundantly_rigid(
     return True
 
 
+def is_vertex_redundantly_rigid(
+    graph: nx.Graph, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
+) -> bool:
+    """
+    Return whether the graph is vertex redundantly ``dim``-rigid.
+
+    See :meth:`.is_k_vertex_redundantly_rigid` (using ``k=1``) for details.
+
+    Definitions
+    -----------
+    :prf:ref:`vertex redundantly dim-rigid <def-redundantly-rigid-graph>`
+    """
+    return is_k_vertex_redundantly_rigid(
+        graph, 1, dim=dim, algorithm=algorithm, prob=prob
+    )
+
+
 def is_min_k_vertex_redundantly_rigid(
     graph: nx.Graph,
     k: int,
@@ -263,6 +280,23 @@ def is_min_k_vertex_redundantly_rigid(
     return True
 
 
+def is_min_vertex_redundantly_rigid(
+    graph: nx.Graph, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
+) -> bool:
+    """
+    Return whether the graph is minimally vertex redundantly ``dim``-rigid.
+
+    See :meth:`.is_min_k_vertex_redundantly_rigid` (using ``k=1``) for details.
+
+    Definitions
+    -----------
+    :prf:ref:`Minimal vertex redundant dim-rigidity <def-min-redundantly-rigid-graph>`
+    """
+    return is_min_k_vertex_redundantly_rigid(
+        graph, 1, dim=dim, algorithm=algorithm, prob=prob
+    )
+
+
 def is_k_redundantly_rigid(
     graph: nx.Graph,
     k: int,
@@ -379,6 +413,21 @@ def is_k_redundantly_rigid(
     return True
 
 
+def is_redundantly_rigid(
+    graph: nx.Graph, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
+) -> bool:
+    """
+    Return whether the graph is redundantly ``dim``-rigid.
+
+    See :meth:`.is_k_redundantly_rigid` (using ``k=1``) for details.
+
+    Definitions
+    -----------
+    :prf:ref:`Redundant dim-rigidity<def-redundantly-rigid-graph>`
+    """
+    return is_k_redundantly_rigid(graph, 1, dim=dim, algorithm=algorithm, prob=prob)
+
+
 def is_min_k_redundantly_rigid(
     graph: nx.Graph,
     k: int,
@@ -482,3 +531,18 @@ def is_min_k_redundantly_rigid(
             return False
         G.add_edge(*e)
     return True
+
+
+def is_min_redundantly_rigid(
+    graph: nx.Graph, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
+) -> bool:
+    """
+    Return whether the graph is minimally redundantly ``dim``-rigid.
+
+    See :meth:`.is_min_k_redundantly_rigid` (using ``k=1``) for details.
+
+    Definitions
+    -----------
+    :prf:ref:`Minimal redundant dim-rigidity <def-min-redundantly-rigid-graph>`
+    """
+    return is_min_k_redundantly_rigid(graph, 1, dim=dim, algorithm=algorithm, prob=prob)
