@@ -12,6 +12,7 @@ from typing import TypeVar
 from pyrigi.data_type import Vertex, Inf
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
+import pyrigi.extension as graph_extension
 import pyrigi.sparsity as sparsity
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
@@ -235,11 +236,7 @@ def is_min_rigid(
         _input_check.dimension_for_algorithm(
             dim, [1, 2], "the algorithm using extension sequences"
         )
-        from pyrigi import Graph
-
-        # TODO rewrite once extensions are moved to a separate file
-
-        return Graph(graph).has_extension_sequence(dim=dim)
+        return graph_extension.has_extension_sequence(graph, dim=dim)
 
     if algorithm == "randomized":
         N = int((n * dim - math.comb(dim + 1, 2)) / prob)

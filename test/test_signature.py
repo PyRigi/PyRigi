@@ -7,6 +7,7 @@
 import inspect
 from inspect import Parameter, Signature, _empty
 from typing import Any, Callable, Type, TypeVar, cast, ParamSpec
+from typing import get_origin, get_args
 from types import GetSetDescriptorType, ModuleType
 import sys
 import functools
@@ -165,20 +166,53 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
         func, convert_first_to_self=True, ignored_params=[]
     )
 
-    if sgn_method.return_annotation != sgn_func.return_annotation:
-        if sgn_method.return_annotation == Graph and issubclass(
-            sgn_method.return_annotation, sgn_func.return_annotation
-        ):
-            pass
-        else:
-            raise TypeError(
-                f"""
-                The return type of the method does not match
-                the one of the proxy function:
-                method  [{method.__name__}]={sgn_method.return_annotation}
-                function[{func.__name__}]={sgn_func.return_annotation}
-                """.strip()
-            )
+    def is_subtype(sub_type, super_type):
+        if get_origin(sub_type) != get_origin(super_type):
+            return False
+        sub_args, super_args = get_args(sub_type), get_args(super_type)
+        if not sub_args or not super_args:
+            return False
+        if len(sub_args) != len(super_args):
+            return False
+        for sub_arg, super_arg in zip(sub_args, super_args):
+            if sub_arg == super_arg:
+                pass
+            elif is_subtype(sub_arg, super_arg):
+                pass
+            elif issubclass(sub_arg, super_arg) and sub_arg == Graph:
+                pass
+            else:
+                return False
+        return True
+
+    meth_return_ann = sgn_method.return_annotation
+    funct_return_ann = sgn_func.return_annotation
+
+    try:
+        if meth_return_ann != funct_return_ann:
+            if meth_return_ann == Graph and issubclass(
+                meth_return_ann, funct_return_ann
+            ):
+                pass
+            elif is_subtype(meth_return_ann, funct_return_ann):
+                pass
+            else:
+                raise TypeError(
+                    f"""
+                    The return type of the method does not match
+                    the one of the proxy function:
+                    method  [{method.__name__}]={meth_return_ann}
+                    function[{func.__name__}]={funct_return_ann}
+                    """.strip()
+                )
+    except TypeError as e:
+        raise TypeError(
+            f"""There is a problem with the return type of
+                        the method and the proxy function:
+                        method  [{method.__name__}]={meth_return_ann}
+                        function[{func.__name__}]={funct_return_ann}
+                        """.strip()
+        ) from e
 
     params_method = list(sgn_method.parameters.values())
     params_func = list(sgn_func.parameters.values())

@@ -18,6 +18,7 @@ import pyrigi._pebble_digraph
 import pyrigi.generic_rigidity
 import pyrigi.global_rigidity
 import pyrigi.graph_general
+import pyrigi.extension
 import pyrigi.matroidal_rigidity
 import pyrigi.redundant_rigidity
 import pyrigi.separating_set
@@ -491,6 +492,7 @@ class Graph(nx.Graph):
         return self.is_kl_tight(2, 3, algorithm="pebble")
 
     @doc_category("Graph manipulation")
+    @copy_doc(pyrigi.extension.zero_extension)
     def zero_extension(
         self,
         vertices: Sequence[Vertex],
@@ -498,53 +500,12 @@ class Graph(nx.Graph):
         dim: int = 2,
         inplace: bool = False,
     ) -> Graph:
-        """
-        Return a ``dim``-dimensional 0-extension.
-
-        Definitions
-        -----------
-        :prf:ref:`0-extension <def-k-extension>`
-
-        Parameters
-        ----------
-        vertices:
-            A new vertex is connected to these vertices.
-            All the vertices must be contained in the graph
-            and there must be ``dim`` of them.
-        new_vertex:
-            Newly added vertex is named according to this parameter.
-            If ``None``, the name is set as the lowest possible integer value
-            greater or equal than the number of nodes.
-        dim:
-            The dimension in which the 0-extension is created.
-        inplace:
-            If ``True``, the graph is modified,
-            otherwise a new modified graph is created,
-            while the original graph remains unchanged (default).
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(3)
-        >>> print(G)
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> H = G.zero_extension([0, 2])
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
-        >>> H = G.zero_extension([0, 2], 5)
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [2, 5]]
-        >>> print(G)
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> H = G.zero_extension([0, 1, 2], 5, dim=3, inplace=True)
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
-        """  # noqa: E501
-        return self.k_extension(0, vertices, [], new_vertex, dim, inplace)
+        return pyrigi.extension.zero_extension(
+            self, vertices=vertices, new_vertex=new_vertex, dim=dim, inplace=inplace
+        )
 
     @doc_category("Graph manipulation")
+    @copy_doc(pyrigi.extension.one_extension)
     def one_extension(
         self,
         vertices: Sequence[Vertex],
@@ -553,62 +514,17 @@ class Graph(nx.Graph):
         dim: int = 2,
         inplace: bool = False,
     ) -> Graph:
-        """
-        Return a ``dim``-dimensional 1-extension.
-
-        Definitions
-        -----------
-        :prf:ref:`1-extension <def-k-extension>`
-
-        Parameters
-        ----------
-        vertices:
-            A new vertex is connected to these vertices.
-            All the vertices must be contained in the graph
-            and there must be ``dim + 1`` of them.
-        edge:
-            An edge with endvertices from the list ``vertices`` that is deleted.
-            The edge must be contained in the graph.
-        new_vertex:
-            Newly added vertex is named according to this parameter.
-            If ``None``, the name is set as the lowest possible integer value
-            greater or equal than the number of nodes.
-        dim:
-            The dimension in which the 1-extension is created.
-        inplace:
-            If ``True``, the graph is modified,
-            otherwise a new modified graph is created,
-            while the original graph remains unchanged (default).
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(3)
-        >>> print(G)
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> H = G.one_extension([0, 1, 2], [0, 1])
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
-        >>> print(G)
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G = graphs.ThreePrism()
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-        >>> H = G.one_extension([0, 1], [0, 1], dim=1)
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 2], [0, 3], [0, 6], [1, 2], [1, 4], [1, 6], [2, 5], [3, 4], [3, 5], [4, 5]]
-        >>> G = graphs.CompleteBipartite(3, 2)
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]
-        >>> H = G.one_extension([0, 1, 2, 3, 4], [0, 3], dim=4, inplace = True)
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
-        """  # noqa: E501
-        return self.k_extension(1, vertices, [edge], new_vertex, dim, inplace)
+        return pyrigi.extension.one_extension(
+            self,
+            vertices=vertices,
+            edge=edge,
+            new_vertex=new_vertex,
+            dim=dim,
+            inplace=inplace,
+        )
 
     @doc_category("Graph manipulation")
+    @copy_doc(pyrigi.extension.k_extension)
     def k_extension(
         self,
         k: int,
@@ -618,175 +534,30 @@ class Graph(nx.Graph):
         dim: int = 2,
         inplace: bool = False,
     ) -> Graph:
-        """
-        Return a ``dim``-dimensional ``k``-extension.
-
-        See also :meth:`.zero_extension` and :meth:`.one_extension`.
-
-        Definitions
-        -----------
-        :prf:ref:`k-extension <def-k-extension>`
-
-        Parameters
-        ----------
-        k
-        vertices:
-            A new vertex is connected to these vertices.
-            All the vertices must be contained in the graph
-            and there must be ``dim + k`` of them.
-        edges:
-            A list of edges that are deleted.
-            The endvertices of all the edges must be contained
-            in the list ``vertices``.
-            The edges must be contained in the graph and there must be ``k`` of them.
-        new_vertex:
-            Newly added vertex is named according to this parameter.
-            If ``None``, the name is set as the lowest possible integer value
-            greater or equal than the number of nodes.
-        dim:
-            The dimension in which the ``k``-extension is created.
-        inplace:
-            If ``True``, the graph is modified,
-            otherwise a new modified graph is created,
-            while the original graph remains unchanged (default).
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(5)
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> H = G.k_extension(2, [0, 1, 2, 3], [[0, 1], [0,2]])
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5]]
-        >>> G = graphs.Complete(5)
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-        >>> H = G.k_extension(2, [0, 1, 2, 3, 4], [[0, 1], [0,2]], dim = 3)
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-        >>> G = graphs.Path(6)
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]]
-        >>> H = G.k_extension(2, [0, 1, 2], [[0, 1], [1,2]], dim = 1, inplace = True);
-        >>> print(H)
-        Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
-        """  # noqa: E501
-        _input_check.dimension(dim)
-        _input_check.integrality_and_range(k, "k", min_val=0)
-        _graph_input_check.no_loop(self)
-        _graph_input_check.vertex_members(self, vertices, "'the vertices'")
-        if len(set(vertices)) != dim + k:
-            raise ValueError(
-                f"List of vertices must contain {dim + k} distinct vertices!"
-            )
-        _graph_input_check.is_edge_list(self, edges, vertices)
-        if len(edges) != k:
-            raise ValueError(f"List of edges must contain {k} distinct edges!")
-        for edge in edges:
-            count = edges.count(list(edge)) + edges.count(list(edge)[::-1])
-            count += edges.count(tuple(edge)) + edges.count(tuple(edge)[::-1])
-            if count > 1:
-                raise ValueError(
-                    "List of edges must contain distinct edges, "
-                    f"but {edge} appears {count} times!"
-                )
-        if new_vertex is None:
-            candidate = self.number_of_nodes()
-            while self.has_node(candidate):
-                candidate += 1
-            new_vertex = candidate
-        if self.has_node(new_vertex):
-            raise ValueError(f"Vertex {new_vertex} is already a vertex of the graph!")
-        G = self
-        if not inplace:
-            G = deepcopy(self)
-        G.remove_edges_from(edges)
-        for vertex in vertices:
-            G.add_edge(vertex, new_vertex)
-        return G
+        return pyrigi.extension.k_extension(
+            self,
+            k=k,
+            vertices=vertices,
+            edges=edges,
+            new_vertex=new_vertex,
+            dim=dim,
+            inplace=inplace,
+        )
 
     @doc_category("Graph manipulation")
+    @copy_doc(pyrigi.extension.all_k_extensions)
     def all_k_extensions(
         self,
         k: int,
         dim: int = 2,
         only_non_isomorphic: bool = False,
     ) -> Iterable[Graph]:
-        """
-        Return an iterator over all possible ``dim``-dimensional ``k``-extensions.
-
-        Definitions
-        -----------
-        :prf:ref:`k-extension <def-k-extension>`
-
-        Parameters
-        ----------
-        k:
-        dim:
-        only_non_isomorphic:
-            If ``True``, only one graph per isomorphism class is included.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(3)
-        >>> type(G.all_k_extensions(0))
-        <class 'generator'>
-        >>> len(list(G.all_k_extensions(0)))
-        3
-        >>> len(list(G.all_k_extensions(0, only_non_isomorphic=True)))
-        1
-
-        >>> len(list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)))
-        2
-
-        Notes
-        -----
-        It turns out that possible errors on bad input parameters are only raised,
-        when the output iterator is actually used,
-        not when it is created.
-        """
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-        _input_check.integrality_and_range(k, "k", min_val=0)
-        _input_check.greater_equal(
-            self.number_of_nodes(),
-            dim + k,
-            "number of vertices in the graph",
-            "dim + k",
+        return pyrigi.extension.all_k_extensions(
+            self, k=k, dim=dim, only_non_isomorphic=only_non_isomorphic
         )
-        _input_check.greater_equal(
-            self.number_of_edges(), k, "number of edges in the graph", "k"
-        )
-
-        solutions = []
-        for edges in combinations(self.edges, k):
-            s = set(self.nodes)
-            w = set()
-            for edge in edges:
-                s.discard(edge[0])
-                s.discard(edge[1])
-                w.add(edge[0])
-                w.add(edge[1])
-            if len(w) > (dim + k):
-                break
-            w = list(w)
-            for vertices in combinations(s, dim + k - len(w)):
-                current = self.k_extension(k, list(vertices) + w, edges, dim=dim)
-                if only_non_isomorphic:
-                    for other in solutions:
-                        if current.is_isomorphic(other):
-                            break
-                    else:
-                        solutions.append(current)
-                        yield current
-                else:
-                    yield current
 
     @doc_category("Graph manipulation")
+    @copy_doc(pyrigi.extension.all_extensions)
     def all_extensions(
         self,
         dim: int = 2,
@@ -794,228 +565,30 @@ class Graph(nx.Graph):
         k_min: int = 0,
         k_max: int | None = None,
     ) -> Iterable[Graph]:
-        """
-        Return an iterator over all ``dim``-dimensional extensions.
-
-        All possible ``k``-extensions for ``k`` such that
-        ``k_min <= k <= k_max`` are considered.
-
-        Definitions
-        -----------
-        :prf:ref:`k-extension <def-k-extension>`
-
-        Parameters
-        ----------
-        dim:
-        only_non_isomorphic:
-            If ``True``, only one graph per isomorphism class is included.
-        k_min:
-            Minimal value of ``k`` for the ``k``-extensions (default 0).
-        k_max:
-            Maximal value of ``k`` for the ``k``-extensions (default ``dim - 1``).
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(3)
-        >>> type(G.all_extensions())
-        <class 'generator'>
-        >>> len(list(G.all_extensions()))
-        6
-        >>> len(list(G.all_extensions(only_non_isomorphic=True)))
-        1
-
-        >>> list(graphs.Diamond().all_extensions(2, only_non_isomorphic=True, k_min=1, k_max=1)
-        ... ) == list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True))
-        True
-
-        Notes
-        -----
-        It turns out that possible errors on bad input paramters are only raised,
-        when the output iterator is actually used,
-        not when it is created.
-        """  # noqa: E501
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-        _input_check.integrality_and_range(k_min, "k_min", min_val=0)
-        if k_max is None:
-            k_max = dim - 1
-        _input_check.integrality_and_range(k_max, "k_max", min_val=0)
-        _input_check.greater_equal(k_max, k_min, "k_max", "k_min")
-
-        extensions = []
-        for k in range(k_min, k_max + 1):
-            if self.number_of_nodes() >= dim + k and self.number_of_edges() >= k:
-                extensions.extend(self.all_k_extensions(k, dim, only_non_isomorphic))
-
-        solutions = []
-        for current in extensions:
-            if only_non_isomorphic:
-                for other in solutions:
-                    if current.is_isomorphic(other):
-                        break
-                else:
-                    solutions.append(current)
-                    yield current
-            else:
-                yield current
+        return pyrigi.extension.all_extensions(
+            self,
+            dim=dim,
+            only_non_isomorphic=only_non_isomorphic,
+            k_min=k_min,
+            k_max=k_max,
+        )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.extension.extension_sequence)
     def extension_sequence(  # noqa: C901
         self, dim: int = 2, return_type: str = "extensions"
     ) -> list[Graph] | list | None:
-        """
-        Compute a sequence of ``dim``-dimensional extensions.
-
-        The ``k``-extensions for ``k`` from 0 to ``2 * dim - 1``
-        are considered.
-        The sequence then starts from a complete graph on ``dim`` vertices.
-        If no such sequence exists, ``None`` is returned.
-
-        The method returns either a sequence of graphs,
-        data on the extension, or both.
-
-        Note that for dimensions larger than two, the
-        extensions are not always preserving rigidity.
-
-        Definitions
-        -----------
-        :prf:ref:`k-extension <def-k-extension>`
-
-        Parameters
-        ----------
-        dim:
-            The dimension in which the extensions are created.
-        return_type:
-            Can have values ``"graphs"``, ``"extensions"`` or ``"both"``.
-
-            If ``"graphs"``, then the sequence of graphs obtained from the extensions
-            is returned.
-
-            If ``"extensions"``, then an initial graph and a sequence of extensions
-            of the form ``[k, vertices, edges, new_vertex]`` as needed
-            for the input of :meth:`.k_extension` is returned.
-
-            If ``"both"``, then an initial graph and a sequence of pairs
-            ``[graph, extension]``, where the latter has the form from above,
-            is returned.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(3)
-        >>> print(G)
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-        >>> G.extension_sequence(return_type="graphs")
-        [Graph.from_vertices_and_edges([1, 2], [(1, 2)]), Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (0, 2), (1, 2)])]
-        >>> G = graphs.Diamond()
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
-        >>> G.extension_sequence(return_type="graphs")
-        [Graph.from_vertices_and_edges([2, 3], [(2, 3)]), Graph.from_vertices_and_edges([0, 2, 3], [(0, 2), (0, 3), (2, 3)]), Graph.from_vertices_and_edges([0, 1, 2, 3], [(0, 1), (0, 2), (0, 3), (1, 2), (2, 3)])]
-        >>> G.extension_sequence(return_type="extensions")
-        [Graph.from_vertices_and_edges([2, 3], [(2, 3)]), [0, [3, 2], [], 0], [0, [0, 2], [], 1]]
-        """  # noqa: E501
-        _input_check.dimension(dim)
-        _graph_input_check.no_loop(self)
-
-        if not self.number_of_edges() == dim * self.number_of_nodes() - math.comb(
-            dim + 1, 2
-        ):
-            return None
-        if self.number_of_nodes() == dim:
-            return [self]
-        degrees = sorted(self.degree, key=lambda node: node[1])
-        degrees = [deg for deg in degrees if deg[1] >= dim and deg[1] <= 2 * dim - 1]
-        if len(degrees) == 0:
-            return None
-
-        for deg in degrees:
-            if deg[1] == dim:
-                G = deepcopy(self)
-                neighbors = list(self.neighbors(deg[0]))
-                G.remove_node(deg[0])
-                branch = G.extension_sequence(dim, return_type)
-                extension = [0, neighbors, [], deg[0]]
-                if branch is not None:
-                    if return_type == "extensions":
-                        return branch + [extension]
-                    elif return_type == "graphs":
-                        return branch + [self]
-                    elif return_type == "both":
-                        return branch + [[self, extension]]
-                    else:
-                        raise NotSupportedValueError(
-                            return_type, "return_type", self.extension_sequence
-                        )
-                return branch
-            else:
-                neighbors = list(self.neighbors(deg[0]))
-                G = deepcopy(self)
-                G.remove_node(deg[0])
-                for k_possible_edges in combinations(
-                    combinations(neighbors, 2), deg[1] - dim
-                ):
-                    if all([not G.has_edge(*edge) for edge in k_possible_edges]):
-                        for edge in k_possible_edges:
-                            G.add_edge(*edge)
-                        branch = G.extension_sequence(dim, return_type)
-                        if branch is not None:
-                            extension = [
-                                deg[1] - dim,
-                                neighbors,
-                                k_possible_edges,
-                                deg[0],
-                            ]
-                            if return_type == "extensions":
-                                return branch + [extension]
-                            elif return_type == "graphs":
-                                return branch + [self]
-                            elif return_type == "both":
-                                return branch + [[self, extension]]
-                            else:
-                                raise NotSupportedValueError(
-                                    return_type, "return_type", self.extension_sequence
-                                )
-                        for edge in k_possible_edges:
-                            G.remove_edge(*edge)
-        return None
+        return pyrigi.extension.extension_sequence(
+            self, dim=dim, return_type=return_type
+        )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.extension.has_extension_sequence)
     def has_extension_sequence(
         self,
         dim: int = 2,
     ) -> bool:
-        """
-        Return if there exists a sequence of ``dim``-dimensional extensions.
-
-        The method returns whether there exists a sequence of extensions
-        as described in :meth:`extension_sequence`.
-
-        Definitions
-        -----------
-        :prf:ref:`k-extension <def-k-extension>`
-
-        Parameters
-        ----------
-        dim:
-            The dimension in which the extensions are created.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.ThreePrism()
-        >>> print(G)
-        Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-        >>> G.has_extension_sequence()
-        True
-        >>> G = graphs.CompleteBipartite(1, 2)
-        >>> print(G)
-        Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2]]
-        >>> G.has_extension_sequence()
-        False
-        """  # noqa: E501
-        return self.extension_sequence(dim) is not None
+        return pyrigi.extension.has_extension_sequence(self, dim=dim)
 
     @doc_category("Graph manipulation")
     def cone(self, inplace: bool = False, vertex: Vertex = None) -> Graph:
