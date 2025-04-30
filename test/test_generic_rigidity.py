@@ -3,6 +3,12 @@ from itertools import combinations
 
 import networkx as nx
 import pytest
+
+import pyrigi.generic_rigidity as generic_rigidity
+import pyrigi.graphDB as graphs
+import pyrigi.sparsity
+from pyrigi.graph import Graph
+from pyrigi.warning import RandomizedAlgorithmWarning
 from test_graph import (
     TEST_WRAPPED_FUNCTIONS,
     is_rigid_algorithms_all_d,
@@ -10,12 +16,6 @@ from test_graph import (
     is_rigid_algorithms_d2,
     relabeled_inc,
 )
-
-import pyrigi.generic_rigidity as generic_rigidity
-import pyrigi.graphDB as graphs
-import pyrigi.sparsity
-from pyrigi.graph import Graph
-from pyrigi.warning import RandomizedAlgorithmWarning
 
 is_min_rigid_algorithms_all_d = ["default", "randomized"]
 is_min_rigid_algorithms_d2 = is_min_rigid_algorithms_all_d + [
