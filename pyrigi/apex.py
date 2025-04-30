@@ -2,10 +2,11 @@
 This module provides functionality related to apex graphs.
 """
 
-from itertools import combinations
 from copy import deepcopy
+from itertools import combinations
 
 import networkx as nx
+
 import pyrigi._input_check as _input_check
 
 

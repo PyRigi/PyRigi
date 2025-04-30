@@ -1,21 +1,21 @@
 import math
+from itertools import combinations
 
 import networkx as nx
 import pytest
-from itertools import combinations
 
+import pyrigi.generic_rigidity as generic_rigidity
 import pyrigi.graphDB as graphs
 import pyrigi.sparsity
-import pyrigi.generic_rigidity as generic_rigidity
 from pyrigi.graph import Graph
 from pyrigi.warning import RandomizedAlgorithmWarning
-from test_graph import relabeled_inc, TEST_WRAPPED_FUNCTIONS
 from test_graph import (
+    TEST_WRAPPED_FUNCTIONS,
     is_rigid_algorithms_all_d,
     is_rigid_algorithms_d1,
     is_rigid_algorithms_d2,
+    relabeled_inc,
 )
-
 
 is_min_rigid_algorithms_all_d = ["default", "randomized"]
 is_min_rigid_algorithms_d2 = is_min_rigid_algorithms_all_d + [

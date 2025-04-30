@@ -3,15 +3,15 @@ This module provides algorithms related to redundant rigidity.
 """
 
 import math
-from itertools import combinations
 from copy import deepcopy
+from itertools import combinations
 
 import networkx as nx
 
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
-import pyrigi.graph_general as graph_general
 import pyrigi.generic_rigidity as generic_rigidity
+import pyrigi.graph_general as graph_general
 
 
 def is_k_vertex_redundantly_rigid(

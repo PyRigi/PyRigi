@@ -4,8 +4,8 @@ Module for defining warnings.
 
 """
 
-from collections.abc import Callable
 import warnings
+from collections.abc import Callable
 
 import networkx as nx
 

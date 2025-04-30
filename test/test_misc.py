@@ -2,20 +2,20 @@ import math
 from math import isclose, pi
 from random import randint
 
-import pytest
 import numpy as np
+import pytest
 import sympy as sp
 
 from pyrigi.graph import Graph
 from pyrigi.misc import (
-    is_zero_vector,
     _generate_two_orthonormal_vectors,
-    sympy_expr_to_float,
-    is_isomorphic_graph_list,
     _normalize_flex,
     _vector_distance_pointwise,
-    point_to_vector,
+    is_isomorphic_graph_list,
     is_zero,
+    is_zero_vector,
+    point_to_vector,
+    sympy_expr_to_float,
 )
 
 

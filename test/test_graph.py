@@ -1,5 +1,5 @@
-from itertools import product
 import math
+from itertools import product
 from random import randint
 
 import matplotlib.pyplot as plt
@@ -8,9 +8,8 @@ import pytest
 from sympy import Matrix
 
 import pyrigi.graphDB as graphs
-from pyrigi.graph import Graph
 from pyrigi.exception import LoopError
-
+from pyrigi.graph import Graph
 
 is_rigid_algorithms_all_d = ["default", "randomized", "numerical"]
 is_rigid_algorithms_d1 = is_rigid_algorithms_all_d + ["graphic"]

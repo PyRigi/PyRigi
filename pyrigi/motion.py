@@ -3,10 +3,11 @@ This module contains functionality related to motions (continuous flexes).
 """
 
 import os
+import warnings
+from collections.abc import Callable
 from copy import deepcopy
 from typing import Any, Literal
-from collections.abc import Callable
-import warnings
+
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
@@ -17,24 +18,24 @@ from sympy import simplify
 import pyrigi._input_check as _input_check
 from pyrigi import _plot
 from pyrigi.data_type import (
-    Vertex,
-    Point,
-    Sequence,
-    InfFlex,
-    Number,
     DirectedEdge,
     Edge,
+    InfFlex,
+    Number,
+    Point,
+    Sequence,
+    Vertex,
 )
-from pyrigi.graph import Graph
 from pyrigi.framework import Framework
-from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
+from pyrigi.graph import Graph
 from pyrigi.misc import (
-    point_to_vector,
     _normalize_flex,
     _vector_distance_pointwise,
-    sympy_expr_to_float,
     is_zero,
+    point_to_vector,
+    sympy_expr_to_float,
 )
+from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from pyrigi.warning import NumericalAlgorithmWarning
 
 

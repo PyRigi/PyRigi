@@ -3,16 +3,16 @@ This module provides algorithms related to k-extensions of graphs.
 """
 
 import math
-from typing import Iterable
-from itertools import combinations
 from copy import deepcopy
-
-from pyrigi.exception import NotSupportedValueError
-from pyrigi.data_type import Edge, Sequence, Vertex
+from itertools import combinations
+from typing import Iterable
 
 import networkx as nx
+
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
+from pyrigi.data_type import Edge, Sequence, Vertex
+from pyrigi.exception import NotSupportedValueError
 
 
 def zero_extension(

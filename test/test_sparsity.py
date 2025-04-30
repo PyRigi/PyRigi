@@ -1,5 +1,5 @@
-from itertools import combinations, product
 import math
+from itertools import combinations, product
 from random import randint, sample
 
 import networkx as nx
@@ -8,8 +8,7 @@ import pytest
 import pyrigi.graphDB as graphs
 import pyrigi.sparsity as sparsity
 from pyrigi.graph import Graph
-from test_graph import read_sparsity, TEST_WRAPPED_FUNCTIONS
-
+from test_graph import TEST_WRAPPED_FUNCTIONS, read_sparsity
 
 is_kl_sparse_algorithms_sparsity_all_kl = ["default", "subgraph"]
 is_kl_sparse_algorithms_sparsity_pebble = is_kl_sparse_algorithms_sparsity_all_kl + [

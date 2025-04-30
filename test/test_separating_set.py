@@ -1,7 +1,7 @@
-from collections import defaultdict
-from itertools import product
 import math
 import random
+from collections import defaultdict
+from itertools import product
 
 import networkx as nx
 import pytest

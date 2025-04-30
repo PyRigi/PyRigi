@@ -1,11 +1,11 @@
-import pytest
 import networkx as nx
+import pytest
 
 import pyrigi.graphDB as graphs
 import pyrigi.redundant_rigidity as redundant_rigidity
 from pyrigi.graph import Graph
-from test_graph import TEST_WRAPPED_FUNCTIONS
 from test_graph import (
+    TEST_WRAPPED_FUNCTIONS,
     is_rigid_algorithms_all_d,
     is_rigid_algorithms_d1,
     is_rigid_algorithms_d2,

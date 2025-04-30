@@ -14,34 +14,33 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import sympy as sp
-from sympy import Matrix, flatten, binomial
+from sympy import Matrix, binomial, flatten
 
 import pyrigi._graph_input_check as _graph_input_check
+import pyrigi._input_check as _input_check
 from pyrigi.data_type import (
-    Vertex,
-    Edge,
-    Point,
-    InfFlex,
-    Stress,
-    Sequence,
-    Number,
     DirectedEdge,
+    Edge,
+    InfFlex,
+    Number,
+    Point,
+    Sequence,
+    Stress,
+    Vertex,
 )
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
+from pyrigi.misc import _doc_category as doc_category
 from pyrigi.misc import (
     _generate_category_tables,
+    _generate_three_orthonormal_vectors,
+    _generate_two_orthonormal_vectors,
+    _null_space,
     is_zero,
     is_zero_vector,
-    _generate_two_orthonormal_vectors,
-    _generate_three_orthonormal_vectors,
-    sympy_expr_to_float,
     point_to_vector,
-    _null_space,
+    sympy_expr_to_float,
 )
-from pyrigi.misc import _doc_category as doc_category
-import pyrigi._input_check as _input_check
-
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]

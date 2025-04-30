@@ -5,8 +5,6 @@ It includes an algorithm for a stable separating set search in a 2-flexible grap
 according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 """
 
-import networkx as nx
-import numpy as np
 from typing import (
     Any,
     Callable,
@@ -16,6 +14,9 @@ from typing import (
     Tuple,
     TypeVar,
 )
+
+import networkx as nx
+import numpy as np
 
 import pyrigi._graph_input_check
 import pyrigi.generic_rigidity as generic_rigidity
