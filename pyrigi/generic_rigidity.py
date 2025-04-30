@@ -2,18 +2,18 @@
 This module provides algorithms related to generic rigidity.
 """
 
-from itertools import combinations
 import math
+from itertools import combinations
+from typing import TypeVar
 
 import networkx as nx
 from sympy import oo
-from typing import TypeVar
 
-from pyrigi.data_type import Vertex, Inf
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
 import pyrigi.extension as graph_extension
 import pyrigi.sparsity as sparsity
+from pyrigi.data_type import Inf, Vertex
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
 

@@ -9,8 +9,7 @@ import numpy as np
 import sympy as sp
 from sympy import Matrix, MatrixBase
 
-from pyrigi.data_type import Sequence, Number, InfFlex, Vertex, Point
-
+from pyrigi.data_type import InfFlex, Number, Point, Sequence, Vertex
 
 try:
     from IPython.core.magic import register_cell_magic

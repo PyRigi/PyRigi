@@ -8,7 +8,7 @@ from typing import Iterable
 
 import networkx as nx
 
-from pyrigi.data_type import Vertex, Edge, Sequence
+from pyrigi.data_type import Edge, Sequence, Vertex
 from pyrigi.exception import LoopError
 
 

@@ -2,8 +2,8 @@
 This module provides algorithms related to the generic rigidity matroid.
 """
 
-from itertools import combinations
 from copy import deepcopy
+from itertools import combinations
 
 import networkx as nx
 
@@ -11,7 +11,7 @@ import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
 import pyrigi.generic_rigidity as generic_rigidity
 import pyrigi.sparsity as sparsity
-from pyrigi.data_type import Vertex, Edge
+from pyrigi.data_type import Edge, Vertex
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
 

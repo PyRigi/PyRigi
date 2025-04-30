@@ -9,7 +9,6 @@ from typing import Hashable, TypeAlias
 
 import sympy as sp
 
-
 Vertex: TypeAlias = Hashable
 """
 Any hashable type can be used for a :obj:`pyrigi.data_type.Vertex`.

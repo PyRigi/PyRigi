@@ -1,13 +1,13 @@
 import networkx as nx
 import pytest
+from test_graph import TEST_WRAPPED_FUNCTIONS
 
 import pyrigi.extension as extension
 import pyrigi.generic_rigidity as generic_rigidity
 import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
-from pyrigi.graph import Graph
-from test_graph import TEST_WRAPPED_FUNCTIONS
 from pyrigi.exception import NotSupportedValueError
+from pyrigi.graph import Graph
 
 
 ###############################################################

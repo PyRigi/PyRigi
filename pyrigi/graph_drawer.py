@@ -6,15 +6,15 @@ from collections.abc import Sequence
 
 import networkx as nx
 import numpy as np
-from IPython.display import display
 from ipycanvas import MultiCanvas, hold_canvas
-from ipywidgets import Output, ColorPicker, HBox, VBox, IntSlider, Checkbox, Label
 from ipyevents import Event
+from IPython.display import display
+from ipywidgets import Checkbox, ColorPicker, HBox, IntSlider, Label, Output, VBox
 from sympy import Rational
 
 from pyrigi.data_type import Edge
-from pyrigi.graph import Graph
 from pyrigi.framework import Framework
+from pyrigi.graph import Graph
 
 
 class GraphDrawer(object):

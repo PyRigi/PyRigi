@@ -2,7 +2,6 @@ import pytest
 
 from pyrigi._pebble_digraph import PebbleDiGraph
 
-
 """
 Create the most used directed graphs. Note that the edges added here are in fact directed.
 If you want to add them in a way so that they necessarily keep the pebble game directions

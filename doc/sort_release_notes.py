@@ -1,5 +1,5 @@
-import sys
 import re
+import sys
 from collections import defaultdict
 
 # Define categories for users and developers

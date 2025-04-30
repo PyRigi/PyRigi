@@ -5,31 +5,30 @@ Module for rigidity related graph properties.
 from __future__ import annotations
 
 import math
-from typing import Collection, Iterable, Optional
 from copy import deepcopy
 from itertools import combinations
+from typing import Collection, Iterable, Optional
 
 import networkx as nx
 from sympy import Matrix
 
-import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
+import pyrigi._input_check as _input_check
 import pyrigi._pebble_digraph
 import pyrigi.apex
+import pyrigi.extension
 import pyrigi.generic_rigidity
 import pyrigi.global_rigidity
 import pyrigi.graph_general
-import pyrigi.extension
 import pyrigi.matroidal_rigidity
 import pyrigi.redundant_rigidity
 import pyrigi.separating_set
 from pyrigi._wrap import copy_doc
-from pyrigi.data_type import Vertex, Edge, Point, Inf, Sequence
+from pyrigi.data_type import Edge, Inf, Point, Sequence, Vertex
 from pyrigi.exception import NotSupportedValueError
-from pyrigi.misc import _generate_category_tables
 from pyrigi.misc import _doc_category as doc_category
+from pyrigi.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle
-
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 

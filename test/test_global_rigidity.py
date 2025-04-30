@@ -1,17 +1,16 @@
-import pytest
-
-import networkx as nx
 from itertools import combinations
 
-import pyrigi.graphDB as graphs
-import pyrigi.global_rigidity as global_rigidity
-from pyrigi.graph import Graph
+import networkx as nx
+import pytest
 from test_graph import (
     TEST_WRAPPED_FUNCTIONS,
     read_globally,
     read_redundantly,
 )
 
+import pyrigi.global_rigidity as global_rigidity
+import pyrigi.graphDB as graphs
+from pyrigi.graph import Graph
 
 ###############################################################
 # is_globally_rigid

@@ -1,13 +1,13 @@
-from itertools import product
 import math
+from itertools import product
 
 import networkx as nx
 import pytest
+from test_graph import TEST_WRAPPED_FUNCTIONS
 
 import pyrigi.apex as apex
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
-from test_graph import TEST_WRAPPED_FUNCTIONS
 
 
 ###############################################################

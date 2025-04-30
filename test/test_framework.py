@@ -1,16 +1,16 @@
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 from sympy import Matrix, pi, sqrt, sympify
-import numpy as np
 
-import pyrigi.graphDB as graphs
 import pyrigi.frameworkDB as fws
+import pyrigi.graphDB as graphs
 from pyrigi.exception import LoopError
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
-from pyrigi.misc import point_to_vector, sympy_expr_to_float, is_zero, is_zero_vector
+from pyrigi.misc import is_zero, is_zero_vector, point_to_vector, sympy_expr_to_float
 
 
 def test__str__():

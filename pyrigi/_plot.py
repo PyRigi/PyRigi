@@ -2,26 +2,26 @@
 Module for plotting functionality.
 """
 
+import distinctipy
 import networkx as nx
 import numpy as np
-import distinctipy
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from sympy import Matrix
 
 from pyrigi.data_type import (
-    Vertex,
-    Edge,
-    Point,
-    InfFlex,
-    Stress,
-    Sequence,
-    Number,
     DirectedEdge,
+    Edge,
+    InfFlex,
+    Number,
+    Point,
+    Sequence,
+    Stress,
+    Vertex,
 )
 from pyrigi.framework import Framework
+from pyrigi.misc import is_zero_vector, sympy_expr_to_float
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
-from pyrigi.misc import sympy_expr_to_float, is_zero_vector
 
 
 def resolve_inf_flex(

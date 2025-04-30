@@ -4,13 +4,13 @@
 # Version 2.0, January 2004
 # http://www.apache.org/licenses/
 
-import inspect
-from inspect import Parameter, Signature, _empty
-from typing import Any, Callable, Type, TypeVar, cast, ParamSpec
-from typing import get_origin, get_args
-from types import GetSetDescriptorType, ModuleType
-import sys
 import functools
+import inspect
+import sys
+from inspect import Parameter, Signature, _empty
+from types import GetSetDescriptorType, ModuleType
+from typing import Any, Callable, ParamSpec, Type, TypeVar, cast, get_args, get_origin
+
 import pytest
 
 from pyrigi.graph import Graph

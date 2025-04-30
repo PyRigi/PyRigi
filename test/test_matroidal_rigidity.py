@@ -1,11 +1,11 @@
 import networkx as nx
 import pytest
+from test_graph import TEST_WRAPPED_FUNCTIONS, read_sparsity
 
 import pyrigi.graphDB as graphs
 import pyrigi.matroidal_rigidity as matroidal_rigidity
 from pyrigi.graph import Graph
 from pyrigi.warning import RandomizedAlgorithmWarning
-from test_graph import TEST_WRAPPED_FUNCTIONS, read_sparsity
 
 Rd_algorithms_all_d = ["default", "randomized"]
 Rd_algorithms_d1 = Rd_algorithms_all_d + ["graphic"]

@@ -1,13 +1,13 @@
+from copy import deepcopy
 from math import isclose
 
-import sympy as sp
 import numpy as np
 import pytest
-from copy import deepcopy
+import sympy as sp
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
-from pyrigi import Motion, Framework, ParametricMotion, ApproximateMotion, Graph
+from pyrigi import ApproximateMotion, Framework, Graph, Motion, ParametricMotion
 from pyrigi.misc import is_zero_vector
 
 
