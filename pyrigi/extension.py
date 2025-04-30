@@ -1,5 +1,5 @@
 """
-This module provides algorithms related to k-estensions of graphs.
+This module provides algorithms related to k-extensions of graphs.
 """
 
 import math

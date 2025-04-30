@@ -1,5 +1,5 @@
+import networkx as nx
 import pytest
-from networkx import Graph as NXGraph
 
 import pyrigi.graphDB as graphs
 import pyrigi.matroidal_rigidity as matroidal_rigidity
@@ -29,7 +29,7 @@ def test_is_Rd_circuit_d1(graph, algorithm):
     assert graph.is_Rd_circuit(dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_circuit(
-            NXGraph(graph), dim=1, algorithm=algorithm
+            nx.Graph(graph), dim=1, algorithm=algorithm
         )
 
 
@@ -54,7 +54,7 @@ def test_is_not_Rd_circuit_d1(graph, algorithm):
     assert not graph.is_Rd_circuit(dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_circuit(
-            NXGraph(graph), dim=1, algorithm=algorithm
+            nx.Graph(graph), dim=1, algorithm=algorithm
         )
 
 
@@ -78,7 +78,7 @@ def test_is_Rd_circuit_d2(graph, algorithm):
     assert graph.is_Rd_circuit(dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_circuit(
-            NXGraph(graph), dim=2, algorithm=algorithm
+            nx.Graph(graph), dim=2, algorithm=algorithm
         )
 
 
@@ -120,7 +120,7 @@ def test_is_not_Rd_circuit_d2(graph, algorithm):
     assert not graph.is_Rd_circuit(dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_circuit(
-            NXGraph(graph), dim=2, algorithm=algorithm
+            nx.Graph(graph), dim=2, algorithm=algorithm
         )
 
 
@@ -137,7 +137,7 @@ def test_is_Rd_circuit_d3(graph, algorithm):
     assert graph.is_Rd_circuit(dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_circuit(
-            NXGraph(graph), dim=3, algorithm=algorithm
+            nx.Graph(graph), dim=3, algorithm=algorithm
         )
 
 
@@ -156,7 +156,7 @@ def test_is_not_Rd_circuit_d3(graph, algorithm):
     assert not graph.is_Rd_circuit(dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_circuit(
-            NXGraph(graph), dim=3, algorithm=algorithm
+            nx.Graph(graph), dim=3, algorithm=algorithm
         )
 
 
@@ -177,7 +177,7 @@ def test_is_Rd_closed(graph, dim, algorithm):
     assert graph.is_Rd_closed(dim=dim, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_closed(
-            NXGraph(graph), dim=dim, algorithm=algorithm
+            nx.Graph(graph), dim=dim, algorithm=algorithm
         )
 
 
@@ -193,7 +193,7 @@ def test_is_not_Rd_closed(graph, dim, algorithm):
     assert not graph.is_Rd_closed(dim=dim, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_closed(
-            NXGraph(graph), dim=dim, algorithm=algorithm
+            nx.Graph(graph), dim=dim, algorithm=algorithm
         )
 
 
@@ -209,7 +209,7 @@ def test_is_Rd_closed_d1(graph, algorithm):
     assert graph.is_Rd_closed(dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_closed(
-            NXGraph(graph), dim=1, algorithm=algorithm
+            nx.Graph(graph), dim=1, algorithm=algorithm
         )
 
 
@@ -224,7 +224,7 @@ def test_is_not_Rd_closed_d1(graph, algorithm):
     assert not graph.is_Rd_closed(dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_closed(
-            NXGraph(graph), dim=1, algorithm=algorithm
+            nx.Graph(graph), dim=1, algorithm=algorithm
         )
 
 
@@ -241,7 +241,7 @@ def test_is_Rd_closed_d2(graph, algorithm):
     assert graph.is_Rd_closed(dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_closed(
-            NXGraph(graph), dim=2, algorithm=algorithm
+            nx.Graph(graph), dim=2, algorithm=algorithm
         )
 
 
@@ -258,7 +258,7 @@ def test_is_not_Rd_closed_d2(graph, algorithm):
     assert not graph.is_Rd_closed(dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_closed(
-            NXGraph(graph), dim=2, algorithm=algorithm
+            nx.Graph(graph), dim=2, algorithm=algorithm
         )
 
 
@@ -282,7 +282,7 @@ def test_is_Rd_dependent_d1(graph, algorithm):
     assert graph.is_Rd_dependent(dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_independent(
-            NXGraph(graph), dim=1, algorithm=algorithm
+            nx.Graph(graph), dim=1, algorithm=algorithm
         )
 
 
@@ -299,7 +299,7 @@ def test_is_Rd_independent_d1(graph, algorithm):
     assert graph.is_Rd_independent(dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_independent(
-            NXGraph(graph), dim=1, algorithm=algorithm
+            nx.Graph(graph), dim=1, algorithm=algorithm
         )
 
 
@@ -320,7 +320,7 @@ def test_is_Rd_dependent_d2(graph, algorithm):
     assert graph.is_Rd_dependent(dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_independent(
-            NXGraph(graph), dim=2, algorithm=algorithm
+            nx.Graph(graph), dim=2, algorithm=algorithm
         )
 
 
@@ -342,7 +342,7 @@ def test_is_Rd_independent_d2(graph, algorithm):
     assert graph.is_Rd_independent(dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_independent(
-            NXGraph(graph), dim=2, algorithm=algorithm
+            nx.Graph(graph), dim=2, algorithm=algorithm
         )
 
 
@@ -355,7 +355,7 @@ def test_is_Rd_dependent_d3(graph, algorithm):
     assert graph.is_Rd_dependent(dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not matroidal_rigidity.is_Rd_independent(
-            NXGraph(graph), dim=3, algorithm=algorithm
+            nx.Graph(graph), dim=3, algorithm=algorithm
         )
 
 
@@ -375,7 +375,7 @@ def test_is_Rd_independent_d3(graph, algorithm):
     assert graph.is_Rd_independent(dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert matroidal_rigidity.is_Rd_independent(
-            NXGraph(graph), dim=3, algorithm=algorithm
+            nx.Graph(graph), dim=3, algorithm=algorithm
         )
 
 
@@ -385,4 +385,4 @@ def test_is_Rd_independent_d3_warning():
         G.is_Rd_independent(dim=3)
     if TEST_WRAPPED_FUNCTIONS:
         with pytest.warns(RandomizedAlgorithmWarning):
-            matroidal_rigidity.is_Rd_independent(NXGraph(G), dim=3)
+            matroidal_rigidity.is_Rd_independent(nx.Graph(G), dim=3)

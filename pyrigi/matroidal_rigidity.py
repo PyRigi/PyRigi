@@ -106,6 +106,41 @@ def is_Rd_independent(
     raise NotSupportedValueError(algorithm, "algorithm", is_Rd_independent)
 
 
+def is_Rd_dependent(
+    graph: nx.Graph,
+    dim: int = 2,
+    algorithm: str = "default",
+    use_precomputed_pebble_digraph: bool = False,
+) -> bool:
+    """
+    Return whether the edge set is dependent in the generic ``dim``-rigidity matroid.
+
+    See :meth:`.is_Rd_independent` for the possible parameters.
+
+    Definitions
+    -----------
+    * :prf:ref:`Dependence <def-matroid>`
+    * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
+
+    Examples
+    --------
+    >>> from pyrigi import graphDB
+    >>> G = graphDB.K33plusEdge()
+    >>> G.is_Rd_dependent()
+    True
+
+    Notes
+    -----
+    See :meth:`.is_independent` for details.
+    """
+    return not is_Rd_independent(
+        graph,
+        dim,
+        algorithm=algorithm,
+        use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
+    )
+
+
 def is_Rd_circuit(  # noqa: C901
     graph: nx.Graph,
     dim: int = 2,
@@ -230,7 +265,7 @@ def is_Rd_circuit(  # noqa: C901
         G = deepcopy(graph)
         for e in G.edges:
             G.remove_edge(*e)
-            if not is_Rd_independent(G, dim=dim, algorithm="randomized"):
+            if is_Rd_dependent(G, dim=dim, algorithm="randomized"):
                 return False
             G.add_edge(*e)
         return True

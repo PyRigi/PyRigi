@@ -15,6 +15,7 @@ from sympy import Matrix
 import pyrigi._input_check as _input_check
 import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._pebble_digraph
+import pyrigi.apex
 import pyrigi.generic_rigidity
 import pyrigi.global_rigidity
 import pyrigi.graph_general
@@ -731,20 +732,12 @@ class Graph(nx.Graph):
             )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_vertex_redundantly_rigid)
     def is_vertex_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is vertex redundantly ``dim``-rigid.
-
-        See :meth:`.is_k_vertex_redundantly_rigid` (using ``k=1``) for details.
-
-        Definitions
-        -----------
-        :prf:ref:`vertex redundantly dim-rigid <def-redundantly-rigid-graph>`
-        """
-        return pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid(
-            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        return pyrigi.redundant_rigidity.is_vertex_redundantly_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
@@ -765,20 +758,12 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_min_vertex_redundantly_rigid)
     def is_min_vertex_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is minimally vertex redundantly ``dim``-rigid.
-
-        See :meth:`.is_min_k_vertex_redundantly_rigid` (using ``k=1``) for details.
-
-        Definitions
-        -----------
-        :prf:ref:`Minimal vertex redundant dim-rigidity <def-min-redundantly-rigid-graph>`
-        """
-        return pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        return pyrigi.redundant_rigidity.is_min_vertex_redundantly_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
@@ -795,20 +780,12 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_redundantly_rigid)
     def is_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is redundantly ``dim``-rigid.
-
-        See :meth:`.is_k_redundantly_rigid` (using ``k=1``) for details.
-
-        Definitions
-        -----------
-        :prf:ref:`Redundant dim-rigidity<def-redundantly-rigid-graph>`
-        """
-        return pyrigi.redundant_rigidity.is_k_redundantly_rigid(
-            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        return pyrigi.redundant_rigidity.is_redundantly_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
@@ -825,20 +802,12 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
+    @copy_doc(pyrigi.redundant_rigidity.is_min_redundantly_rigid)
     def is_min_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        """
-        Return whether the graph is minimally redundantly ``dim``-rigid.
-
-        See :meth:`.is_min_k_redundantly_rigid` (using ``k=1``) for details.
-
-        Definitions
-        -----------
-        :prf:ref:`Minimal redundant dim-rigidity <def-min-redundantly-rigid-graph>`
-        """
-        return pyrigi.redundant_rigidity.is_min_k_redundantly_rigid(
-            self, 1, dim=dim, algorithm=algorithm, prob=prob
+        return pyrigi.redundant_rigidity.is_min_redundantly_rigid(
+            self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
@@ -898,36 +867,16 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Rigidity Matroid")
+    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_dependent)
     def is_Rd_dependent(
         self,
         dim: int = 2,
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        """
-        Return whether the edge set is dependent in the generic ``dim``-rigidity matroid.
-
-        See :meth:`.is_Rd_independent` for the possible parameters.
-
-        Definitions
-        -----------
-        * :prf:ref:`Dependence <def-matroid>`
-        * :prf:ref:`Generic rigidity matroid <def-gen-rigidity-matroid>`
-
-        Examples
-        --------
-        >>> from pyrigi import graphDB
-        >>> G = graphDB.K33plusEdge()
-        >>> G.is_Rd_dependent()
-        True
-
-        Notes
-        -----
-        See :meth:`.is_independent` for details.
-        """
-        return not pyrigi.matroidal_rigidity.is_Rd_independent(
+        return pyrigi.matroidal_rigidity.is_Rd_dependent(
             self,
-            dim,
+            dim=dim,
             algorithm=algorithm,
             use_precomputed_pebble_digraph=use_precomputed_pebble_digraph,
         )
@@ -1413,166 +1362,44 @@ class Graph(nx.Graph):
         return G
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.apex.is_vertex_apex)
     def is_vertex_apex(self) -> bool:
-        """
-        Return whether the graph is vertex apex.
-
-        Alias for :meth:`~.Graph.is_k_vertex_apex` with ``k=1``.
-
-        Definitions
-        -----------
-        :prf:ref:`Vertex apex graph <def-apex-graph>`
-        """
-        return self.is_k_vertex_apex(1)
+        return pyrigi.apex.is_vertex_apex(self)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.apex.is_k_vertex_apex)
     def is_k_vertex_apex(self, k: int) -> bool:
-        """
-        Return whether the graph is ``k``-vertex apex.
-
-        Definitions
-        -----------
-        :prf:ref:`k-vertex apex graph <def-apex-graph>`
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(5)
-        >>> G.is_k_vertex_apex(1)
-        True
-        """
-        _input_check.integrality_and_range(
-            k, "k", min_val=0, max_val=self.number_of_nodes()
-        )
-        _G = deepcopy(self)
-        for vertex_list in combinations(self.nodes, k):
-            incident_edges = list(_G.edges(vertex_list))
-            _G.delete_vertices(vertex_list)
-            if nx.is_planar(_G):
-                return True
-            _G.add_edges(incident_edges)
-        return False
+        return pyrigi.apex.is_k_vertex_apex(self, k)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.apex.is_edge_apex)
     def is_edge_apex(self) -> bool:
-        """
-        Return whether the graph is edge apex.
-
-        Alias for :meth:`~.Graph.is_k_edge_apex` with ``k=1``
-
-        Definitions
-        -----------
-        :prf:ref:`Edge apex graph <def-apex-graph>`
-        """
-        return self.is_k_edge_apex(1)
+        return pyrigi.apex.is_edge_apex(self)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.apex.is_k_edge_apex)
     def is_k_edge_apex(self, k: int) -> bool:
-        """
-        Return whether the graph is ``k``-edge apex.
-
-        Definitions
-        -----------
-        :prf:ref:`k-edge apex graph <def-apex-graph>`
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(5)
-        >>> G.is_k_edge_apex(1)
-        True
-        """
-        _input_check.integrality_and_range(
-            k, "k", min_val=0, max_val=self.number_of_edges()
-        )
-        _G = deepcopy(self)
-        for edge_list in combinations(self.edges, k):
-            _G.delete_edges(edge_list)
-            if nx.is_planar(_G):
-                return True
-            _G.add_edges(edge_list)
-        return False
+        return pyrigi.apex.is_k_edge_apex(self, k)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.apex.is_critically_vertex_apex)
     def is_critically_vertex_apex(self) -> bool:
-        """
-        Return whether the graph is critically vertex apex.
-
-        Alias for :meth:`~.Graph.is_critically_k_vertex_apex` with ``k=1``.
-
-        Definitions
-        -----------
-        :prf:ref:`Critically vertex apex graph <def-apex-graph>`
-        """
-        return self.is_critically_k_vertex_apex(1)
+        return pyrigi.apex.is_critically_vertex_apex(self)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.apex.is_critically_k_vertex_apex)
     def is_critically_k_vertex_apex(self, k: int) -> bool:
-        """
-        Return whether the graph is critically ``k``-vertex apex.
-
-        Definitions
-        -----------
-        :prf:ref:`Critically k-vertex apex graph <def-apex-graph>`
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(5)
-        >>> G.is_critically_k_vertex_apex(1)
-        True
-        """
-        _input_check.integrality_and_range(
-            k, "k", min_val=0, max_val=self.number_of_nodes()
-        )
-        _G = deepcopy(self)
-        for vertex_list in combinations(self.nodes, k):
-            incident_edges = list(_G.edges(vertex_list))
-            _G.delete_vertices(vertex_list)
-            if not nx.is_planar(_G):
-                return False
-            _G.add_edges(incident_edges)
-        return True
+        return pyrigi.apex.is_critically_k_vertex_apex(self, k)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.apex.is_critically_edge_apex)
     def is_critically_edge_apex(self) -> bool:
-        """
-        Return whether the graph is critically edge apex.
-
-        Alias for :meth:`~.Graph.is_critically_k_edge_apex` with ``k=1``.
-
-        Definitions
-        -----------
-        :prf:ref:`Critically edge apex graph <def-apex-graph>`
-        """
-        return self.is_critically_k_edge_apex(1)
+        return pyrigi.apex.is_critically_edge_apex(self)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(pyrigi.apex.is_critically_k_edge_apex)
     def is_critically_k_edge_apex(self, k: int) -> bool:
-        """
-        Return whether the graph is critically ``k``-edge apex.
-
-        Definitions
-        -----------
-        :prf:ref:`Critically k-edge apex graph <def-apex-graph>`
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> G = graphs.Complete(5)
-        >>> G.is_critically_k_edge_apex(1)
-        True
-        """
-        _input_check.integrality_and_range(
-            k, "k", min_val=0, max_val=self.number_of_edges()
-        )
-        _G = deepcopy(self)
-        for edge_list in combinations(self.edges, k):
-            _G.delete_edges(edge_list)
-            if not nx.is_planar(_G):
-                return False
-            _G.add_edges(edge_list)
-        return True
+        return pyrigi.apex.is_critically_k_edge_apex(self, k)
 
     @doc_category("Graph manipulation")
     def intersection(self, other_graph: Graph) -> Graph:

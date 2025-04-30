@@ -1,5 +1,5 @@
 import pytest
-from networkx import Graph as NXGraph
+import networkx as nx
 
 import pyrigi.graphDB as graphs
 import pyrigi.redundant_rigidity as redundant_rigidity
@@ -66,7 +66,7 @@ def test_is_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
     assert graph.is_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=1, algorithm=algorithm
+            nx.Graph(graph), k, dim=1, algorithm=algorithm
         )
 
 
@@ -84,7 +84,7 @@ def test_is_not_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
     assert not graph.is_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=1, algorithm=algorithm
+            nx.Graph(graph), k, dim=1, algorithm=algorithm
         )
 
 
@@ -109,7 +109,7 @@ def test_is_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
     assert graph.is_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=2, algorithm=algorithm
+            nx.Graph(graph), k, dim=2, algorithm=algorithm
         )
 
 
@@ -130,7 +130,7 @@ def test_is_not_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
     assert not graph.is_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=2, algorithm=algorithm
+            nx.Graph(graph), k, dim=2, algorithm=algorithm
         )
 
 
@@ -162,7 +162,7 @@ def test_is_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
     assert graph.is_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=3, algorithm=algorithm
+            nx.Graph(graph), k, dim=3, algorithm=algorithm
         )
 
 
@@ -193,7 +193,7 @@ def test_is_not_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
     assert not graph.is_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=3, algorithm=algorithm
+            nx.Graph(graph), k, dim=3, algorithm=algorithm
         )
 
 
@@ -220,7 +220,7 @@ def test_is_min_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
     assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=1, algorithm=algorithm
+            nx.Graph(graph), k, dim=1, algorithm=algorithm
         )
 
 
@@ -238,7 +238,7 @@ def test_is_not_min_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
     assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=1, algorithm=algorithm
+            nx.Graph(graph), k, dim=1, algorithm=algorithm
         )
 
 
@@ -262,7 +262,7 @@ def test_is_min_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
     assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=2, algorithm=algorithm
+            nx.Graph(graph), k, dim=2, algorithm=algorithm
         )
 
 
@@ -280,7 +280,7 @@ def test_is_not_min_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
     assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=2, algorithm=algorithm
+            nx.Graph(graph), k, dim=2, algorithm=algorithm
         )
 
 
@@ -296,7 +296,7 @@ def test_is_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
     assert graph.is_min_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=3, algorithm=algorithm
+            nx.Graph(graph), k, dim=3, algorithm=algorithm
         )
 
 
@@ -329,7 +329,7 @@ def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
     assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            NXGraph(graph), k, dim=3, algorithm=algorithm
+            nx.Graph(graph), k, dim=3, algorithm=algorithm
         )
 
 
@@ -400,7 +400,7 @@ def test_is_k_redundantly_rigid_d1(graph, k, algorithm):
     assert graph.is_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_k_redundantly_rigid(
-            NXGraph(graph), k, dim=1, algorithm=algorithm
+            nx.Graph(graph), k, dim=1, algorithm=algorithm
         )
 
 
@@ -417,7 +417,7 @@ def test_is_not_k_redundantly_rigid_d1(graph, k, algorithm):
     assert not graph.is_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_k_redundantly_rigid(
-            NXGraph(graph), k, dim=1, algorithm=algorithm
+            nx.Graph(graph), k, dim=1, algorithm=algorithm
         )
 
 
@@ -444,7 +444,7 @@ def test_is_k_redundantly_rigid_d2(graph, k, algorithm):
     assert graph.is_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_k_redundantly_rigid(
-            NXGraph(graph), k, dim=2, algorithm=algorithm
+            nx.Graph(graph), k, dim=2, algorithm=algorithm
         )
 
 
@@ -473,7 +473,7 @@ def test_is_not_k_redundantly_rigid_d2(graph, k, algorithm):
     assert not graph.is_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_k_redundantly_rigid(
-            NXGraph(graph), k, dim=2, algorithm=algorithm
+            nx.Graph(graph), k, dim=2, algorithm=algorithm
         )
 
 
@@ -506,7 +506,7 @@ def test_is_k_redundantly_rigid_d3(graph, k, algorithm):
     assert graph.is_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_k_redundantly_rigid(
-            NXGraph(graph), k, dim=3, algorithm=algorithm
+            nx.Graph(graph), k, dim=3, algorithm=algorithm
         )
 
 
@@ -533,7 +533,7 @@ def test_is_not_k_redundantly_rigid_d3(graph, k, algorithm):
     assert not graph.is_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_k_redundantly_rigid(
-            NXGraph(graph), k, dim=3, algorithm=algorithm
+            nx.Graph(graph), k, dim=3, algorithm=algorithm
         )
 
 
@@ -560,7 +560,7 @@ def test_is_min_k_redundantly_rigid_d1(graph, k, algorithm):
     assert graph.is_min_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_min_k_redundantly_rigid(
-            NXGraph(graph), k, dim=1, algorithm=algorithm
+            nx.Graph(graph), k, dim=1, algorithm=algorithm
         )
 
 
@@ -580,7 +580,7 @@ def test_is_not_min_k_redundantly_rigid_d1(graph, k, algorithm):
     assert not graph.is_min_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_min_k_redundantly_rigid(
-            NXGraph(graph), k, dim=1, algorithm=algorithm
+            nx.Graph(graph), k, dim=1, algorithm=algorithm
         )
 
 
@@ -604,7 +604,7 @@ def test_is_min_k_redundantly_rigid_d2(graph, k, algorithm):
     assert graph.is_min_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_min_k_redundantly_rigid(
-            NXGraph(graph), k, dim=2, algorithm=algorithm
+            nx.Graph(graph), k, dim=2, algorithm=algorithm
         )
 
 
@@ -623,7 +623,7 @@ def test_is_not_min_k_redundantly_rigid_d2(graph, k, algorithm):
     assert not graph.is_min_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_min_k_redundantly_rigid(
-            NXGraph(graph), k, dim=2, algorithm=algorithm
+            nx.Graph(graph), k, dim=2, algorithm=algorithm
         )
 
 
@@ -640,7 +640,7 @@ def test_is_min_k_redundantly_rigid_d3(graph, k, algorithm):
     assert graph.is_min_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert redundant_rigidity.is_min_k_redundantly_rigid(
-            NXGraph(graph), k, dim=3, algorithm=algorithm
+            nx.Graph(graph), k, dim=3, algorithm=algorithm
         )
 
 
@@ -660,5 +660,5 @@ def test_is_not_min_k_redundantly_rigid_d3(graph, k, algorithm):
     assert not graph.is_min_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
     if TEST_WRAPPED_FUNCTIONS:
         assert not redundant_rigidity.is_min_k_redundantly_rigid(
-            NXGraph(graph), k, dim=3, algorithm=algorithm
+            nx.Graph(graph), k, dim=3, algorithm=algorithm
         )
