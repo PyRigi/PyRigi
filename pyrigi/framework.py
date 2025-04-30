@@ -2713,7 +2713,9 @@ class Framework(object):
         return new_framework
 
     @doc_category("Framework manipulation")
-    def rotate2D(self, angle: float, inplace: bool = True) -> None | Framework:
+    def rotate2D(
+        self, angle: float, rotation_center: Point = [0, 0], inplace: bool = True
+    ) -> None | Framework:
         """
         Rotate the planar framework counterclockwise.
 
@@ -2721,26 +2723,131 @@ class Framework(object):
         ----------
         angle:
             Rotation angle
+        rotation_center:
+            The center of rotation.
+            By default, this is the origin.
         inplace:
             If ``True`` (default), then this framework is rotated.
             Otherwise, a new rotated framework is returned.
         """
-
-        if self.dim != 2:
-            raise ValueError("This realization is not in dimension 2!")
+        _input_check.dimension_for_algorithm(self.dim, [2], "rotate2D")
+        _input_check.equal(len(rotation_center), 2, "length of the `rotation_center`")
 
         rotation_matrix = Matrix(
             [[sp.cos(angle), -sp.sin(angle)], [sp.sin(angle), sp.cos(angle)]]
         )
 
-        if inplace:
-            for v, pos in self._realization.items():
-                self._realization[v] = rotation_matrix * pos
-            return
+        opposite_rotation_center = [-rotation_center[0], -rotation_center[1]]
 
-        new_framework = deepcopy(self)
-        new_framework.rotate2D(angle, True)
-        return new_framework
+        if inplace:
+            rotated_framework = self
+        else:
+            rotated_framework = deepcopy(self)
+
+        rotated_framework.translate(opposite_rotation_center, inplace=True)
+        for v, pos in rotated_framework._realization.items():
+            rotated_framework._realization[v] = rotation_matrix * pos
+        rotated_framework.translate(rotation_center, inplace=True)
+
+        if inplace:
+            return
+        else:
+            return rotated_framework
+
+    @doc_category("Framework manipulation")
+    def rotate3D(
+        self,
+        angle: Number,
+        axis_direction: Sequence[Number] = [0, 0, 1],
+        axis_shift: Point = [0, 0, 0],
+        inplace: bool = True,
+    ) -> None | Framework:
+        """
+        Rotate the spatial framework counterclockwise around a specified rotation axis.
+
+        Parameters
+        ----------
+        angle:
+            Rotation angle around the axis of rotation.
+        axis_direction:
+            Direction of the rotation axis.
+            By default, this is the ``z``-axis.
+        axis_shift:
+            A point through which the rotation axis passes.
+            By default, this is the origin.
+        inplace:
+            If ``True`` (default), then this framework is rotated.
+            Otherwise, a new rotated framework is returned.
+        """
+        _input_check.dimension_for_algorithm(self.dim, [3], "rotate3D")
+        _input_check.equal(len(axis_direction), 3, "length of the `axis_direction`")
+        _input_check.equal(len(axis_shift), 3, "length of the `axis_shift`")
+        if is_zero_vector(axis_direction):
+            raise ValueError(
+                "The parameter `axis_direction` needs to be a non-zero vector."
+            )
+
+        versor_dir_axis = [
+            pos / sp.sqrt(sum(coord**2 for coord in axis_direction))
+            for pos in axis_direction
+        ]
+        rotation_matrix = Matrix(
+            [
+                [
+                    sp.cos(angle) + versor_dir_axis[0] ** 2 * (1 - sp.cos(angle)),
+                    versor_dir_axis[0] * versor_dir_axis[1] * (1 - sp.cos(angle))
+                    - versor_dir_axis[2] * sp.sin(angle),
+                    versor_dir_axis[0] * versor_dir_axis[2] * (1 - sp.cos(angle))
+                    + versor_dir_axis[1] * sp.sin(angle),
+                ],
+                [
+                    versor_dir_axis[0] * versor_dir_axis[1] * (1 - sp.cos(angle))
+                    + versor_dir_axis[2] * sp.sin(angle),
+                    sp.cos(angle) + versor_dir_axis[1] ** 2 * (1 - sp.cos(angle)),
+                    versor_dir_axis[1] * versor_dir_axis[2] * (1 - sp.cos(angle))
+                    - versor_dir_axis[0] * sp.sin(angle),
+                ],
+                [
+                    versor_dir_axis[0] * versor_dir_axis[2] * (1 - sp.cos(angle))
+                    - versor_dir_axis[1] * sp.sin(angle),
+                    versor_dir_axis[1] * versor_dir_axis[2] * (1 - sp.cos(angle))
+                    + versor_dir_axis[0] * sp.sin(angle),
+                    sp.cos(angle) + versor_dir_axis[2] ** 2 * (1 - sp.cos(angle)),
+                ],
+            ]
+        )
+
+        opposite_axis_shift = [-axis_shift[0], -axis_shift[1], -axis_shift[2]]
+
+        if inplace:
+            rotated_framework = self
+        else:
+            rotated_framework = deepcopy(self)
+
+        rotated_framework.translate(opposite_axis_shift, inplace=True)
+        for v, pos in rotated_framework._realization.items():
+            rotated_framework._realization[v] = rotation_matrix * pos
+        rotated_framework.translate(axis_shift, inplace=True)
+
+        if inplace:
+            return
+        else:
+            return rotated_framework
+
+    @doc_category("Framework manipulation")
+    def rotate(self, **kwargs) -> None | Framework:
+        """
+        Alias for rotating frameworks based on
+        :meth:`~Framework.rotate2D` and :meth:`~Framework.rotate3D`.
+
+        For implementation details and possible parameters, see
+        :meth:`~Framework.rotate2D` and :meth:`~Framework.rotate3D`.
+        """
+        _input_check.dimension_for_algorithm(self.dim, [2, 3], "rotate")
+        if self.dim == 2:
+            return self.rotate2D(**kwargs)
+        elif self.dim == 3:
+            return self.rotate3D(**kwargs)
 
     @doc_category("Framework manipulation")
     def projected_realization(
