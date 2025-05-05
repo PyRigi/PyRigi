@@ -59,6 +59,12 @@ class FrameworkBase(object):
     [1],
     [2]])
 
+    This a base class for :class:`.Framework`.
+
+    >>> from pyrigi import Framework
+    >>> issubclass(Framework, FrameworkBase)
+    True
+
     METHODS
 
     Notes
