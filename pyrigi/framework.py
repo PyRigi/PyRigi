@@ -27,7 +27,7 @@ from pyrigi.data_type import (
     Stress,
     Vertex,
 )
-from pyrigi.framework_base import FrameworkBase
+from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc import _doc_category as doc_category
