@@ -12,6 +12,7 @@ import sympy as sp
 from sympy import Matrix
 
 import pyrigi._graph_input_check as _graph_input_check
+import pyrigi._input_check as _input_check
 from pyrigi.data_type import (
     Edge,
     Number,
@@ -540,6 +541,30 @@ class FrameworkBase(object):
             raise ValueError(
                 f"The point {point} does not have the dimension {self.dim}!"
             )
+
+    @classmethod
+    @doc_category("Class methods")
+    def Empty(cls, dim: int = 2) -> FrameworkBase:
+        """
+        Generate an empty framework.
+
+        Parameters
+        ----------
+        dim:
+            A natural number that determines the dimension
+            in which the framework is realized.
+
+        Examples
+        ----
+        >>> F = Framework.Empty(dim=1); print(F)
+        Framework in 1-dimensional space consisting of:
+        Graph with vertices [] and edges []
+        Realization {}
+        """
+        _input_check.dimension(dim)
+        F = cls(graph=Graph(), realization={})
+        F._dim = dim
+        return F
 
 
 FrameworkBase.__doc__ = FrameworkBase.__doc__.replace(

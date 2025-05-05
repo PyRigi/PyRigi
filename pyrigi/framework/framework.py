@@ -41,12 +41,11 @@ from pyrigi.misc import (
     point_to_vector,
     sympy_expr_to_float,
 )
+from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
 }
-
-from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 
 class Framework(FrameworkBase):
@@ -951,30 +950,6 @@ class Framework(FrameworkBase):
                 for i, v in enumerate(graph.vertex_list())
             },
         )
-
-    @classmethod
-    @doc_category("Class methods")
-    def Empty(cls, dim: int = 2) -> Framework:
-        """
-        Generate an empty framework.
-
-        Parameters
-        ----------
-        dim:
-            A natural number that determines the dimension
-            in which the framework is realized.
-
-        Examples
-        ----
-        >>> F = Framework.Empty(dim=1); print(F)
-        Framework in 1-dimensional space consisting of:
-        Graph with vertices [] and edges []
-        Realization {}
-        """
-        _input_check.dimension(dim)
-        F = Framework(graph=Graph(), realization={})
-        F._dim = dim
-        return F
 
     @classmethod
     @doc_category("Class methods")
