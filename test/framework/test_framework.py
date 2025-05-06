@@ -10,7 +10,7 @@ import pyrigi.graphDB as graphs
 from pyrigi.exception import LoopError
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
-from pyrigi.misc import is_zero, is_zero_vector, point_to_vector, sympy_expr_to_float
+from pyrigi.misc import point_to_vector, sympy_expr_to_float
 
 
 def test__str__():
@@ -428,31 +428,6 @@ def test_is_redundantly_inf_rigid(framework):
 def test_is_not_redundantly_inf_rigid(framework):
     assert not framework.is_redundantly_inf_rigid()
     assert not framework.is_redundantly_inf_rigid(numerical=True)
-
-
-def test_dimension():
-    assert fws.Complete(2, 2).dim == fws.Complete(2, 2).dim
-    assert fws.Complete(2, 2).dim == 2
-    assert Framework.Empty(dim=3).dim == 3
-
-
-def test_vertex_addition():
-    F = Framework.Empty()
-    F.add_vertices([[1.0, 2.0], [1.0, 1.0], [0.0, 0.0]])
-    F_ = Framework.Empty()
-    F_.add_vertices([[1.0, 2.0], [1.0, 1.0], [0.0, 0.0]])
-    F_.set_realization(F.realization())
-    assert (
-        F.realization() == F_.realization()
-        and F.graph.vertex_list() == F_.graph.vertex_list()
-        and F.dim == F_.dim
-    )
-    assert F.graph.vertex_list() == [0, 1, 2] and len(F.graph.edges()) == 0
-    F.set_vertex_positions_from_lists([0, 2], [[3.0, 0.0], [0.0, 3.0]])
-    F_.set_vertex_pos(1, [2.0, 2.0])
-    array = F_.realization()
-    array[0] = (3, 0)
-    assert F[0] != F_[0] and F[1] != F_[1] and F[2] != F_[2]
 
 
 def test_inf_flexes():
@@ -1214,97 +1189,6 @@ def test_stresses_numerical(framework, num_stresses):
     )
 
 
-def test_edge_lengths():
-    G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
-    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: ["1/2", "4/3"]})
-    l_dict = F.edge_lengths(numerical=True)
-
-    expected_result = {
-        (0, 1): 1.0,
-        (0, 3): 1.4240006242195884,
-        (1, 2): 1.118033988749895,
-        (2, 3): 0.5443838790578374,
-    }
-
-    for edge, length in l_dict.items():
-        assert abs(length - expected_result[edge]) < 1e-10
-
-    l_dict = F.edge_lengths(numerical=False)
-
-    expected_result = {
-        (0, 1): 1,
-        (0, 3): "sqrt(1/4 + 16/9)",
-        (1, 2): "1/2 * sqrt(5)",
-        (2, 3): "sqrt(1/4 + (1/2 * sqrt(5) - 4/3)**2)",
-    }
-
-    for edge, length in l_dict.items():
-        assert is_zero(sympify(expected_result[edge]) - length)
-
-    F = fws.Cycle(6)
-    assert is_zero_vector([v - 1 for v in F.edge_lengths(numerical=False).values()])
-
-
-@pytest.mark.parametrize(
-    "framework1, framework2",
-    [
-        [
-            fws.Complete(3, dim=2),
-            Framework(Graph.from_int(7), {0: [0, 0], 1: [1, 0], 2: [1, 1]}),
-        ],
-        [
-            fws.Complete(4, dim=2),
-            fws.Complete(4, dim=2),
-        ],
-    ],
-)
-def test__input_check_underlying_graphs(framework1, framework2):
-    assert framework1._input_check_underlying_graphs(framework2) is None
-    assert framework2._input_check_underlying_graphs(framework1) is None
-
-
-@pytest.mark.parametrize(
-    "framework1, framework2",
-    [
-        [
-            fws.Complete(3, dim=2),
-            Framework(Graph.from_int(31), {0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [2, 2]}),
-        ],
-        [
-            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
-            Framework(Graph([[0, 1], [1, 2]]), {0: [0, 0], 1: [1, 0], 2: [1, 1]}),
-        ],
-    ],
-)
-def test__input_check_underlying_graphs_error(framework1, framework2):
-    with pytest.raises(ValueError):
-        framework1._input_check_underlying_graphs(framework2)
-
-
-@pytest.mark.parametrize(
-    "framework, realization, v",
-    [
-        [
-            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
-            None,
-            1,
-        ],
-        [
-            Framework.Random(Graph([[1, 2], [2, 3]])),
-            {1: [1, 0], 2: [1, 1], 3: [2, 2]},
-            2,
-        ],
-        [
-            Framework.Random(Graph([["a", 2], [2, -3]])),
-            {2: [1, 0], -3: [1, 1], "a": [2, 2]},
-            2,
-        ],
-    ],
-)
-def test__input_check_vertex_key(framework, realization, v):
-    assert framework._input_check_vertex_key(v, realization) is None
-
-
 @pytest.mark.parametrize("dim", range(1, 5))
 def test_Random(dim):
     graph = graphs.Complete(dim + 1)
@@ -1331,55 +1215,6 @@ def test_Random(dim):
 
     framework = Framework.Random(graph, dim=dim, rand_range=[10, 100], numerical=True)
     assert 10 <= min_coord(framework) and max_coord(framework) <= 100
-
-
-@pytest.mark.parametrize(
-    "framework, realization, v",
-    [
-        [
-            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
-            None,
-            4,
-        ],
-        [Framework.Random(Graph([[1, 2], [2, 3]])), {1: [1, 0], 2: [1, 1]}, 3],
-        [
-            Framework.Random(Graph([["a", 2], [2, -3]])),
-            {2: [1, 0], -3: [1, 1], "a": [2, 2]},
-            "b",
-        ],
-    ],
-)
-def test__input_check_vertex_key_error(framework, realization, v):
-    with pytest.raises(KeyError):
-        framework._input_check_vertex_key(v, realization)
-
-
-@pytest.mark.parametrize(
-    "framework, point",
-    [
-        [Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}), [2, 3]],
-        [Framework.Random(Graph([[1, 2], [2, 3]]), 3), [2, 3, 4]],
-        [Framework.Random(Graph([["a", 2], [2, -3]]), 1), [2]],
-    ],
-)
-def test__input_check_point_dimension(framework, point):
-    assert framework._input_check_point_dimension(point) is None
-
-
-@pytest.mark.parametrize(
-    "framework, point",
-    [
-        [
-            Framework(Graph([[1, 2], [2, 3]]), {1: [1, 0], 2: [1, 1], 3: [2, 2]}),
-            [2, 3, 3],
-        ],
-        [Framework.Random(Graph([[1, 2], [2, 3]]), 3), [2, 3]],
-        [Framework.Random(Graph([["a", 2], [2, -3]]), 1), []],
-    ],
-)
-def test__input_check_point_dimension_error(framework, point):
-    with pytest.raises(ValueError):
-        framework._input_check_point_dimension(point)
 
 
 @pytest.mark.meshing
