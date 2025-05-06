@@ -28,7 +28,6 @@ def test__repr__():
 
 
 def test_dimension():
-    assert fws.Complete(2, 2).dim == fws.Complete(2, 2).dim
     assert fws.Complete(2, 2).dim == 2
     assert FrameworkBase.Empty(dim=3).dim == 3
 
