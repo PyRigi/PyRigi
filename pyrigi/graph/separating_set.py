@@ -18,8 +18,8 @@ from typing import (
 import networkx as nx
 import numpy as np
 
-import pyrigi._graph_input_check
-import pyrigi.generic_rigidity as generic_rigidity
+import pyrigi.graph._input_check
+import pyrigi.graph.rigidity.generic as generic_rigidity
 from pyrigi.data_type import Edge, Vertex
 
 T = TypeVar("T")
@@ -166,7 +166,7 @@ def is_separating_set(
     True
     """
 
-    pyrigi._graph_input_check.vertex_members(graph, vertices)
+    pyrigi.graph._input_check.vertex_members(graph, vertices)
 
     def check_graph(g: nx.Graph) -> bool:
         if g.number_of_nodes() == 0:
@@ -226,8 +226,8 @@ def is_uv_separating_set(
             f"The vertex v={v} should not be among the ones in the parameter `vertices`."
         )
 
-    pyrigi._graph_input_check.vertex_members(graph, vertices)
-    pyrigi._graph_input_check.vertex_members(graph, (u, v))
+    pyrigi.graph._input_check.vertex_members(graph, vertices)
+    pyrigi.graph._input_check.vertex_members(graph, (u, v))
 
     def check_graph(g: nx.Graph) -> bool:
         if g.number_of_nodes() == 0:
@@ -349,9 +349,9 @@ def stable_separating_set(
 
     # make sure inputs are valid vertices
     if u is not None:
-        pyrigi._graph_input_check.vertex_members(graph, u)
+        pyrigi.graph._input_check.vertex_members(graph, u)
     if v is not None:
-        pyrigi._graph_input_check.vertex_members(graph, v)
+        pyrigi.graph._input_check.vertex_members(graph, v)
 
     ############################################################################
     # Connectivity

@@ -918,8 +918,8 @@ class ApproximateMotion(Motion):
 
     Examples
     --------
-    >>> from pyrigi import ApproximateMotion
     >>> from pyrigi import graphDB as graphs
+    >>> from pyrigi import ApproximateMotion
     >>> motion = ApproximateMotion.from_graph(
     ...     graphs.Cycle(4),
     ...     {0:(0,0), 1:(1,0), 2:(1,1), 3:(0,1)},

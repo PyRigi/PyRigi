@@ -4,7 +4,7 @@ from itertools import product
 import networkx as nx
 import pytest
 
-import pyrigi.apex as apex
+import pyrigi.graph.apex as apex
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from test_graph import TEST_WRAPPED_FUNCTIONS

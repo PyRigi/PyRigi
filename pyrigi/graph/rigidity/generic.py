@@ -9,10 +9,10 @@ from typing import TypeVar
 import networkx as nx
 from sympy import oo
 
-import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
-import pyrigi.extension as graph_extension
-import pyrigi.sparsity as sparsity
+import pyrigi.graph._input_check as _graph_input_check
+import pyrigi.graph.constructions.extensions as graph_extension
+import pyrigi.graph.sparsity.sparsity as sparsity
 from pyrigi.data_type import Inf, Vertex
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
@@ -447,10 +447,10 @@ def rigid_components(  # noqa: 901
         )
         components = []
 
-        import pyrigi.matroidal_rigidity
+        import pyrigi.graph.rigidity.matroidal
 
         closure = nx.Graph(
-            pyrigi.matroidal_rigidity.Rd_closure(graph, dim=2, algorithm="pebble")
+            pyrigi.graph.rigidity.matroidal.Rd_closure(graph, dim=2, algorithm="pebble")
         )
         for u, v in closure.edges:
             closure.edges[u, v]["used"] = False

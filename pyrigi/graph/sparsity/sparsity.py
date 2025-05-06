@@ -8,8 +8,8 @@ from itertools import combinations
 import networkx as nx
 
 import pyrigi._input_check as _input_check
-from pyrigi._pebble_digraph import PebbleDiGraph
 from pyrigi.exception import NotSupportedValueError
+from pyrigi.graph.sparsity._pebble_digraph import PebbleDiGraph
 
 
 def _build_pebble_digraph(graph: nx.Graph, K: int, L: int) -> None:

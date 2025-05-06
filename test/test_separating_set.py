@@ -9,7 +9,7 @@ import pytest
 import pyrigi.graphDB as graphs
 from pyrigi import Graph
 from pyrigi.data_type import Vertex
-from pyrigi.separating_set import _remove_apply_restore_vertices
+from pyrigi.graph.separating_set import _remove_apply_restore_vertices
 from test_graph import relabeled_inc
 
 

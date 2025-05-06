@@ -9,11 +9,11 @@ from random import randint
 import networkx as nx
 from sympy import zeros
 
-import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
-import pyrigi.generic_rigidity as generic_rigidity
-import pyrigi.redundant_rigidity as redundant_rigidity
-import pyrigi.sparsity as sparsity
+import pyrigi.graph._input_check as _graph_input_check
+import pyrigi.graph.rigidity.generic as generic_rigidity
+import pyrigi.graph.rigidity.redundant as redundant_rigidity
+import pyrigi.graph.sparsity.sparsity as sparsity
 from pyrigi.data_type import Vertex
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg

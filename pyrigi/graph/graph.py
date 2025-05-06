@@ -12,23 +12,22 @@ from typing import Collection, Iterable, Optional
 import networkx as nx
 from sympy import Matrix
 
-import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
-import pyrigi._pebble_digraph
-import pyrigi.apex
-import pyrigi.extension
-import pyrigi.generic_rigidity
-import pyrigi.global_rigidity
-import pyrigi.graph_general
-import pyrigi.matroidal_rigidity
-import pyrigi.redundant_rigidity
-import pyrigi.separating_set
 from pyrigi._wrap import copy_doc
 from pyrigi.data_type import Edge, Inf, Point, Sequence, Vertex
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.misc import _doc_category as doc_category
 from pyrigi.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle
+
+from . import _input_check as _graph_input_check
+from . import apex, general, separating_set
+from .constructions import extensions
+from .rigidity import generic as generic_rigidity
+from .rigidity import global_ as global_rigidity
+from .rigidity import matroidal as matroidal_rigidity
+from .rigidity import redundant as redundant_rigidity
+from .sparsity import sparsity
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
@@ -387,26 +386,26 @@ class Graph(nx.Graph):
         return [int(self.degree(v)) for v in vertex_order]
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.graph_general.min_degree)
+    @copy_doc(general.min_degree)
     def min_degree(self) -> int:
-        return pyrigi.graph_general.min_degree(self)
+        return general.min_degree(self)
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.graph_general.max_degree)
+    @copy_doc(general.max_degree)
     def max_degree(self) -> int:
-        return pyrigi.graph_general.max_degree(self)
+        return general.max_degree(self)
 
     @doc_category("Sparseness")
-    @copy_doc(pyrigi.sparsity.spanning_kl_sparse_subgraph)
+    @copy_doc(sparsity.spanning_kl_sparse_subgraph)
     def spanning_kl_sparse_subgraph(
         self, K: int, L: int, use_precomputed_pebble_digraph: bool = False
     ) -> Graph:
-        return pyrigi.sparsity.spanning_kl_sparse_subgraph(
+        return sparsity.spanning_kl_sparse_subgraph(
             self, K, L, use_precomputed_pebble_digraph=use_precomputed_pebble_digraph
         )
 
     @doc_category("Sparseness")
-    @copy_doc(pyrigi.sparsity.is_kl_sparse)
+    @copy_doc(sparsity.is_kl_sparse)
     def is_kl_sparse(
         self,
         K: int,
@@ -414,7 +413,7 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        return pyrigi.sparsity.is_kl_sparse(
+        return sparsity.is_kl_sparse(
             self,
             K,
             L,
@@ -450,7 +449,7 @@ class Graph(nx.Graph):
         return self.is_kl_sparse(2, 3, algorithm="pebble")
 
     @doc_category("Sparseness")
-    @copy_doc(pyrigi.sparsity.is_kl_tight)
+    @copy_doc(sparsity.is_kl_tight)
     def is_kl_tight(
         self,
         K: int,
@@ -458,7 +457,7 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        return pyrigi.sparsity.is_kl_tight(
+        return sparsity.is_kl_tight(
             self,
             K,
             L,
@@ -492,7 +491,7 @@ class Graph(nx.Graph):
         return self.is_kl_tight(2, 3, algorithm="pebble")
 
     @doc_category("Graph manipulation")
-    @copy_doc(pyrigi.extension.zero_extension)
+    @copy_doc(extensions.zero_extension)
     def zero_extension(
         self,
         vertices: Sequence[Vertex],
@@ -500,12 +499,12 @@ class Graph(nx.Graph):
         dim: int = 2,
         inplace: bool = False,
     ) -> Graph:
-        return pyrigi.extension.zero_extension(
+        return extensions.zero_extension(
             self, vertices=vertices, new_vertex=new_vertex, dim=dim, inplace=inplace
         )
 
     @doc_category("Graph manipulation")
-    @copy_doc(pyrigi.extension.one_extension)
+    @copy_doc(extensions.one_extension)
     def one_extension(
         self,
         vertices: Sequence[Vertex],
@@ -514,7 +513,7 @@ class Graph(nx.Graph):
         dim: int = 2,
         inplace: bool = False,
     ) -> Graph:
-        return pyrigi.extension.one_extension(
+        return extensions.one_extension(
             self,
             vertices=vertices,
             edge=edge,
@@ -524,7 +523,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Graph manipulation")
-    @copy_doc(pyrigi.extension.k_extension)
+    @copy_doc(extensions.k_extension)
     def k_extension(
         self,
         k: int,
@@ -534,7 +533,7 @@ class Graph(nx.Graph):
         dim: int = 2,
         inplace: bool = False,
     ) -> Graph:
-        return pyrigi.extension.k_extension(
+        return extensions.k_extension(
             self,
             k=k,
             vertices=vertices,
@@ -545,19 +544,19 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Graph manipulation")
-    @copy_doc(pyrigi.extension.all_k_extensions)
+    @copy_doc(extensions.all_k_extensions)
     def all_k_extensions(
         self,
         k: int,
         dim: int = 2,
         only_non_isomorphic: bool = False,
     ) -> Iterable[Graph]:
-        return pyrigi.extension.all_k_extensions(
+        return extensions.all_k_extensions(
             self, k=k, dim=dim, only_non_isomorphic=only_non_isomorphic
         )
 
     @doc_category("Graph manipulation")
-    @copy_doc(pyrigi.extension.all_extensions)
+    @copy_doc(extensions.all_extensions)
     def all_extensions(
         self,
         dim: int = 2,
@@ -565,7 +564,7 @@ class Graph(nx.Graph):
         k_min: int = 0,
         k_max: int | None = None,
     ) -> Iterable[Graph]:
-        return pyrigi.extension.all_extensions(
+        return extensions.all_extensions(
             self,
             dim=dim,
             only_non_isomorphic=only_non_isomorphic,
@@ -574,21 +573,19 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.extension.extension_sequence)
+    @copy_doc(extensions.extension_sequence)
     def extension_sequence(  # noqa: C901
         self, dim: int = 2, return_type: str = "extensions"
     ) -> list[Graph] | list | None:
-        return pyrigi.extension.extension_sequence(
-            self, dim=dim, return_type=return_type
-        )
+        return extensions.extension_sequence(self, dim=dim, return_type=return_type)
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.extension.has_extension_sequence)
+    @copy_doc(extensions.has_extension_sequence)
     def has_extension_sequence(
         self,
         dim: int = 2,
     ) -> bool:
-        return pyrigi.extension.has_extension_sequence(self, dim=dim)
+        return extensions.has_extension_sequence(self, dim=dim)
 
     @doc_category("Graph manipulation")
     def cone(self, inplace: bool = False, vertex: Vertex = None) -> Graph:
@@ -705,7 +702,7 @@ class Graph(nx.Graph):
         try:
             import lnumber
 
-            if check_min_rigid and not pyrigi.generic_rigidity.is_min_rigid(self):
+            if check_min_rigid and not generic_rigidity.is_min_rigid(self):
                 raise ValueError("The graph must be minimally 2-rigid!")
 
             if self.number_of_nodes() == 1:
@@ -731,16 +728,16 @@ class Graph(nx.Graph):
             )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.redundant_rigidity.is_vertex_redundantly_rigid)
+    @copy_doc(redundant_rigidity.is_vertex_redundantly_rigid)
     def is_vertex_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        return pyrigi.redundant_rigidity.is_vertex_redundantly_rigid(
+        return redundant_rigidity.is_vertex_redundantly_rigid(
             self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid)
+    @copy_doc(redundant_rigidity.is_k_vertex_redundantly_rigid)
     def is_k_vertex_redundantly_rigid(
         self,
         k: int,
@@ -748,7 +745,7 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         prob: float = 0.0001,
     ) -> bool:
-        return pyrigi.redundant_rigidity.is_k_vertex_redundantly_rigid(
+        return redundant_rigidity.is_k_vertex_redundantly_rigid(
             self,
             k,
             dim=dim,
@@ -757,16 +754,16 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.redundant_rigidity.is_min_vertex_redundantly_rigid)
+    @copy_doc(redundant_rigidity.is_min_vertex_redundantly_rigid)
     def is_min_vertex_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        return pyrigi.redundant_rigidity.is_min_vertex_redundantly_rigid(
+        return redundant_rigidity.is_min_vertex_redundantly_rigid(
             self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid)
+    @copy_doc(redundant_rigidity.is_min_k_vertex_redundantly_rigid)
     def is_min_k_vertex_redundantly_rigid(
         self,
         k: int,
@@ -774,21 +771,21 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         prob: float = 0.0001,
     ) -> bool:
-        return pyrigi.redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+        return redundant_rigidity.is_min_k_vertex_redundantly_rigid(
             self, k, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.redundant_rigidity.is_redundantly_rigid)
+    @copy_doc(redundant_rigidity.is_redundantly_rigid)
     def is_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        return pyrigi.redundant_rigidity.is_redundantly_rigid(
+        return redundant_rigidity.is_redundantly_rigid(
             self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.redundant_rigidity.is_k_redundantly_rigid)
+    @copy_doc(redundant_rigidity.is_k_redundantly_rigid)
     def is_k_redundantly_rigid(
         self,
         k: int,
@@ -796,21 +793,21 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         prob: float = 0.0001,
     ) -> bool:
-        return pyrigi.redundant_rigidity.is_k_redundantly_rigid(
+        return redundant_rigidity.is_k_redundantly_rigid(
             self, k, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.redundant_rigidity.is_min_redundantly_rigid)
+    @copy_doc(redundant_rigidity.is_min_redundantly_rigid)
     def is_min_redundantly_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        return pyrigi.redundant_rigidity.is_min_redundantly_rigid(
+        return redundant_rigidity.is_min_redundantly_rigid(
             self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.redundant_rigidity.is_min_k_redundantly_rigid)
+    @copy_doc(redundant_rigidity.is_min_k_redundantly_rigid)
     def is_min_k_redundantly_rigid(
         self,
         k: int,
@@ -818,12 +815,12 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         prob: float = 0.0001,
     ) -> bool:
-        return pyrigi.redundant_rigidity.is_min_k_redundantly_rigid(
+        return redundant_rigidity.is_min_k_redundantly_rigid(
             self, k, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.generic_rigidity.is_rigid)
+    @copy_doc(generic_rigidity.is_rigid)
     def is_rigid(
         self,
         dim: int = 2,
@@ -831,7 +828,7 @@ class Graph(nx.Graph):
         use_precomputed_pebble_digraph: bool = False,
         prob: float = 0.0001,
     ) -> bool:
-        return pyrigi.generic_rigidity.is_rigid(
+        return generic_rigidity.is_rigid(
             self,
             dim=dim,
             algorithm=algorithm,
@@ -840,7 +837,7 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.generic_rigidity.is_min_rigid)
+    @copy_doc(generic_rigidity.is_min_rigid)
     def is_min_rigid(
         self,
         dim: int = 2,
@@ -848,7 +845,7 @@ class Graph(nx.Graph):
         use_precomputed_pebble_digraph: bool = False,
         prob: float = 0.0001,
     ) -> bool:
-        return pyrigi.generic_rigidity.is_min_rigid(
+        return generic_rigidity.is_min_rigid(
             self,
             dim=dim,
             algorithm=algorithm,
@@ -857,23 +854,23 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.global_rigidity.is_globally_rigid)
+    @copy_doc(global_rigidity.is_globally_rigid)
     def is_globally_rigid(
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> bool:
-        return pyrigi.global_rigidity.is_globally_rigid(
+        return global_rigidity.is_globally_rigid(
             self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Rigidity Matroid")
-    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_dependent)
+    @copy_doc(matroidal_rigidity.is_Rd_dependent)
     def is_Rd_dependent(
         self,
         dim: int = 2,
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        return pyrigi.matroidal_rigidity.is_Rd_dependent(
+        return matroidal_rigidity.is_Rd_dependent(
             self,
             dim=dim,
             algorithm=algorithm,
@@ -881,14 +878,14 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Rigidity Matroid")
-    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_independent)
+    @copy_doc(matroidal_rigidity.is_Rd_independent)
     def is_Rd_independent(
         self,
         dim: int = 2,
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        return pyrigi.matroidal_rigidity.is_Rd_independent(
+        return matroidal_rigidity.is_Rd_independent(
             self,
             dim=dim,
             algorithm=algorithm,
@@ -896,14 +893,14 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Rigidity Matroid")
-    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_circuit)
+    @copy_doc(matroidal_rigidity.is_Rd_circuit)
     def is_Rd_circuit(  # noqa: C901
         self,
         dim: int = 2,
         algorithm: str = "default",
         use_precomputed_pebble_digraph: bool = False,
     ) -> bool:
-        return pyrigi.matroidal_rigidity.is_Rd_circuit(
+        return matroidal_rigidity.is_Rd_circuit(
             self,
             dim=dim,
             algorithm=algorithm,
@@ -911,32 +908,30 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Rigidity Matroid")
-    @copy_doc(pyrigi.matroidal_rigidity.is_Rd_closed)
+    @copy_doc(matroidal_rigidity.is_Rd_closed)
     def is_Rd_closed(self, dim: int = 2, algorithm: str = "default") -> bool:
-        return pyrigi.matroidal_rigidity.is_Rd_closed(
-            self, dim=dim, algorithm=algorithm
-        )
+        return matroidal_rigidity.is_Rd_closed(self, dim=dim, algorithm=algorithm)
 
     @doc_category("Rigidity Matroid")
-    @copy_doc(pyrigi.matroidal_rigidity.Rd_closure)
+    @copy_doc(matroidal_rigidity.Rd_closure)
     def Rd_closure(self, dim: int = 2, algorithm: str = "default") -> list[Edge]:
-        return pyrigi.matroidal_rigidity.Rd_closure(self, dim=dim, algorithm=algorithm)
+        return matroidal_rigidity.Rd_closure(self, dim=dim, algorithm=algorithm)
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.generic_rigidity.rigid_components)
+    @copy_doc(generic_rigidity.rigid_components)
     def rigid_components(  # noqa: 901
         self, dim: int = 2, algorithm: str = "default", prob: float = 0.0001
     ) -> list[list[Vertex]]:
-        return pyrigi.generic_rigidity.rigid_components(
+        return generic_rigidity.rigid_components(
             self, dim=dim, algorithm=algorithm, prob=prob
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.generic_rigidity.max_rigid_dimension)
+    @copy_doc(generic_rigidity.max_rigid_dimension)
     def max_rigid_dimension(
         self, algorithm: str = "randomized", prob: float = 0.0001
     ) -> int | Inf:
-        return pyrigi.generic_rigidity.max_rigid_dimension(
+        return generic_rigidity.max_rigid_dimension(
             self, algorithm=algorithm, prob=prob
         )
 
@@ -1361,44 +1356,44 @@ class Graph(nx.Graph):
         return G
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.apex.is_vertex_apex)
+    @copy_doc(apex.is_vertex_apex)
     def is_vertex_apex(self) -> bool:
-        return pyrigi.apex.is_vertex_apex(self)
+        return apex.is_vertex_apex(self)
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.apex.is_k_vertex_apex)
+    @copy_doc(apex.is_k_vertex_apex)
     def is_k_vertex_apex(self, k: int) -> bool:
-        return pyrigi.apex.is_k_vertex_apex(self, k)
+        return apex.is_k_vertex_apex(self, k)
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.apex.is_edge_apex)
+    @copy_doc(apex.is_edge_apex)
     def is_edge_apex(self) -> bool:
-        return pyrigi.apex.is_edge_apex(self)
+        return apex.is_edge_apex(self)
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.apex.is_k_edge_apex)
+    @copy_doc(apex.is_k_edge_apex)
     def is_k_edge_apex(self, k: int) -> bool:
-        return pyrigi.apex.is_k_edge_apex(self, k)
+        return apex.is_k_edge_apex(self, k)
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.apex.is_critically_vertex_apex)
+    @copy_doc(apex.is_critically_vertex_apex)
     def is_critically_vertex_apex(self) -> bool:
-        return pyrigi.apex.is_critically_vertex_apex(self)
+        return apex.is_critically_vertex_apex(self)
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.apex.is_critically_k_vertex_apex)
+    @copy_doc(apex.is_critically_k_vertex_apex)
     def is_critically_k_vertex_apex(self, k: int) -> bool:
-        return pyrigi.apex.is_critically_k_vertex_apex(self, k)
+        return apex.is_critically_k_vertex_apex(self, k)
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.apex.is_critically_edge_apex)
+    @copy_doc(apex.is_critically_edge_apex)
     def is_critically_edge_apex(self) -> bool:
-        return pyrigi.apex.is_critically_edge_apex(self)
+        return apex.is_critically_edge_apex(self)
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.apex.is_critically_k_edge_apex)
+    @copy_doc(apex.is_critically_k_edge_apex)
     def is_critically_k_edge_apex(self, k: int) -> bool:
-        return pyrigi.apex.is_critically_k_edge_apex(self, k)
+        return apex.is_critically_k_edge_apex(self, k)
 
     @doc_category("Graph manipulation")
     def intersection(self, other_graph: Graph) -> Graph:
@@ -1430,29 +1425,29 @@ class Graph(nx.Graph):
         )
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.separating_set.is_stable_set)
+    @copy_doc(separating_set.is_stable_set)
     def is_stable_set(
         self,
         vertices: Collection[Vertex],
         certificate: bool = False,
     ) -> bool | tuple[bool, Optional[Edge]]:
-        return pyrigi.separating_set.is_stable_set(
+        return separating_set.is_stable_set(
             self, vertices=vertices, certificate=certificate
         )
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.separating_set.is_separating_set)
+    @copy_doc(separating_set.is_separating_set)
     def is_separating_set(
         self,
         vertices: Collection[Vertex],
         use_copy: bool = True,
     ) -> bool:
-        return pyrigi.separating_set.is_separating_set(
+        return separating_set.is_separating_set(
             self, vertices=vertices, use_copy=use_copy
         )
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.separating_set.is_uv_separating_set)
+    @copy_doc(separating_set.is_uv_separating_set)
     def is_uv_separating_set(
         self,
         vertices: Collection[Vertex],
@@ -1460,23 +1455,23 @@ class Graph(nx.Graph):
         v: Vertex,
         use_copy: bool = True,
     ) -> bool:
-        return pyrigi.separating_set.is_uv_separating_set(
+        return separating_set.is_uv_separating_set(
             self, vertices=vertices, u=u, v=v, use_copy=use_copy
         )
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.separating_set.is_stable_separating_set)
+    @copy_doc(separating_set.is_stable_separating_set)
     def is_stable_separating_set(
         self,
         vertices: Collection[Vertex],
         use_copy: bool = True,
     ) -> bool:
-        return pyrigi.separating_set.is_stable_separating_set(
+        return separating_set.is_stable_separating_set(
             self, vertices=vertices, use_copy=use_copy
         )
 
     @doc_category("General graph theoretical properties")
-    @copy_doc(pyrigi.separating_set.stable_separating_set)
+    @copy_doc(separating_set.stable_separating_set)
     def stable_separating_set(
         self,
         u: Optional[Vertex] = None,
@@ -1485,7 +1480,7 @@ class Graph(nx.Graph):
         check_connected: bool = True,
         check_distinct_rigid_components: bool = True,
     ) -> set[Vertex]:
-        return pyrigi.separating_set.stable_separating_set(
+        return separating_set.stable_separating_set(
             self,
             u=u,
             v=v,
@@ -1495,14 +1490,14 @@ class Graph(nx.Graph):
         )
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.generic_rigidity.is_linked)
+    @copy_doc(generic_rigidity.is_linked)
     def is_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
-        return pyrigi.generic_rigidity.is_linked(self, u, v, dim=dim)
+        return generic_rigidity.is_linked(self, u, v, dim=dim)
 
     @doc_category("Generic rigidity")
-    @copy_doc(pyrigi.global_rigidity.is_weakly_globally_linked)
+    @copy_doc(global_rigidity.is_weakly_globally_linked)
     def is_weakly_globally_linked(self, u: Vertex, v: Vertex, dim: int = 2) -> bool:
-        return pyrigi.global_rigidity.is_weakly_globally_linked(self, u, v, dim=dim)
+        return global_rigidity.is_weakly_globally_linked(self, u, v, dim=dim)
 
     @doc_category("Other")
     def layout(self, layout_type: str = "spring") -> dict[Vertex, Point]:

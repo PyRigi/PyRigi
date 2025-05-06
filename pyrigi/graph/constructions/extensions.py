@@ -9,8 +9,8 @@ from typing import Iterable
 
 import networkx as nx
 
-import pyrigi._graph_input_check as _graph_input_check
 import pyrigi._input_check as _input_check
+import pyrigi.graph._input_check as _graph_input_check
 from pyrigi.data_type import Edge, Sequence, Vertex
 from pyrigi.exception import NotSupportedValueError
 

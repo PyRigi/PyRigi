@@ -3,7 +3,7 @@ from itertools import combinations
 import networkx as nx
 import pytest
 
-import pyrigi.global_rigidity as global_rigidity
+import pyrigi.graph.rigidity.global_ as global_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from test_graph import (

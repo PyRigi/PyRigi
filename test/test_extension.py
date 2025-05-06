@@ -1,8 +1,8 @@
 import networkx as nx
 import pytest
 
-import pyrigi.extension as extension
-import pyrigi.generic_rigidity as generic_rigidity
+import pyrigi.graph.constructions.extensions as extension
+import pyrigi.graph.rigidity.generic as generic_rigidity
 import pyrigi.graphDB as graphs
 import pyrigi.misc as misc
 from pyrigi.exception import NotSupportedValueError

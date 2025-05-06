@@ -1,6 +1,6 @@
 import pytest
 
-from pyrigi._pebble_digraph import PebbleDiGraph
+from pyrigi.graph.sparsity._pebble_digraph import PebbleDiGraph
 
 """
 Create the most used directed graphs. Note that the edges added here are in fact directed.

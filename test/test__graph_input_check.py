@@ -1,6 +1,6 @@
 import pytest
 
-import pyrigi._graph_input_check as _graph_input_check
+import pyrigi.graph._input_check as _graph_input_check
 import pyrigi.graphDB as graphs
 from pyrigi.exception import LoopError
 from pyrigi.graph import Graph

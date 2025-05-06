@@ -1,8 +1,8 @@
 import networkx as nx
 import pytest
 
+import pyrigi.graph.rigidity.matroidal as matroidal_rigidity
 import pyrigi.graphDB as graphs
-import pyrigi.matroidal_rigidity as matroidal_rigidity
 from pyrigi.graph import Graph
 from pyrigi.warning import RandomizedAlgorithmWarning
 from test_graph import TEST_WRAPPED_FUNCTIONS, read_sparsity
