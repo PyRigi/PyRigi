@@ -4,7 +4,7 @@ import pytest
 import pyrigi.graph.rigidity.redundant as redundant_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
-from test_graph import (
+from test.graph.test_graph import (
     TEST_WRAPPED_FUNCTIONS,
     is_rigid_algorithms_all_d,
     is_rigid_algorithms_d1,

@@ -5,7 +5,7 @@ import pyrigi.graph.rigidity.matroidal as matroidal_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from pyrigi.warning import RandomizedAlgorithmWarning
-from test_graph import TEST_WRAPPED_FUNCTIONS, read_sparsity
+from test.graph.test_graph import TEST_WRAPPED_FUNCTIONS, read_sparsity
 
 Rd_algorithms_all_d = ["default", "randomized"]
 Rd_algorithms_d1 = Rd_algorithms_all_d + ["graphic"]

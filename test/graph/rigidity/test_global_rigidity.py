@@ -6,7 +6,7 @@ import pytest
 import pyrigi.graph.rigidity.global_ as global_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
-from test_graph import (
+from test.graph.test_graph import (
     TEST_WRAPPED_FUNCTIONS,
     read_globally,
     read_redundantly,

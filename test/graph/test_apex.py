@@ -7,7 +7,7 @@ import pytest
 import pyrigi.graph.apex as apex
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
-from test_graph import TEST_WRAPPED_FUNCTIONS
+from test.graph.test_graph import TEST_WRAPPED_FUNCTIONS
 
 
 ###############################################################
