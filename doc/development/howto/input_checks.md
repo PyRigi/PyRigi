@@ -63,7 +63,7 @@ def method(self, algorithm: str = "default"):
 ## Input check functions
 
 ```{eval-rst}
-.. automodule:: pyrigi._input_check
+.. automodule:: pyrigi.misc._input_check
    :members:
    :show-inheritance:
 ```

@@ -2,7 +2,7 @@
 
 
 ```{eval-rst}
-.. automodule:: pyrigi.misc
+.. automodule:: pyrigi.misc.misc
    :members:
 
 ```
