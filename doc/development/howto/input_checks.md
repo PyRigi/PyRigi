@@ -55,7 +55,7 @@ def method(self, algorithm: str = "default"):
 ## Input check functions of Graph
 
 ```{eval-rst}
-.. automodule:: pyrigi._graph_input_check
+.. automodule:: pyrigi.graph._input_check
    :members:
    :show-inheritance:
 ```
