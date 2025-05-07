@@ -23,7 +23,9 @@ try:
         return
 
 except NameError:
-    pass
+
+    def skip_execution():
+        pass
 
 
 def _doc_category(category):

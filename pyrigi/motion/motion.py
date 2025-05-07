@@ -15,8 +15,7 @@ from IPython.display import SVG
 from matplotlib.animation import FuncAnimation
 from sympy import simplify
 
-import pyrigi._input_check as _input_check
-from pyrigi import _plot
+import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import (
     DirectedEdge,
     Edge,
@@ -28,13 +27,14 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
-from pyrigi.misc import (
+from pyrigi.misc.misc import (
     _normalize_flex,
     _vector_distance_pointwise,
     is_zero,
     point_to_vector,
     sympy_expr_to_float,
 )
+from pyrigi.plot import _plot
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from pyrigi.warning import NumericalAlgorithmWarning
 

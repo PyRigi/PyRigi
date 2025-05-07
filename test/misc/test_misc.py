@@ -7,7 +7,7 @@ import pytest
 import sympy as sp
 
 from pyrigi.graph import Graph
-from pyrigi.misc import (
+from pyrigi.misc.misc import (
     _generate_two_orthonormal_vectors,
     _normalize_flex,
     _vector_distance_pointwise,

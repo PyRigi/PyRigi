@@ -4,8 +4,8 @@ This is a module for providing common types of frameworks.
 
 import sympy as sp
 
-import pyrigi._input_check as _input_check
 import pyrigi.graphDB as graphs
+import pyrigi.misc._input_check as _input_check
 from pyrigi.framework import Framework
 
 

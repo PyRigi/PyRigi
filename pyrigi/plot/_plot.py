@@ -20,7 +20,7 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.framework import Framework
-from pyrigi.misc import is_zero_vector, sympy_expr_to_float
+from pyrigi.misc.misc import is_zero_vector, sympy_expr_to_float
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 

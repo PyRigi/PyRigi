@@ -1,6 +1,6 @@
 import pytest
 
-import pyrigi._input_check as _input_check
+import pyrigi.misc._input_check as _input_check
 
 
 @pytest.mark.parametrize(

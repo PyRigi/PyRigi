@@ -8,7 +8,7 @@ import sympy as sp
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
 from pyrigi import ApproximateMotion, Framework, Graph, Motion, ParametricMotion
-from pyrigi.misc import is_zero_vector
+from pyrigi.misc.misc import is_zero_vector
 
 
 def test__str__():

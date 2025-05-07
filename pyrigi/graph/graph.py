@@ -12,12 +12,12 @@ from typing import Collection, Iterable, Optional
 import networkx as nx
 from sympy import Matrix
 
-import pyrigi._input_check as _input_check
-from pyrigi._wrap import copy_doc
+import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import Edge, Inf, Point, Sequence, Vertex
 from pyrigi.exception import NotSupportedValueError
-from pyrigi.misc import _doc_category as doc_category
-from pyrigi.misc import _generate_category_tables
+from pyrigi.misc._wrap import copy_doc
+from pyrigi.misc.misc import _doc_category as doc_category
+from pyrigi.misc.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle
 
 from . import _input_check as _graph_input_check

@@ -4,7 +4,7 @@ import pytest
 import pyrigi.graph.constructions.extensions as extension
 import pyrigi.graph.rigidity.generic as generic_rigidity
 import pyrigi.graphDB as graphs
-import pyrigi.misc as misc
+import pyrigi.misc.misc as misc
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph import Graph
 from test.graph.test_graph import TEST_WRAPPED_FUNCTIONS

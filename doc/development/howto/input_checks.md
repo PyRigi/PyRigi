@@ -16,7 +16,7 @@ a graph is loop free and raises an error otherwise.
 
 Example:
 ```python
-import pyrigi._input_check as _input_check
+import pyrigi.misc._input_check as _input_check
 import pyrigi.graph._input_check as _graph_input_check
 
 class Graph(nx.Graph):

@@ -10,7 +10,7 @@ import pyrigi.graphDB as graphs
 from pyrigi.exception import LoopError
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
-from pyrigi.misc import point_to_vector, sympy_expr_to_float
+from pyrigi.misc.misc import point_to_vector, sympy_expr_to_float
 
 
 def test__str__():

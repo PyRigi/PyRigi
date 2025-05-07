@@ -3,7 +3,7 @@ import sympy as sp
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
-from pyrigi.misc import is_zero
+from pyrigi.misc.misc import is_zero
 
 
 def test_Cycle():
