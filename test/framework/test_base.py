@@ -4,7 +4,7 @@ from sympy import sympify
 import pyrigi.frameworkDB as fws
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
-from pyrigi.misc import is_zero, is_zero_vector
+from pyrigi.misc.misc import is_zero, is_zero_vector
 
 
 def test__str__():

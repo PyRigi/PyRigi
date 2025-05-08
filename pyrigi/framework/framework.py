@@ -15,8 +15,8 @@ import numpy as np
 import sympy as sp
 from sympy import Matrix, binomial, flatten
 
-import pyrigi._graph_input_check as _graph_input_check
-import pyrigi._input_check as _input_check
+import pyrigi.graph._input_check as _graph_input_check
+import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import (
     DirectedEdge,
     Edge,
@@ -30,8 +30,8 @@ from pyrigi.data_type import (
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
-from pyrigi.misc import _doc_category as doc_category
-from pyrigi.misc import (
+from pyrigi.misc.misc import _doc_category as doc_category
+from pyrigi.misc.misc import (
     _generate_category_tables,
     _generate_three_orthonormal_vectors,
     _generate_two_orthonormal_vectors,
@@ -222,7 +222,7 @@ class Framework(FrameworkBase):
         fig.set_figheight(plot_style.canvas_height)
         ax.set_aspect(plot_style.aspect_ratio)
 
-        from pyrigi import _plot
+        from pyrigi.plot import _plot
 
         if self._dim == 1:
             placement = {
@@ -583,7 +583,7 @@ class Framework(FrameworkBase):
             for v, pos in placement.items()
         }
 
-        from pyrigi import _plot
+        from pyrigi.plot import _plot
 
         _plot.plot_with_3D_realization(
             self,

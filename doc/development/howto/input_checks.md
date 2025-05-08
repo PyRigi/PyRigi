@@ -16,8 +16,8 @@ a graph is loop free and raises an error otherwise.
 
 Example:
 ```python
-import pyrigi._input_check as _input_check
-import pyrigi._graph_input_check as _graph_input_check
+import pyrigi.misc._input_check as _input_check
+import pyrigi.graph._input_check as _graph_input_check
 
 class Graph(nx.Graph):
     ...
@@ -55,7 +55,7 @@ def method(self, algorithm: str = "default"):
 ## Input check functions of Graph
 
 ```{eval-rst}
-.. automodule:: pyrigi._graph_input_check
+.. automodule:: pyrigi.graph._input_check
    :members:
    :show-inheritance:
 ```
@@ -63,7 +63,7 @@ def method(self, algorithm: str = "default"):
 ## Input check functions
 
 ```{eval-rst}
-.. automodule:: pyrigi._input_check
+.. automodule:: pyrigi.misc._input_check
    :members:
    :show-inheritance:
 ```

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from sympy import Matrix, Rational, sqrt
 
-from pyrigi.misc import point_to_vector
+from pyrigi.misc.misc import point_to_vector
 
 
 @pytest.mark.parametrize(
