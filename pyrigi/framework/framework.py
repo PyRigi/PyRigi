@@ -435,7 +435,7 @@ class Framework(FrameworkBase):
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
         edge_colors_custom: (
-            Sequence[Sequence[Edge]] | dict[str : Sequence[Edge]]
+            Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]]
         ) = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         filename: str = None,
