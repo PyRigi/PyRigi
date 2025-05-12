@@ -646,8 +646,8 @@ class Framework(FrameworkBase):
     @doc_category("Other")
     def to_tikz(
         self,
-        vertex_style: str | dict[str : Sequence[Vertex]] = "fvertex",
-        edge_style: str | dict[str : Sequence[Edge]] = "edge",
+        vertex_style: str | dict[str, Sequence[Vertex]] = "fvertex",
+        edge_style: str | dict[str, Sequence[Edge]] = "edge",
         label_style: str = "labelsty",
         figure_opts: str = "",
         vertex_in_labels: bool = False,
