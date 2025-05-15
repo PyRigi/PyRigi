@@ -8,7 +8,8 @@ However, in order to have extendable and maintainable code,
 most of the algorithms are implemented as functions and wrapped as methods of the corresponding classes.
 As such, they are suggested by autocompletion tools once
 an instance, like `Graph`, is available and therefore easy to search for and use.
-This approach allows one to implement functionality in separate modules according to the topics.
+This approach allows one to implement functionality in separate modules according to the topics,
+see [below](#file-structure).
 
 ## Graph
 
@@ -78,7 +79,7 @@ This is needed, for example, when a function/method returns a `Graph`.
 
 ## Frameworks
 
-Similarly to the graph case, the functions implementing framework functionalitie
+Similarly to the graph case, the functions implementing framework functionalities
 accept {class}`pyrigi.framework.base.FrameworkBase` as the first parameter, called `framework`, and
 are wrapped as methods of {class}`pyrigi.Framework<.Framework>`,
 which is inherited from {class}`pyrigi.framework.base.FrameworkBase`.
@@ -89,3 +90,9 @@ The test `test_signature` in `test/test_signature.py` checks whether the signatu
 of the methods and the wrapped function match.
 Hereby, "match" means that the parameters are the same, have the same default values,
 and have the same type (or inherited type).
+
+
+## File structure
+
+```{literalinclude} ./pyrigi_structure.txt
+```
