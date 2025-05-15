@@ -32,6 +32,7 @@ howto/style_guide
 howto/testing
 howto/git
 howto/dependencies
+howto/module_structure
 howto/documentation
 howto/notation
 howto/input_checks
