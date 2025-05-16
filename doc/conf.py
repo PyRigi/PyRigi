@@ -525,7 +525,6 @@ comments = {
     },
 }
 
-if "PYTEST_CURRENT_TEST" not in os.environ:
-    tree_output = generate_myst_tree("../pyrigi", comments)
-    with open("development/howto/pyrigi_structure.txt", "w") as file:
-        file.write(tree_output)
+tree_output = generate_myst_tree("../pyrigi", comments)
+with open("development/howto/pyrigi_structure.txt", "w") as file:
+    file.write(tree_output)
