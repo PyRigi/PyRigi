@@ -495,10 +495,29 @@ def generate_myst_tree(
 
 # Nested comment dictionary
 comments = {
-    ".": {"data_type.py": "Definitions of data types"},
+    ".": {
+        "data_type.py": "definitions of data types",
+        "exception.py": "definitions of exceptions",
+        "warning.py": "definitions of warnings",
+        "graphDB.py": "database of graphs",
+        "frameworkDB.py": "database of frameworks",
+        "plot_style.py": "implementation of Plotstyle(2D/3D)",
+    },
     "graph": {
+        "extensions.py": "functions for k-extensions",
         "generic.py": "functions for generic rigidity",
+        "global_.py": "functions for global rigidity",
+        "matroidal.py": "functions for generic rigidity matroid",
         "redundant.py": "functions for redundant rigidity",
+        "_pebble_digraph.py": "implementation of PebbleDigraph",
+        "sparsity.py": "functions for (k,l)-sparsity",
+        "_input_check.py": "input checks for Graph",
+        "apex.py": "functions for apex graphs",
+        "graph.py": "implementation of Graph",
+        "separating_set.py": "functions for (stable) separating sets",
+    },
+    "graph_drawer": {
+        "graph_drawer.py": "implementation of GraphDrawer",
     },
     "framework": {
         "base.py": "implementation of FrameworkBase",
@@ -506,6 +525,7 @@ comments = {
     },
 }
 
-tree_output = generate_myst_tree("../pyrigi", comments)
-with open("development/howto/pyrigi_structure.txt", "w") as file:
-    file.write(tree_output)
+if "PYTEST_CURRENT_TEST" not in os.environ:
+    tree_output = generate_myst_tree("../pyrigi", comments)
+    with open("development/howto/pyrigi_structure.txt", "w") as file:
+        file.write(tree_output)
