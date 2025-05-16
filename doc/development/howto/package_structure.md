@@ -1,5 +1,5 @@
-(module_structure)=
-# Module structure
+(package_structure)=
+# Package structure
 
 From user perspective, PyRigi follows object-oriented design.
 The main functionality can be accessed via the methods of {class}`.Graph`, {class}`.Framework`,
@@ -9,7 +9,7 @@ most of the algorithms are implemented as functions and wrapped as methods of th
 As such, they are suggested by autocompletion tools once
 an instance, like `Graph`, is available and therefore easy to search for and use.
 This approach allows one to implement functionality in separate modules according to the topics,
-see [below](#package-structure).
+see [below](#overview).
 
 ## Graph functionality
 
@@ -91,10 +91,11 @@ of the methods and the wrapped function match.
 Hereby, "match" means that the parameters are the same, have the same default values,
 and have the same type (or inherited type).
 
-The plugin `flake8-unused-arguments` guaranties that all arguments of each method are indeed used when calling the wrapped function.
+The plugin [`flake8-unused-arguments`](https://github.com/nhoad/flake8-unused-arguments) guarantees that all arguments of each method are indeed used when calling the wrapped function.
+This plugin is automatically used (calling `flake8`) once dependences are installed [via Poetry](#dependencies-poetry).
 
 
-## Package structure
+## Overview
 
 ```{literalinclude} ./pyrigi_structure.txt
 :language: text
