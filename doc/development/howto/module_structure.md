@@ -11,7 +11,7 @@ an instance, like `Graph`, is available and therefore easy to search for and use
 This approach allows one to implement functionality in separate modules according to the topics,
 see [below](#file-structure).
 
-## Graph
+## Graph functionality
 
 Functions implementing graph functionalities accept {class}`networkx.Graph` as the first parameter
 and are then wrapped as {class}`pyrigi.Graph<.Graph>` methods.
@@ -77,22 +77,25 @@ Regarding type hinting, {class}`networkx.Graph` should be used in the function s
 while {class}`pyrigi.Graph<.Graph>` should be used in the method signature.
 This is needed, for example, when a function/method returns a `Graph`.
 
-## Frameworks
+## Framework functionality
 
 Similarly to the graph case, the functions implementing framework functionalities
 accept {class}`pyrigi.framework.base.FrameworkBase` as the first parameter, called `framework`, and
 are wrapped as methods of {class}`pyrigi.Framework<.Framework>`,
 which is inherited from {class}`pyrigi.framework.base.FrameworkBase`.
 
-## Correct wrapping ensurance
+## Correct wrapping checks
 
 The test `test_signature` in `test/test_signature.py` checks whether the signatures
 of the methods and the wrapped function match.
 Hereby, "match" means that the parameters are the same, have the same default values,
 and have the same type (or inherited type).
 
+The plugin `flake8-unused-arguments` guaranties that all arguments of each method are indeed used when calling the wrapped function.
 
-## File structure
+
+## Package structure
 
 ```{literalinclude} ./pyrigi_structure.txt
+:language: text
 ```

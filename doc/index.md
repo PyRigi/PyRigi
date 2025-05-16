@@ -30,6 +30,7 @@ math/references
 :maxdepth: 2
 :caption: Development guide
 development/howto
+development/internal_api
 development/cheatsheet
 development/contributors
 :::
