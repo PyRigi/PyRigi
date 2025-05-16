@@ -9,7 +9,7 @@ most of the algorithms are implemented as functions and wrapped as methods of th
 As such, they are suggested by autocompletion tools once
 an instance, like `Graph`, is available and therefore easy to search for and use.
 This approach allows one to implement functionality in separate modules according to the topics,
-see [below](#file-structure).
+see [below](#package-structure).
 
 ## Graph functionality
 

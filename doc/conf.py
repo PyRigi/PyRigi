@@ -505,6 +505,7 @@ comments = {
     },
     "graph": {
         "extensions.py": "functions for k-extensions",
+        "constructions.py": "functions like  t-sum or intersection",
         "generic.py": "functions for generic rigidity",
         "global_.py": "functions for global rigidity",
         "matroidal.py": "functions for generic rigidity matroid",
@@ -522,6 +523,19 @@ comments = {
     "framework": {
         "base.py": "implementation of FrameworkBase",
         "framework.py": "implementation of Framework",
+        "infinitesimal.py": "functions for infinitesimal rigidity",
+        "stress.py": "functions for stresses",
+        "prestress_stability.py": "functions for prestress stability and 2nd order rig.",
+        "transformations.py": "functions like rotate or scale",
+    },
+    "misc": {
+        "_input_check.py": "general input checks",
+        "_documentation_tool.py": "tools for doc generation",
+    },
+    "motion": {
+        "motion.py": "implementation of Motion",
+        "parametric_motion.py": "implementation of ParametricMotion",
+        "approximate_motion.py": "implementation of ApproximateMotion",
     },
 }
 
