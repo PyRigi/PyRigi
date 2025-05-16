@@ -2,7 +2,7 @@ import pytest
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
-from pyrigi import ApproximateMotion, Graph, Motion, ParametricMotion
+from pyrigi import ApproximateMotion, Graph, Motion, ParametricMotion  # noqa: F401
 
 
 def test__str__():
