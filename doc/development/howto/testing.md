@@ -1,8 +1,10 @@
 (testing)=
 # Testing
 
-Tests are extremely important to guarantee the realiability of code.
-Please create tests for the functionalities that you implement and place them in the `test` folder, within the appropriate file.
+Tests are extremely important to guarantee the reliability of code.
+Please create tests for the functionalities that you implement and
+place them in the `test` folder, within the appropriate file
+following the [package structure](#pkg_structure).
 Each test should be in the form of a function starting with `test_`.
 Tests can be parametrized, see for instance `test_is_inf_rigid` in `test_framework.py`.
 

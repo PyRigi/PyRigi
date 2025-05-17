@@ -19,11 +19,11 @@ from pyrigi.data_type import (
     Sequence,
     Vertex,
 )
+from pyrigi.framework.plot import _plot
 from pyrigi.graph import Graph
 from pyrigi.misc.misc import (
     is_zero,
 )
-from pyrigi.plot import _plot
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 

@@ -15,7 +15,7 @@ import numpy as np
 import sympy as sp
 from sympy import Matrix, binomial, flatten
 
-import pyrigi.graph._input_check as _graph_input_check
+import pyrigi.graph.utils._input_check as _graph_input_check
 import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import (
     DirectedEdge,
@@ -222,7 +222,7 @@ class Framework(FrameworkBase):
         fig.set_figheight(plot_style.canvas_height)
         ax.set_aspect(plot_style.aspect_ratio)
 
-        from pyrigi.plot import _plot
+        from pyrigi.framework.plot import _plot
 
         if self._dim == 1:
             placement = {
@@ -581,7 +581,7 @@ class Framework(FrameworkBase):
             for v, pos in placement.items()
         }
 
-        from pyrigi.plot import _plot
+        from pyrigi.framework.plot import _plot
 
         _plot.plot_with_3D_realization(
             self,

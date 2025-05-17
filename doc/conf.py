@@ -506,6 +506,7 @@ comments = {
     "graph": {
         "extensions.py": "functions for k-extensions",
         "constructions.py": "functions like  t-sum or intersection",
+        "general.py" : "general graph functions",
         "generic.py": "functions for generic rigidity",
         "global_.py": "functions for global rigidity",
         "matroidal.py": "functions for generic rigidity matroid",
@@ -521,6 +522,7 @@ comments = {
         "graph_drawer.py": "implementation of GraphDrawer",
     },
     "framework": {
+        "_plot.py": "auxiliary functions for plotting",
         "base.py": "implementation of FrameworkBase",
         "framework.py": "implementation of Framework",
         "infinitesimal.py": "functions for infinitesimal rigidity",
