@@ -522,7 +522,7 @@ comments = {
         "graph_drawer.py": "implementation of GraphDrawer",
     },
     "framework": {
-        "_plot.py": "auxiliary functions for ploting",
+        "_plot.py": "auxiliary functions for plotting",
         "base.py": "implementation of FrameworkBase",
         "framework.py": "implementation of Framework",
         "infinitesimal.py": "functions for infinitesimal rigidity",
