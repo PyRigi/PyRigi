@@ -55,7 +55,7 @@ def test_animate3D():
         fws.CompleteBipartite(2, 5),
     ],
 )
-def test_ApproximateMotion_from_framework(framework):
+def test_from_framework(framework):
     motion1 = ApproximateMotion(framework, 5, 0.075)
     for sample in motion1.motion_samples[1:]:
         assert framework.is_equivalent_realization(
@@ -90,7 +90,7 @@ def test_ApproximateMotion_from_framework(framework):
         fws.CompleteBipartite(2, 5),
     ],
 )
-def test_ApproximateMotion_from_graph(framework):
+def test_from_graph(framework):
     motion1 = ApproximateMotion.from_graph(
         framework.graph,
         framework.realization(as_points=True, numerical=True),
@@ -159,7 +159,7 @@ def test_normalize_realizations():
         )
 
 
-def test_ApproximateMotion_Getters():
+def test_getters():
     F = fws.Cycle(4)
     motion = ApproximateMotion(
         F,
