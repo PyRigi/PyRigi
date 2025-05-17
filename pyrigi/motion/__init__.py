@@ -1,3 +1,5 @@
 # flake8: noqa
 
-from .motion import ApproximateMotion, Motion, ParametricMotion
+from .approximate_motion import ApproximateMotion
+from .motion import Motion
+from .parametric_motion import ParametricMotion
