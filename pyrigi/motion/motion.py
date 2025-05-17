@@ -26,6 +26,7 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.framework import Framework
+from pyrigi.framework.plot import _plot
 from pyrigi.graph import Graph
 from pyrigi.misc.misc import (
     _normalize_flex,
@@ -34,7 +35,6 @@ from pyrigi.misc.misc import (
     point_to_vector,
     sympy_expr_to_float,
 )
-from pyrigi.framework.plot import _plot
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from pyrigi.warning import NumericalAlgorithmWarning
 

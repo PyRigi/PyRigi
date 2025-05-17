@@ -1,4 +1,4 @@
-(package_structure)=
+(pkg_structure)=
 # Package structure
 
 From user perspective, PyRigi follows object-oriented design.
