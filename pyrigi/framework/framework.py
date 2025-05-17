@@ -222,7 +222,7 @@ class Framework(FrameworkBase):
         fig.set_figheight(plot_style.canvas_height)
         ax.set_aspect(plot_style.aspect_ratio)
 
-        from pyrigi.plot import _plot
+        from pyrigi.framework.plot import _plot
 
         if self._dim == 1:
             placement = {
@@ -434,9 +434,7 @@ class Framework(FrameworkBase):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
-        edge_colors_custom: (
-            Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]]
-        ) = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         filename: str = None,
         **kwargs,
@@ -583,7 +581,7 @@ class Framework(FrameworkBase):
             for v, pos in placement.items()
         }
 
-        from pyrigi.plot import _plot
+        from pyrigi.framework.plot import _plot
 
         _plot.plot_with_3D_realization(
             self,

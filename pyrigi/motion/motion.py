@@ -34,7 +34,7 @@ from pyrigi.misc.misc import (
     point_to_vector,
     sympy_expr_to_float,
 )
-from pyrigi.plot import _plot
+from pyrigi.framework.plot import _plot
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 from pyrigi.warning import NumericalAlgorithmWarning
 
