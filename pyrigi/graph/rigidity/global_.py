@@ -9,7 +9,7 @@ from random import randint
 import networkx as nx
 from sympy import zeros
 
-import pyrigi.graph._input_check as _graph_input_check
+import pyrigi.graph.utils._input_check as _graph_input_check
 import pyrigi.graph.rigidity.generic as generic_rigidity
 import pyrigi.graph.rigidity.redundant as redundant_rigidity
 import pyrigi.graph.sparsity.sparsity as sparsity

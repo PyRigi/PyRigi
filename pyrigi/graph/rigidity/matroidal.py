@@ -7,7 +7,7 @@ from itertools import combinations
 
 import networkx as nx
 
-import pyrigi.graph._input_check as _graph_input_check
+import pyrigi.graph.utils._input_check as _graph_input_check
 import pyrigi.graph.rigidity.generic as generic_rigidity
 import pyrigi.graph.sparsity.sparsity as sparsity
 import pyrigi.misc._input_check as _input_check
