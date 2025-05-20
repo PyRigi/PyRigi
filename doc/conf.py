@@ -164,6 +164,8 @@ mathjax3_config = {
             "NN": "{\\mathbb{N}}",  # natural numbers (including 0)
             "PP": "{\\mathbb{P}}",  # projective space
             "KK": "{\\mathbb{K}}",  # a field
+            "tred": "{\\text{red}}", # 'red' as a text for colorings
+            "tblue": "{\\text{blue}}", # 'blue' as a text for colorings
         },
     }
 }
