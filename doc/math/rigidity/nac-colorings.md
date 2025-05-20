@@ -8,7 +8,7 @@ A _NAC-coloring_ is a coloring of the egdes in two colors, say red and blue, $\d
 both colors occur (i.e. $\delta$ is surjective) and
 every cycle of the graph is either monochromatic or it contains each color at least twice.
 
-{{references}} {cite:p}`GraseggerLegerskySchicho1019`
+{{references}} {cite:p}`GraseggerLegerskySchicho2019`
 :::
 
 
@@ -18,5 +18,14 @@ every cycle of the graph is either monochromatic or it contains each color at le
 A connected graph has a {prf:ref}`flexible<def-cont-rigid-framework>` {prf:ref}`quasi-injective<def-realization>` realization in $\mathbb R^2$ if and only if it has a
 NAC-coloring.
 
-{{references}} {cite:p}`GraseggerLegerskySchicho1019{Thm 3.1}`
+{{references}} {cite:p}`GraseggerLegerskySchicho2019{Thm 3.1}`
+:::
+
+
+:::{prf:definition}
+:label: def-cartesian-nac
+
+A NAC-coloring of $G$ is called _Cartesian_, if no two distinct vertices of $G$ are connected by both a red and blue path simultaneously.
+
+{{references}} {cite:p}`GraseggerLegersky2024`
 :::
