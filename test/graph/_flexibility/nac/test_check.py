@@ -7,7 +7,6 @@ from pyrigi.graph._flexibility import nac
 from pyrigi import graphDB
 
 
-@pytest.mark.nac_test
 @pytest.mark.parametrize(
     ("graph", "coloring", "result"),
     [

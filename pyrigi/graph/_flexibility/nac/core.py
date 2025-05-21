@@ -34,7 +34,7 @@ def coloring_from_mask(
         Mapping from component ID to its edges.
     mask:
         Bit mask pointing into `ordered_comp_ids`,
-        1 means red and 0 blue (or otherwise).
+        1 means the first and 0 the second set of edges.
     allow_mask:
         Mask allowing only some components.
         Used for subgraphs.
@@ -43,7 +43,7 @@ def coloring_from_mask(
     if allow_mask is None:
         allow_mask = 2 ** len(ordered_comp_ids) - 1
 
-    red, blue = [], []  # set(), set()
+    red, blue = [], []
     for i, e in enumerate(ordered_comp_ids):
         address = 1 << i
 
