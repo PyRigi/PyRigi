@@ -51,7 +51,7 @@ def translate(
         return
 
     new_framework = deepcopy(framework)
-    new_framework.translate(vector, True)
+    translate(new_framework, vector, True)
     return new_framework
 
 
@@ -77,7 +77,7 @@ def rescale(
         return
 
     new_framework = deepcopy(framework)
-    new_framework.rescale(factor, True)
+    rescale(new_framework, factor, True)
     return new_framework
 
 
@@ -115,10 +115,10 @@ def rotate2D(
     else:
         rotated_framework = deepcopy(framework)
 
-    rotated_framework.translate(opposite_rotation_center, inplace=True)
+    translate(rotated_framework, opposite_rotation_center, inplace=True)
     for v, pos in rotated_framework._realization.items():
         rotated_framework._realization[v] = rotation_matrix * pos
-    rotated_framework.translate(rotation_center, inplace=True)
+    translate(rotated_framework, rotation_center, inplace=True)
 
     if inplace:
         return
@@ -195,10 +195,10 @@ def rotate3D(
     else:
         rotated_framework = deepcopy(framework)
 
-    rotated_framework.translate(opposite_axis_shift, inplace=True)
+    translate(rotated_framework, opposite_axis_shift, inplace=True)
     for v, pos in rotated_framework._realization.items():
         rotated_framework._realization[v] = rotation_matrix * pos
-    rotated_framework.translate(axis_shift, inplace=True)
+    translate(rotated_framework, axis_shift, inplace=True)
 
     if inplace:
         return

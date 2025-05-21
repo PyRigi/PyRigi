@@ -7,6 +7,8 @@ import pyrigi.graphDB as graphs
 from pyrigi.framework import Framework
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.graph import Graph
+from test import TEST_WRAPPED_FUNCTIONS
+from test.framework import _to_FrameworkBase
 
 
 @pytest.mark.parametrize(
@@ -46,6 +48,11 @@ from pyrigi.graph import Graph
 def test_is_inf_rigid(framework):
     assert framework.is_inf_rigid()
     assert framework.is_inf_rigid(numerical=True)
+    if TEST_WRAPPED_FUNCTIONS:
+        assert infinitesimal_rigidity.is_inf_rigid(_to_FrameworkBase(framework))
+        assert infinitesimal_rigidity.is_inf_rigid(
+            _to_FrameworkBase(framework), numerical=True
+        )
 
 
 @pytest.mark.parametrize(
@@ -78,6 +85,11 @@ def test_is_inf_rigid(framework):
 def test_is_inf_flexible(framework):
     assert framework.is_inf_flexible()
     assert framework.is_inf_flexible(numerical=True)
+    if TEST_WRAPPED_FUNCTIONS:
+        assert infinitesimal_rigidity.is_inf_flexible(_to_FrameworkBase(framework))
+        assert infinitesimal_rigidity.is_inf_flexible(
+            _to_FrameworkBase(framework), numerical=True
+        )
 
 
 @pytest.mark.parametrize(
@@ -105,6 +117,11 @@ def test_is_inf_flexible(framework):
 def test_is_min_inf_rigid(framework):
     assert framework.is_min_inf_rigid()
     assert framework.is_min_inf_rigid(numerical=True)
+    if TEST_WRAPPED_FUNCTIONS:
+        assert infinitesimal_rigidity.is_min_inf_rigid(_to_FrameworkBase(framework))
+        assert infinitesimal_rigidity.is_min_inf_rigid(
+            _to_FrameworkBase(framework), numerical=True
+        )
 
 
 @pytest.mark.parametrize(
@@ -147,6 +164,12 @@ def test_is_min_inf_rigid(framework):
 )
 def test_is_not_min_inf_rigid(framework):
     assert not framework.is_min_inf_rigid()
+    assert not framework.is_min_inf_rigid(numerical=True)
+    if TEST_WRAPPED_FUNCTIONS:
+        assert not infinitesimal_rigidity.is_min_inf_rigid(_to_FrameworkBase(framework))
+        assert not infinitesimal_rigidity.is_min_inf_rigid(
+            _to_FrameworkBase(framework), numerical=True
+        )
 
 
 def test_inf_flexes():
@@ -311,6 +334,11 @@ def test_is_dict_inf_flex():
 )
 def test_rigidity_matrix_parametric(framework, rigidity_matrix):
     assert framework.rigidity_matrix() == rigidity_matrix
+    if TEST_WRAPPED_FUNCTIONS:
+        assert (
+            infinitesimal_rigidity.rigidity_matrix(_to_FrameworkBase(framework))
+            == rigidity_matrix
+        )
 
 
 def test_rigidity_matrix():
@@ -354,3 +382,14 @@ def test_rigidity_matrix():
 def test_rigidity_matrix_rank(framework, rank):
     assert framework.rigidity_matrix_rank() == rank
     assert framework.rigidity_matrix_rank(numerical=True) == rank
+    if TEST_WRAPPED_FUNCTIONS:
+        assert (
+            infinitesimal_rigidity.rigidity_matrix_rank(_to_FrameworkBase(framework))
+            == rank
+        )
+        assert (
+            infinitesimal_rigidity.rigidity_matrix_rank(
+                _to_FrameworkBase(framework), numerical=True
+            )
+            == rank
+        )
