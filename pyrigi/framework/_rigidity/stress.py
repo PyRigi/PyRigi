@@ -276,7 +276,8 @@ def _transform_stress_to_edgewise(
     ----
     >>> F = Framework.Complete([(0,0),(1,0),(1,1),(0,1)])
     >>> stress = F.stresses()[0]
-    >>> F._transform_stress_to_edgewise(stress)
+    >>> from pyrigi.framework._rigidity.stress import _transform_stress_to_edgewise
+    >>> _transform_stress_to_edgewise(F, stress)
     {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
 
     Notes

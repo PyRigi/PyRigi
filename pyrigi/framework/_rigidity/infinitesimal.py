@@ -466,14 +466,15 @@ def _transform_inf_flex_to_pointwise(
     >>> F = Framework.from_points([(0,0), (1,0), (0,1)])
     >>> F.add_edges([(0,1),(0,2)])
     >>> flex = F.nontrivial_inf_flexes()[0]
-    >>> F._transform_inf_flex_to_pointwise(flex)
+    >>> from pyrigi.framework._rigidity.infinitesimal import _transform_inf_flex_to_pointwise
+    >>> _transform_inf_flex_to_pointwise(F, flex)
     {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
     Notes
     ----
     For example, this method can be used for generating an
     infinitesimal flex for plotting purposes.
-    """
+    """  # noqa: E501
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
     return {
         vertex_order[i]: [inf_flex[i * framework.dim + j] for j in range(framework.dim)]
