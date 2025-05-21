@@ -104,6 +104,7 @@ class Framework(FrameworkBase):
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
         filename: str = None,
+        dpi=300,
         **kwargs,
     ) -> None:
         """
@@ -171,6 +172,8 @@ class Framework(FrameworkBase):
             ``None`` which indicates that the figure is currently not saved.
             The figure is saved as a ``.png`` file using the ``save`` method from
             ``matplotlib``.
+        dpi: Dots per inched in case the figure is saved. Default is 300 for producing
+            a print-quality image.
 
         Examples
         --------
@@ -279,7 +282,7 @@ class Framework(FrameworkBase):
         if filename is not None:
             if not filename.endswith(".png"):
                 filename = filename + ".png"
-            plt.savefig(f"{filename}")
+            plt.savefig(f"{filename}", dpi=dpi)
 
     @doc_category("Plotting")
     def animate3D_rotation(
@@ -437,6 +440,7 @@ class Framework(FrameworkBase):
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         filename: str = None,
+        dpi=300,
         **kwargs,
     ) -> None:
         """
@@ -501,6 +505,8 @@ class Framework(FrameworkBase):
             ``None`` which indicates that the figure is currently not saved.
             The figure is saved as a ``.png`` file using the ``save`` method from
             ``matplotlib``.
+        dpi: Dots per inched in case the figure is saved. Default is 300 for producing
+            a print-quality image.
 
         Examples
         --------
@@ -614,7 +620,7 @@ class Framework(FrameworkBase):
         if filename is not None:
             if not filename.endswith(".png"):
                 filename = filename + ".png"
-            plt.savefig(f"{filename}")
+            plt.savefig(f"{filename}", dpi=dpi)
 
     @doc_category("Plotting")
     def plot(
