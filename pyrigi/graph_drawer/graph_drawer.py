@@ -10,6 +10,7 @@ from ipycanvas import MultiCanvas, hold_canvas
 from ipyevents import Event
 from IPython.display import display
 from ipywidgets import (
+    Button,
     Checkbox,
     ColorPicker,
     HBox,
@@ -17,7 +18,6 @@ from ipywidgets import (
     Label,
     Output,
     VBox,
-    Button,
 )
 from sympy import Rational
 
