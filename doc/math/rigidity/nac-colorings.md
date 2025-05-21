@@ -7,7 +7,7 @@ and shown to be interesting for deciding the existence and for constructing flex
 :label: def-nac
 
 Let $G = (V,E)$ be a graph.
-A _NAC-coloring_ is a coloring of the egdes in two colors, say red and blue, $\delta: E(G) \rightarrow \{\tred, \tblue\}$ such that
+A _NAC-coloring_ is a coloring of the edges in two colors, say red and blue, $\delta: E(G) \rightarrow \{\tred, \tblue\}$ such that
 both colors occur (i.e. $\delta$ is surjective) and
 every cycle of the graph is either monochromatic or it contains each color at least twice.
 
