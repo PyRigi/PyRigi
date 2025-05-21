@@ -9,7 +9,16 @@ import numpy as np
 from ipycanvas import MultiCanvas, hold_canvas
 from ipyevents import Event
 from IPython.display import display
-from ipywidgets import Checkbox, ColorPicker, HBox, IntSlider, Label, Output, VBox
+from ipywidgets import (
+    Button,
+    Checkbox,
+    ColorPicker,
+    HBox,
+    IntSlider,
+    Label,
+    Output,
+    VBox,
+)
 from sympy import Rational
 
 from pyrigi.data_type import Edge
@@ -82,8 +91,9 @@ class GraphDrawer(object):
 
         self._radius = 10
         self._edge_width = 2
-        self._vertex_color = "blue"  # default color for vertices
-        self._edge_color = "black"  # default color for edges
+        self._label_size = 12
+        self._vertex_color = "#0000ff"  # default color for vertices
+        self._edge_color = "#000000"  # default color for edges
 
         self._selected_vertex = None  # this determines what vertex to update on canvas
         self._vertex_labels = True
@@ -109,10 +119,10 @@ class GraphDrawer(object):
 
         self._mcanvas = MultiCanvas(5, width=size[0], height=size[1])
         self._mcanvas[0].stroke_rect(0, 0, self._mcanvas.width, self._mcanvas.height)
-        self._mcanvas[2].font = "12px serif"
+        self._mcanvas[2].font = "12px sans-serif"
         self._mcanvas[2].text_align = "center"
         self._mcanvas[2].text_baseline = "middle"
-        self._mcanvas[3].font = "12px serif"
+        self._mcanvas[3].font = "12px sans-serif"
         self._mcanvas[3].text_align = "center"
         self._mcanvas[3].text_baseline = "middle"
         self._mcanvas.on_mouse_down(self._handle_mouse_down)
@@ -177,11 +187,32 @@ class GraphDrawer(object):
             value=True, description="Show V-Labels", disabled=False, indent=False
         )
         self._vertex_label_checkbox.observe(self._on_show_vertex_label_change)
+        self._label_size_slider = IntSlider(
+            value=self._label_size,
+            min=8,
+            max=30,
+            step=1,
+            description="Label-Size:",
+            disabled=False,
+            continuous_update=True,
+            orientation="horizontal",
+            readout=True,
+            readout_format="d",
+        )
+        self._label_size_slider.observe(self._on_labelsize_change)
 
         self._grid_checkbox = Checkbox(
             value=False, description="Show Grid", disabled=False, indent=False
         )
         self._grid_checkbox.observe(self._on_grid_checkbox_change)
+
+        self._clear_all_button = Button(
+            description="Clear all",
+            disabled=False,
+            button_style="",
+            tooltip="Clear all",
+        )
+        self._clear_all_button.on_click(self._on_clear_all_button_change)
 
         self._grid_snap_checkbox = Checkbox(
             value=False,
@@ -207,16 +238,21 @@ class GraphDrawer(object):
         # combining the menu and canvas
         right_box = VBox(
             [
+                HBox([Label(value=" "), Label(value=" ")]),
                 self._vertex_color_picker,
                 self._edge_color_picker,
                 self._vertex_radius_slider,
                 self._edge_width_slider,
                 self._vertex_label_checkbox,
+                self._label_size_slider,
                 self._grid_checkbox,
                 self._grid_snap_checkbox,
                 self._grid_size_slider,
+                self._clear_all_button,
+                HBox([Label(value=" "), Label(value=" ")]),
             ]
         )
+
         # instructions
         instruction_dict = {
             "- Add vertex:": "Mouse press",
@@ -368,6 +404,14 @@ class GraphDrawer(object):
             if change["new"] is False:
                 self._grid_snap_checkbox.value = False
 
+    def _on_clear_all_button_change(self, change: dict[str, str]) -> None:
+        """Clear the entire grid."""
+        self._graph = Graph()
+        _ = change  # To avoid unused variable warning
+        with hold_canvas():
+            self._mcanvas[2].clear()
+            self._redraw_graph()
+
     def _on_grid_size_change(self, change: dict[str, str]) -> None:
         """
         Handle the grid size slider.
@@ -406,6 +450,16 @@ class GraphDrawer(object):
         """
         if change["type"] == "change" and change["name"] == "value":
             self._edge_width = change["new"]
+            with hold_canvas():
+                self._mcanvas[2].clear()
+                self._redraw_graph()
+
+    def _on_labelsize_change(self, change: dict[str, str]) -> None:
+        """
+        Handle the label size slider.
+        """
+        if change["type"] == "change" and change["name"] == "value":
+            self._label_size = change["new"]
             with hold_canvas():
                 self._mcanvas[2].clear()
                 self._redraw_graph()
@@ -599,6 +653,7 @@ class GraphDrawer(object):
                 self._mcanvas[1].clear()
                 self._mcanvas[1].stroke_style = self._edge_color
                 self._mcanvas[1].line_width = self._edge_width
+                self._mcanvas[1].font = f"{self._label_size}px sans-serif"
                 self._mcanvas[1].stroke_line(
                     self._graph.nodes[self._selected_vertex]["pos"][0],
                     self._graph.nodes[self._selected_vertex]["pos"][1],
@@ -692,7 +747,20 @@ class GraphDrawer(object):
                 self._graph.nodes[v]["pos"][0],
                 self._graph.nodes[v]["pos"][1],
             )
-        self._mcanvas[3].fill_style = self._graph.nodes[vertex]["color"]
+
+        cur_col = list(self._graph.nodes[vertex]["color"])
+        new_col = "#"
+        shift = 7
+        start_hash = [f"{i}" for i in range(10)] + ["a", "b", "c", "d", "e", "f"]
+        target_hash = (
+            [f"{i}" for i in range(shift, 10)]
+            + ["a", "b", "c", "d", "e"]
+            + ["f" for _ in range(shift + 1)]
+        )
+        hex_hash = dict(zip(start_hash, target_hash))
+        for i in range(1, len(cur_col)):
+            new_col += hex_hash[cur_col[i]]
+        self._mcanvas[3].fill_style = new_col
         x, y = self._graph.nodes[vertex]["pos"]
         self._mcanvas[3].fill_circle(x, y, self._radius)
         if self._vertex_labels:
@@ -712,6 +780,8 @@ class GraphDrawer(object):
         """
         self._mcanvas[1].line_width = self._edge_width
         self._mcanvas[2].line_width = self._edge_width
+        self._mcanvas[2].font = f"{self._label_size}px sans-serif"
+        self._mcanvas[3].font = f"{self._label_size}px sans-serif"
         for u, v in self._graph.edges:
             # i below is the index of the layer to be used.
             # if the edge is incident with ``vertex``,
