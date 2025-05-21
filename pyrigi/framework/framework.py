@@ -5,7 +5,6 @@ Module for the functionality concerning frameworks.
 from __future__ import annotations
 
 import functools
-from copy import deepcopy
 from random import randrange
 from typing import Any
 
@@ -30,13 +29,7 @@ from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.misc._wrap import copy_doc
 from pyrigi.misc.misc import _doc_category as doc_category
-from pyrigi.misc.misc import (
-    _generate_category_tables,
-    _generate_three_orthonormal_vectors,
-    _generate_two_orthonormal_vectors,
-    is_zero_vector,
-    point_to_vector,
-)
+from pyrigi.misc.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 from . import _general as general
@@ -45,6 +38,7 @@ from ._rigidity import matroidal as matroidal_rigidity
 from ._rigidity import redundant as redundant_rigidity
 from ._rigidity import second_order as second_order_rigidity
 from ._rigidity import stress as stress_rigidity
+from ._transformations import transformations
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
@@ -1230,103 +1224,28 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.translate)
     def translate(
         self, vector: Point | Matrix, inplace: bool = True
     ) -> None | Framework:
-        """
-        Translate the framework.
-
-        Parameters
-        ----------
-        vector
-            Translation vector
-        inplace
-            If ``True`` (default), then this framework is translated.
-            Otherwise, a new translated framework is returned.
-        """
-        vector = point_to_vector(vector)
-
-        if inplace:
-            if vector.shape[0] != self.dim:
-                raise ValueError(
-                    "The dimension of the vector has to be the same as of the framework!"
-                )
-
-            for v in self._realization.keys():
-                self._realization[v] += vector
-            return
-
-        new_framework = deepcopy(self)
-        new_framework.translate(vector, True)
-        return new_framework
+        return transformations.translate(self, vector, inplace=inplace)
 
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.rescale)
     def rescale(self, factor: Number, inplace: bool = True) -> None | Framework:
-        """
-        Scale the framework.
-
-        Parameters
-        ----------
-        factor:
-            Scaling factor
-        inplace:
-            If ``True`` (default), then this framework is translated.
-            Otherwise, a new translated framework is returned.
-        """
-        if isinstance(factor, str):
-            factor = sp.sympify(factor)
-        if inplace:
-            for v in self._realization.keys():
-                self._realization[v] = self._realization[v] * factor
-            return
-
-        new_framework = deepcopy(self)
-        new_framework.rescale(factor, True)
-        return new_framework
+        return transformations.rescale(self, factor, inplace=inplace)
 
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.rotate2D)
     def rotate2D(
         self, angle: float, rotation_center: Point = [0, 0], inplace: bool = True
     ) -> None | Framework:
-        """
-        Rotate the planar framework counterclockwise.
-
-        Parameters
-        ----------
-        angle:
-            Rotation angle
-        rotation_center:
-            The center of rotation.
-            By default, this is the origin.
-        inplace:
-            If ``True`` (default), then this framework is rotated.
-            Otherwise, a new rotated framework is returned.
-        """
-        _input_check.dimension_for_algorithm(self.dim, [2], "rotate2D")
-        _input_check.equal(len(rotation_center), 2, "length of the `rotation_center`")
-
-        rotation_matrix = Matrix(
-            [[sp.cos(angle), -sp.sin(angle)], [sp.sin(angle), sp.cos(angle)]]
+        return transformations.rotate2D(
+            self, angle, rotation_center=rotation_center, inplace=inplace
         )
 
-        opposite_rotation_center = [-rotation_center[0], -rotation_center[1]]
-
-        if inplace:
-            rotated_framework = self
-        else:
-            rotated_framework = deepcopy(self)
-
-        rotated_framework.translate(opposite_rotation_center, inplace=True)
-        for v, pos in rotated_framework._realization.items():
-            rotated_framework._realization[v] = rotation_matrix * pos
-        rotated_framework.translate(rotation_center, inplace=True)
-
-        if inplace:
-            return
-        else:
-            return rotated_framework
-
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.rotate3D)
     def rotate3D(
         self,
         angle: Number,
@@ -1334,94 +1253,21 @@ class Framework(FrameworkBase):
         axis_shift: Point = [0, 0, 0],
         inplace: bool = True,
     ) -> None | Framework:
-        """
-        Rotate the spatial framework counterclockwise around a specified rotation axis.
-
-        Parameters
-        ----------
-        angle:
-            Rotation angle around the axis of rotation.
-        axis_direction:
-            Direction of the rotation axis.
-            By default, this is the ``z``-axis.
-        axis_shift:
-            A point through which the rotation axis passes.
-            By default, this is the origin.
-        inplace:
-            If ``True`` (default), then this framework is rotated.
-            Otherwise, a new rotated framework is returned.
-        """
-        _input_check.dimension_for_algorithm(self.dim, [3], "rotate3D")
-        _input_check.equal(len(axis_direction), 3, "length of the `axis_direction`")
-        _input_check.equal(len(axis_shift), 3, "length of the `axis_shift`")
-        if is_zero_vector(axis_direction):
-            raise ValueError(
-                "The parameter `axis_direction` needs to be a non-zero vector."
-            )
-
-        versor_dir_axis = [
-            pos / sp.sqrt(sum(coord**2 for coord in axis_direction))
-            for pos in axis_direction
-        ]
-        rotation_matrix = Matrix(
-            [
-                [
-                    sp.cos(angle) + versor_dir_axis[0] ** 2 * (1 - sp.cos(angle)),
-                    versor_dir_axis[0] * versor_dir_axis[1] * (1 - sp.cos(angle))
-                    - versor_dir_axis[2] * sp.sin(angle),
-                    versor_dir_axis[0] * versor_dir_axis[2] * (1 - sp.cos(angle))
-                    + versor_dir_axis[1] * sp.sin(angle),
-                ],
-                [
-                    versor_dir_axis[0] * versor_dir_axis[1] * (1 - sp.cos(angle))
-                    + versor_dir_axis[2] * sp.sin(angle),
-                    sp.cos(angle) + versor_dir_axis[1] ** 2 * (1 - sp.cos(angle)),
-                    versor_dir_axis[1] * versor_dir_axis[2] * (1 - sp.cos(angle))
-                    - versor_dir_axis[0] * sp.sin(angle),
-                ],
-                [
-                    versor_dir_axis[0] * versor_dir_axis[2] * (1 - sp.cos(angle))
-                    - versor_dir_axis[1] * sp.sin(angle),
-                    versor_dir_axis[1] * versor_dir_axis[2] * (1 - sp.cos(angle))
-                    + versor_dir_axis[0] * sp.sin(angle),
-                    sp.cos(angle) + versor_dir_axis[2] ** 2 * (1 - sp.cos(angle)),
-                ],
-            ]
+        return transformations.rotate3D(
+            self,
+            angle,
+            axis_direction=axis_direction,
+            axis_shift=axis_shift,
+            inplace=inplace,
         )
 
-        opposite_axis_shift = [-axis_shift[0], -axis_shift[1], -axis_shift[2]]
-
-        if inplace:
-            rotated_framework = self
-        else:
-            rotated_framework = deepcopy(self)
-
-        rotated_framework.translate(opposite_axis_shift, inplace=True)
-        for v, pos in rotated_framework._realization.items():
-            rotated_framework._realization[v] = rotation_matrix * pos
-        rotated_framework.translate(axis_shift, inplace=True)
-
-        if inplace:
-            return
-        else:
-            return rotated_framework
-
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.rotate)
     def rotate(self, **kwargs) -> None | Framework:
-        """
-        Alias for rotating frameworks based on
-        :meth:`~Framework.rotate2D` and :meth:`~Framework.rotate3D`.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.rotate2D` and :meth:`~Framework.rotate3D`.
-        """
-        _input_check.dimension_for_algorithm(self.dim, [2, 3], "rotate")
-        if self.dim == 2:
-            return self.rotate2D(**kwargs)
-        elif self.dim == 3:
-            return self.rotate3D(**kwargs)
+        return transformations.rotate(self, **kwargs)
 
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.projected_realization)
     def projected_realization(
         self,
         proj_dim: int = None,
@@ -1429,92 +1275,12 @@ class Framework(FrameworkBase):
         random_seed: int = None,
         coordinates: Sequence[int] = None,
     ) -> tuple[dict[Vertex, Point], Matrix]:
-        """
-        Return the realization projected to a lower dimension and the projection matrix.
-
-        Parameters
-        ----------
-        proj_dim:
-            The dimension to which the framework is projected.
-            This is determined from ``projection_matrix`` if it is provided.
-        projection_matrix:
-            The matrix used for projecting the placement of vertices.
-            The matrix must have dimensions ``(proj_dim, dim)``,
-            where ``dim`` is the dimension of the given framework.
-            If ``None``, a numerical random projection matrix is generated.
-        random_seed:
-            The random seed used for generating the projection matrix.
-        coordinates:
-            Indices of coordinates to which projection is applied.
-            Providing the parameter overrides the previous ones.
-
-        Suggested Improvements
-        ----------------------
-        Generate random projection matrix over symbolic rationals.
-        """
-        if coordinates is not None:
-            if not isinstance(coordinates, tuple) and not isinstance(coordinates, list):
-                raise TypeError(
-                    "The parameter ``coordinates`` must be a tuple or a list."
-                )
-            if max(coordinates) >= self._dim:
-                raise ValueError(
-                    f"Index {np.max(coordinates)} out of range"
-                    + f" with placement in dim: {self._dim}."
-                )
-            if isinstance(proj_dim, int) and len(coordinates) != proj_dim:
-                raise ValueError(
-                    f"The number of coordinates ({len(coordinates)}) does not match"
-                    + f" proj_dim ({proj_dim})."
-                )
-            matrix = np.zeros((len(coordinates), self._dim))
-            for i, coord in enumerate(coordinates):
-                matrix[i, coord] = 1
-
-            return (
-                {
-                    v: tuple([pos[coord] for coord in coordinates])
-                    for v, pos in self._realization.items()
-                },
-                Matrix(matrix),
-            )
-
-        if projection_matrix is not None:
-            projection_matrix = np.array(projection_matrix)
-            if projection_matrix.shape[1] != self._dim:
-                raise ValueError(
-                    "The projection matrix has wrong number of columns."
-                    + f"{projection_matrix.shape[1]} instead of {self._dim}."
-                )
-            if isinstance(proj_dim, int) and projection_matrix.shape[0] != proj_dim:
-                raise ValueError(
-                    "The projection matrix has wrong number of rows."
-                    + f"{projection_matrix.shape[0]} instead of {self._dim}."
-                )
-
-        if projection_matrix is None:
-            if proj_dim == 2:
-                projection_matrix = _generate_two_orthonormal_vectors(
-                    self._dim, random_seed=random_seed
-                )
-            elif proj_dim == 3:
-                projection_matrix = _generate_three_orthonormal_vectors(
-                    self._dim, random_seed=random_seed
-                )
-            else:
-                raise ValueError(
-                    "An automatically generated random matrix is supported"
-                    + f" only in dimension 2 or 3. {proj_dim} was given instead."
-                )
-            projection_matrix = projection_matrix.T
-        return (
-            {
-                v: tuple(
-                    [float(s[0]) for s in np.dot(projection_matrix, np.array(pos))]
-                )
-                for v, pos in self.realization(as_points=False, numerical=True).items()
-            },
-            projection_matrix,
+        return transformations.projected_realization(
+            self,
+            proj_dim=proj_dim,
+            projection_matrix=projection_matrix,
+            random_seed=random_seed,
+            coordinates=coordinates,
         )
 
     @doc_category("Other")
