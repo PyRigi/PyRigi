@@ -14,8 +14,8 @@ from pyrigi.data_type import (
     Stress,
     Vertex,
 )
+from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.framework.base import FrameworkBase
-from pyrigi.framework.rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.misc.misc import _null_space, is_zero_vector
 
 

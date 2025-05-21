@@ -42,9 +42,9 @@ from pyrigi.misc.misc import (
 )
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
-from .rigidity import infinitesimal as infinitesimal_rigidity
-from .rigidity import second_order as second_order_rigidity
-from .rigidity import stress as stress_rigidity
+from ._rigidity import infinitesimal as infinitesimal_rigidity
+from ._rigidity import second_order as second_order_rigidity
+from ._rigidity import stress as stress_rigidity
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]

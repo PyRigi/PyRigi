@@ -13,6 +13,7 @@ from typing import Any, Callable, ParamSpec, Type, TypeVar, cast, get_args, get_
 
 import pytest
 
+from pyrigi import Framework
 from pyrigi.graph import Graph
 
 P = ParamSpec("P")
@@ -227,7 +228,7 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
         )
 
 
-@pytest.mark.parametrize(("cls"), [Graph])
+@pytest.mark.parametrize(("cls"), [Graph, Framework])
 def test_signature_graph(cls: Type):
     """
     Test that all methods have the same signature as the proxy functions

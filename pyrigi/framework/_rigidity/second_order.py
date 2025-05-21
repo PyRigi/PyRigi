@@ -14,9 +14,9 @@ from pyrigi.data_type import (
     Stress,
     Vertex,
 )
+from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
+from pyrigi.framework._rigidity import stress as stress_rigidity
 from pyrigi.framework.base import FrameworkBase
-from pyrigi.framework.rigidity import infinitesimal as infinitesimal_rigidity
-from pyrigi.framework.rigidity import stress as stress_rigidity
 from pyrigi.misc.misc import is_zero, sympy_expr_to_float
 
 

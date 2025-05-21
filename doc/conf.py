@@ -525,9 +525,12 @@ comments = {
         "_plot.py": "auxiliary functions for plotting",
         "base.py": "implementation of FrameworkBase",
         "framework.py": "implementation of Framework",
+        "_general.py": "general framework functions",
         "infinitesimal.py": "functions for infinitesimal rigidity",
+        "matroidal.py": "functions for framework rigidity matroid",
+        "redundant.py": "functions for redundant rigidity",
+        "second_order.py": "functions for prestress stability and 2nd order rig.",
         "stress.py": "functions for stresses",
-        "prestress_stability.py": "functions for prestress stability and 2nd order rig.",
         "transformations.py": "functions like rotate or scale",
     },
     "misc": {

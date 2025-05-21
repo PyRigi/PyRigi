@@ -11,6 +11,9 @@ an instance, like `Graph`, is available and therefore easy to search for and use
 This approach allows one to implement functionality in separate modules according to the topics,
 see [below](#overview).
 
+The modules are considered non-public (they are in folders with a single leading underscore),
+hence their structure might change in backward incompatible manner.
+
 ## Graph functionality
 
 Functions implementing graph functionalities accept {class}`networkx.Graph` as the first parameter
@@ -20,7 +23,7 @@ For example, consider the method {meth}`.Graph.is_rigid`.
 In the file `pyrigi/graph/graph.py` it looks like:
 
 ```python
-from .rigidity import generic as generic_rigidity
+from ._rigidity import generic as generic_rigidity
 class Graph(nx.Graph):
     @copy_doc(generic_rigidity.is_rigid)
     def is_rigid(

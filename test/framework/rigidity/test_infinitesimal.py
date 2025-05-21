@@ -5,7 +5,7 @@ from sympy import Matrix, sympify
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
 from pyrigi.framework import Framework
-from pyrigi.framework.rigidity import infinitesimal as infinitesimal_rigidity
+from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.graph import Graph
 
 
