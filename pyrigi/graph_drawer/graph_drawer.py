@@ -527,6 +527,7 @@ class GraphDrawer(object):
                     self._mcanvas.height / 2 - i,
                 )
         # add a red dot at the origin
+        self._mcanvas[0].fill_style = "red"
         self._mcanvas[0].fill_circle(
             self._mcanvas.width / 2, self._mcanvas.height / 2, 2
         )
