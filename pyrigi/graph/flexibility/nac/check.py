@@ -1,6 +1,6 @@
 """
-The module checks if the coloring given is a NAC coloring.
-The main entry point is _is_NAC_coloring_impl
+The module checks if the coloring given is a NAC-coloring.
+Algorithm based on :prf:ref:`<lem-color-components>` is used.
 """
 
 from typing import *
@@ -8,9 +8,7 @@ from typing import *
 import networkx as nx
 
 from pyrigi.data_type import Edge
-from pyrigi.graph.flexibility.nac.existence import check_NAC_constrains
-
-NACColoring: TypeAlias = Tuple[Collection[Edge], Collection[Edge]]
+from pyrigi.graph.flexibility.nac.core import NACColoring
 
 
 def _check_for_almost_red_cycles(
@@ -21,7 +19,19 @@ def _check_for_almost_red_cycles(
     """
     Checks if there is an almost cycle in the graph given with the given coloring.
     Does not check if the coloring is surjective.
-    Returns true if the coloring has no such cycles..
+
+    Parameters
+    ----------
+    G:
+        The graph to check.
+    red_edges:
+        Edges in the red color - used to create components.
+    blue_edges:
+        Edges in the blue color - used to check for almost cycles.
+
+    Returns
+    -------
+    `True` if the coloring has no almost cycles with a single blue edge.
     """
     G.clear_edges()
     G.add_edges_from(red_edges)
@@ -43,40 +53,35 @@ def _is_NAC_coloring_impl(
     coloring: NACColoring,
 ) -> bool:
     """
-    Check if the coloring given is a NAC coloring.
-    The algorithm checks if all the edges are in the same component.
+    Check if the coloring given is a :prf:ref:`NAC-coloring <def-nac>`
+    by using algorithm described in :prf:ref:`<lem-color-components>`.
 
+    The algorithm checks if all the edges are in the same component.
     This is an internal implementation, so some properties like injectivity
     are not checked for performance reasons - we only search for the cycles.
 
     Parameters:
     ----------
-        coloring: the coloring to check if it is a NAC coloring.
-        allow_non_surjective: if True, allows the coloring to be non-surjective.
-            This can be useful for checking subgraphs - the can use only one color.
-    ----------
-
-
-    (TODO format)
+    coloring:
+        The coloring to check if it is a NAC coloring.
+    allow_non_surjective: if `True`, return `True` also
+        For non-surjective (monochromatic) colorings.
+        This can be useful for checking subgraphs.
     """
     red, blue = coloring
 
-    # TODO NAC reimplement advanced graph vertices caching in PyRigi
-    # # 43% speedup (from base solution, current work around was not yet compared)
-    # # !!! make sure !!! this graph is cleared before every run
-    # # this also makes the whole NAC coloring search thread insecure
-    # # things will break if you add vertices while another search
-    # # is still running
-
-    # G = graph._graph_is_NAC_coloring
-
-    # # somehow this if is faster than setting things outside once
-    # if G is None:
-    #     G = nx.Graph()
-    #     G.add_nodes_from(graph.nodes)
-    #     graph._graph_is_NAC_coloring = G
-
-    # Workaround
+    # This improves performance as it takes significantly longer to create
+    # the graph when edges are added whole vertices are missing.
+    # This approaches shares the vertices among multiple runs.
+    # The performance can be improved even more if this graph is cached
+    # for each graph as usually this check is run multiple times
+    # on the same graph for many colorings.
+    # This caching causes memory leaks unless the temporary graph is deleted
+    # manually or the original graph is cleared.
+    # TODO
+    # resolve caching for multiple runs?
+    # Cleanup in the public interface?
+    # Performance gain was ~40% percent in my tests half a year ago.
     G = nx.Graph()
     G.add_nodes_from(graph.nodes)
 
@@ -85,21 +90,26 @@ def _is_NAC_coloring_impl(
     )
 
 
+# public facing interface
 def is_NAC_coloring(
     graph: nx.Graph,
     coloring: NACColoring | Dict[str, Collection[Edge]],
 ) -> bool:
     """
-    Check if the coloring given is a NAC coloring.
+    Check if the coloring given is a :prf:ref:`NAC-coloring <def-nac>`
+    by using algorithm described in :prf:ref:`<lem-color-components>`.
+
     The algorithm checks if all the edges are in the same component.
+    This is an internal implementation, so some properties like injectivity
+    are not checked for performance reasons - we only search for the cycles.
 
     Parameters:
     ----------
-        coloring: the coloring to check if it is a NAC coloring.
-    ----------
-
-
-    (TODO format)
+    coloring:
+        The coloring to check if it is a NAC coloring.
+    allow_non_surjective: if `True`, return `True` also
+        For non-surjective (monochromatic) colorings.
+        This can be useful for checking subgraphs.
     """
     red: Collection[Edge]
     blue: Collection[Edge]
@@ -110,8 +120,9 @@ def is_NAC_coloring(
         red, blue = coloring
     assert type(red) == type(blue)
 
-    if not check_NAC_constrains(graph):
-        return False
+    # TODO resolve which checks we want to perform
+    # if not check_NAC_constrains(graph):
+    #     return False
 
     # Both colors have to be used
     if len(red) == 0 or len(blue) == 0:  # this is faster than *
@@ -127,7 +138,5 @@ def is_NAC_coloring(
         for e in red:
             if e in blue:
                 return False
-
-    # graph._graph_is_NAC_coloring = None
 
     return _is_NAC_coloring_impl(graph, (red, blue))
