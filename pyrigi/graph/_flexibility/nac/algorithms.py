@@ -10,7 +10,7 @@ from typing import *
 import networkx as nx
 
 from pyrigi.data_type import Edge
-from pyrigi.graph.flexibility.nac.core import (
+from pyrigi.graph._flexibility.nac.core import (
     NACColoring,
     coloring_from_mask,
 )
