@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -1013,7 +1014,8 @@ def test_plot2D():
     F.plot2D(inf_flex=0)
 
     F = fws.Complete(4)
-    F.plot2D(stress=0)
+    F.plot2D(stress=0, dpi=200, filename="K4_Test_output")
+    os.remove("K4_Test_output.png")
 
     F = fws.Complete(4, dim=1)
     F.plot2D(stress=0)
@@ -1039,7 +1041,8 @@ def test_plot3D():
     F.plot3D(inf_flex=0, stress=0)
 
     F = fws.Complete(4)
-    F.plot3D(stress=0)
+    F.plot3D(stress=0, dpi=200, filename="K4_Test_output")
+    os.remove("K4_Test_output.png")
 
     F = fws.Complete(4, dim=1)
     F.plot3D(stress=0)
