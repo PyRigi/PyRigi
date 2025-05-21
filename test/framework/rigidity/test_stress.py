@@ -39,14 +39,14 @@ def test_stress_matrix():
     M = Matrix([[-1, 1, -1, 1], [1, -1, 1, -1], [-1, 1, -1, 1], [1, -1, 1, -1]])
     stress = F.stresses(edge_order=edge_order)[0].transpose().tolist()[0]
     assert F.stress_matrix(stress, edge_order=edge_order) == M
-    # if TEST_WRAPPED_FUNCTIONS:
-    #     F = _to_FrameworkBase(F)
-    #     stress = (
-    #         stress_rigidity.stresses(F, edge_order=edge_order)[0]
-    #         .transpose()
-    #         .tolist()[0]
-    #     )
-    #     assert stress_rigidity.stress_matrix(F, stress) == M
+    if TEST_WRAPPED_FUNCTIONS:
+        F = _to_FrameworkBase(F)
+        stress = (
+            stress_rigidity.stresses(F, edge_order=edge_order)[0]
+            .transpose()
+            .tolist()[0]
+        )
+        assert stress_rigidity.stress_matrix(F, stress, edge_order=edge_order) == M
 
 
 @pytest.mark.parametrize(
