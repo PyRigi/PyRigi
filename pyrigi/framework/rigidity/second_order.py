@@ -16,6 +16,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.framework.rigidity import infinitesimal as infinitesimal_rigidity
+from pyrigi.framework.rigidity import stress as stress_rigidity
 from pyrigi.misc.misc import is_zero, sympy_expr_to_float
 
 
@@ -307,11 +308,15 @@ def _process_list_of_stresses(
     """
     edges = framework._graph.edge_list(as_tuples=True)
     if stresses is None:
-        stresses = framework.stresses(numerical=numerical, tolerance=tolerance)
+        stresses = stress_rigidity.stresses(
+            framework, numerical=numerical, tolerance=tolerance
+        )
         if len(stresses) == 0:
             return stresses
     elif any(
-        not framework.is_stress(stress, numerical=numerical, tolerance=tolerance)
+        not stress_rigidity.is_stress(
+            framework, stress, numerical=numerical, tolerance=tolerance
+        )
         for stress in stresses
     ):
         raise ValueError(
@@ -321,7 +326,9 @@ def _process_list_of_stresses(
         raise ValueError("No equilibrium stresses were provided.")
     if all(isinstance(stress, list | tuple | Matrix) for stress in stresses):
         stresses = [
-            framework._transform_stress_to_edgewise(stress, edge_order=edges)
+            stress_rigidity._transform_stress_to_edgewise(
+                framework, stress, edge_order=edges
+            )
             for stress in stresses
         ]
     elif not all(isinstance(stress, dict) for stress in stresses):

@@ -36,7 +36,6 @@ from pyrigi.misc.misc import (
     _generate_category_tables,
     _generate_three_orthonormal_vectors,
     _generate_two_orthonormal_vectors,
-    _null_space,
     is_zero,
     is_zero_vector,
     point_to_vector,
@@ -45,6 +44,7 @@ from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 from .rigidity import infinitesimal as infinitesimal_rigidity
 from .rigidity import second_order as second_order_rigidity
+from .rigidity import stress as stress_rigidity
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
@@ -1048,50 +1048,12 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.is_dict_stress)
     def is_dict_stress(self, dict_stress: dict[Edge, Number], **kwargs) -> bool:
-        """
-        Return whether a dictionary specifies an equilibrium stress of the framework.
-
-        Definitions
-        -----------
-        :prf:ref:`Equilibrium Stress <def-equilibrium-stress>`
-
-        Parameters
-        ----------
-        dict_stress:
-            Dictionary that maps the edges to stress values.
-
-        Examples
-        --------
-        >>> F = Framework.Complete([[0,0], [1,0], ['1/2',0]])
-        >>> F.is_dict_stress({(0,1):'-1/2', (0,2):1, (1,2):1})
-        True
-        >>> F.is_dict_stress({(0,1):1, (1,2):'-1/2', (0,2):1})
-        False
-
-        Notes
-        -----
-        See :meth:`.is_vector_stress`.
-        """
-        stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
-        _graph_input_check.is_edge_order(self._graph, stress_edge_list, "dict_stress")
-        graph_edge_list = [tuple(e) for e in self._graph.edge_list()]
-        dict_to_list = []
-
-        for e in graph_edge_list:
-            dict_to_list += [
-                (
-                    dict_stress[e]
-                    if e in stress_edge_list
-                    else dict_stress[tuple([e[1], e[0]])]
-                )
-            ]
-
-        return self.is_vector_stress(
-            dict_to_list, edge_order=self._graph.edge_list(), **kwargs
-        )
+        return stress_rigidity.is_dict_stress(self, dict_stress=dict_stress, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.is_vector_stress)
     def is_vector_stress(
         self,
         stress: Sequence[Number],
@@ -1099,133 +1061,30 @@ class Framework(FrameworkBase):
         numerical: bool = False,
         tolerance=1e-9,
     ) -> bool:
-        r"""
-        Return whether a vector is an equilibrium stress.
-
-        Definitions
-        -----------
-        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
-
-        Parameters
-        ----------
-        stress:
-            A vector to be checked whether it is a stress of the framework.
-        edge_order:
-            A list of edges, providing the ordering for the entries of the ``stress``.
-            If none is provided, the list from :meth:`.Graph.edge_list` is taken.
-        numerical:
-            A Boolean determining whether the evaluation of the product of the ``stress``
-            and the rigidity matrix is symbolic or numerical.
-        tolerance:
-            Absolute tolerance that is the threshold for acceptable equilibrium
-            stresses. This parameter is used to determine the number of digits,
-            to which accuracy the symbolic expressions are evaluated.
-
-        Examples
-        --------
-        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
-        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
-        >>> F = Framework(G, pos)
-        >>> omega1 = [-8, -4, -4, 2, 2, 1]
-        >>> F.is_stress(omega1)
-        True
-        >>> omega1[0] = 0
-        >>> F.is_stress(omega1)
-        False
-        >>> from pyrigi import frameworkDB
-        >>> F = frameworkDB.Complete(5, dim=2)
-        >>> stresses=F.stresses()
-        >>> F.is_stress(stresses[0])
-        True
-        """
-        edge_order = _graph_input_check.is_edge_order(
-            self._graph, edge_order=edge_order
-        )
-        return is_zero_vector(
-            Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order),
+        return stress_rigidity.is_vector_stress(
+            self,
+            stress=stress,
+            edge_order=edge_order,
             numerical=numerical,
             tolerance=tolerance,
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.is_stress)
     def is_stress(self, stress: Stress, **kwargs) -> bool:
-        """
-        Alias for :meth:`.is_vector_stress` and
-        :meth:`.is_dict_stress`.
-
-        One of the alias methods is called depending on the type of the input.
-
-        Parameters
-        ----------
-        stress
-        """
-        if isinstance(stress, list | Matrix):
-            return self.is_vector_stress(stress, **kwargs)
-        elif isinstance(stress, dict):
-            return self.is_dict_stress(stress, **kwargs)
-        else:
-            raise TypeError(
-                "The `stress` must be specified either by a list/Matrix or a dictionary!"
-            )
+        return stress_rigidity.is_stress(self, stress=stress, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.stress_matrix)
     def stress_matrix(
         self,
         stress: Stress,
         edge_order: Sequence[Edge] = None,
         vertex_order: Sequence[Vertex] = None,
     ) -> Matrix:
-        r"""
-        Construct the stress matrix of a stress.
-
-        Definitions
-        -----
-        * :prf:ref:`Stress Matrix <def-stress-matrix>`
-
-        Parameters
-        ----------
-        stress:
-            A stress of the framework given as a vector.
-        edge_order:
-            A list of edges, providing the ordering of edges in ``stress``.
-            If ``None``, :meth:`.Graph.edge_list` is assumed.
-        vertex_order:
-            Specification of row/column order of the stress matrix.
-            If ``None``, :meth:`.Graph.vertex_list` is assumed.
-
-        Examples
-        --------
-        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
-        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
-        >>> F = Framework(G, pos)
-        >>> omega = [-8, -4, -4, 2, 2, 1]
-        >>> F.stress_matrix(omega)
-        Matrix([
-        [-16,  8,  4,  4],
-        [  8, -4, -2, -2],
-        [  4, -2, -1, -1],
-        [  4, -2, -1, -1]])
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
-        edge_order = _graph_input_check.is_edge_order(self._graph, edge_order)
-        if not self.is_stress(stress, edge_order=edge_order, numerical=True):
-            raise ValueError(
-                "The provided stress does not lie in the cokernel of the rigidity matrix!"
-            )
-        # creation of a zero |V|x|V| matrix
-        stress_matr = sp.zeros(len(self._graph))
-        v_to_i = {v: i for i, v in enumerate(vertex_order)}
-
-        for edge, edge_stress in zip(edge_order, stress):
-            for v in edge:
-                stress_matr[v_to_i[v], v_to_i[v]] += edge_stress
-
-        for e, stressval in zip(edge_order, stress):
-            i, j = v_to_i[e[0]], v_to_i[e[1]]
-            stress_matr[i, j] = -stressval
-            stress_matr[j, i] = -stressval
-
-        return stress_matr
+        return stress_rigidity.stress_matrix(
+            self, stress=stress, edge_order=edge_order, vertex_order=vertex_order
+        )
 
     @doc_category("Infinitesimal rigidity")
     @copy_doc(infinitesimal_rigidity.trivial_inf_flexes)
@@ -1257,53 +1116,16 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.stresses)
     def stresses(
         self,
         edge_order: Sequence[Edge] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> list[Matrix] | list[list[float]]:
-        r"""
-        Return a basis of the space of equilibrium stresses.
-
-        Definitions
-        -----------
-        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
-
-        Parameters
-        ----------
-        edge_order:
-            A list of edges, providing the ordering for the entries of the stresses.
-            If none is provided, the list from :meth:`.Graph.edge_list` is taken.
-        numerical:
-            Determines whether the output is symbolic (default) or numerical.
-        tolerance:
-            Used tolerance when computing the stresses numerically.
-
-        Examples
-        --------
-        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
-        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
-        >>> F = Framework(G, pos)
-        >>> F.stresses()
-        [Matrix([
-        [-8],
-        [-4],
-        [-4],
-        [ 2],
-        [ 2],
-        [ 1]])]
-        """
-        if not numerical:
-            return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
-        F = Framework(self._graph, self.realization(as_points=True, numerical=True))
-        stresses = _null_space(
-            np.array(F.rigidity_matrix(edge_order=edge_order).transpose()).astype(
-                np.float64
-            ),
-            tolerance=tolerance,
+        return stress_rigidity.stresses(
+            self, edge_order=edge_order, numerical=numerical, tolerance=tolerance
         )
-        return [list(stresses[:, i]) for i in range(stresses.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
     @copy_doc(infinitesimal_rigidity.rigidity_matrix_rank)
@@ -2080,36 +1902,6 @@ class Framework(FrameworkBase):
         print(
             f"STL files for the bars have been generated in the folder `{output_dir}`."
         )
-
-    def _transform_stress_to_edgewise(
-        self, stress: Matrix, edge_order: Sequence[Edge] = None
-    ) -> dict[Edge, Number]:
-        r"""
-        Transform the natural data type of a stress (``Matrix``) to a
-        dictionary that maps an edge to a coordinate.
-
-        Parameters
-        ----------
-        stress:
-            An equilibrium stress in the form of a ``Matrix``.
-        edge_order:
-            If ``None``, the :meth:`.Graph.edge_list`
-            is taken as the edge order.
-
-        Examples
-        ----
-        >>> F = Framework.Complete([(0,0),(1,0),(1,1),(0,1)])
-        >>> stress = F.stresses()[0]
-        >>> F._transform_stress_to_edgewise(stress)
-        {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
-
-        Notes
-        ----
-        For example, this method can be used for generating an
-        equilibrium stresss for plotting purposes.
-        """
-        edge_order = _graph_input_check.is_edge_order(self._graph, edge_order)
-        return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
 
     @doc_category("Infinitesimal rigidity")
     @copy_doc(infinitesimal_rigidity.is_vector_inf_flex)
