@@ -3,7 +3,7 @@ import pytest
 import networkx as nx
 
 from pyrigi.data_type import Edge
-from pyrigi.graph.flexibility import nac
+from pyrigi.graph._flexibility import nac
 from pyrigi import graphDB
 
 

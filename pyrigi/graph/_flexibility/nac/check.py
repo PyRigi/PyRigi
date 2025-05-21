@@ -8,7 +8,7 @@ from typing import *
 import networkx as nx
 
 from pyrigi.data_type import Edge
-from pyrigi.graph.flexibility.nac.core import NACColoring
+from pyrigi.graph._flexibility.nac.core import NACColoring
 
 
 def _check_for_almost_red_cycles(
