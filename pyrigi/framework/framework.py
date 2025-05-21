@@ -43,6 +43,7 @@ from pyrigi.misc.misc import (
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 from ._rigidity import infinitesimal as infinitesimal_rigidity
+from ._rigidity import matroidal as matroidal_rigidity
 from ._rigidity import second_order as second_order_rigidity
 from ._rigidity import stress as stress_rigidity
 
@@ -1156,55 +1157,19 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(matroidal_rigidity.is_independent)
     def is_independent(self, **kwargs) -> bool:
-        """
-        Return whether the framework is independent.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.rigidity_matrix_rank`.
-
-        Definitions
-        -----------
-        :prf:ref:`Independent framework <def-independent-framework>`
-
-        Examples
-        --------
-        >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-        >>> F.is_independent()
-        False
-        >>> F.delete_edge((0,2))
-        >>> F.is_independent()
-        True
-        """
-        return self.rigidity_matrix_rank(**kwargs) == self._graph.number_of_edges()
+        return matroidal_rigidity.is_independent(self, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(matroidal_rigidity.is_dependent)
     def is_dependent(self, **kwargs) -> bool:
-        """
-        Return whether the framework is dependent.
-
-        See also :meth:`~.Framework.is_independent`.
-
-        Definitions
-        -----------
-        :prf:ref:`Dependent framework <def-independent-framework>`
-        """
-        return not self.is_independent(**kwargs)
+        return matroidal_rigidity.is_dependent(self, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(matroidal_rigidity.is_isostatic)
     def is_isostatic(self, **kwargs) -> bool:
-        """
-        Return whether the framework is isostatic.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.is_independent` and
-        :meth:`~Framework.is_inf_rigid`.
-
-        Definitions
-        -----------
-        :prf:ref:`Isostatic framework <def-isostatic-frameworks>`
-        """
-        return self.is_independent(**kwargs) and self.is_inf_rigid(**kwargs)
+        return matroidal_rigidity.is_isostatic(self, **kwargs)
 
     @doc_category("Other")
     @copy_doc(second_order_rigidity.is_prestress_stable)
