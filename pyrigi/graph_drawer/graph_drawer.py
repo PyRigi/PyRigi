@@ -407,6 +407,7 @@ class GraphDrawer(object):
     def _on_clear_all_button_change(self, change: dict[str, str]) -> None:
         """Clear the entire grid."""
         self._graph = Graph()
+        _ = change  # To avoid unused variable warning
         with hold_canvas():
             self._mcanvas[2].clear()
             self._redraw_graph()
