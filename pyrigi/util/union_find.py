@@ -5,14 +5,14 @@ class UnionFind[T: Hashable]:
     """
     Union find data structure implementation
 
-    Use only with types other then int,
-    use implementation without dicts in that case.
-
+    Note
+    ----
+    For integers, this can be implemented more efficiently with lists and indexing.
     Uses tree collapsing internally to improve performance.
     """
 
     def __init__(self):
-        # Maps used type into id used for list indexing
+        # Maps used type into ID used for list indexing
         self._data: Dict[T, T] = {}
 
     def __repr__(self) -> str:
@@ -25,6 +25,9 @@ class UnionFind[T: Hashable]:
         return self.find(a) == self.find(b)
 
     def find(self, a: T) -> T:
+        """
+        Find class for the given item
+        """
         # initial recursion end
         if a not in self._data:
             self._data[a] = a
@@ -41,6 +44,9 @@ class UnionFind[T: Hashable]:
         return res
 
     def join(self, a: T, b: T) -> bool:
+        """
+        Join classes of two given items
+        """
         ca, cb = self.find(a), self.find(b)
         if ca == cb:
             return False

@@ -1,7 +1,19 @@
+"""
+The module contains functions related to converting from and to
+:prf:ref:`NAC-mono <def-nac-mono>` classes represented by bit masks
+to sets of edges representing a :prf:ref:`NAC-coloring <def-nac>`.
+"""
+
 from typing import *
 
 from pyrigi.data_type import Edge
 
+"""
+Represents a :prf:ref:`NAC-coloring <def-nac>`.
+Meant for internal use only as :meth:`~frozenset`
+should be exposed to the user instead.
+Tuple is faster for internal use.
+"""
 NACColoring: TypeAlias = Tuple[Collection[Edge], Collection[Edge]]
 
 
@@ -12,20 +24,20 @@ def coloring_from_mask(
     allow_mask: int | None = None,
 ) -> NACColoring:
     """
-    Converts a mask representing a red-blue edge coloring.
+    Convert a mask representing a red-blue edge coloring.
 
     Parameters
     ----------
     ordered_comp_ids:
-        list of component IDs, mask points into it
+        List of component IDs, mask's bits point into it.
     component_to_edges:
-        mapping from component ID to its edges
+        Mapping from component ID to its edges.
     mask:
-        bit mask pointing into ordered_comp_ids,
-        1 means red and 0 blue (or otherwise)
+        Bit mask pointing into `ordered_comp_ids`,
+        1 means red and 0 blue (or otherwise).
     allow_mask:
-        mask allowing only some components.
-        Used when generating coloring for subgraph.
+        Mask allowing only some components.
+        Used for subgraphs.
     """
 
     if allow_mask is None:
@@ -39,6 +51,5 @@ def coloring_from_mask(
             continue
 
         edges = component_to_edges[e]
-        # (red if mask & address else blue).update(edges)
         (red if mask & address else blue).extend(edges)
     return (red, blue)

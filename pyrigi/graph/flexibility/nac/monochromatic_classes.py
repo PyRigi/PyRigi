@@ -1,6 +1,7 @@
 """
-This module is responsible for finding monochromatic classes or
-triangle components.
+This module is responsible for finding
+triangle-connected components and
+:prf:ref:`NAC-mono classes <def-nac-mono>`.
 """
 
 from collections import defaultdict
@@ -12,22 +13,36 @@ from pyrigi.util.union_find import UnionFind
 from pyrigi.data_type import Edge
 
 
+# TODO rename when all the code is refactored
 class MonochromaticClassType(Enum):
     """
-    Represents the way monochromatic classes are found.
+    Represents approaches for finding :prf:ref:`NAC-valid classes <def-nac-mono>`
+    of different types - single edges, triangle-connected components,
+    and NAC-mono classes.
     """
 
-    """Each edge is its own monochromatic class."""
+    """
+    Each edge is its own :prf:ref:`NAC-mono class <def-nac-mono>`.
+    """
     EDGES = "EDGES"
-    """Each triangle-connected component it its own monochromatic class."""
+    """
+    Each triangle-connected component is its own :prf:ref:`NAC-mono class <def-nac-mono>`.
+    """
     TRIANGLES = "TRIANGLE_CONNECTED_COMPONENTS"
-    """Creates monochromatic classes according to the paper."""
+    """
+    Each NAC-mono class is its own :prf:ref:`NAC-mono class <def-nac-mono>`.
+    Classes are made based on the approach from :cite:p:`LastovickaLegersky2024`.
+    """
     MONOCHROMATIC = "MONOCHROMATIC_CLASSES"
 
 
+# TODO rename when all the code is refactored
 def _trivial_monochromatic_classes(
     graph: nx.Graph,
 ) -> Tuple[Dict[Edge, int], List[List[Edge]]]:
+    """
+    Makes each edge its own NAC-mono class
+    """
     edge_to_component: Dict[Edge, int] = {}
     component_to_edges: List[List[Edge]] = []
     for i, e in enumerate(graph.edges):
@@ -36,23 +51,32 @@ def _trivial_monochromatic_classes(
     return edge_to_component, component_to_edges
 
 
+# TODO rename when all the code is refactored
 def find_monochromatic_classes(
     graph: nx.Graph,
     class_type: MonochromaticClassType = MonochromaticClassType.MONOCHROMATIC,
-    is_cartesian_NAC_coloring: bool = False,
 ) -> Tuple[Dict[Edge, int], List[List[Edge]]]:
     """
-    Finds all the components of triangle equivalence.
+    Find :prf:ref:`NAC-mono classes <def-nac-mono>` based on the type given.
 
-    Returns mapping from edges to their component id (int)
-    and the other way around from component to set of edges
-    Order of vertices in the edge pairs is arbitrary.
+    First, all the components of triangle equivalence are found.
+    Then these are optionally extended to larger NAC-mono classes
+    as described in :cite:p:`LastovickaLegersky2024`.
 
-    If the cartesian mode is switched on,
-    also all the cycles of four are found and merged.
-    Make sure you handle this correctly in your subsequent pipeline.
+    Parameters
+    ----------
+    graph:
+        Input graph
+    class_type:
+        Type of :prf:ref:`NAC-mono classes <def-nac-mono>`
 
-    Components are indexed from 0.
+    Returns
+    -------
+    An ID of a :prf:ref:`NAC-mono class <def-nac-mono>`
+    corresponds to its index in a list of all NAC-mono classes.
+    Return a mapping from edges to their component ID
+    and a list of NAC-mono classes where
+    the index corresponds to the component ID.
     """
     if class_type == MonochromaticClassType.EDGES:
         return _trivial_monochromatic_classes(graph)
@@ -75,8 +99,9 @@ def find_monochromatic_classes(
             components.join((u, v), (w, u))
 
     # Checks for edges & triangles over component
-    # This MUST be run before search for squares of other search
-    # that may produce disconnected components, as cycles may not exist!
+    # This MUST be run before search for squares for cartesian NAC-coloring
+    # of other search that may produce disconnected components,
+    # as cycles may not exist!
     # There routines are highly inefficient, but the time is still
     # negligible compared to the main algorithm running time.
     if class_type == MonochromaticClassType.MONOCHROMATIC:
@@ -142,13 +167,9 @@ def create_component_graph_from_components(
     edges_to_components: Dict[Edge, int],
 ) -> nx.Graph:
     """
-    Deprecated as the whole T-graph idea
-
-    Creates a T graph from the components given.
-    Each edge must belong to a component.
-    Ids of these components are then used
-    as vertices of the new graph.
-    Component id's start from 0.
+    Create a component graph from the :prf:ref:`NAC-mono class <def-nac-mono>` given.
+    Classes are vertices and there is an edge between them
+    if they share a vertex in the original graph.
     """
 
     # graph used to find NAC coloring easily
