@@ -111,3 +111,37 @@ An equivalence class of a NAC-valid relation is called a _NAC-mono class_.
 
 {{references}} {cite:p}`LastovickaLegersky2024{Def 3.2}`
 :::
+
+The simplest NAC-mono class is a single edge.
+Also triangle-connected components form NAC-mono classes.
+
+:::{prf:definition} triangle-connected component
+:label: def-triangle-connected-comp
+
+Let $G=(V,E)$ be a graph.
+Let $\triangle$ be the equivalence relation on $E$, where $e_1\triangle e_2$ if
+there is a 3-cycle in $G$ containing both $e_1$ and $e_2$.
+
+Clearly, $\triangle$ is NAC-valid.
+The equivalence classes are called _triangle-connected components_ or _$\triangle$-components_.
+
+{{references}} {cite:p}`GraseggerLegerskySchicho2019{Def 4.1}`
+:::
+
+In the implementation a slightly more specific relation is used.
+
+:::{prf:definition} triangle-extended class
+:label: def-triangle-extended-class
+
+Let $G=(V,E)$ be a graph.
+Let $\hat \triangle$ be the equivalence relation on $E$ induced by
+* $e_1 \triangle e_2$ implies $e_1 \hat \triangle e_2$
+* if $e=\{u,v\}$ and there are edges $e_1=\{u,w_1\}, e_2=\{v,w_2\}$ with $e_1\hat\triangle e_2$, then $e\hat\triangle e_2$
+* if $e_1=\{u,v_1\}, e_2=\{u,v_2\}$ and there are edges $f_1=\{v_1,w_1\}, f_2=\{v_2,w_2\}$ with $f_1\hat\triangle f_2$, then $e_1\hat\triangle e_2$
+
+Then $\hat\triangle$ is NAC-valid.
+The equivalence classes are NAC-mono classes and they are called _triangle-extended classes_ or _$\hat\triangle$-classes_.
+
+{{references}} {cite:p}`LastovickaLegersky2024`
+:::
+
