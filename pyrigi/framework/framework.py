@@ -44,6 +44,7 @@ from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 from ._rigidity import infinitesimal as infinitesimal_rigidity
 from ._rigidity import matroidal as matroidal_rigidity
+from ._rigidity import redundant as redundant_rigidity
 from ._rigidity import second_order as second_order_rigidity
 from ._rigidity import stress as stress_rigidity
 
@@ -1206,47 +1207,11 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(redundant_rigidity.is_redundantly_inf_rigid)
     def is_redundantly_inf_rigid(self, use_copy: bool = True, **kwargs) -> bool:
-        """
-        Return if the framework is infinitesimally redundantly rigid.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.is_inf_rigid`.
-
-        Definitions
-        -----------
-        :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
-
-        Parameters
-        ----------
-        use_copy:
-            If ``False``, the framework's edges are deleted and added back
-            during runtime.
-            Otherwise, a new modified framework is created,
-            while the original framework remains unchanged (default).
-
-        Examples
-        --------
-        >>> F = Framework.Empty(dim=2)
-        >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
-        >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
-        >>> F.is_redundantly_inf_rigid()
-        True
-        >>> F.delete_edge(('a','c'))
-        >>> F.is_redundantly_inf_rigid()
-        False
-        """  # noqa: E501
-        F = self
-        if use_copy:
-            F = deepcopy(self)
-
-        for edge in F._graph.edge_list():
-            F.delete_edge(edge)
-            if not F.is_inf_rigid(**kwargs):
-                F.add_edge(edge)
-                return False
-            F.add_edge(edge)
-        return True
+        return redundant_rigidity.is_redundantly_inf_rigid(
+            self, use_copy=use_copy, **kwargs
+        )
 
     @doc_category("Framework properties")
     def is_congruent_realization(
