@@ -1,3 +1,7 @@
+"""
+This module provides algorithms related to redundant rigidity of frameworks.
+"""
+
 from copy import deepcopy
 
 from pyrigi.framework.base import FrameworkBase
