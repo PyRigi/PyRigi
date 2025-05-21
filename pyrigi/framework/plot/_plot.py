@@ -20,10 +20,10 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.framework import Framework
+from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
+from pyrigi.framework._rigidity import stress as stress_rigidity
 from pyrigi.misc.misc import is_zero_vector, sympy_expr_to_float
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
-from pyrigi.framework._rigidity import stress as stress_rigidity
-from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 
 
 def resolve_inf_flex(

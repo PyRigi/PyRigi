@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import functools
 from copy import deepcopy
-from itertools import combinations
 from random import randrange
 from typing import Any
 
@@ -15,7 +14,6 @@ import numpy as np
 import sympy as sp
 from sympy import Matrix
 
-import pyrigi.graph.utils._input_check as _graph_input_check
 import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import (
     DirectedEdge,
@@ -36,12 +34,12 @@ from pyrigi.misc.misc import (
     _generate_category_tables,
     _generate_three_orthonormal_vectors,
     _generate_two_orthonormal_vectors,
-    is_zero,
     is_zero_vector,
     point_to_vector,
 )
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
+from . import _general as general
 from ._rigidity import infinitesimal as infinitesimal_rigidity
 from ._rigidity import matroidal as matroidal_rigidity
 from ._rigidity import redundant as redundant_rigidity
@@ -983,60 +981,18 @@ class Framework(FrameworkBase):
         return Framework(Kn, {v: pos for v, pos in zip(Kn.nodes, points)})
 
     @doc_category("Framework properties")
+    @copy_doc(general.is_quasi_injective)
     def is_quasi_injective(
         self, numerical: bool = False, tolerance: float = 1e-9
     ) -> bool:
-        """
-        Return whether the realization is quasi-injective.
-
-        Definitions
-        -----------
-        :prf:ref:`Quasi-injectivity <def-realization>`
-
-        Parameters
-        ----------
-        numerical:
-            Whether the check is symbolic (default) or numerical.
-        tolerance:
-            Used tolerance when checking numerically.
-
-        Notes
-        -----
-        For comparing whether two vectors are the same,
-        :func:`.misc.is_zero_vector` is used.
-        See its documentation for the description of the parameters.
-        """
-
-        for u, v in self.graph.edges:
-            edge_vector = self[u] - self[v]
-            if is_zero_vector(edge_vector, numerical, tolerance):
-                return False
-        return True
+        return general.is_quasi_injective(
+            self, numerical=numerical, tolerance=tolerance
+        )
 
     @doc_category("Framework properties")
+    @copy_doc(general.is_injective)
     def is_injective(self, numerical: bool = False, tolerance: float = 1e-9) -> bool:
-        """
-        Return whether the realization is injective.
-
-        Parameters
-        ----------
-        numerical:
-            Whether the check is symbolic (default) or numerical.
-        tolerance:
-            Used tolerance when checking numerically.
-
-        Notes
-        -----
-        For comparing whether two vectors are the same,
-        :func:`.misc.is_zero_vector` is used.
-        See its documentation for the description of the parameters.
-        """
-
-        for u, v in combinations(self._graph.nodes, 2):
-            edge_vector = self[u] - self[v]
-            if is_zero_vector(edge_vector, numerical, tolerance):
-                return False
-        return True
+        return general.is_injective(self, numerical=numerical, tolerance=tolerance)
 
     @doc_category("Infinitesimal rigidity")
     @copy_doc(infinitesimal_rigidity.rigidity_matrix)
@@ -1214,145 +1170,63 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Framework properties")
+    @copy_doc(general.is_congruent_realization)
     def is_congruent_realization(
         self,
         other_realization: dict[Vertex, Point] | dict[Vertex, Matrix],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        """
-        Return whether the given realization is congruent to self.
-
-        Definitions
-        -----------
-        :prf:ref:`Congruent frameworks <def-equivalent-framework>`
-
-        Parameters
-        ----------
-        other_realization
-            The realization for checking the congruence.
-        numerical
-            Whether the check is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when checking numerically.
-        """
-        _graph_input_check.is_vertex_order(
-            self._graph, list(other_realization.keys()), "other_realization"
+        return general.is_congruent_realization(
+            self,
+            other_realization=other_realization,
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
-        for u, v in combinations(self._graph.nodes, 2):
-            edge_vec = (self._realization[u]) - self._realization[v]
-            dist_squared = (edge_vec.T * edge_vec)[0, 0]
-
-            other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
-                other_realization[v]
-            )
-            otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
-
-            difference = sp.simplify(dist_squared - otherdist_squared)
-            if not is_zero(difference, numerical=numerical, tolerance=tolerance):
-                return False
-        return True
-
     @doc_category("Framework properties")
+    @copy_doc(general.is_congruent)
     def is_congruent(
         self,
         other_framework: Framework,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        """
-        Return whether the given framework is congruent to self.
-
-        Definitions
-        -----------
-        :prf:ref:`Congruent frameworks <def-equivalent-framework>`
-
-        Parameters
-        ----------
-        other_framework
-            The framework for checking the congruence.
-        numerical
-            Whether the check is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when checking numerically.
-        """
-
-        self._input_check_underlying_graphs(other_framework)
-
-        return self.is_congruent_realization(
-            other_framework._realization, numerical, tolerance
+        return general.is_congruent(
+            self,
+            other_framework=other_framework,
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
     @doc_category("Framework properties")
+    @copy_doc(general.is_equivalent_realization)
     def is_equivalent_realization(
         self,
         other_realization: dict[Vertex, Point] | dict[Vertex, Matrix],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        """
-        Return whether the given realization is equivalent to self.
-
-        Definitions
-        -----------
-        :prf:ref:`Equivalent frameworks <def-equivalent-framework>`
-
-        Parameters
-        ----------
-        other_realization
-            The realization for checking the equivalence.
-        numerical
-            Whether the check is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when checking numerically.
-        """
-        _graph_input_check.is_vertex_order(
-            self._graph, list(other_realization.keys()), "other_realization"
+        return general.is_equivalent_realization(
+            self,
+            other_realization=other_realization,
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
-        for u, v in self._graph.edges:
-            edge_vec = self._realization[u] - self._realization[v]
-            dist_squared = (edge_vec.T * edge_vec)[0, 0]
-
-            other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
-                other_realization[v]
-            )
-            otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
-
-            difference = sp.simplify(otherdist_squared - dist_squared)
-            if not is_zero(difference, numerical=numerical, tolerance=tolerance):
-                return False
-        return True
-
     @doc_category("Framework properties")
+    @copy_doc(general.is_equivalent)
     def is_equivalent(
         self,
         other_framework: Framework,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        """
-        Return whether the given framework is equivalent to self.
-
-        Definitions
-        -----------
-        :prf:ref:`Equivalent frameworks <def-equivalent-framework>`
-
-        Parameters
-        ----------
-        other_framework
-            The framework for checking the equivalence.
-        numerical
-            Whether the check is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when checking numerically.
-        """
-
-        self._input_check_underlying_graphs(other_framework)
-
-        return self.is_equivalent_realization(
-            other_framework._realization, numerical, tolerance
+        return general.is_equivalent(
+            self,
+            other_framework=other_framework,
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
     @doc_category("Framework manipulation")
@@ -1644,40 +1518,9 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Other")
+    @copy_doc(general.edge_lengths)
     def edge_lengths(self, numerical: bool = False) -> dict[Edge, Number]:
-        """
-        Return the dictionary of the edge lengths.
-
-        Parameters
-        -------
-        numerical:
-            If ``True``, numerical positions are used for the computation of the edge lengths.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
-        >>> F.edge_lengths(numerical=False)
-        {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
-        >>> F.edge_lengths(numerical=True)
-        {(0, 1): 1.0, (0, 3): 1.4240006242195884, (1, 2): 1.118033988749895, (2, 3): 0.5443838790578374}
-        """  # noqa: E501
-        if numerical:
-            points = self.realization(as_points=True, numerical=True)
-            return {
-                tuple(e): float(
-                    np.linalg.norm(np.array(points[e[0]]) - np.array(points[e[1]]))
-                )
-                for e in self._graph.edges
-            }
-        else:
-            points = self.realization(as_points=True)
-            return {
-                tuple(e): sp.sqrt(
-                    sum([(x - y) ** 2 for x, y in zip(points[e[0]], points[e[1]])])
-                )
-                for e in self._graph.edges
-            }
+        return general.edge_lengths(self, numerical=numerical)
 
     @staticmethod
     def _generate_stl_bar(
