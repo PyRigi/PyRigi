@@ -85,7 +85,7 @@ def rigidity_matrix(
 
 
 def rigidity_matrix_rank(
-    framework: FrameworkBase, numerical: bool = False, tolerance: bool = 1e-9
+    framework: FrameworkBase, numerical: bool = False, tolerance: float = 1e-9
 ) -> int:
     """
     Return the rank of the rigidity matrix.
@@ -344,7 +344,7 @@ def inf_flexes(
 
 
 def is_inf_rigid(
-    framework: FrameworkBase, numerical: bool = False, tolerance: bool = 1e-9
+    framework: FrameworkBase, numerical: bool = False, tolerance: float = 1e-9
 ) -> bool:
     """
     Return whether the framework is infinitesimally rigid.

@@ -1088,7 +1088,7 @@ class Framework(FrameworkBase):
     @doc_category("Infinitesimal rigidity")
     @copy_doc(infinitesimal_rigidity.rigidity_matrix_rank)
     def rigidity_matrix_rank(
-        self, numerical: bool = False, tolerance: bool = 1e-9
+        self, numerical: bool = False, tolerance: float = 1e-9
     ) -> int:
         return infinitesimal_rigidity.rigidity_matrix_rank(
             self, numerical=numerical, tolerance=tolerance
@@ -1096,7 +1096,7 @@ class Framework(FrameworkBase):
 
     @doc_category("Infinitesimal rigidity")
     @copy_doc(infinitesimal_rigidity.is_inf_rigid)
-    def is_inf_rigid(self, numerical: bool = False, tolerance: bool = 1e-9) -> bool:
+    def is_inf_rigid(self, numerical: bool = False, tolerance: float = 1e-9) -> bool:
         return infinitesimal_rigidity.is_inf_rigid(
             self, numerical=numerical, tolerance=tolerance
         )
