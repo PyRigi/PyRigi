@@ -8,7 +8,8 @@ import pytest
 import pyrigi.graph.sparsity.sparsity as sparsity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
-from test.graph.test_graph import TEST_WRAPPED_FUNCTIONS, read_sparsity
+from test import TEST_WRAPPED_FUNCTIONS
+from test.graph.test_graph import read_sparsity
 
 is_kl_sparse_algorithms_sparsity_all_kl = ["default", "subgraph"]
 is_kl_sparse_algorithms_sparsity_pebble = is_kl_sparse_algorithms_sparsity_all_kl + [

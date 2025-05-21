@@ -16,9 +16,6 @@ is_rigid_algorithms_d1 = is_rigid_algorithms_all_d + ["graphic"]
 is_rigid_algorithms_d2 = is_rigid_algorithms_all_d + ["sparsity"]
 
 
-TEST_WRAPPED_FUNCTIONS = True
-
-
 def relabeled_inc(graph: Graph, increment: int = None) -> Graph:
     """
     Return the graph with each vertex label incremented by a given number.
