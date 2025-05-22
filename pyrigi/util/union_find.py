@@ -1,7 +1,10 @@
-from typing import Dict, Hashable
+from typing import Hashable, TypeVar
+
+# TODO migrate to generics in Python 3.12
+T = TypeVar("T", bound=Hashable)
 
 
-class UnionFind[T: Hashable]:
+class UnionFind:
     """
     Union find data structure implementation
 
@@ -13,7 +16,7 @@ class UnionFind[T: Hashable]:
 
     def __init__(self):
         # Maps used type into ID used for list indexing
-        self._data: Dict[T, T] = {}
+        self._data: dict[T, T] = {}
 
     def __repr__(self) -> str:
         return self._data.__repr__()

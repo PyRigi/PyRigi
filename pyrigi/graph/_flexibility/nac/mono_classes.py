@@ -6,7 +6,6 @@ triangle-connected components and
 
 from collections import defaultdict
 from enum import Enum
-from typing import Tuple
 import networkx as nx
 
 from pyrigi.util.union_find import UnionFind
@@ -39,7 +38,7 @@ class MonochromaticClassType(Enum):
 # TODO rename when all the code is refactored
 def _trivial_monochromatic_classes(
     graph: nx.Graph,
-) -> Tuple[dict[Edge, int], list[list[Edge]]]:
+) -> tuple[dict[Edge, int], list[list[Edge]]]:
     """
     Makes each edge its own NAC-mono class
     """
@@ -55,7 +54,7 @@ def _trivial_monochromatic_classes(
 def find_monochromatic_classes(
     graph: nx.Graph,
     class_type: MonochromaticClassType = MonochromaticClassType.MONOCHROMATIC,
-) -> Tuple[dict[Edge, int], list[list[Edge]]]:
+) -> tuple[dict[Edge, int], list[list[Edge]]]:
     """
     Find :prf:ref:`NAC-mono classes <def-nac-mono>` based on the type given.
 
@@ -81,7 +80,7 @@ def find_monochromatic_classes(
     if class_type == MonochromaticClassType.EDGES:
         return _trivial_monochromatic_classes(graph)
 
-    components = UnionFind[Edge]()
+    components = UnionFind()
 
     # Finds triangles
     for edge in graph.edges:

@@ -2,19 +2,19 @@ from pyrigi.util.union_find import UnionFind
 
 
 def test_union_find_initialization():
-    uf = UnionFind[int]()
+    uf = UnionFind()
     assert uf._data == {}
 
 
 def test_union_find_find_new_element():
-    uf = UnionFind[str]()
+    uf = UnionFind()
     root_a = uf.find("a")
     assert root_a == "a"
     assert uf._data == {"a": "a"}
 
 
 def test_union_find_join_different_sets():
-    uf = UnionFind[int]()
+    uf = UnionFind()
     uf.find(1)
     uf.find(2)
     joined = uf.join(1, 2)
@@ -24,7 +24,7 @@ def test_union_find_join_different_sets():
 
 
 def test_union_find_join_same_set_returns_false():
-    uf = UnionFind[str]()
+    uf = UnionFind()
     uf.join("x", "y")
     joined = uf.join("x", "y")
     assert joined is False
@@ -32,7 +32,7 @@ def test_union_find_join_same_set_returns_false():
 
 
 def test_union_find_path_compression():
-    uf = UnionFind[int]()
+    uf = UnionFind()
     uf.join(1, 2)
     uf.join(2, 3)
     uf.join(4, 5)
@@ -47,20 +47,20 @@ def test_union_find_path_compression():
 
 
 def test_union_find_same_set_true():
-    uf = UnionFind[str]()
+    uf = UnionFind()
     uf.join("apple", "orange")
     assert uf.same_set("apple", "orange") is True
 
 
 def test_union_find_same_set_false():
-    uf = UnionFind[str]()
+    uf = UnionFind()
     uf.find("grape")
     uf.find("banana")
     assert uf.same_set("grape", "banana") is False
 
 
 def test_union_find_root_cnt_no_joins():
-    uf = UnionFind[int]()
+    uf = UnionFind()
     uf.find(1)
     uf.find(2)
     uf.find(3)
@@ -69,7 +69,7 @@ def test_union_find_root_cnt_no_joins():
 
 
 def test_union_find_root_cnt_after_joins():
-    uf = UnionFind[int]()
+    uf = UnionFind()
     uf.join(1, 2)
     uf.join(3, 4)
     uf.find(5)
@@ -79,7 +79,7 @@ def test_union_find_root_cnt_after_joins():
 
 
 def test_union_find_complex_scenario():
-    uf = UnionFind[str]()
+    uf = UnionFind()
     uf.join("a", "b")
     uf.join("c", "d")
     uf.join("b", "d")
