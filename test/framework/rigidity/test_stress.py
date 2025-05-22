@@ -3,6 +3,7 @@ from sympy import Matrix
 
 import pyrigi.frameworkDB as fws
 from pyrigi.framework import Framework
+from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.framework._rigidity import stress as stress_rigidity
 from pyrigi.graph import Graph
 from test import TEST_WRAPPED_FUNCTIONS
@@ -73,6 +74,24 @@ def test_stresses(framework, num_stresses):
     assert len(stresses) == num_stresses and all(
         [framework.is_stress(s) for s in stresses]
     )
+    if TEST_WRAPPED_FUNCTIONS:
+        Q1 = Matrix.hstack(
+            *(
+                infinitesimal_rigidity.rigidity_matrix(_to_FrameworkBase(framework))
+                .transpose()
+                .nullspace()
+            )
+        )
+        Q2 = Matrix.hstack(*(stress_rigidity.stresses(_to_FrameworkBase(framework))))
+        assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
+
+        stresses = stress_rigidity.stresses(_to_FrameworkBase(framework))
+        assert len(stresses) == num_stresses and all(
+            [
+                stress_rigidity.is_stress(_to_FrameworkBase(framework), s)
+                for s in stresses
+            ]
+        )
 
 
 @pytest.mark.parametrize(
