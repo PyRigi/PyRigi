@@ -4,8 +4,7 @@ The module contains functions related to converting from and to
 to sets of edges representing a :prf:ref:`NAC-coloring <def-nac>`.
 """
 
-from typing import *
-
+from typing import Collection, Tuple, TypeAlias
 from pyrigi.data_type import Edge
 
 """
@@ -18,8 +17,8 @@ NACColoring: TypeAlias = Tuple[Collection[Edge], Collection[Edge]]
 
 
 def coloring_from_mask(
-    ordered_comp_ids: List[int],
-    component_to_edges: List[List[Edge]],
+    ordered_comp_ids: list[int],
+    component_to_edges: list[list[Edge]],
     mask: int,
     allow_mask: int | None = None,
 ) -> NACColoring:

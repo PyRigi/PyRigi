@@ -3,8 +3,7 @@ The module checks if the coloring given is a NAC-coloring.
 Algorithm based on :prf:ref:`<lem-color-components>` is used.
 """
 
-from typing import *
-
+from typing import Collection, Iterable
 import networkx as nx
 
 from pyrigi.data_type import Edge
@@ -36,7 +35,7 @@ def _check_for_almost_red_cycles(
     G.clear_edges()
     G.add_edges_from(red_edges)
 
-    component_mapping: Dict[int, int] = {}
+    component_mapping: dict[int, int] = {}
     vertices: Iterable[int]
     for i, vertices in enumerate(nx.components.connected_components(G)):
         for v in vertices:
@@ -93,7 +92,7 @@ def _is_NAC_coloring_impl(
 # public facing interface
 def is_NAC_coloring(
     graph: nx.Graph,
-    coloring: NACColoring | Dict[str, Collection[Edge]],
+    coloring: NACColoring | dict[str, Collection[Edge]],
 ) -> bool:
     """
     Check if the coloring given is a :prf:ref:`NAC-coloring <def-nac>`
@@ -114,11 +113,10 @@ def is_NAC_coloring(
     red: Collection[Edge]
     blue: Collection[Edge]
 
-    if type(coloring) == dict:
+    if isinstance(coloring, dict):
         red, blue = coloring["red"], coloring["blue"]
     else:
         red, blue = coloring
-    assert type(red) == type(blue)
 
     # TODO resolve which checks we want to perform
     # if not check_NAC_constrains(graph):
@@ -131,7 +129,7 @@ def is_NAC_coloring(
     if len(red) + len(blue) != len(graph.edges):
         return False
 
-    if type(red) == set and len(red.intersection(blue)) != 0:
+    if isinstance(red, set) and len(red.intersection(blue)) != 0:
         return False
     else:
         # Yes, this is slower - in case you care, use sets
