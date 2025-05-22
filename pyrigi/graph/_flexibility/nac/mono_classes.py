@@ -5,8 +5,8 @@ triangle-connected components and
 """
 
 from collections import defaultdict
-from typing import *
 from enum import Enum
+from typing import Tuple
 import networkx as nx
 
 from pyrigi.util.union_find import UnionFind
@@ -39,12 +39,12 @@ class MonochromaticClassType(Enum):
 # TODO rename when all the code is refactored
 def _trivial_monochromatic_classes(
     graph: nx.Graph,
-) -> Tuple[Dict[Edge, int], List[List[Edge]]]:
+) -> Tuple[dict[Edge, int], list[list[Edge]]]:
     """
     Makes each edge its own NAC-mono class
     """
-    edge_to_component: Dict[Edge, int] = {}
-    component_to_edges: List[List[Edge]] = []
+    edge_to_component: dict[Edge, int] = {}
+    component_to_edges: list[list[Edge]] = []
     for i, e in enumerate(graph.edges):
         edge_to_component[e] = i
         component_to_edges.append([e])
@@ -55,7 +55,7 @@ def _trivial_monochromatic_classes(
 def find_monochromatic_classes(
     graph: nx.Graph,
     class_type: MonochromaticClassType = MonochromaticClassType.MONOCHROMATIC,
-) -> Tuple[Dict[Edge, int], List[List[Edge]]]:
+) -> Tuple[dict[Edge, int], list[list[Edge]]]:
     """
     Find :prf:ref:`NAC-mono classes <def-nac-mono>` based on the type given.
 
@@ -112,7 +112,7 @@ def find_monochromatic_classes(
         while not done:
             done = True
 
-            vertex_to_components: List[Set[Edge]] = [
+            vertex_to_components: list[set[Edge]] = [
                 set() for _ in range(max(graph.nodes) + 1)
             ]
 
@@ -125,7 +125,7 @@ def find_monochromatic_classes(
             # v is the top of the triangle over component
             for v in graph.nodes:
                 # maps component to set of vertices containing it
-                comp_to_vertices: Dict[Edge, Set[int]] = defaultdict(set)
+                comp_to_vertices: dict[Edge, set[int]] = defaultdict(set)
                 for u in graph.neighbors(v):
                     # find all the components v neighbors with
                     for comp in vertex_to_components[u]:
@@ -144,8 +144,8 @@ def find_monochromatic_classes(
                         # change for improvement the next round
                         done &= not components.join((v, w), (v, u))
 
-    edge_to_component: Dict[Edge, int] = {}
-    component_to_edge: List[List[Edge]] = []
+    edge_to_component: dict[Edge, int] = {}
+    component_to_edge: list[list[Edge]] = []
 
     for edge in graph.edges:
         root = components.find(edge)
@@ -164,7 +164,7 @@ def find_monochromatic_classes(
 
 def create_component_graph_from_components(
     graph: nx.Graph,
-    edges_to_components: Dict[Edge, int],
+    edges_to_components: dict[Edge, int],
 ) -> nx.Graph:
     """
     Create a component graph from the :prf:ref:`NAC-mono class <def-nac-mono>` given.

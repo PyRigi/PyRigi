@@ -5,8 +5,7 @@ Made in a generic way to also support
 :prf:ref:`Cartesian NAC-coloring <def-cartesian-nac>` in the future.
 """
 
-from typing import *
-
+from typing import Callable, Iterable
 import networkx as nx
 
 from pyrigi.data_type import Edge
@@ -18,8 +17,8 @@ from pyrigi.graph._flexibility.nac.core import (
 
 def NAC_colorings_naive(
     graph: nx.Graph,
-    class_ids: List[int],
-    class_to_edges: List[List[Edge]],
+    class_ids: list[int],
+    class_to_edges: list[list[Edge]],
     is_NAC_coloring_routine: Callable[[nx.Graph, NACColoring], bool],
 ) -> Iterable[NACColoring]:
     """

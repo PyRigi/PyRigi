@@ -1,4 +1,3 @@
-from typing import FrozenSet
 import networkx as nx
 
 from pyrigi.data_type import Edge
@@ -164,8 +163,8 @@ def test_find_monochromatic_classes(
         assert edge in triangle_comp_to_edges[triang_edge_to_comp[edge]]
         assert edge in mono_comp_to_edges[mono_edge_to_comp[edge]]
 
-    def normalize(l: list[list[Edge]]) -> set[FrozenSet[FrozenSet[int]]]:
-        return set(frozenset(frozenset(e) for e in s) for s in l)
+    def normalize(classes: list[list[Edge]]) -> set[frozenset[frozenset]]:
+        return set(frozenset(frozenset(edge) for edge in edges) for edges in classes)
 
     assert normalize(triangle_connected_comp) == normalize(triangle_comp_to_edges)
     assert normalize(monochromatic_classes) == normalize(mono_comp_to_edges)

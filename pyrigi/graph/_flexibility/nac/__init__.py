@@ -1,3 +1,5 @@
+# flake8: noqa
+
 """
 Module related to the NAC coloring search
 """
