@@ -74,36 +74,30 @@ def _find_useful_cycles_for_components(
                 if i != j:
                     neighboring_components[i].add(j)
 
-    def insert_cycle(comp_id: int, cycle: tuple[int, ...]):
-        """
-        Insert cycles in a canonical form.
-        to prevent having the same cycle included multiple times.
+    _find_useful_cycles_for_edges(
+        graph,
+        vertex_to_components,
+        neighboring_components,
+        found_cycles,
+    )
 
-        The canonical a form such that it is that the first ID
-        is the smallest component ID in the cycle
-        and the second one is the lower ID of the neighbor in the cycle.
-        """
-        # in case one component was used multiple times
-        if len(set(cycle)) != len(cycle):
-            return
+    limited = {}
+    for key, value in found_cycles.items():
+        limited[key] = set(list(sorted(value, key=lambda x: len(x)))[:per_class_limit])
 
-        # find the smallest element index
-        smallest = 0
-        for i, e in enumerate(cycle):
-            if e < cycle[smallest]:
-                smallest = i
+    return limited
 
-        # makes sure that the element following the smallest one
-        # is greater than the one preceding it
-        if cycle[smallest - 1] < cycle[(smallest + 1) % len(cycle)]:
-            cycle = list(reversed(cycle))
-            smallest = len(cycle) - smallest - 1
 
-        # rotates the list such that the element with the smallest ID is the first
-        cycle = cycle[smallest:] + cycle[:smallest]
-
-        found_cycles[comp_id].add(tuple(cycle))
-
+def _find_useful_cycles_for_edges(
+    graph: nx.Graph,
+    vertex_to_components: list[set[int]],
+    neighboring_components: list[set[int]],
+    found_cycles: dict[int, set[tuple[int, ...]]],
+):
+    """
+    Find three, four and five cycles in component graph
+    for each edge in the original graph.
+    """
     for u, v in graph.edges:
         u_comps = vertex_to_components[u]
         v_comps = vertex_to_components[v]
@@ -112,8 +106,11 @@ def _find_useful_cycles_for_components(
         intersection = u_comps.intersection(v_comps)
         u_comps = u_comps - intersection
         v_comps = v_comps - intersection
-        # TODO consider - this only makes sense for proper monochromatic classes, triangle components fail on it
+
+        # this check only makes sense for proper NAC-mono classes,
+        # triangle-connected components fail on it
         # assert len(intersection) <= 1
+
         if len(intersection) == 0:
             continue
 
@@ -121,7 +118,7 @@ def _find_useful_cycles_for_components(
             # triangles
             for n in neighboring_components[u_comp].intersection(v_comps):
                 for i in intersection:
-                    insert_cycle(i, (i, u_comp, n))
+                    _insert_cycle(found_cycles, i, (i, u_comp, n))
 
             for v_comp in v_comps:
                 # squares
@@ -130,16 +127,45 @@ def _find_useful_cycles_for_components(
                 res = u_comp_neigh.intersection(v_comp_neigh) - intersection
                 for i in intersection:
                     for r in res:
-                        insert_cycle(i, (i, u_comp, r, v_comp))
+                        _insert_cycle(found_cycles, i, (i, u_comp, r, v_comp))
 
                 # pentagons
                 for r in u_comp_neigh - set([u_comp]):
                     for t in neighboring_components[r].intersection(v_comp_neigh):
                         for i in intersection:
-                            insert_cycle(i, (i, u_comp, r, t, v_comp))
+                            _insert_cycle(found_cycles, i, (i, u_comp, r, t, v_comp))
 
-    limited = {}
-    for key, value in found_cycles.items():
-        limited[key] = set(list(sorted(value, key=lambda x: len(x)))[:per_class_limit])
 
-    return limited
+def _insert_cycle(
+    found_cycles: dict[int, set[tuple[int, ...]]],
+    comp_id: int,
+    cycle: tuple[int, ...],
+):
+    """
+    Insert cycles in a canonical form.
+    to prevent having the same cycle included multiple times.
+
+    The canonical a form such that it is that the first ID
+    is the smallest component ID in the cycle
+    and the second one is the lower ID of the neighbor in the cycle.
+    """
+    # in case one component was used multiple times
+    if len(set(cycle)) != len(cycle):
+        return
+
+    # find the smallest element index
+    smallest = 0
+    for i, e in enumerate(cycle):
+        if e < cycle[smallest]:
+            smallest = i
+
+    # makes sure that the element following the smallest one
+    # is greater than the one preceding it
+    if cycle[smallest - 1] < cycle[(smallest + 1) % len(cycle)]:
+        cycle = list(reversed(cycle))
+        smallest = len(cycle) - smallest - 1
+
+    # rotates the list such that the element with the smallest ID is the first
+    cycle = cycle[smallest:] + cycle[:smallest]
+
+    found_cycles[comp_id].add(tuple(cycle))
