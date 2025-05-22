@@ -20,6 +20,7 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.framework import Framework
+from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.graph import Graph
 from pyrigi.misc.misc import (
     _normalize_flex,
@@ -360,7 +361,9 @@ class ApproximateMotion(Motion):
             chosen_flex, "chosen_flex", max_val=len(inf_flexes)
         )
         cur_inf_flex = _normalize_flex(
-            F._transform_inf_flex_to_pointwise(inf_flexes[chosen_flex]),
+            infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+                F, inf_flexes[chosen_flex]
+            ),
             numerical=True,
         )
 
@@ -586,7 +589,10 @@ class ApproximateMotion(Motion):
             np.dot(inf_flex_space.transpose(), flex_coefficients).tolist(), []
         )
         predicted_inf_flex = _normalize_flex(
-            F._transform_inf_flex_to_pointwise(predicted_inf_flex), numerical=True
+            infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+                F, predicted_inf_flex
+            ),
+            numerical=True,
         )
         realization = self._motion_samples[-1]
         return {

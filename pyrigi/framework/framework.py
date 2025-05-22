@@ -5,17 +5,14 @@ Module for the functionality concerning frameworks.
 from __future__ import annotations
 
 import functools
-from copy import deepcopy
-from itertools import combinations
 from random import randrange
 from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
-from sympy import Matrix, binomial, flatten
+from sympy import Matrix
 
-import pyrigi.graph.utils._input_check as _graph_input_check
 import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import (
     DirectedEdge,
@@ -30,18 +27,18 @@ from pyrigi.data_type import (
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
+from pyrigi.misc._wrap import copy_doc
 from pyrigi.misc.misc import _doc_category as doc_category
-from pyrigi.misc.misc import (
-    _generate_category_tables,
-    _generate_three_orthonormal_vectors,
-    _generate_two_orthonormal_vectors,
-    _null_space,
-    is_zero,
-    is_zero_vector,
-    point_to_vector,
-    sympy_expr_to_float,
-)
+from pyrigi.misc.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
+
+from . import _general as general
+from ._rigidity import infinitesimal as infinitesimal_rigidity
+from ._rigidity import matroidal as matroidal_rigidity
+from ._rigidity import redundant as redundant_rigidity
+from ._rigidity import second_order as second_order_rigidity
+from ._rigidity import stress as stress_rigidity
+from ._transformations import transformations
 
 __doctest_requires__ = {
     ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
@@ -984,165 +981,37 @@ class Framework(FrameworkBase):
         return Framework(Kn, {v: pos for v, pos in zip(Kn.nodes, points)})
 
     @doc_category("Framework properties")
+    @copy_doc(general.is_quasi_injective)
     def is_quasi_injective(
         self, numerical: bool = False, tolerance: float = 1e-9
     ) -> bool:
-        """
-        Return whether the realization is quasi-injective.
-
-        Definitions
-        -----------
-        :prf:ref:`Quasi-injectivity <def-realization>`
-
-        Parameters
-        ----------
-        numerical:
-            Whether the check is symbolic (default) or numerical.
-        tolerance:
-            Used tolerance when checking numerically.
-
-        Notes
-        -----
-        For comparing whether two vectors are the same,
-        :func:`.misc.is_zero_vector` is used.
-        See its documentation for the description of the parameters.
-        """
-
-        for u, v in self.graph.edges:
-            edge_vector = self[u] - self[v]
-            if is_zero_vector(edge_vector, numerical, tolerance):
-                return False
-        return True
+        return general.is_quasi_injective(
+            self, numerical=numerical, tolerance=tolerance
+        )
 
     @doc_category("Framework properties")
+    @copy_doc(general.is_injective)
     def is_injective(self, numerical: bool = False, tolerance: float = 1e-9) -> bool:
-        """
-        Return whether the realization is injective.
-
-        Parameters
-        ----------
-        numerical:
-            Whether the check is symbolic (default) or numerical.
-        tolerance:
-            Used tolerance when checking numerically.
-
-        Notes
-        -----
-        For comparing whether two vectors are the same,
-        :func:`.misc.is_zero_vector` is used.
-        See its documentation for the description of the parameters.
-        """
-
-        for u, v in combinations(self._graph.nodes, 2):
-            edge_vector = self[u] - self[v]
-            if is_zero_vector(edge_vector, numerical, tolerance):
-                return False
-        return True
+        return general.is_injective(self, numerical=numerical, tolerance=tolerance)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.rigidity_matrix)
     def rigidity_matrix(
         self,
         vertex_order: Sequence[Vertex] = None,
         edge_order: Sequence[Edge] = None,
     ) -> Matrix:
-        r"""
-        Construct the rigidity matrix of the framework.
-
-        Definitions
-        -----------
-        * :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
-
-        Parameters
-        ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the columns
-            of the rigidity matrix.
-            If none is provided, the list from :meth:`.Graph.vertex_list` is taken.
-        edge_order:
-            A list of edges, providing the ordering for the rows
-            of the rigidity matrix.
-            If none is provided, the list from :meth:`.Graph.edge_list` is taken.
-
-        Examples
-        --------
-        >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
-        >>> F.rigidity_matrix()
-        Matrix([
-        [-2,  0, 2,  0,  0, 0],
-        [-1, -3, 0,  0,  1, 3],
-        [ 0,  0, 1, -3, -1, 3]])
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
-        edge_order = _graph_input_check.is_edge_order(self._graph, edge_order)
-
-        # ``delta`` is responsible for distinguishing the edges (i,j) and (j,i)
-        def delta(e, w):
-            # the parameter e represents an edge
-            # the parameter w represents a vertex
-            if w == e[0]:
-                return 1
-            if w == e[1]:
-                return -1
-            return 0
-
-        return Matrix(
-            [
-                flatten(
-                    [
-                        delta(e, w)
-                        * (self._realization[e[0]] - self._realization[e[1]])
-                        for w in vertex_order
-                    ]
-                )
-                for e in edge_order
-            ]
+        return infinitesimal_rigidity.rigidity_matrix(
+            self, vertex_order=vertex_order, edge_order=edge_order
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.is_dict_stress)
     def is_dict_stress(self, dict_stress: dict[Edge, Number], **kwargs) -> bool:
-        """
-        Return whether a dictionary specifies an equilibrium stress of the framework.
-
-        Definitions
-        -----------
-        :prf:ref:`Equilibrium Stress <def-equilibrium-stress>`
-
-        Parameters
-        ----------
-        dict_stress:
-            Dictionary that maps the edges to stress values.
-
-        Examples
-        --------
-        >>> F = Framework.Complete([[0,0], [1,0], ['1/2',0]])
-        >>> F.is_dict_stress({(0,1):'-1/2', (0,2):1, (1,2):1})
-        True
-        >>> F.is_dict_stress({(0,1):1, (1,2):'-1/2', (0,2):1})
-        False
-
-        Notes
-        -----
-        See :meth:`.is_vector_stress`.
-        """
-        stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
-        _graph_input_check.is_edge_order(self._graph, stress_edge_list, "dict_stress")
-        graph_edge_list = [tuple(e) for e in self._graph.edge_list()]
-        dict_to_list = []
-
-        for e in graph_edge_list:
-            dict_to_list += [
-                (
-                    dict_stress[e]
-                    if e in stress_edge_list
-                    else dict_stress[tuple([e[1], e[0]])]
-                )
-            ]
-
-        return self.is_vector_stress(
-            dict_to_list, edge_order=self._graph.edge_list(), **kwargs
-        )
+        return stress_rigidity.is_dict_stress(self, dict_stress=dict_stress, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.is_vector_stress)
     def is_vector_stress(
         self,
         stress: Sequence[Number],
@@ -1150,233 +1019,45 @@ class Framework(FrameworkBase):
         numerical: bool = False,
         tolerance=1e-9,
     ) -> bool:
-        r"""
-        Return whether a vector is an equilibrium stress.
-
-        Definitions
-        -----------
-        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
-
-        Parameters
-        ----------
-        stress:
-            A vector to be checked whether it is a stress of the framework.
-        edge_order:
-            A list of edges, providing the ordering for the entries of the ``stress``.
-            If none is provided, the list from :meth:`.Graph.edge_list` is taken.
-        numerical:
-            A Boolean determining whether the evaluation of the product of the ``stress``
-            and the rigidity matrix is symbolic or numerical.
-        tolerance:
-            Absolute tolerance that is the threshold for acceptable equilibrium
-            stresses. This parameter is used to determine the number of digits,
-            to which accuracy the symbolic expressions are evaluated.
-
-        Examples
-        --------
-        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
-        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
-        >>> F = Framework(G, pos)
-        >>> omega1 = [-8, -4, -4, 2, 2, 1]
-        >>> F.is_stress(omega1)
-        True
-        >>> omega1[0] = 0
-        >>> F.is_stress(omega1)
-        False
-        >>> from pyrigi import frameworkDB
-        >>> F = frameworkDB.Complete(5, dim=2)
-        >>> stresses=F.stresses()
-        >>> F.is_stress(stresses[0])
-        True
-        """
-        edge_order = _graph_input_check.is_edge_order(
-            self._graph, edge_order=edge_order
-        )
-        return is_zero_vector(
-            Matrix(stress).transpose() * self.rigidity_matrix(edge_order=edge_order),
+        return stress_rigidity.is_vector_stress(
+            self,
+            stress=stress,
+            edge_order=edge_order,
             numerical=numerical,
             tolerance=tolerance,
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.is_stress)
     def is_stress(self, stress: Stress, **kwargs) -> bool:
-        """
-        Alias for :meth:`.is_vector_stress` and
-        :meth:`.is_dict_stress`.
-
-        One of the alias methods is called depending on the type of the input.
-
-        Parameters
-        ----------
-        stress
-        """
-        if isinstance(stress, list | Matrix):
-            return self.is_vector_stress(stress, **kwargs)
-        elif isinstance(stress, dict):
-            return self.is_dict_stress(stress, **kwargs)
-        else:
-            raise TypeError(
-                "The `stress` must be specified either by a list/Matrix or a dictionary!"
-            )
+        return stress_rigidity.is_stress(self, stress=stress, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.stress_matrix)
     def stress_matrix(
         self,
         stress: Stress,
         edge_order: Sequence[Edge] = None,
         vertex_order: Sequence[Vertex] = None,
     ) -> Matrix:
-        r"""
-        Construct the stress matrix of a stress.
-
-        Definitions
-        -----
-        * :prf:ref:`Stress Matrix <def-stress-matrix>`
-
-        Parameters
-        ----------
-        stress:
-            A stress of the framework given as a vector.
-        edge_order:
-            A list of edges, providing the ordering of edges in ``stress``.
-            If ``None``, :meth:`.Graph.edge_list` is assumed.
-        vertex_order:
-            Specification of row/column order of the stress matrix.
-            If ``None``, :meth:`.Graph.vertex_list` is assumed.
-
-        Examples
-        --------
-        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
-        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
-        >>> F = Framework(G, pos)
-        >>> omega = [-8, -4, -4, 2, 2, 1]
-        >>> F.stress_matrix(omega)
-        Matrix([
-        [-16,  8,  4,  4],
-        [  8, -4, -2, -2],
-        [  4, -2, -1, -1],
-        [  4, -2, -1, -1]])
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
-        edge_order = _graph_input_check.is_edge_order(self._graph, edge_order)
-        if not self.is_stress(stress, edge_order=edge_order, numerical=True):
-            raise ValueError(
-                "The provided stress does not lie in the cokernel of the rigidity matrix!"
-            )
-        # creation of a zero |V|x|V| matrix
-        stress_matr = sp.zeros(len(self._graph))
-        v_to_i = {v: i for i, v in enumerate(vertex_order)}
-
-        for edge, edge_stress in zip(edge_order, stress):
-            for v in edge:
-                stress_matr[v_to_i[v], v_to_i[v]] += edge_stress
-
-        for e, stressval in zip(edge_order, stress):
-            i, j = v_to_i[e[0]], v_to_i[e[1]]
-            stress_matr[i, j] = -stressval
-            stress_matr[j, i] = -stressval
-
-        return stress_matr
+        return stress_rigidity.stress_matrix(
+            self, stress=stress, edge_order=edge_order, vertex_order=vertex_order
+        )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.trivial_inf_flexes)
     def trivial_inf_flexes(self, vertex_order: Sequence[Vertex] = None) -> list[Matrix]:
-        r"""
-        Return a basis of the vector subspace of trivial infinitesimal flexes.
-
-        Definitions
-        -----------
-        :prf:ref:`Trivial infinitesimal flexes <def-trivial-inf-flex>`
-
-        Parameters
-        ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the entries
-            of the infinitesimal flexes.
-
-        Examples
-        --------
-        >>> F = Framework.Complete([(0,0), (2,0), (0,2)])
-        >>> F.trivial_inf_flexes()
-        [Matrix([
-        [1],
-        [0],
-        [1],
-        [0],
-        [1],
-        [0]]), Matrix([
-        [0],
-        [1],
-        [0],
-        [1],
-        [0],
-        [1]]), Matrix([
-        [ 0],
-        [ 0],
-        [ 0],
-        [ 2],
-        [-2],
-        [ 0]])]
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
-        dim = self._dim
-        translations = [
-            Matrix.vstack(*[A for _ in vertex_order])
-            for A in Matrix.eye(dim).columnspace()
-        ]
-        basis_skew_symmetric = []
-        for i in range(1, dim):
-            for j in range(i):
-                A = Matrix.zeros(dim)
-                A[i, j] = 1
-                A[j, i] = -1
-                basis_skew_symmetric += [A]
-        inf_rot = [
-            Matrix.vstack(*[A * self._realization[v] for v in vertex_order])
-            for A in basis_skew_symmetric
-        ]
-        matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
-        return matrix_inf_flexes.transpose().echelon_form().transpose().columnspace()
+        return infinitesimal_rigidity.trivial_inf_flexes(
+            self, vertex_order=vertex_order
+        )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.nontrivial_inf_flexes)
     def nontrivial_inf_flexes(self, **kwargs) -> list[Matrix]:
-        """
-        Return non-trivial infinitesimal flexes.
-
-        See :meth:`~Framework.inf_flexes` for possible keywords.
-
-        Definitions
-        -----------
-        :prf:ref:`Infinitesimal flex <def-inf-rigid-framework>`
-
-        Parameters
-        ----------
-        vertex_order:
-            A list of vertices, providing the ordering for the entries
-            of the infinitesimal flexes.
-            If ``None``, the list from :meth:`.Graph.vertex_list` is taken.
-
-        Examples
-        --------
-        >>> import pyrigi.graphDB as graphs
-        >>> F = Framework.Circular(graphs.CompleteBipartite(3, 3))
-        >>> F.nontrivial_inf_flexes()
-        [Matrix([
-        [       3/2],
-        [-sqrt(3)/2],
-        [         1],
-        [         0],
-        [         0],
-        [         0],
-        [       3/2],
-        [-sqrt(3)/2],
-        [         1],
-        [         0],
-        [         0],
-        [         0]])]
-        """
-        return self.inf_flexes(include_trivial=False, **kwargs)
+        return infinitesimal_rigidity.nontrivial_inf_flexes(self, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.inf_flexes)
     def inf_flexes(
         self,
         include_trivial: bool = False,
@@ -1384,364 +1065,71 @@ class Framework(FrameworkBase):
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> list[Matrix] | list[list[float]]:
-        r"""
-        Return a basis of the space of infinitesimal flexes.
-
-        Return a lift of a basis of the quotient of
-        the vector space of infinitesimal flexes
-        modulo trivial infinitesimal flexes, if ``include_trivial=False``.
-        Return a basis of the vector space of infinitesimal flexes
-        if ``include_trivial=True``.
-
-        Definitions
-        -----------
-        :prf:ref:`Infinitesimal flex <def-inf-flex>`
-
-        Parameters
-        ----------
-        include_trivial:
-            Boolean that decides, whether the trivial flexes should
-            be included.
-        vertex_order:
-            A list of vertices, providing the ordering for the entries
-            of the infinitesimal flexes.
-            If none is provided, the list from :meth:`.Graph.vertex_list` is taken.
-        numerical:
-            Determines whether the output is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when computing the infinitesimal flex numerically.
-
-        Examples
-        --------
-        >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-        >>> F.delete_edges([(0,2), (1,3)])
-        >>> F.inf_flexes(include_trivial=False)
-        [Matrix([
-        [1],
-        [0],
-        [1],
-        [0],
-        [0],
-        [0],
-        [0],
-        [0]])]
-        >>> F = Framework(
-        ...     Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]),
-        ...     {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]},
-        ... )
-        >>> F.inf_flexes()
-        [Matrix([
-        [0],
-        [0],
-        [0],
-        [0],
-        [0],
-        [1],
-        [0],
-        [0],
-        [0],
-        [0]])]
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
-        if include_trivial:
-            if not numerical:
-                return self.rigidity_matrix(vertex_order=vertex_order).nullspace()
-            else:
-                F = Framework(
-                    self._graph, self.realization(as_points=True, numerical=True)
-                )
-                return _null_space(
-                    np.array(F.rigidity_matrix(vertex_order=vertex_order)).astype(
-                        np.float64
-                    )
-                )
-
-        if not numerical:
-            rigidity_matrix = self.rigidity_matrix(vertex_order=vertex_order)
-
-            all_inf_flexes = rigidity_matrix.nullspace()
-            trivial_inf_flexes = self.trivial_inf_flexes(vertex_order=vertex_order)
-            s = len(trivial_inf_flexes)
-            extend_basis_matrix = Matrix.hstack(*trivial_inf_flexes)
-            for inf_flex in all_inf_flexes:
-                tmp_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
-                if not tmp_matrix.rank() == extend_basis_matrix.rank():
-                    extend_basis_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
-            basis = extend_basis_matrix.columnspace()
-            return basis[s:]
-        else:
-            F = Framework(self._graph, self.realization(as_points=True, numerical=True))
-            inf_flexes = _null_space(
-                np.array(F.rigidity_matrix(vertex_order=vertex_order)).astype(
-                    np.float64
-                ),
-                tolerance=tolerance,
-            )
-            inf_flexes = [inf_flexes[:, i] for i in range(inf_flexes.shape[1])]
-            Kn = Framework(
-                CompleteGraph(len(self._graph)),
-                self.realization(as_points=True, numerical=True),
-            )
-            inf_flexes_trivial = _null_space(
-                np.array(Kn.rigidity_matrix(vertex_order=vertex_order)).astype(
-                    np.float64
-                ),
-                tolerance=tolerance,
-            )
-            s = inf_flexes_trivial.shape[1]
-            extend_basis_matrix = inf_flexes_trivial
-            for inf_flex in inf_flexes:
-                inf_flex = np.reshape(inf_flex, (-1, 1))
-                tmp_matrix = np.hstack((inf_flexes_trivial, inf_flex))
-                if not np.linalg.matrix_rank(
-                    tmp_matrix, tol=tolerance
-                ) == np.linalg.matrix_rank(inf_flexes_trivial, tol=tolerance):
-                    extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
-            Q, R = np.linalg.qr(extend_basis_matrix)
-            Q = Q[:, s : np.linalg.matrix_rank(R, tol=tolerance)]
-            return [list(Q[:, i]) for i in range(Q.shape[1])]
+        return infinitesimal_rigidity.inf_flexes(
+            self,
+            include_trivial=include_trivial,
+            vertex_order=vertex_order,
+            numerical=numerical,
+            tolerance=tolerance,
+        )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.stresses)
     def stresses(
         self,
         edge_order: Sequence[Edge] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> list[Matrix] | list[list[float]]:
-        r"""
-        Return a basis of the space of equilibrium stresses.
-
-        Definitions
-        -----------
-        :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
-
-        Parameters
-        ----------
-        edge_order:
-            A list of edges, providing the ordering for the entries of the stresses.
-            If none is provided, the list from :meth:`.Graph.edge_list` is taken.
-        numerical:
-            Determines whether the output is symbolic (default) or numerical.
-        tolerance:
-            Used tolerance when computing the stresses numerically.
-
-        Examples
-        --------
-        >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
-        >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
-        >>> F = Framework(G, pos)
-        >>> F.stresses()
-        [Matrix([
-        [-8],
-        [-4],
-        [-4],
-        [ 2],
-        [ 2],
-        [ 1]])]
-        """
-        if not numerical:
-            return self.rigidity_matrix(edge_order=edge_order).transpose().nullspace()
-        F = Framework(self._graph, self.realization(as_points=True, numerical=True))
-        stresses = _null_space(
-            np.array(F.rigidity_matrix(edge_order=edge_order).transpose()).astype(
-                np.float64
-            ),
-            tolerance=tolerance,
+        return stress_rigidity.stresses(
+            self, edge_order=edge_order, numerical=numerical, tolerance=tolerance
         )
-        return [list(stresses[:, i]) for i in range(stresses.shape[1])]
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.rigidity_matrix_rank)
     def rigidity_matrix_rank(
-        self, numerical: bool = False, tolerance: bool = 1e-9
+        self, numerical: bool = False, tolerance: float = 1e-9
     ) -> int:
-        """
-        Return the rank of the rigidity matrix.
-
-        Definitions
-        -----------
-        :prf:ref:`Rigidity matrix <def-rigidity-matrix>`
-
-        Parameters
-        ----------
-        numerical:
-            If ``True``, the rank of the rigidity matrix with entries as floats
-            is computed.
-
-            *Warning:* For ``numerical=True`` the numerical rank computation
-            may produce different results than the computation over exact
-            coordinates.
-        tolerance:
-            Numerical tolerance used for computing the rigidity matrix rank.
-
-        Examples
-        --------
-        >>> K4 = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-        >>> K4.rigidity_matrix_rank()   # the complete graph is a circuit
-        5
-        >>> K4.delete_edge([0,1])
-        >>> K4.rigidity_matrix_rank()   # deleting a bar gives full rank
-        5
-        >>> K4.delete_edge([2,3])
-        >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
-        4
-        """
-        if numerical:
-            F = Framework(self._graph, self.realization(as_points=True, numerical=True))
-            return np.linalg.matrix_rank(
-                np.array(F.rigidity_matrix()).astype(np.float64), tol=tolerance
-            )
-        return self.rigidity_matrix().rank()
+        return infinitesimal_rigidity.rigidity_matrix_rank(
+            self, numerical=numerical, tolerance=tolerance
+        )
 
     @doc_category("Infinitesimal rigidity")
-    def is_inf_rigid(self, numerical: bool = False, tolerance: bool = 1e-9) -> bool:
-        """
-        Return whether the framework is infinitesimally rigid.
-
-        Definitions
-        -----------
-        :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
-
-        Parameters
-        ----------
-        numerical:
-            If ``True``, the rigidity matrix rank computation for determining
-            rigidity is numerical.
-
-            *Warning:* For ``numerical=True`` the numerical rank computation
-            may produce different results than the computation over symbolic
-            coordinates.
-        tolerance:
-            Numerical tolerance used for computing the rigidity matrix rank.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB
-        >>> F1 = frameworkDB.CompleteBipartite(4,4)
-        >>> F1.is_inf_rigid()
-        True
-        >>> F2 = frameworkDB.Cycle(4,dim=2)
-        >>> F2.is_inf_rigid()
-        False
-        """
-
-        if self._graph.number_of_nodes() <= self._dim + 1:
-            return self.rigidity_matrix_rank(
-                numerical=numerical, tolerance=tolerance
-            ) == binomial(self._graph.number_of_nodes(), 2)
-        else:
-            return self.rigidity_matrix_rank(
-                numerical=numerical, tolerance=tolerance
-            ) == self.dim * self._graph.number_of_nodes() - binomial(self.dim + 1, 2)
+    @copy_doc(infinitesimal_rigidity.is_inf_rigid)
+    def is_inf_rigid(self, numerical: bool = False, tolerance: float = 1e-9) -> bool:
+        return infinitesimal_rigidity.is_inf_rigid(
+            self, numerical=numerical, tolerance=tolerance
+        )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_inf_flexible)
     def is_inf_flexible(self, **kwargs) -> bool:
-        """
-        Return whether the framework is infinitesimally flexible.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.is_inf_rigid`.
-
-        Definitions
-        -----------
-        :prf:ref:`Infinitesimal rigidity <def-inf-rigid-framework>`
-        """
-        return not self.is_inf_rigid(**kwargs)
+        return infinitesimal_rigidity.is_inf_flexible(self, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_min_inf_rigid)
     def is_min_inf_rigid(self, use_copy: bool = True, **kwargs) -> bool:
-        """
-        Return whether the framework is minimally infinitesimally rigid.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.is_inf_rigid`.
-
-        Definitions
-        -----
-        :prf:ref:`Minimal infinitesimal rigidity <def-min-rigid-framework>`
-
-        Parameters
-        ----------
-        use_copy:
-            If ``False``, the framework's edges are deleted and added back
-            during runtime.
-            Otherwise, a new modified framework is created,
-            while the original framework remains unchanged (default).
-
-        Examples
-        --------
-        >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-        >>> F.is_min_inf_rigid()
-        False
-        >>> F.delete_edge((0,2))
-        >>> F.is_min_inf_rigid()
-        True
-        """
-        if not self.is_inf_rigid(**kwargs):
-            return False
-
-        F = self
-        if use_copy:
-            F = deepcopy(self)
-        for edge in F._graph.edge_list():
-            F.delete_edge(edge)
-            if F.is_inf_rigid(**kwargs):
-                F.add_edge(edge)
-                return False
-            F.add_edge(edge)
-        return True
+        return infinitesimal_rigidity.is_min_inf_rigid(
+            self, use_copy=use_copy, **kwargs
+        )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(matroidal_rigidity.is_independent)
     def is_independent(self, **kwargs) -> bool:
-        """
-        Return whether the framework is independent.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.rigidity_matrix_rank`.
-
-        Definitions
-        -----------
-        :prf:ref:`Independent framework <def-independent-framework>`
-
-        Examples
-        --------
-        >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-        >>> F.is_independent()
-        False
-        >>> F.delete_edge((0,2))
-        >>> F.is_independent()
-        True
-        """
-        return self.rigidity_matrix_rank(**kwargs) == self._graph.number_of_edges()
+        return matroidal_rigidity.is_independent(self, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(matroidal_rigidity.is_dependent)
     def is_dependent(self, **kwargs) -> bool:
-        """
-        Return whether the framework is dependent.
-
-        See also :meth:`~.Framework.is_independent`.
-
-        Definitions
-        -----------
-        :prf:ref:`Dependent framework <def-independent-framework>`
-        """
-        return not self.is_independent(**kwargs)
+        return matroidal_rigidity.is_dependent(self, **kwargs)
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(matroidal_rigidity.is_isostatic)
     def is_isostatic(self, **kwargs) -> bool:
-        """
-        Return whether the framework is isostatic.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.is_independent` and
-        :meth:`~Framework.is_inf_rigid`.
-
-        Definitions
-        -----------
-        :prf:ref:`Isostatic framework <def-isostatic-frameworks>`
-        """
-        return self.is_independent(**kwargs) and self.is_inf_rigid(**kwargs)
+        return matroidal_rigidity.is_isostatic(self, **kwargs)
 
     @doc_category("Other")
+    @copy_doc(second_order_rigidity.is_prestress_stable)
     def is_prestress_stable(
         self,
         numerical: bool = False,
@@ -1749,150 +1137,16 @@ class Framework(FrameworkBase):
         inf_flexes: Sequence[InfFlex] = None,
         stresses: Sequence[Stress] = None,
     ) -> bool:
-        """
-        Return whether the framework is prestress stable.
-
-        See also :meth:`.is_second_order_rigid`.
-
-        Definitions
-        ----------
-        :prf:ref:`Prestress stability <def-prestress-stability>`
-
-        Parameters
-        -------
-        numerical:
-            If ``True``, numerical infinitesimal flexes and stresses
-            are used in the check for prestress stability.
-            In case that ``numerical=False``, this method only
-            properly works for symbolic coordinates.
-        tolerance:
-            Numerical tolerance used for the check that something is
-            an approximate zero.
-        inf_flexes, stresses:
-            Precomputed infinitesimal flexes and equilibrium stresses can be provided
-            to avoid recomputation. If not provided, they are computed here.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB as fws
-        >>> F = fws.Frustum(3)
-        >>> F.is_prestress_stable()
-        True
-        """
-        edges = self._graph.edge_list(as_tuples=True)
-        inf_flexes = self._process_list_of_inf_flexes(
-            inf_flexes, numerical=numerical, tolerance=tolerance
-        )
-        if len(inf_flexes) == 0:
-            return True
-        stresses = self._process_list_of_stresses(
-            stresses, numerical=numerical, tolerance=tolerance
-        )
-        if len(stresses) == 0:
-            return False
-
-        if len(inf_flexes) == 1:
-            q = inf_flexes[0]
-            stress_energy_list = []
-            for stress in stresses:
-                stress_energy_list.append(
-                    sum(
-                        [
-                            stress[(u, v)]
-                            * sum(
-                                [
-                                    (q1 - q2) ** 2
-                                    for q1, q2 in zip(
-                                        q[u],
-                                        q[v],
-                                    )
-                                ]
-                            )
-                            for u, v in edges
-                        ]
-                    )
-                )
-            return any(
-                [
-                    not is_zero(Q, numerical=numerical, tolerance=tolerance)
-                    for Q in stress_energy_list
-                ]
-            )
-
-        if len(stresses) == 1:
-            a = sp.symbols("a0:%s" % len(inf_flexes), real=True)
-            stress_energy = 0
-            stress_energy += sum(
-                [
-                    stresses[0][(u, v)]
-                    * sum(
-                        [
-                            (
-                                sum(
-                                    [
-                                        a[i]
-                                        * (inf_flexes[i][u][j] - inf_flexes[i][v][j])
-                                        for i in range(len(inf_flexes))
-                                    ]
-                                )
-                                ** 2
-                            )
-                            for j in range(self._dim)
-                        ]
-                    )
-                    for u, v in edges
-                ]
-            )
-
-            coefficients = {
-                (i, j): sp.Poly(stress_energy, a).coeff_monomial(a[i] * a[j])
-                for i in range(len(inf_flexes))
-                for j in range(i, len(inf_flexes))
-            }
-            #  We then apply the SONC criterion.
-            if numerical:
-                return all(
-                    [
-                        coefficients[(i, j)] ** 2
-                        < sympy_expr_to_float(
-                            4 * coefficients[(i, i)] * coefficients[(j, j)]
-                        )
-                        for i in range(len(inf_flexes))
-                        for j in range(i + 1, len(inf_flexes))
-                    ]
-                )
-            sonc_expressions = [
-                sp.simplify(
-                    sp.cancel(
-                        4 * coefficients[(i, i)] * coefficients[(j, j)]
-                        - coefficients[(i, j)] ** 2
-                    )
-                )
-                for i in range(len(inf_flexes))
-                for j in range(i + 1, len(inf_flexes))
-            ]
-            if any(expr is None for expr in sonc_expressions):
-                raise RuntimeError(
-                    "It could not be determined by `sympy.simplify` "
-                    + "whether the given sympy expression can be simplified."
-                    + "Please report this as an issue on Github "
-                    + "(https://github.com/PyRigi/PyRigi/issues)."
-                )
-            sonc_expressions = [expr.is_positive for expr in sonc_expressions]
-            if any(expr is None for expr in sonc_expressions):
-                raise RuntimeError(
-                    "It could not be determined by `sympy.is_positive` "
-                    + "whether the given sympy expression is positive."
-                    + "Please report this as an issue on Github "
-                    + "(https://github.com/PyRigi/PyRigi/issues)."
-                )
-            return all(sonc_expressions)
-
-        raise ValueError(
-            "Prestress stability is not yet implemented for the general case."
+        return second_order_rigidity.is_prestress_stable(
+            self,
+            numerical=numerical,
+            tolerance=tolerance,
+            inf_flexes=inf_flexes,
+            stresses=stresses,
         )
 
     @doc_category("Other")
+    @copy_doc(second_order_rigidity.is_second_order_rigid)
     def is_second_order_rigid(
         self,
         numerical: bool = False,
@@ -1900,437 +1154,104 @@ class Framework(FrameworkBase):
         inf_flexes: Sequence[InfFlex] = None,
         stresses: Sequence[Stress] = None,
     ) -> bool:
-        """
-        Return whether the framework is second-order rigid.
-
-        Checking second-order-rigidity for a general framework is computationally hard.
-        If there is only one stress or only one infinitesimal flex, second-order rigidity
-        is identical to :prf:ref:`prestress stability <def-prestress-stability>`,
-        so we can apply :meth:`.is_prestress_stable`. See also
-        :prf:ref:`thm-second-order-implies-prestress-stability`.
-
-        Definitions
-        ----------
-        :prf:ref:`Second-order rigidity <def-second-order-rigid>`
-
-        Parameters
-        -------
-        numerical:
-            If ``True``, numerical infinitesimal flexes and stresses
-            are used in the check for prestress stability.
-            In case that ``numerical=False``, this method only
-            properly works for symbolic coordinates.
-        tolerance:
-            Numerical tolerance used for the check that something is
-            an approximate zero.
-        inf_flexes, stresses:
-            Precomputed infinitesimal flexes and equilibrium stresses can be provided
-            to avoid recomputation. If not provided, they are computed here.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB as fws
-        >>> F = fws.Frustum(3)
-        >>> F.is_second_order_rigid()
-        True
-        """
-        inf_flexes = self._process_list_of_inf_flexes(
-            inf_flexes, numerical=numerical, tolerance=tolerance
+        return second_order_rigidity.is_second_order_rigid(
+            self,
+            numerical=numerical,
+            tolerance=tolerance,
+            inf_flexes=inf_flexes,
+            stresses=stresses,
         )
-        if len(inf_flexes) == 0:
-            return True
-        stresses = self._process_list_of_stresses(
-            stresses, numerical=numerical, tolerance=tolerance
-        )
-        if len(stresses) == 0:
-            return False
-
-        if len(stresses) == 1 or len(inf_flexes) == 1:
-            return self.is_prestress_stable(
-                numerical=numerical,
-                tolerance=tolerance,
-                inf_flexes=inf_flexes,
-                stresses=stresses,
-            )
-
-        raise ValueError("Second-order rigidity is not implemented for this framework.")
-
-    def _process_list_of_inf_flexes(
-        self,
-        inf_flexes: Sequence[InfFlex],
-        numerical: bool = False,
-        tolerance: float = 1e-9,
-    ) -> list[dict[Vertex, Point]]:
-        """
-        Process the input infinitesimal flexes for the second-order methods.
-
-        If any of the input is not a nontrivial flex, an error is thrown.
-        Otherwise, the infinitesimal flexes are transformed to a ``list`` of
-        ``dict``.
-
-        Parameters
-        ----------
-        inf_flexes:
-            The infinitesimal flexes to be processed.
-        numerical:
-            If ``True``, the check is numerical.
-        tolerance:
-            Numerical tolerance used for the check that something is
-            a nontrivial infinitesimal flex.
-        """
-        if inf_flexes is None:
-            inf_flexes = self.inf_flexes(numerical=numerical, tolerance=tolerance)
-            if len(inf_flexes) == 0:
-                return inf_flexes
-        elif any(
-            not self.is_nontrivial_flex(
-                inf_flex, numerical=numerical, tolerance=tolerance
-            )
-            for inf_flex in inf_flexes
-        ):
-            raise ValueError(
-                "Some of the provided `inf_flexes` are not "
-                + "nontrivial infinitesimal flexes!"
-            )
-        if len(inf_flexes) == 0:
-            raise ValueError("No infinitesimal flexes were provided.")
-        if all(isinstance(inf_flex, list | tuple | Matrix) for inf_flex in inf_flexes):
-            inf_flexes = [self._transform_inf_flex_to_pointwise(q) for q in inf_flexes]
-        elif not all(isinstance(inf_flex, dict) for inf_flex in inf_flexes):
-            raise ValueError(
-                "The provided `inf_flexes` do not have the correct format."
-            )
-        return inf_flexes
-
-    def _process_list_of_stresses(
-        self,
-        stresses: Sequence[Stress],
-        numerical: bool = False,
-        tolerance: float = 1e-9,
-    ) -> list[dict[Edge, Number]]:
-        """
-        Process the input equilibrium stresses for the second-order methods.
-
-        If any of the input is not an equilibrium stress, an error is thrown.
-        Otherwise, the equilibrium stresses are transformed to a list of
-        ``dict``.
-
-        Parameters
-        ----------
-        stresses:
-            The equilibrium stresses to be processed.
-        numerical:
-            If ``True``, the check is numerical.
-        tolerance:
-            Numerical tolerance used for the check that something is
-            an equilibrium stress.
-        """
-        edges = self._graph.edge_list(as_tuples=True)
-        if stresses is None:
-            stresses = self.stresses(numerical=numerical, tolerance=tolerance)
-            if len(stresses) == 0:
-                return stresses
-        elif any(
-            not self.is_stress(stress, numerical=numerical, tolerance=tolerance)
-            for stress in stresses
-        ):
-            raise ValueError(
-                "Some of the provided `stresses` are not equilibrium stresses!"
-            )
-        if len(stresses) == 0:
-            raise ValueError("No equilibrium stresses were provided.")
-        if all(isinstance(stress, list | tuple | Matrix) for stress in stresses):
-            stresses = [
-                self._transform_stress_to_edgewise(stress, edge_order=edges)
-                for stress in stresses
-            ]
-        elif not all(isinstance(stress, dict) for stress in stresses):
-            raise ValueError("The provided `stresses` do not have the correct format.")
-        return stresses
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(redundant_rigidity.is_redundantly_inf_rigid)
     def is_redundantly_inf_rigid(self, use_copy: bool = True, **kwargs) -> bool:
-        """
-        Return if the framework is infinitesimally redundantly rigid.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.is_inf_rigid`.
-
-        Definitions
-        -----------
-        :prf:ref:`Redundant infinitesimal rigidity <def-redundantly-rigid-framework>`
-
-        Parameters
-        ----------
-        use_copy:
-            If ``False``, the framework's edges are deleted and added back
-            during runtime.
-            Otherwise, a new modified framework is created,
-            while the original framework remains unchanged (default).
-
-        Examples
-        --------
-        >>> F = Framework.Empty(dim=2)
-        >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
-        >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
-        >>> F.is_redundantly_inf_rigid()
-        True
-        >>> F.delete_edge(('a','c'))
-        >>> F.is_redundantly_inf_rigid()
-        False
-        """  # noqa: E501
-        F = self
-        if use_copy:
-            F = deepcopy(self)
-
-        for edge in F._graph.edge_list():
-            F.delete_edge(edge)
-            if not F.is_inf_rigid(**kwargs):
-                F.add_edge(edge)
-                return False
-            F.add_edge(edge)
-        return True
+        return redundant_rigidity.is_redundantly_inf_rigid(
+            self, use_copy=use_copy, **kwargs
+        )
 
     @doc_category("Framework properties")
+    @copy_doc(general.is_congruent_realization)
     def is_congruent_realization(
         self,
         other_realization: dict[Vertex, Point] | dict[Vertex, Matrix],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        """
-        Return whether the given realization is congruent to self.
-
-        Definitions
-        -----------
-        :prf:ref:`Congruent frameworks <def-equivalent-framework>`
-
-        Parameters
-        ----------
-        other_realization
-            The realization for checking the congruence.
-        numerical
-            Whether the check is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when checking numerically.
-        """
-        _graph_input_check.is_vertex_order(
-            self._graph, list(other_realization.keys()), "other_realization"
+        return general.is_congruent_realization(
+            self,
+            other_realization=other_realization,
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
-        for u, v in combinations(self._graph.nodes, 2):
-            edge_vec = (self._realization[u]) - self._realization[v]
-            dist_squared = (edge_vec.T * edge_vec)[0, 0]
-
-            other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
-                other_realization[v]
-            )
-            otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
-
-            difference = sp.simplify(dist_squared - otherdist_squared)
-            if not is_zero(difference, numerical=numerical, tolerance=tolerance):
-                return False
-        return True
-
     @doc_category("Framework properties")
+    @copy_doc(general.is_congruent)
     def is_congruent(
         self,
         other_framework: Framework,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        """
-        Return whether the given framework is congruent to self.
-
-        Definitions
-        -----------
-        :prf:ref:`Congruent frameworks <def-equivalent-framework>`
-
-        Parameters
-        ----------
-        other_framework
-            The framework for checking the congruence.
-        numerical
-            Whether the check is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when checking numerically.
-        """
-
-        self._input_check_underlying_graphs(other_framework)
-
-        return self.is_congruent_realization(
-            other_framework._realization, numerical, tolerance
+        return general.is_congruent(
+            self,
+            other_framework=other_framework,
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
     @doc_category("Framework properties")
+    @copy_doc(general.is_equivalent_realization)
     def is_equivalent_realization(
         self,
         other_realization: dict[Vertex, Point] | dict[Vertex, Matrix],
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        """
-        Return whether the given realization is equivalent to self.
-
-        Definitions
-        -----------
-        :prf:ref:`Equivalent frameworks <def-equivalent-framework>`
-
-        Parameters
-        ----------
-        other_realization
-            The realization for checking the equivalence.
-        numerical
-            Whether the check is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when checking numerically.
-        """
-        _graph_input_check.is_vertex_order(
-            self._graph, list(other_realization.keys()), "other_realization"
+        return general.is_equivalent_realization(
+            self,
+            other_realization=other_realization,
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
-        for u, v in self._graph.edges:
-            edge_vec = self._realization[u] - self._realization[v]
-            dist_squared = (edge_vec.T * edge_vec)[0, 0]
-
-            other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
-                other_realization[v]
-            )
-            otherdist_squared = (other_edge_vec.T * other_edge_vec)[0, 0]
-
-            difference = sp.simplify(otherdist_squared - dist_squared)
-            if not is_zero(difference, numerical=numerical, tolerance=tolerance):
-                return False
-        return True
-
     @doc_category("Framework properties")
+    @copy_doc(general.is_equivalent)
     def is_equivalent(
         self,
         other_framework: Framework,
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        """
-        Return whether the given framework is equivalent to self.
-
-        Definitions
-        -----------
-        :prf:ref:`Equivalent frameworks <def-equivalent-framework>`
-
-        Parameters
-        ----------
-        other_framework
-            The framework for checking the equivalence.
-        numerical
-            Whether the check is symbolic (default) or numerical.
-        tolerance
-            Used tolerance when checking numerically.
-        """
-
-        self._input_check_underlying_graphs(other_framework)
-
-        return self.is_equivalent_realization(
-            other_framework._realization, numerical, tolerance
+        return general.is_equivalent(
+            self,
+            other_framework=other_framework,
+            numerical=numerical,
+            tolerance=tolerance,
         )
 
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.translate)
     def translate(
         self, vector: Point | Matrix, inplace: bool = True
     ) -> None | Framework:
-        """
-        Translate the framework.
-
-        Parameters
-        ----------
-        vector
-            Translation vector
-        inplace
-            If ``True`` (default), then this framework is translated.
-            Otherwise, a new translated framework is returned.
-        """
-        vector = point_to_vector(vector)
-
-        if inplace:
-            if vector.shape[0] != self.dim:
-                raise ValueError(
-                    "The dimension of the vector has to be the same as of the framework!"
-                )
-
-            for v in self._realization.keys():
-                self._realization[v] += vector
-            return
-
-        new_framework = deepcopy(self)
-        new_framework.translate(vector, True)
-        return new_framework
+        return transformations.translate(self, vector, inplace=inplace)
 
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.rescale)
     def rescale(self, factor: Number, inplace: bool = True) -> None | Framework:
-        """
-        Scale the framework.
-
-        Parameters
-        ----------
-        factor:
-            Scaling factor
-        inplace:
-            If ``True`` (default), then this framework is translated.
-            Otherwise, a new translated framework is returned.
-        """
-        if isinstance(factor, str):
-            factor = sp.sympify(factor)
-        if inplace:
-            for v in self._realization.keys():
-                self._realization[v] = self._realization[v] * factor
-            return
-
-        new_framework = deepcopy(self)
-        new_framework.rescale(factor, True)
-        return new_framework
+        return transformations.rescale(self, factor, inplace=inplace)
 
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.rotate2D)
     def rotate2D(
         self, angle: float, rotation_center: Point = [0, 0], inplace: bool = True
     ) -> None | Framework:
-        """
-        Rotate the planar framework counterclockwise.
-
-        Parameters
-        ----------
-        angle:
-            Rotation angle
-        rotation_center:
-            The center of rotation.
-            By default, this is the origin.
-        inplace:
-            If ``True`` (default), then this framework is rotated.
-            Otherwise, a new rotated framework is returned.
-        """
-        _input_check.dimension_for_algorithm(self.dim, [2], "rotate2D")
-        _input_check.equal(len(rotation_center), 2, "length of the `rotation_center`")
-
-        rotation_matrix = Matrix(
-            [[sp.cos(angle), -sp.sin(angle)], [sp.sin(angle), sp.cos(angle)]]
+        return transformations.rotate2D(
+            self, angle, rotation_center=rotation_center, inplace=inplace
         )
 
-        opposite_rotation_center = [-rotation_center[0], -rotation_center[1]]
-
-        if inplace:
-            rotated_framework = self
-        else:
-            rotated_framework = deepcopy(self)
-
-        rotated_framework.translate(opposite_rotation_center, inplace=True)
-        for v, pos in rotated_framework._realization.items():
-            rotated_framework._realization[v] = rotation_matrix * pos
-        rotated_framework.translate(rotation_center, inplace=True)
-
-        if inplace:
-            return
-        else:
-            return rotated_framework
-
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.rotate3D)
     def rotate3D(
         self,
         angle: Number,
@@ -2338,94 +1259,21 @@ class Framework(FrameworkBase):
         axis_shift: Point = [0, 0, 0],
         inplace: bool = True,
     ) -> None | Framework:
-        """
-        Rotate the spatial framework counterclockwise around a specified rotation axis.
-
-        Parameters
-        ----------
-        angle:
-            Rotation angle around the axis of rotation.
-        axis_direction:
-            Direction of the rotation axis.
-            By default, this is the ``z``-axis.
-        axis_shift:
-            A point through which the rotation axis passes.
-            By default, this is the origin.
-        inplace:
-            If ``True`` (default), then this framework is rotated.
-            Otherwise, a new rotated framework is returned.
-        """
-        _input_check.dimension_for_algorithm(self.dim, [3], "rotate3D")
-        _input_check.equal(len(axis_direction), 3, "length of the `axis_direction`")
-        _input_check.equal(len(axis_shift), 3, "length of the `axis_shift`")
-        if is_zero_vector(axis_direction):
-            raise ValueError(
-                "The parameter `axis_direction` needs to be a non-zero vector."
-            )
-
-        versor_dir_axis = [
-            pos / sp.sqrt(sum(coord**2 for coord in axis_direction))
-            for pos in axis_direction
-        ]
-        rotation_matrix = Matrix(
-            [
-                [
-                    sp.cos(angle) + versor_dir_axis[0] ** 2 * (1 - sp.cos(angle)),
-                    versor_dir_axis[0] * versor_dir_axis[1] * (1 - sp.cos(angle))
-                    - versor_dir_axis[2] * sp.sin(angle),
-                    versor_dir_axis[0] * versor_dir_axis[2] * (1 - sp.cos(angle))
-                    + versor_dir_axis[1] * sp.sin(angle),
-                ],
-                [
-                    versor_dir_axis[0] * versor_dir_axis[1] * (1 - sp.cos(angle))
-                    + versor_dir_axis[2] * sp.sin(angle),
-                    sp.cos(angle) + versor_dir_axis[1] ** 2 * (1 - sp.cos(angle)),
-                    versor_dir_axis[1] * versor_dir_axis[2] * (1 - sp.cos(angle))
-                    - versor_dir_axis[0] * sp.sin(angle),
-                ],
-                [
-                    versor_dir_axis[0] * versor_dir_axis[2] * (1 - sp.cos(angle))
-                    - versor_dir_axis[1] * sp.sin(angle),
-                    versor_dir_axis[1] * versor_dir_axis[2] * (1 - sp.cos(angle))
-                    + versor_dir_axis[0] * sp.sin(angle),
-                    sp.cos(angle) + versor_dir_axis[2] ** 2 * (1 - sp.cos(angle)),
-                ],
-            ]
+        return transformations.rotate3D(
+            self,
+            angle,
+            axis_direction=axis_direction,
+            axis_shift=axis_shift,
+            inplace=inplace,
         )
 
-        opposite_axis_shift = [-axis_shift[0], -axis_shift[1], -axis_shift[2]]
-
-        if inplace:
-            rotated_framework = self
-        else:
-            rotated_framework = deepcopy(self)
-
-        rotated_framework.translate(opposite_axis_shift, inplace=True)
-        for v, pos in rotated_framework._realization.items():
-            rotated_framework._realization[v] = rotation_matrix * pos
-        rotated_framework.translate(axis_shift, inplace=True)
-
-        if inplace:
-            return
-        else:
-            return rotated_framework
-
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.rotate)
     def rotate(self, **kwargs) -> None | Framework:
-        """
-        Alias for rotating frameworks based on
-        :meth:`~Framework.rotate2D` and :meth:`~Framework.rotate3D`.
-
-        For implementation details and possible parameters, see
-        :meth:`~Framework.rotate2D` and :meth:`~Framework.rotate3D`.
-        """
-        _input_check.dimension_for_algorithm(self.dim, [2, 3], "rotate")
-        if self.dim == 2:
-            return self.rotate2D(**kwargs)
-        elif self.dim == 3:
-            return self.rotate3D(**kwargs)
+        return transformations.rotate(self, **kwargs)
 
     @doc_category("Framework manipulation")
+    @copy_doc(transformations.projected_realization)
     def projected_realization(
         self,
         proj_dim: int = None,
@@ -2433,129 +1281,18 @@ class Framework(FrameworkBase):
         random_seed: int = None,
         coordinates: Sequence[int] = None,
     ) -> tuple[dict[Vertex, Point], Matrix]:
-        """
-        Return the realization projected to a lower dimension and the projection matrix.
-
-        Parameters
-        ----------
-        proj_dim:
-            The dimension to which the framework is projected.
-            This is determined from ``projection_matrix`` if it is provided.
-        projection_matrix:
-            The matrix used for projecting the placement of vertices.
-            The matrix must have dimensions ``(proj_dim, dim)``,
-            where ``dim`` is the dimension of the given framework.
-            If ``None``, a numerical random projection matrix is generated.
-        random_seed:
-            The random seed used for generating the projection matrix.
-        coordinates:
-            Indices of coordinates to which projection is applied.
-            Providing the parameter overrides the previous ones.
-
-        Suggested Improvements
-        ----------------------
-        Generate random projection matrix over symbolic rationals.
-        """
-        if coordinates is not None:
-            if not isinstance(coordinates, tuple) and not isinstance(coordinates, list):
-                raise TypeError(
-                    "The parameter ``coordinates`` must be a tuple or a list."
-                )
-            if max(coordinates) >= self._dim:
-                raise ValueError(
-                    f"Index {np.max(coordinates)} out of range"
-                    + f" with placement in dim: {self._dim}."
-                )
-            if isinstance(proj_dim, int) and len(coordinates) != proj_dim:
-                raise ValueError(
-                    f"The number of coordinates ({len(coordinates)}) does not match"
-                    + f" proj_dim ({proj_dim})."
-                )
-            matrix = np.zeros((len(coordinates), self._dim))
-            for i, coord in enumerate(coordinates):
-                matrix[i, coord] = 1
-
-            return (
-                {
-                    v: tuple([pos[coord] for coord in coordinates])
-                    for v, pos in self._realization.items()
-                },
-                Matrix(matrix),
-            )
-
-        if projection_matrix is not None:
-            projection_matrix = np.array(projection_matrix)
-            if projection_matrix.shape[1] != self._dim:
-                raise ValueError(
-                    "The projection matrix has wrong number of columns."
-                    + f"{projection_matrix.shape[1]} instead of {self._dim}."
-                )
-            if isinstance(proj_dim, int) and projection_matrix.shape[0] != proj_dim:
-                raise ValueError(
-                    "The projection matrix has wrong number of rows."
-                    + f"{projection_matrix.shape[0]} instead of {self._dim}."
-                )
-
-        if projection_matrix is None:
-            if proj_dim == 2:
-                projection_matrix = _generate_two_orthonormal_vectors(
-                    self._dim, random_seed=random_seed
-                )
-            elif proj_dim == 3:
-                projection_matrix = _generate_three_orthonormal_vectors(
-                    self._dim, random_seed=random_seed
-                )
-            else:
-                raise ValueError(
-                    "An automatically generated random matrix is supported"
-                    + f" only in dimension 2 or 3. {proj_dim} was given instead."
-                )
-            projection_matrix = projection_matrix.T
-        return (
-            {
-                v: tuple(
-                    [float(s[0]) for s in np.dot(projection_matrix, np.array(pos))]
-                )
-                for v, pos in self.realization(as_points=False, numerical=True).items()
-            },
-            projection_matrix,
+        return transformations.projected_realization(
+            self,
+            proj_dim=proj_dim,
+            projection_matrix=projection_matrix,
+            random_seed=random_seed,
+            coordinates=coordinates,
         )
 
     @doc_category("Other")
+    @copy_doc(general.edge_lengths)
     def edge_lengths(self, numerical: bool = False) -> dict[Edge, Number]:
-        """
-        Return the dictionary of the edge lengths.
-
-        Parameters
-        -------
-        numerical:
-            If ``True``, numerical positions are used for the computation of the edge lengths.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-        >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
-        >>> F.edge_lengths(numerical=False)
-        {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
-        >>> F.edge_lengths(numerical=True)
-        {(0, 1): 1.0, (0, 3): 1.4240006242195884, (1, 2): 1.118033988749895, (2, 3): 0.5443838790578374}
-        """  # noqa: E501
-        if numerical:
-            points = self.realization(as_points=True, numerical=True)
-            return {
-                tuple(e): float(
-                    np.linalg.norm(np.array(points[e[0]]) - np.array(points[e[1]]))
-                )
-                for e in self._graph.edges
-            }
-        else:
-            points = self.realization(as_points=True)
-            return {
-                tuple(e): sp.sqrt(
-                    sum([(x - y) ** 2 for x, y in zip(points[e[0]], points[e[1]])])
-                )
-                for e in self._graph.edges
-            }
+        return general.edge_lengths(self, numerical=numerical)
 
     @staticmethod
     def _generate_stl_bar(
@@ -2711,72 +1448,8 @@ class Framework(FrameworkBase):
             f"STL files for the bars have been generated in the folder `{output_dir}`."
         )
 
-    def _transform_inf_flex_to_pointwise(
-        self, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
-    ) -> dict[Vertex, list[Number]]:
-        r"""
-        Transform the natural data type of a flex (``Matrix``) to a
-        dictionary that maps a vertex to a ``Sequence`` of coordinates
-        (i.e. a vector).
-
-        Parameters
-        ----------
-        inf_flex:
-            An infinitesimal flex in the form of a ``Matrix``.
-        vertex_order:
-            If ``None``, the :meth:`.Graph.vertex_list`
-            is taken as the vertex order.
-
-        Examples
-        ----
-        >>> F = Framework.from_points([(0,0), (1,0), (0,1)])
-        >>> F.add_edges([(0,1),(0,2)])
-        >>> flex = F.nontrivial_inf_flexes()[0]
-        >>> F._transform_inf_flex_to_pointwise(flex)
-        {0: [1, 0], 1: [1, 0], 2: [0, 0]}
-
-        Notes
-        ----
-        For example, this method can be used for generating an
-        infinitesimal flex for plotting purposes.
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
-        return {
-            vertex_order[i]: [inf_flex[i * self.dim + j] for j in range(self.dim)]
-            for i in range(len(vertex_order))
-        }
-
-    def _transform_stress_to_edgewise(
-        self, stress: Matrix, edge_order: Sequence[Edge] = None
-    ) -> dict[Edge, Number]:
-        r"""
-        Transform the natural data type of a stress (``Matrix``) to a
-        dictionary that maps an edge to a coordinate.
-
-        Parameters
-        ----------
-        stress:
-            An equilibrium stress in the form of a ``Matrix``.
-        edge_order:
-            If ``None``, the :meth:`.Graph.edge_list`
-            is taken as the edge order.
-
-        Examples
-        ----
-        >>> F = Framework.Complete([(0,0),(1,0),(1,1),(0,1)])
-        >>> stress = F.stresses()[0]
-        >>> F._transform_stress_to_edgewise(stress)
-        {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
-
-        Notes
-        ----
-        For example, this method can be used for generating an
-        equilibrium stresss for plotting purposes.
-        """
-        edge_order = _graph_input_check.is_edge_order(self._graph, edge_order)
-        return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}
-
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_vector_inf_flex)
     def is_vector_inf_flex(
         self,
         inf_flex: Sequence[Number],
@@ -2784,92 +1457,25 @@ class Framework(FrameworkBase):
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        r"""
-        Return whether a vector is an infinitesimal flex of the framework.
-
-        Definitions
-        -----------
-        * :prf:ref:`Infinitesimal flex <def-inf-flex>`
-        * :prf:ref:`Rigidity Matrix <def-rigidity-matrix>`
-
-        Parameters
-        ----------
-        inf_flex:
-            An infinitesimal flex of the framework specified by a vector.
-        vertex_order:
-            A list of vertices specifying the order in which ``inf_flex`` is given.
-            If none is provided, the list from :meth:`~.Graph.vertex_list` is taken.
-        numerical:
-            A Boolean determining whether the evaluation of the product of
-            the ``inf_flex`` and the rigidity matrix is symbolic or numerical.
-        tolerance:
-            Absolute tolerance that is the threshold for acceptable numerical flexes.
-            This parameter is used to determine the number of digits, to which
-            accuracy the symbolic expressions are evaluated.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB as fws
-        >>> F = fws.Square()
-        >>> q = [0,0,0,0,-2,0,-2,0]
-        >>> F.is_vector_inf_flex(q)
-        True
-        >>> q[0] = 1
-        >>> F.is_vector_inf_flex(q)
-        False
-        >>> F = Framework.Complete([[0,0], [1,1]])
-        >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
-        True
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
-        return is_zero_vector(
-            self.rigidity_matrix(vertex_order=vertex_order) * Matrix(inf_flex),
+        return infinitesimal_rigidity.is_vector_inf_flex(
+            self,
+            inf_flex=inf_flex,
+            vertex_order=vertex_order,
             numerical=numerical,
             tolerance=tolerance,
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_dict_inf_flex)
     def is_dict_inf_flex(
         self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
-        """
-        Return whether a dictionary specifies an infinitesimal flex of the framework.
-
-        Definitions
-        -----------
-        :prf:ref:`Infinitesimal flex <def-inf-flex>`
-
-        Parameters
-        ----------
-        vert_to_flex:
-            Dictionary that maps the vertex labels to
-            vectors of the same dimension as the framework is.
-
-        Examples
-        --------
-        >>> F = Framework.Complete([[0,0], [1,1]])
-        >>> F.is_dict_inf_flex({0:[0,0], 1:[-1,1]})
-        True
-        >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
-        True
-
-        Notes
-        -----
-        See :meth:`.is_vector_inf_flex`.
-        """
-        _graph_input_check.is_vertex_order(
-            self._graph, list(vert_to_flex.keys()), "vert_to_flex"
-        )
-
-        dict_to_list = []
-        for v in self._graph.vertex_list():
-            dict_to_list += list(vert_to_flex[v])
-
-        return self.is_vector_inf_flex(
-            dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs
+        return infinitesimal_rigidity.is_dict_inf_flex(
+            self, vert_to_flex=vert_to_flex, **kwargs
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_vector_nontrivial_inf_flex)
     def is_vector_nontrivial_inf_flex(
         self,
         inf_flex: Sequence[Number],
@@ -2877,257 +1483,58 @@ class Framework(FrameworkBase):
         numerical: bool = False,
         tolerance: float = 1e-9,
     ) -> bool:
-        r"""
-        Return whether an infinitesimal flex is nontrivial.
-
-        Definitions
-        -----------
-        :prf:ref:`Nontrivial infinitesimal flex <def-trivial-inf-flex>`
-
-        Parameters
-        ----------
-        inf_flex:
-            An infinitesimal flex of the framework.
-        vertex_order:
-            A list of vertices specifying the order in which ``inf_flex`` is given.
-            If none is provided, the list from :meth:`.Graph.vertex_list` is taken.
-        numerical:
-            A Boolean determining whether the evaluation of the product of the `inf_flex`
-            and the rigidity matrix is symbolic or numerical.
-        tolerance:
-            Absolute tolerance that is the threshold for acceptable numerical flexes.
-            This parameter is used to determine the number of digits, to which
-            accuracy the symbolic expressions are evaluated.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB as fws
-        >>> F = fws.Square()
-        >>> q = [0,0,0,0,-2,0,-2,0]
-        >>> F.is_vector_nontrivial_inf_flex(q)
-        True
-        >>> q = [1,-1,1,1,-1,1,-1,-1]
-        >>> F.is_vector_inf_flex(q)
-        True
-        >>> F.is_vector_nontrivial_inf_flex(q)
-        False
-
-        Notes
-        -----
-        This is done by solving a linear system composed of a matrix $A$ whose columns
-        are given by a basis of the trivial flexes and the vector $b$ given by the
-        input flex. $b$ is trivial if and only if there is a linear combination of
-        the columns in $A$ producing $b$. In other words, when there is a solution to
-        $Ax=b$, then $b$ is a trivial infinitesimal motion. Otherwise, $b$ is
-        nontrivial.
-
-        In the ``numerical=True`` case we compute a least squares solution $x$ of the
-        overdetermined linear system and compare the values in $Ax$ to the values
-        in $b$.
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self._graph, vertex_order)
-        if not self.is_vector_inf_flex(
-            inf_flex,
+        return infinitesimal_rigidity.is_vector_nontrivial_inf_flex(
+            self,
+            inf_flex=inf_flex,
             vertex_order=vertex_order,
             numerical=numerical,
             tolerance=tolerance,
-        ):
-            return False
-
-        if not numerical:
-            Q_trivial = Matrix.hstack(
-                *(self.trivial_inf_flexes(vertex_order=vertex_order))
-            )
-            system = Q_trivial, Matrix(inf_flex)
-            return sp.linsolve(system) == sp.EmptySet
-        else:
-            Q_trivial = np.array(
-                [
-                    sympy_expr_to_float(flex, tolerance=tolerance)
-                    for flex in self.trivial_inf_flexes(vertex_order=vertex_order)
-                ]
-            ).transpose()
-            b = np.array(sympy_expr_to_float(inf_flex, tolerance=tolerance)).transpose()
-            x = np.linalg.lstsq(Q_trivial, b, rcond=None)[0]
-            return not is_zero_vector(
-                np.dot(Q_trivial, x) - b, numerical=True, tolerance=tolerance
-            )
+        )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_dict_nontrivial_inf_flex)
     def is_dict_nontrivial_inf_flex(
         self, vert_to_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
-        r"""
-        Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
-
-        See :meth:`.is_vector_nontrivial_inf_flex` for details,
-        particularly concerning the possible parameters.
-
-        Definitions
-        -----------
-        :prf:ref:`Nontrivial infinitesimal flex <def-trivial-inf-flex>`
-
-        Parameters
-        ----------
-        vert_to_flex:
-            An infinitesimal flex of the framework in the form of a dictionary.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB as fws
-        >>> F = fws.Square()
-        >>> q = {0:[0,0], 1: [0,0], 2:[-2,0], 3:[-2,0]}
-        >>> F.is_dict_nontrivial_inf_flex(q)
-        True
-        >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
-        >>> F.is_dict_nontrivial_inf_flex(q)
-        False
-        """
-        _graph_input_check.is_vertex_order(
-            self._graph, list(vert_to_flex.keys()), "vert_to_flex"
-        )
-
-        dict_to_list = []
-        for v in self._graph.vertex_list():
-            dict_to_list += list(vert_to_flex[v])
-
-        return self.is_vector_nontrivial_inf_flex(
-            dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs
+        return infinitesimal_rigidity.is_dict_nontrivial_inf_flex(
+            self, vert_to_flex=vert_to_flex, **kwargs
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_nontrivial_flex)
     def is_nontrivial_flex(
         self,
         inf_flex: InfFlex,
         **kwargs,
     ) -> bool:
-        """
-        Alias for :meth:`.is_vector_nontrivial_inf_flex` and
-        :meth:`.is_dict_nontrivial_inf_flex`.
-
-        It is distinguished between instances of ``list`` and instances of ``dict`` to
-        call one of the alias methods.
-
-        Definitions
-        -----------
-        :prf:ref:`Nontrivial infinitesimal flex <def-trivial-inf-flex>`
-
-        Parameters
-        ----------
-        inf_flex
-        """
-        if isinstance(inf_flex, list | tuple | Matrix):
-            return self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
-        elif isinstance(inf_flex, dict):
-            return self.is_dict_nontrivial_inf_flex(inf_flex, **kwargs)
-        else:
-            raise TypeError(
-                "The `inf_flex` must be specified either by a vector or a dictionary!"
-            )
+        return infinitesimal_rigidity.is_nontrivial_flex(
+            self, inf_flex=inf_flex, **kwargs
+        )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_vector_trivial_inf_flex)
     def is_vector_trivial_inf_flex(self, inf_flex: Sequence[Number], **kwargs) -> bool:
-        r"""
-        Return whether an infinitesimal flex is trivial.
-
-        See also :meth:`.is_nontrivial_vector_inf_flex` for details,
-        particularly concerning the possible parameters.
-
-        Definitions
-        -----------
-        :prf:ref:`Trivial infinitesimal flex <def-trivial-inf-flex>`
-
-        Parameters
-        ----------
-        inf_flex:
-            An infinitesimal flex of the framework.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB as fws
-        >>> F = fws.Square()
-        >>> q = [0,0,0,0,-2,0,-2,0]
-        >>> F.is_vector_trivial_inf_flex(q)
-        False
-        >>> q = [1,-1,1,1,-1,1,-1,-1]
-        >>> F.is_vector_trivial_inf_flex(q)
-        True
-        """
-        if not self.is_vector_inf_flex(inf_flex, **kwargs):
-            return False
-        return not self.is_vector_nontrivial_inf_flex(inf_flex, **kwargs)
+        return infinitesimal_rigidity.is_vector_trivial_inf_flex(
+            self, inf_flex=inf_flex, **kwargs
+        )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_dict_trivial_inf_flex)
     def is_dict_trivial_inf_flex(
         self, inf_flex: dict[Vertex, Sequence[Number]], **kwargs
     ) -> bool:
-        r"""
-        Return whether an infinitesimal flex specified by a dictionary is trivial.
-
-        See :meth:`.is_vector_trivial_inf_flex` for details,
-        particularly concerning the possible parameters.
-
-        Definitions
-        -----------
-        :prf:ref:`Trivial infinitesimal flex <def-trivial-inf-flex>`
-
-        Parameters
-        ----------
-        inf_flex:
-            An infinitesimal flex of the framework in the form of a dictionary.
-
-        Examples
-        --------
-        >>> from pyrigi import frameworkDB as fws
-        >>> F = fws.Square()
-        >>> q = {0:[0,0], 1: [0,0], 2:[-2,0], 3:[-2,0]}
-        >>> F.is_dict_trivial_inf_flex(q)
-        False
-        >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
-        >>> F.is_dict_trivial_inf_flex(q)
-        True
-        """
-        _graph_input_check.is_vertex_order(
-            self._graph, list(inf_flex.keys()), "vert_to_flex"
-        )
-
-        dict_to_list = []
-        for v in self._graph.vertex_list():
-            dict_to_list += list(inf_flex[v])
-
-        return self.is_vector_trivial_inf_flex(
-            dict_to_list, vertex_order=self._graph.vertex_list(), **kwargs
+        return infinitesimal_rigidity.is_dict_trivial_inf_flex(
+            self, inf_flex=inf_flex, **kwargs
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(infinitesimal_rigidity.is_trivial_flex)
     def is_trivial_flex(
         self,
         inf_flex: InfFlex,
         **kwargs,
     ) -> bool:
-        """
-        Alias for :meth:`.is_vector_trivial_inf_flex` and
-        :meth:`.is_dict_trivial_inf_flex`.
-
-        Ii is distinguished between instances of ``list`` and instances of ``dict`` to
-        call one of the alias methods.
-
-        Definitions
-        -----------
-        :prf:ref:`Trivial infinitesimal flex <def-trivial-inf-flex>`
-
-        Parameters
-        ----------
-        inf_flex
-        """
-        if isinstance(inf_flex, list | tuple | Matrix):
-            return self.is_vector_trivial_inf_flex(inf_flex, **kwargs)
-        elif isinstance(inf_flex, dict):
-            return self.is_dict_trivial_inf_flex(inf_flex, **kwargs)
-        else:
-            raise TypeError(
-                "The `inf_flex` must be specified either by a vector or a dictionary!"
-            )
+        return infinitesimal_rigidity.is_trivial_flex(self, inf_flex=inf_flex, **kwargs)
 
 
 Framework.__doc__ = Framework.__doc__.replace(

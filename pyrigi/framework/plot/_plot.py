@@ -20,6 +20,8 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.framework import Framework
+from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
+from pyrigi.framework._rigidity import stress as stress_rigidity
 from pyrigi.misc.misc import is_zero_vector, sympy_expr_to_float
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
@@ -52,11 +54,13 @@ def resolve_inf_flex(
                 + "the dimension of the space "
                 + "of infinitesimal flexes."
             )
-        inf_flex_pointwise = framework._transform_inf_flex_to_pointwise(
-            inf_flex_basis[inf_flex]
+        inf_flex_pointwise = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+            framework, inf_flex_basis[inf_flex]
         )
     elif isinstance(inf_flex, Matrix):
-        inf_flex_pointwise = framework._transform_inf_flex_to_pointwise(inf_flex)
+        inf_flex_pointwise = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+            framework, inf_flex
+        )
     elif isinstance(inf_flex, dict) and all(
         isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
     ):
@@ -265,9 +269,13 @@ def resolve_stress(
                 + "the dimension of the space "
                 + "of equilibrium stresses."
             )
-        stress_edgewise = framework._transform_stress_to_edgewise(stresses[stress])
+        stress_edgewise = stress_rigidity._transform_stress_to_edgewise(
+            framework, stresses[stress]
+        )
     elif isinstance(stress, Matrix):
-        stress_edgewise = framework._transform_stress_to_edgewise(stress)
+        stress_edgewise = stress_rigidity._transform_stress_to_edgewise(
+            framework, stress
+        )
     elif isinstance(stress, dict) and all(
         isinstance(stress[key], int | float | str) for key in stress.keys()
     ):

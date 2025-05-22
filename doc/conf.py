@@ -437,6 +437,7 @@ def generate_myst_tree(
     comments: dict[str, dict[str, str]] = None,
     indent: int = 0,
     base_path: str = None,
+    show_line_numbers: bool = False,
 ) -> str:
     """
     Generate MyST-compatible Markdown tree showing only ``.py`` files, folders first.
@@ -478,17 +479,31 @@ def generate_myst_tree(
         folder_path = os.path.join(root_path, folder)
         prefix = "    " * indent
         output.append(f"{prefix}{folder}/")
-        sub_tree = generate_myst_tree(folder_path, comments, indent + 1, base_path)
+        sub_tree = generate_myst_tree(
+            folder_path,
+            comments,
+            indent + 1,
+            base_path,
+            show_line_numbers=show_line_numbers,
+        )
         output.append(sub_tree)
 
     # Then list .py files
     for file in py_files:
         file_path = os.path.join(root_path, file)
+        if show_line_numbers:
+            with open(file_path, "r") as f:
+                n = len(f.readlines())
+
         prefix_and_file = "    " * indent + f"{file} "
         comment = get_comment_for_file(file_path, base_path, comments)
         num_dots = 80 - len(prefix_and_file) - len(comment)
         comment_str = "." * num_dots + f" {comment}" if comment else ""
-        output.append(prefix_and_file + comment_str)
+        output.append(
+            prefix_and_file
+            + comment_str
+            + (f" ({n:4d} lines)" if show_line_numbers else "")
+        )
 
     return "\n".join(output)
 
@@ -525,9 +540,12 @@ comments = {
         "_plot.py": "auxiliary functions for plotting",
         "base.py": "implementation of FrameworkBase",
         "framework.py": "implementation of Framework",
+        "_general.py": "general framework functions",
         "infinitesimal.py": "functions for infinitesimal rigidity",
+        "matroidal.py": "functions for framework rigidity matroid",
+        "redundant.py": "functions for redundant rigidity",
+        "second_order.py": "functions for prestress stability and 2nd order rig.",
         "stress.py": "functions for stresses",
-        "prestress_stability.py": "functions for prestress stability and 2nd order rig.",
         "transformations.py": "functions like rotate or scale",
     },
     "misc": {
@@ -541,6 +559,6 @@ comments = {
     },
 }
 
-tree_output = generate_myst_tree("../pyrigi", comments)
+tree_output = generate_myst_tree("../pyrigi", comments, show_line_numbers=False)
 with open("development/howto/pyrigi_structure.txt", "w") as file:
     file.write(tree_output)

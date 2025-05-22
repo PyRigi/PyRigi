@@ -7,7 +7,7 @@ import pyrigi.graphDB as graphs
 import pyrigi.misc.misc as misc
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph import Graph
-from test.graph.test_graph import TEST_WRAPPED_FUNCTIONS
+from test import TEST_WRAPPED_FUNCTIONS
 
 
 ###############################################################

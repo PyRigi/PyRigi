@@ -13,6 +13,7 @@ from typing import Any, Callable, ParamSpec, Type, TypeVar, cast, get_args, get_
 
 import pytest
 
+from pyrigi import Framework
 from pyrigi.graph import Graph
 
 P = ParamSpec("P")
@@ -151,7 +152,9 @@ def _get_resolved_signature(
     return signature
 
 
-def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
+def _assert_same_sign(  # noqa: C901
+    method: Callable[..., T], func: Callable[..., T]
+) -> None:
     """
     Make sure both provided callable objects share the same signature except
     for the first parameter.
@@ -179,7 +182,7 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
                 pass
             elif is_subtype(sub_arg, super_arg):
                 pass
-            elif issubclass(sub_arg, super_arg) and sub_arg == Graph:
+            elif issubclass(sub_arg, super_arg) and sub_arg in [Graph, Framework]:
                 pass
             else:
                 return False
@@ -216,18 +219,30 @@ def _assert_same_sign(method: Callable[..., T], func: Callable[..., T]) -> None:
 
     params_method = list(sgn_method.parameters.values())
     params_func = list(sgn_func.parameters.values())
-    if params_method[1:] != params_func[1:]:
-        raise TypeError(
-            f"""
-            The parameters signature of the method does not match
-            the one of the proxy function:
-            method  [{method.__name__}]={params_method[1:]}
-            function[{func.__name__}]={params_func[1:]}
-            """.strip()
-        )
+    for par_method, par_func in zip(params_method, params_func):
+        if par_method != par_func:
+            if (
+                par_method.name == par_func.name
+                and par_method.annotation in [Graph, Framework]
+                and issubclass(par_method.annotation, par_func.annotation)
+            ):
+                pass
+            elif par_method.name == par_func.name and is_subtype(
+                par_method.annotation, par_func.annotation
+            ):
+                pass
+            else:
+                raise TypeError(
+                    f"""
+                    The parameters signature of the method does not match
+                    the one of the proxy function:
+                    method  [{method.__name__}]={params_method[1:]}
+                    function[{func.__name__}]={params_func[1:]}
+                    """.strip()
+                )
 
 
-@pytest.mark.parametrize(("cls"), [Graph])
+@pytest.mark.parametrize(("cls"), [Graph, Framework])
 def test_signature_graph(cls: Type):
     """
     Test that all methods have the same signature as the proxy functions

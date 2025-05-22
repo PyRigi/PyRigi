@@ -9,8 +9,8 @@ import pyrigi.graph.sparsity.sparsity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from pyrigi.warning import RandomizedAlgorithmWarning
+from test import TEST_WRAPPED_FUNCTIONS
 from test.graph.test_graph import (
-    TEST_WRAPPED_FUNCTIONS,
     is_rigid_algorithms_all_d,
     is_rigid_algorithms_d1,
     is_rigid_algorithms_d2,
