@@ -29,6 +29,7 @@ The branch prefixes should be named according the following convention:
 | Branch prefix | Usage                                                    | Usual PR prefix                |
 |---------------|----------------------------------------------------------|--------------------------------|
 | `feature-`    | adding new features, parameters or algorithms\*          | `Feature:`                     |
+| `epic-`       | a grouping of related features\*                         | `Feature:`                     |
 | `bugfix-`     | fixing bugs on `dev` introduced since the latest release | `Feature:`                     |
 | `doc-`        | changing the documentation (including fixes)             | `Doc:`, `Guide:` or `Minor`    |
 | `hotfix-`     | fixing bugs on `main`                                    | `Fix:`                         |
