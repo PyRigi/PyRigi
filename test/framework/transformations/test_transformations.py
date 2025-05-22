@@ -5,7 +5,9 @@ import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
 from pyrigi.framework import Framework
 from pyrigi.framework._general import is_congruent_realization
-from pyrigi.framework._transformations import transformations as framework_transformations
+from pyrigi.framework._transformations import (
+    transformations as framework_transformations,
+)
 from test import TEST_WRAPPED_FUNCTIONS
 from test.framework import _to_FrameworkBase
 
@@ -120,8 +122,12 @@ def test_projected_realization():
         )
 
         with pytest.raises(ValueError):
-            framework_transformations.projected_realization(F, proj_dim=2, projection_matrix=Matrix([[0, 1, 1]]))
-            framework_transformations.projected_realization(F, proj_dim=2, projection_matrix=Matrix([[0, 1], [1, 0]]))
+            framework_transformations.projected_realization(
+                F, proj_dim=2, projection_matrix=Matrix([[0, 1, 1]])
+            )
+            framework_transformations.projected_realization(
+                F, proj_dim=2, projection_matrix=Matrix([[0, 1], [1, 0]])
+            )
 
         F = fws.Complete(6, dim=5)
         F = _to_FrameworkBase(F)
@@ -180,7 +186,9 @@ def test_rotate2D():
 
         F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (0, 2)})
         F = _to_FrameworkBase(F)
-        newF = framework_transformations.rotate2D(F, pi, rotation_center=[1, 1], inplace=False)
+        newF = framework_transformations.rotate2D(
+            F, pi, rotation_center=[1, 1], inplace=False
+        )
         assert newF[0].equals(Matrix([[2], [2]]))
         assert newF[1].equals(Matrix([[0], [2]]))
         assert newF[2].equals(Matrix([[2], [0]]))
@@ -252,7 +260,9 @@ def test_rotate3D():
         assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))], [0]]))
         assert newF[2].equals(Matrix([[0], [sqrt(2)], [0]]))
 
-        framework_transformations.rotate3D(F, pi / 2, axis_direction=[0, 1, 0], inplace=True)
+        framework_transformations.rotate3D(
+            F, pi / 2, axis_direction=[0, 1, 0], inplace=True
+        )
         assert F[0].equals(Matrix([[0], [0], [0]]))
         assert F[1].equals(Matrix([[0], [0], [-2]]))
         assert F[2].equals(Matrix([[0], [1], [-1]]))
