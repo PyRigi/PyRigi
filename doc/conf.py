@@ -164,8 +164,8 @@ mathjax3_config = {
             "NN": "{\\mathbb{N}}",  # natural numbers (including 0)
             "PP": "{\\mathbb{P}}",  # projective space
             "KK": "{\\mathbb{K}}",  # a field
-            "tred": "{\\text{red}}", # 'red' as a text for colorings
-            "tblue": "{\\text{blue}}", # 'blue' as a text for colorings
+            "tred": "{\\text{red}}",  # 'red' as a text for colorings
+            "tblue": "{\\text{blue}}",  # 'blue' as a text for colorings
         },
     }
 }
@@ -381,9 +381,7 @@ Input check methods of {cls.__name__}
 .. automethod:: {cls.__module__}.{cls.__name__}."""
         + f"""
 
-.. automethod:: {cls.__module__}.{cls.__name__}.""".join(
-            methods
-        )
+.. automethod:: {cls.__module__}.{cls.__name__}.""".join(methods)
         + "\n\n"
     )
 
@@ -508,7 +506,7 @@ comments = {
     "graph": {
         "extensions.py": "functions for k-extensions",
         "constructions.py": "functions like  t-sum or intersection",
-        "general.py" : "general graph functions",
+        "general.py": "general graph functions",
         "generic.py": "functions for generic rigidity",
         "global_.py": "functions for global rigidity",
         "matroidal.py": "functions for generic rigidity matroid",
