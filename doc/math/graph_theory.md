@@ -115,7 +115,7 @@ is called a $d$-dimensional _k-extension_ of $G$.
 :::{prf:definition} 2-tree
 :label: def-2-tree
 
-A graph is a _2-tree_ if it can be obtained from a single edge by a seuqence of 2-dimensional 0-extensions on adjacent vertices only.
+A graph is a _2-tree_ if it can be obtained from a single edge by a sequence of 2-dimensional 0-extensions on adjacent vertices only.
 
 :::
 
