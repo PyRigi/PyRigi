@@ -251,6 +251,130 @@ def test_inf_flexes():
     )
     assert F.is_dict_inf_flex(dict_flex) and F.is_dict_nontrivial_inf_flex(dict_flex)
     assert Matrix.hstack(*inf_flexes).rank() == 1
+    if TEST_WRAPPED_FUNCTIONS:
+        F1 = _to_FrameworkBase(fws.Complete(2, 2))
+        Q1 = Matrix.hstack(
+            *(infinitesimal_rigidity.inf_flexes(F1, include_trivial=True))
+        )
+        Q2 = Matrix.hstack(*(infinitesimal_rigidity.trivial_inf_flexes(F1)))
+        assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
+        F2 = _to_FrameworkBase(fws.Square())
+        assert len(infinitesimal_rigidity.inf_flexes(F2, include_trivial=False)) == 1
+
+        F = fws.ThreePrism(realization="flexible")
+        F = _to_FrameworkBase(F)
+        C = Framework(graphs.Complete(6), realization=F.realization())
+        C = _to_FrameworkBase(C)
+        explicit_flex = sympify(
+            [0, 0, 0, 0, 0, 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0]
+        )
+        assert (
+            infinitesimal_rigidity.is_vector_inf_flex(F, explicit_flex)
+            and infinitesimal_rigidity.is_vector_nontrivial_inf_flex(F, explicit_flex)
+            and infinitesimal_rigidity.is_vector_nontrivial_inf_flex(
+                F, explicit_flex, numerical=True
+            )
+            and infinitesimal_rigidity.is_nontrivial_flex(
+                F, explicit_flex, numerical=True
+            )
+        )
+        explicit_flex_reorder = sympify(
+            ["-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, 0, 0, 0, 0, 0, 0]
+        )
+        assert (
+            infinitesimal_rigidity.is_vector_inf_flex(
+                F, explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1]
+            )
+            and infinitesimal_rigidity.is_vector_nontrivial_inf_flex(
+                F, explicit_flex_reorder, vertex_order=[5, 4, 3, 0, 2, 1]
+            )
+            and infinitesimal_rigidity.is_vector_nontrivial_inf_flex(
+                F,
+                explicit_flex_reorder,
+                vertex_order=[5, 4, 3, 0, 2, 1],
+                numerical=True,
+            )
+            and infinitesimal_rigidity.is_nontrivial_flex(
+                F,
+                explicit_flex_reorder,
+                vertex_order=[5, 4, 3, 0, 2, 1],
+                numerical=True,
+            )
+        )
+        QF = Matrix.hstack(*(infinitesimal_rigidity.nontrivial_inf_flexes(F)))
+        QC = Matrix.hstack(*(infinitesimal_rigidity.nontrivial_inf_flexes(C)))
+        assert QF.rank() == 1 and QC.rank() == 0
+        assert infinitesimal_rigidity.trivial_inf_flexes(
+            F
+        ) == infinitesimal_rigidity.trivial_inf_flexes(C)
+        QF = Matrix.hstack(
+            *(infinitesimal_rigidity.inf_flexes(F, include_trivial=True))
+        )
+        QC = Matrix.hstack(*(infinitesimal_rigidity.trivial_inf_flexes(F)))
+        Q_exp = Matrix(explicit_flex)
+        assert Matrix.hstack(QF, QC).rank() == 4
+        assert Matrix.hstack(QF, Q_exp).rank() == 4
+
+        F = fws.Path(4)
+        F = _to_FrameworkBase(F)
+        for inf_flex in infinitesimal_rigidity.nontrivial_inf_flexes(F):
+            dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+                F, inf_flex
+            )
+            assert infinitesimal_rigidity.is_dict_inf_flex(
+                F, dict_flex
+            ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(F, dict_flex)
+        assert (
+            Matrix.hstack(*(infinitesimal_rigidity.nontrivial_inf_flexes(F))).rank()
+            == 2
+        )
+
+        F = fws.Frustum(4)
+        F = _to_FrameworkBase(F)
+        explicit_flex = [1, 0, 0, -1, 0, -1, 1, 0, 1, -1, 1, -1, 0, 0, 0, 0]
+        assert (
+            infinitesimal_rigidity.is_vector_inf_flex(F, explicit_flex)
+            and infinitesimal_rigidity.is_vector_nontrivial_inf_flex(F, explicit_flex)
+            and infinitesimal_rigidity.is_vector_nontrivial_inf_flex(
+                F, explicit_flex, numerical=True
+            )
+            and infinitesimal_rigidity.is_nontrivial_flex(
+                F, explicit_flex, numerical=True
+            )
+        )
+        QF = Matrix.hstack(
+            *(infinitesimal_rigidity.inf_flexes(F, include_trivial=True))
+        )
+        Q_exp = Matrix(explicit_flex)
+        assert QF.rank() == 5 and Matrix.hstack(QF, Q_exp).rank() == 5
+        QF = Matrix.hstack(
+            *(infinitesimal_rigidity.inf_flexes(F, include_trivial=False))
+        )
+        assert QF.rank() == 2 and Matrix.hstack(QF, Q_exp).rank() == 2
+
+        F = fws.Complete(5)
+        F = _to_FrameworkBase(F)
+        F_triv = infinitesimal_rigidity.trivial_inf_flexes(F)
+        for inf_flex in F_triv:
+            dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+                F, inf_flex
+            )
+            assert infinitesimal_rigidity.is_dict_inf_flex(
+                F, dict_flex
+            ) and infinitesimal_rigidity.is_dict_trivial_inf_flex(F, dict_flex)
+        F_all = infinitesimal_rigidity.inf_flexes(F, include_trivial=True)
+        assert Matrix.hstack(*F_triv).rank() == Matrix.hstack(*(F_all + F_triv)).rank()
+
+        F = Framework.Random(graphs.DoubleBanana(), dim=3)
+        F = _to_FrameworkBase(F)
+        inf_flexes = infinitesimal_rigidity.nontrivial_inf_flexes(F)
+        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+            F, inf_flexes[0]
+        )
+        assert infinitesimal_rigidity.is_dict_inf_flex(
+            F, dict_flex
+        ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(F, dict_flex)
+        assert Matrix.hstack(*inf_flexes).rank() == 1
 
 
 def test_inf_flexes_numerical():
@@ -290,6 +414,75 @@ def test_inf_flexes_numerical():
         dict_flex, numerical=True, tolerance=1e-4
     ) and F.is_dict_nontrivial_inf_flex(dict_flex, numerical=True, tolerance=1e-4)
     assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
+    if TEST_WRAPPED_FUNCTIONS:
+        F = fws.ThreePrism(realization="flexible")
+        F = _to_FrameworkBase(F)
+        C = Framework(graphs.Complete(6), realization=F.realization())
+        C = _to_FrameworkBase(C)
+        QF = np.hstack(infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True))
+        QC = infinitesimal_rigidity.nontrivial_inf_flexes(C, numerical=True)
+        assert np.linalg.matrix_rank(QF) == 1 and len(QC) == 0
+
+        F = fws.Path(4)
+        F = _to_FrameworkBase(F)
+        for inf_flex in infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True):
+            dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+                F, inf_flex
+            )
+            assert infinitesimal_rigidity.is_dict_inf_flex(
+                F, dict_flex, numerical=True
+            ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(
+                F, dict_flex, numerical=True, tolerance=1e-4
+            )
+        assert (
+            np.linalg.matrix_rank(
+                np.vstack(
+                    tuple(
+                        infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True)
+                    )
+                )
+            )
+            == 2
+        )
+
+        F = fws.Frustum(4)
+        F = _to_FrameworkBase(F)
+        QF = np.vstack(
+            tuple(
+                infinitesimal_rigidity.inf_flexes(
+                    F, include_trivial=True, numerical=True
+                )
+            )
+        )
+        assert np.linalg.matrix_rank(QF) == 5
+        QF = np.vstack(
+            tuple(
+                infinitesimal_rigidity.inf_flexes(
+                    F, include_trivial=False, numerical=True
+                )
+            )
+        )
+        assert np.linalg.matrix_rank(QF) == 2
+
+        F = fws.Complete(5)
+        F = _to_FrameworkBase(F)
+        F_all = infinitesimal_rigidity.inf_flexes(
+            F, include_trivial=True, numerical=True
+        )
+        assert len(F_all) == 10
+
+        F = Framework.Random(graphs.DoubleBanana(), dim=3)
+        F = _to_FrameworkBase(F)
+        inf_flexes = infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True)
+        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+            F, inf_flexes[0]
+        )
+        assert infinitesimal_rigidity.is_dict_inf_flex(
+            F, dict_flex, numerical=True, tolerance=1e-4
+        ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(
+            F, dict_flex, numerical=True, tolerance=1e-4
+        )
+        assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
 
 
 def test_is_vector_inf_flex():
@@ -306,6 +499,24 @@ def test_is_vector_inf_flex():
     F = fws.ThreePrism(realization="flexible")
     for inf_flex in F.inf_flexes(include_trivial=True):
         assert F.is_vector_inf_flex(inf_flex)
+    if TEST_WRAPPED_FUNCTIONS:
+        F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
+        F = _to_FrameworkBase(F)
+        assert infinitesimal_rigidity.is_vector_inf_flex(F, [0, 0, 0, 1, -1, 0])
+        assert not infinitesimal_rigidity.is_vector_inf_flex(F, [0, 0, 0, 1, -2, 0])
+        assert infinitesimal_rigidity.is_vector_inf_flex(
+            F, [0, 1, 0, 0, -1, 0], [1, 0, 2]
+        )
+
+        F.delete_edge([1, 2])
+        assert infinitesimal_rigidity.is_vector_inf_flex(F, [0, 0, 0, 1, -1, 0])
+        assert infinitesimal_rigidity.is_vector_inf_flex(F, [0, 0, 0, -1, -2, 0])
+        assert not infinitesimal_rigidity.is_vector_inf_flex(F, [0, 0, 2, 1, -2, 1])
+
+        F = fws.ThreePrism(realization="flexible")
+        F = _to_FrameworkBase(F)
+        for inf_flex in infinitesimal_rigidity.inf_flexes(F, include_trivial=True):
+            assert infinitesimal_rigidity.is_vector_inf_flex(F, inf_flex)
 
 
 def test_is_dict_inf_flex():
@@ -322,6 +533,32 @@ def test_is_dict_inf_flex():
     assert F.is_dict_inf_flex(
         {0: [0, 0], 1: [0, 0], 2: [0, 0], 3: [1, 0], 4: [1, 0], 5: [1, 0]}
     )
+    if TEST_WRAPPED_FUNCTIONS:
+        F = Framework.Complete([[0, 0], [1, 0], [0, 1]])
+        F = _to_FrameworkBase(F)
+        assert infinitesimal_rigidity.is_dict_inf_flex(
+            F, {0: [0, 0], 1: [0, 1], 2: [-1, 0]}
+        )
+        assert not infinitesimal_rigidity.is_dict_inf_flex(
+            F, {0: [0, 0], 1: [0, -1], 2: [-2, 0]}
+        )
+
+        F.delete_edge([1, 2])
+        assert infinitesimal_rigidity.is_dict_inf_flex(
+            F, {0: [0, 0], 1: [0, 1], 2: [-1, 0]}
+        )
+        assert infinitesimal_rigidity.is_dict_inf_flex(
+            F, {0: [0, 0], 1: [0, -1], 2: [-2, 0]}
+        )
+        assert not infinitesimal_rigidity.is_dict_inf_flex(
+            F, {0: [0, 0], 1: [2, 1], 2: [-2, 1]}
+        )
+
+        F = fws.ThreePrism(realization="flexible")
+        F = _to_FrameworkBase(F)
+        assert infinitesimal_rigidity.is_dict_inf_flex(
+            F, {0: [0, 0], 1: [0, 0], 2: [0, 0], 3: [1, 0], 4: [1, 0], 5: [1, 0]}
+        )
 
 
 @pytest.mark.parametrize(
@@ -356,6 +593,25 @@ def test_rigidity_matrix():
             [0, 0, -1, 0, 1, 0, 0, 0],
         ]
     )
+    if TEST_WRAPPED_FUNCTIONS:
+        F = fws.Complete(4, dim=3)
+        F = _to_FrameworkBase(F)
+        assert infinitesimal_rigidity.rigidity_matrix(F).shape == (6, 12)
+
+        G = Graph([(0, "a"), ("b", "a"), ("b", 1.9), (1.9, 0)])
+        F = Framework(G, {0: (0, 0), "a": (1, 0), "b": (1, 1), 1.9: (0, 1)})
+        F = _to_FrameworkBase(F)
+        vertex_order = ["a", 1.9, "b", 0]
+        assert infinitesimal_rigidity.rigidity_matrix(
+            F, vertex_order=vertex_order
+        ) == Matrix(
+            [
+                [1, 0, 0, 0, 0, 0, -1, 0],
+                [0, 0, 0, 1, 0, 0, 0, -1],
+                [0, -1, 0, 0, 0, 1, 0, 0],
+                [0, 0, -1, 0, 1, 0, 0, 0],
+            ]
+        )
 
 
 @pytest.mark.parametrize(
