@@ -20,15 +20,15 @@ from pyrigi.misc.misc import _doc_category as doc_category
 from pyrigi.misc.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle
 
-from . import general
-from .assorted import apex, separating_set
-from .constructions import extensions
-from .rigidity import generic as generic_rigidity
-from .rigidity import global_ as global_rigidity
-from .rigidity import matroidal as matroidal_rigidity
-from .rigidity import redundant as redundant_rigidity
-from .sparsity import sparsity
-from .utils import _input_check as _graph_input_check
+from . import _general as general
+from ._constructions import extensions
+from ._other import apex, separating_set
+from ._rigidity import generic as generic_rigidity
+from ._rigidity import global_ as global_rigidity
+from ._rigidity import matroidal as matroidal_rigidity
+from ._rigidity import redundant as redundant_rigidity
+from ._sparsity import sparsity
+from ._utils import _input_check as _graph_input_check
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 

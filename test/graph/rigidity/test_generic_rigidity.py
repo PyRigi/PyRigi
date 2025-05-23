@@ -4,8 +4,8 @@ from itertools import combinations
 import networkx as nx
 import pytest
 
-import pyrigi.graph.rigidity.generic as generic_rigidity
-import pyrigi.graph.sparsity.sparsity
+import pyrigi.graph._rigidity.generic as generic_rigidity
+import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from pyrigi.warning import RandomizedAlgorithmWarning
@@ -412,7 +412,7 @@ def test_rigid_components_pebble_random_graphs(graph):
         # if there is no component from rigid components that contains u and v together
         # the edge u,v can be added
         if not any([u in c and v in c for c in rigid_components]):
-            pebble_digraph = pyrigi.graph.sparsity.sparsity._get_pebble_digraph(
+            pebble_digraph = sparsity._get_pebble_digraph(
                 graph, 2, 3
             )
             assert pebble_digraph.can_add_edge_between_vertices(u, v)

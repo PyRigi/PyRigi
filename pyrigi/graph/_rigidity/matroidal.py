@@ -7,9 +7,9 @@ from itertools import combinations
 
 import networkx as nx
 
-import pyrigi.graph.rigidity.generic as generic_rigidity
-import pyrigi.graph.sparsity.sparsity as sparsity
-import pyrigi.graph.utils._input_check as _graph_input_check
+import pyrigi.graph._rigidity.generic as generic_rigidity
+import pyrigi.graph._sparsity.sparsity as sparsity
+import pyrigi.graph._utils._input_check as _graph_input_check
 import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import Edge, Vertex
 from pyrigi.exception import NotSupportedValueError
@@ -430,7 +430,7 @@ def _Rd_fundamental_circuit(
 
     The following example is the Figure 5 of the article :cite:p:`JordanVillanyi2024`
 
-    >>> from pyrigi.graph.rigidity.global_ import _block_3
+    >>> from pyrigi.graph._rigidity.global_ import _block_3
     >>> G = Graph([[0, 1], [0, 5], [0, 7], [1, 2], [1, 3], [1, 7], [2, 3], [2, 4], [3, 4], [4, 5], [4, 8], [4, 11], [5, 6], [5, 8], [5, 14], [6, 10], [6, 11], [6, 12], [7, 8], [7, 13], [8, 12], [9, 10], [9, 13], [10, 14], [11, 12], [13, 14]])
     >>> H = _block_3(G, 0,11)
     >>> sorted([tuple(sorted(list(e))) for e in _Rd_fundamental_circuit(H, 0, 11)])

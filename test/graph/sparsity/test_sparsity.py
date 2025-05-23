@@ -5,7 +5,7 @@ from random import randint, sample
 import networkx as nx
 import pytest
 
-import pyrigi.graph.sparsity.sparsity as sparsity
+import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from test import TEST_WRAPPED_FUNCTIONS

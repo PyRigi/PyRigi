@@ -9,7 +9,7 @@ import networkx as nx
 
 import pyrigi.misc._input_check as _input_check
 from pyrigi.exception import NotSupportedValueError
-from pyrigi.graph.sparsity._pebble_digraph import PebbleDiGraph
+from pyrigi.graph._sparsity._pebble_digraph import PebbleDiGraph
 
 
 def _build_pebble_digraph(graph: nx.Graph, K: int, L: int) -> None:

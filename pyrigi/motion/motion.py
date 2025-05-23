@@ -19,7 +19,7 @@ from pyrigi.data_type import (
     Sequence,
     Vertex,
 )
-from pyrigi.framework.plot import _plot
+from pyrigi.framework._plot import _plot
 from pyrigi.graph import Graph
 from pyrigi.misc.misc import (
     is_zero,
