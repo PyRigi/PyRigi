@@ -3,7 +3,8 @@ import networkx as nx
 
 def is_isomorphic_graph_list(list1: list[nx.Graph], list2: list[nx.Graph]) -> bool:
     """
-    Return whether two lists of graphs are the same up to graph isomorphism.
+    Return whether two lists of graphs are the same up to permutations
+    and graph isomorphism.
     """
     if len(list1) != len(list2):
         return False
