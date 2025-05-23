@@ -1,7 +1,7 @@
 import networkx as nx
 import pytest
 
-import pyrigi.graph.constructions.extensions as extension
+import pyrigi.graph._constructions.extensions as extension
 import pyrigi.graph.rigidity.generic as generic_rigidity
 import pyrigi.graphDB as graphs
 import pyrigi.misc.misc as misc

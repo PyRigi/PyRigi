@@ -21,9 +21,9 @@ from pyrigi.misc.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle
 
 from . import general
+from ._constructions import extensions
 from ._other import apex, separating_set
 from ._utils import _input_check as _graph_input_check
-from .constructions import extensions
 from .rigidity import generic as generic_rigidity
 from .rigidity import global_ as global_rigidity
 from .rigidity import matroidal as matroidal_rigidity
