@@ -10,6 +10,7 @@ from typing import Any
 import numpy as np
 
 import pyrigi._utils._input_check as _input_check
+from pyrigi._utils.linear_algebra import _normalize_flex, _vector_distance_pointwise
 from pyrigi.data_type import (
     DirectedEdge,
     Edge,
@@ -22,12 +23,7 @@ from pyrigi.data_type import (
 from pyrigi.framework import Framework
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.graph import Graph
-from pyrigi.misc.misc import (
-    _normalize_flex,
-    _vector_distance_pointwise,
-    is_zero,
-    sympy_expr_to_float,
-)
+from pyrigi.misc.misc import is_zero, sympy_expr_to_float
 from pyrigi.motion.motion import Motion
 from pyrigi.warning import NumericalAlgorithmWarning
 

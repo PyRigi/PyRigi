@@ -7,6 +7,7 @@ import sympy as sp
 from sympy import Matrix
 
 import pyrigi.graph._utils._input_check as _graph_input_check
+from pyrigi._utils.linear_algebra import _null_space
 from pyrigi.data_type import (
     Edge,
     Number,
@@ -16,7 +17,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.framework.base import FrameworkBase
-from pyrigi.misc.misc import _null_space, is_zero_vector
+from pyrigi.misc.misc import is_zero_vector
 
 
 def is_dict_stress(

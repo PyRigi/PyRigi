@@ -6,11 +6,13 @@ import numpy as np
 import pytest
 import sympy as sp
 
-from pyrigi.graph import Graph
-from pyrigi.misc.misc import (
+from pyrigi._utils.linear_algebra import (
     _generate_two_orthonormal_vectors,
     _normalize_flex,
     _vector_distance_pointwise,
+)
+from pyrigi.graph import Graph
+from pyrigi.misc.misc import (
     is_isomorphic_graph_list,
     is_zero,
     is_zero_vector,
