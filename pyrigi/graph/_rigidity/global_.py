@@ -11,8 +11,8 @@ from sympy import zeros
 
 import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.redundant as redundant_rigidity
+import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graph._utils._input_check as _graph_input_check
-import pyrigi.graph.sparsity.sparsity as sparsity
 import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import Vertex
 from pyrigi.exception import NotSupportedValueError

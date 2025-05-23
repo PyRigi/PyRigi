@@ -27,8 +27,8 @@ from ._rigidity import generic as generic_rigidity
 from ._rigidity import global_ as global_rigidity
 from ._rigidity import matroidal as matroidal_rigidity
 from ._rigidity import redundant as redundant_rigidity
+from ._sparsity import sparsity
 from ._utils import _input_check as _graph_input_check
-from .sparsity import sparsity
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}
 
