@@ -19,6 +19,7 @@ from sphinx.application import Sphinx
 
 import pyrigi._utils._input_check as _input_check
 from pyrigi import Framework
+from pyrigi._utils._doc import generate_myst_tree
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -398,117 +399,6 @@ _input_check.__doc__ = input_check_str
 
 # ----------generate module structure with comments------------------------
 
-
-def contains_py_files(path: str):
-    """Check if a directory or its subdirectories contain .py files."""
-    for _, _, files in os.walk(path):
-        if any(file.endswith(".py") for file in files):
-            return True
-    return False
-
-
-def get_comment_for_file(
-    file_path: str, root_dir: str, comment_dict: dict[str, dict[str, str]]
-) -> str:
-    """
-    Resolve a comment for a given file path using nested comment dict.
-
-    Parameters
-    ----------
-    file_path:
-        Full file path.
-    root_dir:
-        Base directory.
-    comment_dict:
-        Nested comment dictionary.
-    """
-    rel_path = os.path.relpath(file_path, root_dir)
-    parts = rel_path.split(os.sep)
-
-    if len(parts) == 1:
-        return comment_dict.get(".", {}).get(parts[0], "")
-    elif parts[0] in comment_dict:
-        return comment_dict[parts[0]].get(parts[-1], "")
-    return ""
-
-
-def generate_myst_tree(
-    root_path: str,
-    comments: dict[str, dict[str, str]] = None,
-    indent: int = 0,
-    base_path: str = None,
-    show_line_numbers: bool = False,
-) -> str:
-    """
-    Generate MyST-compatible Markdown tree showing only ``.py`` files, folders first.
-
-    Parameters
-    ----------
-    root_path:
-        Current directory to process.
-    comments:
-        Nested dict ``{folder: {file: comment}}``.
-    indent:
-        Indentation level.
-    base_path:
-        Root directory for relative paths.
-    """
-    if comments is None:
-        comments = {}
-    if base_path is None:
-        base_path = root_path
-
-    output = []
-    entries = sorted(os.listdir(root_path))
-
-    # Separate folders and Python files
-    folders = [
-        e
-        for e in entries
-        if os.path.isdir(os.path.join(root_path, e))
-        and contains_py_files(os.path.join(root_path, e))
-    ]
-    py_files = [
-        e
-        for e in entries
-        if e.endswith(".py") and os.path.isfile(os.path.join(root_path, e))
-    ]
-
-    # List folders first
-    for folder in folders:
-        folder_path = os.path.join(root_path, folder)
-        prefix = "    " * indent
-        output.append(f"{prefix}{folder}/")
-        sub_tree = generate_myst_tree(
-            folder_path,
-            comments,
-            indent + 1,
-            base_path,
-            show_line_numbers=show_line_numbers,
-        )
-        output.append(sub_tree)
-
-    # Then list .py files
-    for file in py_files:
-        file_path = os.path.join(root_path, file)
-        if show_line_numbers:
-            with open(file_path, "r") as f:
-                n = len(f.readlines())
-
-        prefix_and_file = "    " * indent + f"{file} "
-        comment = get_comment_for_file(file_path, base_path, comments)
-        num_dots = 80 - len(prefix_and_file) - len(comment)
-        comment_str = "." * num_dots + f" {comment}" if comment else ""
-        output.append(
-            prefix_and_file
-            + comment_str
-            + (f" ({n:4d} lines)" if show_line_numbers else "")
-        )
-
-    return "\n".join(output)
-
-
-# Nested comment dictionary
 comments = {
     ".": {
         "data_type.py": "definitions of data types",

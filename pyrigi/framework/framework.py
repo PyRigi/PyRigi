@@ -14,6 +14,7 @@ import sympy as sp
 from sympy import Matrix
 
 import pyrigi._utils._input_check as _input_check
+from pyrigi._utils._doc import copy_doc, doc_category, generate_category_tables
 from pyrigi.data_type import (
     DirectedEdge,
     Edge,
@@ -27,9 +28,6 @@ from pyrigi.data_type import (
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
 from pyrigi.graphDB import Complete as CompleteGraph
-from pyrigi.misc._wrap import copy_doc
-from pyrigi.misc.misc import _doc_category as doc_category
-from pyrigi.misc.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 from . import _general as general
@@ -1539,7 +1537,7 @@ class Framework(FrameworkBase):
 
 Framework.__doc__ = Framework.__doc__.replace(
     "METHODS",
-    _generate_category_tables(
+    generate_category_tables(
         Framework,
         1,
         [
