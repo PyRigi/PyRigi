@@ -9,6 +9,8 @@ from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from sympy import Matrix
 
+from pyrigi._utils._conversion import sympy_expr_to_float
+from pyrigi._utils._zero_check import is_zero_vector
 from pyrigi.data_type import (
     DirectedEdge,
     Edge,
@@ -22,7 +24,6 @@ from pyrigi.data_type import (
 from pyrigi.framework import Framework
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.framework._rigidity import stress as stress_rigidity
-from pyrigi.misc.misc import is_zero_vector, sympy_expr_to_float
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 

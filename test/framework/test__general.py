@@ -5,12 +5,12 @@ from sympy import pi
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
+from pyrigi._utils._conversion import point_to_vector, sympy_expr_to_float
 from pyrigi.framework import (
     Framework,
 )
 from pyrigi.framework import _general as framework_general
 from pyrigi.graph import Graph
-from pyrigi.misc.misc import point_to_vector, sympy_expr_to_float
 from test import TEST_WRAPPED_FUNCTIONS
 from test.framework import _to_FrameworkBase
 

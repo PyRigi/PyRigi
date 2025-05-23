@@ -9,6 +9,8 @@ import sympy as sp
 from sympy import Matrix, binomial, flatten
 
 import pyrigi.graph._utils._input_check as _graph_input_check
+from pyrigi._utils._conversion import sympy_expr_to_float
+from pyrigi._utils._zero_check import is_zero_vector
 from pyrigi._utils.linear_algebra import _null_space
 from pyrigi.data_type import (
     Edge,
@@ -19,7 +21,6 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graphDB import Complete as CompleteGraph
-from pyrigi.misc.misc import is_zero_vector, sympy_expr_to_float
 
 
 def rigidity_matrix(

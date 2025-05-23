@@ -4,6 +4,22 @@ from typing import Callable, ParamSpec, TypeVar
 P = ParamSpec("P")
 T = TypeVar("T")
 
+try:
+    from IPython.core.magic import register_cell_magic
+
+    @register_cell_magic
+    def skip_execution(line, cell):  # noqa: U100
+        print(
+            "This cell was marked to be skipped (probably due to long execution time)."
+        )
+        print("Remove the cell magic `%%skip_execution` to run it.")
+        return
+
+except NameError:
+
+    def skip_execution():
+        pass
+
 
 def copy_doc(
     proxy_func: Callable[P, T],

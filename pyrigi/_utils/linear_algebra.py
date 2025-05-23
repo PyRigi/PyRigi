@@ -9,7 +9,9 @@ import sympy as sp
 from sympy import Matrix
 
 from pyrigi.data_type import InfFlex, Number, Sequence, Vertex
-from pyrigi.misc import is_zero, sympy_expr_to_float
+
+from ._conversion import sympy_expr_to_float
+from ._zero_check import is_zero
 
 
 def _generate_two_orthonormal_vectors(dim: int, random_seed: int = None) -> Matrix:

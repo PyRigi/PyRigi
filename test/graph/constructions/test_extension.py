@@ -4,9 +4,9 @@ import pytest
 import pyrigi.graph._constructions.extensions as extension
 import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graphDB as graphs
-import pyrigi.misc.misc as misc
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph import Graph
+from pyrigi.graph._utils.utils import is_isomorphic_graph_list
 from test import TEST_WRAPPED_FUNCTIONS
 
 
@@ -209,12 +209,12 @@ def test_all_k_extensions():
     ],
 )
 def test_all_k_extensions2(graph, k, dim, sol):
-    assert misc.is_isomorphic_graph_list(
+    assert is_isomorphic_graph_list(
         list(graph.all_k_extensions(k, dim, only_non_isomorphic=True)),
         [Graph.from_int(igraph) for igraph in sol],
     )
     if TEST_WRAPPED_FUNCTIONS:
-        assert misc.is_isomorphic_graph_list(
+        assert is_isomorphic_graph_list(
             list(
                 extension.all_k_extensions(
                     nx.Graph(graph), k, dim, only_non_isomorphic=True
@@ -256,12 +256,12 @@ def test_all_k_extension_error():
     ],
 )
 def test_all_extensions(graph, dim, sol):
-    assert misc.is_isomorphic_graph_list(
+    assert is_isomorphic_graph_list(
         list(graph.all_extensions(dim, only_non_isomorphic=True)),
         [Graph.from_int(igraph) for igraph in sol],
     )
     if TEST_WRAPPED_FUNCTIONS:
-        assert misc.is_isomorphic_graph_list(
+        assert is_isomorphic_graph_list(
             list(
                 extension.all_extensions(nx.Graph(graph), dim, only_non_isomorphic=True)
             ),
@@ -284,17 +284,17 @@ def test_all_extensions(graph, dim, sol):
 )
 def test_all_extensions_single(graph, dim):
     for k in range(0, dim):
-        assert misc.is_isomorphic_graph_list(
+        assert is_isomorphic_graph_list(
             list(graph.all_extensions(dim, only_non_isomorphic=True, k_min=k, k_max=k)),
             list(graph.all_k_extensions(k, dim, only_non_isomorphic=True)),
         )
-        assert misc.is_isomorphic_graph_list(
+        assert is_isomorphic_graph_list(
             list(graph.all_extensions(dim, k_min=k, k_max=k)),
             list(graph.all_k_extensions(k, dim)),
         )
     if TEST_WRAPPED_FUNCTIONS:
         for k in range(0, dim):
-            assert misc.is_isomorphic_graph_list(
+            assert is_isomorphic_graph_list(
                 list(
                     extension.all_extensions(
                         nx.Graph(graph), dim, only_non_isomorphic=True, k_min=k, k_max=k
@@ -306,7 +306,7 @@ def test_all_extensions_single(graph, dim):
                     )
                 ),
             )
-            assert misc.is_isomorphic_graph_list(
+            assert is_isomorphic_graph_list(
                 list(extension.all_extensions(nx.Graph(graph), dim, k_min=k, k_max=k)),
                 list(extension.all_k_extensions(nx.Graph(graph), k, dim)),
             )

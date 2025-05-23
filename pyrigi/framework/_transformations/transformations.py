@@ -9,6 +9,8 @@ import sympy as sp
 from sympy import Matrix
 
 import pyrigi._utils._input_check as _input_check
+from pyrigi._utils._conversion import point_to_vector
+from pyrigi._utils._zero_check import is_zero_vector
 from pyrigi._utils.linear_algebra import (
     _generate_three_orthonormal_vectors,
     _generate_two_orthonormal_vectors,
@@ -20,7 +22,6 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.framework.base import FrameworkBase
-from pyrigi.misc.misc import is_zero_vector, point_to_vector
 
 
 def translate(

@@ -5,6 +5,8 @@ This module provides algorithms related to second order rigidity of frameworks.
 import sympy as sp
 from sympy import Matrix
 
+from pyrigi._utils._conversion import sympy_expr_to_float
+from pyrigi._utils._zero_check import is_zero
 from pyrigi.data_type import (
     Edge,
     InfFlex,
@@ -17,7 +19,6 @@ from pyrigi.data_type import (
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.framework._rigidity import stress as stress_rigidity
 from pyrigi.framework.base import FrameworkBase
-from pyrigi.misc.misc import is_zero, sympy_expr_to_float
 
 
 def is_prestress_stable(
