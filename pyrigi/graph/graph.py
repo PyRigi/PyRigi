@@ -23,11 +23,11 @@ from pyrigi.plot_style import PlotStyle
 from . import general
 from ._constructions import extensions
 from ._other import apex, separating_set
+from ._rigidity import generic as generic_rigidity
+from ._rigidity import global_ as global_rigidity
+from ._rigidity import matroidal as matroidal_rigidity
+from ._rigidity import redundant as redundant_rigidity
 from ._utils import _input_check as _graph_input_check
-from .rigidity import generic as generic_rigidity
-from .rigidity import global_ as global_rigidity
-from .rigidity import matroidal as matroidal_rigidity
-from .rigidity import redundant as redundant_rigidity
 from .sparsity import sparsity
 
 __doctest_requires__ = {("Graph.number_of_realizations",): ["lnumber"]}

@@ -447,10 +447,10 @@ def rigid_components(  # noqa: 901
         )
         components = []
 
-        import pyrigi.graph.rigidity.matroidal
+        import pyrigi.graph._rigidity.matroidal as matroidal_rigidity
 
         closure = nx.Graph(
-            pyrigi.graph.rigidity.matroidal.Rd_closure(graph, dim=2, algorithm="pebble")
+            matroidal_rigidity.Rd_closure(graph, dim=2, algorithm="pebble")
         )
         for u, v in closure.edges:
             closure.edges[u, v]["used"] = False

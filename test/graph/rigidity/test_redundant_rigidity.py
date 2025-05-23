@@ -1,7 +1,7 @@
 import networkx as nx
 import pytest
 
-import pyrigi.graph.rigidity.redundant as redundant_rigidity
+import pyrigi.graph._rigidity.redundant as redundant_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from test import TEST_WRAPPED_FUNCTIONS

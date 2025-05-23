@@ -4,7 +4,7 @@ from itertools import combinations
 import networkx as nx
 import pytest
 
-import pyrigi.graph.rigidity.generic as generic_rigidity
+import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph.sparsity.sparsity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
