@@ -12,7 +12,7 @@ from typing import Collection, Iterable, Optional
 import networkx as nx
 from sympy import Matrix
 
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
 from pyrigi.data_type import Edge, Inf, Point, Sequence, Vertex
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.misc._wrap import copy_doc

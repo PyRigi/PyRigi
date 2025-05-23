@@ -7,7 +7,7 @@ from itertools import combinations
 
 import networkx as nx
 
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
 
 
 def is_vertex_apex(graph: nx.Graph) -> bool:

@@ -8,7 +8,7 @@ import numpy as np
 import sympy as sp
 from sympy import Matrix
 
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
 from pyrigi.data_type import (
     Number,
     Point,

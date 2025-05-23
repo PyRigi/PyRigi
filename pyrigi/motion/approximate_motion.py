@@ -9,7 +9,7 @@ from typing import Any
 
 import numpy as np
 
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
 from pyrigi.data_type import (
     DirectedEdge,
     Edge,

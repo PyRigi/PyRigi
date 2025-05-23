@@ -11,8 +11,8 @@ import numpy as np
 import sympy as sp
 from sympy import Matrix
 
+import pyrigi._utils._input_check as _input_check
 import pyrigi.graph._utils._input_check as _graph_input_check
-import pyrigi.misc._input_check as _input_check
 from pyrigi.data_type import (
     Edge,
     Number,

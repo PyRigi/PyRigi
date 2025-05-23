@@ -17,7 +17,7 @@ import sys
 
 from sphinx.application import Sphinx
 
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
 from pyrigi import Framework
 
 sys.path.insert(0, os.path.abspath(".."))
