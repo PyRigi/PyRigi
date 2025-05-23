@@ -12,12 +12,10 @@ from typing import Collection, Iterable, Optional
 import networkx as nx
 from sympy import Matrix
 
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
+from pyrigi._utils._doc import copy_doc, doc_category, generate_category_tables
 from pyrigi.data_type import Edge, Inf, Point, Sequence, Vertex
 from pyrigi.exception import NotSupportedValueError
-from pyrigi.misc._wrap import copy_doc
-from pyrigi.misc.misc import _doc_category as doc_category
-from pyrigi.misc.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle
 
 from . import _general as general
@@ -1615,7 +1613,7 @@ class Graph(nx.Graph):
 
 Graph.__doc__ = Graph.__doc__.replace(
     "METHODS",
-    _generate_category_tables(
+    generate_category_tables(
         Graph,
         1,
         [

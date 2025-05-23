@@ -22,7 +22,7 @@ This notebook can be downloaded {download}`here <../../notebooks/plotting.ipynb>
 import pyrigi.frameworkDB as frameworks
 import pyrigi.graphDB as graphs
 from pyrigi import Graph, Framework
-from pyrigi.misc import skip_execution
+from pyrigi._utils._doc import skip_execution
 ```
 
 Methods {meth}`.Graph.plot` and {meth}`.Framework.plot` offer various plotting options.

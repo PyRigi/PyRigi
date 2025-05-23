@@ -412,9 +412,7 @@ def test_rigid_components_pebble_random_graphs(graph):
         # if there is no component from rigid components that contains u and v together
         # the edge u,v can be added
         if not any([u in c and v in c for c in rigid_components]):
-            pebble_digraph = sparsity._get_pebble_digraph(
-                graph, 2, 3
-            )
+            pebble_digraph = sparsity._get_pebble_digraph(graph, 2, 3)
             assert pebble_digraph.can_add_edge_between_vertices(u, v)
 
 

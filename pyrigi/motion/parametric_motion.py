@@ -9,16 +9,13 @@ import numpy as np
 import sympy as sp
 from sympy import simplify
 
+from pyrigi._utils._conversion import point_to_vector, sympy_expr_to_float
 from pyrigi.data_type import (
     Number,
     Point,
     Vertex,
 )
 from pyrigi.graph import Graph
-from pyrigi.misc.misc import (
-    point_to_vector,
-    sympy_expr_to_float,
-)
 from pyrigi.motion import Motion
 
 

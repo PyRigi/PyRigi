@@ -5,9 +5,9 @@ To unify to a certain extent error messages there are two ways.
 
 ## Check the input before actual computations
 For checking input type and values for standard data types
-we collected a set of methods that are often needed in `pyrigi/misc/_input_check.py`,
+we collected a set of methods that are often needed in `pyrigi/_utils/_input_check.py`,
 see the [list below](#input-check-functions).
-For instance {func}`pyrigi.misc._input_check.dimension`  checks whether
+For instance {func}`pyrigi._utils._input_check.dimension`  checks whether
 the parameter `dim` is a positive integer and raises an error otherwise.
 
 Checks related to the class {class}`.Graph` are in {mod}`.graph._utils._input_check`.
@@ -16,7 +16,7 @@ a graph is loop free and raises an error otherwise.
 
 Example:
 ```python
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
 import pyrigi.graph._utils._input_check as _graph_input_check
 
 class Graph(nx.Graph):
@@ -63,7 +63,7 @@ def method(self, algorithm: str = "default"):
 ## Input check functions
 
 ```{eval-rst}
-.. automodule:: pyrigi.misc._input_check
+.. automodule:: pyrigi._utils._input_check
    :members:
    :show-inheritance:
 ```

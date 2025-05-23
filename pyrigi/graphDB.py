@@ -6,7 +6,7 @@ from itertools import combinations
 
 import networkx as nx
 
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
 from pyrigi.data_type import Sequence, Vertex
 from pyrigi.graph import Graph
 

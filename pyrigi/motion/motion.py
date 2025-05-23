@@ -11,7 +11,8 @@ import numpy as np
 from IPython.display import SVG
 from matplotlib.animation import FuncAnimation
 
-import pyrigi.misc._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
+from pyrigi._utils._zero_check import is_zero
 from pyrigi.data_type import (
     Edge,
     Number,
@@ -21,9 +22,6 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework._plot import _plot
 from pyrigi.graph import Graph
-from pyrigi.misc.misc import (
-    is_zero,
-)
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 

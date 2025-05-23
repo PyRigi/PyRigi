@@ -9,9 +9,10 @@ import sympy as sp
 from sympy import Matrix
 
 import pyrigi.graph._utils._input_check as _graph_input_check
+from pyrigi._utils._conversion import point_to_vector
+from pyrigi._utils._zero_check import is_zero, is_zero_vector
 from pyrigi.data_type import Edge, Number, Point, Vertex
 from pyrigi.framework.base import FrameworkBase
-from pyrigi.misc.misc import is_zero, is_zero_vector, point_to_vector
 
 
 def is_quasi_injective(

@@ -2,9 +2,9 @@ import pytest
 from sympy import sympify
 
 import pyrigi.frameworkDB as fws
+from pyrigi._utils._zero_check import is_zero, is_zero_vector
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
-from pyrigi.misc.misc import is_zero, is_zero_vector
 
 
 def test__str__():
