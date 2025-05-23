@@ -222,7 +222,7 @@ class Framework(FrameworkBase):
         fig.set_figheight(plot_style.canvas_height)
         ax.set_aspect(plot_style.aspect_ratio)
 
-        from pyrigi.framework.plot import _plot
+        from pyrigi.framework._plot import _plot
 
         if self._dim == 1:
             placement = {
@@ -584,7 +584,7 @@ class Framework(FrameworkBase):
             for v, pos in placement.items()
         }
 
-        from pyrigi.framework.plot import _plot
+        from pyrigi.framework._plot import _plot
 
         _plot.plot_with_3D_realization(
             self,
