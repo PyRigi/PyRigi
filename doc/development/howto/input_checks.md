@@ -10,14 +10,14 @@ see the [list below](#input-check-functions).
 For instance {func}`pyrigi.misc._input_check.dimension`  checks whether
 the parameter `dim` is a positive integer and raises an error otherwise.
 
-Checks related to the class {class}`.Graph` are in {mod}`.graph.utils._input_check`.
-For instance {func}`.graph.utils._input_check.no_loop` checks whether
+Checks related to the class {class}`.Graph` are in {mod}`.graph._utils._input_check`.
+For instance {func}`.graph._utils._input_check.no_loop` checks whether
 a graph is loop free and raises an error otherwise.
 
 Example:
 ```python
 import pyrigi.misc._input_check as _input_check
-import pyrigi.graph.utils._input_check as _graph_input_check
+import pyrigi.graph._utils._input_check as _graph_input_check
 
 class Graph(nx.Graph):
     ...
@@ -55,7 +55,7 @@ def method(self, algorithm: str = "default"):
 ## Input check functions of Graph
 
 ```{eval-rst}
-.. automodule:: pyrigi.graph.utils._input_check
+.. automodule:: pyrigi.graph._utils._input_check
    :members:
    :show-inheritance:
 ```
