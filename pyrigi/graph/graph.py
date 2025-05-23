@@ -20,7 +20,7 @@ from pyrigi.misc.misc import _doc_category as doc_category
 from pyrigi.misc.misc import _generate_category_tables
 from pyrigi.plot_style import PlotStyle
 
-from . import general
+from . import _general as general
 from ._constructions import extensions
 from ._other import apex, separating_set
 from ._rigidity import generic as generic_rigidity
