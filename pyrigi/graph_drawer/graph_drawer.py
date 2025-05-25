@@ -24,6 +24,7 @@ from sympy import Rational
 from pyrigi.data_type import Edge
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
+from pyrigi.graph._export import export as graph_export
 
 
 class GraphDrawer(object):
@@ -371,7 +372,7 @@ class GraphDrawer(object):
                         vertex_map[vertex] = i
                         break
         graph = nx.relabel_nodes(graph, vertex_map, copy=True)
-        placement = graph.layout(layout_type)
+        placement = graph_export.layout(graph, layout_type)
 
         # random layout assigns coordinates between 0 and 1.
         # adjust the coordinates to between -1 and 1 as other layouts
