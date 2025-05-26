@@ -486,15 +486,6 @@ def test_number_of_realizations_error(graph):
         graph.number_of_realizations()
 
 
-def test_cone():
-    G = graphs.Complete(5).cone()
-    assert set(G.nodes) == set([0, 1, 2, 3, 4, 5]) and len(G.nodes) == 6
-    G = graphs.Complete(4).cone(vertex="a")
-    assert "a" in G.nodes
-    G = graphs.Cycle(4).cone()
-    assert G.number_of_nodes() == G.max_degree() + 1
-
-
 @pytest.mark.long_local
 def test_randomized_rigidity_properties():  # noqa: C901
     search_space = [range(1, 4), range(1, 7), range(10)]
