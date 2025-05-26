@@ -42,11 +42,11 @@ def cone(graph: nx.Graph, inplace: bool = False, vertex: Vertex = None) -> nx.Gr
             vertex += 1
 
     if inplace:
-        graph.add_edges([(u, vertex) for u in graph.nodes])
+        graph.add_edges_from([(u, vertex) for u in graph.nodes])
         return graph
     else:
         G = deepcopy(graph)
-        G.add_edges([(u, vertex) for u in G.nodes])
+        G.add_edges_from([(u, vertex) for u in G.nodes])
         return G
 
 
@@ -69,7 +69,7 @@ def sum_t(graph: nx.Graph, other_graph: nx.Graph, edge: Edge, t: int = 2) -> nx.
     if edge not in graph.edges or edge not in other_graph.edges:
         raise ValueError(f"The edge {edge} is not in the intersection of the graphs!")
     # check if the intersection is a t-complete graph
-    if not nx.is_isomorphic(graph.intersection(other_graph), nx.complete_graph(t)):
+    if not nx.is_isomorphic(intersection(graph, other_graph), nx.complete_graph(t)):
         raise ValueError(
             f"The intersection of the graphs must be a {t}-complete graph!"
         )
