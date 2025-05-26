@@ -9,11 +9,8 @@ from test.framework import _to_FrameworkBase
 
 @pytest.mark.meshing
 def test__generate_stl_bar():
-    mesh = Framework._generate_stl_bar(30, 4, 10, 5)
+    mesh = framework_export._generate_stl_bar(30, 4, 10, 5)
     assert mesh is not None
-    if TEST_WRAPPED_FUNCTIONS:
-        mesh = framework_export._generate_stl_bar(30, 4, 10, 5)
-        assert mesh is not None
 
 
 @pytest.mark.meshing
@@ -40,22 +37,17 @@ def test__generate_stl_bar():
 )
 def test__generate_stl_bar_error(holes_dist, holes_diam, bar_w, bar_h):
     with pytest.raises(ValueError):
-        Framework._generate_stl_bar(holes_dist, holes_diam, bar_w, bar_h)
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(ValueError):
-            framework_export._generate_stl_bar(holes_dist, holes_diam, bar_w, bar_h)
+        framework_export._generate_stl_bar(holes_dist, holes_diam, bar_w, bar_h)
 
 
 @pytest.mark.meshing
 def test_generate_stl_bars():
-    gr = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
-    fr = Framework(
-        gr, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]}
-    )
-    assert fr.generate_stl_bars(scale=20, filename_prefix="mybar") is None
+    G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
+    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]})
+    assert F.generate_stl_bars(scale=20, filename_prefix="mybar") is None
     if TEST_WRAPPED_FUNCTIONS:
-        fr = _to_FrameworkBase(fr)
+        F = _to_FrameworkBase(F)
         assert (
-            framework_export.generate_stl_bars(fr, scale=20, filename_prefix="mybar")
+            framework_export.generate_stl_bars(F, scale=20, filename_prefix="mybar")
             is None
         )
