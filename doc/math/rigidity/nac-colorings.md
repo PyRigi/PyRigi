@@ -119,8 +119,8 @@ Also triangle-connected components form NAC-mono classes.
 :label: def-triangle-connected-comp
 
 Let $G=(V,E)$ be a graph.
-Let $\triangle$ be the equivalence relation on $E$, where $e_1\triangle e_2$ if
-there is a 3-cycle in $G$ containing both $e_1$ and $e_2$ with reflexive-transitive closure.
+Let $\triangle$ be the equivalence relation on $E$ given by the reflexive-transitive closure of the relation, where $e_1\triangle e_2$ if
+there is a 3-cycle in $G$ containing both $e_1$ and $e_2$.
 
 Clearly, $\triangle$ is NAC-valid.
 The equivalence classes are called _triangle-connected components_ or _$\triangle$-components_.
