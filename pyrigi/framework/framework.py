@@ -39,8 +39,10 @@ from ._rigidity import second_order as second_order_rigidity
 from ._rigidity import stress as stress_rigidity
 from ._transformations import transformations
 
+
 __doctest_requires__ = {
-    ("Framework.generate_stl_bars",): ["trimesh", "manifold3d", "pathlib"]
+    tuple(["Framework." + func_name for func_name in func_names]): pkgs
+    for func_names, pkgs in export.__doctest_requires__.items()
 }
 
 
