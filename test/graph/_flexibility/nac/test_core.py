@@ -1,4 +1,12 @@
-from pyrigi.graph._flexibility.nac.core import coloring_from_mask
+from typing import Callable
+import pytest
+import networkx as nx
+
+from pyrigi.graph._flexibility.nac.core import (
+    coloring_from_mask,
+    create_bitmask_for_component_graph_cycle,
+    mask_matches_templates,
+)
 from pyrigi.data_type import Edge
 
 
@@ -79,3 +87,49 @@ def test_coloring_from_mask_component_with_no_edges():
     )
     assert sorted(result_red) == sorted(expected_red)
     assert sorted(result_blue) == sorted(expected_blue)
+
+
+################################################################################
+def test_create_bitmask_for_component_graph_cycle(
+    graph: nx.Graph,
+    class_to_edges: Callable[[int], list[Edge]],
+    cycle: tuple[int, ...],
+    local_ordered_class_ids: set[int] | None,
+    cycle_mask: int,
+    allow_mask: int,
+):
+    result = create_bitmask_for_component_graph_cycle(
+        graph, class_to_edges, cycle, local_ordered_class_ids
+    )
+    assert result[0] == cycle_mask
+    assert result[1] == allow_mask
+
+
+################################################################################
+@pytest.mark.parametrize(
+    "templates, mask, subgraph_mask, expected",
+    [
+        ([], 0b0010, 0b0010, False),
+        ([(0b0011, 0b0001)], 0b0100, 0b0100, False),
+        ([(0b0001, 0b0010)], 0b0001, 0b0001, False),
+        ([(0b0001, 0b0001)], 0b0001, 0b0001, True),
+        ([(0b0011, 0b0010)], 0b0000, 0b0010, True),
+        ([(0b0001, 0b0001), (0b1000, 0b1000)], 0b0001, 0b0000, True),
+        ([(0b0010, 0b0100), (0b1000, 0b1000)], 0b1000, 0b0000, True),
+        ([(0b0001, 0b0001)], 0, 0, False),
+        ([(0b0001, 0b0001)], 0b1111, 0b1111, True),
+        ([(0b0100, 0b0100)], 0b0001, 0b0011, False),
+        ([(0b0010, 0b0010)], 0b0010, 0b0110, True),
+        ([(0b0110, 0b0100)], 0b0110, 0b0010, True),
+        ([(0b0001, 0b0010), (0b0100, 0b0100)], 0b0001, 0b0000, False),
+        ([(0b1010, 0b1000)], 0b1010, 0b0010, True),
+        ([(0b00000001, 0b00000001)], 0b00000001, 0b11111111, True),
+        ([(0b00000100, 0b00000100)], 0b00000010, 0b11111111, True),
+        ([(0b00010000, 0b00010000)], 0b00010000, 0b00001111, True),
+        ([(0b00000011, 0b00000001)], 0b00000011, 0b11111111, False),
+        ([(0b00000001, 0b00000010)], 0b00000001, 0b11111111, False),
+    ],
+)
+def test_mask_matches_templates(templates, mask, subgraph_mask, expected):
+    result = mask_matches_templates(templates, mask, subgraph_mask)
+    assert result == expected
