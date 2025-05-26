@@ -1204,23 +1204,6 @@ class Framework(FrameworkBase):
     def edge_lengths(self, numerical: bool = False) -> dict[Edge, Number]:
         return general.edge_lengths(self, numerical=numerical)
 
-    @staticmethod
-    @copy_doc(export._generate_stl_bar)
-    def _generate_stl_bar(
-        holes_distance: float,
-        holes_diameter: float,
-        bar_width: float,
-        bar_height: float,
-        filename="bar.stl",
-    ) -> Any:
-        return export._generate_stl_bar(
-            holes_distance=holes_distance,
-            holes_diameter=holes_diameter,
-            bar_width=bar_width,
-            bar_height=bar_height,
-            filename=filename,
-        )
-
     @doc_category("Other")
     @copy_doc(export.generate_stl_bars)
     def generate_stl_bars(
