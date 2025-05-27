@@ -1,10 +1,7 @@
-from typing import Callable
 import pytest
-import networkx as nx
 
 from pyrigi.graph._flexibility.nac.core import (
     coloring_from_mask,
-    create_bitmask_for_class_graph_cycle,
     mask_matches_templates,
 )
 from pyrigi.data_type import Edge

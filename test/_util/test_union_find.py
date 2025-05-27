@@ -1,4 +1,4 @@
-from pyrigi.util.union_find import UnionFind
+from pyrigi._util.union_find import UnionFind
 
 
 def test_union_find_initialization():

@@ -8,7 +8,7 @@ from collections import defaultdict
 from enum import Enum
 import networkx as nx
 
-from pyrigi.util.union_find import UnionFind
+from pyrigi._util.union_find import UnionFind
 from pyrigi.data_type import Edge
 
 

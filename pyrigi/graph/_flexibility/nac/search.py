@@ -24,7 +24,7 @@ from pyrigi.graph._flexibility.nac.algorithms import (
     NAC_colorings_naive,
     NAC_colorings_subgraphs,
 )
-from pyrigi.util.repetable_iterator import RepeatableIterator
+from pyrigi._util.repetable_iterator import RepeatableIterator
 
 from pyrigi.graph._flexibility.nac.mono_classes import (
     MonochromaticClassType,
@@ -41,12 +41,13 @@ from pyrigi.graph._flexibility.nac.core import (
 )
 
 
-def _NAC_colorings_cross_product(
+def _NAC_coloring_product(
     first: Iterable[NACColoring], second: Iterable[NACColoring]
 ) -> Iterable[NACColoring]:
     """
-    This makes a cartesian cross product of two NAC coloring iterators.
-    Unlike the python crossproduct, this adds the colorings inside the tuples.
+    This makes a Cartesian cross product of two NAC coloring iterators.
+    Unlike the Python :func:`~itertools.crossproduct`,
+    this adds the colorings inside the tuples.
     """
     cache = RepeatableIterator(first)
     for s in second:
@@ -67,7 +68,7 @@ def _NAC_colorings_from_articulation_points(
         iterable = NAC_colorings_with_non_surjective(subgraph, iterable)
         colorings.append(iterable)
 
-    iterator = reduce(_NAC_colorings_cross_product, colorings)
+    iterator = reduce(_NAC_coloring_product, colorings)
 
     # Skip initial invalid coloring that are not surjective
     iterator = filter(lambda x: len(x[0]) or len(x[1]) != 0, iterator)

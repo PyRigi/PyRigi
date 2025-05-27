@@ -26,7 +26,7 @@ from pyrigi.graph._flexibility.nac.strategies import (
     shared_vertices,
     subgraphs_strategy_neighbors,
 )
-from pyrigi.util.repetable_iterator import RepeatableIterator
+from pyrigi._util.repetable_iterator import RepeatableIterator
 
 
 def NAC_colorings_naive(
