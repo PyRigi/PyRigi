@@ -20,15 +20,19 @@ from typing import Callable, Iterable, Literal, Sequence, cast
 import networkx as nx
 
 from pyrigi._util.repetable_iterator import RepeatableIterator
-from pyrigi.graph._flexibility.nac.algorithms import (NAC_colorings_cycles,
-                                                      NAC_colorings_naive,
-                                                      NAC_colorings_subgraphs)
+from pyrigi.graph._flexibility.nac.algorithms import (
+    NAC_colorings_cycles,
+    NAC_colorings_naive,
+    NAC_colorings_subgraphs,
+)
 from pyrigi.graph._flexibility.nac.check import _is_NAC_coloring_impl
 from pyrigi.graph._flexibility.nac.core import (
-    IntEdge, NAC_colorings_with_non_surjective, NACColoring,
-    can_have_NAC_coloring)
-from pyrigi.graph._flexibility.nac.mono_classes import (MonoClassType,
-                                                        find_mono_classes)
+    IntEdge,
+    NAC_colorings_with_non_surjective,
+    NACColoring,
+    can_have_NAC_coloring,
+)
+from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType, find_mono_classes
 
 
 def _NAC_coloring_product(

@@ -7,8 +7,11 @@ from typing import Collection, Iterable
 
 import networkx as nx
 
-from pyrigi.graph._flexibility.nac.core import (IntEdge, NACColoring,
-                                                can_have_NAC_coloring)
+from pyrigi.graph._flexibility.nac.core import (
+    IntEdge,
+    NACColoring,
+    can_have_NAC_coloring,
+)
 
 
 def _check_for_almost_red_cycles(

@@ -3,9 +3,12 @@ from typing import Callable, Sequence
 
 import networkx as nx
 
-from pyrigi.graph._flexibility.nac.core import (IntEdge, SubgraphColorings,
-                                                mask_to_vertices,
-                                                vertices_of_classes)
+from pyrigi.graph._flexibility.nac.core import (
+    IntEdge,
+    SubgraphColorings,
+    mask_to_vertices,
+    vertices_of_classes,
+)
 
 
 ################################################################################

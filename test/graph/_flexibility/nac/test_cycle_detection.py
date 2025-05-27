@@ -5,8 +5,7 @@ import pytest
 
 import pyrigi.graphDB as graphs
 from pyrigi.graph._flexibility import nac
-from pyrigi.graph._flexibility.nac.cycle_detection import \
-    _find_useful_cycles_for_class
+from pyrigi.graph._flexibility.nac.cycle_detection import _find_useful_cycles_for_class
 from pyrigi.graph.graph import Graph
 
 

@@ -10,5 +10,4 @@ please check out the original implementation first.
 
 from pyrigi.graph._flexibility.nac.check import is_NAC_coloring
 from pyrigi.graph._flexibility.nac.facade import NAC_colorings
-from pyrigi.graph._flexibility.nac.mono_classes import (MonoClassType,
-                                                        find_mono_classes)
+from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType, find_mono_classes

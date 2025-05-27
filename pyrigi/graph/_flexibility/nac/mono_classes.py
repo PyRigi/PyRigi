@@ -25,11 +25,13 @@ class MonoClassType(Enum):
     """
     EDGES = "EDGES"
     """
-    Corresponds to :prf:ref:`\\triangle-connected components<def-triangle-connected-comp>`.
+    Corresponds to
+    :prf:ref:`\\triangle-connected components<def-triangle-connected-comp>`.
     """
     TRI_CONNECTED = "TRIANGLE_CONNECTED_COMPONENTS"
     """
-    Corresponds to :prf:ref:`\\hat\\triangle-extended classes<def-triangle-extended-class>`.
+    Corresponds to
+    :prf:ref:`\\hat\\triangle-extended classes<def-triangle-extended-class>`.
     """
     TRI_EXTENDED = "TRIANGLE_EXTENDED_CLASSES"
 
