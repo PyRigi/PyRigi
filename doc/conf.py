@@ -17,8 +17,6 @@ import sys
 
 from sphinx.application import Sphinx
 
-import pyrigi._utils._input_check as _input_check
-from pyrigi import Framework
 from pyrigi._utils._doc import generate_myst_tree
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -361,7 +359,6 @@ def setup(app: Sphinx):
     from myst_parser._docs import MystLexer
 
     app.add_lexer("myst", MystLexer)
-
 
 
 # ----------generate module structure with comments------------------------
