@@ -167,7 +167,7 @@ def trivial_inf_flexes(
     [ 0]])]
     """
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
-    dim = framework._dim
+    dim = framework.dim
     translations = [
         Matrix.vstack(*[A for _ in vertex_order]) for A in Matrix.eye(dim).columnspace()
     ]
@@ -374,7 +374,7 @@ def is_inf_rigid(
     False
     """
 
-    if framework._graph.number_of_nodes() <= framework._dim + 1:
+    if framework._graph.number_of_nodes() <= framework.dim + 1:
         return rigidity_matrix_rank(
             framework, numerical=numerical, tolerance=tolerance
         ) == binomial(framework._graph.number_of_nodes(), 2)

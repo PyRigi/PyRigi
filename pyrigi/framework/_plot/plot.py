@@ -882,7 +882,7 @@ def plot2D(
     fig.set_figheight(plot_style.canvas_height)
     ax.set_aspect(plot_style.aspect_ratio)
 
-    if framework._dim == 1:
+    if framework.dim == 1:
         placement = {
             vertex: [position[0], 0]
             for vertex, position in framework.realization(
@@ -894,7 +894,7 @@ def plot2D(
         else:
             plot_style.update(edges_as_arcs=True)
 
-    elif framework._dim == 2:
+    elif framework.dim == 2:
         placement = framework.realization(as_points=True, numerical=True)
 
     else:
@@ -982,7 +982,7 @@ def animate3D_rotation(
     >>> F = frameworkDB.Complete(4, dim=3)
     >>> F.animate3D_rotation()
     """
-    _input_check.dimension_for_algorithm(framework._dim, [3], "animate3D")
+    _input_check.dimension_for_algorithm(framework.dim, [3], "animate3D")
     if plot_style is None:
         # change some PlotStyle default values to fit 3D plotting better
         plot_style = PlotStyle3D(vertex_size=13.5, edge_width=1.5, dpi=150)
@@ -1210,13 +1210,13 @@ def plot3D(
     ax.set_axis_off()
 
     placement = framework.realization(as_points=True, numerical=True)
-    if framework._dim in [1, 2]:
+    if framework.dim in [1, 2]:
         placement = {
-            v: list(p) + [0 for _ in range(3 - framework._dim)]
+            v: list(p) + [0 for _ in range(3 - framework.dim)]
             for v, p in placement.items()
         }
 
-    elif framework._dim == 3:
+    elif framework.dim == 3:
         placement = framework.realization(as_points=True, numerical=True)
 
     else:
@@ -1284,9 +1284,9 @@ def plot(
     use :meth:`.plot2D` or :meth:`.plot3D` instead.
     For various formatting options, see :class:`.PlotStyle`.
     """
-    if framework._dim == 3:
+    if framework.dim == 3:
         plot3D(framework, plot_style=plot_style, **kwargs)
-    elif framework._dim > 3:
+    elif framework.dim > 3:
         raise ValueError(
             "This framework is in higher dimension than 3!"
             + " For projection into 2D use F.plot2D(),"

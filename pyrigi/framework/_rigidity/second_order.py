@@ -115,7 +115,7 @@ def is_prestress_stable(
                             )
                             ** 2
                         )
-                        for j in range(framework._dim)
+                        for j in range(framework.dim)
                     ]
                 )
                 for u, v in edges

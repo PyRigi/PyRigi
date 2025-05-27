@@ -254,17 +254,17 @@ def projected_realization(
     if coordinates is not None:
         if not isinstance(coordinates, tuple) and not isinstance(coordinates, list):
             raise TypeError("The parameter ``coordinates`` must be a tuple or a list.")
-        if max(coordinates) >= framework._dim:
+        if max(coordinates) >= framework.dim:
             raise ValueError(
                 f"Index {np.max(coordinates)} out of range"
-                + f" with placement in dim: {framework._dim}."
+                + f" with placement in dim: {framework.dim}."
             )
         if isinstance(proj_dim, int) and len(coordinates) != proj_dim:
             raise ValueError(
                 f"The number of coordinates ({len(coordinates)}) does not match"
                 + f" proj_dim ({proj_dim})."
             )
-        matrix = np.zeros((len(coordinates), framework._dim))
+        matrix = np.zeros((len(coordinates), framework.dim))
         for i, coord in enumerate(coordinates):
             matrix[i, coord] = 1
 
@@ -278,25 +278,25 @@ def projected_realization(
 
     if projection_matrix is not None:
         projection_matrix = np.array(projection_matrix)
-        if projection_matrix.shape[1] != framework._dim:
+        if projection_matrix.shape[1] != framework.dim:
             raise ValueError(
                 "The projection matrix has wrong number of columns."
-                + f"{projection_matrix.shape[1]} instead of {framework._dim}."
+                + f"{projection_matrix.shape[1]} instead of {framework.dim}."
             )
         if isinstance(proj_dim, int) and projection_matrix.shape[0] != proj_dim:
             raise ValueError(
                 "The projection matrix has wrong number of rows."
-                + f"{projection_matrix.shape[0]} instead of {framework._dim}."
+                + f"{projection_matrix.shape[0]} instead of {framework.dim}."
             )
 
     if projection_matrix is None:
         if proj_dim == 2:
             projection_matrix = _generate_two_orthonormal_vectors(
-                framework._dim, random_seed=random_seed
+                framework.dim, random_seed=random_seed
             )
         elif proj_dim == 3:
             projection_matrix = _generate_three_orthonormal_vectors(
-                framework._dim, random_seed=random_seed
+                framework.dim, random_seed=random_seed
             )
         else:
             raise ValueError(
