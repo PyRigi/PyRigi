@@ -72,8 +72,7 @@ def rigidity_matrix(
         [
             flatten(
                 [
-                    delta(e, w)
-                    * (framework._realization[e[0]] - framework._realization[e[1]])
+                    delta(e, w) * (framework[e[0]] - framework[e[1]])
                     for w in vertex_order
                 ]
             )
@@ -179,7 +178,7 @@ def trivial_inf_flexes(
             A[j, i] = -1
             basis_skew_symmetric += [A]
     inf_rot = [
-        Matrix.vstack(*[A * framework._realization[v] for v in vertex_order])
+        Matrix.vstack(*[A * framework[v] for v in vertex_order])
         for A in basis_skew_symmetric
     ]
     matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
