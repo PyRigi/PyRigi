@@ -409,9 +409,10 @@ comments = {
         "plot_style.py": "implementation of Plotstyle(2D/3D)",
     },
     "graph": {
+        "export.py": "functions for export to TikZ",
         "extensions.py": "functions for k-extensions",
-        "constructions.py": "functions like  t-sum or intersection",
-        "general.py": "general graph functions",
+        "constructions.py": "functions like t-sum or intersection",
+        "_general.py": "general graph functions",
         "generic.py": "functions for generic rigidity",
         "global_.py": "functions for global rigidity",
         "matroidal.py": "functions for generic rigidity matroid",
@@ -429,10 +430,12 @@ comments = {
     "framework": {
         "_plot.py": "auxiliary functions for plotting",
         "base.py": "implementation of FrameworkBase",
+        "export.py": "functions for export to TikZ, STL",
         "framework.py": "implementation of Framework",
         "_general.py": "general framework functions",
         "infinitesimal.py": "functions for infinitesimal rigidity",
         "matroidal.py": "functions for framework rigidity matroid",
+        "plot.py": "functions for plotting",
         "redundant.py": "functions for redundant rigidity",
         "second_order.py": "functions for prestress stability and 2nd order rig.",
         "stress.py": "functions for stresses",
@@ -446,6 +449,14 @@ comments = {
         "motion.py": "implementation of Motion",
         "parametric_motion.py": "implementation of ParametricMotion",
         "approximate_motion.py": "implementation of ApproximateMotion",
+    },
+    "_utils": {
+        "_conversion.py": "conversions between data types",
+        "_doc.py": "tools for generating documentation",
+        "_input_check.py": "functions for input checks",
+        "_zero_check.py": "functions for checking symbolic zeros",
+        "linear_algebra.py": "functions for linear algebra",
+        ".py": "",
     },
 }
 
