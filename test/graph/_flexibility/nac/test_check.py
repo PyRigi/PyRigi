@@ -1,10 +1,9 @@
+import networkx as nx
 import pytest
 
-import networkx as nx
-
-from pyrigi.graph._flexibility.nac.core import IntEdge
-from pyrigi.graph._flexibility import nac
 from pyrigi import graphDB
+from pyrigi.graph._flexibility import nac
+from pyrigi.graph._flexibility.nac.core import IntEdge
 
 
 @pytest.mark.parametrize(

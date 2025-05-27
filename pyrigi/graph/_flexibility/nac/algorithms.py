@@ -9,24 +9,17 @@ import itertools
 import math
 import random
 from typing import Callable, Iterable, Iterator, Literal
+
 import networkx as nx
 
+from pyrigi._util.repetable_iterator import RepeatableIterator
 from pyrigi.graph._flexibility.nac.core import (
-    NACColoring,
-    IntEdge,
-    SubgraphColorings,
-    coloring_from_mask,
-    create_bitmask_for_class_graph_cycle,
-    mask_matches_templates,
-    mask_to_vertices,
-)
+    IntEdge, NACColoring, SubgraphColorings, coloring_from_mask,
+    create_bitmask_for_class_graph_cycle, mask_matches_templates,
+    mask_to_vertices)
 from pyrigi.graph._flexibility.nac.cycle_detection import find_cycles
 from pyrigi.graph._flexibility.nac.strategies import (
-    linear,
-    shared_vertices,
-    subgraphs_strategy_neighbors,
-)
-from pyrigi._util.repetable_iterator import RepeatableIterator
+    linear, shared_vertices, subgraphs_strategy_neighbors)
 
 
 def NAC_colorings_naive(
@@ -330,7 +323,7 @@ def _apply_split_strategy_to_order_vertices(
         case "neighbors" | "neighbors_degree":
             ordered_class_ids = subgraphs_strategy_neighbors(
                 graph=graph,
-                remaining_classes=class_ids,
+                class_ids=class_ids,
                 class_to_edges=class_to_edges,
                 chunk_sizes=chunk_sizes,
                 use_degree=order_strategy == "neighbors_degree",

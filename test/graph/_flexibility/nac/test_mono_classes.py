@@ -1,14 +1,11 @@
 import networkx as nx
-
-from pyrigi.graph._flexibility.nac.core import IntEdge
-from pyrigi.graph._flexibility.nac.mono_classes import (
-    MonoClassType,
-    find_mono_classes,
-)
-from pyrigi import graphDB
-from pyrigi.graph.graph import Graph
-
 import pytest
+
+from pyrigi import graphDB
+from pyrigi.graph._flexibility.nac.core import IntEdge
+from pyrigi.graph._flexibility.nac.mono_classes import (MonoClassType,
+                                                        find_mono_classes)
+from pyrigi.graph.graph import Graph
 
 
 @pytest.mark.parametrize(

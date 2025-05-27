@@ -6,6 +6,7 @@ triangle-connected components and
 
 from collections import defaultdict
 from enum import Enum
+
 import networkx as nx
 
 from pyrigi._util.union_find import UnionFind

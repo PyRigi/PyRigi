@@ -3,12 +3,9 @@ from typing import Callable, Sequence
 
 import networkx as nx
 
-from pyrigi.graph._flexibility.nac.core import (
-    IntEdge,
-    SubgraphColorings,
-    mask_to_vertices,
-    vertices_of_classes,
-)
+from pyrigi.graph._flexibility.nac.core import (IntEdge, SubgraphColorings,
+                                                mask_to_vertices,
+                                                vertices_of_classes)
 
 
 ################################################################################
@@ -16,6 +13,7 @@ from pyrigi.graph._flexibility.nac.core import (
 ################################################################################
 def subgraphs_strategy_neighbors(
     graph: nx.Graph,
+    class_ids: list[int],
     class_to_edges: list[list[IntEdge]],
     chunk_sizes: Sequence[int],
     use_degree: bool,
@@ -40,7 +38,7 @@ def subgraphs_strategy_neighbors(
     """
     rand = random.Random(seed)
 
-    remaining_classes = list(range(len(class_to_edges)))
+    remaining_classes = list(class_ids)
     ordered_class_ids_groups: list[list[int]] = [[] for _ in chunk_sizes]
 
     # if False, chunk does need to assign random class

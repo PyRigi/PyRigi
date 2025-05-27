@@ -5,6 +5,7 @@ to sets of edges representing a :prf:ref:`NAC-coloring <def-nac>`.
 """
 
 from typing import Callable, Collection, Iterable, NamedTuple, TypeAlias
+
 import networkx as nx
 
 from pyrigi.data_type import Edge

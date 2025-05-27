@@ -1,11 +1,8 @@
 import pytest
 
-from pyrigi.graph._flexibility.nac.core import (
-    coloring_from_mask,
-    mask_matches_templates,
-)
 from pyrigi.data_type import Edge
-
+from pyrigi.graph._flexibility.nac.core import (coloring_from_mask,
+                                                mask_matches_templates)
 
 ordered_comp_ids_common = [0, 1, 2]
 class_to_edges_common: list[list[Edge]] = [

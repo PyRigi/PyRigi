@@ -13,32 +13,22 @@ The main pair of the search uses only a bit mask representing
 the coloring and converts it back to NAC-coloring once a check is need.
 """
 
-from functools import reduce
 import random
+from functools import reduce
 from typing import Callable, Iterable, Literal, Sequence, cast
 
 import networkx as nx
 
-from pyrigi.graph._flexibility.nac.algorithms import (
-    NAC_colorings_cycles,
-    NAC_colorings_naive,
-    NAC_colorings_subgraphs,
-)
 from pyrigi._util.repetable_iterator import RepeatableIterator
-
-from pyrigi.graph._flexibility.nac.mono_classes import (
-    MonoClassType,
-    find_mono_classes,
-)
-from pyrigi.graph._flexibility.nac.check import (
-    _is_NAC_coloring_impl,
-)
+from pyrigi.graph._flexibility.nac.algorithms import (NAC_colorings_cycles,
+                                                      NAC_colorings_naive,
+                                                      NAC_colorings_subgraphs)
+from pyrigi.graph._flexibility.nac.check import _is_NAC_coloring_impl
 from pyrigi.graph._flexibility.nac.core import (
-    IntEdge,
-    NACColoring,
-    can_have_NAC_coloring,
-    NAC_colorings_with_non_surjective,
-)
+    IntEdge, NAC_colorings_with_non_surjective, NACColoring,
+    can_have_NAC_coloring)
+from pyrigi.graph._flexibility.nac.mono_classes import (MonoClassType,
+                                                        find_mono_classes)
 
 
 def _NAC_coloring_product(
@@ -71,7 +61,7 @@ def _NAC_colorings_from_articulation_points(
     iterator = reduce(_NAC_coloring_product, colorings)
 
     # Skip initial invalid coloring that are not surjective
-    iterator = filter(lambda x: len(x[0]) or len(x[1]) != 0, iterator)
+    iterator = filter(lambda x: len(x[0]) and len(x[1]) != 0, iterator)
 
     return iterator
 
@@ -194,8 +184,8 @@ def _run_algorithm(
         class_to_edges,
         is_NAC_coloring,
         seed=rand.randint(0, 2**30 - 1),
-        split_strategy=algorithm_parts[2],
-        merge_strategy=algorithm_parts[1],
+        split_strategy=algorithm_parts[1],
+        merge_strategy=algorithm_parts[2],
         preferred_chunk_size=int(algorithm_parts[3]),
     )
 
