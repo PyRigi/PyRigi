@@ -73,8 +73,7 @@ def rigidity_matrix(
         [
             flatten(
                 [
-                    delta(e, w)
-                    * (framework._realization[e[0]] - framework._realization[e[1]])
+                    delta(e, w) * (framework[e[0]] - framework[e[1]])
                     for w in vertex_order
                 ]
             )
@@ -168,7 +167,7 @@ def trivial_inf_flexes(
     [ 0]])]
     """
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
-    dim = framework._dim
+    dim = framework.dim
     translations = [
         Matrix.vstack(*[A for _ in vertex_order]) for A in Matrix.eye(dim).columnspace()
     ]
@@ -180,7 +179,7 @@ def trivial_inf_flexes(
             A[j, i] = -1
             basis_skew_symmetric += [A]
     inf_rot = [
-        Matrix.vstack(*[A * framework._realization[v] for v in vertex_order])
+        Matrix.vstack(*[A * framework[v] for v in vertex_order])
         for A in basis_skew_symmetric
     ]
     matrix_inf_flexes = Matrix.hstack(*(translations + inf_rot))
@@ -375,7 +374,7 @@ def is_inf_rigid(
     False
     """
 
-    if framework._graph.number_of_nodes() <= framework._dim + 1:
+    if framework._graph.number_of_nodes() <= framework.dim + 1:
         return rigidity_matrix_rank(
             framework, numerical=numerical, tolerance=tolerance
         ) == binomial(framework._graph.number_of_nodes(), 2)

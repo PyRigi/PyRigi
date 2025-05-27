@@ -100,7 +100,7 @@ def is_congruent_realization(
     )
 
     for u, v in combinations(framework._graph.nodes, 2):
-        edge_vec = (framework._realization[u]) - framework._realization[v]
+        edge_vec = framework[u] - framework[v]
         dist_squared = (edge_vec.T * edge_vec)[0, 0]
 
         other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
@@ -171,7 +171,7 @@ def is_equivalent_realization(
     )
 
     for u, v in framework._graph.edges:
-        edge_vec = framework._realization[u] - framework._realization[v]
+        edge_vec = framework[u] - framework[v]
         dist_squared = (edge_vec.T * edge_vec)[0, 0]
 
         other_edge_vec = point_to_vector(other_realization[u]) - point_to_vector(
