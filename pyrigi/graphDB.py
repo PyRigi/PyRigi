@@ -72,7 +72,7 @@ def CompleteLooped(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
     """  # noqa: E501
     graph = Complete(n=n, vertices=vertices)
     graph = Graph.from_vertices_and_edges(
-        graph.vertex_list(), graph.edge_list() + [[v, v] for v in graph.vertex_list()]
+        graph.nodes, list(graph.edges) + [[v, v] for v in graph.nodes]
     )
     return graph
 

@@ -25,6 +25,7 @@ from pyrigi.data_type import (
 from pyrigi.framework import Framework
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.graph import Graph
+from pyrigi.graph import _general as graph_general
 from pyrigi.motion.motion import Motion
 from pyrigi.warning import NumericalAlgorithmWarning
 
@@ -430,7 +431,7 @@ class ApproximateMotion(Motion):
         """
         _realizations = []
         if pinned_vertex is None:
-            pinned_vertex = self._graph.vertex_list()[0]
+            pinned_vertex = graph_general.vertex_list(self._graph)[0]
         for realization in realizations:
             if pinned_vertex not in realization.keys():
                 raise ValueError(
@@ -623,7 +624,10 @@ class ApproximateMotion(Motion):
         """
         F = Framework(self._graph, realization)
         cur_sol = np.array(
-            sum([list(realization[v]) for v in self._graph.vertex_list()], [])
+            sum(
+                [list(realization[v]) for v in graph_general.vertex_list(self._graph)],
+                [],
+            )
         )
         cur_error = prev_error = sum(
             [
@@ -684,5 +688,5 @@ class ApproximateMotion(Motion):
 
         return {
             v: tuple(cur_sol[(self._dim * i) : (self._dim * (i + 1))])
-            for i, v in enumerate(self._graph.vertex_list())
+            for i, v in enumerate(graph_general.vertex_list(self._graph))
         }

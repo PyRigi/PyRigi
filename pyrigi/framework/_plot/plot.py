@@ -1062,7 +1062,7 @@ def animate3D_rotation(
         }
         for frame in range(2 * total_frames)
     ]
-    pinned_vertex = framework._graph.vertex_list()[0]
+    pinned_vertex = graph_general.vertex_list(framework._graph)[0]
     _realizations = []
     for rotated_realization in rotating_realizations:
         # Translate the realization to the origin
