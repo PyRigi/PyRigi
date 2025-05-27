@@ -1,6 +1,6 @@
 import networkx as nx
 
-from pyrigi.data_type import Edge
+from pyrigi.graph._flexibility.nac.core import IntEdge
 from pyrigi.graph._flexibility.nac.mono_classes import (
     MonochromaticClassType,
     find_monochromatic_classes,
@@ -146,8 +146,8 @@ import pytest
 )
 def test_find_monochromatic_classes(
     graph: nx.Graph,
-    triangle_connected_comp: list[list[Edge]],
-    monochromatic_classes: list[list[Edge]] | None,
+    triangle_connected_comp: list[list[IntEdge]],
+    monochromatic_classes: list[list[IntEdge]] | None,
 ):
     if monochromatic_classes is None:
         monochromatic_classes = triangle_connected_comp
@@ -163,7 +163,7 @@ def test_find_monochromatic_classes(
         assert edge in triangle_comp_to_edges[triang_edge_to_comp[edge]]
         assert edge in mono_comp_to_edges[mono_edge_to_comp[edge]]
 
-    def normalize(classes: list[list[Edge]]) -> set[frozenset[frozenset]]:
+    def normalize(classes: list[list[IntEdge]]) -> set[frozenset[frozenset]]:
         return set(frozenset(frozenset(edge) for edge in edges) for edges in classes)
 
     assert normalize(triangle_connected_comp) == normalize(triangle_comp_to_edges)

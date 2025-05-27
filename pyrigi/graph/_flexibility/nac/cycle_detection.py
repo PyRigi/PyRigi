@@ -4,14 +4,15 @@ that should correspond to :prf:ref:`NAC-mono classes <def-nac-mono>`.
 """
 
 from collections import defaultdict
+from typing import Collection
 
 import networkx as nx
 
 
 def find_cycles(
     graph: nx.Graph,
-    subgraph_component_IDs: set[int],
-    component_to_edges: list[set[tuple[int, int]]],
+    subgraph_component_IDs: Collection[int],
+    class_to_edges: Collection[Collection[tuple[int, int]]],
     per_class_limit: int = 2,
 ) -> set[tuple[int, ...]]:
     """
@@ -28,7 +29,7 @@ def find_cycles(
         Input graph.
     subgraph_component_IDs:
         Components of the subgraph.
-    component_to_edges:
+    class_to_edges:
         A list of edges for each component.
     per_class_limit:
         The maximum number of a cycle to be returned per class.
@@ -36,7 +37,7 @@ def find_cycles(
     cycles = _find_useful_cycles_for_components(
         graph=graph,
         subgraph_component_IDs=subgraph_component_IDs,
-        component_to_edges=component_to_edges,
+        class_to_edges=class_to_edges,
         per_class_limit=per_class_limit,
     )
     return {c for comp_cycles in cycles.values() for c in comp_cycles}
@@ -44,25 +45,25 @@ def find_cycles(
 
 def _find_useful_cycles_for_components(
     graph: nx.Graph,
-    subgraph_component_IDs: set[int],
-    component_to_edges: list[set[tuple[int, int]]],
+    subgraph_component_IDs: Collection[int],
+    class_to_edges: Collection[Collection[tuple[int, int]]],
     per_class_limit: int = 2,
 ) -> dict[int, set[tuple[int, ...]]]:
     """
     Same as :class:`~pyrigi.graph._framework.nac.cycle_detection.find_cycles`
     except the results are grouped for each component.
     """
-    comp_no = len(component_to_edges)
+    classes_no = len(class_to_edges)
 
     # creates mapping from vertex to set of monochromatic classes if is in
     vertex_to_components = [set() for _ in range(max(graph.nodes) + 1)]
-    for comp_id, comp in enumerate(component_to_edges):
-        if comp_id not in subgraph_component_IDs:
+    for class_id, class_edges in enumerate(class_to_edges):
+        if class_id not in subgraph_component_IDs:
             continue
-        for u, v in comp:
-            vertex_to_components[u].add(comp_id)
-            vertex_to_components[v].add(comp_id)
-    neighboring_components = [set() for _ in range(comp_no)]
+        for u, v in class_edges:
+            vertex_to_components[u].add(class_id)
+            vertex_to_components[v].add(class_id)
+    neighboring_components = [set() for _ in range(classes_no)]
 
     found_cycles: dict[int, set[tuple[int, ...]]] = defaultdict(set)
 
@@ -83,7 +84,7 @@ def _find_useful_cycles_for_components(
 
     limited = {}
     for key, value in found_cycles.items():
-        limited[key] = set(list(sorted(value, key=lambda x: len(x)))[:per_class_limit])
+        limited[key] = set(list(sorted(value, key=len))[:per_class_limit])
 
     return limited
 

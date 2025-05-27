@@ -4,14 +4,14 @@ import networkx as nx
 
 from pyrigi.graph._flexibility.nac.core import (
     coloring_from_mask,
-    create_bitmask_for_component_graph_cycle,
+    create_bitmask_for_class_graph_cycle,
     mask_matches_templates,
 )
 from pyrigi.data_type import Edge
 
 
 ordered_comp_ids_common = [0, 1, 2]
-component_to_edges_common: list[list[Edge]] = [
+class_to_edges_common: list[list[Edge]] = [
     [("a", "b"), ("b", "c")],
     [("d", "e")],
     [("f", "g"), ("g", "h")],
@@ -24,7 +24,7 @@ def test_coloring_from_mask_basic_and_symmetry():
     expected_blue = [("d", "e")]
 
     result_red, result_blue = coloring_from_mask(
-        ordered_comp_ids_common, component_to_edges_common, mask
+        ordered_comp_ids_common, class_to_edges_common, mask
     )
     assert sorted(result_red) == sorted(expected_red)
     assert sorted(result_blue) == sorted(expected_blue)
@@ -33,7 +33,7 @@ def test_coloring_from_mask_basic_and_symmetry():
     inverted_mask = (~mask) & ((1 << num_components) - 1)
 
     result_inverted_red, result_inverted_blue = coloring_from_mask(
-        ordered_comp_ids_common, component_to_edges_common, inverted_mask
+        ordered_comp_ids_common, class_to_edges_common, inverted_mask
     )
     assert sorted(result_inverted_red) == sorted(expected_blue)
     assert sorted(result_inverted_blue) == sorted(expected_red)
@@ -46,7 +46,7 @@ def test_coloring_from_mask_allow_mask_and_symmetry():
     expected_blue = [("d", "e")]
 
     result_red, result_blue = coloring_from_mask(
-        ordered_comp_ids_common, component_to_edges_common, mask, allow_mask
+        ordered_comp_ids_common, class_to_edges_common, mask, allow_mask
     )
     assert sorted(result_red) == sorted(expected_red)
     assert sorted(result_blue) == sorted(expected_blue)
@@ -55,7 +55,7 @@ def test_coloring_from_mask_allow_mask_and_symmetry():
 
     result_inverted_red, result_inverted_blue = coloring_from_mask(
         ordered_comp_ids_common,
-        component_to_edges_common,
+        class_to_edges_common,
         inverted_mask_for_allowed,
         allow_mask,
     )
@@ -87,22 +87,6 @@ def test_coloring_from_mask_component_with_no_edges():
     )
     assert sorted(result_red) == sorted(expected_red)
     assert sorted(result_blue) == sorted(expected_blue)
-
-
-################################################################################
-def test_create_bitmask_for_component_graph_cycle(
-    graph: nx.Graph,
-    class_to_edges: Callable[[int], list[Edge]],
-    cycle: tuple[int, ...],
-    local_ordered_class_ids: set[int] | None,
-    cycle_mask: int,
-    allow_mask: int,
-):
-    result = create_bitmask_for_component_graph_cycle(
-        graph, class_to_edges, cycle, local_ordered_class_ids
-    )
-    assert result[0] == cycle_mask
-    assert result[1] == allow_mask
 
 
 ################################################################################

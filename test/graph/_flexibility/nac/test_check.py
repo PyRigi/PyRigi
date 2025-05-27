@@ -2,7 +2,7 @@ import pytest
 
 import networkx as nx
 
-from pyrigi.data_type import Edge
+from pyrigi.graph._flexibility.nac.core import IntEdge
 from pyrigi.graph._flexibility import nac
 from pyrigi import graphDB
 
@@ -41,7 +41,7 @@ from pyrigi import graphDB
     ],
 )
 def test_is_NAC_coloring(
-    graph: nx.Graph, coloring: tuple[set[Edge], set[Edge]], result: bool
+    graph: nx.Graph, coloring: tuple[set[IntEdge], set[IntEdge]], result: bool
 ):
     red, blue = coloring
     assert nac.is_NAC_coloring(graph, (red, blue)) == result

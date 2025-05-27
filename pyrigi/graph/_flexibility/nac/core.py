@@ -4,10 +4,17 @@ The module contains functions related to converting from and to
 to sets of edges representing a :prf:ref:`NAC-coloring <def-nac>`.
 """
 
-from typing import Callable, Collection, TypeAlias
+from typing import Callable, Collection, Iterable, NamedTuple, TypeAlias
 import networkx as nx
 
 from pyrigi.data_type import Edge
+
+"""
+:class:`~pyrigi.data_type.Edge` is not used as it is varying.
+Here, we use only the interpretation where edge is a tuple.
+Also, as the graphs are relabeled, integers are used.
+"""
+IntEdge: TypeAlias = tuple[int, int]
 
 """
 Represents a :prf:ref:`NAC-coloring <def-nac>`.
@@ -15,7 +22,56 @@ Meant for internal use only as :meth:`~frozenset`
 should be exposed to the user instead.
 Tuple is faster for internal use.
 """
-NACColoring: TypeAlias = tuple[Collection[Edge], Collection[Edge]]
+NACColoring: TypeAlias = tuple[Collection[IntEdge], Collection[IntEdge]]
+
+
+class SubgraphColorings(NamedTuple):
+    """
+    Represents a subgraph and all its
+    :prf:ref:`NAC-coloring <def-nac>` colorings.
+    """
+
+    colorings: Iterable[int]
+    subgraph_mask: int
+
+
+def can_have_NAC_coloring(graph: nx.Graph) -> bool:
+    """
+    Check whether the given graph can have a :prf:ref:`NAC-coloring <def-nac>`
+    and if the graph is valid for the :prf:ref:`NAC-coloring <def-nac>` search.
+
+    Graph with less than two edges cannot have a :prf:ref:`NAC-coloring <def-nac>`.
+    Graph with more than `n(n-2)/2 - (n-2)` edges
+    cannot have a :prf:ref:`NAC-coloring <def-nac>`
+    as show in :prf:ref:`thm-flexible-edge-bound`.
+
+    Return
+    ------
+    `True` if a NAC coloring may exist, `False` if there can be none
+    by doing constant complexity checks.
+
+    Throw
+    -----
+    :class:`~ValueError` if the graph is empty, contains self loops or is directed.
+    """
+    if graph.nodes() == 0:
+        raise ValueError("NAC-coloring search is undefined for the empty graph")
+
+    if nx.number_of_selfloops(graph) > 0:
+        raise LookupError()
+
+    if nx.is_directed(graph):
+        raise ValueError("NAC-coloring search is undefined for directed graphs")
+
+    if len(nx.edges(graph)) < 2:
+        return False
+
+    n = graph.number_of_nodes()
+    m = graph.number_of_edges()
+    if m > n * (n - 1) // 2 - (n - 2):
+        return False
+
+    return True
 
 
 ################################################################################
@@ -58,9 +114,32 @@ def coloring_from_mask(
 
 
 ################################################################################
-def create_bitmask_for_component_graph_cycle(
+def mask_to_vertices(
+    ordered_class_ids: list[int],
+    class_to_edges: list[list[IntEdge]],
+    subgraph_mask: int,
+) -> set[int]:
+    """
+    Return vertices in the original graph
+    that are incident to edges in classes of the subgraph.
+    """
+    graph_vertices: set[int] = set()
+
+    for i, v in enumerate(ordered_class_ids):
+        if (1 << i) & subgraph_mask == 0:
+            continue
+
+        edges = class_to_edges[v]
+        for u, w in edges:
+            graph_vertices.add(u)
+            graph_vertices.add(w)
+    return graph_vertices
+
+
+################################################################################
+def create_bitmask_for_class_graph_cycle(
     graph: nx.Graph,
-    class_to_edges: Callable[[int], list[Edge]],
+    class_to_edges: Callable[[int], list[IntEdge]],
     cycle: tuple[int, ...],
     local_ordered_class_ids: set[int] | None = None,
 ) -> tuple[int, int]:
@@ -179,3 +258,17 @@ def mask_matches_templates(
         if stamp & validity:
             return True
     return False
+
+
+################################################################################
+def NAC_colorings_with_non_surjective(
+    comp: nx.Graph,
+    colorings: Iterable[NACColoring],
+) -> Iterable[NACColoring]:
+    """
+    Add monochromatic colorings to iterator of NAC-colorings.
+    """
+    r, b = [], list(comp.edges())
+    yield r, b
+    yield b, r
+    yield from colorings

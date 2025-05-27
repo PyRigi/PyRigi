@@ -6,14 +6,13 @@ Algorithm based on :prf:ref:`<lem-color-components>` is used.
 from typing import Collection, Iterable
 import networkx as nx
 
-from pyrigi.data_type import Edge
-from pyrigi.graph._flexibility.nac.core import NACColoring
+from pyrigi.graph._flexibility.nac.core import NACColoring, IntEdge
 
 
 def _check_for_almost_red_cycles(
     G: nx.Graph,
-    red_edges: Iterable[Edge],
-    blue_edges: Iterable[Edge],
+    red_edges: Iterable[IntEdge],
+    blue_edges: Iterable[IntEdge],
 ) -> bool:
     """
     Checks if there is an almost cycle in the graph given with the given coloring.
@@ -92,7 +91,7 @@ def _is_NAC_coloring_impl(
 # public facing interface
 def is_NAC_coloring(
     graph: nx.Graph,
-    coloring: NACColoring | dict[str, Collection[Edge]],
+    coloring: NACColoring | dict[str, Collection[IntEdge]],
 ) -> bool:
     """
     Check if the coloring given is a :prf:ref:`NAC-coloring <def-nac>`
@@ -110,8 +109,8 @@ def is_NAC_coloring(
         For non-surjective (monochromatic) colorings.
         This can be useful for checking subgraphs.
     """
-    red: Collection[Edge]
-    blue: Collection[Edge]
+    red: Collection[IntEdge]
+    blue: Collection[IntEdge]
 
     if isinstance(coloring, dict):
         red, blue = coloring["red"], coloring["blue"]
