@@ -272,3 +272,15 @@ def NAC_colorings_with_non_surjective(
     yield r, b
     yield b, r
     yield from colorings
+
+
+################################################################################
+def vertices_of_classes(
+    class_ids: list[int],
+    class_to_edges: list[list[IntEdge]],
+) -> set[int]:
+    """
+    Obtain vertices corresponding to edges of
+    the given :prf:ref:`NAC-mono classes <def-nac-mono>`.
+    """
+    return {v for class_id in class_ids for e in class_to_edges[class_id] for v in e}

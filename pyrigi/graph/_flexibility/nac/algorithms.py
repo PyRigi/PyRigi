@@ -330,7 +330,7 @@ def _apply_split_strategy_to_order_vertices(
         case "neighbors" | "neighbors_degree":
             ordered_class_ids = subgraphs_strategy_neighbors(
                 graph=graph,
-                class_ids=class_ids,
+                remaining_classes=class_ids,
                 class_to_edges=class_to_edges,
                 chunk_sizes=chunk_sizes,
                 use_degree=order_strategy == "neighbors_degree",
