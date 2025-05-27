@@ -53,7 +53,7 @@ def _resolve_inf_flex(
         A matrix used for projection to a lower dimension.
     """
     if isinstance(inf_flex, int) and inf_flex >= 0:
-        inf_flex_basis = infinitesimal_rigidity.nontrivial_inf_flexes(framework)
+        inf_flex_basis = infinitesimal_rigidity.nontrivial_inf_flexes(framework, numerical=True)
         if inf_flex >= len(inf_flex_basis):
             raise IndexError(
                 "The value of inf_flex exceeds "
@@ -63,21 +63,26 @@ def _resolve_inf_flex(
         inf_flex_pointwise = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
             framework, inf_flex_basis[inf_flex]
         )
-    elif isinstance(inf_flex, Matrix):
-        inf_flex_pointwise = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
-            framework, inf_flex
-        )
-    elif isinstance(inf_flex, dict) and all(
-        isinstance(inf_flex[key], Sequence) for key in inf_flex.keys()
+    elif isinstance(inf_flex, Matrix | Sequence) or (
+        isinstance(inf_flex, dict)
+        and all(isinstance(inf_flex[key], Sequence) for key in inf_flex.keys())
     ):
-        inf_flex_pointwise = inf_flex
+        if isinstance(inf_flex, Matrix | Sequence):
+            inf_flex_pointwise = (
+                infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+                    framework, inf_flex
+                )
+            )
+        else:
+            inf_flex_pointwise = inf_flex
+
+        if not infinitesimal_rigidity.is_dict_inf_flex(
+            framework, inf_flex_pointwise, numerical=True
+        ):
+            raise ValueError("The provided `inf_flex` is not an infinitesimal flex.")
     else:
         raise TypeError("inf_flex does not have the correct Type.")
 
-    if not infinitesimal_rigidity.is_dict_inf_flex(
-        framework, inf_flex_pointwise, numerical=True
-    ):
-        raise ValueError("The provided `inf_flex` is not an infinitesimal flex.")
     if framework.dim == 1:
         inf_flex_pointwise = {
             v: [v_flex, 0] for v, v_flex in inf_flex_pointwise.items()

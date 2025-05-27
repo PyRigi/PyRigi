@@ -93,7 +93,9 @@ def rotate2D(
     Parameters
     ----------
     angle:
-        Rotation angle
+        Rotation angle. If you want the coordinates to stay symbolic
+        even after the rotation, you need to input the angle as a
+        `sympy` expression.
     rotation_center:
         The center of rotation.
         By default, this is the origin.
@@ -139,7 +141,9 @@ def rotate3D(
     Parameters
     ----------
     angle:
-        Rotation angle around the axis of rotation.
+        Rotation angle around the axis of rotation. If you want the
+        coordinates to stay symbolic even after the rotation, you need
+        to input the angle as a `sympy` expression.
     axis_direction:
         Direction of the rotation axis.
         By default, this is the ``z``-axis.
