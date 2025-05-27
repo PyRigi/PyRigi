@@ -4,8 +4,11 @@ This module provides exports for graphs.
 
 import networkx as nx
 
+from pyrigi._utils import _input_check as _input_check
 from pyrigi.data_type import Edge, Point, Sequence, Vertex
 from pyrigi.exception import NotSupportedValueError
+from pyrigi.graph import _general as general
+from pyrigi.graph._utils import _input_check as _graph_input_check
 
 
 def to_tikz(
@@ -164,7 +167,7 @@ def to_tikz(
     # tikz for edges
     edge_style_dict = {}
     if type(edge_style) is str:
-        edge_style_dict[edge_style] = graph.edges
+        edge_style_dict[edge_style] = general.edge_list(graph)
     else:
         dict_edges = []
         for estyle, elist in edge_style.items():
@@ -173,7 +176,7 @@ def to_tikz(
             dict_edges += cdict_edges
         remaining_edges = [
             ee
-            for ee in graph.edges
+            for ee in general.edge_list(graph)
             if not ((list(ee) in dict_edges) or (list(ee)[::-1] in dict_edges))
         ]
         edge_style_dict[""] = remaining_edges
@@ -192,7 +195,7 @@ def to_tikz(
 
     vertex_style_dict = {}
     if type(vertex_style) is str:
-        vertex_style_dict[vertex_style] = graph.nodes
+        vertex_style_dict[vertex_style] = general.vertex_list(graph)
     else:
         dict_vertices = []
         for style, vertex_list in vertex_style.items():
@@ -257,3 +260,49 @@ def layout(graph: nx.Graph, layout_type: str = "spring") -> dict[Vertex, Point]:
         return nx.drawing.layout.spring_layout(graph)
     else:
         raise NotSupportedValueError(layout_type, "layout_type", layout)
+
+
+def to_int(graph: nx.Graph, vertex_order: Sequence[Vertex] = None) -> int:
+    """
+    Return the integer representation of the graph.
+
+    The graph integer representation is the integer whose binary
+    expansion is given by the sequence obtained by concatenation
+    of the rows of the upper triangle of the adjacency matrix,
+    excluding the diagonal.
+
+    Parameters
+    ----------
+    vertex_order:
+        By listing vertices in the preferred order, the adjacency matrix
+        is computed with the given order. If no vertex order is
+        provided, :meth:`~.Graph.vertex_list()` is used.
+
+    Examples
+    --------
+    >>> G = Graph([(0,1), (1,2)])
+    >>> G.adjacency_matrix()
+    Matrix([
+    [0, 1, 0],
+    [1, 0, 1],
+    [0, 1, 0]])
+    >>> G.to_int()
+    5
+
+    Suggested Improvements
+    ----------------------
+    Implement taking canonical before computing the integer representation.
+    """
+    _input_check.greater_equal(graph.number_of_edges(), 1, "number of edges")
+    if general.min_degree(graph) == 0:
+        raise ValueError(
+            "The integer representation only works "
+            "for graphs without isolated vertices!"
+        )
+    _graph_input_check.no_loop(graph)
+
+    adj_matrix = general.adjacency_matrix(graph, vertex_order)
+    upper_diag = [
+        str(b) for i, row in enumerate(adj_matrix.tolist()) for b in row[i + 1 :]
+    ]
+    return int("".join(upper_diag), 2)

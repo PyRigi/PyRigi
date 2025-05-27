@@ -6,14 +6,14 @@ from __future__ import annotations
 
 import math
 from itertools import combinations
-from typing import Collection, Iterable, Optional
+from typing import Collection, Iterable, Optional, Sequence
 
 import networkx as nx
 from sympy import Matrix
 
 import pyrigi._utils._input_check as _input_check
 from pyrigi._utils._doc import copy_doc, doc_category, generate_category_tables
-from pyrigi.data_type import Edge, Inf, Point, Sequence, Vertex
+from pyrigi.data_type import Edge, Inf, Point, Vertex
 from pyrigi.plot_style import PlotStyle
 
 from . import _general as general
@@ -207,73 +207,14 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, [])
 
     @doc_category("Attribute getters")
+    @copy_doc(general.vertex_list)
     def vertex_list(self) -> list[Vertex]:
-        """
-        Return the list of vertices.
-
-        The output is sorted if possible,
-        otherwise, the internal order is used instead.
-
-        Examples
-        --------
-        >>> G = Graph.from_vertices_and_edges([2, 0, 3, 1], [[0, 1], [0, 2], [0, 3]])
-        >>> G.vertex_list()
-        [0, 1, 2, 3]
-
-        >>> G = Graph.from_vertices(['c', 'a', 'b'])
-        >>> G.vertex_list()
-        ['a', 'b', 'c']
-
-        >>> G = Graph.from_vertices(['b', 1, 'a']) # incomparable vertices
-        >>> G.vertex_list()
-        ['b', 1, 'a']
-        """
-        try:
-            return sorted(self.nodes)
-        except BaseException:
-            return list(self.nodes)
+        return general.vertex_list(self)
 
     @doc_category("Attribute getters")
+    @copy_doc(general.edge_list)
     def edge_list(self, as_tuples: bool = False) -> list[Edge]:
-        """
-        Return the list of edges.
-
-        The output is sorted if possible,
-        otherwise, the internal order is used instead.
-
-        Parameters
-        ----------
-        as_tuples:
-            If ``True``, all edges are returned as tuples instead of lists.
-
-        Examples
-        --------
-        >>> G = Graph([[0, 3], [3, 1], [0, 1], [2, 0]])
-        >>> G.edge_list()
-        [[0, 1], [0, 2], [0, 3], [1, 3]]
-
-        >>> G = Graph.from_vertices(['a', 'c', 'b'])
-        >>> G.edge_list()
-        []
-
-        >>> G = Graph([['c', 'b'], ['b', 'a']])
-        >>> G.edge_list()
-        [['a', 'b'], ['b', 'c']]
-
-        >>> G = Graph([['c', 1], [2, 'a']]) # incomparable vertices
-        >>> G.edge_list()
-        [('c', 1), (2, 'a')]
-        """
-        try:
-            if as_tuples:
-                return sorted([tuple(sorted(e)) for e in self.edges])
-            else:
-                return sorted([sorted(e) for e in self.edges])
-        except BaseException:
-            if as_tuples:
-                return [tuple(e) for e in self.edges]
-            else:
-                return list(self.edges)
+        return general.edge_list(self, as_tuples=as_tuples)
 
     @doc_category("Graph manipulation")
     def delete_vertex(self, vertex: Vertex) -> None:
@@ -363,25 +304,9 @@ class Graph(nx.Graph):
         return nx.node_connectivity(self)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(general.degree_sequence)
     def degree_sequence(self, vertex_order: Sequence[Vertex] = None) -> list[int]:
-        """
-        Return a list of degrees of the vertices of the graph.
-
-        Parameters
-        ----------
-        vertex_order:
-            By listing vertices in the preferred order, the degree_sequence
-            can be computed in a way the user expects. If no vertex order is
-            provided, :meth:`~.Graph.vertex_list()` is used.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2)])
-        >>> G.degree_sequence()
-        [1, 2, 1]
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self, vertex_order)
-        return [int(self.degree(v)) for v in vertex_order]
+        return general.degree_sequence(self, vertex_order=vertex_order)
 
     @doc_category("General graph theoretical properties")
     @copy_doc(general.min_degree)
@@ -915,50 +840,9 @@ class Graph(nx.Graph):
         return nx.is_isomorphic(self, graph)
 
     @doc_category("Other")
+    @copy_doc(export.to_int)
     def to_int(self, vertex_order: Sequence[Vertex] = None) -> int:
-        """
-        Return the integer representation of the graph.
-
-        The graph integer representation is the integer whose binary
-        expansion is given by the sequence obtained by concatenation
-        of the rows of the upper triangle of the adjacency matrix,
-        excluding the diagonal.
-
-        Parameters
-        ----------
-        vertex_order:
-            By listing vertices in the preferred order, the adjacency matrix
-            is computed with the given order. If no vertex order is
-            provided, :meth:`~.Graph.vertex_list()` is used.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2)])
-        >>> G.adjacency_matrix()
-        Matrix([
-        [0, 1, 0],
-        [1, 0, 1],
-        [0, 1, 0]])
-        >>> G.to_int()
-        5
-
-        Suggested Improvements
-        ----------------------
-        Implement taking canonical before computing the integer representation.
-        """
-        _input_check.greater_equal(self.number_of_edges(), 1, "number of edges")
-        if self.min_degree() == 0:
-            raise ValueError(
-                "The integer representation only works "
-                "for graphs without isolated vertices!"
-            )
-        _graph_input_check.no_loop(self)
-
-        adj_matrix = self.adjacency_matrix(vertex_order)
-        upper_diag = [
-            str(b) for i, row in enumerate(adj_matrix.tolist()) for b in row[i + 1 :]
-        ]
-        return int("".join(upper_diag), 2)
+        return export.to_int(self, vertex_order=vertex_order)
 
     @classmethod
     @doc_category("Class methods")
@@ -1017,39 +901,9 @@ class Graph(nx.Graph):
         return Graph.from_vertices_and_edges(vertices, edges)
 
     @doc_category("General graph theoretical properties")
+    @copy_doc(general.adjacency_matrix)
     def adjacency_matrix(self, vertex_order: Sequence[Vertex] = None) -> Matrix:
-        """
-        Return the adjacency matrix of the graph.
-
-        Parameters
-        ----------
-        vertex_order:
-            By listing vertices in the preferred order, the adjacency matrix
-            can be computed in a way the user expects. If no vertex order is
-            provided, :meth:`~.Graph.vertex_list()` is used.
-
-        Examples
-        --------
-        >>> G = Graph([(0,1), (1,2), (1,3)])
-        >>> G.adjacency_matrix()
-        Matrix([
-        [0, 1, 0, 0],
-        [1, 0, 1, 1],
-        [0, 1, 0, 0],
-        [0, 1, 0, 0]])
-
-        Notes
-        -----
-        :func:`networkx.linalg.graphmatrix.adjacency_matrix`
-        requires ``scipy``. To avoid unnecessary imports, the method is implemented here.
-        """
-        vertex_order = _graph_input_check.is_vertex_order(self, vertex_order)
-
-        row_list = [
-            [+((v1, v2) in self.edges) for v2 in vertex_order] for v1 in vertex_order
-        ]
-
-        return Matrix(row_list)
+        return general.adjacency_matrix(self, vertex_order=vertex_order)
 
     @doc_category("Other")
     def random_framework(self, dim: int = 2, rand_range: int | Sequence[int] = None):

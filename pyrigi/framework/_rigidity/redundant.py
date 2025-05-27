@@ -5,6 +5,7 @@ This module provides algorithms related to redundant rigidity of frameworks.
 from copy import deepcopy
 
 from pyrigi.framework.base import FrameworkBase
+from pyrigi.graph import _general as graph_general
 
 from . import infinitesimal as infinitesimal_rigidity
 
@@ -45,7 +46,7 @@ def is_redundantly_inf_rigid(
     if use_copy:
         F = deepcopy(framework)
 
-    for edge in F._graph.edge_list():
+    for edge in graph_general.edge_list(F._graph):
         F.delete_edge(edge)
         if not infinitesimal_rigidity.is_inf_rigid(F, **kwargs):
             F.add_edge(edge)
