@@ -12,12 +12,11 @@ from pyrigi._util.union_find import UnionFind
 from pyrigi.data_type import Edge
 
 
-# TODO rename when all the code is refactored
-class MonochromaticClassType(Enum):
+class MonoClassType(Enum):
     """
-    Represents approaches for finding :prf:ref:`NAC-valid classes <def-nac-mono>`
+    Represents approaches for finding :prf:ref:`NAC-mono classes <def-nac-mono>`
     of different types - single edges, triangle-connected components,
-    and NAC-mono classes.
+    and triangle-extended classes.
     """
 
     """
@@ -25,18 +24,16 @@ class MonochromaticClassType(Enum):
     """
     EDGES = "EDGES"
     """
-    Each triangle-connected component is its own :prf:ref:`NAC-mono class <def-nac-mono>`.
+    Corresponds to :prf:ref:`\\triangle-connected components<def-triangle-connected-comp>`.
     """
-    TRIANGLES = "TRIANGLE_CONNECTED_COMPONENTS"
+    TRI_CONNECTED = "TRIANGLE_CONNECTED_COMPONENTS"
     """
-    Each NAC-mono class is its own :prf:ref:`NAC-mono class <def-nac-mono>`.
-    Classes are made based on the approach from :cite:p:`LastovickaLegersky2024`.
+    Corresponds to :prf:ref:`\\hat\\triangle-extended classes<def-triangle-extended-class>`.
     """
-    MONOCHROMATIC = "MONOCHROMATIC_CLASSES"
+    TRI_EXTENDED = "TRIANGLE_EXTENDED_CLASSES"
 
 
-# TODO rename when all the code is refactored
-def _trivial_monochromatic_classes(
+def _trivial_mono_classes(
     graph: nx.Graph,
 ) -> tuple[dict[Edge, int], list[list[Edge]]]:
     """
@@ -50,10 +47,9 @@ def _trivial_monochromatic_classes(
     return edge_to_component, component_to_edges
 
 
-# TODO rename when all the code is refactored
-def find_monochromatic_classes(
+def find_mono_classes(
     graph: nx.Graph,
-    class_type: MonochromaticClassType = MonochromaticClassType.MONOCHROMATIC,
+    class_type: MonoClassType = MonoClassType.TRI_EXTENDED,
 ) -> tuple[dict[Edge, int], list[list[Edge]]]:
     """
     Find :prf:ref:`NAC-mono classes <def-nac-mono>` based on the type given.
@@ -77,8 +73,8 @@ def find_monochromatic_classes(
     and a list of NAC-mono classes where
     the index corresponds to the component ID.
     """
-    if class_type == MonochromaticClassType.EDGES:
-        return _trivial_monochromatic_classes(graph)
+    if class_type == MonoClassType.EDGES:
+        return _trivial_mono_classes(graph)
 
     components = UnionFind()
 
@@ -103,7 +99,7 @@ def find_monochromatic_classes(
     # as cycles may not exist!
     # There routines are highly inefficient, but the time is still
     # negligible compared to the main algorithm running time.
-    if class_type == MonochromaticClassType.MONOCHROMATIC:
+    if class_type == MonoClassType.TRI_EXTENDED:
         # we try again until we find no other component to merge
         # new opinions may appear later
         # could be most probably implemented smarter

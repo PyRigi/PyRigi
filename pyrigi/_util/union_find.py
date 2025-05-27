@@ -1,6 +1,5 @@
 from typing import Hashable, TypeVar
 
-# TODO migrate to generics in Python 3.12
 T = TypeVar("T", bound=Hashable)
 
 
@@ -12,6 +11,10 @@ class UnionFind:
     ----
     For integers, this can be implemented more efficiently with lists and indexing.
     Uses tree collapsing internally to improve performance.
+
+    Suggested Improvements
+    ----------------------
+    Use class generics in Python 3.12.
     """
 
     def __init__(self):

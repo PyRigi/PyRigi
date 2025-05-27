@@ -2,8 +2,8 @@ import networkx as nx
 
 from pyrigi.graph._flexibility.nac.core import IntEdge
 from pyrigi.graph._flexibility.nac.mono_classes import (
-    MonochromaticClassType,
-    find_monochromatic_classes,
+    MonoClassType,
+    find_mono_classes,
 )
 from pyrigi import graphDB
 from pyrigi.graph.graph import Graph
@@ -152,11 +152,11 @@ def test_find_monochromatic_classes(
     if monochromatic_classes is None:
         monochromatic_classes = triangle_connected_comp
 
-    triang_edge_to_comp, triangle_comp_to_edges = find_monochromatic_classes(
-        graph, MonochromaticClassType.TRIANGLES
+    triang_edge_to_comp, triangle_comp_to_edges = find_mono_classes(
+        graph, MonoClassType.TRI_CONNECTED
     )
-    mono_edge_to_comp, mono_comp_to_edges = find_monochromatic_classes(
-        graph, MonochromaticClassType.MONOCHROMATIC
+    mono_edge_to_comp, mono_comp_to_edges = find_mono_classes(
+        graph, MonoClassType.TRI_EXTENDED
     )
 
     for edge in graph.edges:

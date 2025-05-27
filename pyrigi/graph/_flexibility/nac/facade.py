@@ -4,7 +4,7 @@ import networkx as nx
 
 from pyrigi.data_type import Edge
 from pyrigi.graph._flexibility.nac.core import NACColoring
-from pyrigi.graph._flexibility.nac.mono_classes import MonochromaticClassType
+from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType
 from pyrigi.graph._flexibility.nac.search import NAC_colorings_impl
 
 

@@ -27,8 +27,8 @@ from pyrigi.graph._flexibility.nac.algorithms import (
 from pyrigi._util.repetable_iterator import RepeatableIterator
 
 from pyrigi.graph._flexibility.nac.mono_classes import (
-    MonochromaticClassType,
-    find_monochromatic_classes,
+    MonoClassType,
+    find_mono_classes,
 )
 from pyrigi.graph._flexibility.nac.check import (
     _is_NAC_coloring_impl,
@@ -129,7 +129,7 @@ def _run_algorithm(
     graph: nx.Graph,
     algorithm: str | Literal["naive", "subgraphs"],
     use_cycles_optimization: bool,
-    mono_class_type: MonochromaticClassType,
+    mono_class_type: MonoClassType,
     seed: int | None,
 ) -> Iterable[NACColoring]:
     """
@@ -146,7 +146,7 @@ def _run_algorithm(
     # (edge_to_class, class_to_edges)
     _, class_to_edges = cast(
         tuple[dict[IntEdge, int], list[list[IntEdge]]],
-        find_monochromatic_classes(
+        find_mono_classes(
             graph,
             mono_class_type,
         ),
@@ -205,7 +205,7 @@ def NAC_colorings_impl(
     algorithm: str | Literal["naive", "subgraphs"],
     use_cycles_optimization: bool,
     use_blocks_decomposition: bool,
-    mono_class_type: MonochromaticClassType,
+    mono_class_type: MonoClassType,
     seed: int | None,
 ) -> Iterable[NACColoring]:
     """

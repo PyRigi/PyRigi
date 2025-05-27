@@ -6,7 +6,11 @@ Algorithm based on :prf:ref:`<lem-color-components>` is used.
 from typing import Collection, Iterable
 import networkx as nx
 
-from pyrigi.graph._flexibility.nac.core import NACColoring, IntEdge
+from pyrigi.graph._flexibility.nac.core import (
+    NACColoring,
+    IntEdge,
+    can_have_NAC_coloring,
+)
 
 
 def _check_for_almost_red_cycles(
@@ -30,6 +34,11 @@ def _check_for_almost_red_cycles(
     Returns
     -------
     `True` if the coloring has no almost cycles with a single blue edge.
+
+    Suggested Improvement
+    ----------------------
+    Keep cached graph with no edges for multiple runs,
+    this has a potential of a big performance gain.
     """
     G.clear_edges()
     G.add_edges_from(red_edges)
@@ -76,9 +85,6 @@ def _is_NAC_coloring_impl(
     # on the same graph for many colorings.
     # This caching causes memory leaks unless the temporary graph is deleted
     # manually or the original graph is cleared.
-    # TODO
-    # resolve caching for multiple runs?
-    # Cleanup in the public interface?
     # Performance gain was ~40% percent in my tests half a year ago.
     G = nx.Graph()
     G.add_nodes_from(graph.nodes)
@@ -117,9 +123,8 @@ def is_NAC_coloring(
     else:
         red, blue = coloring
 
-    # TODO resolve which checks we want to perform
-    # if not check_NAC_constrains(graph):
-    #     return False
+    if not can_have_NAC_coloring(graph):
+        return False
 
     # Both colors have to be used
     if len(red) == 0 or len(blue) == 0:  # this is faster than *
