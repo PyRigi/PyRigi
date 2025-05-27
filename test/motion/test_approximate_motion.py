@@ -71,7 +71,7 @@ def test_from_framework(framework):
                 sample, numerical=True, tolerance=1e-3
             ) and not framework.is_congruent_realization(sample, numerical=True)
     except ValueError:
-        assert framework._dim == 1
+        assert framework.dim == 1
 
 
 @pytest.mark.parametrize(
@@ -120,7 +120,7 @@ def test_from_graph(framework):
                 sample, numerical=True, tolerance=1e-3
             )
     except ValueError:
-        assert framework._dim == 1
+        assert framework.dim == 1
 
 
 def test_normalize_realizations():
