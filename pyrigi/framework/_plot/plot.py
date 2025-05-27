@@ -29,6 +29,7 @@ from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.framework._rigidity import stress as stress_rigidity
 from pyrigi.framework._transformations import transformations
 from pyrigi.framework.base import FrameworkBase
+from pyrigi.graph import _general as graph_general
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 
@@ -313,7 +314,7 @@ def _resolve_stress(
             + "edges as the stress dictionary."
         )
 
-    for edge in framework._graph.edge_list(as_tuples=True):
+    for edge in graph_general.edge_list(framework._graph, as_tuples=True):
         if edge in stress_label_positions:
             stress_label_positions[edge] = stress_label_positions[edge]
         elif edge[::-1] in stress_label_positions:
@@ -648,7 +649,10 @@ def _resolve_arc_angles(
                 "The provided `arc_angles_dict` don't have the correct length."
             )
         res = {
-            e: style for e, style in zip(G.edge_list(as_tuples=True), arc_angles_dict)
+            e: style
+            for e, style in zip(
+                graph_general.edge_list(G, as_tuples=True), arc_angles_dict
+            )
         }
     elif isinstance(arc_angles_dict, dict):
         if (
@@ -660,7 +664,13 @@ def _resolve_arc_angles(
             )
             or not all(
                 [
-                    set(edge) in [set([e[0], e[1]]) for e in G.edge_list()]
+                    set(edge)
+                    in [
+                        set([e[0], e[1]])
+                        for e in graph_general.edge_list(
+                            G,
+                        )
+                    ]
                     for edge in arc_angles_dict.keys()
                 ]
             )
@@ -693,7 +703,7 @@ def _resolve_edge_colors(
     Return the lists of colors and edges in the format for plotting.
     """
     G = framework._graph
-    edge_list = G.edge_list()
+    edge_list = graph_general.edge_list(G)
     edge_list_ref = []
     edge_color_array = []
 
@@ -1052,7 +1062,7 @@ def animate3D_rotation(
         }
         for frame in range(2 * total_frames)
     ]
-    pinned_vertex = framework._graph.vertex_list()[0]
+    pinned_vertex = graph_general.vertex_list(framework._graph)[0]
     _realizations = []
     for rotated_realization in rotating_realizations:
         # Translate the realization to the origin

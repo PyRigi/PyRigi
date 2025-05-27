@@ -20,6 +20,7 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.framework.base import FrameworkBase
+from pyrigi.graph import _general as graph_general
 from pyrigi.graphDB import Complete as CompleteGraph
 
 
@@ -434,7 +435,7 @@ def is_min_inf_rigid(framework: FrameworkBase, use_copy: bool = True, **kwargs) 
     F = framework
     if use_copy:
         F = deepcopy(framework)
-    for edge in F._graph.edge_list():
+    for edge in graph_general.edge_list(F._graph):
         F.delete_edge(edge)
         if is_inf_rigid(F, **kwargs):
             F.add_edge(edge)
@@ -565,11 +566,14 @@ def is_dict_inf_flex(
     )
 
     dict_to_list = []
-    for v in framework._graph.vertex_list():
+    for v in graph_general.vertex_list(framework._graph):
         dict_to_list += list(vert_to_flex[v])
 
     return is_vector_inf_flex(
-        framework, dict_to_list, vertex_order=framework._graph.vertex_list(), **kwargs
+        framework,
+        dict_to_list,
+        vertex_order=graph_general.vertex_list(framework._graph),
+        **kwargs,
     )
 
 
@@ -692,11 +696,14 @@ def is_dict_nontrivial_inf_flex(
     )
 
     dict_to_list = []
-    for v in framework._graph.vertex_list():
+    for v in graph_general.vertex_list(framework._graph):
         dict_to_list += list(vert_to_flex[v])
 
     return is_vector_nontrivial_inf_flex(
-        framework, dict_to_list, vertex_order=framework._graph.vertex_list(), **kwargs
+        framework,
+        dict_to_list,
+        vertex_order=graph_general.vertex_list(framework._graph),
+        **kwargs,
     )
 
 
@@ -798,11 +805,14 @@ def is_dict_trivial_inf_flex(
     )
 
     dict_to_list = []
-    for v in framework._graph.vertex_list():
+    for v in graph_general.vertex_list(framework._graph):
         dict_to_list += list(inf_flex[v])
 
     return is_vector_trivial_inf_flex(
-        framework, dict_to_list, vertex_order=framework._graph.vertex_list(), **kwargs
+        framework,
+        dict_to_list,
+        vertex_order=graph_general.vertex_list(framework._graph),
+        **kwargs,
     )
 
 

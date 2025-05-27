@@ -5,7 +5,6 @@ from random import randint
 import matplotlib.pyplot as plt
 import networkx as nx
 import pytest
-from sympy import Matrix
 
 import pyrigi.graphDB as graphs
 from pyrigi.exception import LoopError
@@ -82,76 +81,6 @@ def test__repr__():
         repr(Graph.from_vertices_and_edges([1, 2, 3], [(1, 2)]))
         == "Graph.from_vertices_and_edges([1, 2, 3], [(1, 2)])"
     )
-
-
-def test_vertex_and_edge_lists():
-    G = Graph([[2, 1], [2, 3]])
-    assert G.vertex_list() == [1, 2, 3]
-    assert G.edge_list() == [[1, 2], [2, 3]]
-    G = Graph([(chr(i + 67), i + 1) for i in range(3)] + [(i, i + 1) for i in range(3)])
-    assert set(G.vertex_list()) == {"C", 1, "D", 2, "E", 3, 0}
-    assert set(G.edge_list()) == {("C", 1), (1, 0), (1, 2), ("D", 2), (2, 3), ("E", 3)}
-    G = Graph.from_vertices(["C", 1, "D", 2, "E", 3, 0])
-    assert set(G.vertex_list()) == {"C", 2, "E", 1, "D", 3, 0}
-    assert G.edge_list() == []
-
-
-def test_adjacency_matrix():
-    G = Graph()
-    assert G.adjacency_matrix() == Matrix([])
-    G = Graph([[2, 1], [2, 3]])
-    assert G.adjacency_matrix() == Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
-    assert G.adjacency_matrix(vertex_order=[2, 3, 1]) == Matrix(
-        [[0, 1, 1], [1, 0, 0], [1, 0, 0]]
-    )
-    assert graphs.Complete(4).adjacency_matrix() == Matrix.ones(4) - Matrix.diag(
-        [1, 1, 1, 1]
-    )
-    G = Graph.from_vertices(["C", 1, "D"])
-    assert G.adjacency_matrix() == Matrix.zeros(3)
-    G = Graph.from_vertices_and_edges(["C", 1, "D"], [[1, "D"], ["C", "D"]])
-    assert G.adjacency_matrix(vertex_order=["C", 1, "D"]) == Matrix(
-        [[0, 0, 1], [0, 0, 1], [1, 1, 0]]
-    )
-    M = Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
-    assert G.from_adjacency_matrix(M).adjacency_matrix() == M
-    M = Matrix([[1, 1, 0], [1, 0, 1], [0, 1, 0]])
-    assert G.from_adjacency_matrix(M).adjacency_matrix() == M
-
-
-@pytest.mark.parametrize(
-    "graph, gint",
-    [
-        [graphs.Complete(2), 1],
-        [graphs.Complete(3), 7],
-        [graphs.Complete(4), 63],
-        [graphs.CompleteBipartite(3, 4), 507840],
-        [graphs.CompleteBipartite(4, 4), 31965120],
-        [graphs.ThreePrism(), 29327],
-    ],
-)
-def test_integer_representation(graph, gint):
-    assert graph.to_int() == gint
-    assert Graph.from_int(gint).is_isomorphic(graph)
-    assert Graph.from_int(gint).to_int() == gint
-    assert Graph.from_int(graph.to_int()).is_isomorphic(graph)
-
-
-def test_integer_representation_error():
-    with pytest.raises(ValueError):
-        Graph([]).to_int()
-    with pytest.raises(ValueError):
-        M = Matrix([[0, 1, 0], [1, 0, 0], [0, 0, 0]])
-        G = Graph.from_adjacency_matrix(M)
-        G.to_int()
-    with pytest.raises(ValueError):
-        Graph.from_int(0)
-    with pytest.raises(TypeError):
-        Graph.from_int(1 / 2)
-    with pytest.raises(TypeError):
-        Graph.from_int(1.2)
-    with pytest.raises(ValueError):
-        Graph.from_int(-1)
 
 
 def test_from_vertices_and_edges():

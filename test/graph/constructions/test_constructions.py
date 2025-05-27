@@ -2,6 +2,7 @@ import networkx as nx
 
 import pyrigi.graphDB as graphs
 from pyrigi.graph._constructions import constructions as graph_constructions
+from pyrigi.graph._general import max_degree
 from test import TEST_WRAPPED_FUNCTIONS
 
 
@@ -18,4 +19,4 @@ def test_cone():
         G = graph_constructions.cone(nx.Graph(graphs.Complete(4)), vertex="a")
         assert "a" in G.nodes
         G = graph_constructions.cone(nx.Graph(graphs.Cycle(4)))
-        assert G.number_of_nodes() == max([deg for _, deg in G.degree()]) + 1
+        assert G.number_of_nodes() == max_degree(G) + 1

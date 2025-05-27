@@ -19,6 +19,7 @@ from pyrigi.data_type import (
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.framework._rigidity import stress as stress_rigidity
 from pyrigi.framework.base import FrameworkBase
+from pyrigi.graph import _general as graph_general
 
 
 def is_prestress_stable(
@@ -58,7 +59,7 @@ def is_prestress_stable(
     >>> F.is_prestress_stable()
     True
     """
-    edges = framework._graph.edge_list(as_tuples=True)
+    edges = graph_general.edge_list(framework._graph, as_tuples=True)
     inf_flexes = _process_list_of_inf_flexes(
         framework, inf_flexes, numerical=numerical, tolerance=tolerance
     )
@@ -307,7 +308,7 @@ def _process_list_of_stresses(
         Numerical tolerance used for the check that something is
         an equilibrium stress.
     """
-    edges = framework._graph.edge_list(as_tuples=True)
+    edges = graph_general.edge_list(framework._graph, as_tuples=True)
     if stresses is None:
         stresses = stress_rigidity.stresses(
             framework, numerical=numerical, tolerance=tolerance

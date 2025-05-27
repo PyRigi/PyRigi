@@ -18,6 +18,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.framework.base import FrameworkBase
+from pyrigi.graph import _general as graph_general
 
 
 def is_dict_stress(
@@ -49,7 +50,7 @@ def is_dict_stress(
     """
     stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
     _graph_input_check.is_edge_order(framework._graph, stress_edge_list, "dict_stress")
-    graph_edge_list = [tuple(e) for e in framework._graph.edge_list()]
+    graph_edge_list = [tuple(e) for e in graph_general.edge_list(framework._graph)]
     dict_to_list = []
 
     for e in graph_edge_list:
@@ -62,7 +63,10 @@ def is_dict_stress(
         ]
 
     return is_vector_stress(
-        framework, dict_to_list, edge_order=framework._graph.edge_list(), **kwargs
+        framework,
+        dict_to_list,
+        edge_order=graph_general.edge_list(framework._graph),
+        **kwargs,
     )
 
 

@@ -25,6 +25,7 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
+from pyrigi.graph import _general as graph_general
 from pyrigi.graphDB import Complete as CompleteGraph
 from pyrigi.plot_style import PlotStyle
 
@@ -333,7 +334,7 @@ class Framework(FrameworkBase):
             graph,
             {
                 v: [sp.cos(2 * i * sp.pi / n), sp.sin(2 * i * sp.pi / n)]
-                for i, v in enumerate(graph.vertex_list())
+                for i, v in enumerate(graph_general.vertex_list(graph))
             },
         )
 
@@ -363,7 +364,7 @@ class Framework(FrameworkBase):
             graph,
             {
                 v: [i] + [0 for _ in range(dim - 1)]
-                for i, v in enumerate(graph.vertex_list())
+                for i, v in enumerate(graph_general.vertex_list(graph))
             },
         )
 
@@ -400,7 +401,7 @@ class Framework(FrameworkBase):
             graph,
             {
                 v: [1 if j == i - 1 else 0 for j in range(dim)]
-                for i, v in enumerate(graph.vertex_list())
+                for i, v in enumerate(graph_general.vertex_list(graph))
             },
         )
 
