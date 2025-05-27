@@ -53,7 +53,9 @@ def _resolve_inf_flex(
         A matrix used for projection to a lower dimension.
     """
     if isinstance(inf_flex, int) and inf_flex >= 0:
-        inf_flex_basis = infinitesimal_rigidity.nontrivial_inf_flexes(framework, numerical=True)
+        inf_flex_basis = infinitesimal_rigidity.nontrivial_inf_flexes(
+            framework, numerical=True
+        )
         if inf_flex >= len(inf_flex_basis):
             raise IndexError(
                 "The value of inf_flex exceeds "
