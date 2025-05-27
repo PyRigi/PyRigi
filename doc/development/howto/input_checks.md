@@ -6,7 +6,7 @@ To unify to a certain extent error messages there are two ways.
 ## Check the input before actual computations
 For checking input type and values for standard data types
 we collected a set of methods that are often needed in `pyrigi/_utils/_input_check.py`,
-see the [list below](#input-check-functions).
+see the [list below](#general-input-check-functions).
 For instance {func}`pyrigi._utils._input_check.dimension`  checks whether
 the parameter `dim` is a positive integer and raises an error otherwise.
 
