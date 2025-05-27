@@ -444,7 +444,9 @@ def is_min_inf_rigid(framework: FrameworkBase, use_copy: bool = True, **kwargs) 
 
 
 def _transform_inf_flex_to_pointwise(
-    framework: FrameworkBase, inf_flex: Matrix, vertex_order: Sequence[Vertex] = None
+    framework: FrameworkBase,
+    inf_flex: Matrix | Sequence,
+    vertex_order: Sequence[Vertex] = None,
 ) -> dict[Vertex, list[Number]]:
     r"""
     Transform the natural data type of a flex (``Matrix``) to a
@@ -474,6 +476,18 @@ def _transform_inf_flex_to_pointwise(
     infinitesimal flex for plotting purposes.
     """  # noqa: E501
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
+    if (
+        isinstance(inf_flex, Matrix)
+        and (
+            inf_flex.shape[1] != 1
+            or inf_flex.shape[0] != framework.dim * len(vertex_order)
+        )
+    ) or (
+        isinstance(inf_flex, Sequence)
+        and len(inf_flex) != framework.dim * len(vertex_order)
+    ):
+        raise ValueError("The provided `inf_flex` does not have the correct format.")
+
     return {
         vertex_order[i]: [inf_flex[i * framework.dim + j] for j in range(framework.dim)]
         for i in range(len(vertex_order))
