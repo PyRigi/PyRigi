@@ -32,7 +32,7 @@ from pyrigi.framework.base import FrameworkBase
 from pyrigi.plot_style import PlotStyle, PlotStyle2D, PlotStyle3D
 
 
-def resolve_inf_flex(
+def _resolve_inf_flex(
     framework: FrameworkBase,
     inf_flex: int | Matrix | InfFlex,
     realization: dict[Vertex, Point] = None,
@@ -131,7 +131,7 @@ def resolve_inf_flex(
     return inf_flex_pointwise
 
 
-def plot_inf_flex2D(
+def _plot_inf_flex2D(
     framework: FrameworkBase,
     ax: Axes,
     inf_flex: int | Matrix | InfFlex,
@@ -153,7 +153,7 @@ def plot_inf_flex2D(
         A matrix used to project the infinitesimal flex to 2D.
     plot_style:
     """
-    inf_flex_pointwise = resolve_inf_flex(
+    inf_flex_pointwise = _resolve_inf_flex(
         framework, inf_flex, realization, projection_matrix
     )
 
@@ -193,7 +193,7 @@ def plot_inf_flex2D(
     )
 
 
-def plot_inf_flex3D(
+def _plot_inf_flex3D(
     framework: FrameworkBase,
     ax: Axes,
     inf_flex: int | Matrix | InfFlex,
@@ -215,7 +215,7 @@ def plot_inf_flex3D(
         A matrix used to project the infinitesimal flex to 3D.
     plot_style:
     """
-    inf_flex_pointwise = resolve_inf_flex(
+    inf_flex_pointwise = _resolve_inf_flex(
         framework, inf_flex, realization, projection_matrix
     )
     x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
@@ -242,7 +242,7 @@ def plot_inf_flex3D(
         )
 
 
-def resolve_stress(
+def _resolve_stress(
     framework: FrameworkBase,
     stress: Matrix | Stress,
     plot_style: PlotStyle,
@@ -324,7 +324,7 @@ def resolve_stress(
     return _stress, stress_label_positions
 
 
-def plot_stress2D(
+def _plot_stress2D(
     framework: FrameworkBase,
     ax: Axes,
     stress: Matrix | Stress,
@@ -351,12 +351,12 @@ def plot_stress2D(
     stress_label_positions:
         A dictionary mapping edges to label position floats.
     """
-    stress_edgewise, stress_label_positions = resolve_stress(
+    stress_edgewise, stress_label_positions = _resolve_stress(
         framework, stress, plot_style, stress_label_positions
     )
     if plot_style.edges_as_arcs:
         new_graph = nx.MultiDiGraph()
-        arc_angles = resolve_arc_angles(
+        arc_angles = _resolve_arc_angles(
             framework, plot_style.arc_angle, arc_angles_dict
         )
         for e, style in arc_angles.items():
@@ -409,7 +409,7 @@ def plot_stress2D(
             )
 
 
-def plot_stress3D(
+def _plot_stress3D(
     framework: FrameworkBase,
     ax: Axes,
     stress: Matrix | Stress,
@@ -433,7 +433,7 @@ def plot_stress3D(
     stress_label_positions:
         A dictionary mapping edges to label position floats.
     """
-    stress_edgewise, stress_label_positions = resolve_stress(
+    stress_edgewise, stress_label_positions = _resolve_stress(
         framework, stress, plot_style, stress_label_positions
     )
     for edge, edge_stress in stress_label_positions.items():
@@ -458,7 +458,7 @@ def plot_stress3D(
         )
 
 
-def plot_with_2D_realization(
+def _plot_with_2D_realization(
     framework: FrameworkBase,
     ax: Axes,
     realization: dict[Vertex, Point],
@@ -484,7 +484,7 @@ def plot_with_2D_realization(
     arc_angles_dict:
         A dictionary specifying arc angles for curved edges.
     """
-    edge_color_array, edge_list_ref = resolve_edge_colors(
+    edge_color_array, edge_list_ref = _resolve_edge_colors(
         framework, plot_style.edge_color, edge_colors_custom
     )
 
@@ -506,7 +506,7 @@ def plot_with_2D_realization(
         )
     else:
         newGraph = nx.MultiDiGraph()
-        arc_angles = resolve_arc_angles(
+        arc_angles = _resolve_arc_angles(
             framework, plot_style.arc_angle, arc_angles_dict
         )
         for e, style in arc_angles.items():
@@ -552,7 +552,7 @@ def plot_with_2D_realization(
             )
 
 
-def plot_with_3D_realization(
+def _plot_with_3D_realization(
     framework: FrameworkBase,
     ax: Axes,
     realization: dict[Vertex, Point],
@@ -577,7 +577,7 @@ def plot_with_3D_realization(
     """
     # Create a figure for the representation of the framework
 
-    edge_color_array, edge_list_ref = resolve_edge_colors(
+    edge_color_array, edge_list_ref = _resolve_edge_colors(
         framework, plot_style.edge_color, edge_colors_custom
     )
 
@@ -629,7 +629,7 @@ def plot_with_3D_realization(
             )
 
 
-def resolve_arc_angles(
+def _resolve_arc_angles(
     framework: FrameworkBase,
     arc_angle: float,
     arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
@@ -684,7 +684,7 @@ def resolve_arc_angles(
     return res
 
 
-def resolve_edge_colors(
+def _resolve_edge_colors(
     framework: FrameworkBase,
     edge_color: str,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
@@ -906,7 +906,7 @@ def plot2D(
             random_seed=random_seed,
         )
 
-    plot_with_2D_realization(
+    _plot_with_2D_realization(
         framework,
         ax,
         placement,
@@ -916,7 +916,7 @@ def plot2D(
     )
 
     if inf_flex is not None:
-        plot_inf_flex2D(
+        _plot_inf_flex2D(
             framework,
             ax,
             inf_flex,
@@ -925,7 +925,7 @@ def plot2D(
             projection_matrix=projection_matrix,
         )
     if stress is not None:
-        plot_stress2D(
+        _plot_stress2D(
             framework,
             ax,
             stress,
@@ -1237,7 +1237,7 @@ def plot3D(
         for v, pos in placement.items()
     }
 
-    plot_with_3D_realization(
+    _plot_with_3D_realization(
         framework,
         ax,
         _placement,
@@ -1246,7 +1246,7 @@ def plot3D(
     )
 
     if inf_flex is not None:
-        plot_inf_flex3D(
+        _plot_inf_flex3D(
             framework,
             ax,
             inf_flex,
@@ -1256,7 +1256,7 @@ def plot3D(
         )
 
     if stress is not None:
-        plot_stress3D(
+        _plot_stress3D(
             framework,
             ax,
             stress,
