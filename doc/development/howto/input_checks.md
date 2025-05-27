@@ -60,7 +60,11 @@ def method(self, algorithm: str = "default"):
    :show-inheritance:
 ```
 
-## Input check functions
+## Input check functions of Framework
+
+See the methods of {class}`~.framework.base.FrameworkBase` starting with `_input_check`.
+
+## General input check functions
 
 ```{eval-rst}
 .. automodule:: pyrigi._utils._input_check

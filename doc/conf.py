@@ -363,39 +363,6 @@ def setup(app: Sphinx):
     app.add_lexer("myst", MystLexer)
 
 
-# -----create the documentation of input checks
-
-input_check_str = ""
-for cls in [Framework]:
-    methods = [
-        method
-        for method in dir(cls)
-        if method.startswith("_input_check_") and callable(getattr(cls, method))
-    ]
-    input_check_str += (
-        f"""
-Input check methods of {cls.__name__}
-======================={''.join(["=" for _ in range(len(cls.__name__))])}
-
-.. automethod:: {cls.__module__}.{cls.__name__}."""
-        + f"""
-
-.. automethod:: {cls.__module__}.{cls.__name__}.""".join(
-            methods
-        )
-        + "\n\n"
-    )
-
-input_check_str += """
-
-General input check functions
-=============================
-
-
-"""
-
-_input_check.__doc__ = input_check_str
-
 
 # ----------generate module structure with comments------------------------
 
