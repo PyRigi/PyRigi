@@ -39,12 +39,12 @@ def _trivial_mono_classes(
     """
     Makes each edge its own NAC-mono class
     """
-    edge_to_component: dict[Edge, int] = {}
-    component_to_edges: list[list[Edge]] = []
+    edge_to_class: dict[Edge, int] = {}
+    class_to_edges: list[list[Edge]] = []
     for i, e in enumerate(graph.edges):
-        edge_to_component[e] = i
-        component_to_edges.append([e])
-    return edge_to_component, component_to_edges
+        edge_to_class[e] = i
+        class_to_edges.append([e])
+    return edge_to_class, class_to_edges
 
 
 def find_mono_classes(
@@ -54,7 +54,7 @@ def find_mono_classes(
     """
     Find :prf:ref:`NAC-mono classes <def-nac-mono>` based on the type given.
 
-    First, all the components of triangle equivalence are found.
+    First, all the classes of triangle equivalence are found.
     Then these are optionally extended to larger NAC-mono classes
     as described in :cite:p:`LastovickaLegersky2024`.
 
@@ -69,14 +69,14 @@ def find_mono_classes(
     -------
     An ID of a :prf:ref:`NAC-mono class <def-nac-mono>`
     corresponds to its index in a list of all NAC-mono classes.
-    Return a mapping from edges to their component ID
+    Return a mapping from edges to their class ID
     and a list of NAC-mono classes where
-    the index corresponds to the component ID.
+    the index corresponds to the class ID.
     """
     if class_type == MonoClassType.EDGES:
         return _trivial_mono_classes(graph)
 
-    components = UnionFind()
+    classes = UnionFind()
 
     # Finds triangles
     for edge in graph.edges:
@@ -84,52 +84,52 @@ def find_mono_classes(
 
         # We cannot sort vertices and we cannot expect
         # any regularity or order of the vertices
-        components.join((u, v), (v, u))
+        classes.join((u, v), (v, u))
 
         v_neighbours = set(graph.neighbors(v))
         u_neighbours = set(graph.neighbors(u))
         intersection = v_neighbours.intersection(u_neighbours)
         for w in intersection:
-            components.join((u, v), (w, v))
-            components.join((u, v), (w, u))
+            classes.join((u, v), (w, v))
+            classes.join((u, v), (w, u))
 
-    # Checks for edges & triangles over component
+    # Checks for edges & triangles over class
     # This MUST be run before search for squares for cartesian NAC-coloring
-    # of other search that may produce disconnected components,
+    # of other search that may produce disconnected classes,
     # as cycles may not exist!
     # There routines are highly inefficient, but the time is still
     # negligible compared to the main algorithm running time.
     if class_type == MonoClassType.TRI_EXTENDED:
-        # we try again until we find no other component to merge
+        # we try again until we find no other class to merge
         # new opinions may appear later
         # could be most probably implemented smarter
         done = False
         while not done:
             done = True
 
-            vertex_to_components: list[set[Edge]] = [
+            vertex_to_classes: list[set[Edge]] = [
                 set() for _ in range(max(graph.nodes) + 1)
             ]
 
-            # prepare updated vertex to component mapping
+            # prepare updated vertex to class mapping
             for e in graph.edges:
-                comp_id = components.find(e)
-                vertex_to_components[e[0]].add(comp_id)
-                vertex_to_components[e[1]].add(comp_id)
+                class_id = classes.find(e)
+                vertex_to_classes[e[0]].add(class_id)
+                vertex_to_classes[e[1]].add(class_id)
 
-            # v is the top of the triangle over component
+            # v is the top of the triangle over class
             for v in graph.nodes:
-                # maps component to set of vertices containing it
-                comp_to_vertices: dict[Edge, set[int]] = defaultdict(set)
+                # maps class to set of vertices containing it
+                class_to_vertices: dict[Edge, set[int]] = defaultdict(set)
                 for u in graph.neighbors(v):
-                    # find all the components v neighbors with
-                    for comp in vertex_to_components[u]:
-                        comp_to_vertices[comp].add(u)
+                    # find all the classes v neighbors with
+                    for class_of_vertex in vertex_to_classes[u]:
+                        class_to_vertices[class_of_vertex].add(u)
 
-                # if we found more edges to the same component,
+                # if we found more edges to the same class,
                 # we also found a triangle and we merge it's arms
-                for comp, vertices in comp_to_vertices.items():
-                    if comp == len(vertices) <= 1:
+                for class_of_vertex, vertices in class_to_vertices.items():
+                    if class_of_vertex == len(vertices) <= 1:
                         continue
 
                     vertices = iter(vertices)
@@ -137,21 +137,21 @@ def find_mono_classes(
                     for u in vertices:
                         # if something changed, we may have another
                         # change for improvement the next round
-                        done &= not components.join((v, w), (v, u))
+                        done &= not classes.join((v, w), (v, u))
 
-    edge_to_component: dict[Edge, int] = {}
-    component_to_edge: list[list[Edge]] = []
+    edge_to_class: dict[Edge, int] = {}
+    class_to_edge: list[list[Edge]] = []
 
     for edge in graph.edges:
-        root = components.find(edge)
+        root = classes.find(edge)
 
-        if root not in edge_to_component:
-            edge_to_component[root] = id = len(component_to_edge)
-            component_to_edge.append([])
+        if root not in edge_to_class:
+            edge_to_class[root] = id = len(class_to_edge)
+            class_to_edge.append([])
         else:
-            id = edge_to_component[root]
+            id = edge_to_class[root]
 
-        edge_to_component[edge] = id
-        component_to_edge[id].append(edge)
+        edge_to_class[edge] = id
+        class_to_edge[id].append(edge)
 
-    return edge_to_component, component_to_edge
+    return edge_to_class, class_to_edge

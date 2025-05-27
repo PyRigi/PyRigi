@@ -46,7 +46,7 @@ def NAC_colorings_naive(
     class_ids:
         List of classes IDs.
     class_to_edges:
-        Mapping from component ID to its edges.
+        Mapping from class ID to its edges.
     is_NAC_coloring_routine:
         Used to check if the coloring is :prf:ref:`NAC-coloring <def-nac>`
         or :prf:ref:`Cartesian NAC-coloring <def-cartesian-nac>`.
@@ -74,7 +74,7 @@ def NAC_colorings_naive(
 
 def NAC_colorings_cycles(
     graph: nx.Graph,
-    components_ids: list[int],
+    classes_ids: list[int],
     class_to_edges: list[list[IntEdge]],
     is_NAC_coloring_routine: Callable[[nx.Graph, NACColoring], bool],
 ) -> Iterable[NACColoring]:
@@ -85,21 +85,21 @@ def NAC_colorings_cycles(
     ----------
     graph:
         The graph to search on.
-    components_ids:
-        List of components IDs.
+    classes_ids:
+        List of classes IDs.
     class_to_edges:
-        Mapping from component ID to its edges.
+        Mapping from class ID to its edges.
     is_NAC_coloring_routine:
         Used to check if the coloring is :prf:ref:`NAC-coloring <def-nac>`
         or :prf:ref:`Cartesian NAC-coloring <def-cartesian-nac>`.
     """
     # so we start with 0
-    components_ids.sort()
+    classes_ids.sort()
 
     # find some small cycles for state filtering
     cycles = find_cycles(
         graph,
-        set(components_ids),
+        set(classes_ids),
         class_to_edges,
     )
     # the idea is that smaller cycles reduce the state space more
@@ -115,18 +115,18 @@ def NAC_colorings_cycles(
     # this is used for mask inversion, because how ~ works on python
     # numbers, if we used some kind of bit arrays,
     # this would not be needed.
-    subgraph_mask = 0  # 2 ** len(components_ids) - 1
-    for v in components_ids:
+    subgraph_mask = 0  # 2 ** len(class_ids) - 1
+    for v in classes_ids:
         subgraph_mask |= 1 << v
 
     # iterate all the coloring variants
     # division by 2 is used as the problem is symmetrical
-    for mask in range(1, 2 ** len(components_ids) // 2):
+    for mask in range(1, 2 ** len(classes_ids) // 2):
         if mask_matches_templates(templates, mask, subgraph_mask):
             continue
 
         coloring = coloring_from_mask(
-            components_ids,
+            classes_ids,
             class_to_edges,
             mask,
         )
@@ -288,7 +288,7 @@ def _subgraphs_join_epochs(
     def mapped_edges_classes(ind: int) -> list[IntEdge]:
         return class_to_edges[ordered_class_ids[ind]]
 
-    # cycles with indices of the comp IDs in the global order
+    # cycles with indices of the class IDs in the global order
     local_cycles = [tuple(mapping[c] for c in cycle) for cycle in local_cycles]
     templates = [
         create_bitmask_for_class_graph_cycle(graph, mapped_edges_classes, cycle)
@@ -496,7 +496,7 @@ def NAC_colorings_subgraphs(
     class_ids:
         List of classes IDs.
     class_to_edges:
-        List of edges for each component.
+        List of edges for each class.
     is_NAC_coloring_routine:
         The function to check if a coloring is a :prf:ref:`NAC-coloring <def-nac>`.
     seed:
@@ -547,7 +547,7 @@ def NAC_colorings_subgraphs(
 
     # Holds all the NAC colorings for a subgraph represented by the second bit mask
     all_epochs: list[SubgraphColorings] = []
-    # Number of components already processed in previous chunks
+    # Number of classes already processed in previous chunks
     offset = 0
     for chunk_size in chunk_sizes:
         subgraph_mask = 2**chunk_size - 1

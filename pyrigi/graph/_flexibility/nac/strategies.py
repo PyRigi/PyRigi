@@ -43,7 +43,7 @@ def subgraphs_strategy_neighbors(
     remaining_classes = list(range(len(class_to_edges)))
     ordered_class_ids_groups: list[list[int]] = [[] for _ in chunk_sizes]
 
-    # if False, chunk does need to assign random component
+    # if False, chunk does need to assign random class
     is_random_class_required: list[bool] = [True for _ in chunk_sizes]
 
     edge_to_class: dict[IntEdge, int] = {
@@ -68,14 +68,14 @@ def subgraphs_strategy_neighbors(
         # list to add classes to
         target_chunk = ordered_class_ids_groups[chunk_index]
 
-        # components already added to the subgraph
+        # classes already added to the subgraph
         added_classes: set[int] = set()
 
         # if subgraph is still empty, we add a random class to it
         if is_random_class_required[chunk_index]:
-            rand_comp = remaining_classes[rand.randint(0, len(remaining_classes) - 1)]
-            added_classes.add(rand_comp)
-            target_chunk.append(rand_comp)
+            rand_class = remaining_classes[rand.randint(0, len(remaining_classes) - 1)]
+            added_classes.add(rand_class)
+            target_chunk.append(rand_class)
             is_random_class_required[chunk_index] = False
 
         # vertices of the already chosen classes
@@ -118,20 +118,20 @@ def subgraphs_strategy_neighbors(
                 if neighbor not in non_covered_vertices:
                     continue
 
-                # component of the edge incident to the best vertex
+                # class of the edge incident to the best vertex
                 # and the chosen vertex
                 class_id: int = edge_to_class.get(
                     (best_vertex, neighbor),
                     edge_to_class.get((neighbor, best_vertex), None),
                 )
-                # the edge is part of another component
+                # the edge is part of another class
                 if class_id not in remaining_classes:
                     continue
-                # the component of the edge was already added
+                # the class of the edge was already added
                 if class_id in added_classes:
                     continue
 
-                # we can add the component of the edge
+                # we can add the class of the edge
                 added_classes.add(class_id)
                 target_chunk.append(class_id)
                 class_added_for_best_vertex = True
@@ -162,7 +162,7 @@ def subgraphs_strategy_neighbors(
             else:
                 opened.remove(best_vertex)
 
-        # Nothing happened, we need to find some component randomly
+        # Nothing happened, we need to find some class randomly
         if iteration_no == 0:
             is_random_class_required[chunk_index] = True
 
