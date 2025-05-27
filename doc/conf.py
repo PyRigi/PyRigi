@@ -17,8 +17,6 @@ import sys
 
 from sphinx.application import Sphinx
 
-import pyrigi._utils._input_check as _input_check
-from pyrigi import Framework
 from pyrigi._utils._doc import generate_myst_tree
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -361,40 +359,6 @@ def setup(app: Sphinx):
     from myst_parser._docs import MystLexer
 
     app.add_lexer("myst", MystLexer)
-
-
-# -----create the documentation of input checks
-
-input_check_str = ""
-for cls in [Framework]:
-    methods = [
-        method
-        for method in dir(cls)
-        if method.startswith("_input_check_") and callable(getattr(cls, method))
-    ]
-    input_check_str += (
-        f"""
-Input check methods of {cls.__name__}
-======================={''.join(["=" for _ in range(len(cls.__name__))])}
-
-.. automethod:: {cls.__module__}.{cls.__name__}."""
-        + f"""
-
-.. automethod:: {cls.__module__}.{cls.__name__}.""".join(
-            methods
-        )
-        + "\n\n"
-    )
-
-input_check_str += """
-
-General input check functions
-=============================
-
-
-"""
-
-_input_check.__doc__ = input_check_str
 
 
 # ----------generate module structure with comments------------------------

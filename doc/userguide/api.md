@@ -1,5 +1,7 @@
 # API Reference
 
+The interface of the classes listed below is considered stable.
+
 :::{toctree}
 :maxdepth: 2
 api/graph

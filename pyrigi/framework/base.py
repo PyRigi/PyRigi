@@ -526,6 +526,13 @@ class FrameworkBase(object):
         """
         Check whether a vertex appears as key in a realization and
         raise an error otherwise.
+
+        Parameters
+        ----------
+        vertex:
+            The vertex to check.
+        realization:
+            The realization to check.
         """
         if realization is None:
             realization = self._realization
@@ -536,6 +543,10 @@ class FrameworkBase(object):
         """
         Check whether a point has the right dimension and
         raise an error otherwise.
+
+        Parameters
+        ----------
+        point:
         """
         if not len(point) == self.dim:
             raise ValueError(

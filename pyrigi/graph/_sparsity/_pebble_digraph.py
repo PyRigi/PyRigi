@@ -12,6 +12,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
     """
     Class representing a directed graph for pebble game algorithm.
 
+    It must hold that ``0 < K`` and ``L < 2K``.
+
     Notes
     -----
     All ``networkx`` methods in use need a wrapper - to
@@ -20,7 +22,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def __init__(self, K: int = None, L: int = None, *args, **kwargs) -> None:
         """
-        Set up the graph and the values of K and L for the pebble game algorithm.
+        Set up the graph and the values of ``K`` and ``L`` for the pebble game algorithm.
         """
         # We allow not defining them yet
         if K is not None and L is not None:
@@ -34,9 +36,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
     @property
     def K(self) -> int:
         """
-        Get the value of K.
-
-        K is integer and 0 < K. Also, L < 2K.
+        Get the value of ``K``.
         """
         return self._K
 
@@ -49,7 +49,8 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        value: value K must be an integer and 0 < K. Also, L < 2K.
+        value:
+            value K must be an integer and 0 < K. Also, L < 2K.
         """
         _input_check.pebble_values(value, self._L)
         self._K = value
@@ -57,9 +58,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
     @property
     def L(self) -> int:
         """
-        Get the value of L.
-
-        L is integer and 0 <= L. Also, L < 2K.
+        Get the value of ``L``.
         """
         return self._L
 
@@ -72,22 +71,25 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
-        value: value L must be integer and 0 <= L. Also, L < 2K.
+        value:
+            value L must be integer and 0 <= L. Also, L < 2K.
         """
         _input_check.pebble_values(self._K, value)
         self._L = value
 
     def set_K_and_L(self, K: int, L: int) -> None:
         """
-        Set K and L.
+        Set ``K`` and ``L``.
 
         After doing so, the directions of the edges may have to be recomputed.
 
         Parameters
         ----------
-        K: K is integer and 0 < K.
-        L: L is integer and 0 <= L.
-        Also, L < 2K.
+        K:
+            ``K`` is integer and ``0 < K``.
+        L:
+            ``L`` is integer and ``0 <= L``.
+            Also, ``L < 2K``.
         """
         _input_check.pebble_values(K, L)
 
@@ -102,22 +104,14 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def in_degree(self, vertex: Vertex) -> int:
         """
-        Return the number of edges leading to vertex.
-
-        Parameters
-        ----------
-        vertex: Vertex, whose indegree we want to know.
+        Return the number of edges leading to ``vertex``.
         """
         self._input_check_vertex_member(vertex)
         return int(super().in_degree(vertex))
 
     def out_degree(self, vertex: Vertex) -> int:
         """
-        Return the number of edges leading out from a vertex.
-
-        Parameters
-        ----------
-        vertex: Vertex, whose outdegree we want to know.
+        Return the number of edges leading out from ``vertex``.
         """
         self._input_check_vertex_member(vertex)
         return int(super().out_degree(vertex))
@@ -129,7 +123,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
         Parameters
         ----------
         edge:
-            DirectedEdge to redirect.
+            A directed edge to redirect.
         vertex_to:
             A vertex to which the edge should point to.
             The vertex must be part of the edge.
@@ -144,9 +138,9 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def fundamental_circuit(self, u: Vertex, v: Vertex) -> {set[Vertex]}:  # noqa: C901
         """
-        Return the fundamental (k, l)-matroid circuit of the edge uv.
+        Return the fundamental $(k, l)$-matroid circuit of the edge ``uv``.
 
-        If the edge uv is independent, ``None`` is returned.
+        If the edge ``uv`` is independent, ``None`` is returned.
         """
 
         def dfs(
@@ -256,7 +250,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
     def can_add_edge_between_vertices(self, u: Vertex, v: Vertex) -> bool:
         """
-        Check whether the edge (u, v) can be added to the pebble digraph.
+        Check whether the edge ``(u, v)`` can be added to the pebble digraph.
         """
         return self.fundamental_circuit(u, v) is None
 
