@@ -3,27 +3,27 @@
         {
             "name": "Gallet, Matteo",
             "orcid": "0000-0003-3601-030X",
-            "affiliation": "University of Trieste, Department of Mathematics, Informatics and Geosciences",
+            "affiliation": "University of Trieste, Department of Mathematics, Informatics and Geosciences"
         },
         {
             "name": "Grasegger, Georg",
             "orcid": "0000-0001-7421-8115",
-            "affiliation": "Johann Radon Institute for Computational and Applied Mathematics (RICAM), Austrian Academy of Sciences",
+            "affiliation": "Johann Radon Institute for Computational and Applied Mathematics (RICAM), Austrian Academy of Sciences"
         },
         {
             "name": "Himmelmann, Matthias",
             "orcid": "0000-0002-5655-6740",
-            "affiliation": "Institute for Computational and Experimental Research in Mathematics (ICERM), Brown University in Providence, RI, USA",
+            "affiliation": "Institute for Computational and Experimental Research in Mathematics (ICERM), Brown University in Providence, RI, USA"
         },
         {
             "name": "Legerský, Jan",
             "orcid": "0000-0002-8122-668X",
-            "affiliation": "Department of Applied Mathematics, Faculty of Information Technology, Czech Technical University in Prague",
+            "affiliation": "Faculty of Information Technology, Czech Technical University in Prague"
         }
     ],
     "contributors": [
         {
-            "name": "Pyrigi Developers",
+            "name": "Pyrigi Developers"
         }
     ],
     "title": "PyRigi",
