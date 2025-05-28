@@ -145,7 +145,7 @@ NAC_TEST_CASES: list[NACTestCase] = [
     ),
 ]
 
-NAC_ALGORITHMS = ["naive", "subgraphs"] + [
+NAC_ALGORITHMS = ["default", "naive", "subgraphs"] + [
     "subgraphs-{}-{}-{}".format(split, merge, size)
     for split in ["none", "neighbors", "neighbors_degree"]
     for merge in ["linear", "shared_vertices"]
@@ -199,6 +199,51 @@ def test_all_NAC_colorings(
         for coloring in coloring_list
     }
     assert len(coloring_list) == len(no_duplicates)
+
+    assert colorings_no == len(coloring_list)
+
+    for coloring in coloring_list:
+        assert is_NAC_coloring(graph, coloring)
+
+
+@pytest.mark.parametrize(
+    ("graph", "colorings_no"),
+    [
+        [graphs.ThreePrismPlusEdge(), 0],
+        [graphs.ThreePrism(), 2],
+        [graphs.DiamondWithZeroExtension(), 2],
+    ],
+)
+@pytest.mark.parametrize("algorithm", NAC_ALGORITHMS)
+@pytest.mark.parametrize("use_decompositions", [True, False])
+@pytest.mark.parametrize("use_cycles", [True, False])
+@pytest.mark.parametrize(
+    "class_type",
+    ["edges", "triangle", "triangle-extended"],
+)
+@pytest.mark.parametrize("seed", [42, random.randint(0, 2**30)])
+def test_all_NAC_colorings_method(
+    graph: Graph,
+    colorings_no: int,
+    algorithm: str,
+    use_decompositions: bool,
+    use_cycles: bool,
+    class_type: MonoClassType,
+    seed: int,
+):
+    # This configuration is supported only for the naive algorithm
+    if not use_cycles and algorithm != "naive":
+        return
+
+    coloring_list = list(
+        graph.NAC_colorings(
+            algorithm=algorithm,
+            mono_class_type=class_type,
+            use_cycles_optimization=use_cycles,
+            use_blocks_decomposition=use_decompositions,
+            seed=seed,
+        )
+    )
 
     assert colorings_no == len(coloring_list)
 

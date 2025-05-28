@@ -1,4 +1,4 @@
-from typing import Container, Iterable, Literal
+from typing import Container, Iterable
 
 import networkx as nx
 
@@ -10,12 +10,10 @@ from pyrigi.graph._flexibility.nac.search import NAC_colorings_impl
 
 def NAC_colorings(
     graph: nx.Graph,
-    algorithm: str | Literal["naive", "subgraphs"] = "subgraphs",
+    algorithm: str = "default",
     use_cycles_optimization: bool = True,
     use_blocks_decomposition: bool = True,
-    mono_class_type: Literal[
-        "edges", "triangle", "triangle-extended"
-    ] = "triangle-extended",
+    mono_class_type: str = "triangle-extended",
     seed: int | None = 42,
 ) -> Iterable[tuple[Container[Edge], Container[Edge]]]:
     """
@@ -36,6 +34,7 @@ def NAC_colorings(
         as follows: ``"subgraphs-<split_strategy>-<merging_strategy>-<subgraphs_size>"``.
         Split strategies are ``none``, ``neighbors``, and ``neighbors_degree``,
         merging strategies are ``linear`` and ``shared_vertices``.
+        The default strategy is ``"subgraphs-neighbors-linear-5"``.
     use_cycles_optimization:
         Use cycles optimization for the given algorithm.
         This is always enabled for subgraphs strategies.
@@ -49,7 +48,7 @@ def NAC_colorings(
         The options are ``"edges"`` (each edge is a NAC-mono class),
         ``"triangle"``
         for :prf:ref:`triangle-connected components <def-triangle-connected-comp>`,
-        or ``"triangle-extended"`` for
+        or ``"triangle-extended"`` (default) for
         :prf:ref:`triangle-extended classes <def-triangle-extended-class>`.
     seed:
         The seed to use for randomization.
@@ -57,6 +56,9 @@ def NAC_colorings(
 
     def coloring_map(coloring: NACColoring) -> tuple[Container[Edge], Container[Edge]]:
         return coloring
+
+    if algorithm == "default":
+        algorithm = "subgraphs-neighbors-linear-5"
 
     yield from map(
         coloring_map,
