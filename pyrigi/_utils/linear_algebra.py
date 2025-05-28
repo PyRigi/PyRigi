@@ -78,6 +78,111 @@ def _generate_three_orthonormal_vectors(dim: int, random_seed: int = None) -> Ma
     return Q @ np.diag(np.sign(np.diag(R)))
 
 
+def _gram_schmidt(
+    basis: np.ndarray | Matrix,
+    new_vector: Sequence[Number] | Matrix,
+    numerical: bool = False,
+    tolerance: float = 1e-9,
+) -> np.ndarray | Matrix:
+    """
+    Apply the Gram-Schmidt orthonormalization method to add the
+    `new_vector` into `basis`.
+
+    Parameters
+    ----------
+    basis:
+        The (already orthonormal) basis into which we add the vector.
+    new_vector:
+        The new vector to be added to the basis.
+    numerical:
+        Boolean determining whether a numerical or symbolic normalization is performed.
+    tolerance:
+        Intended level of numerical accuracy.
+    """
+    if len(basis) > 0:
+        kronecker_deltas = [
+            is_zero(
+                sum(v * v for v in basis[:, i]) - 1,
+                numerical=numerical,
+                tolerance=tolerance,
+            )
+            for i in range(basis.shape[1])
+        ]
+        kronecker_deltas += [
+            is_zero(
+                sum(v * w for (v, w) in zip(basis[:, i], basis[:, j])),
+                numerical=numerical,
+                tolerance=tolerance,
+            )
+            for i in range(basis.shape[1])
+            for j in range(basis.shape[1])
+            if i != j
+        ]
+        if not all(kronecker_deltas):
+            raise ValueError("The provided basis is not orthonormal!")
+
+    if not numerical:
+        if len(basis) == 0 or basis.shape[1] == 0:
+            _basis = Matrix(_normalize_flex([v for v in new_vector], numerical=False))
+        else:
+            orthogonal_vector = [
+                x - y
+                for (x, y) in zip(
+                    new_vector,
+                    [
+                        sum(
+                            basis[j, i]
+                            * (
+                                sum(
+                                    sp.sympify(v * w)
+                                    for (v, w) in zip(new_vector, basis[:, i])
+                                )
+                                / sum(
+                                    sp.sympify(v * w)
+                                    for (v, w) in zip(basis[:, i], basis[:, i])
+                                )
+                            )
+                            for i in range(basis.shape[1])
+                        )
+                        for j in range(basis.shape[0])
+                    ],
+                )
+            ]
+            _basis = Matrix.hstack(
+                basis, Matrix(_normalize_flex(orthogonal_vector, numerical=False))
+            )
+    else:
+        if len(basis) == 0 or basis.shape[1] == 0:
+            _basis = np.reshape(_normalize_flex(new_vector, numerical=True), (-1, 1))
+        else:
+            orthogonal_vector = [
+                x - y
+                for (x, y) in zip(
+                    new_vector,
+                    [
+                        sum(
+                            basis[j, i]
+                            * (
+                                np.dot(basis[:, i], new_vector)
+                                / np.dot(basis[:, i], basis[:, i])
+                            )
+                            for i in range(basis.shape[1])
+                        )
+                        for j in range(basis.shape[0])
+                    ],
+                )
+            ]
+            _basis = np.hstack(
+                (
+                    basis,
+                    np.reshape(
+                        _normalize_flex(orthogonal_vector, numerical=True), (-1, 1)
+                    ),
+                )
+            )
+    return _basis
+
+
 def _normalize_flex(
     inf_flex: InfFlex, numerical: bool = False, tolerance: float = 1e-9
 ) -> InfFlex:

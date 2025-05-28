@@ -11,7 +11,7 @@ from sympy import Matrix, binomial, flatten
 import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi._utils._conversion import sympy_expr_to_float
 from pyrigi._utils._zero_check import is_zero_vector
-from pyrigi._utils.linear_algebra import _null_space
+from pyrigi._utils.linear_algebra import _null_space, _gram_schmidt
 from pyrigi.data_type import (
     Edge,
     InfFlex,
@@ -21,7 +21,6 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import _general as graph_general
-from pyrigi.graphDB import Complete as CompleteGraph
 
 
 def rigidity_matrix(
@@ -202,18 +201,18 @@ def nontrivial_inf_flexes(framework: FrameworkBase, **kwargs) -> list[Matrix]:
     >>> F = Framework.Circular(graphs.CompleteBipartite(3, 3))
     >>> F.nontrivial_inf_flexes()
     [Matrix([
-    [       3/2],
-    [-sqrt(3)/2],
-    [         1],
-    [         0],
-    [         0],
-    [         0],
-    [       3/2],
-    [-sqrt(3)/2],
-    [         1],
-    [         0],
-    [         0],
-    [         0]])]
+    [ sqrt(30)/15],
+    [-sqrt(10)/10],
+    [ sqrt(30)/60],
+    [ sqrt(10)/20],
+    [-sqrt(30)/12],
+    [ sqrt(10)/20],
+    [ sqrt(30)/15],
+    [-sqrt(10)/10],
+    [ sqrt(30)/60],
+    [ sqrt(10)/20],
+    [-sqrt(30)/12],
+    [ sqrt(10)/20]])]
     """
     return inf_flexes(framework, include_trivial=False, **kwargs)
 
@@ -258,30 +257,30 @@ def inf_flexes(
     >>> F.delete_edges([(0,2), (1,3)])
     >>> F.inf_flexes(include_trivial=False)
     [Matrix([
-    [1],
-    [0],
-    [1],
-    [0],
-    [0],
-    [0],
-    [0],
-    [0]])]
+    [ sqrt(2)/4],
+    [ sqrt(2)/4],
+    [ sqrt(2)/4],
+    [-sqrt(2)/4],
+    [-sqrt(2)/4],
+    [-sqrt(2)/4],
+    [-sqrt(2)/4],
+    [ sqrt(2)/4]])]
     >>> F = Framework(
     ...     Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]),
     ...     {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]},
     ... )
     >>> F.inf_flexes()
     [Matrix([
-    [0],
-    [0],
-    [0],
-    [0],
-    [0],
-    [1],
-    [0],
-    [0],
-    [0],
-    [0]])]
+    [          0],
+    [-sqrt(5)/10],
+    [          0],
+    [-sqrt(5)/10],
+    [          0],
+    [2*sqrt(5)/5],
+    [          0],
+    [-sqrt(5)/10],
+    [          0],
+    [-sqrt(5)/10]])]
     """
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
     if include_trivial:
@@ -303,11 +302,18 @@ def inf_flexes(
         all_inf_flexes = rig_matrix.nullspace()
         triv_inf_flexes = trivial_inf_flexes(framework, vertex_order=vertex_order)
         s = len(triv_inf_flexes)
-        extend_basis_matrix = Matrix.hstack(*triv_inf_flexes)
+        extend_basis_matrix = Matrix([])
+        for inf_flex in triv_inf_flexes:
+            extend_basis_matrix = _gram_schmidt(
+                extend_basis_matrix, inf_flex, numerical=False
+            )
+
         for inf_flex in all_inf_flexes:
             tmp_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
             if not tmp_matrix.rank() == extend_basis_matrix.rank():
-                extend_basis_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
+                extend_basis_matrix = _gram_schmidt(
+                    extend_basis_matrix, inf_flex, numerical=False
+                )
         basis = extend_basis_matrix.columnspace()
         return basis[s:]
     else:
@@ -319,25 +325,26 @@ def inf_flexes(
             tolerance=tolerance,
         )
         flexes = [flexes[:, i] for i in range(flexes.shape[1])]
-        Kn = FrameworkBase(
-            CompleteGraph(len(framework._graph)),
-            framework.realization(as_points=True, numerical=True),
-        )
-        inf_flexes_trivial = _null_space(
-            np.array(rigidity_matrix(Kn, vertex_order=vertex_order)).astype(np.float64),
-            tolerance=tolerance,
-        )
-        s = inf_flexes_trivial.shape[1]
-        extend_basis_matrix = inf_flexes_trivial
+        triv_inf_flexes = trivial_inf_flexes(F, vertex_order=vertex_order)
+        s = len(triv_inf_flexes)
+        extend_basis_matrix = np.array([])
+        for inf_flex in [sympy_expr_to_float(flex) for flex in triv_inf_flexes]:
+            extend_basis_matrix = _gram_schmidt(
+                extend_basis_matrix, inf_flex, numerical=True, tolerance=tolerance
+            )
+
         for inf_flex in flexes:
             inf_flex = np.reshape(inf_flex, (-1, 1))
-            tmp_matrix = np.hstack((inf_flexes_trivial, inf_flex))
+            tmp_matrix = np.hstack((extend_basis_matrix, inf_flex))
             if not np.linalg.matrix_rank(
                 tmp_matrix, tol=tolerance
-            ) == np.linalg.matrix_rank(inf_flexes_trivial, tol=tolerance):
-                extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
-        Q, R = np.linalg.qr(extend_basis_matrix)
-        Q = Q[:, s : np.linalg.matrix_rank(R, tol=tolerance)]
+            ) == np.linalg.matrix_rank(extend_basis_matrix, tol=tolerance):
+                extend_basis_matrix = _gram_schmidt(
+                    extend_basis_matrix, inf_flex, numerical=True, tolerance=tolerance
+                )
+        Q = extend_basis_matrix[
+            :, s : np.linalg.matrix_rank(extend_basis_matrix, tol=tolerance)
+        ]
         return [list(Q[:, i]) for i in range(Q.shape[1])]
 
 
@@ -468,7 +475,7 @@ def _transform_inf_flex_to_pointwise(
     >>> flex = F.nontrivial_inf_flexes()[0]
     >>> from pyrigi.framework._rigidity.infinitesimal import _transform_inf_flex_to_pointwise
     >>> _transform_inf_flex_to_pointwise(F, flex)
-    {0: [1, 0], 1: [1, 0], 2: [0, 0]}
+    {0: [sqrt(3)/6, sqrt(3)/6], 1: [sqrt(3)/6, -sqrt(3)/3], 2: [-sqrt(3)/3, sqrt(3)/6]}
 
     Notes
     ----

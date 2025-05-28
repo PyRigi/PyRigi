@@ -31,7 +31,7 @@ def sympy_expr_to_float(
     the input is consistent with the sympy format.
     """
     try:
-        if isinstance(expression, list | tuple | Matrix):
+        if isinstance(expression, list | tuple | Matrix | np.ndarray):
             return [
                 float(
                     sp.sympify(coord).evalf(
