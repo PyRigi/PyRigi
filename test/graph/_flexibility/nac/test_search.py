@@ -80,7 +80,7 @@ NAC_TEST_CASES: list[NACTestCase] = [
         54,
     ),
     NACTestCase(
-        "3-squares-and-connectig-edge",
+        "3-squares-and-connecting-edge",
         Graph.from_vertices_and_edges(
             list(range(10)),
             [(0, 1), (1, 2), (2, 3), (3, 0), (4, 5), (5, 6), (6, 7)]
@@ -90,14 +90,14 @@ NAC_TEST_CASES: list[NACTestCase] = [
         30,
     ),
     NACTestCase(
-        "square-2-pendagons-and-connectig-edge",
+        "square-2-pentagons-and-connecting-edge",
         Graph.from_vertices_and_edges(
             list(range(12)),
             [(0, 1), (1, 2), (2, 3), (3, 4), (4, 0), (5, 6), (6, 7)]
             + [(7, 8), (8, 9), (9, 5), (0, 10), (5, 10), (0, 11)]
             + [(5, 11), (1, 6)],
         ),
-        None,  # 4596,
+        4596,
         286,
     ),
     NACTestCase(
@@ -119,7 +119,7 @@ NAC_TEST_CASES: list[NACTestCase] = [
             + [(4, 9), (5, 6), (5, 9), (6, 7), (6, 8), (6, 9)],
         ),
         126,
-        None,  # unknown, yet
+        0,
     ),
     NACTestCase(
         "cycles_destroyer",
@@ -132,7 +132,7 @@ NAC_TEST_CASES: list[NACTestCase] = [
             + [(11, 12), (12, 14)],
         ),
         68,
-        None,  # unknown, yet
+        0,
     ),
     NACTestCase(
         "square_and_line",
