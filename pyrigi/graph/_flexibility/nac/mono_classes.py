@@ -9,7 +9,7 @@ from enum import Enum
 
 import networkx as nx
 
-from pyrigi._util.union_find import UnionFind
+from pyrigi._utils.union_find import UnionFind
 from pyrigi.data_type import Edge
 
 

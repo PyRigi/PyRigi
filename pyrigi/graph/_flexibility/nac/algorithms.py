@@ -12,7 +12,7 @@ from typing import Callable, Iterable, Iterator, Literal
 
 import networkx as nx
 
-from pyrigi._util.repetable_iterator import RepeatableIterator
+from pyrigi._utils.repetable_iterator import RepeatableIterator
 from pyrigi.graph._flexibility.nac.core import (
     IntEdge,
     NACColoring,

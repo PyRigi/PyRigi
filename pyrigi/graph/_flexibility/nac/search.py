@@ -19,7 +19,7 @@ from typing import Callable, Iterable, Literal, Sequence, cast
 
 import networkx as nx
 
-from pyrigi._util.repetable_iterator import RepeatableIterator
+from pyrigi._utils.repetable_iterator import RepeatableIterator
 from pyrigi.graph._flexibility.nac.algorithms import (
     NAC_colorings_cycles,
     NAC_colorings_naive,
