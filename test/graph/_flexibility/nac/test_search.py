@@ -145,7 +145,7 @@ NAC_TEST_CASES: list[NACTestCase] = [
     ),
 ]
 
-NAC_ALGORITHMS = ["default", "naive", "subgraphs"] + [
+NAC_ALGORITHMS = ["naive", "subgraphs"] + [
     "subgraphs-{}-{}-{}".format(split, merge, size)
     for split in ["none", "neighbors", "neighbors_degree"]
     for merge in ["linear", "shared_vertices"]
@@ -214,7 +214,7 @@ def test_all_NAC_colorings(
         [graphs.DiamondWithZeroExtension(), 2],
     ],
 )
-@pytest.mark.parametrize("algorithm", NAC_ALGORITHMS)
+@pytest.mark.parametrize("algorithm", ["default"] + NAC_ALGORITHMS)
 @pytest.mark.parametrize("use_decompositions", [True, False])
 @pytest.mark.parametrize("use_cycles", [True, False])
 @pytest.mark.parametrize(
