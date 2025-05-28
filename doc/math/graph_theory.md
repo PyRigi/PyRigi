@@ -31,18 +31,57 @@ $G_1\cap G_2=K_t$ and $e\in E_1\cap E_2$.
 :::{prf:definition} $(k, \ell)$-sparse and $(k, \ell)$-tight
 :label: def-kl-sparse-tight
 
-Let $G = (V, E)$ be a (multi)graph and let $k, \ell \in \NN$.
-The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices with $k\leq n' \leq |V|$ spans at most $kn' - \ell$ edges.
-The graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $k|V| - \ell = |E|$.
+Let $G = (V, E)$ be a multigraph and let $k, \ell \in \NN$ such that $0\leq \ell < 2k$.
+Then $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices spans at most $\max(0,kn' - \ell)$ edges,
+or equivalently if every set of $n'$ vertices with at least one edge spans at most $kn' - \ell$ edges.
+
+Let $G = (V, E)$ be a simple graph without loops and let $k, \ell \in \NN$ such that $0\leq \ell \leq \binom{k+1}{2}$.
+The graph $G$ is said to be _$(k, \ell)$-sparse_ if every set of $n'$ vertices with $n' \geq k$ spans at most $kn' - \ell$ edges.
+
+A (multi)graph $G$ is said to be _$(k, \ell)$-tight_ if it is $(k, \ell)$-sparse and $|E| = k|V| - \ell$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_kl_sparse`
 {meth}`~.Graph.is_sparse`
 {meth}`~.Graph.is_tight`
 {meth}`~.Graph.is_kl_tight`
 
-{{references}} {cite:p}`LeeStreinu2008`
+{{references}} {cite:p}`LeeStreinu2008`, {cite:p}`KiralyMihalyko2022`
 :::
 
+:::{prf:lemma}
+:label: lem-sparsity-definitions
+
+For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity definitions from {prf:ref}`def-kl-sparse-tight` are equivalent.
+:::
+
+:::{prf:algorithm} Pebble-Game --- Basic Idea
+:label: alg-pebble-game
+**Input:** A simple graph $G$ (possibly with loops), integers $k>0$ and $\ell$ with $0\leq \ell < 2k$
+
+**Output:** `True` or `False`, whether or not $G$ is $(k,\ell)$-{prf:ref}`sparse<def-kl-sparse-tight>` resp. $(k,\ell)$-tight
+
+1. Start with a new graph $G'$ on the same set of vertices $V$, but no edges.
+2. Put $k$ pebbles on every vertex of $G'$.
+3. Loop over all edges of $G$. For an edge $e$:
+    1. If the vertices of $e$ have together at least $\ell+1$ pebbles:
+        * Add a directed edge to $G'$ between these vertices and remove one pebble from its starting vertex.
+    2. Else:
+        * Pick a vertex $v$ of $e$ with less than $k$ pebbles.
+        * Try to find a pebble reachable by a path in $G'$ starting at $v$.
+        * If such a path is found, revert all edges in the path, move the pebble to $v$ and go to step 3.1 considering $e$ again.
+        * If no such path is found for both vertices of the edge, reject the edge and return `False`.
+4. If no edge was rejected there are at least $\ell$ pebbles left.
+   For Sparsity return `True`.
+   For Tighness return `True` only if there are exactly $\ell$ pebbles left.
+
+{{references}} {cite:p}`JacobsHendrickson1997` {cite:p}`LeeStreinu2008`
+:::
+
+:::{prf:definition} Pebble Digraph
+:label: def-pebble-digraph
+The graph $G'$ after running the {prf:ref}`pebble game algorithm <alg-pebble-game>` is called the _pebble digraph_.
+
+:::
 
 ## Graph extensions
 
@@ -70,6 +109,14 @@ is called a $d$-dimensional _k-extension_ of $G$.
 {meth}`~.Graph.zero_extension`
 {meth}`~.Graph.all_k_extensions`
 {meth}`~.Graph.extension_sequence`
+:::
+
+
+:::{prf:definition} 2-tree
+:label: def-2-tree
+
+A graph is a _2-tree_ if it can be obtained from a single edge by a sequence of 2-dimensional 0-extensions on adjacent vertices only.
+
 :::
 
 
@@ -115,12 +162,29 @@ where two paths are internally disjoint if they do not share any edge.
 :::{prf:definition} separating set
 :label: def-separating-set
 
-The set $U\subset V$ is called a _separating set_ if
+A subset $U\subsetneq V$ is called a _separating set_ of a graph $G=(V,E)$ if
 $G-U$ is not {prf:ref}`connected <def-connected>`.
 
-In particular, if $U = \{u,v\}$ then U is called a _separating pair_.
+In particular, if $|U| = 2$ then U is called a _separating pair_.
+
+We say that $U$ _separates_ the vertices $u$ and $v$, or that $U$ is a _$(u,v)$-separating set_,
+if $u$ and $v$ are in different connected components of $G-U$. 
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_separating_set`
+{meth}`~.Graph.is_uv_separating_set`
+:::
+
+
+:::{prf:definition} stable set
+:label: def-stable-set
+
+Let $G = (V, E)$ be a graph.
+The set $S \subset V$ is called a _stable set_ of $G$
+if there is no edge $uv$ in $G$ such that $u,v \in S$.
+
+{{pyrigi_crossref}} {meth}`~.Graph.is_stable_set`
+{meth}`~.Graph.is_stable_separating_set`
+{meth}`~.Graph.stable_separating_set`
 :::
 
 

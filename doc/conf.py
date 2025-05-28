@@ -16,8 +16,8 @@ import os
 import sys
 
 from sphinx.application import Sphinx
-from pyrigi import Graph, Framework
-import pyrigi._input_check as _input_check
+
+from pyrigi._utils._doc import generate_myst_tree
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -28,9 +28,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "1.0"
+version = "1.1"
 # The full version, including alpha/beta/rc tags
-release = "1.0.2"
+release = "1.1.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -163,6 +163,8 @@ mathjax3_config = {
             "NN": "{\\mathbb{N}}",  # natural numbers (including 0)
             "PP": "{\\mathbb{P}}",  # projective space
             "KK": "{\\mathbb{K}}",  # a field
+            "tred": "{\\text{red}}",  # 'red' as a text for colorings
+            "tblue": "{\\text{blue}}",  # 'blue' as a text for colorings
         },
     }
 }
@@ -361,33 +363,69 @@ def setup(app: Sphinx):
     app.add_lexer("myst", MystLexer)
 
 
-input_check_str = ""
-for cls in [Graph, Framework]:
-    methods = [
-        method
-        for method in dir(cls)
-        if method.startswith("_input_check_") and callable(getattr(cls, method))
-    ]
-    input_check_str += (
-        f"""
-Input check methods of {cls.__name__}
-======================={''.join(["=" for _ in range(len(cls.__name__))])}
+# ----------generate module structure with comments------------------------
 
-.. automethod:: {cls.__module__}.{cls.__name__}."""
-        + f"""
+comments = {
+    ".": {
+        "data_type.py": "definitions of data types",
+        "exception.py": "definitions of exceptions",
+        "warning.py": "definitions of warnings",
+        "graphDB.py": "database of graphs",
+        "frameworkDB.py": "database of frameworks",
+        "plot_style.py": "implementation of Plotstyle(2D/3D)",
+    },
+    "graph": {
+        "export.py": "functions for export to TikZ",
+        "extensions.py": "functions for k-extensions",
+        "constructions.py": "functions like t-sum or intersection",
+        "_general.py": "general graph functions",
+        "generic.py": "functions for generic rigidity",
+        "global_.py": "functions for global rigidity",
+        "matroidal.py": "functions for generic rigidity matroid",
+        "redundant.py": "functions for redundant rigidity",
+        "_pebble_digraph.py": "implementation of PebbleDigraph",
+        "sparsity.py": "functions for (k,l)-sparsity",
+        "_input_check.py": "input checks for Graph",
+        "apex.py": "functions for apex graphs",
+        "graph.py": "implementation of Graph",
+        "separating_set.py": "functions for (stable) separating sets",
+    },
+    "graph_drawer": {
+        "graph_drawer.py": "implementation of GraphDrawer",
+    },
+    "framework": {
+        "_plot.py": "auxiliary functions for plotting",
+        "base.py": "implementation of FrameworkBase",
+        "export.py": "functions for export to TikZ, STL",
+        "framework.py": "implementation of Framework",
+        "_general.py": "general framework functions",
+        "infinitesimal.py": "functions for infinitesimal rigidity",
+        "matroidal.py": "functions for framework rigidity matroid",
+        "plot.py": "functions for plotting",
+        "redundant.py": "functions for redundant rigidity",
+        "second_order.py": "functions for prestress stability and 2nd order rig.",
+        "stress.py": "functions for stresses",
+        "transformations.py": "functions like rotate or scale",
+    },
+    "misc": {
+        "_input_check.py": "general input checks",
+        "_documentation_tool.py": "tools for doc generation",
+    },
+    "motion": {
+        "motion.py": "implementation of Motion",
+        "parametric_motion.py": "implementation of ParametricMotion",
+        "approximate_motion.py": "implementation of ApproximateMotion",
+    },
+    "_utils": {
+        "_conversion.py": "conversions between data types",
+        "_doc.py": "tools for generating documentation",
+        "_input_check.py": "functions for input checks",
+        "_zero_check.py": "functions for checking symbolic zeros",
+        "linear_algebra.py": "functions for linear algebra",
+        ".py": "",
+    },
+}
 
-.. automethod:: {cls.__module__}.{cls.__name__}.""".join(
-            methods
-        )
-        + "\n\n"
-    )
-
-input_check_str += """
-
-General input check methods
-===========================
-
-
-"""
-
-_input_check.__doc__ = input_check_str
+tree_output = generate_myst_tree("../pyrigi", comments, show_line_numbers=False)
+with open("development/howto/pyrigi_structure.txt", "w") as file:
+    file.write(tree_output)

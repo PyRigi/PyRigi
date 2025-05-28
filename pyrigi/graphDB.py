@@ -2,12 +2,13 @@
 This is a module for providing common types of graphs.
 """
 
+from itertools import combinations
+
 import networkx as nx
 
-import pyrigi._input_check as _input_check
+import pyrigi._utils._input_check as _input_check
+from pyrigi.data_type import Sequence, Vertex
 from pyrigi.graph import Graph
-from pyrigi.data_type import Vertex, Sequence
-from itertools import combinations
 
 
 def Cycle(n: int) -> Graph:
@@ -48,6 +49,34 @@ def Complete(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
     return Graph.from_vertices_and_edges(vertices, edges)
 
 
+def CompleteLooped(n: int = None, vertices: Sequence[Vertex] = None) -> Graph:
+    """
+    Return the complete graph on ``n`` vertices with a loop on every vertex.
+
+    The vertex labels can also be specified explicitly via
+    the keyword ``vertices``.
+
+    Parameters
+    ----------
+    n:
+        The number of vertices.
+    vertices:
+        An optional parameter for the vertices.
+
+    Examples
+    --------
+    >>> print(CompleteLooped(3))
+    Graph with vertices [0, 1, 2] and edges [[0, 0], [0, 1], [0, 2], [1, 1], [1, 2], [2, 2]]
+    >>> print(CompleteLooped(vertices=['a', 'b']))
+    Graph with vertices ['a', 'b'] and edges [['a', 'a'], ['a', 'b'], ['b', 'b']]
+    """  # noqa: E501
+    graph = Complete(n=n, vertices=vertices)
+    graph = Graph.from_vertices_and_edges(
+        graph.nodes, list(graph.edges) + [[v, v] for v in graph.nodes]
+    )
+    return graph
+
+
 def Path(n: int) -> Graph:
     """Return the path graph with ``n`` vertices."""
     _input_check.integrality_and_range(n, "number of vertices n", min_val=0)
@@ -73,6 +102,16 @@ def Diamond() -> Graph:
     return Graph([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)])
 
 
+def DiamondWithZeroExtension():
+    """
+    Return the diamond graph with zero extension
+    (the diamond with 2 extra connected edges from the opposite spikes).
+    """
+    return Graph(
+        [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (1, 4), (3, 4)],
+    )
+
+
 def ThreePrism() -> Graph:
     """Return the 3-prism graph."""
     return Graph(
@@ -84,6 +123,17 @@ def ThreePrismPlusEdge() -> Graph:
     """Return the 3-prism graph with one extra edge."""
     return Graph(
         [(0, 1), (1, 2), (0, 2), (3, 4), (4, 5), (3, 5), (0, 3), (1, 4), (2, 5), (0, 5)]
+    )
+
+
+def ThreePrismPlusTriangleOnSide():
+    """
+    Return the 3-prism graph where there is
+    extra triangle on one of the connecting edges.
+    """
+    return Graph(
+        [(0, 1), (1, 2), (0, 2), (3, 4), (4, 5), (3, 5)]
+        + [(0, 3), (1, 4), (2, 5), (0, 6), (3, 6)]
     )
 
 
@@ -332,3 +382,16 @@ def Wheel(n: int) -> Graph:
     G = Cycle(n)
     G.add_edges([(i, n) for i in range(n)])
     return G
+
+
+def Grid(n1: int, n2: int) -> Graph:
+    """
+    Create the grid graph on with ``n1`` rows and ``n2`` columns.
+    """
+    _input_check.integrality_and_range(n1, "number of rows ``n1``", min_val=1)
+    _input_check.integrality_and_range(n2, "number of columns ``n2``", min_val=1)
+    horizontal = [
+        (i + j * n2, i + 1 + j * n2) for i in range(n2 - 1) for j in range(n1)
+    ]
+    vertical = [(i + j * n2, i + n2 + j * n2) for i in range(n2) for j in range(n1 - 1)]
+    return Graph.from_vertices_and_edges(range(n1 * n2), vertical + horizontal)

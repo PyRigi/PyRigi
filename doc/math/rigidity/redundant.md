@@ -198,7 +198,7 @@ Let $G = (V, E)$ be a {prf:ref}`2-vertex-redundantly 2-rigid <def-redundantly-ri
   |E| \geq 2 |V| + 2 \,.
 \end{equation*}
 
-{{references}} {cite:p}`MotevallianYuAnderson2014{Lem 4.9}`
+{{references}} {cite:p}`MotevallianYuAnderson2015{Lem 4.9}`
 :::
 
 

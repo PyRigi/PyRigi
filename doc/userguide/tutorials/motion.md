@@ -26,7 +26,7 @@ import sympy as sp
 
 from pyrigi import graphDB as graphs
 from pyrigi import ParametricMotion
-from pyrigi.misc import skip_execution
+from pyrigi._utils._doc import skip_execution
 
 motion = ParametricMotion(
     graphs.Cycle(4),

@@ -1,7 +1,7 @@
 # Graphs
 
 ```{eval-rst}
-.. automodule:: pyrigi.graph
+.. automodule:: pyrigi.graph.graph
    :members:
    :show-inheritance:
 ```

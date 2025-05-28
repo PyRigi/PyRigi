@@ -15,3 +15,4 @@
 /.pytest_cache/
 /.idea/
 *.stl
+/doc/development/howto/pyrigi_structure.txt
