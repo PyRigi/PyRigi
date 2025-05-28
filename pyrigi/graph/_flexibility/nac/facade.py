@@ -1,4 +1,4 @@
-from typing import Container, Iterable
+from typing import Iterable
 
 import networkx as nx
 
@@ -15,7 +15,7 @@ def NAC_colorings(
     use_blocks_decomposition: bool = True,
     mono_class_type: str = "triangle-extended",
     seed: int | None = 42,
-) -> Iterable[tuple[Container[Edge], Container[Edge]]]:
+) -> Iterable[tuple[list[Edge], list[Edge]]]:
     """
     Find all NAC-colorings of the graph.
 
@@ -54,8 +54,8 @@ def NAC_colorings(
         The seed to use for randomization.
     """
 
-    def coloring_map(coloring: NACColoring) -> tuple[Container[Edge], Container[Edge]]:
-        return coloring
+    def coloring_map(coloring: NACColoring) -> tuple[list[Edge], list[Edge]]:
+        return list(coloring[0]), list(coloring[1])
 
     if algorithm == "default":
         algorithm = "subgraphs-neighbors-linear-5"

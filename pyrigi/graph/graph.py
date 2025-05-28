@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import math
 from itertools import combinations
-from typing import Collection, Container, Iterable, Optional, Sequence
+from typing import Collection, Iterable, Optional, Sequence
 
 import networkx as nx
 from sympy import Matrix
@@ -1168,7 +1168,7 @@ class Graph(nx.Graph):
         use_blocks_decomposition: bool = True,
         mono_class_type: str = "triangle-extended",
         seed: int | None = 42,
-    ) -> Iterable[tuple[Container[Edge], Container[Edge]]]:
+    ) -> Iterable[tuple[list[Edge], list[Edge]]]:
         return nac_colorings.NAC_colorings(
             self,
             algorithm=algorithm,
