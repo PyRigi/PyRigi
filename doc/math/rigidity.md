@@ -77,6 +77,8 @@ A motion is called _trivial_ if $(G, p)$ and $(G, \alpha(t))$ are congruent for 
 
 A {prf:ref}`framework <def-framework>` $(G, p)$ is called _continuously rigid_ (from now on, simply _rigid_) if each of its continuous flexes is trivial.
 A {prf:ref}`framework <def-framework>` $(G, p)$ is called _flexible_ if it is not rigid.
+
+We also call the realization $p$ itself rigid or flexible, respectively.
 :::
 
 
@@ -90,4 +92,5 @@ rigidity/global
 rigidity/redundant
 rigidity/second-order
 rigidity/realizations
+rigidity/nac-colorings
 :::

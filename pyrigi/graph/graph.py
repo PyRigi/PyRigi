@@ -19,6 +19,7 @@ from pyrigi.plot_style import PlotStyle
 from . import _general as general
 from ._constructions import constructions, extensions
 from ._export import export
+from ._flexibility import nac as nac_colorings
 from ._other import apex, separating_set
 from ._rigidity import generic as generic_rigidity
 from ._rigidity import global_ as global_rigidity
@@ -1158,6 +1159,25 @@ class Graph(nx.Graph):
 
         Framework(self, placement).plot(plot_style=plot_style, **kwargs)
 
+    @doc_category("Flexibility")
+    @copy_doc(nac_colorings.NAC_colorings)
+    def NAC_colorings(
+        self,
+        algorithm: str = "default",
+        use_cycles_optimization: bool = True,
+        use_blocks_decomposition: bool = True,
+        mono_class_type: str = "triangle-extended",
+        seed: int | None = 42,
+    ) -> Iterable[tuple[list[Edge], list[Edge]]]:
+        return nac_colorings.NAC_colorings(
+            self,
+            algorithm=algorithm,
+            use_cycles_optimization=use_cycles_optimization,
+            use_blocks_decomposition=use_blocks_decomposition,
+            mono_class_type=mono_class_type,
+            seed=seed,
+        )
+
 
 Graph.__doc__ = Graph.__doc__.replace(
     "METHODS",
@@ -1172,6 +1192,7 @@ Graph.__doc__ = Graph.__doc__.replace(
             "Generic rigidity",
             "Sparseness",
             "Rigidity Matroid",
+            "Flexibility",
             "Other",
             "Waiting for implementation",
         ],
