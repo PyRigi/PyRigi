@@ -82,7 +82,7 @@ def is_edge(graph: nx.Graph, edge: Edge, vertices: Sequence[Vertex] = None) -> N
         If ``None``, the function considers all vertices of the graph.
     """
     edge_format(graph, edge)
-    if vertices and (not edge[0] in vertices or not edge[1] in vertices):
+    if vertices and (edge[0] not in vertices or edge[1] not in vertices):
         raise ValueError(
             f"The elements of the edge {edge} are not among vertices {vertices}!"
         )

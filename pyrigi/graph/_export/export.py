@@ -202,7 +202,7 @@ def to_tikz(
             cdict_vertices = [v for v in vertex_list if (v in graph.nodes)]
             vertex_style_dict[style] = cdict_vertices
             dict_vertices += cdict_vertices
-        remaining_vertices = [v for v in graph.nodes if not (v in dict_vertices)]
+        remaining_vertices = [v for v in graph.nodes if (v not in dict_vertices)]
         vertex_style_dict[""] = remaining_vertices
 
     vertices_str = ""
