@@ -28,9 +28,9 @@ copyright = "2024, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "1.0"
+version = "1.1"
 # The full version, including alpha/beta/rc tags
-release = "1.0.2"
+release = "1.1.0"
 
 
 # -- General configuration ---------------------------------------------------

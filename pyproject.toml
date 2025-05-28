@@ -1,6 +1,6 @@
 [project]
 name = "pyrigi"
-version = "1.0.2"
+version = "1.1.0"
 dynamic = [ "readme", "classifiers", "dependencies", "optional-dependencies" ]
 description = "Python package concerning the rigidity and flexibility of bar-and-joint frameworks."
 requires-python = ">=3.11"
