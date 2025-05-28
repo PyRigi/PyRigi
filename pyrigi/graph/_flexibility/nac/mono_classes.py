@@ -18,22 +18,38 @@ class MonoClassType(Enum):
     Represents approaches for finding :prf:ref:`NAC-mono classes <def-nac-mono>`
     of different types - single edges, triangle-connected components,
     and triangle-extended classes.
+
+    Suggested Improvement
+    ---------------------
+    Make from_string more fancy.
     """
 
     """
     Each edge is its own :prf:ref:`NAC-mono class <def-nac-mono>`.
     """
-    EDGES = "EDGES"
+    EDGES = "edges"
     """
     Corresponds to
     :prf:ref:`\\triangle-connected components<def-triangle-connected-comp>`.
     """
-    TRI_CONNECTED = "TRIANGLE_CONNECTED_COMPONENTS"
+    TRI_CONNECTED = "triangle"
     """
     Corresponds to
     :prf:ref:`\\hat\\triangle-extended classes<def-triangle-extended-class>`.
     """
-    TRI_EXTENDED = "TRIANGLE_EXTENDED_CLASSES"
+    TRI_EXTENDED = "triangle-extended"
+
+    @staticmethod
+    def from_string(class_name: str) -> "MonoClassType":
+        match class_name:
+            case "edges":
+                return MonoClassType.EDGES
+            case "triangle":
+                return MonoClassType.TRI_CONNECTED
+            case "triangle-extended":
+                return MonoClassType.TRI_EXTENDED
+            case _:
+                raise ValueError(f"Unknown NAC-mono class type: {class_name}")
 
 
 def _trivial_mono_classes(

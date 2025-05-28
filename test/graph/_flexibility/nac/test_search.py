@@ -187,7 +187,7 @@ def test_all_NAC_colorings(
         NAC_colorings_impl(
             graph,
             algorithm=algorithm,
-            mono_class_type=class_type,
+            mono_class_type=class_type.value,
             use_cycles_optimization=use_cycles,
             use_blocks_decomposition=use_decompositions,
             seed=seed,

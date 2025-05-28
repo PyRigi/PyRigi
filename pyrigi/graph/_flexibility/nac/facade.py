@@ -13,7 +13,9 @@ def NAC_colorings(
     algorithm: str | Literal["naive", "subgraphs"] = "subgraphs",
     use_cycles_optimization: bool = True,
     use_blocks_decomposition: bool = True,
-    mono_class_type: MonoClassType = MonoClassType.TRI_EXTENDED,
+    mono_class_type: Literal[
+        "edges", "triangle", "triangle-extended"
+    ] = "triangle-extended",
     seed: int | None = 42,
 ) -> Iterable[tuple[Container[Edge], Container[Edge]]]:
     """
@@ -60,7 +62,7 @@ def NAC_colorings(
             algorithm=algorithm,
             use_cycles_optimization=use_cycles_optimization,
             use_blocks_decomposition=use_blocks_decomposition,
-            mono_class_type=mono_class_type,
+            mono_class_type=MonoClassType.from_string(mono_class_type),
             seed=seed,
         ),
     )
