@@ -19,37 +19,41 @@ def NAC_colorings(
     seed: int | None = 42,
 ) -> Iterable[tuple[Container[Edge], Container[Edge]]]:
     """
-    Find all :prf:ref:`NAC-colorings <def-nac>` of the given graph.
+    Find all NAC-colorings of the graph.
+
+    Definitions
+    -----------
+    :prf:ref:`NAC-coloring <def-nac>`
 
     Parameters
     ----------
-    self:
-        The graph to search on.
     algorithm:
         The algorithm to use.
-        The options are `naive` for the naive approach and
-        `subgraphs` for the subgraphs decomposition approach.
+        The options are ``"naive"`` for the naive approach and
+        ``"subgraphs"`` for the subgraphs decomposition approach,
+        see NAC_COMPUTATIONS.
         Strategies can be specified for the subgraphs algorithm
-        as follows: `subgraphs-{split_strategy}-{merging_stragey}-{subgraphs_size}`.
-        Split strategies are `none`, `neighbors`, and `neighbors-degree`,
-        merging strategies are `linear` and `shared_vertices`.
+        as follows: ``"subgraphs-{split_strategy}-{merging_strategy}-{subgraphs_size}"``.
+        Split strategies are ``none``, ``neighbors``, and ``neighbors_degree``,
+        merging strategies are ``linear`` and ``shared_vertices``.
         See docs for further details.
     use_cycles_optimization:
         Use cycles optimization for the given algorithm.
         This is always enabled for subgraphs strategies.
     use_decompositions:
-        If enabled, graph is first decomposed into blocks,
+        If enabled, the graph is first decomposed into blocks,
         and :prf:ref:`NAC-colorings <def-nac>` are found for each
         block (:prf:ref:`2-vertex connected component <def-k-connected>`)
         separately and then combined.
     mono_class_type:
         The type of :prf:ref:`NAC-mono classes <def-nac-mono>` to use.
+        The options are ``"edges"`` (each edge is a NAC-mono class),
+        ``"triangle"``
+        for :prf:ref:`triangle-connected components <def-triangle-connected-comp>`,
+        or ``"triangle-extended"`` for
+        :prf:ref:`triangle-extended classes <def-triangle-extended-class>`.
     seed:
         The seed to use for randomization.
-
-    Yield
-    -----
-    All :prf:ref:`NAC-colorings <def-nac>` for a given graph.
     """
 
     def coloring_map(coloring: NACColoring) -> tuple[Container[Edge], Container[Edge]]:
