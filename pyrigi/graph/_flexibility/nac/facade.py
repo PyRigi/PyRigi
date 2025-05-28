@@ -31,16 +31,15 @@ def NAC_colorings(
         The algorithm to use.
         The options are ``"naive"`` for the naive approach and
         ``"subgraphs"`` for the subgraphs decomposition approach,
-        see NAC_COMPUTATIONS.
+        see :ref:`nac-computation`.
         Strategies can be specified for the subgraphs algorithm
-        as follows: ``"subgraphs-{split_strategy}-{merging_strategy}-{subgraphs_size}"``.
+        as follows: ``"subgraphs-<split_strategy>-<merging_strategy>-<subgraphs_size>"``.
         Split strategies are ``none``, ``neighbors``, and ``neighbors_degree``,
         merging strategies are ``linear`` and ``shared_vertices``.
-        See docs for further details.
     use_cycles_optimization:
         Use cycles optimization for the given algorithm.
         This is always enabled for subgraphs strategies.
-    use_decompositions:
+    use_blocks_decomposition:
         If enabled, the graph is first decomposed into blocks,
         and :prf:ref:`NAC-colorings <def-nac>` are found for each
         block (:prf:ref:`2-vertex connected component <def-k-connected>`)

@@ -82,7 +82,7 @@ A NAC-coloring of $G$ is called _Cartesian_, if no two distinct vertices of $G$ 
 {{references}} {cite:p}`GraseggerLegersky2024`
 :::
 
-
+(nac-computation)=
 ## Computations
 It is shown that the existence problem of a NAC-coloring for a general graph is NP-complete {cite:p}`Garamvölgyi2022{Thm 3.5}`.
 The same is true even for graphs with degree at most 5 {cite:p}`LastovickaLegersky2024{Thm 2.1}`.
