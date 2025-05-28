@@ -93,7 +93,7 @@ The release numbers follow this scheme:
 To create a new MAJOR/MINOR version, the following steps should be taken by the **maintainers**:
 
 1. Create a release branch `release-x.y.z` on `dev`.
-2. Update the `version` and `release` in `doc/conf.py` and the `version` in `pyproject.toml`.
+2. Update the `version` and `release` in `doc/conf.py` and the `version` in `pyproject.toml` and `.zenodo.json`.
 3. Update the `contributors.md`.
 4. Merge the branch into `dev`.
 5. Continue on the release branch and remove the files that are not supposed to be in the release (e.g. `poetry.lock`).
