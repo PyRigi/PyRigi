@@ -90,3 +90,20 @@ The decision to create PyRigi was made by the participants of the workshop
 [Code of Rigidity](https://www.ricam.oeaw.ac.at/specsem/specsem2024/workshop2/)
 (March 11–15, 2024), which was part of the
 Special Semester on Rigidity and Flexibility at [RICAM](https://www.oeaw.ac.at/ricam/), Linz, Austria.
+
+## Citing PyRigi
+
+If you would like to cite PyRigi, please, use the following:
+
+Matteo Gallet, Georg Grasegger, Matthias Himmelmann, and Jan Legerský. *PyRigi
+– a general-purpose Python package for the rigidity and flexibility of bar-and-joint
+frameworks*, 2025. [doi:10.48550/arXiv.2505.22652](https://doi.org/10.48550/arXiv.2505.22652).
+
+```
+@misc{pyrigi,
+      title = {{PyRigi -- a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks}}, 
+      author = {Matteo Gallet and Georg Grasegger and Matthias Himmelmann and Jan Legerský},
+      year = {2025},
+      doi = {10.48550/arXiv.2505.22652}, 
+}
+```
