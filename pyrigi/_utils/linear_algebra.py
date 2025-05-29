@@ -9,7 +9,7 @@ import sympy as sp
 from sympy import Matrix
 
 from pyrigi.data_type import InfFlex, Number, Sequence, Vertex
-
+from ._input_check import integrality_and_range
 from ._conversion import sympy_expr_to_float
 from ._zero_check import is_zero
 
@@ -174,7 +174,7 @@ def _vector_distance_pointwise(
     )
 
 
-def _null_space(A: np.array, tolerance: float = 1e-8) -> np.array:
+def _null_space(A: np.array, tolerance: float = 1e-9) -> np.array:
     """
     Compute the kernel of a numpy matrix.
 
@@ -189,3 +189,46 @@ def _null_space(A: np.array, tolerance: float = 1e-8) -> np.array:
     num = np.sum(s > tol, dtype=int)
     Q = vh[num:, :].T.conj()
     return Q
+
+
+def _reduced_null_space(
+    A: np.ndarray | Matrix,
+    free_columns: Sequence[int] = [],
+    numerical=False,
+    tolerance=1e-9,
+):
+    """
+    Computes the reduced kernel of `A`.
+
+    Computes the subspace of the kernel of `A` obtained by deleting all but the
+    `free_columns` from `A` and padding the matrix with zeros afterwards.
+
+    Parameters
+    ----------
+    free_columns:
+        The columns of `A` that are not deleted.
+    numerical:
+        Determines whether the output is symbolic (default) or numerical.
+    tolerance:
+        Used tolerance when computing the infinitesimal flex numerically.
+    """
+    all(
+        integrality_and_range(col, "free_columns", min_val=0, max_val=A.shape[1])
+        for col in free_columns
+    )
+    if not list(set(free_columns)).sort() == free_columns.sort():
+        raise ValueError("The `free_columns` can only be composed of unique integers.")
+
+    A_reduced = A[:, free_columns]
+    if numerical:
+        reduced_kernel = _null_space(A_reduced, tolerance=tolerance)
+        kernel = np.zeros((A.shape[1], reduced_kernel.shape[1]))
+        kernel[free_columns, :] = reduced_kernel
+    else:
+        reduced_kernel = A_reduced.nullspace()
+        kernel = sp.zeros(A.shape[1], len(reduced_kernel))
+        for i in range(len(reduced_kernel)):
+            for j, col in enumerate(free_columns):
+                kernel[col, i] = reduced_kernel[i][j]
+        kernel = Matrix(kernel)
+    return kernel

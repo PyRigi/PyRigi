@@ -38,6 +38,7 @@ def _resolve_inf_flex(
     inf_flex: int | Matrix | InfFlex,
     realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
+    fixed_vertices: Sequence[Vertex] = [],
 ) -> dict[Vertex, Point]:
     """
     Resolve an infinitesimal flex from various datatypes.
@@ -52,12 +53,14 @@ def _resolve_inf_flex(
         If ``None``, the framework realization is used.
     projection_matrix:
         A matrix used for projection to a lower dimension.
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
     """
     if isinstance(inf_flex, int) and inf_flex >= 0:
         inf_flex_basis = infinitesimal_rigidity.nontrivial_inf_flexes(
-            framework, numerical=True
+            framework, numerical=True, fixed_vertices=fixed_vertices
         )
-        if inf_flex >= len(inf_flex_basis):
+        if inf_flex > len(inf_flex_basis):
             raise IndexError(
                 "The value of inf_flex exceeds "
                 + "the dimension of the space "
@@ -146,6 +149,7 @@ def _plot_inf_flex2D(
     realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
     plot_style: PlotStyle2D = None,
+    fixed_vertices: Sequence[Vertex] = [],
 ) -> None:
     """
     Plot a 2D infinitesimal flex on the canvas.
@@ -160,9 +164,11 @@ def _plot_inf_flex2D(
     projection_matrix:
         A matrix used to project the infinitesimal flex to 2D.
     plot_style:
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
     """
     inf_flex_pointwise = _resolve_inf_flex(
-        framework, inf_flex, realization, projection_matrix
+        framework, inf_flex, realization, projection_matrix, fixed_vertices
     )
 
     x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
@@ -208,6 +214,7 @@ def _plot_inf_flex3D(
     realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
     plot_style: PlotStyle3D = None,
+    fixed_vertices: Sequence[Vertex] = [],
 ) -> None:
     """
     Plot a 3D infinitesimal flex on the canvas.
@@ -222,9 +229,11 @@ def _plot_inf_flex3D(
     projection_matrix:
         A matrix used to project the infinitesimal flex to 3D.
     plot_style:
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
     """
     inf_flex_pointwise = _resolve_inf_flex(
-        framework, inf_flex, realization, projection_matrix
+        framework, inf_flex, realization, projection_matrix, fixed_vertices
     )
     x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
     y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
@@ -778,7 +787,8 @@ def plot2D(
     stress_label_positions: dict[DirectedEdge, float] = None,
     arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
     filename: str = None,
-    dpi=300,
+    dpi: int = 300,
+    fixed_vertices: Sequence[Vertex] = [],
     **kwargs,
 ) -> None:
     """
@@ -848,6 +858,8 @@ def plot2D(
         ``matplotlib``.
     dpi: Dots per inched in case the figure is saved. Default is 300 for producing
         a print-quality image.
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
 
     Examples
     --------
@@ -940,6 +952,7 @@ def plot2D(
             realization=placement,
             plot_style=plot_style,
             projection_matrix=projection_matrix,
+            fixed_vertices=fixed_vertices,
         )
     if stress is not None:
         _plot_stress2D(
@@ -1107,7 +1120,8 @@ def plot3D(
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     stress_label_positions: dict[DirectedEdge, float] = None,
     filename: str = None,
-    dpi=300,
+    dpi: int = 300,
+    fixed_vertices: Sequence[Vertex] = [],
     **kwargs,
 ) -> None:
     """
@@ -1174,6 +1188,8 @@ def plot3D(
         ``matplotlib``.
     dpi: Dots per inched in case the figure is saved. Default is 300 for producing
         a print-quality image.
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
 
     Examples
     --------
@@ -1270,6 +1286,7 @@ def plot3D(
             realization=_placement,
             plot_style=plot_style,
             projection_matrix=projection_matrix,
+            fixed_vertices=fixed_vertices,
         )
 
     if stress is not None:

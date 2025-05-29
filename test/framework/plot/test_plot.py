@@ -68,6 +68,8 @@ def test_plot2D():
     with pytest.raises(ValueError):
         F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0], 2: [0, 0, 0]})
     F.plot2D(inf_flex=0)
+    F.plot2D(inf_flex=0, fixed_vertices=[0])
+    F.plot2D(inf_flex=0, fixed_vertices=[0, 1])
 
     F = fws.Complete(4)
     F.plot2D(stress=0, dpi=200, filename="K4_Test_output")
@@ -97,6 +99,8 @@ def test_plot2D():
                 F, inf_flex={0: [-1, 0, 0], 1: [1, 0, 0], 2: [0, 0, 0]}
             )
         framework_plot.plot2D(F, inf_flex=0)
+        framework_plot.plot2D(F, inf_flex=0, fixed_vertices=[0])
+        framework_plot.plot2D(F, inf_flex=0, fixed_vertices=[0, 1])
 
         F = fws.Complete(4)
         F = _to_FrameworkBase(F)
@@ -123,9 +127,11 @@ def test_plot3D():
 
     F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
     F.plot3D(inf_flex=0)
+    F.plot3D(inf_flex=0, fixed_vertices=[0, 1])
 
     F = fws.Octahedron(realization="Bricard_plane")
     F.plot3D(inf_flex=0, stress=0)
+    F.plot3D(inf_flex=0, stress=0, fixed_vertices=F._graph.edge_list()[0])
 
     F = fws.Complete(4)
     F.plot3D(stress=0, dpi=200, filename="K4_Test_output")
@@ -155,10 +161,14 @@ def test_plot3D():
         F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
         F = _to_FrameworkBase(F)
         framework_plot.plot3D(F, inf_flex=0)
+        framework_plot.plot3D(F, inf_flex=0, fixed_vertices=[0, 1])
 
         F = fws.Octahedron(realization="Bricard_plane")
         F = _to_FrameworkBase(F)
         framework_plot.plot3D(F, inf_flex=0, stress=0)
+        framework_plot.plot3D(
+            F, inf_flex=0, stress=0, fixed_vertices=F._graph.edge_list()[0]
+        )
 
         F = fws.Complete(4)
         F = _to_FrameworkBase(F)
