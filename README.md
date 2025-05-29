@@ -97,13 +97,14 @@ If you would like to cite PyRigi, please, use the following:
 
 Matteo Gallet, Georg Grasegger, Matthias Himmelmann, and Jan Legerský. *PyRigi
 – a general-purpose Python package for the rigidity and flexibility of bar-and-joint
-frameworks*, 2025. [doi:10.48550/arXiv.2505.22652](https://doi.org/10.48550/arXiv.2505.22652).
+frameworks*, 2025, preprint. [doi:10.48550/arXiv.2505.22652](https://doi.org/10.48550/arXiv.2505.22652).
 
 ```
 @misc{pyrigi,
-      title = {{PyRigi -- a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks}}, 
+      title = {{PyRigi -- a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks}},
       author = {Matteo Gallet and Georg Grasegger and Matthias Himmelmann and Jan Legerský},
       year = {2025},
-      doi = {10.48550/arXiv.2505.22652}, 
+      doi = {10.48550/arXiv.2505.22652},
+      note = {preprint},
 }
 ```
