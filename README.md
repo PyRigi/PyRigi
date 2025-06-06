@@ -11,7 +11,8 @@
 
 PyRigi is a Python package for research in rigidity and flexibility of bar-and-joint frameworks.
 We aim at providing a tool for investigating combinatorial and geometric questions
-such as infinitesimal, global, minimal, or generic rigidity.
+such as infinitesimal, global, minimal, or generic rigidity. An article explaining the functionality
+and internal structure of PyRigi is freely available [here](https://doi.org/10.48550/arXiv.2505.22652).
 
 
 We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://www.sympy.org/) for symbolic and numerical computations.
@@ -29,10 +30,6 @@ from pyrigi import Graph, Framework
 ```
 See [Getting started](https://pyrigi.github.io/PyRigi/userguide/getting_started.html)
 in the [documentation](https://pyrigi.github.io/PyRigi/) for more details.
-
-Alternatively, one can clone/download the package
-from [this GitHub repository](https://github.com/pyRigi/PyRigi).
-The development version is on the branch `dev`.
 
 ## Documentation
 
@@ -71,6 +68,11 @@ creating tutorials.
 If you want to contribute, please,
 read the [development guide](https://pyrigi.github.io/PyRigi/development/howto)
 and [contact us](mailto:external.dc4f45edef70cb7e0c621ad50377d9f1.show-sender.include-footer@streams.zulipchat.com).
+
+The most recent version of the package can be cloned/downloaded
+from [this GitHub repository](https://github.com/pyRigi/PyRigi).
+The development version is on the branch `dev`.
+
 ## License
 
 The package is licensed under the [MIT license](https://github.com/PyRigi/PyRigi/blob/main/LICENSE).
