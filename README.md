@@ -15,7 +15,8 @@ such as infinitesimal, global, minimal, or generic rigidity. An article explaini
 and internal structure of PyRigi is freely available [here](https://doi.org/10.48550/arXiv.2505.22652).
 
 
-We use [NetworkX](https://networkx.org/) for graph theory and [SymPy](https://www.sympy.org/) for symbolic and numerical computations.
+We use [NetworkX](https://networkx.org/) for graph theory, [SymPy](https://www.sympy.org/) 
+for symbolic and [NumPy](https://numpy.org/) for numerical computations.
 We acknowledge these and all the other open-source projects upon which PyRigi is based.
 
 ## Installation and usage
