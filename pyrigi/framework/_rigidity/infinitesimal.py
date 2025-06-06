@@ -374,7 +374,10 @@ def inf_flexes(
                 extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
         Q, R = np.linalg.qr(extend_basis_matrix)
         Q = Q[:, s : np.linalg.matrix_rank(R, tol=tolerance)]
-        return [_normalize_flex(list(Q[:, i]), numerical=True, tolerance=tolerance) for i in range(Q.shape[1])]
+        return [
+            _normalize_flex(list(Q[:, i]), numerical=True, tolerance=tolerance)
+            for i in range(Q.shape[1])
+        ]
 
 
 def is_inf_rigid(
