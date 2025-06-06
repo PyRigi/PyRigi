@@ -30,7 +30,9 @@ from pyrigi import Graph, Framework
 ```
 For more details, we refer to the 
 [Getting started](https://pyrigi.github.io/PyRigi/userguide/getting_started.html)
-guide in the [documentation](https://pyrigi.github.io/PyRigi/).
+guide in the [documentation](https://pyrigi.github.io/PyRigi/). 
+The development version is available on the `dev` branch
+in [this GitHub repository](https://github.com/pyRigi/PyRigi).
 
 ## Documentation
 
@@ -69,10 +71,6 @@ creating tutorials.
 If you want to contribute, please,
 read the [development guide](https://pyrigi.github.io/PyRigi/development/howto)
 and [contact us](mailto:external.dc4f45edef70cb7e0c621ad50377d9f1.show-sender.include-footer@streams.zulipchat.com).
-
-The most recent version of the package can be cloned/downloaded
-from [this GitHub repository](https://github.com/pyRigi/PyRigi).
-The development version is on the branch `dev`.
 
 ## License
 
