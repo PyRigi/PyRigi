@@ -20,16 +20,17 @@ We acknowledge these and all the other open-source projects upon which PyRigi is
 
 ## Installation and usage
 
-The latest stable version of PyRigi can be installed by
+To install the latest stable version of PyRigi, run:
 ```
 pip install pyrigi
 ```
-Then it can be used by
+Once installed, you can start using it with:
 ```python
 from pyrigi import Graph, Framework
 ```
-See [Getting started](https://pyrigi.github.io/PyRigi/userguide/getting_started.html)
-in the [documentation](https://pyrigi.github.io/PyRigi/) for more details.
+For more details, we refer to the 
+[Getting started](https://pyrigi.github.io/PyRigi/userguide/getting_started.html)
+guide in the [documentation](https://pyrigi.github.io/PyRigi/).
 
 ## Documentation
 
