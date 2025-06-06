@@ -129,14 +129,11 @@ def _resolve_inf_flex(
 
     # normalize the edge lengths by the Euclidean norm of the longest one
     flex_mag = max(magnidutes)
-    for v, flex in inf_flex_pointwise.items():
-        if not is_zero_vector(inf_flex):
-            inf_flex_pointwise[v] = tuple(coord / flex_mag for coord in flex)
     # Delete the edges with zero length
     inf_flex_pointwise = {
-        v: np.array(flex, dtype=float)
+        v: np.array([coord / flex_mag for coord in flex], dtype=float)
         for v, flex in inf_flex_pointwise.items()
-        if not is_zero_vector(flex)
+        if not is_zero_vector(flex, numerical=True)
     }
 
     return inf_flex_pointwise
