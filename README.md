@@ -93,7 +93,7 @@ Special Semester on Rigidity and Flexibility at [RICAM](https://www.oeaw.ac.at/r
 
 ## Citing PyRigi
 
-If you would like to cite PyRigi, please, use the following:
+If you would like to cite PyRigi, please use the following reference:
 
 Matteo Gallet, Georg Grasegger, Matthias Himmelmann, and Jan Legerský. *PyRigi
 – a general-purpose Python package for the rigidity and flexibility of bar-and-joint
