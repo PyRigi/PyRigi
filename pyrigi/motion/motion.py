@@ -197,11 +197,11 @@ class Motion(object):
             ]
             for i in range(3)
         ]
-        
+
         ax.scatter(
-            [min(x_coords)-plot_style.padding, max(x_coords)+plot_style.padding],
-            [min(y_coords)-plot_style.padding, max(y_coords)+plot_style.padding],
-            [min(z_coords)-plot_style.padding, max(z_coords)+plot_style.padding],
+            [min(x_coords) - plot_style.padding, max(x_coords) + plot_style.padding],
+            [min(y_coords) - plot_style.padding, max(y_coords) + plot_style.padding],
+            [min(z_coords) - plot_style.padding, max(z_coords) + plot_style.padding],
             color="white",
             s=plot_style.vertex_size,
             marker=plot_style.vertex_shape,
