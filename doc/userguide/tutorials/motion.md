@@ -13,6 +13,8 @@ kernelspec:
 
 # Continuous Motions
 
+This notebook can be downloaded {download}`here <../../notebooks/motion.ipynb>`.
+
 It is possible to create {prf:ref}`continuous motions <def-motion>` of {prf:ref}`frameworks <def-realization>` in PyRigi.
 
 ## Parametric Motion
