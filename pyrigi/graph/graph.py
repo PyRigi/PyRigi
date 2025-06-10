@@ -624,7 +624,7 @@ class Graph(nx.Graph):
         count_reflection: bool = False,
     ) -> int | string:
         _input_check.dimension_for_algorithm(
-            dim, [2], "the method number_of_realizations"
+            dim, [1, 2], "the method number_of_realizations"
         )
         if not generic_rigidity.is_rigid(self, dim):
             return "infinity"
@@ -632,13 +632,38 @@ class Graph(nx.Graph):
         if self.number_of_nodes() == 1:
             return 1
 
-        if self.number_of_nodes() == 2 and self.number_of_edges() == 1:
-            return 1
-
         if count_reflection:
             fac = 1
         else:
             fac = 2
+
+        if dim == 1:
+            if global_rigidity.is_globally_rigid(self, dim):
+                return 2 // fac
+            elif generic_rigidity.is_min_rigid(self, dim):
+                G = deepcopy(self)
+                deg_1 = 0
+                while G.min_degree() == 1 and len(G.vertex_list()) > 2:
+                    min_v = [v for v in G.vertex_list() if G.degree(v) == 1]
+                    G.delete_vertices(min_v)
+                    deg_1 += len(min_v)
+                if G.number_of_nodes() == 1:
+                    return (2 ** deg_1) // fac
+                else:
+                    return (2 // fac) * (2 ** deg_1)
+            else:
+                # not 2-connected
+                G = deepcopy(self)
+                cut = list(nx.all_node_cuts(G))[0]
+                G.delete_vertices(cut)
+                con = nx.connected_components(G)
+                sub = [self.subgraph(c.union(cut)).copy() for c in con]
+                return fac * math.prod([g.number_of_realizations2(dim, spherical, count_reflection) for g in sub])
+
+        # dim == 2 from now on
+        if self.number_of_nodes() == 2 and self.number_of_edges() == 1:
+            return 1
+
 
         if self.number_of_edges() == 2 * self.number_of_nodes() -3:
             try:
