@@ -1,7 +1,5 @@
 # Motions
 
-## Motion
-
 ```{eval-rst}
 .. automodule:: pyrigi.motion.motion
    :members:
