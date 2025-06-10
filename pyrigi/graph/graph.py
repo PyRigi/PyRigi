@@ -26,6 +26,7 @@ from ._rigidity import generic as generic_rigidity
 from ._rigidity import global_ as global_rigidity
 from ._rigidity import matroidal as matroidal_rigidity
 from ._rigidity import redundant as redundant_rigidity
+from ._rigidity import realization_counting as realization_counting
 from ._sparsity import sparsity
 from ._utils import _input_check as _graph_input_check
 
@@ -518,7 +519,7 @@ class Graph(nx.Graph):
         return constructions.cone(self, inplace=inplace, vertex=vertex)
 
     @doc_category("Generic rigidity")
-    def number_of_realizations(
+    def number_of_realizations_old(
         self,
         dim: int = 2,
         spherical: bool = False,
@@ -617,121 +618,16 @@ class Graph(nx.Graph):
                 "run `pip install pyrigi[realization-counting]`!"
             )
 
-    def number_of_realizations2(
+    @doc_category("Generic rigidity")
+    @copy_doc(realization_counting.number_of_realizations)
+    def number_of_realizations(
         self,
         dim: int = 2,
+        algorithm: str = "default",
         spherical: bool = False,
         count_reflection: bool = False,
     ) -> int | string:
-        _input_check.dimension_for_algorithm(
-            dim, [1, 2], "the method number_of_realizations"
-        )
-        if not generic_rigidity.is_rigid(self, dim):
-            return "infinity"
-
-        if self.number_of_nodes() == 1:
-            return 1
-
-        if count_reflection:
-            fac = 1
-        else:
-            fac = 2
-
-        if dim == 1:
-            if global_rigidity.is_globally_rigid(self, dim):
-                return 2 // fac
-            elif generic_rigidity.is_min_rigid(self, dim):
-                G = deepcopy(self)
-                deg_1 = 0
-                while G.min_degree() == 1 and len(G.vertex_list()) > 2:
-                    min_v = [v for v in G.vertex_list() if G.degree(v) == 1]
-                    G.delete_vertices(min_v)
-                    deg_1 += len(min_v)
-                if G.number_of_nodes() == 1:
-                    return (2 ** deg_1) // fac
-                else:
-                    return (2 // fac) * (2 ** deg_1)
-            else:
-                # not 2-connected
-                G = deepcopy(self)
-                cut = list(nx.all_node_cuts(G))[0]
-                G.delete_vertices(cut)
-                con = nx.connected_components(G)
-                sub = [self.subgraph(c.union(cut)).copy() for c in con]
-                return fac * math.prod([g.number_of_realizations2(dim, spherical, count_reflection) for g in sub])
-
-        # dim == 2 from now on
-        if self.number_of_nodes() == 2 and self.number_of_edges() == 1:
-            return 1
-
-
-        if self.number_of_edges() == 2 * self.number_of_nodes() -3:
-            try:
-                import lnumber
-
-                graph_int = self.to_int()
-
-                if spherical:
-                    return lnumber.lnumbers(graph_int) // fac
-                else:
-                    return lnumber.lnumber(graph_int) // fac
-            except ImportError:
-                raise ImportError(
-                    "For counting the number of realizations, "
-                    "the optional package 'lnumber' is used, "
-                    "run `pip install pyrigi[realization-counting]`!"
-                )
-        else:
-            if global_rigidity.is_globally_rigid(self, dim):
-                return 2 // fac
-            else:
-                G = deepcopy(self)
-                cut = list(nx.all_node_cuts(G))[0]
-                # Case where the graph is not 3-connected
-                if len(cut) == 2:
-                    G.delete_vertices(cut)
-                    con = nx.connected_components(G)
-                    sub = [self.subgraph(c.union(cut)).copy() for c in con]
-                    # Case where the vertices of the cut are adjacent
-                    if self.has_edge(*cut):
-                        return fac ** (len(sub) - 1) * math.prod([g.number_of_realizations2(dim, spherical, count_reflection) for g in sub])
-                    else:
-                        rig = [generic_rigidity.is_rigid(g, dim) for g in sub]
-                        count_rig = rig.count(True)
-                        if count_rig > 1:
-                            [g.add_edge(*cut) for g in sub]
-                            return fac ** (len(sub) - 1) * math.prod([g.number_of_realizations2(dim, spherical, count_reflection) for g in sub])
-                        else:
-                            pos = rig.index(True)
-                            res = fac ** (len(sub) - 1) * sub[pos].number_of_realizations2(dim, spherical, count_reflection)
-                            [g.add_edge(*cut) for g in (sub[0:pos] + sub[pos+1:])]
-                            return res * math.prod([g.number_of_realizations2(dim, spherical, count_reflection) for g in (sub[0:pos] + sub[pos+1:]) ])
-                # Case where the graph is 3-connected but not redundantly rigid
-                else:
-                    # Find edge e sucht that graph - e is not rigid
-                    G = deepcopy(self)
-                    edges = G.edge_list()
-                    found = False
-                    while len(edges) > 0 and not found:
-                        e = edges.pop()
-                        G.remove_edge(*e)
-                        if generic_rigidity.is_rigid(G,dim):
-                            G.add_edge(*e)
-                        else:
-                            found = True
-                    # Get maximal rigid subgraphs
-                    comp = G.rigid_components(dim)
-                    max_sub = [G.subgraph(c).copy() for c in comp]
-                    # Get minimally rigid spanning subgraphs
-                    span = [sparsity.spanning_kl_sparse_subgraph(g, 2, 3) for g in max_sub]
-                    # Compute result
-                    prod_g = math.prod([g.number_of_realizations2(dim, spherical, count_reflection) for g in max_sub])
-                    prod_h = math.prod([h.number_of_realizations2(dim, spherical, count_reflection) for h in span])
-                    H = nx.compose(span[0],span[1])
-                    for h in span[2:]:
-                        H = nx.compose(H,h)
-                    H.add_edge(*e)
-                    return H.number_of_realizations2(dim, spherical, count_reflection) * prod_g // prod_h
+        return realization_counting.number_of_realizations(self, dim=dim, algorithm=algorithm, spherical=spherical, count_reflection=count_reflection)
 
 
     @doc_category("Generic rigidity")
