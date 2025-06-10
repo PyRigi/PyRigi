@@ -157,7 +157,7 @@ class ApproximateMotion(Motion):
         steps: int,
         step_size: float = 0.05,
         chosen_flex: int = 0,
-        tolerance: float = 1e-5,
+        tolerance: float = 1e-9,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pinned_vertex: Vertex = None,

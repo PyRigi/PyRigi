@@ -54,7 +54,7 @@ def test__str__():
             ApproximateMotion(fws.Path(3), 2),
             "ApproximateMotion.from_graph(Graph.from_vertices_and_edges([0, 1, 2], "
             "[(0, 1), (1, 2)]), {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [0.0, 1.0]},"
-            " 2, step_size=0.05, chosen_flex=0, tolerance=1e-05, fixed_pair=None,"
+            " 2, step_size=0.05, chosen_flex=0, tolerance=1e-09, fixed_pair=None,"
             " fixed_direction=None, pinned_vertex=0)",
         ],
     ],
