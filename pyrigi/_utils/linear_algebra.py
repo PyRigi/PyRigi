@@ -201,11 +201,12 @@ def _reduced_null_space(
     Compute the reduced kernel of `A`.
 
     Compute the linear subspace `reduced_kernel` of `A`'s kernel in which the `i`-th
-    element of each vector `v` in `reduced_kernel` is constrained to be 0. In other
-    words, this subspace can be obtained by deleting all but the columns in `free_columns`
-    from `A` to obtain a matrix `A_reduced`, computing the kernel of `A_reduced`
-    and padding the vectors in this kernel with zeros in the indices from
-    `[0, ..., #columns(A) - 1]` that are not contained in `free_columns`.
+    coordinate of each vector `v` in `reduced_kernel` is constrained to be 0 for each
+    `i` not contained in `free_columns`.
+    In other words, this subspace can be obtained by deleting all but the
+    columns in `free_columns` from `A` to obtain a matrix `A_reduced`, computing
+    the kernel of `A_reduced` and padding the vectors in this kernel with zeros in
+    the indices from `[0, ..., #columns(A) - 1]` that are not contained in `free_columns`.
 
     Parameters
     ----------
