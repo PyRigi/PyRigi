@@ -198,9 +198,9 @@ def _reduced_null_space(
     tolerance=1e-9,
 ):
     """
-    Computes the reduced kernel of `A`.
+    Compute the reduced kernel of `A`.
 
-    Computes the linear subspace `reduced_kernel` of `A`'s kernel in which the `i`-th
+    Compute the linear subspace `reduced_kernel` of `A`'s kernel in which the `i`-th
     element of each vector `v` in `reduced_kernel` is constrained to be 0. In other
     words, this subspace can be obtained by deleting all but the columns in `free_columns`
     from `A` to obtain a matrix `A_reduced`, computing the kernel of `A_reduced`
