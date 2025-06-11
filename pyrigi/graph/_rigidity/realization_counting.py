@@ -5,12 +5,12 @@ This module provides algorithms related to rigid realization counting.
 import math
 from copy import deepcopy
 import more_itertools
+import importlib.util
 
 import networkx as nx
 
 import pyrigi._utils._input_check as _input_check
 import pyrigi.graph._rigidity.generic as generic_rigidity
-import pyrigi.graph._rigidity.redundant as redundant_rigidity
 import pyrigi.graph._rigidity.global_ as global_rigidity
 import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graph._export.export as export
@@ -22,7 +22,7 @@ def number_of_realizations(
     algorithm: str = "default",
     spherical: bool = False,
     count_reflection: bool = False,
-) -> int | str:
+) -> int | float:
     """
     Count the number of complex realizations of a ``dim``-rigid graph.
 
@@ -80,14 +80,18 @@ def number_of_realizations(
     12
     """  # noqa: E501
 
+    if not generic_rigidity.is_rigid(graph, dim):
+        return math.inf
+
     if algorithm == "default":
         if dim == 1:
             algorithm = "pyrigi"
         elif dim == 2:
-            try:
-                import lnumber
+            if graph.number_of_edges() > 2 * graph.number_of_nodes() - 3:
+                algorithm = "pyrigi"
+            elif importlib.util.find_spec('lnumber') is not None:
                 algorithm = "lnumber"
-            except ImportError:
+            else:
                 if spherical:
                     algorithm = "pyrigi"
                 else:
@@ -97,21 +101,18 @@ def number_of_realizations(
                         "run `pip install pyrigi[realization-counting]`!"
                     )
     if algorithm == "pyrigi":
-        if spherical:
+        if spherical or graph.number_of_edges() > 2 * graph.number_of_nodes() - 3:
             _input_check.dimension_for_algorithm(
-                dim, [1, 2], "the method number_of_realizations"
+                dim, [1, 2], "number_of_realizations"
             )
         else:
             _input_check.dimension_for_algorithm(
-                dim, [1], "the method number_of_realizations"
+                dim, [1], "number_of_realizations"
             )
     elif algorithm == "lnumber":
-         _input_check.dimension_for_algorithm(
-            dim, [2], "the method number_of_realizations"
+        _input_check.dimension_for_algorithm(
+            dim, [2], "number_of_realizations"
         )
-
-    if not generic_rigidity.is_rigid(graph, dim):
-        return "infinity"
 
     if graph.number_of_nodes() == 1:
         return 1
@@ -132,9 +133,9 @@ def number_of_realizations(
                 G.delete_vertices(min_v)
                 deg_1 += len(min_v)
             if G.number_of_nodes() == 1:
-                return (2 ** deg_1) // fac
+                return (2**deg_1) // fac
             else:
-                return (2 // fac) * (2 ** deg_1)
+                return (2 // fac) * (2**deg_1)
         else:
             # not 2-connected
             G = deepcopy(graph)
@@ -142,17 +143,30 @@ def number_of_realizations(
             G.delete_vertices(cut)
             con = nx.connected_components(G)
             sub = [graph.subgraph(c.union(cut)).copy() for c in con]
-            return fac * math.prod([number_of_realizations(g, dim, algorithm, spherical, count_reflection) for g in sub])
-
+            return fac * math.prod(
+                [
+                    number_of_realizations(
+                        g, dim, algorithm, spherical, count_reflection
+                    )
+                    for g in sub
+                ]
+            )
 
     # dim == 2 from now on
     if graph.number_of_nodes() == 2 and graph.number_of_edges() == 1:
         return 1
 
-
-    if graph.number_of_edges() == 2 * graph.number_of_nodes() -3:
+    if graph.number_of_edges() == 2 * graph.number_of_nodes() - 3:
         if algorithm == "lnumber":
-            import lnumber
+            try:
+                import lnumber
+            except ImportError:
+                raise ImportError(
+                        "For counting the number of realizations with 'lnumber', "
+                        "the optional package 'lnumber' is used, "
+                        "run `pip install pyrigi[realization-counting]`!"
+                    )
+
             graph_int = export.to_int(graph)
 
             if spherical:
@@ -164,9 +178,12 @@ def number_of_realizations(
                 return _number_of_spherical_realizations_min_rigid_dim_2(graph) // fac
             else:
                 raise NotImplementedError()
-    else:
+    else:  # not minimally rigid
         if algorithm == "lnumber":
-            raise ValueError("The algorithm `lnumber` is only available for minimally rigid graphs but the input graph is not minimally rigid.")
+            raise ValueError(
+                "The algorithm `lnumber` is only available for minimally rigid graphs " +
+                "but the input graph is not minimally rigid."
+            )
         if global_rigidity.is_globally_rigid(graph, dim):
             return 2 // fac
         else:
@@ -179,18 +196,41 @@ def number_of_realizations(
                 sub = [graph.subgraph(c.union(cut)).copy() for c in con]
                 # Case where the vertices of the cut are adjacent
                 if graph.has_edge(*cut):
-                    return fac ** (len(sub) - 1) * math.prod([number_of_realizations(g, dim, algorithm, spherical, count_reflection) for g in sub])
+                    return fac ** (len(sub) - 1) * math.prod(
+                        [
+                            number_of_realizations(
+                                g, dim, algorithm, spherical, count_reflection
+                            )
+                            for g in sub
+                        ]
+                    )
                 else:
                     rig = [generic_rigidity.is_rigid(g, dim) for g in sub]
                     count_rig = rig.count(True)
                     if count_rig > 1:
                         [g.add_edge(*cut) for g in sub]
-                        return fac ** (len(sub) - 1) * math.prod([number_of_realizations(g, dim, algorithm, spherical, count_reflection) for g in sub])
+                        return fac ** (len(sub) - 1) * math.prod(
+                            [
+                                number_of_realizations(
+                                    g, dim, algorithm, spherical, count_reflection
+                                )
+                                for g in sub
+                            ]
+                        )
                     else:
                         pos = rig.index(True)
-                        res = fac ** (len(sub) - 1) * number_of_realizations(sub[pos], dim, algorithm, spherical, count_reflection)
-                        [g.add_edge(*cut) for g in (sub[0:pos] + sub[pos+1:])]
-                        return res * math.prod([number_of_realizations(g, dim, algorithm, spherical, count_reflection) for g in (sub[0:pos] + sub[pos+1:]) ])
+                        res = fac ** (len(sub) - 1) * number_of_realizations(
+                            sub[pos], dim, algorithm, spherical, count_reflection
+                        )
+                        [g.add_edge(*cut) for g in (sub[0:pos] + sub[pos + 1 :])]
+                        return res * math.prod(
+                            [
+                                number_of_realizations(
+                                    g, dim, algorithm, spherical, count_reflection
+                                )
+                                for g in (sub[0:pos] + sub[pos + 1 :])
+                            ]
+                        )
             # Case where the graph is 3-connected but not redundantly rigid
             else:
                 # Find edge e sucht that graph - e is not rigid
@@ -200,7 +240,7 @@ def number_of_realizations(
                 while len(edges) > 0 and not found:
                     e = edges.pop()
                     G.remove_edge(*e)
-                    if generic_rigidity.is_rigid(G,dim):
+                    if generic_rigidity.is_rigid(G, dim):
                         G.add_edge(*e)
                     else:
                         found = True
@@ -210,18 +250,36 @@ def number_of_realizations(
                 # Get minimally rigid spanning subgraphs
                 span = [sparsity.spanning_kl_sparse_subgraph(g, 2, 3) for g in max_sub]
                 # Compute result
-                prod_g = math.prod([number_of_realizations(g, dim, algorithm, spherical, count_reflection) for g in max_sub])
-                prod_h = math.prod([number_of_realizations(h, dim, algorithm, spherical, count_reflection) for h in span])
-                H = nx.compose(span[0],span[1])
+                prod_g = math.prod(
+                    [
+                        number_of_realizations(
+                            g, dim, algorithm, spherical, count_reflection
+                        )
+                        for g in max_sub
+                    ]
+                )
+                prod_h = math.prod(
+                    [
+                        number_of_realizations(
+                            h, dim, algorithm, spherical, count_reflection
+                        )
+                        for h in span
+                    ]
+                )
+                H = nx.compose(span[0], span[1])
                 for h in span[2:]:
-                    H = nx.compose(H,h)
+                    H = nx.compose(H, h)
                 H.add_edge(*e)
-                return number_of_realizations(H, dim, algorithm, spherical, count_reflection) * prod_g // prod_h
+                return (
+                    number_of_realizations(
+                        H, dim, algorithm, spherical, count_reflection
+                    )
+                    * prod_g
+                    // prod_h
+                )
 
 
-def _number_of_spherical_realizations_min_rigid_dim_2(
-    graph: nx.Graph
-) -> int | str:
+def _number_of_spherical_realizations_min_rigid_dim_2(graph: nx.Graph) -> int | str:
     G = deepcopy(graph)
     deg_2 = 0
     while len(G.vertex_list()) > 2 and G.min_degree() == 2:
@@ -230,42 +288,52 @@ def _number_of_spherical_realizations_min_rigid_dim_2(
         deg_2 += len(min_v)
 
     if G.number_of_nodes() == 0:
-        return (2 ** (deg_2 - 2))
+        return 2 ** (deg_2 - 2)
     elif G.number_of_nodes() == 2:
-        return (2 ** deg_2)
+        return 2**deg_2
     else:
-        return (2 ** deg_2) * _number_of_spherical_realizations_min_rigid_dim_2_rec(_graph_to_quadrograph(G))
+        return (2**deg_2) * _number_of_spherical_realizations_min_rigid_dim_2_rec(
+            _graph_to_quadrograph(G)
+        )
 
 
-def _number_of_spherical_realizations_min_rigid_dim_2_rec(pair):
+def _number_of_spherical_realizations_min_rigid_dim_2_rec(quadrograph):
     """Computes the number of spherical realizations recursively"""
-    N = pair[0];
-    Q = pair[1];
-    if len(N) in [3, 4]:
+    quad_N = quadrograph[0]
+    quad_Q = quadrograph[1]
+    if len(quad_N) in [3, 4]:
         return 1
-    if len(N) == 2:
+    if len(quad_N) == 2:
         return 0
-    q0 = Q[0]
-    a,b,c,d = tuple(q0)
-    Qprime = Q[1:]
-    tempN = list(set(N).difference(q0))
+    q0 = quad_Q[0]
+    a, b, c, d = tuple(q0)
+    Qprime = quad_Q[1:]
+    tempN = list(set(quad_N).difference(q0))
     allLists = more_itertools.powerset(tempN)
     sum = 0
-    counter = max(N)+1
+    counter = max(quad_N) + 1
     for subset in allLists:
-        I = [a,b] + list(subset)
-        Q22 = [q for q in Qprime if len(set(q).intersection(I)) == 2]
+        set_I = [a, b] + list(subset)
+        Q22 = [q for q in Qprime if len(set(q).intersection(set_I)) == 2]
         if len(Q22) > 0:
             continue
-        Q40 = [q for q in Qprime if len(set(q).intersection(I)) == 4]
-        Q31 = [q for q in Qprime if len(set(q).intersection(I)) == 3]
+        Q40 = [q for q in Qprime if len(set(q).intersection(set_I)) == 4]
+        Q31 = [q for q in Qprime if len(set(q).intersection(set_I)) == 3]
 
-        if (len(I) - len(Q40 + Q31) == 2):
-            J = [j for j in N if not(j in I)]
-            Q13new = [[x if (x in J) else counter for x in q] for q in Qprime if len(set(q).intersection(I)) == 1]
-            Q04 = [q for q in Qprime if len(set(q).intersection(I)) == 0]
-            Q31new = [ [x if (x in I) else counter for x in q] for q in Q31]
-            sum = sum + _number_of_spherical_realizations_min_rigid_dim_2_rec([I + [counter], Q40 + Q31new]) * _number_of_spherical_realizations_min_rigid_dim_2_rec([J + [counter], Q13new + Q04])
+        if len(set_I) - len(Q40 + Q31) == 2:
+            set_J = [j for j in quad_N if not (j in set_I)]
+            Q13new = [
+                [x if (x in set_J) else counter for x in q]
+                for q in Qprime
+                if len(set(q).intersection(set_I)) == 1
+            ]
+            Q04 = [q for q in Qprime if len(set(q).intersection(set_I)) == 0]
+            Q31new = [[x if (x in set_I) else counter for x in q] for q in Q31]
+            sum = sum + _number_of_spherical_realizations_min_rigid_dim_2_rec(
+                [set_I + [counter], Q40 + Q31new]
+            ) * _number_of_spherical_realizations_min_rigid_dim_2_rec(
+                [set_J + [counter], Q13new + Q04]
+            )
         else:
             continue
     return sum
@@ -276,11 +344,18 @@ def _graph_to_quadrograph(graph):
     n = graph.number_of_nodes()
     if n < 2:
         raise ValueError("Graph is to small")
-    N = range(1, 2 * n + 1)
-    Q = []
+    quad_N = range(1, 2 * n + 1)
+    quad_Q = []
     edges = graph.edge_list()
     vertices = graph.vertex_list()
     mapping = {vertices[i]: i + 1 for i in range(n)}
     for edge in edges:
-        Q.append([mapping[edge[0]], mapping[edge[1]], mapping[edge[0]] + n, mapping[edge[1]] + n])
-    return [N, Q]
+        quad_Q.append(
+            [
+                mapping[edge[0]],
+                mapping[edge[1]],
+                mapping[edge[0]] + n,
+                mapping[edge[1]] + n,
+            ]
+        )
+    return [quad_N, quad_Q]

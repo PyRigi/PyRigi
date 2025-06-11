@@ -7,7 +7,6 @@ from __future__ import annotations
 import math
 from itertools import combinations
 from typing import Collection, Iterable, Optional, Sequence
-from copy import deepcopy
 
 import networkx as nx
 from sympy import Matrix
@@ -626,9 +625,14 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         spherical: bool = False,
         count_reflection: bool = False,
-    ) -> int | string:
-        return realization_counting.number_of_realizations(self, dim=dim, algorithm=algorithm, spherical=spherical, count_reflection=count_reflection)
-
+    ) -> int | float:
+        return realization_counting.number_of_realizations(
+            self,
+            dim=dim,
+            algorithm=algorithm,
+            spherical=spherical,
+            count_reflection=count_reflection,
+        )
 
     @doc_category("Generic rigidity")
     @copy_doc(redundant_rigidity.is_vertex_redundantly_rigid)
