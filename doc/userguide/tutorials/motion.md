@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.6
+    jupytext_version: 1.17.2
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -81,6 +81,23 @@ setting the parameter ``animation_format`` to be either ``"svg"`` or ``"matplotl
 motion.animate(animation_format="matplotlib")
 ```
 
+Here is a simple 3D example:
+
+```{code-cell} ipython3
+%%skip_execution
+motion = ParametricMotion(
+    graphs.Diamond(),
+    {
+        0: (0, 0, 0),
+        1: (0, 0, 1),
+        2: (1, 0, 0),
+        3: (0, "cos(t)", "sin(t)"),
+    },
+    [0, sp.sympify("2*pi")],
+)
+motion.animate()
+```
+
 ## Approximate Motion
 
 However, a parametric motion is not always available. If you still want to get an
@@ -93,6 +110,7 @@ A cyclic motion of $K_{4,2}$ can be approximated using the following code:
 
 ```{code-cell} ipython3
 %%skip_execution
+from pyrigi import Framework
 from pyrigi.motion import ApproximateMotion
 from pyrigi import frameworkDB as frameworks
 ApproximateMotion.silence_numerical_alg_warns=True
@@ -114,5 +132,21 @@ to the placement of the second vertex. Alternatively, this vector can be specifi
 %%skip_execution
 F = frameworks.Path(5)
 motion = ApproximateMotion(F, 147, chosen_flex=1, fixed_pair=[0,4], fixed_direction=[0,1])
+motion.animate()
+```
+
+Here is a simple 3D example
+
+```{code-cell} ipython3
+%%skip_execution
+F = Framework(graphs.Diamond(),
+    {
+        0: (0, 0, 0),
+        1: (0, 0, 1),
+        2: (1, 0, 0),
+        3: (0, 1, 0),
+    }
+)
+motion = ApproximateMotion(F, steps=50, fixed_pair=[0,2])
 motion.animate()
 ```
