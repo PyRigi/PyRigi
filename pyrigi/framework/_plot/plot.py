@@ -115,7 +115,7 @@ def _resolve_inf_flex(
             + "length and the dimension needs to be 2 or 3."
         )
 
-    magnidutes = []
+    magnitudes = []
     for flex_key in inf_flex_pointwise.keys():
         if len(inf_flex_pointwise[flex_key]) != len(
             realization[list(realization.keys())[0]]
@@ -125,10 +125,10 @@ def _resolve_inf_flex(
                 + f"in dimension {len(realization[list(realization.keys())[0]])}."
             )
         inf_flex = [float(x) for x in inf_flex_pointwise[flex_key]]
-        magnidutes.append(np.linalg.norm(inf_flex))
+        magnitudes.append(np.linalg.norm(inf_flex))
 
     # normalize the edge lengths by the Euclidean norm of the longest one
-    flex_mag = max(magnidutes)
+    flex_mag = max(magnitudes)
     # Delete the edges with zero length
     inf_flex_pointwise = {
         v: np.array([coord / flex_mag for coord in flex], dtype=float)
