@@ -9,6 +9,7 @@ from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.graph import Graph
 from test import TEST_WRAPPED_FUNCTIONS
 from test.framework import _to_FrameworkBase
+from pyrigi._utils._zero_check import is_zero_vector
 
 
 @pytest.mark.parametrize(
@@ -401,9 +402,8 @@ def test_inf_flexes_numerical():
     QF = np.vstack(tuple(F.inf_flexes(include_trivial=False, numerical=True)))
     assert np.linalg.matrix_rank(QF) == 2
 
-    F = fws.Complete(5)
-    F_all = F.inf_flexes(include_trivial=True, numerical=True)
-    assert len(F_all) == 10
+    F = fws.Complete(5, dim=4)
+    assert len(F.inf_flexes(include_trivial=True, numerical=True)) == 10
 
     F = Framework.Random(graphs.DoubleBanana(), dim=3)
     inf_flexes = F.nontrivial_inf_flexes(numerical=True)
@@ -464,12 +464,16 @@ def test_inf_flexes_numerical():
         )
         assert np.linalg.matrix_rank(QF) == 2
 
-        F = fws.Complete(5)
+        F = fws.Complete(5, dim=4)
         F = _to_FrameworkBase(F)
-        F_all = infinitesimal_rigidity.inf_flexes(
-            F, include_trivial=True, numerical=True
+        assert (
+            len(
+                infinitesimal_rigidity.inf_flexes(
+                    F, include_trivial=True, numerical=True
+                )
+            )
+            == 10
         )
-        assert len(F_all) == 10
 
         F = Framework.Random(graphs.DoubleBanana(), dim=3)
         F = _to_FrameworkBase(F)
@@ -483,6 +487,76 @@ def test_inf_flexes_numerical():
             F, dict_flex, numerical=True, tolerance=1e-4
         )
         assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
+
+
+@pytest.mark.parametrize(
+    "include_trivial, numerical",
+    [[True, True], [True, False], [False, True], [False, False]],
+)
+@pytest.mark.parametrize(
+    "framework",
+    [
+        fws.Path(4),
+        fws.Cycle(5),
+        fws.Frustum(3),
+        fws.Frustum(4),
+        fws.Frustum(6),
+        fws.K33plusEdge(),
+        fws.ThreePrism(realization="parallel"),
+        fws.ThreePrism(realization="flexible"),
+        fws.Octahedron(realization="regular"),
+        Framework(
+            fws.Cube().graph.cone(),
+            fws.Cube().realization(as_points=True) | {8: ["1/2", "1/2", "1/2"]},
+        ),
+    ],
+)
+def test_vertex_fixing(framework, include_trivial, numerical):
+    fixed_vertices = framework._graph.edge_list()[0]
+    flexes = framework.inf_flexes(
+        include_trivial=include_trivial,
+        numerical=numerical,
+        fixed_vertices=fixed_vertices,
+    )
+    pointwise_zero_flexes = [
+        infinitesimal_rigidity._transform_inf_flex_to_pointwise(framework, flex)
+        for flex in flexes
+    ]
+    assert all(
+        is_zero_vector(point[v], numerical=numerical)
+        for v in fixed_vertices
+        for point in pointwise_zero_flexes
+    )
+    assert all(
+        any(
+            not is_zero_vector(point[v], numerical=numerical)
+            for v in framework._graph.nodes
+        )
+        for point in pointwise_zero_flexes
+    )
+    if TEST_WRAPPED_FUNCTIONS:
+        infinitesimal_rigidity.inf_flexes(
+            framework,
+            include_trivial=include_trivial,
+            numerical=numerical,
+            fixed_vertices=fixed_vertices,
+        )
+        pointwise_zero_flexes = [
+            infinitesimal_rigidity._transform_inf_flex_to_pointwise(framework, flex)
+            for flex in flexes
+        ]
+        assert all(
+            is_zero_vector(point[v], numerical=numerical)
+            for v in fixed_vertices
+            for point in pointwise_zero_flexes
+        )
+        assert all(
+            any(
+                not is_zero_vector(point[v], numerical=numerical)
+                for v in framework._graph.nodes
+            )
+            for point in pointwise_zero_flexes
+        )
 
 
 def test_is_vector_inf_flex():
