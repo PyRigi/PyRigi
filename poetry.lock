@@ -1471,15 +1471,16 @@ files = [
 
 [[package]]
 name = "lnumber"
-version = "0.13"
+version = "0.14"
 description = ""
 optional = true
 python-versions = "*"
 groups = ["main"]
+markers = "extra == \"realization-counting\""
 files = [
-    {file = "lnumber-0.13-py2.py3-none-win32.whl", hash = "sha256:54f050237b416880d9ef2410dcf0376ae4feb35036fb2dfb5639e5b0b683ad7d"},
-    {file = "lnumber-0.13-py2.py3-none-win_amd64.whl", hash = "sha256:73ba0ef23ee8c810c28ea746c547fc0f4d31dc2bab8436a74cff6afa9775cd5e"},
-    {file = "lnumber-0.13.tar.gz", hash = "sha256:2c0c45a74fd072cb43e05ee70b790e31ae3b72aab011e5e437597a57c8391ce0"},
+    {file = "lnumber-0.14-py2.py3-none-win32.whl", hash = "sha256:d7aa64976fddd3d42b32a91a2156a9db2fb4d17db6f243f21fea74bf6cfc89b5"},
+    {file = "lnumber-0.14-py2.py3-none-win_amd64.whl", hash = "sha256:e8837ad198d233e658a79248342699c67edc3f8065ca345c724ff7f1c84253f0"},
+    {file = "lnumber-0.14.tar.gz", hash = "sha256:32290b25852bc8d494f1e8a19d34f70943da5fdfff13a4d37ff962eed28549e4"},
 ]
 
 [[package]]
@@ -1489,6 +1490,7 @@ description = "Library for geometric robustness"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
+markers = "extra == \"meshing\""
 files = [
     {file = "manifold3d-3.1.0-cp310-cp310-macosx_10_14_universal2.whl", hash = "sha256:a419e7b2afb9be37a9c8b26aca66bd376e5f95027279ccd3fcf7bb0130ceaa64"},
     {file = "manifold3d-3.1.0-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:c1b9f724f9346ea47f8876e062870f93669f8db1f439182c902c7c8dbbe379e0"},
@@ -3503,6 +3505,7 @@ description = "Import, export, process, analyze and view triangular meshes."
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
+markers = "extra == \"meshing\""
 files = [
     {file = "trimesh-4.6.10-py3-none-any.whl", hash = "sha256:49a9e6a484acff45126658b401c44e50c5818a3ea7d6fc6516bfb4d5651d56c5"},
     {file = "trimesh-4.6.10.tar.gz", hash = "sha256:bd2a34e3ab981a5bae93768658bd73fc18e505551355eb14d4750bfbddc0fd8f"},
@@ -3804,4 +3807,4 @@ realization-counting = ["lnumber"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "d0c409e24ac33521259f0b89049abc6721ac43ddd5015e9ca4ddf2123de5237e"
+content-hash = "eb2de00d8639ebf8d7c7655633a64e948fb0319a6413b54b8d94d18ebf017ca8"

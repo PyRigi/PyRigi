@@ -35,8 +35,8 @@ documentation = "https://pyrigi.github.io/PyRigi/"
 Issues = "https://github.com/PyRigi/PyRigi/issues"
 
 [project.optional-dependencies]
-realization-counting = ["lnumber"]
-meshing = ["trimesh", "manifold3d"]
+realization-counting = ["lnumber (>=0.14,<0.15)"]
+meshing = ["trimesh (>=4.5.0, <5.0.0)", "manifold3d (>=3.0.1, <4.0.0)"]
 
 [tool.poetry]
 readme = "README.md"
@@ -45,11 +45,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-
-[tool.poetry.dependencies]
-trimesh = {version = "^4.5.0", optional = true}
-manifold3d = {version = "^3.0.1", optional = true}
-lnumber = {version = "^0.13", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
