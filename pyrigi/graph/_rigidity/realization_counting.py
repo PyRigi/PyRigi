@@ -284,6 +284,14 @@ def number_of_realizations(
 
 
 def _number_of_spherical_realizations_min_rigid_dim_2(graph: nx.Graph) -> int | str:
+    """
+    Compute the number of spherical realizations combinatorially within pyrigi
+
+    Parameters
+    ----------
+    graph:
+        A minimally rigid graph
+    """
     G = deepcopy(graph)
     deg_2 = 0
     while len(G.vertex_list()) > 2 and G.min_degree() == 2:
@@ -302,7 +310,15 @@ def _number_of_spherical_realizations_min_rigid_dim_2(graph: nx.Graph) -> int | 
 
 
 def _number_of_spherical_realizations_min_rigid_dim_2_rec(quadrograph):
-    """Computes the number of spherical realizations recursively"""
+    """
+    Compute the number of spherical realizations of a quadrograph recursively.
+
+    Parameters
+    ----------
+    quadrograph:
+        A pair [N,Q] representing vertices and edges of a quadrograph.
+        This pair comes initially from `_graph_to_quadrograph`
+    """
     quad_N = quadrograph[0]
     quad_Q = quadrograph[1]
     if len(quad_N) in [3, 4]:
@@ -344,7 +360,17 @@ def _number_of_spherical_realizations_min_rigid_dim_2_rec(quadrograph):
 
 
 def _graph_to_quadrograph(graph):
-    """Prepares a graph in edge representation for usage in SphereRealizationCountRec"""
+    """
+    Generate a quadrograph from a graph.
+    A quadrograph here is a pair (N,Q),
+    where N represents the set of vertices
+    and Q represents the set of biedges.
+
+    Parameters
+    ----------
+    graph:
+        A minimally rigid graph
+    """
     n = graph.number_of_nodes()
     if n < 2:
         raise ValueError("Graph is to small")
