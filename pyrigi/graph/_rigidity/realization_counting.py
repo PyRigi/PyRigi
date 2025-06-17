@@ -80,6 +80,8 @@ def number_of_realizations(
     12
     """  # noqa: E501
 
+    algorithm_in = algorithm
+
     if not generic_rigidity.is_rigid(graph, dim):
         return math.inf
 
@@ -101,9 +103,9 @@ def number_of_realizations(
                         "run `pip install pyrigi[realization-counting]`!"
                     )
     if algorithm == "pyrigi":
-        if spherical or graph.number_of_edges() > 2 * graph.number_of_nodes() - 3:
+        if spherical or graph.number_of_edges() > 2 * graph.number_of_nodes() - 3 or graph.number_of_edges() == math.comb(graph.number_of_nodes(), 2):
             _input_check.dimension_for_algorithm(
-                dim, [1, 2], "number_of_realizations"
+                dim, [1, 2], "number_of_realizations with algorithm pyrigi"
             )
         else:
             _input_check.dimension_for_algorithm(
@@ -143,10 +145,10 @@ def number_of_realizations(
             G.delete_vertices(cut)
             con = nx.connected_components(G)
             sub = [graph.subgraph(c.union(cut)).copy() for c in con]
-            return fac * math.prod(
+            return (fac ** (len(sub) - 1)) * math.prod(
                 [
                     number_of_realizations(
-                        g, dim, algorithm, spherical, count_reflection
+                        g, dim, algorithm_in, spherical, count_reflection
                     )
                     for g in sub
                 ]
@@ -155,6 +157,8 @@ def number_of_realizations(
     # dim == 2 from now on
     if graph.number_of_nodes() == 2 and graph.number_of_edges() == 1:
         return 1
+    if graph.number_of_nodes() == 3 and graph.number_of_edges() == 3:
+        return 2 // fac
 
     if graph.number_of_edges() == 2 * graph.number_of_nodes() - 3:
         if algorithm == "lnumber":
@@ -199,7 +203,7 @@ def number_of_realizations(
                     return fac ** (len(sub) - 1) * math.prod(
                         [
                             number_of_realizations(
-                                g, dim, algorithm, spherical, count_reflection
+                                g, dim, algorithm_in, spherical, count_reflection
                             )
                             for g in sub
                         ]
@@ -212,7 +216,7 @@ def number_of_realizations(
                         return fac ** (len(sub) - 1) * math.prod(
                             [
                                 number_of_realizations(
-                                    g, dim, algorithm, spherical, count_reflection
+                                    g, dim, algorithm_in, spherical, count_reflection
                                 )
                                 for g in sub
                             ]
@@ -220,13 +224,13 @@ def number_of_realizations(
                     else:
                         pos = rig.index(True)
                         res = fac ** (len(sub) - 1) * number_of_realizations(
-                            sub[pos], dim, algorithm, spherical, count_reflection
+                            sub[pos], dim, algorithm_in, spherical, count_reflection
                         )
                         [g.add_edge(*cut) for g in (sub[0:pos] + sub[pos + 1 :])]
                         return res * math.prod(
                             [
                                 number_of_realizations(
-                                    g, dim, algorithm, spherical, count_reflection
+                                    g, dim, algorithm_in, spherical, count_reflection
                                 )
                                 for g in (sub[0:pos] + sub[pos + 1 :])
                             ]
@@ -253,7 +257,7 @@ def number_of_realizations(
                 prod_g = math.prod(
                     [
                         number_of_realizations(
-                            g, dim, algorithm, spherical, count_reflection
+                            g, dim, algorithm_in, spherical, count_reflection
                         )
                         for g in max_sub
                     ]
@@ -261,7 +265,7 @@ def number_of_realizations(
                 prod_h = math.prod(
                     [
                         number_of_realizations(
-                            h, dim, algorithm, spherical, count_reflection
+                            h, dim, algorithm_in, spherical, count_reflection
                         )
                         for h in span
                     ]
@@ -272,7 +276,7 @@ def number_of_realizations(
                 H.add_edge(*e)
                 return (
                     number_of_realizations(
-                        H, dim, algorithm, spherical, count_reflection
+                        H, dim, algorithm_in, spherical, count_reflection
                     )
                     * prod_g
                     // prod_h
