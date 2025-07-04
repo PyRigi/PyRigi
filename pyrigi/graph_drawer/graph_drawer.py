@@ -25,6 +25,7 @@ from pyrigi.data_type import Edge
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
 from pyrigi.graph._export import export as graph_export
+from pyrigi.plot_style import PlotStyle, PlotStyle2D
 
 
 class GraphDrawer(object):
@@ -890,3 +891,44 @@ class GraphDrawer(object):
             for v in H.nodes:
                 posdict[v] = [Rational(x, self._grid_size) for x in posdict[v]]
         return Framework(graph=H, realization=posdict)
+
+    def plot_style(self):
+        """
+        Return the plot style that is currently set in the graph drawer.
+        """
+        vertex_labels = True if (self._vertex_labels == 1) else False
+        return PlotStyle2D(vertex_color=self._vertex_color, edge_color=self._edge_color, vertex_size=20*self._radius, vertex_labels=vertex_labels, edge_width=0.85*self._edge_width, font_size=int(round(0.85*self._label_size)))
+    
+    def custom_colors(self):
+        """
+        Return the colors of each vertex and edge in the graph drawer.
+
+        The custom vertex and edge colors are returned as a tuple of two dictionaries.
+        """
+        custom_vertex_colors = {}
+        for v in self._graph.nodes:
+            if self._graph.nodes[v]["color"] in custom_vertex_colors:
+                custom_vertex_colors[self._graph.nodes[v]["color"]] += [v]
+            else:
+                custom_vertex_colors |= {self._graph.nodes[v]["color"]:[v]}
+
+        custom_edge_colors = {}
+        for edge in self._graph.edge_list(as_tuples=True):
+            if self._graph[edge[0]][edge[1]]["color"] in custom_edge_colors:
+                custom_edge_colors[self._graph.nodes[edge[0]][edge[1]]["color"]] += [edge]
+            else:
+                custom_edge_colors |= {edge:self._graph[edge[0]][edge[1]]["color"]}
+
+        return custom_vertex_colors, custom_edge_colors
+    
+    def vertex_colors_custom(self):
+        """
+        Return the colors of each vertex in the graph drawer
+        """
+        return self.custom_colors()[0]
+    
+    def edge_colors_custom(self):
+        """
+        Return the colors of each edge in the graph drawer
+        """
+        return self.custom_colors()[1]

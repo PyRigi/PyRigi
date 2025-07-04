@@ -471,6 +471,7 @@ def _plot_with_2D_realization(
     ax: Axes,
     realization: dict[Vertex, Point],
     plot_style: PlotStyle2D,
+    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
 ) -> None:
@@ -485,6 +486,10 @@ def _plot_with_2D_realization(
     realization:
         A dictionary mapping vertices to their points in the realization.
     plot_style:
+    vertex_colors_custom:
+        It is possible to provide custom vertex colors through this parameter.
+        They can either be provided through a partition of vertices or a
+        dictionary with ``str`` color keywords that map to lists of vertices.
     edge_colors_custom:
         It is possible to provide custom edge colors through this parameter.
         They can either be provided through a partition of edges or a
@@ -492,6 +497,10 @@ def _plot_with_2D_realization(
     arc_angles_dict:
         A dictionary specifying arc angles for curved edges.
     """
+    vertex_color_array, vertex_list_ref = _resolve_vertex_colors(
+        framework, plot_style.vertex_color, vertex_colors_custom
+    )
+
     edge_color_array, edge_list_ref = _resolve_edge_colors(
         framework, plot_style.edge_color, edge_colors_custom
     )
@@ -506,6 +515,8 @@ def _plot_with_2D_realization(
             node_shape=plot_style.vertex_shape,
             with_labels=plot_style.vertex_labels,
             width=plot_style.edge_width,
+            node_color=vertex_color_array,
+            nodelist=vertex_list_ref,
             edge_color=edge_color_array,
             font_color=plot_style.font_color,
             font_size=plot_style.font_size,
@@ -565,6 +576,7 @@ def _plot_with_3D_realization(
     ax: Axes,
     realization: dict[Vertex, Point],
     plot_style: PlotStyle3D,
+    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
 ) -> None:
     """
@@ -578,12 +590,19 @@ def _plot_with_3D_realization(
     realization:
         A dictionary mapping vertices to their points in the realization.
     plot_style:
+    vertex_colors_custom:
+        It is possible to provide custom vertex colors through this parameter.
+        They can either be provided through a partition of vertices or a
+        dictionary with ``str`` color keywords that map to lists of vertices.
     edge_colors_custom:
         It is possible to provide custom edge colors through this parameter.
         They can either be provided through a partition of edges or a
         dictionary with ``str`` color keywords that map to lists of edges.
     """
     # Create a figure for the representation of the framework
+    vertex_color_array, vertex_list_ref = _resolve_vertex_colors(
+        framework, plot_style.vertex_color, vertex_colors_custom
+    )
 
     edge_color_array, edge_list_ref = _resolve_edge_colors(
         framework, plot_style.edge_color, edge_colors_custom
@@ -591,7 +610,7 @@ def _plot_with_3D_realization(
 
     # Center the realization
     x_coords, y_coords, z_coords = [
-        [realization[u][i] for u in framework._graph.nodes] for i in range(3)
+        [realization[u][i] for u in vertex_list_ref] for i in range(3)
     ]
     min_coord = min(x_coords + y_coords + z_coords) - plot_style.padding
     max_coord = max(x_coords + y_coords + z_coords) + plot_style.padding
@@ -599,14 +618,15 @@ def _plot_with_3D_realization(
     ax.set_zlim(min_coord * aspect_ratio[0], max_coord * aspect_ratio[0])
     ax.set_ylim(min_coord * aspect_ratio[1], max_coord * aspect_ratio[1])
     ax.set_xlim(min_coord * aspect_ratio[2], max_coord * aspect_ratio[2])
-    ax.scatter(
-        x_coords,
-        y_coords,
-        z_coords,
-        c=plot_style.vertex_color,
-        s=plot_style.vertex_size,
-        marker=plot_style.vertex_shape,
-    )
+    for i in range(len(vertex_list_ref)):
+        ax.scatter(
+            [x_coords[i]],
+            [y_coords[i]],
+            [z_coords[i]],
+            s=plot_style.vertex_size,
+            marker=plot_style.vertex_shape,
+            c=vertex_color_array[i]
+        )
 
     for i in range(len(edge_list_ref)):
         edge = edge_list_ref[i]
@@ -766,6 +786,71 @@ def _resolve_edge_colors(
     return edge_color_array, edge_list_ref
 
 
+def _resolve_vertex_colors(
+    framework: FrameworkBase,
+    vertex_color: str,
+    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+) -> tuple[list, list]:
+    """
+    Return the lists of colors and vertices in the format for plotting.
+    """
+    G = framework._graph
+    vertex_list = graph_general.vertex_list(G)
+    vertex_list_ref = []
+    vertex_color_array = []
+
+    if vertex_colors_custom is None:
+        vertex_colors_custom = {}
+
+    if not isinstance(vertex_color, str):
+        raise TypeError("The provided `edge_color` is not a string. ")
+
+    if isinstance(vertex_colors_custom, list):
+        vertex_partition = vertex_colors_custom
+        colors = distinctipy.get_colors(
+            len(vertex_partition), colorblind_type="Deuteranomaly", pastel_factor=0.2
+        )
+        for i, part in enumerate(vertex_partition):
+            for v in part:
+                if not G.has_node(v):
+                    raise ValueError("The input includes a pair that is not an edge.")
+                vertex_color_array.append(colors[i])
+                vertex_list_ref.append(tuple(e))
+    elif isinstance(vertex_colors_custom, dict):
+        color_vertex_dict = vertex_colors_custom
+        for color, vertices in color_vertex_dict.items():
+            for v in vertices:
+                if not G.has_node(v):
+                    raise ValueError(
+                        "The input includes an vertex that is not part of the framework"
+                    )
+                vertex_color_array.append(color)
+                vertex_list_ref.append(v)
+    else:
+        raise ValueError(
+            "The input vertex_colors_custom has none of the supported formats."
+        )
+    for v in vertex_list:
+        if v not in vertex_list_ref and v not in vertex_list_ref:
+            vertex_color_array.append(vertex_color)
+            vertex_list_ref.append(v)
+    if len(vertex_list_ref) > G.number_of_vertices():
+        multiple_colored = [
+            v
+            for v in edge_list_ref
+            if (vertex_list_ref.count(v) > 1 or v in vertex_list_ref)
+        ]
+        duplicates = []
+        for v in multiple_colored:
+            if not (v in duplicates):
+                duplicates.append(v)
+        raise ValueError(
+            f"The color of the vertices in the following list"
+            f"was specified multiple times: {duplicates}."
+        )
+    return vertex_color_array, vertex_list_ref
+
+
 def plot2D(
     framework: FrameworkBase,
     plot_style: PlotStyle = None,
@@ -774,6 +859,7 @@ def plot2D(
     coordinates: Sequence[int] = None,
     inf_flex: int | InfFlex = None,
     stress: int | Stress = None,
+    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     stress_label_positions: dict[DirectedEdge, float] = None,
     arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
@@ -827,6 +913,10 @@ def plot2D(
         If the edge order needs to be specified, a ``Dict[Edge, Number]``
         can be provided, which maps the edges to numbers
         (i.e. coordinates).
+    vertex_colors_custom:
+        It is possible to provide custom vertex colors through this parameter.
+        They can either be provided through a partition of vertices or a
+        dictionary with ``str`` color keywords that map to lists of vertices.
     edge_colors_custom:
         Optional parameter to specify the colors of edges. It can be
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
