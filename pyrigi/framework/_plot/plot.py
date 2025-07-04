@@ -624,7 +624,7 @@ def _plot_with_3D_realization(
             [z_coords[i]],
             s=plot_style.vertex_size,
             marker=plot_style.vertex_shape,
-            c=vertex_color_array[i]
+            c=vertex_color_array[i],
         )
 
     for i in range(len(edge_list_ref)):

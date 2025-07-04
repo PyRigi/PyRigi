@@ -897,8 +897,15 @@ class GraphDrawer(object):
         Return the plot style that is currently set in the graph drawer.
         """
         vertex_labels = True if (self._vertex_labels == 1) else False
-        return PlotStyle2D(vertex_color=self._vertex_color, edge_color=self._edge_color, vertex_size=20*self._radius, vertex_labels=vertex_labels, edge_width=0.8*self._edge_width, font_size=int(round(0.85*self._label_size)))
-    
+        return PlotStyle2D(
+            vertex_color=self._vertex_color,
+            edge_color=self._edge_color,
+            vertex_size=20 * self._radius,
+            vertex_labels=vertex_labels,
+            edge_width=0.8 * self._edge_width,
+            font_size=int(round(0.85 * self._label_size)),
+        )
+
     def custom_colors(self):
         """
         Return the colors of each vertex and edge in the graph drawer.
@@ -910,23 +917,25 @@ class GraphDrawer(object):
             if self._graph.nodes[v]["color"] in custom_vertex_colors:
                 custom_vertex_colors[self._graph.nodes[v]["color"]] += [v]
             else:
-                custom_vertex_colors |= {self._graph.nodes[v]["color"]:[v]}
+                custom_vertex_colors |= {self._graph.nodes[v]["color"]: [v]}
 
         custom_edge_colors = {}
         for edge in self._graph.edge_list(as_tuples=True):
             if self._graph[edge[0]][edge[1]]["color"] in custom_edge_colors:
-                custom_edge_colors[self._graph.nodes[edge[0]][edge[1]]["color"]] += [edge]
+                custom_edge_colors[self._graph.nodes[edge[0]][edge[1]]["color"]] += [
+                    edge
+                ]
             else:
-                custom_edge_colors |= {self._graph[edge[0]][edge[1]]["color"]:[edge]}
+                custom_edge_colors |= {self._graph[edge[0]][edge[1]]["color"]: [edge]}
 
         return custom_vertex_colors, custom_edge_colors
-    
+
     def vertex_colors_custom(self):
         """
         Return the colors of each vertex in the graph drawer
         """
         return self.custom_colors()[0]
-    
+
     def edge_colors_custom(self):
         """
         Return the colors of each edge in the graph drawer
