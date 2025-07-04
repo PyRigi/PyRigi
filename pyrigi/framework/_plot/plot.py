@@ -511,7 +511,6 @@ def _plot_with_2D_realization(
             pos=realization,
             ax=ax,
             node_size=plot_style.vertex_size,
-            node_color=plot_style.vertex_color,
             node_shape=plot_style.vertex_shape,
             with_labels=plot_style.vertex_labels,
             width=plot_style.edge_width,
@@ -834,7 +833,7 @@ def _resolve_vertex_colors(
         if v not in vertex_list_ref and v not in vertex_list_ref:
             vertex_color_array.append(vertex_color)
             vertex_list_ref.append(v)
-    if len(vertex_list_ref) > G.number_of_vertices():
+    if len(vertex_list_ref) > G.number_of_nodes():
         multiple_colored = [
             v
             for v in edge_list_ref
@@ -1019,6 +1018,7 @@ def plot2D(
         placement,
         plot_style=plot_style,
         edge_colors_custom=edge_colors_custom,
+        vertex_colors_custom=vertex_colors_custom,
         arc_angles_dict=arc_angles_dict,
     )
 
@@ -1194,6 +1194,7 @@ def plot3D(
     coordinates: Sequence[int] = None,
     inf_flex: int | InfFlex = None,
     stress: int | Stress = None,
+    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     stress_label_positions: dict[DirectedEdge, float] = None,
     filename: str = None,
@@ -1247,6 +1248,12 @@ def plot3D(
         If the edge order needs to be specified, a ``Dict[Edge, Number]``
         can be provided, which maps the edges to numbers
         (i.e. coordinates).
+    vertex_colors_custom:
+        Optional parameter to specify the colors of vertices. It can be
+        a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same color
+        or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings and the
+        values are lists of vertices.
+        The ommited vertices are given the value ``plot_style.vertex_color``.
     edge_colors_custom:
         Optional parameter to specify the colors of edges. It can be
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
@@ -1349,6 +1356,7 @@ def plot3D(
         ax,
         _placement,
         plot_style,
+        vertex_colors_custom=vertex_colors_custom,
         edge_colors_custom=edge_colors_custom,
     )
 

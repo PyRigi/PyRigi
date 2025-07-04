@@ -897,7 +897,7 @@ class GraphDrawer(object):
         Return the plot style that is currently set in the graph drawer.
         """
         vertex_labels = True if (self._vertex_labels == 1) else False
-        return PlotStyle2D(vertex_color=self._vertex_color, edge_color=self._edge_color, vertex_size=20*self._radius, vertex_labels=vertex_labels, edge_width=0.85*self._edge_width, font_size=int(round(0.85*self._label_size)))
+        return PlotStyle2D(vertex_color=self._vertex_color, edge_color=self._edge_color, vertex_size=20*self._radius, vertex_labels=vertex_labels, edge_width=0.8*self._edge_width, font_size=int(round(0.85*self._label_size)))
     
     def custom_colors(self):
         """
@@ -917,7 +917,7 @@ class GraphDrawer(object):
             if self._graph[edge[0]][edge[1]]["color"] in custom_edge_colors:
                 custom_edge_colors[self._graph.nodes[edge[0]][edge[1]]["color"]] += [edge]
             else:
-                custom_edge_colors |= {edge:self._graph[edge[0]][edge[1]]["color"]}
+                custom_edge_colors |= {self._graph[edge[0]][edge[1]]["color"]:[edge]}
 
         return custom_vertex_colors, custom_edge_colors
     
