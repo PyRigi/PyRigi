@@ -471,7 +471,9 @@ def _plot_with_2D_realization(
     ax: Axes,
     realization: dict[Vertex, Point],
     plot_style: PlotStyle2D,
-    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    vertex_colors_custom: (
+        Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+    ) = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     arc_angles_dict: Sequence[float] | dict[Edge, float] = None,
 ) -> None:
@@ -575,7 +577,9 @@ def _plot_with_3D_realization(
     ax: Axes,
     realization: dict[Vertex, Point],
     plot_style: PlotStyle3D,
-    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    vertex_colors_custom: (
+        Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+    ) = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
 ) -> None:
     """
@@ -788,7 +792,9 @@ def _resolve_edge_colors(
 def _resolve_vertex_colors(
     framework: FrameworkBase,
     vertex_color: str,
-    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    vertex_colors_custom: (
+        Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+    ) = None,
 ) -> tuple[list, list]:
     """
     Return the lists of colors and vertices in the format for plotting.
@@ -814,7 +820,7 @@ def _resolve_vertex_colors(
                 if not G.has_node(v):
                     raise ValueError("The input includes a pair that is not an edge.")
                 vertex_color_array.append(colors[i])
-                vertex_list_ref.append(tuple(e))
+                vertex_list_ref.append(v)
     elif isinstance(vertex_colors_custom, dict):
         color_vertex_dict = vertex_colors_custom
         for color, vertices in color_vertex_dict.items():
@@ -836,7 +842,7 @@ def _resolve_vertex_colors(
     if len(vertex_list_ref) > G.number_of_nodes():
         multiple_colored = [
             v
-            for v in edge_list_ref
+            for v in vertex_list_ref
             if (vertex_list_ref.count(v) > 1 or v in vertex_list_ref)
         ]
         duplicates = []
@@ -858,7 +864,9 @@ def plot2D(
     coordinates: Sequence[int] = None,
     inf_flex: int | InfFlex = None,
     stress: int | Stress = None,
-    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    vertex_colors_custom: (
+        Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+    ) = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     stress_label_positions: dict[DirectedEdge, float] = None,
     arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
@@ -1051,6 +1059,9 @@ def plot2D(
 def animate3D_rotation(
     framework: FrameworkBase,
     plot_style: PlotStyle = None,
+    vertex_colors_custom: (
+        Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+    ) = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     total_frames: int = 100,
     delay: int = 75,
@@ -1068,6 +1079,12 @@ def animate3D_rotation(
     plot_style:
         An instance of the ``PlotStyle`` class that defines the visual style
         for plotting, see :class:`PlotStyle` for more details.
+    vertex_colors_custom:
+        Optional parameter to specify the colors of vertices. It can be
+        a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same color
+        or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings and the
+        values are lists of vertices.
+        The ommited vertices are given the value ``plot_style.vertex_color``.
     edge_colors_custom:
         Optional parameter to specify the colors of edges. It can be
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
@@ -1180,6 +1197,7 @@ def animate3D_rotation(
     return motion.animate3D(
         _realizations,
         plot_style=plot_style,
+        vertex_colors_custom=vertex_colors_custom,
         edge_colors_custom=edge_colors_custom,
         duration=duration,
         **kwargs,

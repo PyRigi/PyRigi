@@ -25,7 +25,7 @@ from pyrigi.data_type import Edge
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
 from pyrigi.graph._export import export as graph_export
-from pyrigi.plot_style import PlotStyle, PlotStyle2D
+from pyrigi.plot_style import PlotStyle2D
 
 
 class GraphDrawer(object):
@@ -922,9 +922,7 @@ class GraphDrawer(object):
         custom_edge_colors = {}
         for edge in self._graph.edge_list(as_tuples=True):
             if self._graph[edge[0]][edge[1]]["color"] in custom_edge_colors:
-                custom_edge_colors[self._graph.nodes[edge[0]][edge[1]]["color"]] += [
-                    edge
-                ]
+                custom_edge_colors[self._graph[edge[0]][edge[1]]["color"]] += [edge]
             else:
                 custom_edge_colors |= {self._graph[edge[0]][edge[1]]["color"]: [edge]}
 
