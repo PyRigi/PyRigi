@@ -136,7 +136,10 @@ class Motion(object):
     def animate3D(
         self,
         realizations: Sequence[dict[Vertex, Point]],
-        plot_style: PlotStyle,
+        plot_style: PlotStyle = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
         filename: str = None,
@@ -156,6 +159,12 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
+        vertex_colors_custom:
+            Optional parameter to specify the colors of vertices. It can be
+            a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same
+            color or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings
+            and the values are lists of vertices.
+            The ommited vertices are given the value ``plot_style.vertex_color``.
         edge_colors_custom:
             Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
@@ -181,6 +190,12 @@ class Motion(object):
 
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
+        vertex_color_array, vertex_list_ref = framework_plot._resolve_vertex_colors(
+            self, plot_style.vertex_color, vertex_colors_custom
+        )
+        edge_color_array, edge_list_ref = framework_plot._resolve_edge_colors(
+            self, plot_style.edge_color, edge_colors_custom
+        )
 
         delay = int(round(duration / len(realizations) * 1000))  # Set the delay in ms
 
@@ -209,23 +224,9 @@ class Motion(object):
 
         ax.set_box_aspect(plot_style.axis_scales)
 
-        # Update the plot_style instance with any passed keyword arguments
-        edge_color_array, edge_list_ref = framework_plot._resolve_edge_colors(
-            self, plot_style.edge_color, edge_colors_custom
-        )
-
         # Initializing points (vertices) and lines (edges) for display
-        (vertices_plot,) = ax.plot(
-            [],
-            [],
-            [],
-            plot_style.vertex_shape,
-            color=plot_style.vertex_color,
-            markersize=plot_style.vertex_size,
-        )
-        lines = [
+        lines_plot = [
             ax.plot(
-                [],
                 [],
                 [],
                 c=edge_color_array[i],
@@ -234,6 +235,17 @@ class Motion(object):
             )[0]
             for i in range(len(edge_list_ref))
         ]
+        vertices_plot = [
+            ax.plot(
+                [],
+                [],
+                plot_style.vertex_shape,
+                color=vertex_color_array[i],
+                markersize=plot_style.vertex_size,
+            )[0]
+            for i in range(len(vertex_list_ref))
+        ]
+
         annotated_text = []
         if plot_style.vertex_labels:
             annotated_text = [
@@ -252,26 +264,28 @@ class Motion(object):
 
         # Animation initialization function.
         def init():
-            vertices_plot.set_data([], [])  # Initial coordinates of vertices
-            vertices_plot.set_3d_properties([])  # Initial 3D properties of vertices
-            for line in lines:
+            for vertex in vertices_plot:
+                vertex.set_data([], [])  # Initial coordinates of vertices
+                vertex.set_3d_properties([])  # Initial 3D properties of vertices
+            for line in lines_plot:
                 line.set_data([], [])
                 line.set_3d_properties([])
-            return [vertices_plot] + lines
+            return vertices_plot + lines_plot
 
         def update(frame):
             # Update vertices positions
-            vertices_plot.set_data(
-                [realizations[frame][v][0] for v in self._graph.nodes],
-                [realizations[frame][v][1] for v in self._graph.nodes],
-            )
-            vertices_plot.set_3d_properties(
-                [realizations[frame][v][2] for v in self._graph.nodes]
-            )
+            # Update vertices positions
+            for i, v in enumerate(vertex_list_ref):
+                vertex = vertices_plot[i]
+                vertex.set_data(
+                    [realizations[frame][v][0]],
+                    [realizations[frame][v][1]],
+                )
+                vertex.set_3d_properties([realizations[frame][v][2]])
 
             # Update the edges
-            for i, (u, v) in enumerate(self._graph.edges):
-                line = lines[i]
+            for i, (u, v) in enumerate(edge_list_ref):
+                line = lines_plot[i]
                 line.set_data(
                     [realizations[frame][u][0], realizations[frame][v][0]],
                     [realizations[frame][u][1], realizations[frame][v][1]],
@@ -291,7 +305,7 @@ class Motion(object):
                     annotated_text[i].set_3d_properties(
                         realizations[frame][list(realizations[frame].keys())[i]][2]
                     )
-            return lines + [vertices_plot] + annotated_text
+            return lines_plot + vertices_plot + annotated_text
 
         ani = FuncAnimation(
             fig,
@@ -325,7 +339,10 @@ class Motion(object):
     def animate2D_plt(
         self,
         realizations: Sequence[dict[Vertex, Point]],
-        plot_style: PlotStyle,
+        plot_style: PlotStyle = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
         filename: str = None,
@@ -346,6 +363,12 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
+        vertex_colors_custom:
+            Optional parameter to specify the colors of vertices. It can be
+            a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same
+            color or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings
+            and the values are lists of vertices.
+            The ommited vertices are given the value ``plot_style.vertex_color``.
         edge_colors_custom:
             Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
@@ -376,6 +399,13 @@ class Motion(object):
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
 
+        vertex_color_array, vertex_list_ref = framework_plot._resolve_vertex_colors(
+            self, plot_style.vertex_color, vertex_colors_custom
+        )
+        edge_color_array, edge_list_ref = framework_plot._resolve_edge_colors(
+            self, plot_style.edge_color, edge_colors_custom
+        )
+
         fig, ax = plt.subplots()
         fig.set_figwidth(plot_style.canvas_width)
         fig.set_figheight(plot_style.canvas_height)
@@ -404,13 +434,8 @@ class Motion(object):
             marker=plot_style.vertex_shape,
         )
 
-        # Update the plot_style instance with any passed keyword arguments
-        edge_color_array, edge_list_ref = framework_plot._resolve_edge_colors(
-            self, plot_style.edge_color, edge_colors_custom
-        )
-
         # Initializing points (vertices) and lines (edges) for display
-        lines = [
+        lines_plot = [
             ax.plot(
                 [],
                 [],
@@ -420,13 +445,16 @@ class Motion(object):
             )[0]
             for i in range(len(edge_list_ref))
         ]
-        (vertices_plot,) = ax.plot(
-            [],
-            [],
-            plot_style.vertex_shape,
-            color=plot_style.vertex_color,
-            markersize=plot_style.vertex_size,
-        )
+        vertices_plot = [
+            ax.plot(
+                [],
+                [],
+                plot_style.vertex_shape,
+                color=vertex_color_array[i],
+                markersize=plot_style.vertex_size,
+            )[0]
+            for i in range(len(vertex_list_ref))
+        ]
         annotated_text = []
         if plot_style.vertex_labels:
             annotated_text = [
@@ -444,29 +472,31 @@ class Motion(object):
 
         # Animation initialization function.
         def init():
-            vertices_plot.set_data([], [])  # Initial coordinates of vertices
-            for line in lines:
+            for vertex in vertices_plot:
+                vertex.set_data([], [])  # Initial coordinates of vertices
+            for line in lines_plot:
                 line.set_data([], [])
-            return [vertices_plot] + lines
+            return vertices_plot + lines_plot
 
         def update(frame):
             # Update the edges
-            for i, (u, v) in enumerate(self._graph.edges):
-                line = lines[i]
+            for i, (u, v) in enumerate(edge_list_ref):
+                line = lines_plot[i]
                 line.set_data(
                     [realizations[frame][u][0], realizations[frame][v][0]],
                     [realizations[frame][u][1], realizations[frame][v][1]],
                 )
             # Update vertices positions
-            vertices_plot.set_data(
-                [realizations[frame][v][0] for v in self._graph.nodes],
-                [realizations[frame][v][1] for v in self._graph.nodes],
-            )
-
+            for i, v in enumerate(vertex_list_ref):
+                vertex = vertices_plot[i]
+                vertex.set_data(
+                    [realizations[frame][v][0]],
+                    [realizations[frame][v][1]],
+                )
             if plot_style.vertex_labels:
                 for i, (v, pos) in enumerate(realizations[frame].items()):
                     annotated_text[i].set_position(pos)
-            return lines + [vertices_plot] + annotated_text
+            return lines_plot + vertices_plot + annotated_text
 
         ani = FuncAnimation(
             fig,
@@ -499,7 +529,11 @@ class Motion(object):
     def animate2D_svg(
         self,
         realizations: Sequence[dict[Vertex, Point]],
-        plot_style: PlotStyle,
+        plot_style: PlotStyle = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         duration: float = 8,
         filename: str = None,
         **kwargs,
@@ -516,6 +550,18 @@ class Motion(object):
         plot_style:
             An instance of the ``PlotStyle`` class that defines the visual style
             for plotting, see :class:`~.PlotStyle` for more details.
+        vertex_colors_custom:
+            Optional parameter to specify the colors of vertices. It can be
+            a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same
+            color or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings
+            and the values are lists of vertices.
+            The ommited vertices are given the value ``plot_style.vertex_color``.
+        edge_colors_custom:
+            Optional parameter to specify the colors of edges. It can be
+            a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
+            or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
+            values are lists of edges.
+            The omitted edges are given the value ``plot_style.edge_color``.
         duration:
             The duration of one period of the animation in seconds.
         filename:
@@ -544,6 +590,12 @@ class Motion(object):
             plot_style = PlotStyle2D.from_plot_style(plot_style)
         # Update the plot_style instance with any passed keyword arguments
         plot_style.update(**kwargs)
+        vertex_color_array, vertex_list_ref = framework_plot._resolve_vertex_colors(
+            self, plot_style.vertex_color, vertex_colors_custom
+        )
+        edge_color_array, edge_list_ref = framework_plot._resolve_edge_colors(
+            self, plot_style.edge_color, edge_colors_custom
+        )
 
         width = plot_style.canvas_width
         height = plot_style.canvas_height
@@ -562,7 +614,7 @@ class Motion(object):
         svg += '<rect width="%" height="100%" fill="white"/>\n'
 
         v_to_int = {}
-        for i, v in enumerate(self._graph.nodes):
+        for i, v in enumerate(vertex_list_ref):
             v_to_int[v] = i
             tmp = """<defs>\n"""
             v_label = str(v)
@@ -570,9 +622,7 @@ class Motion(object):
             tmp += 'refX="15" refY="15" '
             tmp += f'markerWidth="{plot_style.vertex_size*5/plot_style.edge_width}" '
             tmp += f'markerHeight="{plot_style.vertex_size*5/plot_style.edge_width}">\n'
-            tmp += (
-                f'\t<circle cx="15" cy="15" r="13.5" fill="{plot_style.vertex_color}" '
-            )
+            tmp += f'\t<circle cx="15" cy="15" r="13.5" fill="{vertex_color_array[i]}" '
             tmp += 'stroke="white" stroke-width="0"/>\n'
             if plot_style.vertex_labels:
                 tmp += (
@@ -583,10 +633,10 @@ class Motion(object):
             tmp += "\t</marker>\n</defs>\n"
             svg = svg + "\n" + tmp
 
-        for u, v in self._graph.edges:
+        for i, (u, v) in enumerate(edge_list_ref):
             ru = _realizations[0][u]
             rv = _realizations[0][v]
-            path = f'<path fill="transparent" stroke="{plot_style.edge_color}" '
+            path = f'<path fill="transparent" stroke="{edge_color_array[i]}" '
             path += f'stroke-width="{plot_style.edge_width}px" '
             path += f'id="edge{v_to_int[u]}-{v_to_int[v]}" d="M {ru[0]} {ru[1]} '
             path += f'L {rv[0]} {rv[1]}" marker-start="url(#vertex{v_to_int[u]})" '
@@ -594,7 +644,7 @@ class Motion(object):
             svg = svg + "\n" + path
         svg = svg + "\n"
 
-        for u, v in self._graph.edges:
+        for u, v in edge_list_ref:
             positions_str = ""
             for r in _realizations:
                 ru = r[u]
@@ -618,8 +668,11 @@ class Motion(object):
     def animate(
         self,
         realizations: Sequence[dict[Vertex, Point]],
-        plot_style: PlotStyle,
-        animation_format: Literal["svg", "matplotlib"] = "svg",
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
+        edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+        animation_format: str | Literal["svg", "matplotlib"] = "svg",
         **kwargs,
     ) -> Any:
         """
@@ -634,9 +687,18 @@ class Motion(object):
         ----------
         realizations:
             A sequence of realizations of the underlying graph describing the motion.
-        plot_style:
-            An instance of the ``PlotStyle`` class that defines the visual style
-            for plotting, see :class:`~.PlotStyle` for more details.
+        vertex_colors_custom:
+            Optional parameter to specify the colors of vertices. It can be
+            a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same
+            color or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings
+            and the values are lists of vertices.
+            The ommited vertices are given the value ``plot_style.vertex_color``.
+        edge_colors_custom:
+            Optional parameter to specify the colors of edges. It can be
+            a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
+            or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
+            values are lists of edges.
+            The omitted edges are given the value ``plot_style.edge_color``.
         animation_format:
             In dimension two, the ``animation_format`` can be set to determine,
             whether the output is in the ``.svg`` format or in the ``matplotlib`` format.
@@ -645,15 +707,29 @@ class Motion(object):
             :meth:`~.Motion.animate2D_plt`.
         """
         if self._dim == 3:
-            return self.animate3D(realizations, plot_style=plot_style, **kwargs)
+            return self.animate3D(
+                realizations,
+                vertex_colors_custom=vertex_colors_custom,
+                edge_colors_custom=edge_colors_custom,
+                **kwargs,
+            )
         _input_check.dimension_for_algorithm(self._dim, [1, 2, 3], "animate3D")
-
-        if animation_format == "svg":
-            return self.animate2D_svg(realizations, plot_style=plot_style, **kwargs)
-        elif animation_format == "matplotlib":
-            return self.animate2D_plt(realizations, plot_style=plot_style, **kwargs)
+        if animation_format.lower() == "svg":
+            return self.animate2D_svg(
+                realizations,
+                vertex_colors_custom=vertex_colors_custom,
+                edge_colors_custom=edge_colors_custom,
+                **kwargs,
+            )
+        elif animation_format.lower() == "matplotlib":
+            return self.animate2D_plt(
+                realizations,
+                vertex_colors_custom=vertex_colors_custom,
+                edge_colors_custom=edge_colors_custom,
+                **kwargs,
+            )
         else:
             raise ValueError(
                 "The Literal `animation_format` needs to be "
-                + 'either "svg" or "matplotlib".'
+                + f'either "svg" or "matplotlib", but is {animation_format}.'
             )
