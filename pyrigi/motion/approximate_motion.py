@@ -609,7 +609,6 @@ class ApproximateMotion(Motion):
         realizations = self._motion_samples
         return super().animate(
             realizations,
-            None,
             **kwargs,
         )
 
