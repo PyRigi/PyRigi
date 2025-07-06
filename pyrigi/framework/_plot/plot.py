@@ -1212,7 +1212,7 @@ def plot3D(
     coordinates: Sequence[int] = None,
     inf_flex: int | InfFlex = None,
     stress: int | Stress = None,
-    vertex_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
+    vertex_colors_custom: Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]] = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     stress_label_positions: dict[DirectedEdge, float] = None,
     filename: str = None,
