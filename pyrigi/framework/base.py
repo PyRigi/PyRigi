@@ -537,7 +537,7 @@ class FrameworkBase(object):
         if realization is None:
             realization = self._realization
         if vertex not in realization:
-            raise KeyError("Vertex {vertex} is not a key of the given realization!")
+            raise KeyError(f"Vertex {vertex} is not a key of the given realization!")
 
     def _input_check_point_dimension(self, point: Point) -> None:
         """

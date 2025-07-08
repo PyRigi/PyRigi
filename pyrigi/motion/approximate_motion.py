@@ -689,67 +689,72 @@ class ApproximateMotion(Motion):
         F = Framework(self._graph, realization)
         cur_sol = np.array(
             sum(
-                [list(realization[v]) for v in graph_general.vertex_list(self._graph)],
+                [list(realization[v]) for v in self._graph.nodes],
                 [],
             )
         )
-        equations = [
-            np.linalg.norm(
-                [
-                    x - y
-                    for x, y in zip(
-                        cur_sol[(self._dim * e[0]) : (self._dim * (e[0] + 1))],
-                        cur_sol[(self._dim * e[1]) : (self._dim * (e[1] + 1))],
-                    )
-                ]
-            )
-            ** 2
-            - length**2
-            for e, length in self._edge_lengths.items()
-        ]
-        cur_error = prev_error = np.linalg.norm(equations)
-        damping = 0.2
-        rand_mat = np.random.rand(
-            F._graph.number_of_edges() - self._stress_length, F._graph.number_of_edges()
-        )
-        while cur_error > self.tolerance:
-            rigidity_matrix = np.array(
-                F.rigidity_matrix(edge_order=self._edge_lengths.keys())
-            ).astype(np.float64)
-            if self._stress_length > 0:
-                equations = np.dot(rand_mat, equations)
-                rigidity_matrix = np.dot(rand_mat, rigidity_matrix)
-            newton_step = np.dot(np.linalg.pinv(rigidity_matrix), equations)
-
-            cur_sol = [
-                cur_sol[i] - 0.5 * damping * newton_step[i] for i in range(len(cur_sol))
+        cur_error = prev_error = sum(
+            [
+                np.abs(length - self._edge_lengths[e])
+                for e, length in F.edge_lengths(numerical=True).items()
             ]
+        )
+        damping = 2e-1
+        while not cur_error < self.tolerance:
+            rigidity_matrix = np.array(
+                F.rigidity_matrix(vertex_order=self._graph.nodes)
+            ).astype(np.float64)
             equations = [
                 np.linalg.norm(
                     [
                         x - y
                         for x, y in zip(
-                            cur_sol[(self._dim * e[0]) : (self._dim * (e[0] + 1))],
-                            cur_sol[(self._dim * e[1]) : (self._dim * (e[1] + 1))],
+                            cur_sol[
+                                (self._dim * list(self._graph.nodes).index(e[0])) : (
+                                    self._dim
+                                    * (list(self._graph.nodes).index(e[0]) + 1)
+                                )
+                            ],
+                            cur_sol[
+                                (self._dim * list(self._graph.nodes).index(e[1])) : (
+                                    self._dim
+                                    * (list(self._graph.nodes).index(e[1]) + 1)
+                                )
+                            ],
                         )
                     ]
                 )
-                ** 2
-                - length**2
+                - length
                 for e, length in self._edge_lengths.items()
             ]
-            cur_error = np.linalg.norm(equations)
-            if cur_error < prev_error:
+
+            if self._stress_length > 0:
+                rand_mat = np.random.rand(
+                    F._graph.number_of_edges() - self._stress_length,
+                    F._graph.number_of_edges(),
+                )
+                new_equations = np.dot(rand_mat, equations)
+                new_rigidity_matrix = np.dot(rand_mat, rigidity_matrix)
+            else:
+                new_equations = equations
+                new_rigidity_matrix = rigidity_matrix
+            # Compute the least squares solution of the corresponding linear system
+            newton_step = np.linalg.lstsq(new_rigidity_matrix, new_equations)[0]
+            cur_sol = [
+                cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
+            ]
+            cur_error = sum(np.abs(eq) for eq in equations)
+            if cur_error <= prev_error:
                 damping = damping * 1.2
             else:
                 damping = damping / 2
             # If the damping becomes too small, raise an exception.
 
-            if damping < 1e-14:
+            if damping < 1e-12:
                 raise RuntimeError("Newton's method did not converge.")
             prev_error = cur_error
 
         return {
             v: tuple(cur_sol[(self._dim * i) : (self._dim * (i + 1))])
-            for i, v in enumerate(graph_general.vertex_list(self._graph))
+            for i, v in enumerate(self._graph.nodes)
         }

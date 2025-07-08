@@ -3,6 +3,7 @@ This module provides algorithms related to infinitesimal rigidity of frameworks.
 """
 
 from copy import deepcopy
+import warnings
 
 import numpy as np
 import sympy as sp
@@ -11,7 +12,7 @@ from sympy import Matrix, binomial, flatten
 import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi._utils._conversion import sympy_expr_to_float
 from pyrigi._utils._zero_check import is_zero_vector
-from pyrigi._utils.linear_algebra import _null_space
+from pyrigi._utils.linear_algebra import _reduced_null_space, _normalize_flex
 from pyrigi.data_type import (
     Edge,
     InfFlex,
@@ -224,6 +225,7 @@ def inf_flexes(
     vertex_order: Sequence[Vertex] = None,
     numerical: bool = False,
     tolerance: float = 1e-9,
+    fixed_vertices: Sequence[Vertex] = [],
 ) -> list[Matrix] | list[list[float]]:
     r"""
     Return a basis of the space of infinitesimal flexes.
@@ -249,8 +251,11 @@ def inf_flexes(
         If none is provided, the list from :meth:`.Graph.vertex_list` is taken.
     numerical:
         Determines whether the output is symbolic (default) or numerical.
-    tolerance
+    tolerance:
         Used tolerance when computing the infinitesimal flex numerically.
+    fixed_vertices:
+        Fixed vertices are assigned a flex of length 0. The default value is
+        an empty list. They can be provided as a sequence of vertices.
 
     Examples
     --------
@@ -284,23 +289,49 @@ def inf_flexes(
     [0]])]
     """
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
+    if not isinstance(fixed_vertices, Sequence) or (
+        fixed_vertices is not None
+        and not all(v in framework._graph.nodes for v in fixed_vertices)
+    ):
+        raise ValueError(
+            "All `fixed_vertices` need to be contained in the underlying graph."
+        )
+    if (
+        len(fixed_vertices) > 2
+        or len(fixed_vertices) == 2
+        and not framework._graph.has_edge(*fixed_vertices)
+    ):
+        warnings.warn(
+            "The `fixed_vertices` are not an edge of the graph, so the resulting "
+            + "nontrivial infinitesimal flexes may be affected."
+        )
+    # Define the columns of the rigidity matrix that are not fixed by `fixed_vertices`
+    free_columns = [
+        framework.dim * i + j
+        for (i, v) in enumerate(vertex_order)
+        for j in range(framework.dim)
+        if v not in fixed_vertices
+    ]
+
     if include_trivial:
         if not numerical:
-            return rigidity_matrix(framework, vertex_order=vertex_order).nullspace()
+            rig_matrix = rigidity_matrix(framework, vertex_order=vertex_order)
         else:
             F = FrameworkBase(
                 framework._graph, framework.realization(as_points=True, numerical=True)
             )
-            return _null_space(
-                np.array(rigidity_matrix(F, vertex_order=vertex_order)).astype(
-                    np.float64
-                )
+            rig_matrix = np.array(rigidity_matrix(F, vertex_order=vertex_order)).astype(
+                np.float64
             )
+        inf_flexes = _reduced_null_space(
+            rig_matrix, free_columns, numerical=numerical, tolerance=tolerance
+        )
+        return [inf_flexes[:, i] for i in range(inf_flexes.shape[1])]
 
     if not numerical:
         rig_matrix = rigidity_matrix(framework, vertex_order=vertex_order)
-
-        all_inf_flexes = rig_matrix.nullspace()
+        all_inf_flexes = _reduced_null_space(rig_matrix, free_columns, numerical=False)
+        all_inf_flexes = [all_inf_flexes[:, i] for i in range(all_inf_flexes.shape[1])]
         triv_inf_flexes = trivial_inf_flexes(framework, vertex_order=vertex_order)
         s = len(triv_inf_flexes)
         extend_basis_matrix = Matrix.hstack(*triv_inf_flexes)
@@ -314,31 +345,39 @@ def inf_flexes(
         F = FrameworkBase(
             framework._graph, framework.realization(as_points=True, numerical=True)
         )
-        flexes = _null_space(
-            np.array(rigidity_matrix(F, vertex_order=vertex_order)).astype(np.float64),
-            tolerance=tolerance,
+        rig_matrix = np.array(rigidity_matrix(F, vertex_order=vertex_order)).astype(
+            np.float64
         )
-        flexes = [flexes[:, i] for i in range(flexes.shape[1])]
+        all_inf_flexes = _reduced_null_space(
+            rig_matrix, free_columns, numerical=True, tolerance=tolerance
+        )
+        all_inf_flexes = [all_inf_flexes[:, i] for i in range(all_inf_flexes.shape[1])]
+
         Kn = FrameworkBase(
-            CompleteGraph(len(framework._graph)),
+            CompleteGraph(vertices=framework._graph.nodes),
             framework.realization(as_points=True, numerical=True),
         )
-        inf_flexes_trivial = _null_space(
-            np.array(rigidity_matrix(Kn, vertex_order=vertex_order)).astype(np.float64),
-            tolerance=tolerance,
+        rig_matrix_complete = np.array(
+            rigidity_matrix(Kn, vertex_order=vertex_order)
+        ).astype(np.float64)
+        triv_inf_flexes = _reduced_null_space(
+            rig_matrix_complete, free_columns, numerical=True, tolerance=tolerance
         )
-        s = inf_flexes_trivial.shape[1]
-        extend_basis_matrix = inf_flexes_trivial
-        for inf_flex in flexes:
+        s = triv_inf_flexes.shape[1]
+        extend_basis_matrix = triv_inf_flexes
+        for inf_flex in all_inf_flexes:
             inf_flex = np.reshape(inf_flex, (-1, 1))
-            tmp_matrix = np.hstack((inf_flexes_trivial, inf_flex))
+            tmp_matrix = np.hstack((extend_basis_matrix, inf_flex))
             if not np.linalg.matrix_rank(
                 tmp_matrix, tol=tolerance
-            ) == np.linalg.matrix_rank(inf_flexes_trivial, tol=tolerance):
+            ) == np.linalg.matrix_rank(extend_basis_matrix, tol=tolerance):
                 extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
         Q, R = np.linalg.qr(extend_basis_matrix)
         Q = Q[:, s : np.linalg.matrix_rank(R, tol=tolerance)]
-        return [list(Q[:, i]) for i in range(Q.shape[1])]
+        return [
+            _normalize_flex(list(Q[:, i]), numerical=True, tolerance=tolerance)
+            for i in range(Q.shape[1])
+        ]
 
 
 def is_inf_rigid(
