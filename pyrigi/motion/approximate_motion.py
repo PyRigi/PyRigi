@@ -11,7 +11,7 @@ import numpy as np
 
 import pyrigi._utils._input_check as _input_check
 from pyrigi._utils._conversion import sympy_expr_to_float
-from pyrigi._utils._zero_check import is_zero
+from pyrigi._utils._zero_check import is_zero, is_zero_vector
 from pyrigi._utils.linear_algebra import _normalize_flex, _vector_distance_pointwise
 from pyrigi.data_type import (
     DirectedEdge,
@@ -97,7 +97,7 @@ class ApproximateMotion(Motion):
         steps: int,
         step_size: float = 0.05,
         chosen_flex: int = 0,
-        tolerance: float = 1e-5,
+        tolerance: float = 1e-9,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pinned_vertex: Vertex = None,
@@ -120,7 +120,7 @@ class ApproximateMotion(Motion):
         self._compute_motion_samples(chosen_flex)
         if fixed_pair is not None:
             _input_check.dimension_for_algorithm(
-                self._dim, [2], "ApproximateMotion._fix_edge"
+                self._dim, [2, 3], "ApproximateMotion._fix_edge"
             )
             if fixed_direction is None:
                 fixed_direction = [1] + [0 for _ in range(self._dim - 1)]
@@ -157,7 +157,7 @@ class ApproximateMotion(Motion):
         steps: int,
         step_size: float = 0.05,
         chosen_flex: int = 0,
-        tolerance: float = 1e-5,
+        tolerance: float = 1e-9,
         fixed_pair: DirectedEdge = None,
         fixed_direction: Sequence[Number] = None,
         pinned_vertex: Vertex = None,
@@ -376,15 +376,24 @@ class ApproximateMotion(Motion):
             euler_step, cur_inf_flex = self._euler_step(cur_inf_flex, cur_sol)
             try:
                 cur_sol = self._newton_steps(euler_step)
-                self._current_step_size = self.step_size
             except RuntimeError:
-                self._current_step_size = self._current_step_size / step_size_rescaling
-                if self._current_step_size < self.step_size / 10:
-                    raise RuntimeError(
-                        "Newton's method did not converge. " +
-                        "Consider reducing the step size!"
-                    )
-                continue
+                # Try again with better discretization
+                _discretization = 10
+                self._current_step_size = self._current_step_size / _discretization
+                for _ in range(_discretization):
+                    try:
+                        euler_step, cur_inf_flex = self._euler_step(
+                            cur_inf_flex, cur_sol
+                        )
+                        cur_sol = self._newton_steps(euler_step)
+                    except RuntimeError:
+                        raise RuntimeError(
+                            "Newton's method did not converge. Potentially the "
+                            + "given framework is not flexible or the step size "
+                            + "is too large?"
+                        )
+                self._current_step_size = self.step_size
+
             self._motion_samples += [cur_sol]
             # Reject the step if the step size is not close to what we expect
             if (
@@ -518,14 +527,69 @@ class ApproximateMotion(Motion):
 
             # Compute the signed angle `theta` between the `fixed_direction` and the
             # vector `realization[v2]`
-            theta = np.arctan2(
-                [fixed_direction[1], realization[v2][1]],
-                [fixed_direction[0], realization[v2][0]],
-            )[1]
+            if len(fixed_direction) == 2:
+                theta = np.arctan2(
+                    [fixed_direction[1], realization[v2][1]],
+                    [fixed_direction[0], realization[v2][0]],
+                )[1]
 
-            rotation_matrix = np.array(
-                [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
-            )
+                rotation_matrix = np.array(
+                    [[np.cos(theta), np.sin(theta)], [-np.sin(theta), np.cos(theta)]]
+                )
+
+            else:
+                edge_vector = [
+                    pos / np.linalg.norm(realization[v2]) for pos in realization[v2]
+                ]
+                rotation_axis = np.cross(fixed_direction, edge_vector)
+                if is_zero_vector(rotation_axis, numerical=True):
+                    rotation_matrix = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+                else:
+                    rotation_axis = [
+                        pos / np.linalg.norm(rotation_axis) for pos in rotation_axis
+                    ]
+                    angle = np.acos(np.dot(fixed_direction, edge_vector))
+                    rotation_matrix = np.array(
+                        [
+                            [
+                                np.cos(angle)
+                                + rotation_axis[0] ** 2 * (1 - np.cos(angle)),
+                                rotation_axis[0]
+                                * rotation_axis[1]
+                                * (1 - np.cos(angle))
+                                - rotation_axis[2] * np.sin(angle),
+                                rotation_axis[0]
+                                * rotation_axis[2]
+                                * (1 - np.cos(angle))
+                                + rotation_axis[1] * np.sin(angle),
+                            ],
+                            [
+                                rotation_axis[0]
+                                * rotation_axis[1]
+                                * (1 - np.cos(angle))
+                                + rotation_axis[2] * np.sin(angle),
+                                np.cos(angle)
+                                + rotation_axis[1] ** 2 * (1 - np.cos(angle)),
+                                rotation_axis[1]
+                                * rotation_axis[2]
+                                * (1 - np.cos(angle))
+                                - rotation_axis[0] * np.sin(angle),
+                            ],
+                            [
+                                rotation_axis[0]
+                                * rotation_axis[2]
+                                * (1 - np.cos(angle))
+                                - rotation_axis[1] * np.sin(angle),
+                                rotation_axis[1]
+                                * rotation_axis[2]
+                                * (1 - np.cos(angle))
+                                + rotation_axis[0] * np.sin(angle),
+                                np.cos(angle)
+                                + rotation_axis[2] ** 2 * (1 - np.cos(angle)),
+                            ],
+                        ]
+                    )
+                    rotation_matrix = np.linalg.inv(rotation_matrix)
             # Rotate the realization to the `fixed_direction`.
             _realization = {
                 v: np.dot(rotation_matrix, pos) for v, pos in realization.items()
