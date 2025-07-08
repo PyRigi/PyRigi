@@ -38,11 +38,20 @@ can be constructed in the following way.
 ```{code-cell} ipython3
 K4 = graphs.Complete(4)
 
-F1 = Framework(K4, {0:[1,2], 1:[0,5], 2:[-1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+F1 = Framework(K4, {0:[1,2], 1:[0,5], 2:[-1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
 F1
 ```
 
-The framework can then be visualized by calling the method {meth}`~.Framework.plot` on ``F1``,
+It is particularly important to provide the numbers as `sympy` expressions or strings if you intend to
+perform symbolic computations. Otherwise, fractions are converted to floating point numbers, which may
+cause issues with the symbolic computation of rigidity properties for the framework. The following
+example illustrates this behavior.
+
+```{code-cell} ipython3
+Framework(graphs.Complete(1), {0:[1/2,2/3]})
+```
+
+A framework can then be visualized by calling the method {meth}`~.Framework.plot` on ``F1``,
 see also tutorial [Plotting](plotting-tutorial).
 
 ```{code-cell} ipython3
