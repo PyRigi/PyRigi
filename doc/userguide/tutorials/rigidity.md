@@ -51,6 +51,9 @@ example illustrates this behavior.
 Framework(graphs.Complete(1), {0:[1/2,2/3]})
 ```
 
+If you want to use floating point coordinates and you do not specify that the computation should be numeric
+via the keyword `numerical=True` in the appropriate methods, then incorrect results may occur.
+
 A framework can then be visualized by calling the method {meth}`~.Framework.plot` on ``F1``,
 see also tutorial [Plotting](plotting-tutorial).
 
