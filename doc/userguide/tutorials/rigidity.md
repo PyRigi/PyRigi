@@ -38,7 +38,7 @@ can be constructed in the following way.
 ```{code-cell} ipython3
 K4 = graphs.Complete(4)
 
-F1 = Framework(K4, {0:[1,2], 1:[0,5], 2:[-1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
+F1 = Framework(K4, {0:[1,2], 1:[0,5], 2:[-1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
 F1
 ```
 
