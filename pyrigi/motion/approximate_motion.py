@@ -689,7 +689,7 @@ class ApproximateMotion(Motion):
         F = Framework(self._graph, realization)
         cur_sol = np.array(
             sum(
-                [list(realization[v]) for v in graph_general.vertex_list(self._graph)],
+                [list(realization[v]) for v in self._graph.nodes],
                 [],
             )
         )
@@ -699,16 +699,16 @@ class ApproximateMotion(Motion):
                 for e, length in F.edge_lengths(numerical=True).items()
             ]
         )
-        damping = 1.5e-1
+        damping = 2e-1
         while not cur_error < self.tolerance:
-            rigidity_matrix = np.array(F.rigidity_matrix()).astype(np.float64)
+            rigidity_matrix = np.array(F.rigidity_matrix(vertex_order=self._graph.nodes)).astype(np.float64)
             equations = [
                 np.linalg.norm(
                     [
                         x - y
                         for x, y in zip(
-                            cur_sol[(self._dim * e[0]) : (self._dim * (e[0] + 1))],
-                            cur_sol[(self._dim * e[1]) : (self._dim * (e[1] + 1))],
+                            cur_sol[(self._dim * list(self._graph.nodes).index(e[0])) : (self._dim * (list(self._graph.nodes).index(e[0]) + 1))],
+                            cur_sol[(self._dim * list(self._graph.nodes).index(e[1])) : (self._dim * (list(self._graph.nodes).index(e[1]) + 1))],
                         )
                     ]
                 )
@@ -731,19 +731,7 @@ class ApproximateMotion(Motion):
             cur_sol = [
                 cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
             ]
-            F = Framework(
-                self._graph,
-                {
-                    v: [cur_sol[(self._dim * i) : (self._dim * (i + 1))]]
-                    for i, v in enumerate(self._graph.nodes)
-                },
-            )
-            cur_error = sum(
-                [
-                    np.abs(length - self._edge_lengths[e])
-                    for e, length in F.edge_lengths(numerical=True).items()
-                ]
-            )
+            cur_error = sum(np.abs(eq) for eq in equations)
             if cur_error <= prev_error:
                 damping = damping * 1.2
             else:
@@ -756,5 +744,5 @@ class ApproximateMotion(Motion):
 
         return {
             v: tuple(cur_sol[(self._dim * i) : (self._dim * (i + 1))])
-            for i, v in enumerate(graph_general.vertex_list(self._graph))
+            for i, v in enumerate(self._graph.nodes)
         }
