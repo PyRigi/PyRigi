@@ -354,7 +354,7 @@ def inf_flexes(
         all_inf_flexes = [all_inf_flexes[:, i] for i in range(all_inf_flexes.shape[1])]
 
         Kn = FrameworkBase(
-            CompleteGraph(len(framework._graph)),
+            CompleteGraph(vertices=framework._graph.nodes),
             framework.realization(as_points=True, numerical=True),
         )
         rig_matrix_complete = np.array(

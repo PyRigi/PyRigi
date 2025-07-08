@@ -381,8 +381,8 @@ class ApproximateMotion(Motion):
                 self._current_step_size = self._current_step_size / step_size_rescaling
                 if self._current_step_size < self.step_size / 10:
                     raise RuntimeError(
-                        "Newton's method did not converge. Potentially the "
-                        + "given framework is not flexible?"
+                        "Newton's method did not converge. " +
+                        "Consider reducing the step size!"
                     )
                 continue
             self._motion_samples += [cur_sol]
@@ -635,10 +635,7 @@ class ApproximateMotion(Motion):
                 for e, length in F.edge_lengths(numerical=True).items()
             ]
         )
-        damping = 1e-1
-        rand_mat = np.random.rand(
-            F._graph.number_of_edges() - self._stress_length, F._graph.number_of_edges()
-        )
+        damping = 1.5e-1
         while not cur_error < self.tolerance:
             rigidity_matrix = np.array(F.rigidity_matrix()).astype(np.float64)
             equations = [
@@ -656,18 +653,25 @@ class ApproximateMotion(Motion):
             ]
 
             if self._stress_length > 0:
-                equations = np.dot(rand_mat, equations)
-                rigidity_matrix = np.dot(rand_mat, rigidity_matrix)
-            newton_step = np.dot(np.linalg.pinv(rigidity_matrix), equations)
-
+                rand_mat = np.random.rand(
+                    F._graph.number_of_edges() - self._stress_length,
+                    F._graph.number_of_edges(),
+                )
+                new_equations = np.dot(rand_mat, equations)
+                new_rigidity_matrix = np.dot(rand_mat, rigidity_matrix)
+            else:
+                new_equations = equations
+                new_rigidity_matrix = rigidity_matrix
+            # Compute the least squares solution of the corresponding linear system
+            newton_step = np.linalg.lstsq(new_rigidity_matrix, new_equations)[0]
             cur_sol = [
                 cur_sol[i] - damping * newton_step[i] for i in range(len(cur_sol))
             ]
             F = Framework(
                 self._graph,
                 {
-                    i: [cur_sol[(self._dim * i) : (self._dim * (i + 1))]]
-                    for i in range(len(realization.keys()))
+                    v: [cur_sol[(self._dim * i) : (self._dim * (i + 1))]]
+                    for i, v in enumerate(self._graph.nodes)
                 },
             )
             cur_error = sum(
@@ -677,12 +681,12 @@ class ApproximateMotion(Motion):
                 ]
             )
             if cur_error <= prev_error:
-                damping = damping * 1.25
+                damping = damping * 1.2
             else:
                 damping = damping / 2
             # If the damping becomes too small, raise an exception.
 
-            if damping < 1e-10:
+            if damping < 1e-12:
                 raise RuntimeError("Newton's method did not converge.")
             prev_error = cur_error
 
