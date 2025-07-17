@@ -12,6 +12,7 @@ import sympy as sp
 from sympy import Matrix
 
 import pyrigi._utils._input_check as _input_check
+from pyrigi.warning import _warn_numerical_coord as _warn_numerical_coord
 from pyrigi.graph import _general as graph_general
 import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi._utils._doc import doc_category, generate_category_tables
@@ -73,6 +74,8 @@ class FrameworkBase(object):
     Internally, the realization is represented as ``dict[Vertex,Matrix]``.
     However, :meth:`~Framework.realization` can also return ``dict[Vertex,Point]``.
     """
+
+    silence_numerical_coord_warns = False
 
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if isinstance(graph, nx.Graph):
@@ -388,9 +391,17 @@ class FrameworkBase(object):
             raise IndexError(
                 "The realization does not contain the correct amount of vertices!"
             )
+
         for v in self._graph.nodes:
             self._input_check_vertex_key(v, realization)
             self._input_check_point_dimension(realization[v])
+            if any(
+                [
+                    isinstance(coord, float | sp.Float | np.float64)
+                    for coord in realization[v]
+                ]
+            ):
+                _warn_numerical_coord(self)
 
         self._realization = {v: Matrix(pos) for v, pos in realization.items()}
 
@@ -419,6 +430,9 @@ class FrameworkBase(object):
         self._input_check_point_dimension(point)
 
         self._realization[vertex] = Matrix(point)
+
+        if any([isinstance(coord, float | sp.Float | np.float64) for coord in point]):
+            _warn_numerical_coord(self)
 
     @doc_category("Framework manipulation")
     def set_vertex_positions_from_lists(
