@@ -116,6 +116,7 @@ def is_vector_stress(
     >>> F.is_stress(stresses[0])
     True
     """
+    framework._warn_numerical_coord(numerical)
     edge_order = _graph_input_check.is_edge_order(
         framework._graph, edge_order=edge_order
     )
@@ -244,6 +245,7 @@ def stresses(
     [ 2],
     [ 1]])]
     """
+    framework._warn_numerical_coord(numerical)
     if not numerical:
         return (
             infinitesimal_rigidity.rigidity_matrix(framework, edge_order=edge_order)

@@ -6,7 +6,6 @@ Module for defining warnings.
 
 import warnings
 from collections.abc import Callable
-from typing import Any
 
 import networkx as nx
 
@@ -122,11 +121,11 @@ class NumericalCoordinateWarning(UserWarning):
             super().__init__(msg, *args)
         else:
             msg_str = (
-                "Numerical coordinates were detected in the Framework's initialization."
+                "\nNumerical coordinates were detected in the Framework's realization."
                 + " If symbolic computations are performed on this framework via sympy,"
                 + " the result is not guaranteed to be correct. Consider setting the"
-                + " method argument `numerical=True` when applicable. It ensures, that"
-                + " numerical computations are performed instead using numpy."
+                + " keyword `numerical=True` when applicable. It ensures that"
+                + " numpy-based computations are performed instead."
             )
             if class_off is not None:
                 msg_str += (
@@ -135,23 +134,4 @@ class NumericalCoordinateWarning(UserWarning):
                     + f" use `{class_off.__name__}.silence_numerical_coord_warns=True`."
                 )
             msg_str += "\n"
-
-
-def _warn_numerical_coord(F: Any) -> None:
-    """
-    Raise a warning if a randomized algorithm is silently called.
-
-    Parameters
-    ----------
-    F:
-        Instance from which the warning is raised.
-    """
-    cls = type(F)
-
-    from pyrigi import Framework
-
-    if isinstance(F, Framework):
-        if not cls.silence_numerical_coord_warns:
-            warnings.warn(NumericalCoordinateWarning(class_off=cls))
-    else:
-        warnings.warn(NumericalCoordinateWarning())
+            super().__init__(msg_str, *args)

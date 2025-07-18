@@ -10,9 +10,9 @@ import networkx as nx
 import numpy as np
 import sympy as sp
 from sympy import Matrix
+import warnings
 
 import pyrigi._utils._input_check as _input_check
-from pyrigi.warning import _warn_numerical_coord as _warn_numerical_coord
 from pyrigi.graph import _general as graph_general
 import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi._utils._doc import doc_category, generate_category_tables
@@ -24,6 +24,7 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.graph import Graph
+from pyrigi.warning import NumericalCoordinateWarning
 
 
 class FrameworkBase(object):
@@ -391,17 +392,9 @@ class FrameworkBase(object):
             raise IndexError(
                 "The realization does not contain the correct amount of vertices!"
             )
-
         for v in self._graph.nodes:
             self._input_check_vertex_key(v, realization)
             self._input_check_point_dimension(realization[v])
-            if any(
-                [
-                    isinstance(coord, float | sp.Float | np.float64)
-                    for coord in realization[v]
-                ]
-            ):
-                _warn_numerical_coord(self)
 
         self._realization = {v: Matrix(pos) for v, pos in realization.items()}
 
@@ -430,9 +423,6 @@ class FrameworkBase(object):
         self._input_check_point_dimension(point)
 
         self._realization[vertex] = Matrix(point)
-
-        if any([isinstance(coord, float | sp.Float | np.float64) for coord in point]):
-            _warn_numerical_coord(self)
 
     @doc_category("Framework manipulation")
     def set_vertex_positions_from_lists(
@@ -566,6 +556,25 @@ class FrameworkBase(object):
             raise ValueError(
                 f"The point {point} does not have the dimension {self.dim}!"
             )
+
+    def _warn_numerical_coord(self, numerical: bool) -> None:
+        """
+        Raise a warning if the framework contains numerical coordinates,
+        but the method is symbolic.
+
+        Parameters
+        ----------
+        numerical:
+            Keyword indicating whether a numerical or symbolic algorithm is used.
+        """
+        cls = type(self)
+        if not cls.silence_numerical_coord_warns and not numerical:
+            for pos in self._realization.values():
+                if any(
+                    [isinstance(coord, float | sp.Float | np.float64) for coord in pos]
+                ):
+                    warnings.warn(NumericalCoordinateWarning(class_off=cls))
+                    break
 
     @classmethod
     @doc_category("Class methods")
