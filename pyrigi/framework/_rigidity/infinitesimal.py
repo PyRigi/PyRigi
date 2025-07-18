@@ -116,6 +116,7 @@ def rigidity_matrix_rank(
     >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
     4
     """
+    framework._warn_numerical_coord(numerical)
     if numerical:
         F = FrameworkBase(
             framework._graph, framework.realization(as_points=True, numerical=True)
@@ -283,6 +284,7 @@ def inf_flexes(
     [0],
     [0]])]
     """
+    framework._warn_numerical_coord(numerical)
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
     if include_trivial:
         if not numerical:
@@ -373,6 +375,7 @@ def is_inf_rigid(
     >>> F2.is_inf_rigid()
     False
     """
+    framework._warn_numerical_coord(numerical)
 
     if framework._graph.number_of_nodes() <= framework.dim + 1:
         return rigidity_matrix_rank(
@@ -538,6 +541,7 @@ def is_vector_inf_flex(
     >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
     True
     """
+    framework._warn_numerical_coord(numerical)
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
     return is_zero_vector(
         rigidity_matrix(framework, vertex_order=vertex_order) * Matrix(inf_flex),
@@ -645,6 +649,7 @@ def is_vector_nontrivial_inf_flex(
     overdetermined linear system and compare the values in $Ax$ to the values
     in $b$.
     """
+    framework._warn_numerical_coord(numerical)
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
     if not is_vector_inf_flex(
         framework,

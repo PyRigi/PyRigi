@@ -38,7 +38,7 @@ def is_quasi_injective(
     :func:`.misc.is_zero_vector` is used.
     See its documentation for the description of the parameters.
     """
-
+    framework._warn_numerical_coord(numerical)
     for u, v in framework._graph.edges:
         edge_vector = framework[u] - framework[v]
         if is_zero_vector(edge_vector, numerical, tolerance):
@@ -65,7 +65,7 @@ def is_injective(
     :func:`.misc.is_zero_vector` is used.
     See its documentation for the description of the parameters.
     """
-
+    framework._warn_numerical_coord(numerical)
     for u, v in combinations(framework._graph.nodes, 2):
         edge_vector = framework[u] - framework[v]
         if is_zero_vector(edge_vector, numerical, tolerance):
@@ -95,6 +95,7 @@ def is_congruent_realization(
     tolerance
         Used tolerance when checking numerically.
     """
+    framework._warn_numerical_coord(numerical)
     _graph_input_check.is_vertex_order(
         framework._graph, list(other_realization.keys()), "other_realization"
     )
@@ -136,7 +137,6 @@ def is_congruent(
     tolerance
         Used tolerance when checking numerically.
     """
-
     framework._input_check_underlying_graphs(other_framework)
 
     return is_congruent_realization(
@@ -166,6 +166,7 @@ def is_equivalent_realization(
     tolerance
         Used tolerance when checking numerically.
     """
+    framework._warn_numerical_coord(numerical)
     _graph_input_check.is_vertex_order(
         framework._graph, list(other_realization.keys()), "other_realization"
     )
@@ -207,7 +208,6 @@ def is_equivalent(
     tolerance
         Used tolerance when checking numerically.
     """
-
     framework._input_check_underlying_graphs(other_framework)
 
     return is_equivalent_realization(

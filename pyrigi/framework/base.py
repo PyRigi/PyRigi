@@ -10,6 +10,7 @@ import networkx as nx
 import numpy as np
 import sympy as sp
 from sympy import Matrix
+import warnings
 
 import pyrigi._utils._input_check as _input_check
 from pyrigi.graph import _general as graph_general
@@ -23,6 +24,7 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.graph import Graph
+from pyrigi.warning import NumericalCoordinateWarning
 
 
 class FrameworkBase(object):
@@ -73,6 +75,8 @@ class FrameworkBase(object):
     Internally, the realization is represented as ``dict[Vertex,Matrix]``.
     However, :meth:`~Framework.realization` can also return ``dict[Vertex,Point]``.
     """
+
+    silence_numerical_coord_warns = False
 
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if isinstance(graph, nx.Graph):
@@ -552,6 +556,25 @@ class FrameworkBase(object):
             raise ValueError(
                 f"The point {point} does not have the dimension {self.dim}!"
             )
+
+    def _warn_numerical_coord(self, numerical: bool) -> None:
+        """
+        Raise a warning if the framework contains numerical coordinates,
+        but the method is symbolic.
+
+        Parameters
+        ----------
+        numerical:
+            Keyword indicating whether a numerical or symbolic algorithm is used.
+        """
+        cls = type(self)
+        if not cls.silence_numerical_coord_warns and not numerical:
+            for pos in self._realization.values():
+                if any(
+                    [isinstance(coord, float | sp.Float | np.float64) for coord in pos]
+                ):
+                    warnings.warn(NumericalCoordinateWarning(class_off=cls))
+                    break
 
     @classmethod
     @doc_category("Class methods")

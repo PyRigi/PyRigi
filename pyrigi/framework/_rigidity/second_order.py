@@ -59,6 +59,7 @@ def is_prestress_stable(
     >>> F.is_prestress_stable()
     True
     """
+    framework._warn_numerical_coord(numerical)
     edges = graph_general.edge_list(framework._graph, as_tuples=True)
     inf_flexes = _process_list_of_inf_flexes(
         framework, inf_flexes, numerical=numerical, tolerance=tolerance
@@ -211,6 +212,7 @@ def is_second_order_rigid(
     >>> F.is_second_order_rigid()
     True
     """
+    framework._warn_numerical_coord(numerical)
     inf_flexes = _process_list_of_inf_flexes(
         framework, inf_flexes, numerical=numerical, tolerance=tolerance
     )
