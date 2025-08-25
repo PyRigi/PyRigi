@@ -1012,7 +1012,9 @@ def animate3D_rotation(
     _input_check.dimension_for_algorithm(framework.dim, [3], "animate3D")
     if plot_style is None:
         # change some PlotStyle default values to fit 3D plotting better
-        plot_style = PlotStyle3D(vertex_size=13.5, edge_width=1.5, dpi=150)
+        plot_style = PlotStyle3D(
+            vertex_size=13.5, edge_width=1.5, dpi=150, vertex_labels=False
+        )
     else:
         plot_style = PlotStyle3D.from_plot_style(plot_style)
 
