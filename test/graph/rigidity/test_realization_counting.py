@@ -61,16 +61,17 @@ def test_number_of_realizations_count_reflection_rigid(graph, num_of_realization
 
 
 @pytest.mark.parametrize(
-    "graph",
+    "graph, dim",
     [
-        graphs.CompleteBipartite(1, 3),
-        graphs.CompleteBipartite(2, 3),
-        graphs.Path(3),
+        [graphs.CompleteBipartite(1, 3), 2],
+        [graphs.CompleteBipartite(2, 3), 2],
+        [graphs.Path(3), 2],
+        [graphs.ThreePrism(), 4],
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_count_reflection_flex(graph):
-    assert graph.number_of_realizations(count_reflection=True) == math.inf
+def test_number_of_realizations_count_reflection_flex(graph, dim):
+    assert graph.number_of_realizations(dim, count_reflection=True) == math.inf
 
 
 @pytest.mark.parametrize(
@@ -105,31 +106,34 @@ def test_number_of_realizations_rigid(graph, num_of_realizations):
 
 
 @pytest.mark.parametrize(
-    "graph, num_of_realizations",
+    "graph, dim",
     [
+        [graphs.Complete(2), 2],
+        [graphs.Complete(3), 2],
+        [graphs.Complete(4), 2],
+        [graphs.K33plusEdge(), 2],
+        [graphs.ThreePrismPlusEdge(), 2],
         [graphs.Complete(2), 1],
-        [graphs.Complete(3), 1],
-        [graphs.Complete(4), 1],
-        [graphs.K33plusEdge(), 1],
-        [graphs.ThreePrismPlusEdge(), 1],
+        [graphs.Complete(3), 3],
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_globally_rigid(graph, num_of_realizations):
-    assert graph.number_of_realizations() == num_of_realizations
+def test_number_of_realizations_globally_rigid(graph, dim):
+    assert graph.number_of_realizations(dim) == 1
 
 
 @pytest.mark.parametrize(
-    "graph",
+    "graph, dim",
     [
-        graphs.CompleteBipartite(1, 3),
-        graphs.CompleteBipartite(2, 3),
-        graphs.Path(3),
+        [graphs.CompleteBipartite(1, 3), 2],
+        [graphs.CompleteBipartite(2, 3), 2],
+        [graphs.Path(3), 2],
+        [graphs.ThreePrism(), 4],
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_flex(graph):
-    assert graph.number_of_realizations() == math.inf
+def test_number_of_realizations_flex(graph, dim):
+    assert graph.number_of_realizations(dim) == math.inf
 
 
 @pytest.mark.parametrize(
@@ -164,31 +168,34 @@ def test_number_of_realizations_sphere_rigid(graph, num_of_realizations):
 
 
 @pytest.mark.parametrize(
-    "graph, num_of_realizations",
+    "graph, dim",
     [
+        [graphs.Complete(2), 2],
+        [graphs.Complete(3), 2],
+        [graphs.Complete(4), 2],
+        [graphs.K33plusEdge(), 2],
+        [graphs.ThreePrismPlusEdge(), 2],
         [graphs.Complete(2), 1],
-        [graphs.Complete(3), 1],
-        [graphs.Complete(4), 1],
-        [graphs.K33plusEdge(), 1],
-        [graphs.ThreePrismPlusEdge(), 1],
+        [graphs.Complete(3), 3],
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere_globally_rigid(graph, num_of_realizations):
-    assert graph.number_of_realizations(spherical=True) == num_of_realizations
+def test_number_of_realizations_sphere_globally_rigid(graph, dim):
+    assert graph.number_of_realizations(dim, spherical=True) == 1
 
 
 @pytest.mark.parametrize(
-    "graph",
+    "graph, dim",
     [
-        graphs.CompleteBipartite(1, 3),
-        graphs.CompleteBipartite(2, 3),
-        graphs.Path(3),
+        [graphs.CompleteBipartite(1, 3), 2],
+        [graphs.CompleteBipartite(2, 3), 2],
+        [graphs.Path(3), 2],
+        [graphs.ThreePrism(), 4],
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere_flex(graph,):
-    assert graph.number_of_realizations(spherical=True) == math.inf
+def test_number_of_realizations_sphere_flex(graph, dim):
+    assert graph.number_of_realizations(dim, spherical=True) == math.inf
 
 
 @pytest.mark.parametrize(
@@ -247,17 +254,18 @@ def test_number_of_realizations_sphere_count_reflection_globally_rigid(graph, nu
 
 
 @pytest.mark.parametrize(
-    "graph",
+    "graph, dim",
     [
-        graphs.CompleteBipartite(1, 3),
-        graphs.CompleteBipartite(2, 3),
-        graphs.Path(3),
+        [graphs.CompleteBipartite(1, 3), 2],
+        [graphs.CompleteBipartite(2, 3), 2],
+        [graphs.Path(3), 2],
+        [graphs.ThreePrism(), 4],
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_sphere_count_reflection_flex(graph):
+def test_number_of_realizations_sphere_count_reflection_flex(graph, dim):
     assert (
-        graph.number_of_realizations(spherical=True, count_reflection=True)
+        graph.number_of_realizations(dim, spherical=True, count_reflection=True)
         == math.inf
     )
 
@@ -265,13 +273,12 @@ def test_number_of_realizations_sphere_count_reflection_flex(graph):
 @pytest.mark.parametrize(
     "graph, dim",
     [
-        [graphs.Complete(3), 3],
-        [graphs.ThreePrism(), 4],
+        [Graph.from_int(511), 3],
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_error(graph, dim):
-    with pytest.raises(ValueError):
+def test_number_of_realizations_dim_error(graph, dim):
+    with pytest.raises(NotImplementedError):
         graph.number_of_realizations(dim)
 
 @pytest.mark.parametrize(
@@ -282,9 +289,22 @@ def test_number_of_realizations_error(graph, dim):
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_error(graph, dim):
+def test_number_of_realizations_type_error(graph, dim):
     with pytest.raises(TypeError):
         graph.number_of_realizations(dim)
+
+
+@pytest.mark.parametrize(
+    "graph, dim",
+    [
+        [graphs.Complete(3), 1],
+        [graphs.Complete(4), 2],
+    ],
+)
+@pytest.mark.realization_counting
+def test_number_of_realizations_method_error(graph, dim):
+    with pytest.raises(ValueError):
+        graph.number_of_realizations(dim, algorithm="lnumber")
 
 
 @pytest.mark.parametrize(
@@ -321,7 +341,7 @@ def test__bigraph_delete_contract(biedges, select, result):
 
 def _run_realization_test_on_graph(G: Graph, dim: int) -> None:
     """
-    Run a set of sparsity tests on a given graph
+    Run a set of realization counting tests on a given graph
     """
     cp = G.number_of_realizations(dim)
     cpr = G.number_of_realizations(dim, count_reflection=True)
@@ -366,6 +386,7 @@ def _run_realization_test_on_graph(G: Graph, dim: int) -> None:
 
     assert cpr == 2*cp or (cpr == cp and cp == 1)
     assert csr == 2*cs or (csr == cs and cs == 1)
+
 
 def test_randomized_realization_counting():
     search_space = [range(1, 2), range(1, 7), range(10)]

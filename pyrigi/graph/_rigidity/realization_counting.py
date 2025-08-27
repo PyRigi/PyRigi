@@ -38,7 +38,8 @@ def number_of_realizations(
 
     For rigid graphs, TODO
 
-    Caution: Currently the method only works if the python package ``lnumber``
+    Caution: PyRigi can compute realizations counts directly but this might be slow.
+    Faster computation works only if the python package ``lnumber``
     is installed :cite:p:`Capco2024`.
     See :ref:`installation-guide` for details on installing.
 
@@ -55,7 +56,7 @@ def number_of_realizations(
     algorithm:
         If "default" pyrigi checks which algorithm is available for the parameters and choses this one.
         If "pyrigi" a pure pyrigi implementation is used.
-        If "lnumber" uses the ``lnumber`` package is used. This needs to be installed separately
+        If "lnumber" the ``lnumber`` package is used. This needs to be installed separately
         but is much faster than the "pyrigi" implementation.
     spherical:
         If ``True``, the number of spherical realizations of the graph is returned.
@@ -83,9 +84,6 @@ def number_of_realizations(
 
     algorithm_in = algorithm
 
-    if not generic_rigidity.is_rigid(graph, dim):
-        return math.inf
-
     if algorithm == "default":
         if dim == 1:
             algorithm = "pyrigi"
@@ -95,14 +93,9 @@ def number_of_realizations(
             elif importlib.util.find_spec('lnumber') is not None:
                 algorithm = "lnumber"
             else:
-                if spherical:
-                    algorithm = "pyrigi"
-                else:
-                    raise ImportError(
-                        "For counting the number of plane realizations, "
-                        "the optional package 'lnumber' is used, "
-                        "run `pip install pyrigi[realization-counting]`!"
-                    )
+                algorithm = "pyrigi"
+        else:
+            algorithm = "checktrivial"
     if algorithm == "pyrigi":
         if graph.number_of_edges() >= 2 * graph.number_of_nodes() - 3 or graph.number_of_edges() == math.comb(graph.number_of_nodes(), 2):
             _input_check.dimension_for_algorithm(
@@ -120,10 +113,22 @@ def number_of_realizations(
     if graph.number_of_nodes() == 1:
         return 1
 
+    if not generic_rigidity.is_rigid(graph, dim):
+        return math.inf
+
     if count_reflection:
         fac = 1
     else:
         fac = 2
+
+    # Check trivial cases for higher dimensions
+    if algorithm=="checktrivial":
+        if global_rigidity.is_globally_rigid(graph, dim):
+            return 2 // fac
+        else:
+            raise NotImplementedError(
+                    f"There is no combinatorial algorithm for 'dim'>2 available, except for trivial cases."
+                )
 
     if dim == 1:
         if global_rigidity.is_globally_rigid(graph, dim):
@@ -183,7 +188,7 @@ def number_of_realizations(
                 return _number_of_sphere_realizations_min_rigid_dim_2(graph) // fac
             else:
                 return _number_of_plane_realizations_min_rigid_dim_2(graph) // fac
-    else:  # not minimally rigid
+    else:  # not minimally rigid (but rigid)
         if algorithm == "lnumber":
             raise ValueError(
                 "The algorithm `lnumber` is only available for minimally rigid graphs " +
