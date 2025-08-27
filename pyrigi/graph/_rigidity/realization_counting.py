@@ -55,7 +55,8 @@ def number_of_realizations(
     algorithm:
         If "default" pyrigi checks which algorithm is available for the parameters and choses this one.
         If "pyrigi" a pure pyrigi implementation is used.
-        If "lnumber" uses the ``lnumber`` package is used. This needs to be installed separately.
+        If "lnumber" uses the ``lnumber`` package is used. This needs to be installed separately
+        but is much faster than the "pyrigi" implementation.
     spherical:
         If ``True``, the number of spherical realizations of the graph is returned.
         If ``False`` (default), the number of planar realizations is returned.
@@ -103,7 +104,7 @@ def number_of_realizations(
                         "run `pip install pyrigi[realization-counting]`!"
                     )
     if algorithm == "pyrigi":
-        if spherical or graph.number_of_edges() > 2 * graph.number_of_nodes() - 3 or graph.number_of_edges() == math.comb(graph.number_of_nodes(), 2):
+        if graph.number_of_edges() >= 2 * graph.number_of_nodes() - 3 or graph.number_of_edges() == math.comb(graph.number_of_nodes(), 2):
             _input_check.dimension_for_algorithm(
                 dim, [1, 2], "number_of_realizations with algorithm pyrigi"
             )
@@ -179,9 +180,9 @@ def number_of_realizations(
                 return lnumber.lnumber(graph_int) // fac
         elif algorithm == "pyrigi":
             if spherical:
-                return _number_of_spherical_realizations_min_rigid_dim_2(graph) // fac
+                return _number_of_sphere_realizations_min_rigid_dim_2(graph) // fac
             else:
-                raise NotImplementedError()
+                return _number_of_plane_realizations_min_rigid_dim_2(graph) // fac
     else:  # not minimally rigid
         if algorithm == "lnumber":
             raise ValueError(
@@ -283,7 +284,7 @@ def number_of_realizations(
                 )
 
 
-def _number_of_spherical_realizations_min_rigid_dim_2(graph: nx.Graph) -> int | str:
+def _number_of_sphere_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     """
     Compute the number of spherical realizations combinatorially within pyrigi
 
@@ -291,6 +292,10 @@ def _number_of_spherical_realizations_min_rigid_dim_2(graph: nx.Graph) -> int | 
     ----------
     graph:
         A minimally rigid graph
+
+    Notes
+    -----
+    The algorithm from :cite:p:`GalletGraseggerSchicho2020` is used.
     """
     G = deepcopy(graph)
     deg_2 = 0
@@ -304,12 +309,12 @@ def _number_of_spherical_realizations_min_rigid_dim_2(graph: nx.Graph) -> int | 
     elif G.number_of_nodes() == 2:
         return 2**deg_2
     else:
-        return (2**deg_2) * _number_of_spherical_realizations_min_rigid_dim_2_rec(
+        return (2**deg_2) * _number_of_sphere_realizations_min_rigid_dim_2_rec(
             _graph_to_quadrograph(G)
         )
 
 
-def _number_of_spherical_realizations_min_rigid_dim_2_rec(quadrograph):
+def _number_of_sphere_realizations_min_rigid_dim_2_rec(quadrograph: list) -> int:
     """
     Compute the number of spherical realizations of a quadrograph recursively.
 
@@ -349,9 +354,9 @@ def _number_of_spherical_realizations_min_rigid_dim_2_rec(quadrograph):
             ]
             Q04 = [q for q in Qprime if len(set(q).intersection(set_I)) == 0]
             Q31new = [[x if (x in set_I) else counter for x in q] for q in Q31]
-            sum = sum + _number_of_spherical_realizations_min_rigid_dim_2_rec(
+            sum = sum + _number_of_sphere_realizations_min_rigid_dim_2_rec(
                 [set_I + [counter], Q40 + Q31new]
-            ) * _number_of_spherical_realizations_min_rigid_dim_2_rec(
+            ) * _number_of_sphere_realizations_min_rigid_dim_2_rec(
                 [set_J + [counter], Q13new + Q04]
             )
         else:
@@ -359,7 +364,7 @@ def _number_of_spherical_realizations_min_rigid_dim_2_rec(quadrograph):
     return sum
 
 
-def _graph_to_quadrograph(graph):
+def _graph_to_quadrograph(graph: nx.Graph) -> list:
     """
     Generate a quadrograph from a graph.
     A quadrograph here is a pair (N,Q),
@@ -389,3 +394,179 @@ def _graph_to_quadrograph(graph):
             ]
         )
     return [quad_N, quad_Q]
+
+
+def _number_of_plane_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
+    """
+    Compute the number of realizations in the plane combinatorially within pyrigi
+
+    Parameters
+    ----------
+    graph:
+        A minimally rigid graph
+
+    Notes
+    -----
+    The algorithm from :cite:p:`CapcoGalletEtAl2018` is used.
+    """
+    G = deepcopy(graph)
+    deg_2 = 0
+    while len(G.vertex_list()) > 2 and G.min_degree() == 2:
+        min_v = [v for v in G.vertex_list() if G.degree(v) == 2]
+        G.delete_vertices(min_v)
+        deg_2 += len(min_v)
+
+    if G.number_of_nodes() == 0:
+        return 2 ** (deg_2 - 2)
+    elif G.number_of_nodes() == 2:
+        return 2**deg_2
+    else:
+        return (2**deg_2) * _number_of_plane_realizations_min_rigid_dim_2_rec(
+            _graph_to_bigraph(G), first=True
+        )
+
+
+def _number_of_plane_realizations_min_rigid_dim_2_rec(bigraph: list, first: bool = False) -> int:
+    """
+    Compute the number of realizations in the plane of a bigraph recursively.
+
+    Parameters
+    ----------
+    bigraph:
+        A set of biedges.
+        This set comes initially from `_graph_to_bigraph`
+    first:
+        If the input is a bigraph where the left and right component are identical,
+        then computation time can be saved by setting `first` to `True`
+    """
+    if _biedges_have_loop(bigraph):
+        return 0
+    if len(bigraph) == 1:
+        return 1
+    selected_edge = bigraph[0]
+    result = _number_of_plane_realizations_min_rigid_dim_2_rec(_bigraph_contract_delete(bigraph, [selected_edge]))
+    if first:
+        result *= 2
+    else:
+        result += _number_of_plane_realizations_min_rigid_dim_2_rec(_bigraph_delete_contract(bigraph, [selected_edge]))
+
+    subsets = more_itertools.powerset(bigraph[1:])
+    for sub in subsets:
+        if len(sub) == 0 or len(sub) == len(bigraph) - 1:
+            continue
+        sub_M = list(sub)
+        sub_M.append(selected_edge)
+        sub_N = []
+        for be in bigraph:
+            if be not in sub_M:
+                sub_N.append(be)
+        sub_N.append(selected_edge)
+
+        sub_big_M = _bigraph_contract_delete(bigraph, sub_M)
+        sub_big_N = _bigraph_delete_contract(bigraph, sub_N)
+        if _bigraph_is_pseudo_laman(sub_big_N) and _bigraph_is_pseudo_laman(sub_big_M):
+            sub_result = _number_of_plane_realizations_min_rigid_dim_2_rec(sub_big_M)
+            if sub_result != 0:
+                sub_result *= _number_of_plane_realizations_min_rigid_dim_2_rec(sub_big_N)
+            result += sub_result
+
+    return result
+
+def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
+    """
+    Check whether a bigraph given by a list of biedges is pseudo laman.
+    """
+    graph1 = nx.Graph([be[0] for be in bigraph])
+    graph2 = nx.Graph([be[1] for be in bigraph])
+    return graph1.number_of_nodes() - len(list(nx.connected_components(graph1))) + graph2.number_of_nodes() - len(list(nx.connected_components(graph2))) == len(bigraph) + 1
+
+
+def _biedges_have_loop(biedges: list) -> bool:
+    """
+    Check whether a list of biedges contains a loop.
+    """
+    for be in biedges:
+        if be[0][0] == be[0][1] or be[1][0] == be[1][1]:
+            return True
+    return False
+
+def _graph_to_bigraph(graph: nx.Graph) -> list:
+    """
+    Generate a bigraph from a graph.
+    A bigraph here is given by a set of biedges,
+    i.e. pairs of edges of the two sides of the graph
+    correspdonding to each other.
+
+    Parameters
+    ----------
+    graph:
+        A minimally rigid graph
+    """
+    n = graph.number_of_nodes()
+    if n < 2:
+        raise ValueError("Graph is to small")
+    biedges = []
+    edges = graph.edge_list()
+    vertices = graph.vertex_list()
+    mapping = {vertices[i]: i + 1 for i in range(n)}
+    for edge in edges:
+        biedges.append(
+            [
+                [mapping[edge[0]], mapping[edge[1]]],
+                [mapping[edge[0]],mapping[edge[1]]],
+            ]
+        )
+    return biedges
+
+
+def _bigraph_contract_delete(biedges: list, select: list) -> list:
+    """
+    Contract edges of a bigraph on the left
+    and delte on the right.
+    """
+    new_biedges = deepcopy(biedges)
+    for be in select:
+        new_biedges.remove(be)
+    n = max([max(max(be[0]),max(be[1])) for be in biedges])
+    mapping = {i: i for i in range(n + 1)}
+    contract_graph = nx.Graph([be[0] for be in select])
+    contract_sets = list(nx.connected_components(contract_graph))
+    for i in range(len(contract_sets)):
+        for v in contract_sets[i]:
+            mapping[v] = n + 1 + i
+    new_biedges2 = []
+    for be in new_biedges:
+        new_biedges2.append(
+            [
+                [mapping[be[0][0]], mapping[be[0][1]]],
+                be[1],
+            ]
+        )
+    return new_biedges2
+
+
+def _bigraph_delete_contract(biedges: list, select: list) -> list:
+    """
+    Contract edges of a bigraph on the right
+    and delte on the left.
+    """
+    new_biedges = deepcopy(biedges)
+    for be in select:
+        new_biedges.remove(be)
+    n = max([max(max(be[0]),max(be[1])) for be in biedges])
+    mapping = {i: i for i in range(n + 1)}
+    contract_graph = nx.Graph([be[1] for be in select])
+    contract_sets = list(nx.connected_components(contract_graph))
+    for i in range(len(contract_sets)):
+        for v in contract_sets[i]:
+            mapping[v] = n + 1 + i
+    new_biedges2 = []
+    for be in new_biedges:
+        new_biedges2.append(
+            [
+                be[0],
+                [mapping[be[1][0]], mapping[be[1][1]]],
+
+            ]
+        )
+    return new_biedges2
