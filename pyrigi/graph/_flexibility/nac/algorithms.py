@@ -216,9 +216,9 @@ def _subgraphs_join_epochs(
     class_to_edges: list[list[IntEdge]],
     is_NAC_coloring_routine: Callable[[nx.Graph, NACColoring], bool],
     ordered_class_ids: list[int],
-    epoch1: Iterable[int],
+    epoch_1: Iterable[int],
     subgraph_mask_1: int,
-    epoch2: RepeatableIterator,
+    epoch_2: RepeatableIterator,
     subgraph_mask_2: int,
 ) -> Iterable[int]:
     """
@@ -251,18 +251,6 @@ def _subgraphs_join_epochs(
     Yields
     ------
     All :prf:ref:`NAC-colorings <def-nac>` of the merged subgraph.
-
-    Suggested Improvements
-    ---------------------
-    Benchmark again lazy iterator. Current implementation gets
-    the first NAC-colorings and then all NAC-colorings
-    of one subgraph are iterated and tried with the other NAC-coloring.
-    Alternative lazy approach gets a NAC-coloring from one subgraph
-    and tries to join it with all already known NAC-colorings of the other subgraph.
-    In the next round, NAC-coloring is taken from the other subgraph.
-    This performed worse in our tests for minimally-rigid graphs,
-    but was not test different graph classes.
-    It may be worth exploring this again in the future.
     """
 
     if subgraph_mask_1 & subgraph_mask_2:
@@ -297,24 +285,30 @@ def _subgraphs_join_epochs(
     ]
     templates = [t for t in templates if t[1] > 0]
 
-    for mask1 in epoch1:
-        for mask2 in epoch2:
-            mask = mask1 | mask2
+    mask_iterator = (
+        (mask1, mask2 ^ mod)
+        for mask1 in epoch_1
+        for mask2 in epoch_2
+        for mod in (0, subgraph_mask_2)
+    )
 
-            if mask_matches_templates(templates, mask, subgraph_mask):
-                continue
+    for mask_1, mask_2 in mask_iterator:
+        mask = mask_1 | mask_2
 
-            coloring = coloring_from_mask(
-                ordered_class_ids,
-                class_to_edges,
-                mask,
-                subgraph_mask,
-            )
+        if mask_matches_templates(templates, mask, subgraph_mask):
+            continue
 
-            if not is_NAC_coloring_routine(graph, coloring):
-                continue
+        coloring = coloring_from_mask(
+            ordered_class_ids,
+            class_to_edges,
+            mask,
+            subgraph_mask,
+        )
 
-            yield mask
+        if not is_NAC_coloring_routine(graph, coloring):
+            continue
+
+        yield mask
 
 
 def _apply_split_strategy_to_order_vertices(
@@ -386,10 +380,6 @@ def _colorings_merge(
     (epoch2, subgraph_mask_2) = colorings_2
     epoch1 = RepeatableIterator(epoch1)
     epoch2 = RepeatableIterator(epoch2)
-    epoch2_switched = RepeatableIterator(
-        # this has to be list, so the iterator is exhausted and not iterated concurrently
-        [coloring ^ subgraph_mask_2 for coloring in epoch2]
-    )
 
     vertices_1 = mask_to_vertices(ordered_class_ids, class_to_edges, colorings_1[1])
     vertices_2 = mask_to_vertices(ordered_class_ids, class_to_edges, colorings_2[1])
@@ -398,9 +388,9 @@ def _colorings_merge(
 
         def generator() -> Iterator[int]:
             for c1 in epoch1:
-                for c2, c2s in zip(epoch2, epoch2_switched):
+                for c2 in epoch2:
                     yield c1 | c2
-                    yield c1 | c2s
+                    yield c1 | c2 ^ subgraph_mask_2  # switched colors
 
         return SubgraphColorings(
             generator(),
@@ -409,27 +399,15 @@ def _colorings_merge(
 
     # if at least two vertices are shared, we need to do the full check
     return SubgraphColorings(
-        itertools.chain(
-            _subgraphs_join_epochs(
-                graph,
-                class_to_edges,
-                is_NAC_coloring_routine,
-                ordered_class_ids,
-                epoch1,
-                subgraph_mask_1,
-                epoch2,
-                subgraph_mask_2,
-            ),
-            _subgraphs_join_epochs(
-                graph,
-                class_to_edges,
-                is_NAC_coloring_routine,
-                ordered_class_ids,
-                epoch1,
-                subgraph_mask_1,
-                epoch2_switched,
-                subgraph_mask_2,
-            ),
+        _subgraphs_join_epochs(
+            graph,
+            class_to_edges,
+            is_NAC_coloring_routine,
+            ordered_class_ids,
+            epoch1,
+            subgraph_mask_1,
+            epoch2,
+            subgraph_mask_2,
         ),
         subgraph_mask_1 | subgraph_mask_2,
     )
