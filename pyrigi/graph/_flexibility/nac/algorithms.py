@@ -5,7 +5,6 @@ Made in a generic way to also support
 :prf:ref:`Cartesian NAC-coloring <def-cartesian-nac>` in the future.
 """
 
-import itertools
 import math
 import random
 from typing import Callable, Iterable, Iterator, Literal
