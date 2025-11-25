@@ -1,6 +1,5 @@
 import math
 from itertools import combinations, product
-from random import randint
 from copy import deepcopy
 
 import networkx as nx

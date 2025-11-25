@@ -3,7 +3,7 @@ This module provides algorithms related to rigid realization counting.
 """
 
 import math
-from copy import deepcopy
+from copy import deepcopy, copy
 import more_itertools
 import importlib.util
 
@@ -16,7 +16,7 @@ import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graph._export.export as export
 
 
-def number_of_realizations(
+def number_of_realizations(  # noqa: C901
     graph: nx.Graph,
     dim: int = 2,
     algorithm: str = "default",
@@ -91,25 +91,24 @@ def number_of_realizations(
         elif dim == 2:
             if graph.number_of_edges() > 2 * graph.number_of_nodes() - 3:
                 algorithm = "pyrigi"
-            elif importlib.util.find_spec('lnumber') is not None:
+            elif importlib.util.find_spec("lnumber") is not None:
                 algorithm = "lnumber"
             else:
                 algorithm = "pyrigi"
         else:
             algorithm = "checktrivial"
     if algorithm == "pyrigi":
-        if graph.number_of_edges() >= 2 * graph.number_of_nodes() - 3 or graph.number_of_edges() == math.comb(graph.number_of_nodes(), 2):
+        if (
+            graph.number_of_edges() >= 2 * graph.number_of_nodes() - 3
+            or graph.number_of_edges() == math.comb(graph.number_of_nodes(), 2)
+        ):
             _input_check.dimension_for_algorithm(
                 dim, [1, 2], "number_of_realizations with algorithm pyrigi"
             )
         else:
-            _input_check.dimension_for_algorithm(
-                dim, [1], "number_of_realizations"
-            )
+            _input_check.dimension_for_algorithm(dim, [1], "number_of_realizations")
     elif algorithm == "lnumber":
-        _input_check.dimension_for_algorithm(
-            dim, [2], "number_of_realizations"
-        )
+        _input_check.dimension_for_algorithm(dim, [2], "number_of_realizations")
 
     if graph.number_of_nodes() == 1:
         return 1
@@ -123,13 +122,14 @@ def number_of_realizations(
         fac = 2
 
     # Check trivial cases for higher dimensions
-    if algorithm=="checktrivial":
+    if algorithm == "checktrivial":
         if global_rigidity.is_globally_rigid(graph, dim):
             return 2 // fac
         else:
             raise NotImplementedError(
-                    f"There is no combinatorial algorithm for 'dim'>2 available, except for trivial cases."
-                )
+                "There is no combinatorial algorithm for 'dim'>2 available,"
+                + "except for trivial cases."
+            )
 
     if dim == 1:
         if global_rigidity.is_globally_rigid(graph, dim):
@@ -173,10 +173,10 @@ def number_of_realizations(
                 import lnumber
             except ImportError:
                 raise ImportError(
-                        "For counting the number of realizations with 'lnumber', "
-                        "the optional package 'lnumber' is used, "
-                        "run `pip install pyrigi[realization-counting]`!"
-                    )
+                    "For counting the number of realizations with 'lnumber', "
+                    "the optional package 'lnumber' is used, "
+                    "run `pip install pyrigi[realization-counting]`!"
+                )
 
             graph_int = export.to_int(graph)
 
@@ -192,14 +192,15 @@ def number_of_realizations(
     else:  # not minimally rigid (but rigid)
         if algorithm == "lnumber":
             raise ValueError(
-                "The algorithm `lnumber` is only available for minimally rigid graphs " +
-                "but the input graph is not minimally rigid."
+                "The algorithm `lnumber` is only available for minimally rigid graphs "
+                + "but the input graph is not minimally rigid."
             )
         if global_rigidity.is_globally_rigid(graph, dim):
             return 2 // fac
         else:
-            return _number_of_realizations_rigid_not_globally_rigid_dim_2(graph, algorithm_in, spherical, count_reflection, fac)
-
+            return _number_of_realizations_rigid_not_globally_rigid_dim_2(
+                graph, algorithm_in, spherical, count_reflection, fac
+            )
 
 
 def _number_of_realizations_rigid_not_globally_rigid_dim_2(
@@ -207,7 +208,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
     algorithm: str = "default",
     spherical: bool = False,
     count_reflection: bool = False,
-    fac: int = 2
+    fac: int = 2,
 ) -> int:
     """
     Compute the number of realizations for a graph that is rigid but
@@ -237,9 +238,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
         if graph.has_edge(*cut):
             return fac ** (len(sub) - 1) * math.prod(
                 [
-                    number_of_realizations(
-                        g, 2, algorithm, spherical, count_reflection
-                    )
+                    number_of_realizations(g, 2, algorithm, spherical, count_reflection)
                     for g in sub
                 ]
             )
@@ -291,17 +290,13 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
         # Compute result
         prod_g = math.prod(
             [
-                number_of_realizations(
-                    g, 2, algorithm, spherical, count_reflection
-                )
+                number_of_realizations(g, 2, algorithm, spherical, count_reflection)
                 for g in max_sub
             ]
         )
         prod_h = math.prod(
             [
-                number_of_realizations(
-                    h, 2, algorithm, spherical, count_reflection
-                )
+                number_of_realizations(h, 2, algorithm, spherical, count_reflection)
                 for h in span
             ]
         )
@@ -310,12 +305,11 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
             H = nx.compose(H, h)
         H.add_edge(*e)
         return (
-            number_of_realizations(
-                H, 2, algorithm, spherical, count_reflection
-            )
+            number_of_realizations(H, 2, algorithm, spherical, count_reflection)
             * prod_g
             // prod_h
         )
+
 
 def _number_of_sphere_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     """
@@ -459,7 +453,9 @@ def _number_of_plane_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
         )
 
 
-def _number_of_plane_realizations_min_rigid_dim_2_rec(bigraph: list, first: bool = False) -> int:
+def _number_of_plane_realizations_min_rigid_dim_2_rec(
+    bigraph: list, first: bool = False
+) -> int:
     """
     Compute the number of realizations in the plane of a bigraph recursively.
 
@@ -477,11 +473,15 @@ def _number_of_plane_realizations_min_rigid_dim_2_rec(bigraph: list, first: bool
     if len(bigraph) == 1:
         return 1
     selected_edge = bigraph[0]
-    result = _number_of_plane_realizations_min_rigid_dim_2_rec(_bigraph_contract_delete(bigraph, [selected_edge]))
+    result = _number_of_plane_realizations_min_rigid_dim_2_rec(
+        _bigraph_contract_delete(bigraph, [selected_edge])
+    )
     if first:
         result *= 2
     else:
-        result += _number_of_plane_realizations_min_rigid_dim_2_rec(_bigraph_delete_contract(bigraph, [selected_edge]))
+        result += _number_of_plane_realizations_min_rigid_dim_2_rec(
+            _bigraph_delete_contract(bigraph, [selected_edge])
+        )
 
     subsets = more_itertools.powerset(bigraph[1:])
     for sub in subsets:
@@ -500,10 +500,13 @@ def _number_of_plane_realizations_min_rigid_dim_2_rec(bigraph: list, first: bool
         if _bigraph_is_pseudo_laman(sub_big_N) and _bigraph_is_pseudo_laman(sub_big_M):
             sub_result = _number_of_plane_realizations_min_rigid_dim_2_rec(sub_big_M)
             if sub_result != 0:
-                sub_result *= _number_of_plane_realizations_min_rigid_dim_2_rec(sub_big_N)
+                sub_result *= _number_of_plane_realizations_min_rigid_dim_2_rec(
+                    sub_big_N
+                )
             result += sub_result
 
     return result
+
 
 def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
     """
@@ -511,7 +514,13 @@ def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
     """
     graph1 = nx.Graph([be[0] for be in bigraph])
     graph2 = nx.Graph([be[1] for be in bigraph])
-    return graph1.number_of_nodes() - len(list(nx.connected_components(graph1))) + graph2.number_of_nodes() - len(list(nx.connected_components(graph2))) == len(bigraph) + 1
+    return (
+        graph1.number_of_nodes()
+        - len(list(nx.connected_components(graph1)))
+        + graph2.number_of_nodes()
+        - len(list(nx.connected_components(graph2)))
+        == len(bigraph) + 1
+    )
 
 
 def _biedges_have_loop(biedges: list) -> bool:
@@ -522,6 +531,7 @@ def _biedges_have_loop(biedges: list) -> bool:
         if be[0][0] == be[0][1] or be[1][0] == be[1][1]:
             return True
     return False
+
 
 def _graph_to_bigraph(graph: nx.Graph) -> list:
     """
@@ -546,7 +556,7 @@ def _graph_to_bigraph(graph: nx.Graph) -> list:
         biedges.append(
             [
                 [mapping[edge[0]], mapping[edge[1]]],
-                [mapping[edge[0]],mapping[edge[1]]],
+                [mapping[edge[0]], mapping[edge[1]]],
             ]
         )
     return biedges
@@ -557,10 +567,10 @@ def _bigraph_contract_delete(biedges: list, select: list) -> list:
     Contract edges of a bigraph on the left
     and delte on the right.
     """
-    new_biedges = deepcopy(biedges)
+    new_biedges = copy(biedges)
     for be in select:
         new_biedges.remove(be)
-    n = max([max(max(be[0]),max(be[1])) for be in biedges])
+    n = max([max(max(be[0]), max(be[1])) for be in biedges])
     mapping = {i: i for i in range(n + 1)}
     contract_graph = nx.Graph([be[0] for be in select])
     contract_sets = list(nx.connected_components(contract_graph))
@@ -583,10 +593,10 @@ def _bigraph_delete_contract(biedges: list, select: list) -> list:
     Contract edges of a bigraph on the right
     and delte on the left.
     """
-    new_biedges = deepcopy(biedges)
+    new_biedges = copy(biedges)
     for be in select:
         new_biedges.remove(be)
-    n = max([max(max(be[0]),max(be[1])) for be in biedges])
+    n = max([max(max(be[0]), max(be[1])) for be in biedges])
     mapping = {i: i for i in range(n + 1)}
     contract_graph = nx.Graph([be[1] for be in select])
     contract_sets = list(nx.connected_components(contract_graph))
@@ -599,7 +609,6 @@ def _bigraph_delete_contract(biedges: list, select: list) -> list:
             [
                 be[0],
                 [mapping[be[1][0]], mapping[be[1][1]]],
-
             ]
         )
     return new_biedges2
