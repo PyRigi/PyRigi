@@ -51,6 +51,7 @@ We define the _number of complex realizations_ by $c_d(G)$, where
 
 The implemented combinatorial algorithm for computing $2\cdot c_2(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`CapcoGalletEtAl2018`.
 Note that this algorithm does count reflections to be different realizations, while here we do not.
+For $2$-rigid graphs that are not minimally $2$-rigid the algorithm from {cite:p}`DewarGraseggerEtAl2025` is used to compute $c_2(G)$.
 
 ## Complex Sphere
 
@@ -99,3 +100,4 @@ We define the _number of complex spherical realizations_ by $c_d^{\circ}(G)$, wh
 
 The implemented combinatorial algorithm for computing $2\cdot c_2^{\circ}(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`GalletGraseggerSchicho2020`.
 Note that this algorithm does count reflections to be different realizations, while here we do not.
+For $2$-rigid graphs that are not minimally $2$-rigid the algorithm from {cite:p}`DewarGraseggerEtAl2025` is used to compute $c_2^{\circ}(G)$.

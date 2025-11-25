@@ -36,7 +36,8 @@ def number_of_realizations(
     This behaviour accounts better for global rigidity,
     but it can be changed using the parameter ``count_reflection``.
 
-    For rigid graphs, TODO
+    For 2-rigid graphs which are not minimal,
+    the algorithm of :cite:p:`DewarGraseggerEtAl2025` is used.
 
     Caution: PyRigi can compute realizations counts directly but this might be slow.
     Faster computation works only if the python package ``lnumber``
@@ -52,7 +53,7 @@ def number_of_realizations(
     ----------
     dim:
         The dimension in which the realizations are counted.
-        Currently, only ``dim=2`` is supported.
+        Currently, only ``dim=1`` and ``dim=2`` are supported.
     algorithm:
         If "default" pyrigi checks which algorithm is available for the parameters and choses this one.
         If "pyrigi" a pure pyrigi implementation is used.
