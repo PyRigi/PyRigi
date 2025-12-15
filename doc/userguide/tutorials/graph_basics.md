@@ -17,7 +17,7 @@ kernelspec:
 
 +++
 
-This notebook illustrates the basic functionality of {class}`pyrigi.graph.Graph`.
+This notebook illustrates the basic functionality of {class}`~.Graph`.
 It can be downloaded {download}`here <../../notebooks/graph_basics.ipynb>`.
 
 ```{code-cell} ipython3
@@ -138,10 +138,11 @@ The resulting graph can then be output (and manipulated further) in the followin
 G = Drawer.graph()
 ```
 
-Since the `GraphDrawer` also creates a realization, we can use it to create a framework
-as well by calling {meth}`Drawer.framework()`.
+Since the {class}`~.GraphDrawer` also creates a realization,
+we can use it to create a {class}`~.Framework`
+as well by calling {meth}`~.GraphDrawer.framework`.
 
-As you can see in the `GraphDrawer` window, there are several stylistic choices which can
+As you can see in the {class}`~.GraphDrawer` window, there are several stylistic choices which can
 be used to change the appearance of a graph or a framework. To import them into pyrigi,
 we can call
 
@@ -149,10 +150,10 @@ we can call
 ps = Drawer.plot_style()
 ```
 
-This creates a standard PyRigi `PlotStyle` `ps` which contains basic attributes
+This creates a standard PyRigi {class}`~.PlotStyle` `ps` which contains basic attributes
 such as the `vertex_size`, `vertex_shape`, `edge_width`, `edge_color`, etc. They are
-taken from the latest settings in the `GraphDrawer`.
-The `PlotStyle` object can then be fed into the various plotting and animation methods
+taken from the latest settings in the {class}`~.GraphDrawer`.
+The {class}`~.PlotStyle` object can then be fed into the various plotting and animation methods
 for graphs and frameworks in PyRigi. 
 
 Moreover, it is possible to alter the edge and vertex colors in the graph drawer
