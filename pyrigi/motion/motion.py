@@ -4,7 +4,7 @@ This module contains functionality related to motions (continuous flexes).
 
 import os
 from copy import deepcopy
-from typing import Any, Literal
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -706,8 +706,14 @@ class Motion(object):
             The method for `"matplotlib"` is documented here:
             :meth:`~.Motion.animate2D_plt`.
         """
-        if animation_format.lower() != "svg" and animation_format.lower() != "matplotlib"
-            raise ValueError("Only `svg` and `matplotlib` are supported as animation format. Instead, `{animation_format}` was provided.")
+        if (
+            not animation_format.lower() == "svg"
+            and not animation_format.lower() == "matplotlib"
+        ):
+            raise ValueError(
+                "Only `svg` and `matplotlib` are supported as animation format. " +
+                f"Instead, `{animation_format}` was provided."
+            )
         if self._dim == 3:
             return self.animate3D(
                 realizations,
