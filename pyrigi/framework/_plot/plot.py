@@ -1013,7 +1013,7 @@ def plot2D(
         else:
             plot_style.update(edges_as_arcs=True)
 
-    elif framework.dim == 2:
+    elif framework.dim == 2 or framework.dim == 0:
         placement = framework.realization(as_points=True, numerical=True)
 
     else:

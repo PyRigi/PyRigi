@@ -138,6 +138,40 @@ The resulting graph can then be output (and manipulated further) in the followin
 G = Drawer.graph()
 ```
 
+Since the `GraphDrawer` also creates a realization, we can use it to create a framework
+as well by calling {meth}`Drawer.framework()`.
+
+As you can see in the `GraphDrawer` window, there are several stylistic choices which can
+be used to change the appearance of a graph or a framework. To import them into pyrigi,
+we can call
+
+```{code-cell} ipython3
+ps = Drawer.plot_style()
+```
+
+This creates a standard PyRigi `PlotStyle` `ps` which contains basic attributes
+such as the `vertex_size`, `vertex_shape`, `edge_width`, `edge_color`, etc. They are
+taken from the latest settings in the `GraphDrawer`.
+The `PlotStyle` object can then be fed into the various plotting and animation methods
+for graphs and frameworks in PyRigi. 
+
+Moreover, it is possible to alter the edge and vertex colors in the graph drawer
+individually. 
+
+```{code-cell} ipython3
+vertex_colors_custom = Drawer.vertex_colors()
+edge_colors_custom = Drawer.edge_colors()
+```
+
+These methods create dictionaries mapping the colors in hexadecimal to all vertices or
+edges that are affected. The outputs can be used in plotting and animation routines in
+the following way:
+
+```{code-cell} ipython3
+G.plot(vertex_colors_custom=vertex_colors_custom, edge_colors_custom=edge_colors_custom)
+```
+
+
 ## Graph database
 
 Alternatively, many common graphs in rigidity theory are already implemented in the
