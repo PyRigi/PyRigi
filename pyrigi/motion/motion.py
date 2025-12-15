@@ -672,7 +672,7 @@ class Motion(object):
             Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
         ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
-        animation_format: str | Literal["svg", "matplotlib"] = "svg",
+        animation_format: str = "svg",
         **kwargs,
     ) -> Any:
         """
@@ -706,6 +706,8 @@ class Motion(object):
             The method for `"matplotlib"` is documented here:
             :meth:`~.Motion.animate2D_plt`.
         """
+        if animation_format.lower() != "svg" and animation_format.lower() != "matplotlib"
+            raise ValueError("Only `svg` and `matplotlib` are supported as animation format. Instead, `{animation_format}` was provided.")
         if self._dim == 3:
             return self.animate3D(
                 realizations,
