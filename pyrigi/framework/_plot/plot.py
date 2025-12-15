@@ -628,7 +628,7 @@ def _plot_with_3D_realization(
             [z_coords[i]],
             s=plot_style.vertex_size,
             marker=plot_style.vertex_shape,
-            c=vertex_color_array[i],
+            color=vertex_color_array[i],
         )
 
     for i in range(len(edge_list_ref)):
@@ -640,7 +640,7 @@ def _plot_with_3D_realization(
             x,
             y,
             z,
-            c=edge_color_array[i],
+            color=edge_color_array[i],
             lw=plot_style.edge_width,
             linestyle=plot_style.edge_style,
         )
@@ -743,17 +743,21 @@ def _resolve_edge_colors(
     if not isinstance(edge_color, str):
         raise TypeError("The provided `edge_color` is not a string. ")
 
-    if isinstance(edge_colors_custom, list):
+    if isinstance(edge_colors_custom, Sequence):
         edges_partition = edge_colors_custom
         colors = distinctipy.get_colors(
             len(edges_partition), colorblind_type="Deuteranomaly", pastel_factor=0.2
         )
         for i, part in enumerate(edges_partition):
             for e in part:
-                if not G.has_edge(e[0], e[1]):
+                if (
+                    not isinstance(e, Sequence)
+                    or not len(e) >= 2
+                    or not G.has_edge(e[0], e[1])
+                ):
                     raise ValueError("The input includes a pair that is not an edge.")
                 edge_color_array.append(colors[i])
-                edge_list_ref.append(tuple(e))
+                edge_list_ref.append(tuple([e[0], e[1]]))
     elif isinstance(edge_colors_custom, dict):
         color_edges_dict = edge_colors_custom
         for color, edges in color_edges_dict.items():
@@ -810,7 +814,8 @@ def _resolve_vertex_colors(
     if not isinstance(vertex_color, str):
         raise TypeError("The provided `edge_color` is not a string. ")
 
-    if isinstance(vertex_colors_custom, list):
+    if isinstance(vertex_colors_custom, Sequence):
+        # Check that the vertex colors are a partition
         vertex_partition = vertex_colors_custom
         colors = distinctipy.get_colors(
             len(vertex_partition), colorblind_type="Deuteranomaly", pastel_factor=0.2
@@ -818,7 +823,7 @@ def _resolve_vertex_colors(
         for i, part in enumerate(vertex_partition):
             for v in part:
                 if not G.has_node(v):
-                    raise ValueError("The input includes a pair that is not an edge.")
+                    raise ValueError("The input includes a pair that is not a vertex.")
                 vertex_color_array.append(colors[i])
                 vertex_list_ref.append(v)
     elif isinstance(vertex_colors_custom, dict):
@@ -1212,7 +1217,9 @@ def plot3D(
     coordinates: Sequence[int] = None,
     inf_flex: int | InfFlex = None,
     stress: int | Stress = None,
-    vertex_colors_custom: Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]] = None,
+    vertex_colors_custom: (
+        Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+    ) = None,
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     stress_label_positions: dict[DirectedEdge, float] = None,
     filename: str = None,
