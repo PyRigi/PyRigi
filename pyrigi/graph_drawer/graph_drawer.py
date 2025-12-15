@@ -900,7 +900,7 @@ class GraphDrawer(object):
             vertex_color=self._vertex_color,
             edge_color=self._edge_color,
             vertex_size=20 * self._radius,
-            vertex_labels=self._vertex_labels,
+            vertex_labels=bool(self._vertex_labels),
             edge_width=0.8 * self._edge_width,
             font_size=int(round(0.85 * self._label_size)),
         )
