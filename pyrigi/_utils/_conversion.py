@@ -93,7 +93,10 @@ def _rgb_to_hex_array(color_array):
             or (isinstance(col, list) or isinstance(col, tuple))
             and not len(col) == 3
         ):
-            raise ValueError("The `color_array` does not only consist of RGB and ")
+            raise ValueError(
+                "The `color_array` does not only consist of "
+                + f"`RGB` and `str` values. One entry is {col}."
+            )
         if (isinstance(col, list) or isinstance(col, tuple)) and any(
             isinstance(c, float) and c < 1 for c in col
         ):
