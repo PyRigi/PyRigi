@@ -599,7 +599,7 @@ class Motion(object):
             self, plot_style.edge_color, edge_colors_custom
         )
 
-        #Transform to hexadecimal
+        # Transform to hexadecimal
         vertex_color_array = _rgb_to_hex_array(vertex_color_array)
         edge_color_array = _rgb_to_hex_array(edge_color_array)
 
@@ -717,8 +717,8 @@ class Motion(object):
             and not animation_format.lower() == "matplotlib"
         ):
             raise ValueError(
-                "Only `svg` and `matplotlib` are supported as animation format. " +
-                f"Instead, `{animation_format}` was provided."
+                "Only `svg` and `matplotlib` are supported as animation format. "
+                + f"Instead, `{animation_format}` was provided."
             )
         if self._dim == 3:
             return self.animate3D(
