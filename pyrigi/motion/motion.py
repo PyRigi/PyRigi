@@ -13,6 +13,7 @@ from matplotlib.animation import FuncAnimation
 
 import pyrigi._utils._input_check as _input_check
 from pyrigi._utils._zero_check import is_zero
+from pyrigi._utils._conversion import _rgb_to_hex_array
 from pyrigi.data_type import (
     Edge,
     Number,
@@ -405,6 +406,7 @@ class Motion(object):
         edge_color_array, edge_list_ref = framework_plot._resolve_edge_colors(
             self, plot_style.edge_color, edge_colors_custom
         )
+        print(edge_color_array)
 
         fig, ax = plt.subplots()
         fig.set_figwidth(plot_style.canvas_width)
@@ -596,6 +598,10 @@ class Motion(object):
         edge_color_array, edge_list_ref = framework_plot._resolve_edge_colors(
             self, plot_style.edge_color, edge_colors_custom
         )
+
+        #Transform to hexadecimal
+        vertex_color_array = _rgb_to_hex_array(vertex_color_array)
+        edge_color_array = _rgb_to_hex_array(edge_color_array)
 
         width = plot_style.canvas_width
         height = plot_style.canvas_height

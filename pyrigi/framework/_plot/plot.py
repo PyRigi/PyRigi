@@ -841,7 +841,7 @@ def _resolve_vertex_colors(
             "The input vertex_colors_custom has none of the supported formats."
         )
     for v in vertex_list:
-        if v not in vertex_list_ref and v not in vertex_list_ref:
+        if v not in vertex_list_ref:
             vertex_color_array.append(vertex_color)
             vertex_list_ref.append(v)
     if len(vertex_list_ref) > G.number_of_nodes():

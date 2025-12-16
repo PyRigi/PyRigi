@@ -77,3 +77,23 @@ def point_to_vector(point: Point) -> Matrix:
     if res.shape[0] != 1 and res.shape[1] != 1:
         raise ValueError("Point could not be interpreted as column vector.")
     return res if (res.shape[1] == 1) else res.transpose()
+
+
+def _rgb_to_hex_array(color_array):
+    """
+    Map an array of colors to their hexadecimal representation or string
+    representation so that `svg`-based methods can read the colors.
+    """
+    rgb_factor = 1
+    for col in color_array:
+        if not (isinstance(col, list) or isinstance(col, tuple) or isinstance(col, str)) or (isinstance(col, list) or isinstance(col, tuple)) and not len(col) == 3:
+            raise ValueError("The `color_array` does not only consist of RGB and ")
+        if (isinstance(col, list) or isinstance(col, tuple)) and any(isinstance(c, float) and c<1 for c in col):
+            # Distinguish between rgb and RGB
+            rgb_factor = 255
+    return [
+        "#" + "".join(f"{int(round(c * rgb_factor)):02x}" for c in col)
+        if isinstance(col, list) or isinstance(col, tuple)
+        else col
+        for col in color_array
+    ]
