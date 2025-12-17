@@ -406,7 +406,6 @@ class Motion(object):
         edge_color_array, edge_list_ref = framework_plot._resolve_edge_colors(
             self, plot_style.edge_color, edge_colors_custom
         )
-        print(edge_color_array)
 
         fig, ax = plt.subplots()
         fig.set_figwidth(plot_style.canvas_width)
