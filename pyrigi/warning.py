@@ -116,7 +116,7 @@ def _warn_randomized_alg(
 
 class NumericalCoordinateWarning(UserWarning):
     """
-    Warning raised when numerical coordinates are passed to pyrigi.
+    Warning raised when numerical coordinates are used in symbolic computation.
     """
 
     def __init__(
@@ -147,3 +147,6 @@ class NumericalCoordinateWarning(UserWarning):
                 )
             msg_str += "\n"
             super().__init__(msg_str, *args)
+
+
+warnings.filterwarnings("always", category=NumericalCoordinateWarning)
