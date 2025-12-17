@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 
+from collections.abc import Callable
 import networkx as nx
 import numpy as np
 import sympy as sp
@@ -557,7 +558,7 @@ class FrameworkBase(object):
                 f"The point {point} does not have the dimension {self.dim}!"
             )
 
-    def _warn_numerical_coord(self, numerical: bool) -> None:
+    def _warn_numerical_coord(self, method: Callable, numerical: bool) -> None:
         """
         Raise a warning if the framework contains numerical coordinates,
         but the method is symbolic.
@@ -566,6 +567,8 @@ class FrameworkBase(object):
         ----------
         numerical:
             Keyword indicating whether a numerical or symbolic algorithm is used.
+        method:
+            Reference to the method that is called.
         """
         cls = type(self)
         if not cls.silence_numerical_coord_warns and not numerical:
@@ -577,7 +580,12 @@ class FrameworkBase(object):
                         for coord in pos
                     ]
                 ):
-                    warnings.warn(NumericalCoordinateWarning(class_off=cls))
+                    warnings.warn(
+                        NumericalCoordinateWarning(
+                            self.realization(as_points=True), method, class_off=cls
+                        ),
+                        stacklevel=2,
+                    )
                     break
 
     @classmethod

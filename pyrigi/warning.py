@@ -6,8 +6,12 @@ Module for defining warnings.
 
 import warnings
 from collections.abc import Callable
-
 import networkx as nx
+from pyrigi.data_type import (
+    Number,
+    Sequence,
+    Vertex,
+)
 
 
 class RandomizedAlgorithmWarning(UserWarning):
@@ -67,7 +71,7 @@ class NumericalAlgorithmWarning(UserWarning):
             )
             if class_off is not None:
                 msg_str += (
-                    "\nTo switch off all NumericalAlgorithmWarning"
+                    "\n\nTo switch off all NumericalAlgorithmWarning"
                     + f"for the class {class_off.__name__} and all its subclasses,"
                     + f" use `{class_off.__name__}.silence_numerical_alg_warns=True`."
                 )
@@ -100,10 +104,14 @@ def _warn_randomized_alg(
             warnings.warn(
                 RandomizedAlgorithmWarning(
                     method, explicit_call=explicit_call, class_off=cls
-                )
+                ),
+                stacklevel=2,
             )
     else:
-        warnings.warn(RandomizedAlgorithmWarning(method, explicit_call=explicit_call))
+        warnings.warn(
+            RandomizedAlgorithmWarning(method, explicit_call=explicit_call),
+            stacklevel=2,
+        )
 
 
 class NumericalCoordinateWarning(UserWarning):
@@ -113,6 +121,8 @@ class NumericalCoordinateWarning(UserWarning):
 
     def __init__(
         self,
+        realization: dict[Vertex, Sequence[Number]],
+        method: Callable,
         msg: str = None,
         class_off: object = None,
         *args,
@@ -122,15 +132,17 @@ class NumericalCoordinateWarning(UserWarning):
         else:
             msg_str = (
                 "\nNumerical coordinates were detected in the Framework's realization."
-                + " If symbolic computations are performed on this framework via sympy,"
-                + " the result is not guaranteed to be correct. Consider setting the"
-                + " keyword `numerical=True` when applicable. It ensures that"
-                + " numpy-based computations are performed instead."
+                + f" The coordinates have the form \n{realization}.\n"
+                + f" However, the method {method.__qualname__} has been set to symbolic"
+                + " computations which are performed via sympy."
+                + " The result is therefore not guaranteed to be correct. Consider"
+                + " setting the keyword `numerical=True` when applicable. It ensures"
+                + " that numpy-based computations are performed instead."
             )
             if class_off is not None:
                 msg_str += (
                     "\nTo switch off all NumericalCoordinateWarnings"
-                    + f"for the class {class_off.__name__},"
+                    + f" for the class {class_off.__name__},"
                     + f" use `{class_off.__name__}.silence_numerical_coord_warns=True`."
                 )
             msg_str += "\n"

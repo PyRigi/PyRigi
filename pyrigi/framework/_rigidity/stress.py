@@ -116,7 +116,7 @@ def is_vector_stress(
     >>> F.is_stress(stresses[0])
     True
     """
-    framework._warn_numerical_coord(numerical)
+    framework._warn_numerical_coord(is_vector_stress, numerical)
     edge_order = _graph_input_check.is_edge_order(
         framework._graph, edge_order=edge_order
     )
@@ -245,7 +245,7 @@ def stresses(
     [ 2],
     [ 1]])]
     """
-    framework._warn_numerical_coord(numerical)
+    framework._warn_numerical_coord(stresses, numerical)
     if not numerical:
         return (
             infinitesimal_rigidity.rigidity_matrix(framework, edge_order=edge_order)
@@ -255,13 +255,15 @@ def stresses(
     F = FrameworkBase(
         framework._graph, framework.realization(as_points=True, numerical=True)
     )
-    stresses = _null_space(
+    equilibrium_stresses = _null_space(
         np.array(
             infinitesimal_rigidity.rigidity_matrix(F, edge_order=edge_order).transpose()
         ).astype(np.float64),
         tolerance=tolerance,
     )
-    return [list(stresses[:, i]) for i in range(stresses.shape[1])]
+    return [
+        list(equilibrium_stresses[:, i]) for i in range(equilibrium_stresses.shape[1])
+    ]
 
 
 def _transform_stress_to_edgewise(
