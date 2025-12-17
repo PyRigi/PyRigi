@@ -565,7 +565,7 @@ def _graph_to_bigraph(graph: nx.Graph) -> list:
 def _bigraph_contract_delete(biedges: list, select: list) -> list:
     """
     Contract edges of a bigraph on the left
-    and delte on the right.
+    and delete on the right.
     """
     new_biedges = copy(biedges)
     for be in select:
@@ -591,7 +591,7 @@ def _bigraph_contract_delete(biedges: list, select: list) -> list:
 def _bigraph_delete_contract(biedges: list, select: list) -> list:
     """
     Contract edges of a bigraph on the right
-    and delte on the left.
+    and delete on the left.
     """
     new_biedges = copy(biedges)
     for be in select:
