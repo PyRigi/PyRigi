@@ -131,10 +131,10 @@ class NumericalCoordinateWarning(UserWarning):
             super().__init__(msg, *args)
         else:
             msg_str = (
-                "\nNumerical coordinates were detected in the Framework's realization."
-                + f" The coordinates have the form \n{realization}.\n"
-                + f" However, the method {method.__qualname__} has been set to symbolic"
-                + " computations which are performed via sympy."
+                "\nNumerical coordinates were detected in the Framework's realization. "
+                + "The following points contain numerical coordinates: "
+                + f"\n{realization}.\nHowever, the method {method.__qualname__} has "
+                + " been set to symbolic computations which are performed via sympy."
                 + " The result is therefore not guaranteed to be correct. Consider"
                 + " setting the keyword `numerical=True` when applicable. It ensures"
                 + " that numpy-based computations are performed instead."

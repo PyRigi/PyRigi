@@ -572,7 +572,8 @@ class FrameworkBase(object):
         """
         cls = type(self)
         if not cls.silence_numerical_coord_warns and not numerical:
-            for pos in self._realization.values():
+            affected_points = {}
+            for v, pos in self.realization(as_points=True).items():
                 if any(
                     [
                         isinstance(coord, float | sp.Float | np.floating)
@@ -580,13 +581,12 @@ class FrameworkBase(object):
                         for coord in pos
                     ]
                 ):
-                    warnings.warn(
-                        NumericalCoordinateWarning(
-                            self.realization(as_points=True), method, class_off=cls
-                        ),
-                        stacklevel=2,
-                    )
-                    break
+                    affected_points |= {v: pos}
+            if not len(affected_points.values()) == 0:
+                warnings.warn(
+                    NumericalCoordinateWarning(affected_points, method, class_off=cls),
+                    stacklevel=2,
+                )
 
     @classmethod
     @doc_category("Class methods")
