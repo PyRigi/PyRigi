@@ -108,7 +108,7 @@ def _warn_randomized_alg(
 
 class NumericalCoordinateWarning(UserWarning):
     """
-    Warning raised when numerical coordinates are passed to pyrigi.
+    Warning raised when numerical coordinates are used in symbolic computation.
     """
 
     def __init__(
@@ -122,16 +122,20 @@ class NumericalCoordinateWarning(UserWarning):
         else:
             msg_str = (
                 "\nNumerical coordinates were detected in the Framework's realization."
-                + " If symbolic computations are performed on this framework via sympy,"
-                + " the result is not guaranteed to be correct. Consider setting the"
-                + " keyword `numerical=True` when applicable. It ensures that"
+                + " If symbolic computations are performed on this framework,"
+                + " the result is not guaranteed to be correct."
+                + " Consider using exact coordinates, or setting the"
+                + " keyword `numerical=True`, which ensures that numerical"
                 + " numpy-based computations are performed instead."
             )
             if class_off is not None:
                 msg_str += (
-                    "\nTo switch off all NumericalCoordinateWarnings"
+                    "\nTo switch off all NumericalCoordinateWarnings "
                     + f"for the class {class_off.__name__},"
                     + f" use `{class_off.__name__}.silence_numerical_coord_warns=True`."
                 )
             msg_str += "\n"
             super().__init__(msg_str, *args)
+
+
+warnings.filterwarnings("always", category=NumericalCoordinateWarning)
