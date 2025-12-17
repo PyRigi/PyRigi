@@ -205,11 +205,11 @@ def test__input_check_point_dimension_error(framework, point):
 @pytest.mark.parametrize(
     "realization",
     [
-        {1: [1, 0], 2: [2,3], 3: [-3, 8]},
-        {1: ['1/7', '0/13'], 2: ['2/1','3/5'], 3: ['-3/7', '8/9']},
-        {1: ['sqrt(2)', 0], 2: ['1/2', '3*pi'], 3: ['sqrt(3)*pi', 2]},
-        {1: ['pi', 'pi^2'], 2: ['sqrt(2)+sqrt(3)', 1], 3: ['2/3', 17]},
-        {1: [0,1], 2: [np.int64(17),'12*pi'], 3: ['2/3', 17]},
+        {1: [1, 0], 2: [2, 3], 3: [-3, 8]},
+        {1: ["1/7", "0/13"], 2: ["2/1", "3/5"], 3: ["-3/7", "8/9"]},
+        {1: ["sqrt(2)", 0], 2: ["1/2", "3*pi"], 3: ["sqrt(3)*pi", 2]},
+        {1: ["pi", "pi^2"], 2: ["sqrt(2)+sqrt(3)", 1], 3: ["2/3", 17]},
+        {1: [0, 1], 2: [np.int64(17), "12*pi"], 3: ["2/3", 17]},
     ],
 )
 def test_not__warn_numerical_coord(realization):
@@ -220,21 +220,18 @@ def test_not__warn_numerical_coord(realization):
         # placeholder method to call NumericalCoordinateWarning
         rigidity_matrix_rank(F, numerical=False)
 
-        assert not any(
-            issubclass(wi.category, NumericalCoordinateWarning)
-            for wi in w
-        )
+        assert not any(issubclass(wi.category, NumericalCoordinateWarning) for wi in w)
 
 
 @pytest.mark.parametrize(
     "realization",
     [
-        {1: [1, 0], 2: [1/2,3], 3: [-3, 8.02]},
-        {1: [1/7, 0/13], 2: [2/1,3/5], 3: [-3/7, 8/9]},
-        {1: ['sqrt(2)*1.01', 0], 2: ['1/2', '3*pi'], 3: ['sqrt(3)*pi', 2]},
-        {1: ['pi', 'pi^2*7'], 2: ['sqrt(2)+sqrt(3)+0.5', 1], 3: ['2/3', 17]},
-        {1: [0,1], 2: [np.float64(17),'12*pi'], 3: ['2/3', 17]},
-        {1: [-1,4/5], 2: [np.float64(3.74),'sqrt(18)'], 3: ['3*17', 0]}
+        {1: [1, 0], 2: [1 / 2, 3], 3: [-3, 8.02]},
+        {1: [1 / 7, 0 / 13], 2: [2 / 1, 3 / 5], 3: [-3 / 7, 8 / 9]},
+        {1: ["sqrt(2)*1.01", 0], 2: ["1/2", "3*pi"], 3: ["sqrt(3)*pi", 2]},
+        {1: ["pi", "pi^2*7"], 2: ["sqrt(2)+sqrt(3)+0.5", 1], 3: ["2/3", 17]},
+        {1: [0, 1], 2: [np.float64(17), "12*pi"], 3: ["2/3", 17]},
+        {1: [-1, 4 / 5], 2: [np.float64(3.74), "sqrt(18)"], 3: ["3*17", 0]},
     ],
 )
 def test__warn_numerical_coord(realization):
@@ -245,7 +242,4 @@ def test__warn_numerical_coord(realization):
         # placeholder method to call NumericalCoordinateWarning
         rigidity_matrix_rank(F, numerical=False)
 
-        assert any(
-            issubclass(wi.category, NumericalCoordinateWarning)
-            for wi in w
-        )
+        assert any(issubclass(wi.category, NumericalCoordinateWarning) for wi in w)
