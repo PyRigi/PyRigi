@@ -571,10 +571,13 @@ class FrameworkBase(object):
         if not cls.silence_numerical_coord_warns and not numerical:
             for pos in self._realization.values():
                 if any(
-                    [isinstance(coord, float | sp.Float | np.float64) for coord in pos]
+                    [isinstance(coord, float | sp.Float | np.floating) or not sp.sympify(coord).has(sp.Float) for coord in pos]
                 ):
                     warnings.warn(NumericalCoordinateWarning(class_off=cls))
                     break
+                if any(
+                    [isinstance(coord, sp.Add | ) for coord in pos]
+                ):
 
     @classmethod
     @doc_category("Class methods")
