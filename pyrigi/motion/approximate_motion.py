@@ -347,7 +347,9 @@ class ApproximateMotion(Motion):
             Reference to the method that is called.
         """
         if not cls.silence_numerical_alg_warns:
-            warnings.warn(NumericalAlgorithmWarning(method, class_off=cls))
+            warnings.warn(
+                NumericalAlgorithmWarning(method, class_off=cls), stacklevel=2
+            )
 
     def _compute_motion_samples(self, chosen_flex: int) -> None:
         """
