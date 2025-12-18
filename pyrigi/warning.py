@@ -135,8 +135,9 @@ class NumericalCoordinateWarning(UserWarning):
                 + "The following points contain numerical coordinates: "
                 + f"\n{realization}.\nHowever, the method {method.__qualname__} has "
                 + " been set to symbolic computations which are performed via sympy."
-                + " The result is therefore not guaranteed to be correct. Consider"
-                + " setting the keyword `numerical=True` when applicable. It ensures"
+                + " The result is therefore not guaranteed to be correct."
+                + " Consider using exact coordinates,"
+                + " or setting the keyword `numerical=True`, which ensures"
                 + " that numpy-based computations are performed instead."
             )
             if class_off is not None:
