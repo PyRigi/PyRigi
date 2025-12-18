@@ -6,10 +6,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 
+from collections.abc import Callable
 import networkx as nx
 import numpy as np
 import sympy as sp
 from sympy import Matrix
+import warnings
 
 import pyrigi._utils._input_check as _input_check
 from pyrigi.graph import _general as graph_general
@@ -23,6 +25,7 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.graph import Graph
+from pyrigi.warning import NumericalCoordinateWarning
 
 
 class FrameworkBase(object):
@@ -73,6 +76,8 @@ class FrameworkBase(object):
     Internally, the realization is represented as ``dict[Vertex,Matrix]``.
     However, :meth:`~Framework.realization` can also return ``dict[Vertex,Point]``.
     """
+
+    silence_numerical_coord_warns = False
 
     def __init__(self, graph: Graph, realization: dict[Vertex, Point]) -> None:
         if isinstance(graph, nx.Graph):
@@ -552,6 +557,36 @@ class FrameworkBase(object):
             raise ValueError(
                 f"The point {point} does not have the dimension {self.dim}!"
             )
+
+    def _warn_numerical_coord(self, method: Callable, numerical: bool) -> None:
+        """
+        Raise a warning if the framework contains numerical coordinates,
+        but the method is symbolic.
+
+        Parameters
+        ----------
+        numerical:
+            Keyword indicating whether a numerical or symbolic algorithm is used.
+        method:
+            Reference to the method that is called.
+        """
+        cls = type(self)
+        if not cls.silence_numerical_coord_warns and not numerical:
+            affected_points = {}
+            for v, pos in self.realization(as_points=True).items():
+                if any(
+                    [
+                        isinstance(coord, float | sp.Float | np.floating)
+                        or (isinstance(coord, sp.Basic) and coord.has(sp.Float))
+                        for coord in pos
+                    ]
+                ):
+                    affected_points |= {v: pos}
+            if not len(affected_points.values()) == 0:
+                warnings.warn(
+                    NumericalCoordinateWarning(affected_points, method, class_off=cls),
+                    stacklevel=2,
+                )
 
     @classmethod
     @doc_category("Class methods")
