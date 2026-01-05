@@ -9,11 +9,11 @@ from copy import copy, deepcopy
 import more_itertools
 import networkx as nx
 
-import pyrigi._utils._input_check as _input_check
-import pyrigi.graph._export.export as export
 import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.global_ as global_rigidity
-import pyrigi.graph._sparsity.sparsity as sparsity
+from pyrigi._utils import _input_check
+from pyrigi.graph._export import export
+from pyrigi.graph._sparsity import sparsity
 
 
 def number_of_realizations(  # noqa: C901
