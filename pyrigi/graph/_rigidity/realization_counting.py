@@ -202,7 +202,8 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
     count_reflection: bool = False,
 ) -> int:
     """
-    Compute the number of realizations for a graph that is rigid but
+    Compute the number of realizations in dimension 2
+    for a graph that is rigid but
     neither minimally nor globally rigid.
 
     Parameters
@@ -296,7 +297,8 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
 
 def _number_of_sphere_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     """
-    Compute the number of spherical realizations combinatorially within pyrigi
+    Compute the number of spherical realizations in dimension 2
+    combinatorially within PyRigi.
 
     Parameters
     ----------
@@ -407,7 +409,8 @@ def _graph_to_quadrograph(graph: nx.Graph) -> list:
 
 def _number_of_plane_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     """
-    Compute the number of realizations in the plane combinatorially within pyrigi
+    Compute the number of realizations in dimension 2
+    combinatorially within PyRigi.
 
     Parameters
     ----------
@@ -438,7 +441,7 @@ def _number_of_plane_realizations_min_rigid_dim_2_rec(
     bigraph: list, first: bool = False
 ) -> int:
     """
-    Compute the number of realizations in the plane of a bigraph recursively.
+    Compute the number of realizations in dimension 2 of a bigraph recursively.
 
     Parameters
     ----------
