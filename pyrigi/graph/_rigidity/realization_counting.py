@@ -191,7 +191,7 @@ def number_of_realizations(  # noqa: C901
         if global_rigidity.is_globally_rigid(graph, dim):
             return 2 // fac
         return _number_of_realizations_rigid_not_globally_rigid_dim_2(
-            graph, algorithm_in, spherical, count_reflection, fac
+            graph, algorithm_in, spherical, count_reflection
         )
 
 
@@ -200,7 +200,6 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
     algorithm: str = "default",
     spherical: bool = False,
     count_reflection: bool = False,
-    fac: int = 2,
 ) -> int:
     """
     Compute the number of realizations for a graph that is rigid but
@@ -216,9 +215,8 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
         See number_of_realizations()
     count_reflection:
         See number_of_realizations()
-    fac:
-        Factor for counting reflections
     """
+    fac = 1 if count_reflection else 2
     G = deepcopy(graph)
     cut = next(iter(nx.all_node_cuts(G)))
     # Case where the graph is not 3-connected
