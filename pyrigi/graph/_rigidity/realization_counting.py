@@ -564,7 +564,7 @@ def _bigraph_contract_delete(biedges: list, select: list) -> list:
     new_biedges = copy(biedges)
     for be in select:
         new_biedges.remove(be)
-    n = max([max(max(be[0]), max(be[1])) for be in biedges])
+    n = max([max(*be[0], *be[1]) for be in biedges])
     mapping = {i: i for i in range(n + 1)}
     contract_graph = nx.Graph([be[0] for be in select])
     contract_sets = list(nx.connected_components(contract_graph))
@@ -590,7 +590,7 @@ def _bigraph_delete_contract(biedges: list, select: list) -> list:
     new_biedges = copy(biedges)
     for be in select:
         new_biedges.remove(be)
-    n = max([max(max(be[0]), max(be[1])) for be in biedges])
+    n = max([max(*be[0], *be[1]) for be in biedges])
     mapping = {i: i for i in range(n + 1)}
     contract_graph = nx.Graph([be[1] for be in select])
     contract_sets = list(nx.connected_components(contract_graph))
