@@ -134,8 +134,8 @@ def number_of_realizations(  # noqa: C901
         if generic_rigidity.is_min_rigid(graph, dim):
             G = deepcopy(graph)
             deg_1 = 0
-            while len(G.vertex_list()) > 2 and G.min_degree() == 1:
-                min_v = [v for v in G.vertex_list() if G.degree(v) == 1]
+            while G.number_of_nodes() > 2 and G.min_degree() == 1:
+                min_v = [v for v in G.nodes if G.degree(v) == 1]
                 G.delete_vertices(min_v)
                 deg_1 += len(min_v)
             if G.number_of_nodes() == 1:
@@ -311,8 +311,8 @@ def _number_of_sphere_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     """
     G = deepcopy(graph)
     deg_2 = 0
-    while len(G.vertex_list()) > 2 and G.min_degree() == 2:
-        min_v = [v for v in G.vertex_list() if G.degree(v) == 2]
+    while G.number_of_nodes() > 2 and G.min_degree() == 2:
+        min_v = [v for v in G.nodes if G.degree(v) == 2]
         G.delete_vertices(min_v)
         deg_2 += len(min_v)
 
@@ -422,8 +422,8 @@ def _number_of_plane_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     """
     G = deepcopy(graph)
     deg_2 = 0
-    while len(G.vertex_list()) > 2 and G.min_degree() == 2:
-        min_v = [v for v in G.vertex_list() if G.degree(v) == 2]
+    while G.number_of_nodes() > 2 and G.min_degree() == 2:
+        min_v = [v for v in G.nodes if G.degree(v) == 2]
         G.delete_vertices(min_v)
         deg_2 += len(min_v)
 
