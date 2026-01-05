@@ -145,7 +145,7 @@ def number_of_realizations(  # noqa: C901
         else:
             # not 2-connected
             G = deepcopy(graph)
-            cut = list(nx.all_node_cuts(G))[0]
+            cut = next(iter(nx.all_node_cuts(G)))
             G.delete_vertices(cut)
             con = nx.connected_components(G)
             sub = [graph.subgraph(c.union(cut)).copy() for c in con]
@@ -225,7 +225,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
         Factor for counting reflections
     """
     G = deepcopy(graph)
-    cut = list(nx.all_node_cuts(G))[0]
+    cut = next(iter(nx.all_node_cuts(G)))
     # Case where the graph is not 3-connected
     if len(cut) == 2:
         G.delete_vertices(cut)
