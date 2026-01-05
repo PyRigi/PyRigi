@@ -255,7 +255,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
             ]
         )
     # Case where the graph is 3-connected but not redundantly rigid
-    # Find edge e sucht that graph - e is not rigid
+    # Find edge e such that graph - e is not rigid
     G = deepcopy(graph)
     edges = G.edge_list()
     found = False
@@ -327,16 +327,16 @@ def _number_of_sphere_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
 
 def _number_of_sphere_realizations_min_rigid_dim_2_rec(quadrograph: list) -> int:
     """
-    Compute the number of spherical realizations of a quadrograph recursively.
+    Compute the number of spherical realizations in dimension 2
+    of a quadrograph recursively.
 
     Parameters
     ----------
     quadrograph:
-        A pair [N,Q] representing vertices and edges of a quadrograph.
+        A pair [N, Q] representing vertices and edges of a quadrograph.
         This pair comes initially from `_graph_to_quadrograph`
     """
-    quad_N = quadrograph[0]
-    quad_Q = quadrograph[1]
+    quad_N, quad_Q = quadrograph
     if len(quad_N) in [3, 4]:
         return 1
     if len(quad_N) == 2:
@@ -345,10 +345,10 @@ def _number_of_sphere_realizations_min_rigid_dim_2_rec(quadrograph: list) -> int
     a, b, c, d = tuple(q0)
     Qprime = quad_Q[1:]
     tempN = list(set(quad_N).difference(q0))
-    allLists = more_itertools.powerset(tempN)
+    all_lists = more_itertools.powerset(tempN)
     tot_sum = 0
     counter = max(quad_N) + 1
-    for subset in allLists:
+    for subset in all_lists:
         set_I = [a, b, *list(subset)]
         Q22 = [q for q in Qprime if len(set(q).intersection(set_I)) == 2]
         if len(Q22) > 0:
@@ -378,7 +378,7 @@ def _number_of_sphere_realizations_min_rigid_dim_2_rec(quadrograph: list) -> int
 def _graph_to_quadrograph(graph: nx.Graph) -> list:
     """
     Generate a quadrograph from a graph.
-    A quadrograph here is a pair (N,Q),
+    A quadrograph here is a pair (N, Q),
     where N represents the set of vertices
     and Q represents the set of biedges.
 
@@ -389,7 +389,7 @@ def _graph_to_quadrograph(graph: nx.Graph) -> list:
     """
     n = graph.number_of_nodes()
     if n < 2:
-        raise ValueError("Graph is to small")
+        raise ValueError("The graph is too small")
     quad_N = range(1, 2 * n + 1)
     quad_Q = []
     edges = graph.edge_list()
