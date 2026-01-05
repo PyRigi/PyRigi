@@ -373,7 +373,7 @@ def _number_of_sphere_realizations_min_rigid_dim_2_rec(quadrograph: list) -> int
         Q31 = [q for q in Qprime if len(set(q).intersection(set_I)) == 3]
 
         if len(set_I) - len(Q40 + Q31) == 2:
-            set_J = [j for j in quad_N if not (j in set_I)]
+            set_J = [j for j in quad_N if j not in set_I]
             Q13new = [
                 [x if (x in set_J) else counter for x in q]
                 for q in Qprime
