@@ -55,18 +55,19 @@ def number_of_realizations(  # noqa: C901
         The dimension in which the realizations are counted.
         Currently, only ``dim=1`` and ``dim=2`` are supported.
     algorithm:
-        If "default" pyrigi checks which algorithm is available for the parameters and choses this one.
-        If "pyrigi" a pure pyrigi implementation is used.
-        If "lnumber" the ``lnumber`` package is used. This needs to be installed separately
+        If "default", PyRigi checks which algorithm is available for the parameters and choses this one.
+        If "pyrigi", a pure PyRigi implementation is used.
+        If "lnumber", the ``lnumber`` package is used.
+        This needs to be installed separately
         but is much faster than the "pyrigi" implementation.
     spherical:
         If ``True``, the number of spherical realizations of the graph is returned.
         If ``False`` (default), the number of planar realizations is returned.
     count_reflection:
-        If ``True``, the number of realizations is computed modulo direct isometries.
-        But reflection is counted to be non-congruent as used in
+        If ``True``, the number of realizations is computed only modulo direct isometries.
+        (so reflected realizations are counted to be non-congruent as in
         :cite:p:`CapcoGalletEtAl2018` and
-        :cite:p:`GalletGraseggerSchicho2020`.
+        :cite:p:`GalletGraseggerSchicho2020`).
         If ``False`` (default), reflection is not counted.
 
     Examples
