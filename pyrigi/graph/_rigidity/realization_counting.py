@@ -359,7 +359,7 @@ def _number_of_sphere_realizations_min_rigid_dim_2_rec(quadrograph: list) -> int
     Qprime = quad_Q[1:]
     tempN = list(set(quad_N).difference(q0))
     allLists = more_itertools.powerset(tempN)
-    sum = 0
+    tot_sum = 0
     counter = max(quad_N) + 1
     for subset in allLists:
         set_I = [a, b] + list(subset)
@@ -378,14 +378,14 @@ def _number_of_sphere_realizations_min_rigid_dim_2_rec(quadrograph: list) -> int
             ]
             Q04 = [q for q in Qprime if len(set(q).intersection(set_I)) == 0]
             Q31new = [[x if (x in set_I) else counter for x in q] for q in Q31]
-            sum = sum + _number_of_sphere_realizations_min_rigid_dim_2_rec(
+            tot_sum += _number_of_sphere_realizations_min_rigid_dim_2_rec(
                 [set_I + [counter], Q40 + Q31new]
             ) * _number_of_sphere_realizations_min_rigid_dim_2_rec(
                 [set_J + [counter], Q13new + Q04]
             )
         else:
             continue
-    return sum
+    return tot_sum
 
 
 def _graph_to_quadrograph(graph: nx.Graph) -> list:
