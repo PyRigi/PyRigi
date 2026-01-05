@@ -116,10 +116,7 @@ def number_of_realizations(  # noqa: C901
     if not generic_rigidity.is_rigid(graph, dim):
         return math.inf
 
-    if count_reflection:
-        fac = 1
-    else:
-        fac = 2
+    fac = 1 if count_reflection else 2
 
     # Check trivial cases for higher dimensions
     if algorithm == "checktrivial":
@@ -527,10 +524,7 @@ def _biedges_have_loop(biedges: list) -> bool:
     """
     Check whether a list of biedges contains a loop.
     """
-    for be in biedges:
-        if be[0][0] == be[0][1] or be[1][0] == be[1][1]:
-            return True
-    return False
+    return any(be[0][0] == be[0][1] or be[1][0] == be[1][1] for be in biedges)
 
 
 def _graph_to_bigraph(graph: nx.Graph) -> list:
