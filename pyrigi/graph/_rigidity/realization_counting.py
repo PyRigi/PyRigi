@@ -2,18 +2,18 @@
 This module provides algorithms related to rigid realization counting.
 """
 
-import math
-from copy import deepcopy, copy
-import more_itertools
 import importlib.util
+import math
+from copy import copy, deepcopy
 
+import more_itertools
 import networkx as nx
 
 import pyrigi._utils._input_check as _input_check
+import pyrigi.graph._export.export as export
 import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.global_ as global_rigidity
 import pyrigi.graph._sparsity.sparsity as sparsity
-import pyrigi.graph._export.export as export
 
 
 def number_of_realizations(  # noqa: C901
