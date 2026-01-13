@@ -492,15 +492,15 @@ def _number_of_plane_realizations_min_rigid_dim_2_rec(
 
 def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
     """
-    Check whether a bigraph given by a list of biedges is pseudo laman.
+    Check whether a bigraph given by a list of biedges is pseudo-Laman.
     """
     graph1 = nx.Graph([be[0] for be in bigraph])
     graph2 = nx.Graph([be[1] for be in bigraph])
     return (
         graph1.number_of_nodes()
-        - len(list(nx.connected_components(graph1)))
+        - nx.number_connected_components(graph1)
         + graph2.number_of_nodes()
-        - len(list(nx.connected_components(graph2)))
+        - nx.number_connected_components(graph2)
         == len(bigraph) + 1
     )
 
