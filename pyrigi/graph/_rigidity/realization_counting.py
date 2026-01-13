@@ -125,7 +125,7 @@ def number_of_realizations(  # noqa: C901
             return 2 // fac
         raise NotImplementedError(
             "There is no combinatorial algorithm for 'dim'>2 available,"
-            + "except for trivial cases."
+            "except for trivial cases."
         )
 
     if dim == 1:
@@ -186,7 +186,7 @@ def number_of_realizations(  # noqa: C901
         if algorithm == "lnumber":
             raise ValueError(
                 "The algorithm `lnumber` is only available for minimally rigid graphs "
-                + "but the input graph is not minimally rigid."
+                "but the input graph is not minimally rigid."
             )
         if global_rigidity.is_globally_rigid(graph, dim):
             return 2 // fac
