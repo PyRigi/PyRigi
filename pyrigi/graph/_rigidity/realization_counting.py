@@ -29,7 +29,7 @@ def number_of_realizations(  # noqa: C901
     Realizations in ``dim``-dimensional sphere
     can be counted using ``spherical=True``.
 
-    For minimally rigid graphs algorithms of :cite:p:`CapcoGalletEtAl2018` and
+    For minimally rigid graphs, algorithms of :cite:p:`CapcoGalletEtAl2018` and
     :cite:p:`GalletGraseggerSchicho2020` are used.
     Note, however, that here the result from these algorithms
     is by default divided by two.
@@ -42,7 +42,7 @@ def number_of_realizations(  # noqa: C901
     Caution: PyRigi can compute realizations counts directly but this might be slow.
     Faster computation works only if the python package ``lnumber``
     is installed :cite:p:`Capco2024`.
-    See :ref:`installation-guide` for details on installing.
+    See :ref:`installation-guide` for details on installing it.
 
     Definitions
     -----------
@@ -55,11 +55,11 @@ def number_of_realizations(  # noqa: C901
         The dimension in which the realizations are counted.
         Currently, only ``dim=1`` and ``dim=2`` are supported.
     algorithm:
-        If "default", PyRigi checks which algorithm is available for the parameters and choses this one.
-        If "pyrigi", a pure PyRigi implementation is used.
-        If "lnumber", the ``lnumber`` package is used.
+        If ``default``, PyRigi checks which algorithm is available for the parameters and choses this one.
+        If ``pyrigi``, a pure PyRigi implementation is used.
+        If ``lnumber``, the ``lnumber`` package is used.
         This needs to be installed separately
-        but is much faster than the "pyrigi" implementation.
+        but is much faster than the ``pyrigi`` implementation.
     spherical:
         If ``True``, the number of spherical realizations of the graph is returned.
         If ``False`` (default), the number of planar realizations is returned.
@@ -220,6 +220,8 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
     fac = 1 if count_reflection else 2
     G = deepcopy(graph)
     cut = next(iter(nx.all_node_cuts(G)))
+    # Since the graph is not globally rigid,
+    # it is not 3-connected or not redundantly rigid
     # Case where the graph is not 3-connected
     if len(cut) == 2:
         G.delete_vertices(cut)
@@ -518,8 +520,8 @@ def _graph_to_bigraph(graph: nx.Graph) -> list:
     """
     Generate a bigraph from a graph.
     A bigraph here is given by a set of biedges,
-    i.e. pairs of edges of the two sides of the graph
-    correspdonding to each other.
+    i.e. pairs of edges of the two sides of the bigraph
+    corresponding to each other.
 
     Parameters
     ----------
