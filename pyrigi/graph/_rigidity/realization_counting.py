@@ -393,19 +393,18 @@ def _graph_to_quadrograph(graph: nx.Graph) -> list:
     if n < 2:
         raise ValueError("The graph is too small")
     quad_N = range(1, 2 * n + 1)
-    quad_Q = []
     edges = graph.edge_list()
     vertices = graph.vertex_list()
     mapping = {vertices[i]: i + 1 for i in range(n)}
-    for edge in edges:
-        quad_Q.append(
-            [
-                mapping[edge[0]],
-                mapping[edge[1]],
-                mapping[edge[0]] + n,
-                mapping[edge[1]] + n,
-            ]
-        )
+    quad_Q = [
+        [
+            mapping[edge[0]],
+            mapping[edge[1]],
+            mapping[edge[0]] + n,
+            mapping[edge[1]] + n,
+        ]
+        for edge in edges
+    ]
     return [quad_N, quad_Q]
 
 
@@ -475,10 +474,7 @@ def _number_of_plane_realizations_min_rigid_dim_2_rec(
             continue
         sub_M = list(sub)
         sub_M.append(selected_edge)
-        sub_N = []
-        for be in bigraph:
-            if be not in sub_M:
-                sub_N.append(be)
+        sub_N = [be for be in bigraph if be not in sub_M]
         sub_N.append(selected_edge)
 
         sub_big_M = _bigraph_contract_delete(bigraph, sub_M)
@@ -530,18 +526,17 @@ def _graph_to_bigraph(graph: nx.Graph) -> list:
     """
     n = graph.number_of_nodes()
     if n < 2:
-        raise ValueError("Graph is to small")
-    biedges = []
+        raise ValueError("The graph is too small")
     edges = graph.edge_list()
     vertices = graph.vertex_list()
     mapping = {vertices[i]: i + 1 for i in range(n)}
-    for edge in edges:
-        biedges.append(
-            [
-                [mapping[edge[0]], mapping[edge[1]]],
-                [mapping[edge[0]], mapping[edge[1]]],
-            ]
-        )
+    biedges = [
+        [
+            [mapping[edge[0]], mapping[edge[1]]],
+            [mapping[edge[0]], mapping[edge[1]]],
+        ]
+        for edge in edges
+    ]
     return biedges
 
 
@@ -557,17 +552,16 @@ def _bigraph_contract_delete(biedges: list, select: list) -> list:
     mapping = {i: i for i in range(n + 1)}
     contract_graph = nx.Graph([be[0] for be in select])
     contract_sets = list(nx.connected_components(contract_graph))
-    for i in range(len(contract_sets)):
-        for v in contract_sets[i]:
+    for i, c_set in enumerate(contract_sets):
+        for v in c_set:
             mapping[v] = n + 1 + i
-    new_biedges2 = []
-    for be in new_biedges:
-        new_biedges2.append(
-            [
-                [mapping[be[0][0]], mapping[be[0][1]]],
-                be[1],
-            ]
-        )
+    new_biedges2 = [
+        [
+            [mapping[be[0][0]], mapping[be[0][1]]],
+            be[1],
+        ]
+        for be in new_biedges
+    ]
     return new_biedges2
 
 
@@ -583,15 +577,14 @@ def _bigraph_delete_contract(biedges: list, select: list) -> list:
     mapping = {i: i for i in range(n + 1)}
     contract_graph = nx.Graph([be[1] for be in select])
     contract_sets = list(nx.connected_components(contract_graph))
-    for i in range(len(contract_sets)):
-        for v in contract_sets[i]:
+    for i, c_set in enumerate(contract_sets):
+        for v in c_set:
             mapping[v] = n + 1 + i
-    new_biedges2 = []
-    for be in new_biedges:
-        new_biedges2.append(
-            [
-                be[0],
-                [mapping[be[1][0]], mapping[be[1][1]]],
-            ]
-        )
+    new_biedges2 = [
+        [
+            be[0],
+            [mapping[be[1][0]], mapping[be[1][1]]],
+        ]
+        for be in new_biedges
+    ]
     return new_biedges2
