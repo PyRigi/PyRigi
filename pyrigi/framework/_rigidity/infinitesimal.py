@@ -22,7 +22,6 @@ from pyrigi.data_type import (
 )
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import _general as graph_general
-from pyrigi.graphDB import Complete as CompleteGraph
 
 
 def rigidity_matrix(
@@ -353,18 +352,11 @@ def inf_flexes(
         )
         all_inf_flexes = [all_inf_flexes[:, i] for i in range(all_inf_flexes.shape[1])]
 
-        Kn = FrameworkBase(
-            CompleteGraph(vertices=framework._graph.nodes),
-            framework.realization(as_points=True, numerical=True),
+        triv_inf_flexes = trivial_inf_flexes(framework, vertex_order=vertex_order)
+        s = len(triv_inf_flexes)
+        extend_basis_matrix = np.column_stack(
+            [np.array(v, dtype=float).ravel() for v in triv_inf_flexes]
         )
-        rig_matrix_complete = np.array(
-            rigidity_matrix(Kn, vertex_order=vertex_order)
-        ).astype(np.float64)
-        triv_inf_flexes = _reduced_null_space(
-            rig_matrix_complete, free_columns, numerical=True, tolerance=tolerance
-        )
-        s = triv_inf_flexes.shape[1]
-        extend_basis_matrix = triv_inf_flexes
         for inf_flex in all_inf_flexes:
             inf_flex = np.reshape(inf_flex, (-1, 1))
             tmp_matrix = np.hstack((extend_basis_matrix, inf_flex))
@@ -372,11 +364,12 @@ def inf_flexes(
                 tmp_matrix, tol=tolerance
             ) == np.linalg.matrix_rank(extend_basis_matrix, tol=tolerance):
                 extend_basis_matrix = np.hstack((extend_basis_matrix, inf_flex))
-        Q, R = np.linalg.qr(extend_basis_matrix)
-        Q = Q[:, s : np.linalg.matrix_rank(R, tol=tolerance)]
+        basis = extend_basis_matrix[
+            :, s : np.linalg.matrix_rank(extend_basis_matrix, tol=tolerance)
+        ]
         return [
-            _normalize_flex(list(Q[:, i]), numerical=True, tolerance=tolerance)
-            for i in range(Q.shape[1])
+            _normalize_flex(list(basis[:, i]), numerical=True, tolerance=tolerance)
+            for i in range(basis.shape[1])
         ]
 
 
