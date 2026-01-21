@@ -60,7 +60,7 @@ def _resolve_inf_flex(
         inf_flex_basis = infinitesimal_rigidity.nontrivial_inf_flexes(
             framework, numerical=True, fixed_vertices=fixed_vertices
         )
-        if inf_flex > len(inf_flex_basis):
+        if inf_flex >= len(inf_flex_basis):
             raise IndexError(
                 "The value of inf_flex exceeds "
                 + "the dimension of the space "
