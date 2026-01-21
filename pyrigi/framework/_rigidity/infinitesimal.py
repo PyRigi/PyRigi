@@ -324,10 +324,10 @@ def inf_flexes(
             rig_matrix = np.array(rigidity_matrix(F, vertex_order=vertex_order)).astype(
                 np.float64
             )
-        inf_flexes = _reduced_null_space(
+        all_inf_flexes = _reduced_null_space(
             rig_matrix, free_columns, numerical=numerical, tolerance=tolerance
         )
-        return [inf_flexes[:, i] for i in range(inf_flexes.shape[1])]
+        return [all_inf_flexes[:, i] for i in range(all_inf_flexes.shape[1])]
 
     if not numerical:
         rig_matrix = rigidity_matrix(framework, vertex_order=vertex_order)
