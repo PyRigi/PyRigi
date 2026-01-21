@@ -225,6 +225,5 @@ class ParametricMotion(Motion):
 
         return super().animate(
             realizations,
-            None,
             **kwargs,
         )

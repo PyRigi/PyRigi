@@ -17,7 +17,7 @@ kernelspec:
 
 +++
 
-This notebook illustrates the basic functionality of {class}`pyrigi.graph.Graph`.
+This notebook illustrates the basic functionality of {class}`~.Graph`.
 It can be downloaded {download}`here <../../notebooks/graph_basics.ipynb>`.
 
 ```{code-cell} ipython3
@@ -137,6 +137,41 @@ The resulting graph can then be output (and manipulated further) in the followin
 ```{code-cell} ipython3
 G = Drawer.graph()
 ```
+
+Since the {class}`~.GraphDrawer` also creates a realization,
+we can use it to create a {class}`~.Framework`
+as well by calling {meth}`~.GraphDrawer.framework`.
+
+As you can see in the {class}`~.GraphDrawer` window, there are several stylistic choices which can
+be used to change the appearance of a graph or a framework. To import them into pyrigi,
+we can call
+
+```{code-cell} ipython3
+ps = Drawer.plot_style()
+```
+
+This creates a standard PyRigi {class}`~.PlotStyle` `ps` which contains basic attributes
+such as the `vertex_size`, `vertex_shape`, `edge_width`, `edge_color`, etc. They are
+taken from the latest settings in the {class}`~.GraphDrawer`.
+The {class}`~.PlotStyle` object can then be fed into the various plotting and animation methods
+for graphs and frameworks in PyRigi. 
+
+Moreover, it is possible to alter the edge and vertex colors in the graph drawer
+individually. 
+
+```{code-cell} ipython3
+vertex_colors_custom = Drawer.vertex_colors()
+edge_colors_custom = Drawer.edge_colors()
+```
+
+These methods create dictionaries mapping the colors in hexadecimal to all vertices or
+edges that are affected. The outputs can be used in plotting and animation routines in
+the following way:
+
+```{code-cell} ipython3
+G.plot(vertex_colors_custom=vertex_colors_custom, edge_colors_custom=edge_colors_custom)
+```
+
 
 ## Graph database
 

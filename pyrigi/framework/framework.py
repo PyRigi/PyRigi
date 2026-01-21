@@ -98,6 +98,9 @@ class Framework(FrameworkBase):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
@@ -114,6 +117,7 @@ class Framework(FrameworkBase):
             coordinates=coordinates,
             inf_flex=inf_flex,
             stress=stress,
+            vertex_colors_custom=vertex_colors_custom,
             edge_colors_custom=edge_colors_custom,
             stress_label_positions=stress_label_positions,
             arc_angles_dict=arc_angles_dict,
@@ -128,6 +132,9 @@ class Framework(FrameworkBase):
     def animate3D_rotation(
         self,
         plot_style: PlotStyle = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         total_frames: int = 100,
         delay: int = 75,
@@ -137,6 +144,7 @@ class Framework(FrameworkBase):
         return plot.animate3D_rotation(
             self,
             plot_style=plot_style,
+            vertex_colors_custom=vertex_colors_custom,
             edge_colors_custom=edge_colors_custom,
             total_frames=total_frames,
             delay=delay,
@@ -154,6 +162,9 @@ class Framework(FrameworkBase):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         filename: str = None,
@@ -169,6 +180,7 @@ class Framework(FrameworkBase):
             coordinates=coordinates,
             inf_flex=inf_flex,
             stress=stress,
+            vertex_colors_custom=vertex_colors_custom,
             edge_colors_custom=edge_colors_custom,
             stress_label_positions=stress_label_positions,
             filename=filename,
