@@ -15,6 +15,7 @@ from pyrigi._utils._zero_check import is_zero_vector
 @pytest.mark.parametrize(
     "framework",
     [
+        Framework.Collinear(graphs.Complete(2), dim=2),
         fws.Complete(2, dim=1),
         fws.Complete(3, dim=1),
         fws.Complete(4, dim=1),
@@ -61,6 +62,7 @@ def test_is_inf_rigid(framework):
     [
         Framework.from_points([[i] for i in range(4)]),
         Framework.Collinear(graphs.Complete(3), dim=2),
+        Framework.Collinear(graphs.Complete(4), dim=2),
         fws.CompleteBipartite(1, 3),
         fws.CompleteBipartite(2, 3),
         fws.CompleteBipartite(3, 3, "dixonI"),
