@@ -1,0 +1,34 @@
+# Benchmark Configuration File Example
+# 
+# You can use this as a template for your own benchmark configurations.
+
+# Target function to benchmark (required)
+# Format: "path/to/file.py:function_name"
+target: "pyrigi/graph/_rigidity/generic.py:is_min_rigid"
+
+# Dataset directory containing .g6 graph files (required)
+dataset: "benchmark/graph_store/min_rigid_test"
+
+# Output file for benchmark results (optional, default: benchmark_results.json)
+output: "benchmark_results.json"
+
+# ===== HYBRID PARAMETER CONFIGURATION =====
+# You can use EITHER or BOTH of the following sections:
+
+# Option 1: Cartesian Product (auto-generate all combinations)
+# All possible combinations of these parameters will be tested
+cartesian_params:
+  dim: [1]
+  algorithm: ["graphic", "randomized"]
+
+# Option 2: Explicit Configs (manual pairing to avoid invalid combinations)
+# Specify exact parameter combinations to test
+explicit_configs:
+  - dim: 2
+    algorithm: "sparsity"
+
+# Notes:
+# - cartesian_params generates: dim=1,algorithm=graphic AND dim=1,algorithm=randomized
+# - explicit_configs adds: dim=2,algorithm=sparsity AND dim=2,algorithm=subgraph
+# - Total: 4 configurations will be tested
+# - You can use either section alone, or both together

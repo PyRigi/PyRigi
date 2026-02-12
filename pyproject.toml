@@ -54,6 +54,14 @@ pytest = "^8.2.1"
 pytest-doctestplus = "^1.2.1"
 pytest-cov = "^6.0.0"
 flake8-unused-arguments = "^0.0.13"
+pytest-benchmark = "^5.2.3"
+pyyaml = "^6.0"
+pandas = "^2.2.0"
+seaborn = "^0.13.0"
+ipykernel = "^6.29.0"
+ipywidgets = "^8.1.0"
+notebook = "^7.5.2"
+
 
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.8.6"
