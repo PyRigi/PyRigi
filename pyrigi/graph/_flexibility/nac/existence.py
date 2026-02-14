@@ -6,6 +6,7 @@ import networkx as nx
 
 from pyrigi.graph._flexibility.nac.core import NACColoring
 from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType, find_mono_classes
+from pyrigi.graph._rigidity.generic import is_min_rigid
 
 
 def check_NAC_constrains(self: nx.Graph) -> bool:
@@ -131,6 +132,30 @@ def _check_for_simple_stable_cut(
     raise ValueError("NAC coloring was not found even though it should exist.")
 
 
+def _check_is_min_rigid_and_NAC_coloring_exists(
+    graph: nx.Graph,
+) -> bool | None:
+    """
+    Check for minimally rigid graphs special properties.
+
+    For minimally rigid graphs it holds that
+    there exists NAC coloring iff graph is not triangle connected.
+    :cite:p:`GraseggerLegerskySchicho2019{Con 5.1}`
+
+    Return
+        True if the graph has a NAC-coloring,
+        False if we are sure there is none.
+        None if we cannot decide (the graph is not min_rigid)
+    """
+
+    min_rigid = is_min_rigid(graph, dim=2)
+    if not min_rigid:
+        return None
+
+    _, components_to_edges = find_mono_classes(graph, MonoClassType.TRI_CONNECTED)
+    return len(components_to_edges) != 1
+
+
 def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
     """
     Implementation for has_NAC_coloring, but without fallback to single_NAC_coloring.
@@ -149,5 +174,9 @@ def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
     # Needs to be run after connectivity checks
     if not _can_have_flexible_labeling(graph):
         return False
+
+    res = _check_is_min_rigid_and_NAC_coloring_exists(graph)
+    if res is not None:
+        return res
 
     return None
