@@ -6,6 +6,12 @@ from pyrigi.data_type import Edge
 from pyrigi.graph._flexibility.nac.core import NACColoring
 from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType
 from pyrigi.graph._flexibility.nac.search import NAC_colorings_impl
+from pyrigi.graph._flexibility.nac.single import (
+    has_NAC_coloring_impl,
+    single_NAC_coloring_impl,
+)
+
+_DEFAULT_ALGORITHM = "subgraphs-neighbors-linear-5"
 
 
 def NAC_colorings(
@@ -54,14 +60,11 @@ def NAC_colorings(
         The seed to use for randomization.
     """
 
-    def coloring_map(coloring: NACColoring) -> tuple[list[Edge], list[Edge]]:
-        return list(coloring[0]), list(coloring[1])
-
     if algorithm == "default":
-        algorithm = "subgraphs-neighbors-linear-5"
+        algorithm = _DEFAULT_ALGORITHM
 
     yield from map(
-        coloring_map,
+        _coloring_map,
         NAC_colorings_impl(
             graph=graph,
             algorithm=algorithm,
@@ -71,3 +74,74 @@ def NAC_colorings(
             seed=seed,
         ),
     )
+
+
+def has_NAC_coloring(
+    graph: nx.Graph,
+    algorithm: str = "default",
+    use_cycles_optimization: bool = True,
+    mono_class_type: str = "triangle-extended",
+    seed: int | None = 42,
+) -> bool:
+    """
+    Same as :func:`pyrigi.graph._flexibility.nac.facade.single_NAC_coloring`, but the certificate may not be created.
+
+    Parameters
+    ----------
+    graph:
+        The graph to find the NAC coloring for.
+
+    Return
+    ------
+    True if a NAC coloring exits, false otherwise. Does not provide a certificate of existence.
+    """
+
+    if algorithm == "default":
+        algorithm = _DEFAULT_ALGORITHM
+
+    return has_NAC_coloring_impl(
+        graph,
+        algorithm=algorithm,
+        use_cycles_optimization=use_cycles_optimization,
+        mono_class_type=MonoClassType.from_string(mono_class_type),
+        seed=seed,
+    )
+
+
+def single_NAC_coloring(
+    graph: nx.Graph,
+    algorithm: str = "default",
+    use_cycles_optimization: bool = True,
+    mono_class_type: str = "triangle-extended",
+    seed: int | None = 42,
+) -> tuple[list[Edge], list[Edge]] | None:
+    """
+    Obtain a single NAC coloring of the graph given.
+
+    Parameters
+    ----------
+    graph:
+        The graph to find the NAC coloring for.
+
+    Return
+    ------
+    True if a NAC coloring exits, false otherwise. Does not provide a certificate of existence.
+    """
+
+    if algorithm == "default":
+        algorithm = _DEFAULT_ALGORITHM
+
+    res = single_NAC_coloring_impl(
+        graph,
+        algorithm=algorithm,
+        use_cycles_optimization=use_cycles_optimization,
+        mono_class_type=MonoClassType.from_string(mono_class_type),
+        seed=seed,
+    )
+    if res is not None:
+        res = _coloring_map(res)
+    return res
+
+
+def _coloring_map(coloring: NACColoring) -> tuple[list[Edge], list[Edge]]:
+    return list(coloring[0]), list(coloring[1])

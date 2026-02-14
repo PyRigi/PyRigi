@@ -154,7 +154,7 @@ def test_rotate2D():
 
     newF = F.rotate2D(pi / 4, inplace=False)
     assert newF[0].equals(Matrix([[0], [0]]))
-    assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))]]))
+    assert newF[1].equals(Matrix([[sqrt(2)], [sqrt(2)]]))
     assert newF[2].equals(Matrix([[0], [sqrt(2)]]))
 
     F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (0, 2)})
@@ -181,7 +181,7 @@ def test_rotate2D():
 
         newF = framework_transformations.rotate2D(F, pi / 4, inplace=False)
         assert newF[0].equals(Matrix([[0], [0]]))
-        assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))]]))
+        assert newF[1].equals(Matrix([[sqrt(2)], [sqrt(2)]]))
         assert newF[2].equals(Matrix([[0], [sqrt(2)]]))
 
         F = Framework(G, {0: (0, 0), 1: (2, 0), 2: (0, 2)})
@@ -213,7 +213,7 @@ def test_rotate3D():
 
     newF = F.rotate3D(pi / 4, inplace=False)
     assert newF[0].equals(Matrix([[0], [0], [0]]))
-    assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))], [0]]))
+    assert newF[1].equals(Matrix([[sqrt(2)], [sqrt(2)], [0]]))
     assert newF[2].equals(Matrix([[0], [sqrt(2)], [0]]))
 
     F.rotate3D(pi / 2, axis_direction=[0, 1, 0], inplace=True)
@@ -257,7 +257,7 @@ def test_rotate3D():
 
         newF = framework_transformations.rotate3D(F, pi / 4, inplace=False)
         assert newF[0].equals(Matrix([[0], [0], [0]]))
-        assert newF[1].equals(Matrix([[sqrt(2)], [(sqrt(2))], [0]]))
+        assert newF[1].equals(Matrix([[sqrt(2)], [sqrt(2)], [0]]))
         assert newF[2].equals(Matrix([[0], [sqrt(2)], [0]]))
 
         framework_transformations.rotate3D(
