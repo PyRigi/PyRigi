@@ -80,7 +80,8 @@ def has_NAC_coloring_impl(
     seed: int | None,
 ) -> bool:
     """
-    Same as :func:`pyrigi.graph._flexibility.nac.single.single_NAC_coloring_impl`, but the certificate may not be created,
+    Same as :func:`pyrigi.graph._flexibility.nac.single.single_NAC_coloring_impl`,
+    but the certificate may not be created,
     so some additional tricks are used the performance may be improved.
     """
     if not check_NAC_constrains(graph):

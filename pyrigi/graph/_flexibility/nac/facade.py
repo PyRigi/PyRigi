@@ -84,7 +84,8 @@ def has_NAC_coloring(
     seed: int | None = 42,
 ) -> bool:
     """
-    Same as :func:`pyrigi.graph._flexibility.nac.facade.single_NAC_coloring`, but the certificate may not be created.
+    Same as :func:`pyrigi.graph._flexibility.nac.facade.single_NAC_coloring`,
+    but the certificate may not be created.
 
     Parameters
     ----------
@@ -93,7 +94,8 @@ def has_NAC_coloring(
 
     Return
     ------
-    True if a NAC coloring exits, false otherwise. Does not provide a certificate of existence.
+    True if a NAC coloring exits, false otherwise.
+    No certificate of existence is provided.
     """
 
     if algorithm == "default":
@@ -125,7 +127,7 @@ def single_NAC_coloring(
 
     Return
     ------
-    True if a NAC coloring exits, false otherwise. Does not provide a certificate of existence.
+    A NAC coloring certificate if a NAC-coloring exists, None otherwise.
     """
 
     if algorithm == "default":

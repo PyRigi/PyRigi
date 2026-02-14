@@ -44,7 +44,8 @@ def _can_have_flexible_labeling(
     graph: nx.Graph,
 ) -> bool:
     """
-    Assure basic conditions for NAC-coloring existence based on the number of vertices and edges.
+    Assure basic conditions for NAC-coloring existence based
+    on the number of vertices and edges.
 
     Use equivalence that graph (more below) has NAC coloring iff.
     it has a flexible labeling. But for flexible labeling we know upper bound
