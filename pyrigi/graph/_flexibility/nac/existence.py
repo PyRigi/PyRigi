@@ -11,11 +11,11 @@ from pyrigi.graph._rigidity.generic import is_min_rigid
 
 def check_NAC_constrains(self: nx.Graph) -> bool:
     """
-    Check basic NAC-coloring existence constrains.
+    Check basic NAC-coloring existence constraints.
 
     Checks whether graph has self loops (prohibited),
     is non-empty, directed and has at least 2 edges.
-    Servers as basic input sanitation.
+    Serves as basic input sanitation.
 
 
     Throws:
@@ -47,9 +47,9 @@ def _can_have_flexible_labeling(
     Assure basic conditions for NAC-coloring existence based
     on the number of vertices and edges.
 
-    Use equivalence that graph (more below) has NAC coloring iff.
-    it has a flexible labeling. But for flexible labeling we know upper bound
-    for number of edges in the graph.
+    Use equivalence that graph (more below) has NAC coloring if and only if
+    it has a flexible labeling. But for flexible labeling we know the upper bound
+    for the number of edges in the graph.
     :cite:p:`GraseggerLegerskySchicho2019{Thm 3.1,Thm 4.7}`
 
     Parameters
@@ -161,7 +161,7 @@ def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
     """
     Implementation for has_NAC_coloring, but without fallback to single_NAC_coloring.
 
-    May be used before an exhaustive search that wouldn't find anything anyway.
+    May be used before an exhaustive search that would not find anything anyway.
     """
     if not check_NAC_constrains(graph):
         return False
