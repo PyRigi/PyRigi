@@ -141,7 +141,7 @@ def _check_is_min_rigid_and_NAC_coloring_exists(
 
     For minimally rigid graphs it holds that
     there exists NAC coloring iff graph is not triangle connected.
-    :cite:p:`GraseggerLegerskySchicho2019{Con 5.1}`
+    :cite:p:`ClinchGaramvölgyiEtAl2024{Thm 3.4}`
 
     Return
         True if the graph has a NAC-coloring,
