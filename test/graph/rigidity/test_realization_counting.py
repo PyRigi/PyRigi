@@ -8,10 +8,19 @@ import pytest
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from pyrigi.graph._rigidity import realization_counting
-import importlib.util
 
-realization_count_plane_algorithms = ["default", "lnumber", "pyrigi"]
-realization_count_sphere_algorithms = ["default", "lnumber", "pyrigi"]
+from test import is_marker_selected
+
+realization_count_plane_algorithms = [
+    "default",
+    pytest.param("lnumber", marks=pytest.mark.realization_counting),
+    "pyrigi",
+]
+realization_count_sphere_algorithms = [
+    "default",
+    pytest.param("lnumber", marks=pytest.mark.realization_counting),
+    "pyrigi",
+]
 
 
 @pytest.mark.parametrize(
@@ -26,7 +35,6 @@ realization_count_sphere_algorithms = ["default", "lnumber", "pyrigi"]
         [Graph.from_int(1269995), 56],
     ],
 )
-@pytest.mark.realization_counting
 @pytest.mark.parametrize("algorithm", realization_count_plane_algorithms)
 def test_number_of_realizations_count_reflection_min_rigid(
     graph, num_of_realizations, algorithm
@@ -47,7 +55,6 @@ def test_number_of_realizations_count_reflection_min_rigid(
         [graphs.ThreePrismPlusEdge(), 2],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_count_reflection_globally_rigid(
     graph, num_of_realizations
 ):
@@ -64,7 +71,6 @@ def test_number_of_realizations_count_reflection_globally_rigid(
         [Graph.from_int(1624383), 24],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_count_reflection_rigid(graph, num_of_realizations):
     assert graph.number_of_realizations(count_reflection=True) == num_of_realizations
 
@@ -78,7 +84,6 @@ def test_number_of_realizations_count_reflection_rigid(graph, num_of_realization
         [graphs.ThreePrism(), 4],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_count_reflection_flex(graph, dim):
     assert graph.number_of_realizations(dim, count_reflection=True) == math.inf
 
@@ -95,7 +100,6 @@ def test_number_of_realizations_count_reflection_flex(graph, dim):
         [Graph.from_int(1269995), 28],
     ],
 )
-@pytest.mark.realization_counting
 @pytest.mark.parametrize("algorithm", realization_count_plane_algorithms)
 def test_number_of_realizations_min_rigid(graph, num_of_realizations, algorithm):
     assert graph.number_of_realizations(algorithm=algorithm) == num_of_realizations
@@ -111,7 +115,6 @@ def test_number_of_realizations_min_rigid(graph, num_of_realizations, algorithm)
         [Graph.from_int(1624383), 12],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_rigid(graph, num_of_realizations):
     assert graph.number_of_realizations() == num_of_realizations
 
@@ -128,7 +131,6 @@ def test_number_of_realizations_rigid(graph, num_of_realizations):
         [graphs.Complete(3), 3],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_globally_rigid(graph, dim):
     assert graph.number_of_realizations(dim) == 1
 
@@ -142,7 +144,6 @@ def test_number_of_realizations_globally_rigid(graph, dim):
         [graphs.ThreePrism(), 4],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_flex(graph, dim):
     assert graph.number_of_realizations(dim) == math.inf
 
@@ -159,7 +160,6 @@ def test_number_of_realizations_flex(graph, dim):
         [Graph.from_int(481867), 24],
     ],
 )
-@pytest.mark.realization_counting
 @pytest.mark.parametrize("algorithm", realization_count_sphere_algorithms)
 def test_number_of_realizations_sphere_min_rigid(graph, num_of_realizations, algorithm):
     assert (
@@ -178,7 +178,6 @@ def test_number_of_realizations_sphere_min_rigid(graph, num_of_realizations, alg
         [Graph.from_int(1624383), 16],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_sphere_rigid(graph, num_of_realizations):
     assert graph.number_of_realizations(spherical=True) == num_of_realizations
 
@@ -195,7 +194,6 @@ def test_number_of_realizations_sphere_rigid(graph, num_of_realizations):
         [graphs.Complete(3), 3],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_sphere_globally_rigid(graph, dim):
     assert graph.number_of_realizations(dim, spherical=True) == 1
 
@@ -209,7 +207,6 @@ def test_number_of_realizations_sphere_globally_rigid(graph, dim):
         [graphs.ThreePrism(), 4],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_sphere_flex(graph, dim):
     assert graph.number_of_realizations(dim, spherical=True) == math.inf
 
@@ -226,7 +223,6 @@ def test_number_of_realizations_sphere_flex(graph, dim):
         [Graph.from_int(481867), 48],
     ],
 )
-@pytest.mark.realization_counting
 @pytest.mark.parametrize("algorithm", realization_count_sphere_algorithms)
 def test_number_of_realizations_sphere_count_reflection_min_rigid(
     graph, num_of_realizations, algorithm
@@ -249,7 +245,6 @@ def test_number_of_realizations_sphere_count_reflection_min_rigid(
         [Graph.from_int(1624383), 32],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_sphere_count_reflection_rigid(
     graph, num_of_realizations
 ):
@@ -269,7 +264,6 @@ def test_number_of_realizations_sphere_count_reflection_rigid(
         [graphs.ThreePrismPlusEdge(), 2],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_sphere_count_reflection_globally_rigid(
     graph, num_of_realizations
 ):
@@ -288,7 +282,6 @@ def test_number_of_realizations_sphere_count_reflection_globally_rigid(
         [graphs.ThreePrism(), 4],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_sphere_count_reflection_flex(graph, dim):
     assert (
         graph.number_of_realizations(dim, spherical=True, count_reflection=True)
@@ -302,7 +295,6 @@ def test_number_of_realizations_sphere_count_reflection_flex(graph, dim):
         [Graph.from_int(511), 3],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_dim_error(graph, dim):
     with pytest.raises(NotImplementedError):
         graph.number_of_realizations(dim)
@@ -315,7 +307,6 @@ def test_number_of_realizations_dim_error(graph, dim):
         [graphs.Complete(3), 3 / 2],
     ],
 )
-@pytest.mark.realization_counting
 def test_number_of_realizations_type_error(graph, dim):
     with pytest.raises(TypeError):
         graph.number_of_realizations(dim)
@@ -379,7 +370,6 @@ def test_number_of_realizations_method_error(graph, dim):
         ],
     ],
 )
-@pytest.mark.realization_counting
 def test__bigraph_contract_delete(biedges, select, result):
     assert realization_counting._bigraph_contract_delete(biedges, select) == result
 
@@ -406,12 +396,11 @@ def test__bigraph_contract_delete(biedges, select, result):
         ],
     ],
 )
-@pytest.mark.realization_counting
 def test__bigraph_delete_contract(biedges, select, result):
     assert realization_counting._bigraph_delete_contract(biedges, select) == result
 
 
-def _run_realization_test_on_graph(G: Graph, dim: int) -> None:
+def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> None:
     """
     Run a set of realization counting tests on a given graph
     """
@@ -450,11 +439,7 @@ def _run_realization_test_on_graph(G: Graph, dim: int) -> None:
     except ValueError:
         assert True
 
-    if (
-        dim == 2
-        and importlib.util.find_spec("lnumber") is not None
-        and G.is_min_rigid(dim)
-    ):
+    if dim == 2 and check_lnumber and G.is_min_rigid(dim):
         cp_l = G.number_of_realizations(dim, algorithm="lnumber")
         assert cp_l == cp
         cs_l = G.number_of_realizations(dim, spherical=True, algorithm="lnumber")
@@ -464,18 +449,21 @@ def _run_realization_test_on_graph(G: Graph, dim: int) -> None:
     assert csr == 2 * cs or (csr == cs and cs == 1)
 
 
-def test_randomized_realization_counting():
-    search_space = [range(1, 2), range(1, 7), range(10)]
+def test_randomized_realization_counting(request):
+    check_lnumber = is_marker_selected(request.config, "realization_counting")
+
+    search_space = [range(1, 3), range(1, 7), range(10)]
     for dim, n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m
 
-            _run_realization_test_on_graph(G, dim)
+            _run_realization_test_on_graph(G, dim, check_lnumber)
 
 
-def test_small_realizations_counting():
+def test_small_realizations_counting(request):
+    check_lnumber = is_marker_selected(request.config, "realization_counting")
     for n in range(1, 5):
         for i in range(math.comb(n, 2) + 1):
             for edges in combinations(combinations(range(n), 2), i):
@@ -484,4 +472,4 @@ def test_small_realizations_counting():
                 assert G.number_of_edges() == len(edges)
 
                 for dim in [1, 2]:
-                    _run_realization_test_on_graph(G, dim)
+                    _run_realization_test_on_graph(G, dim, check_lnumber)
