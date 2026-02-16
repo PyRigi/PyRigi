@@ -107,7 +107,7 @@ def number_of_realizations(  # noqa: C901
                 dim, [1, 2], "number_of_realizations with algorithm pyrigi"
             )
         else:
-            _input_check.dimension_for_algorithm(dim, [1], "number_of_realizations")
+            _input_check.dimension_for_algorithm(dim, [1, 2], "number_of_realizations")
     elif algorithm == "lnumber":
         _input_check.dimension_for_algorithm(dim, [2], "number_of_realizations")
 
