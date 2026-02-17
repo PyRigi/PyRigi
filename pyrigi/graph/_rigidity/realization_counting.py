@@ -59,9 +59,9 @@ def number_of_realizations(  # noqa: C901
         The dimension in which the realizations are counted.
         Currently, only ``dim=1`` and ``dim=2`` are supported.
     algorithm:
-        If ``default``, PyRigi checks which algorithm is available for the parameters and choses this one.
-        If ``native``, a pure PyRigi implementation is used.
-        If ``lnumber``, the ``lnumber`` package is used.
+        If ``"default"``, PyRigi checks which algorithm is available for the parameters and choses this one.
+        If ``"native"``, a pure PyRigi implementation is used.
+        If ``"lnumber"``, the ``lnumber`` package is used.
         This needs to be installed separately
         but is much faster than the ``pyrigi`` implementation.
         This works only for minimally rigid graphs in dimension 2.
@@ -131,10 +131,28 @@ def number_of_realizations(  # noqa: C901
     fac = 1 if count_reflection else 2
 
     # Check trivial cases for higher dimensions
-    # currently just for internal use
+    # currently just for internal use to resolve default in higher dimensions
     if algorithm == "checktrivial":
-        if global_rigidity.is_globally_rigid(graph, dim):
-            return 2 // fac
+
+        # reduce by deleting vertices of degree = dim
+        G = deepcopy(graph)
+        deg_dim = 0
+        while G.number_of_nodes() > dim + 1 and G.min_degree() == dim:
+            min_v = [v for v in G.nodes if G.degree(v) == dim]
+            G.delete_vertices(min_v)
+            deg_dim += len(min_v)
+
+        n = G.number_of_nodes()
+        if n <= dim and G.number_of_edges() == math.comb(n, 2):
+            return 2**deg_dim // fac if deg_dim > 0 else 1
+        if n == dim + 1 and G.number_of_edges() == math.comb(dim + 1, 2):
+            return 2**(deg_dim + 1) // fac
+
+        # globally rigid in any dimension
+        if global_rigidity.is_globally_rigid(G, dim):
+            return 2**(deg_dim + 1) // fac
+
+        # all other cases
         raise NotImplementedError(
             "There is no combinatorial algorithm for 'dim'>2 available,"
             "except for trivial cases."

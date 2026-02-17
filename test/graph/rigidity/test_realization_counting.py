@@ -294,9 +294,37 @@ def test_number_of_realizations_sphere_count_reflection_flex(graph, dim):
 
 
 @pytest.mark.parametrize(
+    "graph, dim, num_of_realizations",
+    [
+        [graphs.Complete(1), 3, 1],
+        [graphs.Complete(2), 3, 1],
+        [graphs.Complete(3), 3, 1],
+        [graphs.Complete(4), 3, 2],
+        [Graph.from_int(511), 3, 4],
+        [Graph.from_int(7679), 3, 8],
+        [Graph.from_int(7935), 3, 8],
+        [Graph.from_int(8187), 3, 8],
+        [Graph.from_int(245755), 3, 4],
+        [Graph.from_int(31981567), 4, 8],
+        [Graph.from_int(49790975), 4, 8],
+    ],
+)
+def test_number_of_realizations_rigid_higher_dim(
+    graph, dim, num_of_realizations,
+):
+    assert (
+        graph.number_of_realizations(dim=dim, count_reflection=True)
+        == num_of_realizations
+    )
+    assert (
+        graph.number_of_realizations(dim=dim)
+        == ((num_of_realizations // 2) if num_of_realizations != 1 else 1)
+    )
+
+@pytest.mark.parametrize(
     "graph, dim",
     [
-        [Graph.from_int(511), 3],
+        [Graph.from_int(16350), 3],
     ],
 )
 def test_number_of_realizations_dim_error(graph, dim):
@@ -428,6 +456,10 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
 
     assert cp <= cs
     assert cp > 0
+    assert cpr == 2 * cp or (cpr == cp and cp == 1)
+    assert csr == 2 * cs or (csr == cs and cs == 1)
+
+    # do a 0-extension on rigid graphs
     if G.is_rigid(dim):
         assert cs < sp.oo
         if G.number_of_nodes() >= dim + 1:
@@ -437,6 +469,7 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
     else:
         assert cs == sp.oo
 
+    # do a 0-reduction
     if G.min_degree() == dim and G.number_of_nodes() > dim + 1:
         G2 = deepcopy(G)
         min_v = [v for v in G2.vertex_list() if G2.degree(v) == dim]
@@ -444,17 +477,11 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
         assert cp == 2 * G2.number_of_realizations(dim)
         assert cs == 2 * G2.number_of_realizations(dim, spherical=True)
 
-    try:
-        cp_p = G.number_of_realizations(dim, algorithm="native")
-        assert cp_p == cp
-    except ValueError:
-        assert True
+    cp_p = G.number_of_realizations(dim, algorithm="native")
+    assert cp_p == cp
+    cs_p = G.number_of_realizations(dim, spherical=True, algorithm="native")
+    assert cs_p == cs
 
-    try:
-        cs_p = G.number_of_realizations(dim, spherical=True, algorithm="native")
-        assert cs_p == cs
-    except ValueError:
-        assert True
 
     if dim == 2 and check_lnumber and G.is_min_rigid(dim):
         cp_l = G.number_of_realizations(dim, algorithm="lnumber")
@@ -462,21 +489,26 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
         cs_l = G.number_of_realizations(dim, spherical=True, algorithm="lnumber")
         assert cs_l == cs
 
-    assert cpr == 2 * cp or (cpr == cp and cp == 1)
-    assert csr == 2 * cs or (csr == cs and cs == 1)
-
 
 def test_randomized_realization_counting(request):
     check_lnumber = is_marker_selected(request.config, "realization_counting")
 
-    search_space = [range(1, 3), range(1, 7), range(10)]
+    search_space = [range(1, 4), range(1, 7), range(10)]
     for dim, n, _ in product(*search_space):
         for m in range(1, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m
 
-            _run_realization_test_on_graph(G, dim, check_lnumber)
+            if dim in [1, 2]:
+                _run_realization_test_on_graph(G, dim, check_lnumber)
+            else:
+                try:
+                    _run_realization_test_on_graph(G, dim, check_lnumber)
+                except ValueError:
+                    assert True
+                except NotImplementedError:
+                    assert True
 
 
 def test_small_realizations_counting(request):
