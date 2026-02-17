@@ -130,6 +130,7 @@ def number_of_realizations(  # noqa: C901
     fac = 1 if count_reflection else 2
 
     # Check trivial cases for higher dimensions
+    # currently just for internal use
     if algorithm == "checktrivial":
         if global_rigidity.is_globally_rigid(graph, dim):
             return 2 // fac

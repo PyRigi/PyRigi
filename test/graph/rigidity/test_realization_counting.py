@@ -129,7 +129,10 @@ def test_number_of_realizations_rigid(graph, num_of_realizations):
         [graphs.K33plusEdge(), 2],
         [graphs.ThreePrismPlusEdge(), 2],
         [graphs.Complete(2), 1],
+        [Graph.from_int(222), 1],
         [graphs.Complete(3), 3],
+        [Graph.from_int(16351), 3],
+        [Graph.from_int(1048063), 4]
     ],
 )
 def test_number_of_realizations_globally_rigid(graph, dim):
