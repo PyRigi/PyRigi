@@ -27,6 +27,7 @@ realization_count_sphere_algorithms = [
 @pytest.mark.parametrize(
     "graph, num_of_realizations",
     [
+        [graphs.Complete(1), 1],
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 2],
         [graphs.CompleteBipartite(3, 3), 16],
@@ -49,6 +50,7 @@ def test_number_of_realizations_count_reflection_min_rigid(
 @pytest.mark.parametrize(
     "graph, num_of_realizations",
     [
+        [graphs.Complete(1), 1],
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 2],
         [graphs.Complete(4), 2],
@@ -92,6 +94,7 @@ def test_number_of_realizations_count_reflection_flex(graph, dim):
 @pytest.mark.parametrize(
     "graph, num_of_realizations",
     [
+        [graphs.Complete(1), 1],
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 1],
         [graphs.CompleteBipartite(3, 3), 8],
@@ -123,6 +126,8 @@ def test_number_of_realizations_rigid(graph, num_of_realizations):
 @pytest.mark.parametrize(
     "graph, dim",
     [
+        [graphs.Complete(1), 1],
+        [graphs.Complete(1), 2],
         [graphs.Complete(2), 2],
         [graphs.Complete(3), 2],
         [graphs.Complete(4), 2],
@@ -155,6 +160,7 @@ def test_number_of_realizations_flex(graph, dim):
 @pytest.mark.parametrize(
     "graph, num_of_realizations",
     [
+        [graphs.Complete(1), 1],
         [graphs.Complete(2), 1],
         [graphs.Complete(3), 1],
         [graphs.CompleteBipartite(3, 3), 8],
