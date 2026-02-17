@@ -64,6 +64,7 @@ def number_of_realizations(  # noqa: C901
         If ``lnumber``, the ``lnumber`` package is used.
         This needs to be installed separately
         but is much faster than the ``pyrigi`` implementation.
+        This works only for minimally rigid graphs in dimension 2.
     spherical:
         If ``True``, the number of spherical realizations of the graph is returned.
         If ``False`` (default), the number of planar realizations is returned.
