@@ -15,12 +15,12 @@ from test import is_marker_selected
 realization_count_plane_algorithms = [
     "default",
     pytest.param("lnumber", marks=pytest.mark.realization_counting),
-    "pyrigi",
+    "native",
 ]
 realization_count_sphere_algorithms = [
     "default",
     pytest.param("lnumber", marks=pytest.mark.realization_counting),
-    "pyrigi",
+    "native",
 ]
 
 
@@ -445,13 +445,13 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
         assert cs == 2 * G2.number_of_realizations(dim, spherical=True)
 
     try:
-        cp_p = G.number_of_realizations(dim, algorithm="pyrigi")
+        cp_p = G.number_of_realizations(dim, algorithm="native")
         assert cp_p == cp
     except ValueError:
         assert True
 
     try:
-        cs_p = G.number_of_realizations(dim, spherical=True, algorithm="pyrigi")
+        cs_p = G.number_of_realizations(dim, spherical=True, algorithm="native")
         assert cs_p == cs
     except ValueError:
         assert True

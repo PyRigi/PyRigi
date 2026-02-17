@@ -60,7 +60,7 @@ def number_of_realizations(  # noqa: C901
         Currently, only ``dim=1`` and ``dim=2`` are supported.
     algorithm:
         If ``default``, PyRigi checks which algorithm is available for the parameters and choses this one.
-        If ``pyrigi``, a pure PyRigi implementation is used.
+        If ``native``, a pure PyRigi implementation is used.
         If ``lnumber``, the ``lnumber`` package is used.
         This needs to be installed separately
         but is much faster than the ``pyrigi`` implementation.
@@ -92,30 +92,30 @@ def number_of_realizations(  # noqa: C901
     oo
     """  # noqa: E501
 
-    if algorithm not in ["default", "pyrigi", "lnumber"]:
+    if algorithm not in ["default", "native", "lnumber"]:
         raise NotSupportedValueError(algorithm, "algorithm", number_of_realizations)
 
     algorithm_in = algorithm
 
     if algorithm == "default":
         if dim == 1:
-            algorithm = "pyrigi"
+            algorithm = "native"
         elif dim == 2:
             if graph.number_of_edges() > 2 * graph.number_of_nodes() - 3:
-                algorithm = "pyrigi"
+                algorithm = "native"
             elif importlib.util.find_spec("lnumber") is not None:
                 algorithm = "lnumber"
             else:
-                algorithm = "pyrigi"
+                algorithm = "native"
         else:
             algorithm = "checktrivial"
-    if algorithm == "pyrigi":
+    if algorithm == "native":
         if (
             graph.number_of_edges() >= 2 * graph.number_of_nodes() - 3
             or graph.number_of_edges() == math.comb(graph.number_of_nodes(), 2)
         ):
             _input_check.dimension_for_algorithm(
-                dim, [1, 2], "number_of_realizations with algorithm pyrigi"
+                dim, [1, 2], "number_of_realizations with algorithm native"
             )
         else:
             _input_check.dimension_for_algorithm(dim, [1, 2], "number_of_realizations")
@@ -190,7 +190,7 @@ def number_of_realizations(  # noqa: C901
             if spherical:
                 return lnumber.lnumbers(graph_int) // fac
             return lnumber.lnumber(graph_int) // fac
-        if algorithm == "pyrigi":
+        if algorithm == "native":
             if spherical:
                 return _number_of_sphere_realizations_min_rigid_dim_2(graph) // fac
             return _number_of_plane_realizations_min_rigid_dim_2(graph) // fac
