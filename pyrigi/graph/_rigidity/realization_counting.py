@@ -14,6 +14,7 @@ import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.global_ as global_rigidity
 from pyrigi._utils import _input_check
 from pyrigi.data_type import Inf
+from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph._export import export
 from pyrigi.graph._sparsity import sparsity
 
@@ -89,6 +90,9 @@ def number_of_realizations(  # noqa: C901
     >>> G.number_of_realizations() # number of planar realizations
     oo
     """  # noqa: E501
+
+    if algorithm not in ["default", "pyrigi", "lnumber"]:
+        raise NotSupportedValueError(algorithm, "algorithm", number_of_realizations)
 
     algorithm_in = algorithm
 

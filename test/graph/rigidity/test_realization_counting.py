@@ -314,6 +314,19 @@ def test_number_of_realizations_type_error(graph, dim):
 
 
 @pytest.mark.parametrize(
+    "alg",
+    [
+        "checktrivial",
+        "test",
+        "standard"
+    ],
+)
+def test_number_of_realizations_algorithm_error(alg):
+    with pytest.raises(ValueError):
+        graphs.Complete(3).number_of_realizations(dim = 2, algorithm = alg)
+
+
+@pytest.mark.parametrize(
     "graph, dim",
     [
         [graphs.Complete(3), 1],
