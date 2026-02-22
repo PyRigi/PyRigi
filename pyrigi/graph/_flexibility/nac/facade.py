@@ -27,7 +27,7 @@ def NAC_colorings(
 
     Definitions
     -----------
-    :prf:ref:`NAC-coloring <def-nac>`
+    * :prf:ref:`NAC-coloring <def-nac>`
 
     Parameters
     ----------
@@ -84,17 +84,42 @@ def has_NAC_coloring(
     seed: int | None = 42,
 ) -> bool:
     """
+    Check if the graph has a NAC-coloring.
+
     Same as :func:`pyrigi.graph._flexibility.nac.facade.single_NAC_coloring`,
     but the certificate may not be created.
+
+    Definitions
+    -----------
+    * :prf:ref:`NAC-coloring <def-nac>`
 
     Parameters
     ----------
     graph:
-        The graph to find the NAC coloring for.
+        The graph to find a :prf:ref:`NAC-coloring <def-nac>` for.
+    algorithm:
+        The algorithm to use.
+        The options are ``"naive"`` for the naive approach and
+        ``"subgraphs"`` for the subgraphs decomposition approach,
+        see :ref:`nac-computation`.
+        Strategies can be specified for the subgraphs algorithm
+        as follows: ``"subgraphs-<split_strategy>-<merging_strategy>-<subgraphs_size>"``.
+        Split strategies are ``none``, ``neighbors``, and ``neighbors_degree``,
+        merging strategies are ``linear`` and ``shared_vertices``.
+        The default strategy is ``"subgraphs-neighbors-linear-5"``.
+    use_cycles_optimization:
+        Use cycles optimization for the given algorithm.
+        This is always enabled for subgraphs strategies.
+    mono_class_type:
+        The type of :prf:ref:`NAC-mono classes <def-nac-mono>` to use.
+        The options are ``"edges"`` (each edge is a NAC-mono class),
+        ``"triangle"``
+        for :prf:ref:`triangle-connected components <def-triangle-connected-comp>`,
+        or ``"triangle-extended"`` (default) for
 
     Return
     ------
-    True if a NAC coloring exits, false otherwise.
+    True if a :prf:ref:`NAC-coloring <def-nac>` exits, false otherwise.
     No certificate of existence is provided.
     """
 
@@ -118,16 +143,41 @@ def single_NAC_coloring(
     seed: int | None = 42,
 ) -> tuple[list[Edge], list[Edge]] | None:
     """
-    Obtain a single NAC coloring of the graph given.
+    Obtain a single :prf:ref:`NAC-coloring <def-nac>` of the graph given.
+
+    Polynomial checks are run, if they fail an exhaustive search is run.
+
+    Definitions
+    -----------
+    * :prf:ref:`NAC-coloring <def-nac>`
 
     Parameters
     ----------
     graph:
-        The graph to find the NAC coloring for.
+        The graph to find the :prf:ref:`NAC-coloring <def-nac>` for.
+    algorithm:
+        The algorithm to use.
+        The options are ``"naive"`` for the naive approach and
+        ``"subgraphs"`` for the subgraphs decomposition approach,
+        see :ref:`nac-computation`.
+        Strategies can be specified for the subgraphs algorithm
+        as follows: ``"subgraphs-<split_strategy>-<merging_strategy>-<subgraphs_size>"``.
+        Split strategies are ``none``, ``neighbors``, and ``neighbors_degree``,
+        merging strategies are ``linear`` and ``shared_vertices``.
+        The default strategy is ``"subgraphs-neighbors-linear-5"``.
+    use_cycles_optimization:
+        Use cycles optimization for the given algorithm.
+        This is always enabled for subgraphs strategies.
+    mono_class_type:
+        The type of :prf:ref:`NAC-mono classes <def-nac-mono>` to use.
+        The options are ``"edges"`` (each edge is a NAC-mono class),
+        ``"triangle"``
+        for :prf:ref:`triangle-connected components <def-triangle-connected-comp>`,
+        or ``"triangle-extended"`` (default) for
 
     Return
     ------
-    A NAC coloring certificate if a NAC-coloring exists, None otherwise.
+    A NAC-coloring certificate if a NAC-coloring exists, None otherwise.
     """
 
     if algorithm == "default":

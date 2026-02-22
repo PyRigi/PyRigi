@@ -1,5 +1,6 @@
 """
-This module holds functions related to questions whether a graph has a NAC coloring.
+This module holds functions related to questions whether
+a graph can have a :prf:ref:`NAC-coloring <def-nac>`.
 """
 
 from __future__ import annotations
@@ -10,8 +11,8 @@ import networkx as nx
 
 from pyrigi.graph._flexibility.nac.core import NACColoring
 from pyrigi.graph._flexibility.nac.existence import (
-    _can_have_flexible_labeling,
-    _check_for_simple_stable_cut,
+    _can_have_flexible_realization,
+    _check_for_simple_stable_separating_cut,
     check_NAC_constrains,
     has_NAC_coloring_checks,
 )
@@ -27,10 +28,24 @@ def _single_general_NAC_coloring(
     seed: int | None,
 ) -> NACColoring | None:
     """
-    Find a trivial NAC coloring if possible.
+    Find a :prf:ref:`NAC-coloring <def-nac>` of a graph if possible.
 
-    The algorithm is based on connectivity of the graph components.
-    Returned coloring is trivially both NAC coloring.
+    Before running the full extensive search,
+    graph connectivity checks are used first to determine if there exists
+    a trivial :prf:ref:`NAC-coloring <def-nac>`.
+
+    Definitions
+    -----------
+    * :prf:ref:`NAC-coloring <def-nac>`
+
+    Parameters
+    ----------
+    graph:
+        The graph to find the :prf:ref:`NAC-coloring <def-nac>` for.
+
+    Return
+    ------
+    A NAC-coloring certificate if a NAC-coloring exists, None otherwise.
     """
     components: list[set[int]] = list(
         nx.algorithms.components.connected_components(graph)
@@ -80,9 +95,24 @@ def has_NAC_coloring_impl(
     seed: int | None,
 ) -> bool:
     """
+    Check whether the graph has a :prf:ref:`NAC-coloring <def-nac>`.
+
     Same as :func:`pyrigi.graph._flexibility.nac.single.single_NAC_coloring_impl`,
-    but the certificate may not be created,
-    so some additional tricks are used the performance may be improved.
+    but the certificate may not be created.
+    Polynomial time checks are used.
+
+    Definitions
+    -----------
+    * :prf:ref:`NAC-coloring <def-nac>`
+
+    Parameters
+    ----------
+    graph:
+        The graph to check.
+
+    Return
+    ------
+    True if the graph has a :prf:ref:`NAC-coloring <def-nac>`, False otherwise.
     """
     if not check_NAC_constrains(graph):
         return False
@@ -114,13 +144,33 @@ def single_NAC_coloring_impl(
     _is_first_check: bool = True,
 ) -> NACColoring | None:
     """
-    Finds only a single NAC coloring if it exists.
+    Find a single :prf:ref:`NAC-coloring <def-nac>` if it exists.
+
+    Polynomial time existence checks are run to determine
+    whether a NAC-coloring exists.
+    If they fail, an exhaustive search is run
+    and halted after some NAC-coloring is found.
+
+    Definitions
+    -----------
+    * :prf:ref:`NAC-coloring <def-nac>`
 
     Parameters
     ----------
     algorithm:
         The algorithm used in case we need to fall back
         to exhaustive search.
+    use_cycles_optimization:
+        Use cycles optimization for the given algorithm.
+        This is always enabled for subgraphs strategies.
+    mono_class_type:
+        The type of :prf:ref:`NAC-mono classes <def-nac-mono>` to use.
+        The options are ``"edges"`` (each edge is a NAC-mono class),
+        ``"triangle"``
+        for :prf:ref:`triangle-connected components <def-triangle-connected-comp>`,
+        or ``"triangle-extended"`` (default) for
+    seed:
+        The seed to use in case we need to fall back to exhaustive search.
     _is_first_check:
         Internal parameter, do not change!
         Skips some already checked checks in has_NAC_coloring.
@@ -130,7 +180,7 @@ def single_NAC_coloring_impl(
         if not check_NAC_constrains(graph):
             return None
 
-        res = _check_for_simple_stable_cut(graph)
+        res = _check_for_simple_stable_separating_cut(graph)
         if res is not None:
             return res
 
@@ -145,7 +195,7 @@ def single_NAC_coloring_impl(
             return res
 
         # Need to be run after connectivity checks
-        if not _can_have_flexible_labeling(graph):
+        if not _can_have_flexible_realization(graph):
             return None
 
     return next(
