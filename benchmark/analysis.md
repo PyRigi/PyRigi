@@ -20,77 +20,133 @@ import json
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import re
+import numpy as np
 from pathlib import Path
 
+# ========== CONFIGURATION ==========
+# Edit these variables to customize analysis
+
+# Filter by function (None = all functions)
+# Example: 'is_min_rigid' or None
+FILTER_FUNCTION = 'is_min_rigid'
+
+# X-axis for scaling analysis
+# Options: 'num_nodes', 'num_edges', 'density', 'avg_degree'
+X_AXIS = 'num_edges'  
+
+# Scale type
+# Options: 'linear', 'log'
+X_SCALE = 'linear'  
+Y_SCALE = 'log'  
+
+# Filter by configs (None = all)
+# Example: ['dim=1, algorithm=graphic'] or None
+FILTER_CONFIGS = ['algorithm=graphic, dim=1', 'algorithm=randomized, dim=1']  
+
+# Set plotting style
 sns.set_theme(style="whitegrid")
 plt.rcParams['figure.figsize'] = [12, 6]
-
-results_path = '../benchmark_results.json'
-with open(results_path, 'r') as f:
-    data = json.load(f)
-
-print(f"Loaded {len(data['benchmarks'])} benchmark runs.")
 ```
 
 ## Data Preprocessing
 Extracting parameters and metrics from the raw JSON data.
 
 ```{code-cell} ipython3
+results_path = './benchmark_results.json'
+
+try:
+    with open(results_path, 'r') as f:
+        data = json.load(f)
+    print(f"Loaded {len(data.get('benchmarks', []))} benchmark runs.")
+except FileNotFoundError:
+    print(f"File not found: {results_path}")
+    data = {'benchmarks': []}
+
+# Convert to DataFrame
 rows = []
-
-if data['benchmarks']:
-    for b in data['benchmarks']:
-        name = b['name']
-        stats = b['stats']
-        params = b.get('params', {})
-        
-        config = params.get('config', {})
-        graph_info = params.get('graph_info', {})
-        
-        # Create readable config label
-        if config:
-            config_label = ', '.join(f"{k}={v}" for k, v in sorted(config.items()))
-        else:
-            config_label = "Unknown Config"
-        
-        # Extract graph metadata
+for b in data.get('benchmarks', []):
+    params = b.get('params', {})
+    config = params.get('config', {})
+    graph_info = params.get('graph_info', {})
+    stats = b.get('stats', {})
+    
+    # Create readable config label
+    if config:
+        config_label = ', '.join(f"{k}={v}" for k, v in sorted(config.items()))
+    else:
+        config_label = "Unknown Config"
+    
+    # Extract graph metadata
+    if not graph_info and 'graph_path' in params:
+         graph_name = Path(params['graph_path']).stem
+         num_nodes = params.get('num_nodes', np.nan)
+         num_edges = params.get('num_edges', np.nan)
+    else:
         graph_name = graph_info.get('file_name', 'Unknown Graph')
-        num_nodes = graph_info.get('num_nodes', None)
-        num_edges = graph_info.get('num_edges', None)
-        
-        row = {
-            'name': name,
-            'config_label': config_label,
-            'graph_name': graph_name,
-            'N': num_nodes,
-            'E': num_edges,
-            'mean_time': stats['mean'],
-            'std_dev': stats['stddev'],
-            'min_time': stats['min'],
-            'max_time': stats['max']
-        }
-        rows.append(row)
+        num_nodes = graph_info.get('num_nodes', np.nan)
+        num_edges = graph_info.get('num_edges', np.nan)
 
-    df = pd.DataFrame(rows)
+    # Determine function name
+    func_name = b.get('function', b.get('group', 'unknown'))
     
-    # Aggregate by config and graph (average across multiple graphs from same file)
-    df_agg = df.groupby(['config_label', 'graph_name', 'N', 'E']).agg({
-        'mean_time': 'mean',
-        'std_dev': 'mean',
-        'min_time': 'min',
-        'max_time': 'max'
-    }).reset_index()
+    if ':' in func_name:
+        func_name = func_name.split(':')[-1]
+
+    row = {
+        'function': func_name,
+        'config_label': config_label,
+        'graph_name': graph_name,
+        'num_nodes': num_nodes,
+        'num_edges': num_edges,
+        'timestamp': b.get('timestamp', None),
+        'mean_time': stats.get('mean', np.nan),
+        'std_dev': stats.get('stddev', np.nan),
+        'min_time': stats.get('min', np.nan),
+        'max_time': stats.get('max', np.nan)
+    }
+    rows.append(row)
+
+df = pd.DataFrame(rows)
+
+if not df.empty:
+    df['density'] = df['num_edges'] / (df['num_nodes'] * (df['num_nodes'] - 1) / 2)
+    df['avg_degree'] = 2 * df['num_edges'] / df['num_nodes']
     
-    # Sort by N and config
-    if df_agg['N'].notna().all():
-        df_agg = df_agg.sort_values(['N', 'config_label'])
-    
-    print(f"\nAggregated to {len(df_agg)} unique (config, graph) combinations")
-    display(df_agg.head(10))
+    print("\nAvailable Functions:", df['function'].unique())
+    print("\nAvailable Configs:", df['config_label'].unique())
 else:
-    print("No benchmark data found.")
-    df_agg = pd.DataFrame()
+    print("DataFrame is empty.")
+
+df.head()
+```
+
+```{code-cell} ipython3
+# Apply Filters
+df_filtered = df.copy()
+
+if FILTER_FUNCTION:
+    df_filtered = df_filtered[df_filtered['function'] == FILTER_FUNCTION]
+    print(f"Filtered to function: {FILTER_FUNCTION}")
+
+if FILTER_CONFIGS:
+    df_filtered = df_filtered[df_filtered['config_label'].isin(FILTER_CONFIGS)]
+    print(f"Filtered to configs: {FILTER_CONFIGS}")
+
+# Aggregate by config and graph
+group_cols = ['function', 'config_label', 'graph_name', 'num_nodes', 'num_edges']
+df_agg = df_filtered.groupby(group_cols).agg({
+    'mean_time': 'mean',
+    'std_dev': 'mean',
+    'min_time': 'min',
+    'max_time': 'max'
+}).reset_index()
+
+# Sort for better plotting
+if X_AXIS in df_agg.columns:
+    df_agg = df_agg.sort_values([X_AXIS, 'config_label'])
+
+print(f"\nAnalyzing {len(df_agg)} unique combinations after filtering.")
+df_agg.head()
 ```
 
 ## 1. Algorithm Comparison
@@ -100,10 +156,13 @@ Comparing mean execution time for different configurations.
 if not df_agg.empty:
     plt.figure(figsize=(14, 6))
     
+    # Convert config_label to string to avoid categorical issues
+    df_agg['config_label'] = df_agg['config_label'].astype(str)
+    
     sns.barplot(data=df_agg, x='graph_name', y='mean_time', hue='config_label')
     
     plt.xticks(rotation=45, ha='right')
-    plt.title('Mean Execution Time by Graph')
+    plt.title(f'Mean Execution Time by Graph ({FILTER_FUNCTION or "All Functions"})')
     plt.ylabel('Time (s)')
     plt.legend(title='Configuration', bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
@@ -116,36 +175,41 @@ else:
 Log-log plot to analyze time complexity (Time vs Graph Size).
 
 ```{code-cell} ipython3
-if not df_agg.empty and df_agg['N'].notna().all():
+if not df_agg.empty and X_AXIS in df_agg.columns:
     plt.figure(figsize=(10, 6))
     
     sns.lineplot(
         data=df_agg, 
-        x='N', 
+        x=X_AXIS, 
         y='mean_time', 
         hue='config_label',
         style='config_label',
-        markers=True, 
+        markers=True,
         dashes=False
     )
     
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.title('Scaling Analysis: Performance vs Vertices')
-    plt.xlabel('Number of Nodes (Log Scale)')
-    plt.ylabel('Time (s) (Log Scale)')
+    plt.xscale(X_SCALE)
+    plt.yscale(Y_SCALE)
+    
+    x_label = X_AXIS.replace('_', ' ').title()
+    plt.title(f'Scaling Analysis: Time vs {x_label}')
+    plt.xlabel(f'{x_label} ({X_SCALE} scale)')
+    plt.ylabel(f'Time (s) ({Y_SCALE} scale)')
+    
     plt.grid(True, which="both", ls="--", alpha=0.7)
     plt.legend(title='Configuration', bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
     plt.show()
 else:
-    print("Skipping Scaling Analysis: Could not extract node counts (N).")
+    print(f"Skipping Scaling Analysis: Could not extract {X_AXIS}.")
 ```
 
 ```{code-cell} ipython3
 import numpy as np
 
-if not df_agg.empty and df_agg['N'].notna().all():
+complexity_axis = 'num_nodes'
+
+if not df_agg.empty and complexity_axis in df_agg.columns:
     print("### Empirical Complexity Analysis ###\n")
     
     def r_squared(y_true, y_pred):
@@ -154,25 +218,28 @@ if not df_agg.empty and df_agg['N'].notna().all():
         ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
         return 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
     
-    # Further aggregate by config and N (average across all graphs with same node count)
-    df_complexity = df_agg.groupby(['config_label', 'N'], as_index=False).agg({
+    # Filter for the specific function if set
+    df_complexity = df_agg.copy()
+    
+    # Further aggregate by config and N
+    df_complexity = df_complexity.groupby(['config_label', complexity_axis], as_index=False).agg({
         'mean_time': 'mean'
     })
     
     for config in df_complexity['config_label'].unique():
-        subset = df_complexity[df_complexity['config_label'] == config].sort_values('N')
+        subset = df_complexity[df_complexity['config_label'] == config].sort_values(complexity_axis)
         
         if len(subset) < 3:
             print(f"{config}: Not enough data points (need at least 3, have {len(subset)})\n")
             continue
         
-        n = subset['N'].values
+        n = subset[complexity_axis].values
         t = subset['mean_time'].values
         
         # Debug: show the data points
         print(f"\n{config}: Analyzing {len(n)} data points")
-        print(f"  N values: {n}")
-        print(f"  Time values: {t}")
+        # print(f"  N: {n}")
+        # print(f"  T: {t}")
         
         models = {}
         
@@ -183,15 +250,15 @@ if not df_agg.empty and df_agg['N'].notna().all():
             t_pred = c * log_n
             models['O(log n)'] = r_squared(t, t_pred)
         except Exception as e:
-            print(f"  O(log n) failed: {e}")
+            pass # print(f"  O(log n) failed")
         
         # Model 2: O(n) - Linear
         try:
             c = np.polyfit(n, t, 1)[0]
             t_pred = c * n
             models['O(n)'] = r_squared(t, t_pred)
-        except Exception as e:
-            print(f"  O(n) failed: {e}")
+        except Exception:
+            pass
         
         # Model 3: O(n log n)
         try:
@@ -199,8 +266,8 @@ if not df_agg.empty and df_agg['N'].notna().all():
             c = np.polyfit(n_log_n, t, 1)[0]
             t_pred = c * n_log_n
             models['O(n log n)'] = r_squared(t, t_pred)
-        except Exception as e:
-            print(f"  O(n log n) failed: {e}")
+        except Exception:
+            pass
         
         # Model 4: O(n^k) - Polynomial (via log-log regression)
         try:
@@ -209,8 +276,8 @@ if not df_agg.empty and df_agg['N'].notna().all():
             k, log_c = np.polyfit(log_n, log_t, 1)
             t_pred = np.exp(log_c) * (n ** k)
             models[f'O(n^{k:.2f})'] = r_squared(t, t_pred)
-        except Exception as e:
-            print(f"  O(n^k) failed: {e}")
+        except Exception:
+            pass
         
         # Model 5: O(2^n) - Exponential
         try:
@@ -218,8 +285,8 @@ if not df_agg.empty and df_agg['N'].notna().all():
             a, log_c = np.polyfit(n, log_t, 1)
             t_pred = np.exp(log_c) * (2 ** (a * n))
             models['O(2^n)'] = r_squared(t, t_pred)
-        except Exception as e:
-            print(f"  O(2^n) failed: {e}")
+        except Exception:
+            pass
         
         if models:
             best_model = max(models, key=models.get)
@@ -227,14 +294,12 @@ if not df_agg.empty and df_agg['N'].notna().all():
             
             print(f"\n{config}:")
             print(f"  Best fit: {best_model} (R² = {best_r2:.3f})")
-            print(f"  All models:")
-            for model, r2 in sorted(models.items(), key=lambda x: x[1], reverse=True):
-                print(f"    {model}: R² = {r2:.3f}")
-            print()
+            # print(f"  All models: {models}")
+            
         else:
             print(f"  No models could be fitted!\n")
 else:
-    print("Cannot perform complexity analysis: insufficient data or missing N values")
+    print(f"Cannot perform complexity analysis: insufficient data or missing {complexity_axis}")
 ```
 
 ## 3. Distribution Analysis
@@ -242,22 +307,25 @@ Box plots showing the spread of execution times.
 
 ```{code-cell} ipython3
 if not df_agg.empty:
-    pivot_mean = df_agg.pivot(index='graph_name', columns='config_label', values='mean_time')
-    pivot_std = df_agg.pivot(index='graph_name', columns='config_label', values='std_dev')
-    
-    pivot_mean.plot(
-        kind='bar', 
-        yerr=pivot_std, 
-        capsize=4, 
-        figsize=(14, 6),
-        rot=45
-    )
-    
-    plt.title('Performance Stability by Config (Mean +/- Std Dev)')
-    plt.ylabel('Time (s)')
-    plt.legend(title='Configuration', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
-    plt.show()
+    if 'std_dev' in df_agg.columns and df_agg['std_dev'].notna().any():
+        pivot_mean = df_agg.pivot(index='graph_name', columns='config_label', values='mean_time')
+        pivot_std = df_agg.pivot(index='graph_name', columns='config_label', values='std_dev')
+        
+        pivot_mean.plot(
+            kind='bar', 
+            yerr=pivot_std, 
+            capsize=4, 
+            figsize=(14, 6),
+            rot=45
+        )
+        
+        plt.title('Performance Stability by Config (Mean +/- Std Dev)')
+        plt.ylabel('Time (s)')
+        plt.legend(title='Configuration', bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.tight_layout()
+        plt.show()
+    else:
+        print("Standard deviation data not available/valid for plot.")
 else:
     print("No data.")
 ```
@@ -267,9 +335,11 @@ else:
 ```{code-cell} ipython3
 if not df_agg.empty:
     pivot_df = df_agg.pivot(index='graph_name', columns='config_label', values='mean_time')
+    
+    # Normalize by the fastest config for each graph
     pivot_normalized = pivot_df.div(pivot_df.min(axis=1), axis=0)
     
-    plt.figure(figsize=(10, len(pivot_df) * 0.5 + 2))
+    plt.figure(figsize=(10, max(6, len(pivot_df) * 0.5)))
     
     sns.heatmap(
         pivot_normalized, 

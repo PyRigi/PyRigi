@@ -1,12 +1,30 @@
 import subprocess
 import sys
-import json
 
 
-def run_pytest_benchmark(test_file: str, output_file: str):
+def run_pytest_benchmark(
+    test_file: str,
+    temp_output_file: str = "temp_benchmark_results.json",
+    min_rounds: int = 5,
+    warmup: str = "off",
+    warmup_iterations: int = 1,
+):
     """
     Run pytest on the generated test file with benchmark options.
-    Uses auto warmup for efficiency and post-processes JSON to remove bloat.
+
+    Args:
+        test_file: Path to generated test file.
+        temp_output_file: Temporary output file path (will be merged later).
+        min_rounds: Minimum number of benchmark rounds per test case.
+                    Lower values are fine for complexity analysis.
+                    Default: 5.
+        warmup: Warmup mode passed to pytest-benchmark.
+                Choices: 'auto', 'on', 'off'.  Default: 'off'.
+        warmup_iterations: Number of warmup rounds when warmup is 'on' or 'auto'.
+                           Ignored when warmup='off'.  Default: 1.
+
+    Returns:
+        Path to temporary results file.
     """
     cmd = [
         sys.executable,
@@ -16,10 +34,11 @@ def run_pytest_benchmark(test_file: str, output_file: str):
         "--benchmark-only",
         "--benchmark-sort=mean",
         "--benchmark-columns=min,max,mean,stddev,median,iterations",
-        f"--benchmark-json={output_file}",
+        f"--benchmark-json={temp_output_file}",
         "--benchmark-disable-gc",
-        "--benchmark-warmup=auto",
-        "--benchmark-min-rounds=10",
+        f"--benchmark-warmup={warmup}",
+        f"--benchmark-warmup-iterations={warmup_iterations}",
+        f"--benchmark-min-rounds={min_rounds}",
         "-v",
     ]
 
@@ -27,27 +46,8 @@ def run_pytest_benchmark(test_file: str, output_file: str):
 
     try:
         subprocess.run(cmd, check=True)
-
-        # Post-process JSON to remove bloat
-        print(f"Post-processing {output_file} to remove raw iteration data...")
-        with open(output_file, "r") as f:
-            data = json.load(f)
-
-        # Remove 'data' field from stats in each benchmark
-        benchmarks_cleaned = 0
-        for benchmark in data.get("benchmarks", []):
-            if "stats" in benchmark and "data" in benchmark["stats"]:
-                del benchmark["stats"]["data"]
-                benchmarks_cleaned += 1
-
-        with open(output_file, "w") as f:
-            json.dump(data, f, indent=2)
-
-        print(f"Cleaned {benchmarks_cleaned} benchmark(s) - removed raw iteration data")
+        return temp_output_file
 
     except subprocess.CalledProcessError as e:
         print(f"Error executing benchmarks: {e}")
         raise
-    except Exception as e:
-        print(f"Warning: JSON post-processing failed: {e}")
-        # Don't raise - the benchmark data is still valid

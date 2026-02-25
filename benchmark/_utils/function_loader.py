@@ -52,3 +52,39 @@ def load_function_and_detect_param(target_str: str) -> Tuple[Callable, str]:
         return func, list(sig.parameters.keys())[0]
 
     raise ValueError(f"Could not detect graph parameter for function '{func_name}'")
+
+
+def get_function_hash(func: Callable) -> str:
+    """
+    Compute SHA256 hash of the function's AST representation.
+    This ignores superficial changes like comments and docstrings.
+    This is used to detect staleness in benchmark results.
+    """
+    import ast
+    import inspect
+    import hashlib
+
+    try:
+        source = inspect.getsource(func)
+        tree = ast.parse(source)
+
+        # Remove docstrings
+        for node in ast.walk(tree):
+            if isinstance(
+                node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Module)
+            ):
+                if node.body and isinstance(node.body[0], ast.Expr):
+                    if hasattr(node.body[0].value, "value") and isinstance(
+                        node.body[0].value.value, str
+                    ):
+                        node.body.pop(0)
+
+        # Removes comments
+        clean_source = ast.unparse(tree)
+        # Normalize line endings
+        clean_source = clean_source.replace("\r\n", "\n")
+
+        return hashlib.sha256(clean_source.encode("utf-8")).hexdigest()[:16]
+    except Exception as e:
+        print(f"Warning: Could not compute source hash for {func.__name__}: {e}")
+        return "unknown_hash"

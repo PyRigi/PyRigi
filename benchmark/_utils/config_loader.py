@@ -119,6 +119,21 @@ def merge_with_cli(config: Dict[str, Any], cli_args: Any) -> Dict[str, Any]:
     else:
         merged["cli_params"] = []
 
+    # CLI min_rounds overrides config
+    if hasattr(cli_args, "min_rounds") and cli_args.min_rounds is not None:
+        merged["min_rounds"] = cli_args.min_rounds
+
+    # CLI warmup overrides config
+    if hasattr(cli_args, "warmup") and cli_args.warmup is not None:
+        merged["warmup"] = cli_args.warmup
+
+    # CLI warmup_iterations overrides config
+    if (
+        hasattr(cli_args, "warmup_iterations")
+        and cli_args.warmup_iterations is not None
+    ):
+        merged["warmup_iterations"] = cli_args.warmup_iterations
+
     return merged
 
 

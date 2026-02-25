@@ -9,8 +9,25 @@ target: "pyrigi/graph/_rigidity/generic.py:is_min_rigid"
 # Dataset directory containing .g6 graph files (required)
 dataset: "benchmark/graph_store/min_rigid_test"
 
-# Output file for benchmark results (optional, default: benchmark_results.json)
+# Output file for benchmark results
+# If relative, resolved to the benchmark/ directory.
+# (default: benchmark/benchmark_results.json)
 output: "benchmark_results.json"
+
+# Minimum number of rounds per test case (default: 5).
+# Lower values are suitable for complexity analysis (you care about the mean,
+# not convergence of the distribution).
+min_rounds: 5
+
+# Warmup mode: auto | on | off (default: auto).
+# 'off'  — no warmup, fastest; fine for complexity analysis.
+# 'auto' — let pytest-benchmark decide; adds calibration overhead.
+# 'on'   — always warm up; useful for cache-sensitive micro-benchmarks.
+warmup: "auto"
+
+# Number of warmup rounds when warmup is 'on' or 'auto' (default: 1).
+# Has no effect when warmup='off'.
+warmup_iterations: 10
 
 # ===== HYBRID PARAMETER CONFIGURATION =====
 # You can use EITHER or BOTH of the following sections:
