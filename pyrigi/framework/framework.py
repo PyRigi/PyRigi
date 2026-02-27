@@ -105,7 +105,8 @@ class Framework(FrameworkBase):
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
         filename: str = None,
-        dpi=300,
+        dpi: int = 300,
+        fixed_vertices: Sequence[Vertex] = [],
         **kwargs,
     ) -> None:
         return plot.plot2D(
@@ -122,6 +123,7 @@ class Framework(FrameworkBase):
             arc_angles_dict=arc_angles_dict,
             filename=filename,
             dpi=dpi,
+            fixed_vertices=fixed_vertices,
             **kwargs,
         )
 
@@ -166,7 +168,8 @@ class Framework(FrameworkBase):
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         filename: str = None,
-        dpi=300,
+        dpi: int = 300,
+        fixed_vertices: Sequence[Vertex] = [],
         **kwargs,
     ) -> None:
         return plot.plot3D(
@@ -182,6 +185,7 @@ class Framework(FrameworkBase):
             stress_label_positions=stress_label_positions,
             filename=filename,
             dpi=dpi,
+            fixed_vertices=fixed_vertices,
             **kwargs,
         )
 
@@ -529,6 +533,7 @@ class Framework(FrameworkBase):
         vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
+        fixed_vertices: Sequence[Vertex] = [],
     ) -> list[Matrix] | list[list[float]]:
         return infinitesimal_rigidity.inf_flexes(
             self,
@@ -536,6 +541,7 @@ class Framework(FrameworkBase):
             vertex_order=vertex_order,
             numerical=numerical,
             tolerance=tolerance,
+            fixed_vertices=fixed_vertices,
         )
 
     @doc_category("Infinitesimal rigidity")
