@@ -10,7 +10,9 @@ import sys
 from inspect import Parameter, Signature, _empty
 from types import GetSetDescriptorType, ModuleType
 from typing import Any, Callable, ParamSpec, Type, TypeVar, cast, get_args, get_origin
+from unittest.mock import Mock, patch
 
+import networkx as nx
 import pytest
 
 from pyrigi import Framework
@@ -258,6 +260,122 @@ def test_signature_graph(cls: Type):
             continue
 
         _assert_same_sign(method, wrapped_func)
+        any_checked = True
+
+    assert any_checked
+
+
+def _find_patch_target(method: Callable, wrapped_func: Callable) -> tuple:
+    """
+    Determine the module and attribute name to patch so that
+    ``patch.object(module, name)`` replaces ``wrapped_func`` at the
+    call-site used by ``method``.
+
+    Returns a ``(module, name)`` pair suitable for ``patch.object``.
+    """
+    method_module = sys.modules[method.__module__]
+
+    for attr_name, val in vars(method_module).items():
+        if val is wrapped_func:
+            return method_module, attr_name
+        if (
+            inspect.ismodule(val)
+            and getattr(val, wrapped_func.__name__, None) is wrapped_func
+        ):
+            return val, wrapped_func.__name__
+
+    # Fall back to the module where the proxy function is defined
+    return sys.modules[wrapped_func.__module__], wrapped_func.__name__
+
+
+def _assert_params_forwarded(
+    cls: Type,
+    attr_name: str,
+    params: list,
+    mock_args: dict,
+    mock_func: Any,
+) -> None:
+    """
+    Assert that ``mock_func`` was called with the graph/framework instance
+    as the first positional argument and all entries of ``mock_args``
+    forwarded unchanged.
+    """
+    call_args = mock_func.call_args
+
+    # First positional arg must be the instance itself
+    first_arg = call_args[0][0]
+    if cls == Graph:
+        assert isinstance(first_arg, nx.Graph), (
+            f"{cls.__name__}.{attr_name} didn't pass the Graph instance as first arg"
+        )
+    else:
+        assert isinstance(first_arg, Framework), (
+            f"{cls.__name__}.{attr_name} didn't pass "
+            f"the Framework instance as first arg"
+        )
+
+    # Every other parameter must be forwarded with the same value
+    for param_name, expected_value in mock_args.items():
+        actual_value = call_args.kwargs.get(param_name)
+        if actual_value is None and len(call_args[0]) > 1:
+            try:
+                idx = params.index(param_name)
+                if idx < len(call_args[0]):
+                    actual_value = call_args[0][idx]
+            except ValueError:
+                pass
+
+        assert actual_value == expected_value, (
+            f"{cls.__name__}.{attr_name} didn't forward '{param_name}' correctly. "
+            f"Expected {expected_value}, got {actual_value}"
+        )
+
+
+@pytest.mark.parametrize(("cls"), [Graph, Framework])
+def test_wrapper_parameter_forwarding(cls: Type):
+    """
+    Test that all @copy_doc wrapper methods correctly forward parameters
+    to their underlying proxy functions.
+    """
+    any_checked = False
+
+    for attr_name, method in inspect.getmembers(cls):
+        wrapped_func = getattr(method, "_wrapped_func", None)
+        if wrapped_func is None or not callable(method):
+            continue
+
+        sig = inspect.signature(wrapped_func)
+        params = list(sig.parameters.keys())
+
+        # Build mock sentinels for every param except the first (graph/framework)
+        mock_args = {p: Mock(name=p) for p in params[1:]}
+
+        if cls == Graph:
+            test_instance = Graph([(0, 1), (1, 2)])
+        else:
+            test_instance = Framework(
+                Graph([(0, 1), (1, 2)]),
+                {0: (0, 0), 1: (1, 0), 2: (0, 1)},
+            )
+
+        patch_module, patch_name = _find_patch_target(method, wrapped_func)
+
+        with patch.object(patch_module, patch_name) as mock_func:
+            result = getattr(test_instance, attr_name)(**mock_args)
+
+            # If the wrapper returns a generator, consume it to trigger the call
+            if hasattr(result, "__iter__") and hasattr(result, "__next__"):
+                try:
+                    list(result)
+                except Exception:
+                    pass
+
+            assert mock_func.called, (
+                f"{cls.__name__}.{attr_name} didn't call {wrapped_func.__name__}"
+            )
+
+            _assert_params_forwarded(cls, attr_name, params, mock_args, mock_func)
+
         any_checked = True
 
     assert any_checked
