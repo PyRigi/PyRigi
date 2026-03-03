@@ -305,9 +305,9 @@ def _assert_params_forwarded(
     # First positional arg must be the instance itself
     first_arg = call_args[0][0]
     if cls == Graph:
-        assert isinstance(first_arg, nx.Graph), (
-            f"{cls.__name__}.{attr_name} didn't pass the Graph instance as first arg"
-        )
+        assert isinstance(
+            first_arg, nx.Graph
+        ), f"{cls.__name__}.{attr_name} didn't pass the Graph instance as first arg"
     else:
         assert isinstance(first_arg, Framework), (
             f"{cls.__name__}.{attr_name} didn't pass "
@@ -361,7 +361,14 @@ def test_wrapper_parameter_forwarding(cls: Type):
         patch_module, patch_name = _find_patch_target(method, wrapped_func)
 
         with patch.object(patch_module, patch_name) as mock_func:
-            result = getattr(test_instance, attr_name)(**mock_args)
+            try:
+                result = getattr(test_instance, attr_name)(**mock_args)
+            except Exception as e:
+                pytest.fail(
+                    f"{cls.__name__}.{attr_name} raised an unexpected exception "
+                    f"while forwarding parameters — the wrapper may be modifying "
+                    f"an argument before passing it: {type(e).__name__}: {e}"
+                )
 
             # If the wrapper returns a generator, consume it to trigger the call
             if hasattr(result, "__iter__") and hasattr(result, "__next__"):
@@ -370,9 +377,9 @@ def test_wrapper_parameter_forwarding(cls: Type):
                 except Exception:
                     pass
 
-            assert mock_func.called, (
-                f"{cls.__name__}.{attr_name} didn't call {wrapped_func.__name__}"
-            )
+            assert (
+                mock_func.called
+            ), f"{cls.__name__}.{attr_name} didn't call {wrapped_func.__name__}"
 
             _assert_params_forwarded(cls, attr_name, params, mock_args, mock_func)
 
