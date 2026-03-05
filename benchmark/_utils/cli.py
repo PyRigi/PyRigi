@@ -52,6 +52,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "--max-time",
+        type=float,
+        default=None,
+        help=(
+            "Maximum time (in seconds) to spend on each benchmark test case's "
+            "adaptive round loop (default: 0.05). "
+            "pytest-benchmark runs at least min_rounds, then keeps adding rounds "
+            "until max_time is exhausted."
+        ),
+    )
+
+    parser.add_argument(
         "--warmup",
         default=None,
         choices=["auto", "on", "off"],
@@ -146,6 +158,10 @@ def parse_and_resolve(args, benchmark_dir: Path) -> RunConfig:
     if min_rounds is None:
         min_rounds = merged_config.get("min_rounds", 5)
 
+    max_time = args.max_time
+    if max_time is None:
+        max_time = merged_config.get("max_time", 0.05)
+
     warmup = args.warmup
     if warmup is None:
         warmup = merged_config.get("warmup", "off")
@@ -160,6 +176,7 @@ def parse_and_resolve(args, benchmark_dir: Path) -> RunConfig:
         output=output,
         params=params,
         min_rounds=min_rounds,
+        max_time=max_time,
         warmup=warmup,
         warmup_iterations=warmup_iterations,
         force_rerun=args.force_rerun,

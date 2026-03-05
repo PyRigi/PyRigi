@@ -61,7 +61,7 @@ def generate_benchmark_test_file(
     file_abs_path = func_path.split(":")[0]
 
     print("Pre-loading graphs from dataset files...")
-    all_graphs = dataset_loader.load_graph_infos(dataset_paths, func_name)
+    all_graphs = dataset_loader.load_graph_infos(dataset_paths, func_name, 20)
     print(f"Loaded {len(all_graphs)} graphs from {len(dataset_paths)} files")
 
     # Parameter combinations: (config_dict, graph_metadata)

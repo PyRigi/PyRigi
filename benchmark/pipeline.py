@@ -88,6 +88,7 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
     """Execute the full benchmarking pipeline based on the provided configuration."""
     print(
         f"Benchmark settings: min_rounds={config.min_rounds}, "
+        f"max_time={config.max_time}s, "
         f"warmup={config.warmup}, warmup_iterations={config.warmup_iterations}"
     )
 
@@ -197,6 +198,7 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
             test_file,
             temp_results_file,
             min_rounds=config.min_rounds,
+            max_time=config.max_time,
             warmup=config.warmup,
             warmup_iterations=config.warmup_iterations,
         )

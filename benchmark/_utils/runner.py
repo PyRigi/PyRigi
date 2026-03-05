@@ -6,6 +6,7 @@ def run_pytest_benchmark(
     test_file: str,
     temp_output_file: str = "temp_benchmark_results.json",
     min_rounds: int = 5,
+    max_time: float = 0.05,
     warmup: str = "off",
     warmup_iterations: int = 1,
 ):
@@ -18,6 +19,8 @@ def run_pytest_benchmark(
         min_rounds: Minimum number of benchmark rounds per test case.
                     Lower values are fine for complexity analysis.
                     Default: 5.
+        max_time: Maximum time (seconds) for pytest-benchmark's adaptive
+                  round loop per test case.
         warmup: Warmup mode passed to pytest-benchmark.
                 Choices: 'auto', 'on', 'off'.  Default: 'off'.
         warmup_iterations: Number of warmup rounds when warmup is 'on' or 'auto'.
@@ -39,6 +42,7 @@ def run_pytest_benchmark(
         f"--benchmark-warmup={warmup}",
         f"--benchmark-warmup-iterations={warmup_iterations}",
         f"--benchmark-min-rounds={min_rounds}",
+        f"--benchmark-max-time={max_time}",
         "-v",
     ]
 

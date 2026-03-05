@@ -14,6 +14,7 @@ class RunConfig:
     output: str
     params: List[Any] = field(default_factory=list)
     min_rounds: int = 5
+    max_time: float = 0.05
     warmup: str = "off"
     warmup_iterations: int = 1
     force_rerun: bool = False
