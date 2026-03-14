@@ -11,8 +11,8 @@ import networkx as nx
 
 from pyrigi.graph._flexibility.nac.core import NACColoring
 from pyrigi.graph._flexibility.nac.existence import (
-    _can_have_flexible_realization,
-    _check_for_simple_stable_separating_cut,
+    _can_have_NAC_coloring,
+    _check_for_vertex_out_of_3_cycle,
     check_NAC_constrains,
     has_NAC_coloring_checks,
 )
@@ -180,7 +180,7 @@ def single_NAC_coloring_impl(
         if not check_NAC_constrains(graph):
             return None
 
-        res = _check_for_simple_stable_separating_cut(graph)
+        res = _check_for_vertex_out_of_3_cycle(graph)
         if res is not None:
             return res
 
@@ -195,7 +195,7 @@ def single_NAC_coloring_impl(
             return res
 
         # Need to be run after connectivity checks
-        if not _can_have_flexible_realization(graph):
+        if not _can_have_NAC_coloring(graph):
             return None
 
     return next(

@@ -41,7 +41,7 @@ def check_NAC_constrains(self: nx.Graph) -> bool:
     return True
 
 
-def _can_have_flexible_realization(
+def _can_have_NAC_coloring(
     graph: nx.Graph,
 ) -> bool:
     """
@@ -78,7 +78,7 @@ def _can_have_flexible_realization(
     return m <= n * (n - 1) // 2 - (n - 2)
 
 
-def _check_for_simple_stable_separating_cut(
+def _check_for_vertex_out_of_3_cycle(
     graph: nx.Graph,
 ) -> NACColoring | None:
     """
@@ -207,14 +207,14 @@ def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
     if not check_NAC_constrains(graph):
         return False
 
-    if _check_for_simple_stable_separating_cut(graph) is not None:
+    if _check_for_vertex_out_of_3_cycle(graph) is not None:
         return True
 
     if nx.algorithms.connectivity.node_connectivity(graph) < 2:
         return True
 
     # Needs to be run after connectivity checks
-    if not _can_have_flexible_realization(graph):
+    if not _can_have_NAC_coloring(graph):
         return False
 
     res = _check_is_min_rigid_and_NAC_coloring_exists(graph)
