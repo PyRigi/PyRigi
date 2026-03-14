@@ -2,6 +2,7 @@ from typing import Iterable
 
 import networkx as nx
 
+import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi.data_type import Edge
 from pyrigi.graph._flexibility.nac.core import NACColoring
 from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType
@@ -59,6 +60,7 @@ def NAC_colorings(
     seed:
         The seed to use for randomization.
     """
+    _check_input_graph_for_NAC_coloring(graph)
 
     if algorithm == "default":
         algorithm = _DEFAULT_ALGORITHM
@@ -102,6 +104,7 @@ def has_NAC_coloring(
     True if a :prf:ref:`NAC-coloring <def-nac>` exits, false otherwise.
     No certificate of existence is provided.
     """
+    _check_input_graph_for_NAC_coloring(graph)
 
     if algorithm == "default":
         algorithm = _DEFAULT_ALGORITHM
@@ -139,6 +142,7 @@ def single_NAC_coloring(
     ------
     A NAC-coloring certificate if a NAC-coloring exists, None otherwise.
     """
+    _check_input_graph_for_NAC_coloring(graph)
 
     if algorithm == "default":
         algorithm = _DEFAULT_ALGORITHM
@@ -157,3 +161,7 @@ def single_NAC_coloring(
 
 def _coloring_map(coloring: NACColoring) -> tuple[list[Edge], list[Edge]]:
     return list(coloring[0]), list(coloring[1])
+
+
+def _check_input_graph_for_NAC_coloring(graph: nx.Graph):
+    _graph_input_check.no_loop(graph)

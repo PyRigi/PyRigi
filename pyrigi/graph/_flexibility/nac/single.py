@@ -13,7 +13,6 @@ from pyrigi.graph._flexibility.nac.core import NACColoring
 from pyrigi.graph._flexibility.nac.existence import (
     _can_have_NAC_coloring,
     _check_for_vertex_out_of_3_cycle,
-    check_NAC_constrains,
     has_NAC_coloring_checks,
 )
 from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType
@@ -114,7 +113,7 @@ def has_NAC_coloring_impl(
     ------
     True if the graph has a :prf:ref:`NAC-coloring <def-nac>`, False otherwise.
     """
-    if not check_NAC_constrains(graph):
+    if graph.number_of_edges() <= 1:
         return False
 
     res = has_NAC_coloring_checks(graph)
@@ -177,7 +176,7 @@ def single_NAC_coloring_impl(
     ----------
     """
     if _is_first_check:
-        if not check_NAC_constrains(graph):
+        if graph.number_of_edges() <= 1:
             return None
 
         res = _check_for_vertex_out_of_3_cycle(graph)

@@ -9,38 +9,6 @@ from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType, find_mono_
 from pyrigi.graph._rigidity.generic import is_min_rigid
 
 
-def check_NAC_constrains(self: nx.Graph) -> bool:
-    """
-    Check basic NAC-coloring existence constraints.
-
-    Check whether graph has no self loops,
-    is non-empty, directed and has at least 2 edges.
-    Serves as basic input sanitation.
-
-    Raises
-    ------
-    ValueError if the graph is empty or has loops.
-
-    Return
-    ------
-    True if a :prf:ref:`NAC-coloring <def-nac>` may exist for the given graph,
-    False otherwise.
-    """
-    if nx.number_of_selfloops(self) > 0:
-        raise LookupError()
-
-    if self.nodes() == 0:
-        raise ValueError("Undefined for an empty graph")
-
-    if nx.is_directed(self):
-        raise ValueError("Cannot process a directed graph")
-
-    if len(nx.edges(self)) < 2:
-        return False
-
-    return True
-
-
 def _can_have_NAC_coloring(
     graph: nx.Graph,
 ) -> bool:
@@ -204,7 +172,7 @@ def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
     ------
     True if the graph has a :prf:ref:`NAC-coloring <def-nac>`, False otherwise.
     """
-    if not check_NAC_constrains(graph):
+    if graph.number_of_edges() <= 1:
         return False
 
     if _check_for_vertex_out_of_3_cycle(graph) is not None:
