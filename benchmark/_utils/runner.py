@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 
@@ -9,6 +10,8 @@ def run_pytest_benchmark(
     max_time: float = 0.05,
     warmup: str = "off",
     warmup_iterations: int = 1,
+    timeout: float = None,
+    timeout_log_file: str = None,
 ):
     """
     Run pytest on the generated test file with benchmark options.
@@ -25,6 +28,8 @@ def run_pytest_benchmark(
                 Choices: 'auto', 'on', 'off'.  Default: 'off'.
         warmup_iterations: Number of warmup rounds when warmup is 'on' or 'auto'.
                            Ignored when warmup='off'.  Default: 1.
+        timeout: Per-test-case timeout in seconds. None to disable.
+        timeout_log_file: Path where the conftest hook will write timeout data.
 
     Returns:
         Path to temporary results file.
@@ -46,10 +51,16 @@ def run_pytest_benchmark(
         "-v",
     ]
 
+    env = os.environ.copy()
+    if timeout_log_file:
+        env["BENCHMARK_TIMEOUT_LOG"] = timeout_log_file
+
     print(f"Running benchmark command: {' '.join(cmd)}")
+    if timeout is not None:
+        print(f"Per-test timeout: {timeout}s")
 
     try:
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True, env=env)
         return temp_output_file
 
     except subprocess.CalledProcessError as e:

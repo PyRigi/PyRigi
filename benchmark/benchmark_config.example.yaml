@@ -34,6 +34,21 @@ warmup: "off"
 # Has no effect when warmup='off'.
 warmup_iterations: 10
 
+# Per-test-case timeout in seconds (default: none).
+# If a single benchmark test case hangs longer than this, it is skipped
+# and recorded in a separate timeout_results.json file.
+# Set to null or omit to disable timeouts entirely.
+timeout: 3
+
+# Early-stop threshold (0.0–1.0) for skipping larger vertex sizes.
+# When the fraction of timed-out tests for a given (config, num_nodes)
+# reaches this value, all tests with num_nodes >= that size for that
+# config are automatically skipped.
+# Example: 0.75 means stop when 75% of tests at a vertex size time out.
+# Tracked per config — one config hitting the threshold won't affect others.
+# Set to null or omit to disable early stopping.
+timeout_threshold: 0.75
+
 # ===== HYBRID PARAMETER CONFIGURATION =====
 # You can use EITHER or BOTH of the following sections:
 

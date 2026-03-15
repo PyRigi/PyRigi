@@ -138,6 +138,17 @@ def merge_with_cli(config: Dict[str, Any], cli_args: Any) -> Dict[str, Any]:
     ):
         merged["warmup_iterations"] = cli_args.warmup_iterations
 
+    # CLI timeout overrides config
+    if hasattr(cli_args, "timeout") and cli_args.timeout is not None:
+        merged["timeout"] = cli_args.timeout
+
+    # CLI timeout_threshold overrides config
+    if (
+        hasattr(cli_args, "timeout_threshold")
+        and cli_args.timeout_threshold is not None
+    ):
+        merged["timeout_threshold"] = cli_args.timeout_threshold
+
     return merged
 
 

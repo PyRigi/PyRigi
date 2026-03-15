@@ -86,10 +86,12 @@ def _filter_existing_benchmarks(
 
 def run_benchmark_pipeline(config: RunConfig) -> None:
     """Execute the full benchmarking pipeline based on the provided configuration."""
+    timeout_str = f"{config.timeout}s" if config.timeout else "none"
     print(
         f"Benchmark settings: min_rounds={config.min_rounds}, "
         f"max_time={config.max_time}s, "
-        f"warmup={config.warmup}, warmup_iterations={config.warmup_iterations}"
+        f"warmup={config.warmup}, warmup_iterations={config.warmup_iterations}, "
+        f"timeout={timeout_str}"
     )
 
     # 1. Load Function & Detect Graph Parameter
@@ -120,10 +122,6 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
 
     # 3. Parse Parameters
     print("Parsing parameters...")
-    # NOTE: Since the config merging happens in cli.py now, and cli parameters
-    # handling is there, we assume `config.params` might already be the list
-    # of raw params to parse if coming from CLI, or it could be a list of dicts
-    # if coming from YAML. Let's handle building the cartesian product.
 
     if (
         isinstance(config.params, list)
@@ -164,20 +162,12 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
     test_file = str(BENCHMARK_DIR / "temp_benchmark_test.py")
     temp_results_file = str(BENCHMARK_DIR / "temp_benchmark_results.json")
     conftest_file = str(BENCHMARK_DIR / "conftest.py")
+    timeout_log_file = str(BENCHMARK_DIR / "timeout_log.json")
 
-    # 5. Generate conftest.py
-    print("Generating conftest.py (data-strip hook)...")
-    try:
-        test_generator_mult.generate_conftest_file(str(BENCHMARK_DIR))
-        print(f"conftest.py generated at {conftest_file}")
-    except Exception as e:
-        print(f"Error generating conftest.py: {e}")
-        sys.exit(1)
-
-    # 6. Generate Test File
+    # 5. Generate Test File First (to compute nodes_total)
     print("Generating temporary test file...")
     try:
-        test_file = test_generator_mult.generate_benchmark_test_file(
+        test_file, nodes_total = test_generator_mult.generate_benchmark_test_file(
             func_path=config.target,
             func_name=func.__name__,
             graph_param_name=graph_param_name,
@@ -191,6 +181,20 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
         print(f"Error generating test file: {e}")
         sys.exit(1)
 
+    # 6. Generate conftest.py
+    print("Generating conftest.py (data-strip hook + timeout support)...")
+    try:
+        test_generator_mult.generate_conftest_file(
+            str(BENCHMARK_DIR),
+            timeout_seconds=config.timeout,
+            timeout_threshold=config.timeout_threshold,
+            nodes_total=nodes_total,
+        )
+        print(f"conftest.py generated at {conftest_file}")
+    except Exception as e:
+        print(f"Error generating conftest.py: {e}")
+        sys.exit(1)
+
     # 7. Run Benchmarks
     print("Running benchmarks...")
     try:
@@ -201,6 +205,8 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
             max_time=config.max_time,
             warmup=config.warmup,
             warmup_iterations=config.warmup_iterations,
+            timeout=config.timeout,
+            timeout_log_file=timeout_log_file,
         )
         print(f"Benchmarks completed. Results in {temp_results_file}")
 
@@ -231,12 +237,91 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
         else:
             print("Warning: No results generated (maybe no tests were run?)")
 
+        # 10. Process timeout log
+        _process_timeout_log(timeout_log_file, config)
+
     except Exception as e:
         print(f"Benchmark run failed: {e}")
     finally:
-        for tmp in (test_file, conftest_file, temp_results_file):
+        for tmp in (test_file, conftest_file, temp_results_file, timeout_log_file):
             if os.path.exists(tmp):
                 try:
                     os.remove(tmp)
                 except Exception:
                     pass
+
+
+def _process_timeout_log(timeout_log_file: str, config: RunConfig) -> None:
+    """Read the timeout log, print a summary, and save timeout_results.json."""
+    if not os.path.exists(timeout_log_file):
+        return
+
+    with open(timeout_log_file, "r") as f:
+        timeout_data = json.load(f)
+
+    timed_out = timeout_data.get("timed_out", [])
+    timeout_seconds = timeout_data.get("timeout_seconds")
+    early_stops = timeout_data.get("early_stops", [])
+
+    if not timed_out and not early_stops:
+        print("No test cases timed out or stopped early.")
+        return
+
+    print(f"\n{'=' * 60}")
+    print(
+        f"TIMEOUT SUMMARY: {len(timed_out)} test(s) timed out (limit: {timeout_seconds}s)"
+    )
+    if early_stops:
+        print(f"EARLY STOPS: {len(early_stops)} config(s) hit timeout threshold")
+    print(f"{'=' * 60}")
+    for nodeid in timed_out:
+        print(f"  - {nodeid}")
+    for stop in early_stops:
+        print(
+            f"  - Config {stop['config']} stopped at n={stop['stopped_at_num_nodes']} "
+            f"({stop['timeout_count']}/{stop['total_count']} timeouts)"
+        )
+    print(f"{'=' * 60}\n")
+
+    # Save to a separate timeout_results.json
+    output_dir = Path(config.output).parent
+    timeout_results_path = str(output_dir / "timeout_results.json")
+
+    # Load existing timeout results
+    existing_timeouts = []
+    existing_early_stops = []
+    if os.path.exists(timeout_results_path):
+        with open(timeout_results_path, "r") as f:
+            existing_data = json.load(f)
+        existing_timeouts = existing_data.get("timeouts", [])
+        existing_early_stops = existing_data.get("early_stops", [])
+
+    timestamp = datetime.datetime.now().isoformat()
+    new_entries = [
+        {
+            "nodeid": nodeid,
+            "function": config.target.split(":")[-1],
+            "timeout_seconds": timeout_seconds,
+            "timestamp": timestamp,
+        }
+        for nodeid in timed_out
+    ]
+
+    for stop in early_stops:
+        stop["function"] = config.target.split(":")[-1]
+        stop["timestamp"] = timestamp
+
+    all_timeouts = existing_timeouts + new_entries
+    all_early_stops = existing_early_stops + early_stops
+
+    with open(timeout_results_path, "w") as f:
+        json.dump(
+            {
+                "timeouts": all_timeouts,
+                "early_stops": all_early_stops,
+            },
+            f,
+            indent=2,
+        )
+
+    print(f"Timeout results saved to {timeout_results_path}")

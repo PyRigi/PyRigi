@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Any
+from typing import List, Any, Optional
 
 
 @dataclass
@@ -18,3 +18,5 @@ class RunConfig:
     warmup: str = "off"
     warmup_iterations: int = 1
     force_rerun: bool = False
+    timeout: Optional[float] = None
+    timeout_threshold: Optional[float] = None

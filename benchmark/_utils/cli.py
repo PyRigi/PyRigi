@@ -84,6 +84,29 @@ def build_arg_parser() -> argparse.ArgumentParser:
         ),
     )
 
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=None,
+        help=(
+            "Per-test-case timeout in seconds. If a single benchmark "
+            "test case runs longer than this, it is skipped and recorded "
+            "in a separate timeout results file. "
+            "Default: no timeout."
+        ),
+    )
+
+    parser.add_argument(
+        "--timeout-threshold",
+        type=float,
+        default=None,
+        help=(
+            "Early-stop threshold (0.0-1.0). If the fraction of timeouts for a "
+            "specific config and vertex size reaches this, testing stops for "
+            "larger graphs of that config. Default: no early stop."
+        ),
+    )
+
     return parser
 
 
@@ -170,6 +193,14 @@ def parse_and_resolve(args, benchmark_dir: Path) -> RunConfig:
     if warmup_iterations is None:
         warmup_iterations = merged_config.get("warmup_iterations", 1)
 
+    timeout = args.timeout
+    if timeout is None:
+        timeout = merged_config.get("timeout", None)
+
+    timeout_threshold = args.timeout_threshold
+    if timeout_threshold is None:
+        timeout_threshold = merged_config.get("timeout_threshold", None)
+
     return RunConfig(
         target=target,
         dataset=dataset,
@@ -180,4 +211,6 @@ def parse_and_resolve(args, benchmark_dir: Path) -> RunConfig:
         warmup=warmup,
         warmup_iterations=warmup_iterations,
         force_rerun=args.force_rerun,
+        timeout=timeout,
+        timeout_threshold=timeout_threshold,
     )
