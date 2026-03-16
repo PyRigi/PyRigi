@@ -78,3 +78,15 @@ of $G$ that are $d$-{prf:ref}`rigid <def-gen-rigid>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.rigid_components`
 :::
+
+:::{prf:definition}
+:label: def-max-rigid-dimension
+
+Let $G$ be a graph.
+If $G$ is disconnected, resp. complete,
+then its _maximum rigid dimension_ $0$, resp. $\infty$.
+Otherwise, the _maximum rigid dimension_ of $G$ is the integer $d\geq 1$ such that
+$G$ is $d'$-rigid for all $d'\leq d$ and $G$ is $d'$-flexible for all $d'>d$. 
+
+{{references}} TBA
+:::
