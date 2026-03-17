@@ -49,7 +49,16 @@ $d_\text{min}<0$ and $|d_\text{min}| \leq d$.
 
 ### Global Rigidity
 
-TBA
+Let $G=(V,E)$ be a graph.
+If $G$ is complete, then it is globally $d$-rigid for every $d\in\NN$,
+hence $\infty$ is stored.
+If $G$ is not globally $1$-rigid, we store $0$.
+Otherwise, we store the integer $d\geq 1$ such that
+$G$ is globally $d'$-rigid for all $d'\leq d$
+and $G$ is not globally $d'$-rigid for all $d'>d$. 
+By {prf:ref}`thm-rigidity-dim-monotonicity` and {prf:ref}`thm-globally-necessary`,
+$d$ is well-defined.
+Therefore, a graph is globally $d$-rigid if and only if $d$ is at most the stored value.
 
 ### Minimal Global Rigidity
 

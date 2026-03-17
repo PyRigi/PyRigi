@@ -13,12 +13,22 @@ are {prf:ref}`congruent <def-equivalent-framework>` to $(G,p)$.
 {meth}`~.Graph.is_globally_rigid`
 :::
 
+:::{prf:theorem}
+:label: thm-globally-necessary
+
+If a graph $G$ is globally $d$-rigid,
+then either it is a complete graph on at most $d+1$ vertices,
+or it is $(d+1)$-connected and {prf:ref}`redundantly <def-redundantly-rigid-graph>` $d$-rigid.
+
+{{references}} {cite:p}`Hendrickson1992`
+:::
 
 :::{prf:theorem}
 :label: thm-globally-redundant-3connected
 
 A graph $G$ is globally $2$-rigid if and only if it either is a
-complete graph on at most three vertices or it is $3$-connected and {prf:ref}`redundantly rigid<def-redundantly-rigid-graph>`.
+complete graph on at most three vertices or it is $3$-connected
+and {prf:ref}`redundantly 2-rigid<def-redundantly-rigid-graph>`.
 
 {{references}} {cite:p}`JacksonJordan2005{Thm 7.1}`
 :::
