@@ -6,6 +6,20 @@ We assume that each graph in the database has at least two vertices.
 
 Here we describe how values in the columns of the database are created.
 
+| Column name           | Property                                                 |
+|-----------------------|----------------------------------------------------------|
+| `graph`               | Graph encoded in `sparse6`???                            |
+| `num_vertices`        | The number of vertices                                   |
+| `num_edges`           | The number of edges                                      |
+| `min_degree`          | The minimum degree                                       |
+| `max_degree`          | The maximum degree                                       |
+| `rigidity`            | [$d$-rigidity](#rigidity)                                |
+| `min_rigidity`        | [Minimal $d$-rigidity](#minimal-rigidity)                |
+| `global_rigidity`     | [Global $d$-rigidity](#global-rigidity)                  |
+| `min_global_rigidity` | [Minimal global  $d$-rigidity](#minimal-global-rigidity) |
+
+
+
 ### Rigidity
 
 We store the {prf:ref}`maximum rigid dimension <def-max-rigid-dimension>`.
@@ -30,3 +44,13 @@ Hence, we store the following value for $G=(V,E)$:
 \end{equation*}
 Conversely, a graph is minimally $d$-rigid if and only if $d=d_\text{min}$, or
 $d_\text{min}<0$ and $|d_\text{min}| \leq d$.
+
+
+
+### Global Rigidity
+
+TBA
+
+### Minimal Global Rigidity
+
+TBA
