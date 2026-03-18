@@ -70,9 +70,6 @@ def _is_NAC_coloring_impl(
     ----------
     coloring:
         The coloring to check if it is a NAC coloring.
-    allow_non_surjective: if `True`, return `True` also
-        For non-surjective (monochromatic) colorings.
-        This can be useful for checking subgraphs.
     """
     red, blue = coloring
 
@@ -110,9 +107,6 @@ def is_NAC_coloring(
     ----------
     coloring:
         The coloring to check if it is a NAC coloring.
-    allow_non_surjective: if `True`, return `True` also
-        For non-surjective (monochromatic) colorings.
-        This can be useful for checking subgraphs.
     """
     red: Collection[IntEdge]
     blue: Collection[IntEdge]
