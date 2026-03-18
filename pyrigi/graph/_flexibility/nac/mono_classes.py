@@ -77,20 +77,18 @@ def find_mono_classes(
     Then these are optionally extended to larger NAC-mono classes
     as described in :cite:p:`LastovickaLegersky2024`.
 
+    An ID of a :prf:ref:`NAC-mono class <def-nac-mono>`
+    corresponds to its index in a list of all NAC-mono classes.
+    A mapping from edges to their class ID is returned
+    together with a list of NAC-mono classes where
+    the index corresponds to the class ID.
+
     Parameters
     ----------
     graph:
         Input graph
     class_type:
         Type of :prf:ref:`NAC-mono classes <def-nac-mono>`
-
-    Returns
-    -------
-    An ID of a :prf:ref:`NAC-mono class <def-nac-mono>`
-    corresponds to its index in a list of all NAC-mono classes.
-    Return a mapping from edges to their class ID
-    and a list of NAC-mono classes where
-    the index corresponds to the class ID.
     """
     if class_type == MonoClassType.EDGES:
         return _trivial_mono_classes(graph)

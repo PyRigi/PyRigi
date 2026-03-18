@@ -365,11 +365,6 @@ def _colorings_merge(
         :prf:ref:`NAC-colorings<def-nac>` of
         the second subgraph's coloring and subgraph mask.
 
-    Returns
-    -------
-    All :prf:ref:`NAC-colorings <def-nac>` of the merged subgraph
-    and its subgraph mask.
-
     Suggested improvements
     ---------------------
     Check if `epoch2_switched` is not causing major performance regression

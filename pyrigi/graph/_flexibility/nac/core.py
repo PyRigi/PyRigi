@@ -41,19 +41,16 @@ def can_have_NAC_coloring(graph: nx.Graph) -> bool:
     Check whether the given graph can have a :prf:ref:`NAC-coloring <def-nac>`
     and if the graph is valid for the :prf:ref:`NAC-coloring <def-nac>` search.
 
+    `True` is returned if a NAC coloring may exist,
+    `False` if there can be none by doing constant complexity checks.
+
     Graph with less than two edges cannot have a :prf:ref:`NAC-coloring <def-nac>`.
     Graph with more than `n(n-2)/2 - (n-2)` edges
     cannot have a :prf:ref:`NAC-coloring <def-nac>`
     as show in :prf:ref:`thm-flexible-edge-bound`.
 
-    Return
-    ------
-    `True` if a NAC coloring may exist, `False` if there can be none
-    by doing constant complexity checks.
-
-    Throw
-    -----
-    :class:`~ValueError` if the graph is empty, contains self loops or is directed.
+    If the graph is empty, contains self loops or is directed,
+    :class:`~ValueError` is raised.
     """
     if graph.nodes() == 0:
         raise ValueError("NAC-coloring search is undefined for the empty graph")
@@ -150,6 +147,12 @@ def create_bitmask_for_class_graph_cycle(
     if they are the only class with the other color,
     an almost cycle exists.
 
+    Tuple ``(template, valid)`` is returned:
+    ``template`` is a bit mask representing the cycle,
+    and ``valid`` is a bit mask representing classes of the cycle such that
+    if they are the only class with the other color,
+    an almost cycle exists.
+
     Parameters
     ----------
     graph:
@@ -162,15 +165,6 @@ def create_bitmask_for_class_graph_cycle(
     local_ordered_class_ids:
         can be used if the graph given is subgraph of the original graph
         and class_to_edges also represent the original graph.
-
-    Returns
-    -------
-    template:
-        Bit mask representing the cycle.
-    valid:
-        Bit mask representing classes of the cycle such that
-        if they are the only class with the other color,
-        an almost cycle exists.
     """
 
     template = 0

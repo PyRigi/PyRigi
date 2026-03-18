@@ -27,11 +27,12 @@ def _single_general_NAC_coloring(
     seed: int | None,
 ) -> NACColoring | None:
     """
-    Find a :prf:ref:`NAC-coloring <def-nac>` of a graph if possible.
+    Return a NAC-coloring if possible.
 
     Before running the full extensive search,
     graph connectivity checks are used first to determine if there exists
     a trivial :prf:ref:`NAC-coloring <def-nac>`.
+    If no NAC-coloring exists, ``None`` is returned.
 
     Definitions
     -----------
@@ -41,10 +42,6 @@ def _single_general_NAC_coloring(
     ----------
     graph:
         The graph to find the :prf:ref:`NAC-coloring <def-nac>` for.
-
-    Return
-    ------
-    A NAC-coloring certificate if a NAC-coloring exists, None otherwise.
     """
     components: list[set[int]] = list(
         nx.algorithms.components.connected_components(graph)
@@ -94,7 +91,7 @@ def has_NAC_coloring_impl(
     seed: int | None,
 ) -> bool:
     """
-    Check whether the graph has a :prf:ref:`NAC-coloring <def-nac>`.
+    Return whether the graph has a NAC-coloring.
 
     Same as :func:`pyrigi.graph._flexibility.nac.single.single_NAC_coloring_impl`,
     but the certificate may not be created.
@@ -108,10 +105,6 @@ def has_NAC_coloring_impl(
     ----------
     graph:
         The graph to check.
-
-    Return
-    ------
-    True if the graph has a :prf:ref:`NAC-coloring <def-nac>`, False otherwise.
     """
     if graph.number_of_edges() <= 1:
         return False
@@ -143,7 +136,7 @@ def single_NAC_coloring_impl(
     _is_first_check: bool = True,
 ) -> NACColoring | None:
     """
-    Find a single :prf:ref:`NAC-coloring <def-nac>` if it exists.
+    Find a single NAC-coloring if it exists.
 
     Polynomial time existence checks are run to determine
     whether a NAC-coloring exists.

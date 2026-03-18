@@ -20,8 +20,10 @@ def _check_for_almost_red_cycles(
     blue_edges: Iterable[IntEdge],
 ) -> bool:
     """
-    Checks if there is an almost cycle in the graph given with the given coloring.
-    Does not check if the coloring is surjective.
+    Check if there is an almost cycle in the graph given with the given coloring.
+
+    `True` is returned if the coloring has no almost red cycles with a single blue edge.
+    It is not checked whether the coloring is surjective.
 
     Parameters
     ----------
@@ -31,10 +33,6 @@ def _check_for_almost_red_cycles(
         Edges in the red color - used to create components.
     blue_edges:
         Edges in the blue color - used to check for almost cycles.
-
-    Returns
-    -------
-    `True` if the coloring has no almost cycles with a single blue edge.
 
     Suggested Improvement
     ----------------------

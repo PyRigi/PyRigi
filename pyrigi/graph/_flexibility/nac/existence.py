@@ -13,7 +13,7 @@ def _can_have_NAC_coloring(
     graph: nx.Graph,
 ) -> bool:
     """
-    Check flexible realization existence conditions.
+    Return if the graph may have a NAC-coloring.
 
     Use equivalence from :cite:p:`GraseggerLegerskySchicho2019{Thm 3.1}`
     that a graph has a :prf:ref:`NAC-colorings <def-nac>`
@@ -32,10 +32,6 @@ def _can_have_NAC_coloring(
     ----------
     graph:
         A connected graph with at leas one edge.
-
-    Return
-    ------
-    True if the graph may have :prf:ref:`NAC-colorings <def-nac>`, False otherwise.
     """
     if graph.number_of_edges() <= 1:
         return False
@@ -50,7 +46,11 @@ def _check_for_vertex_out_of_3_cycle(
     graph: nx.Graph,
 ) -> NACColoring | None:
     """
-    Search for a simple stable separating set.
+    Search for a vertex with stable neighborhood.
+
+    A certificate NAC-coloring is returned
+    if it can be constructed from the stable neighborhood of a vertex,
+    ``None`` otherwise.
 
     If there is a single vertex outside any triangle-connected component,
     we can trivially find a :prf:ref:`NAC-coloring <def-nac>` for the graph
@@ -69,11 +69,6 @@ def _check_for_vertex_out_of_3_cycle(
     graph:
         The graph to work with, basic a :prf:ref:`NAC-coloring <def-nac>`
         constraints should be already checked.
-
-    Return
-    ------
-    If no a :prf:ref:`NAC-coloring <def-nac>` can be found using this method,
-    None is returned. Otherwise, return a certificate.
     """
 
     # remove isolated vertices
@@ -119,9 +114,11 @@ def _check_is_min_rigid_and_NAC_coloring_exists(
     graph: nx.Graph,
 ) -> bool | None:
     """
-    Check for minimally 2-rigid special graph properties.
+    Check if a NAC-coloring exists when being minimally 2-rigid.
 
-    For minimally 2-rigid graphs it holds that
+    If the graph is not minimally 2-rigid, ``None`` is returned.
+    Otherwise, the existence is decided using the following:
+    for minimally 2-rigid graphs it holds that
     there exists a :prf:ref:`NAC-coloring <def-nac>`
     iff graph is not triangle connected
     according to :cite:p:`ClinchGaramvölgyiEtAl2024{Thm 3.4}`.
@@ -136,12 +133,6 @@ def _check_is_min_rigid_and_NAC_coloring_exists(
     ----------
     graph:
         The graph to check.
-
-    Return
-    ------
-    True if the graph has a NAC-coloring,
-    False if we are sure there is none and
-    None if we cannot decide (the graph is not minimally 2-rigid)
     """
 
     min_rigid = is_min_rigid(graph, dim=2)
@@ -154,7 +145,7 @@ def _check_is_min_rigid_and_NAC_coloring_exists(
 
 def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
     """
-    Check whether the graph has a :prf:ref:`NAC-coloring <def-nac>`.
+    Return whether the graph has a NAC-coloring.
 
     Implementation for has_NAC_coloring, but without fallback to single_NAC_coloring.
     May be used before an exhaustive search that would not find anything anyway.
@@ -167,10 +158,6 @@ def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
     ----------
     graph:
         The graph to check.
-
-    Return
-    ------
-    True if the graph has a :prf:ref:`NAC-coloring <def-nac>`, False otherwise.
     """
     if graph.number_of_edges() <= 1:
         return False

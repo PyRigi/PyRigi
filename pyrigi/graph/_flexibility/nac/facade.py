@@ -86,10 +86,10 @@ def has_NAC_coloring(
     seed: int | None = 42,
 ) -> bool:
     """
-    Check if the graph has a NAC-coloring.
+    Return if the graph has a NAC-coloring.
 
     Same as :func:`pyrigi.graph._flexibility.nac.facade.single_NAC_coloring`,
-    but the certificate may not be created.
+    but no certificate of existence is provided.
 
     Definitions
     -----------
@@ -98,11 +98,6 @@ def has_NAC_coloring(
     Parameters
     ----------
     See :meth:`~pyrigi.graph.Graph.NAC_colorings` for parameters description.
-
-    Return
-    ------
-    True if a :prf:ref:`NAC-coloring <def-nac>` exits, false otherwise.
-    No certificate of existence is provided.
     """
     _check_input_graph_for_NAC_coloring(graph)
 
@@ -126,9 +121,11 @@ def single_NAC_coloring(
     seed: int | None = 42,
 ) -> tuple[list[Edge], list[Edge]] | None:
     """
-    Obtain a single :prf:ref:`NAC-coloring <def-nac>` of the graph given.
+    Return a single NAC-coloring.
 
-    Polynomial checks are run, if they fail an exhaustive search is run.
+    If no NAC-coloring exists, ``None`` is returned.
+    Some polynomial time checks are run.
+    If they fail, an exhaustive search is run.
 
     Definitions
     -----------
@@ -137,10 +134,6 @@ def single_NAC_coloring(
     Parameters
     ----------
     See :meth:`~pyrigi.graph.Graph.NAC_colorings` for parameters description.
-
-    Return
-    ------
-    A NAC-coloring certificate if a NAC-coloring exists, None otherwise.
     """
     _check_input_graph_for_NAC_coloring(graph)
 
