@@ -1,5 +1,5 @@
 """
-Modules checks whether a graph can have a :prf:ref:`NAC-colorings <def-nac>`.
+This module checks whether a graph can have a :prf:ref:`NAC-colorings <def-nac>`.
 """
 
 import networkx as nx
@@ -31,7 +31,7 @@ def _can_have_NAC_coloring(
     Parameters
     ----------
     graph:
-        A connected graph with at leas one edge.
+        A connected graph with at least one edge.
     """
     if graph.number_of_edges() <= 1:
         return False
@@ -114,13 +114,13 @@ def _check_is_min_rigid_and_NAC_coloring_exists(
     graph: nx.Graph,
 ) -> bool | None:
     """
-    Check if a NAC-coloring exists when being minimally 2-rigid.
+    Check if a NAC-coloring exists for minimally 2-rigid graphs.
 
     If the graph is not minimally 2-rigid, ``None`` is returned.
     Otherwise, the existence is decided using the following:
     for minimally 2-rigid graphs it holds that
     there exists a :prf:ref:`NAC-coloring <def-nac>`
-    iff graph is not triangle connected
+    iff the graph is not triangle connected
     according to :cite:p:`ClinchGaramvölgyiEtAl2024{Thm 3.4}`.
 
     Definitions
@@ -147,7 +147,7 @@ def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
     """
     Return whether the graph has a NAC-coloring.
 
-    Implementation for has_NAC_coloring, but without fallback to single_NAC_coloring.
+    Implementation of has_NAC_coloring, but without falling back to single_NAC_coloring.
     May be used before an exhaustive search that would not find anything anyway.
 
     Definitions

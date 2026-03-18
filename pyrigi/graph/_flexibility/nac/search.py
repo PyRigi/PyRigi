@@ -4,13 +4,13 @@ The main entry point is
 the function :func:`pyrigi.graph._flexibility.nac.search.NAC_colorings_impl`.
 The given graph is relabeled if the vertices are not integers from 0 to N-1.
 
-Then algorithm argument is parsed and either
-Naive algorithm (_NAC_colorings_naive) or
-subgraph decomposition algorithm (_NAC_colorings_subgraphs) is chosen.
-The according strategies are chosen depending on the given parameters.
+Then the ``algorithm`` argument is parsed and either
+the Naive algorithm (_NAC_colorings_naive) or
+the subgraph decomposition algorithm (_NAC_colorings_subgraphs) is chosen.
+The strategies are then chosen depending on the given parameters.
 
 The main pair of the search uses only a bit mask representing
-the coloring and converts it back to NAC-coloring once a check is need.
+the coloring and converts it back to NAC-coloring once a check is needed.
 """
 
 import random
@@ -127,7 +127,7 @@ def _run_algorithm(
     seed: int | None,
 ) -> Iterable[NACColoring]:
     """
-    Executes specified algorithm
+    Execute the specified algorithm.
     """
     graph = nx.Graph(graph)
     rand = random.Random(seed)
@@ -168,7 +168,7 @@ def _run_algorithm(
 
     algorithm_parts = list(algorithm.split("-"))
     if algorithm_parts[0] != "subgraphs":
-        raise ValueError(f"Unknown algorighm type: {algorithm}")
+        raise ValueError(f"Unknown algorithm type: {algorithm}")
 
     if not use_cycles_optimization:
         raise ValueError("Cycles optimization is required for subgraphs algorithm")
@@ -207,21 +207,19 @@ def NAC_colorings_impl(
 
     Parameters
     ----------
-    self:
-        The graph to search on.
     algorithm:
         The algorithm to use.
-        The options are `naive` for the naive approach and
-        `subgraphs` for the subgraphs decomposition approach.
+        The options are ``"naive"`` for the naive approach and
+        ``"subgraphs"`` for the subgraphs decomposition approach.
         Strategies can be specified for the subgraphs algorithm
-        as follows: `subgraphs-{split_strategy}-{merging_stragey}-{subgraphs_size}`.
-        Split strategies are `none`, `neighbors`, and `neighbors-degree`,
-        merging strategies are `linear` and `shared_vertices`.
+        as follows: ``"subgraphs-<split_strategy>-<merging_strategy>-<subgraphs_size>"``.
+        Split strategies are ``none``, ``neighbors``, and ``neighbors_degree``,
+        merging strategies are ``linear`` and ``shared_vertices``.
         See docs for further details.
     use_cycles_optimization:
         Use cycles optimization for the given algorithm.
         This is always enabled for subgraphs strategies.
-    use_decompositions:
+    use_blocks_decomposition:
         If enabled, graph is first decomposed into blocks,
         and :prf:ref:`NAC-colorings <def-nac>` are found for each
         block (:prf:ref:`2-vertex connected component <def-k-connected>`)
@@ -252,7 +250,7 @@ def NAC_colorings_impl(
         ],
     ) -> Callable[[nx.Graph], Iterable[NACColoring]]:
         """
-        Wraps the core callable with some modifying call
+        Wrap the core callable with a modifying function.
         """
         return lambda g: func(processor, g)
 

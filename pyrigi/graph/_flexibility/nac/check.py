@@ -1,6 +1,6 @@
 """
-The module checks if the coloring given is a NAC-coloring.
-Algorithm based on :prf:ref:`<lem-color-components>` is used.
+The module checks if the given coloring is a NAC-coloring.
+The algorithm is based on :prf:ref:`<lem-color-components>`.
 """
 
 from typing import Collection, Iterable
@@ -20,7 +20,7 @@ def _check_for_almost_red_cycles(
     blue_edges: Iterable[IntEdge],
 ) -> bool:
     """
-    Check if there is an almost cycle in the graph given with the given coloring.
+    Check if there is an almost cycle in the graph with the given coloring.
 
     `True` is returned if the coloring has no almost red cycles with a single blue edge.
     It is not checked whether the coloring is surjective.
@@ -36,8 +36,8 @@ def _check_for_almost_red_cycles(
 
     Suggested Improvement
     ----------------------
-    Keep cached graph with no edges for multiple runs,
-    this has a potential of a big performance gain.
+    Keep a cached graph with no edges for multiple runs,
+    as this has the potential for a significant performance gain.
     """
     G.clear_edges()
     G.add_edges_from(red_edges)
@@ -66,7 +66,7 @@ def _is_NAC_coloring_impl(
     This is an internal implementation, so some properties like injectivity
     are not checked for performance reasons - we only search for the cycles.
 
-    Parameters:
+    Parameters
     ----------
     coloring:
         The coloring to check if it is a NAC coloring.
@@ -76,15 +76,15 @@ def _is_NAC_coloring_impl(
     """
     red, blue = coloring
 
-    # This improves performance as it takes significantly longer to create
-    # the graph when edges are added whole vertices are missing.
-    # This approaches shares the vertices among multiple runs.
+    # This improves performance, as it takes significantly longer to create
+    # the graph when edges are added while vertices are missing.
+    # This approach shares the vertices among multiple runs.
     # The performance can be improved even more if this graph is cached
     # for each graph as usually this check is run multiple times
     # on the same graph for many colorings.
     # This caching causes memory leaks unless the temporary graph is deleted
     # manually or the original graph is cleared.
-    # Performance gain was ~40% percent in my tests half a year ago.
+    # Performance gain was ~40% in my tests half a year ago.
     G = nx.Graph()
     G.add_nodes_from(graph.nodes)
 
@@ -106,7 +106,7 @@ def is_NAC_coloring(
     This is an internal implementation, so some properties like injectivity
     are not checked for performance reasons - we only search for the cycles.
 
-    Parameters:
+    Parameters
     ----------
     coloring:
         The coloring to check if it is a NAC coloring.

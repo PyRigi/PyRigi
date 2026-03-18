@@ -1,5 +1,5 @@
 """
-This module holds functions related to questions whether
+This module holds functions related to whether
 a graph can have a :prf:ref:`NAC-coloring <def-nac>`.
 """
 
@@ -165,8 +165,7 @@ def single_NAC_coloring_impl(
         The seed to use in case we need to fall back to exhaustive search.
     _is_first_check:
         Internal parameter, do not change!
-        Skips some already checked checks in has_NAC_coloring.
-    ----------
+        Skips some checks already performed in has_NAC_coloring.
     """
     if _is_first_check:
         if graph.number_of_edges() <= 1:
