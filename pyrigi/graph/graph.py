@@ -824,6 +824,15 @@ class Graph(nx.Graph):
             self, algorithm=algorithm, prob=prob
         )
 
+    @doc_category("Generic rigidity")
+    @copy_doc(global_rigidity.max_globally_rigid_dimension)
+    def max_globally_rigid_dimension(
+        self, algorithm: str = "randomized", prob: float = 0.0001
+    ) -> int | Inf:
+        return global_rigidity.max_globally_rigid_dimension(
+            self, algorithm=algorithm, prob=prob
+        )
+
     @doc_category("General graph theoretical properties")
     def is_isomorphic(self, graph: Graph) -> bool:
         """

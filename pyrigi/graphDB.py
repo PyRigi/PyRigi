@@ -12,6 +12,7 @@ import pyrigi._utils._input_check as _input_check
 from pyrigi.data_type import Sequence, Vertex
 from pyrigi.graph import Graph
 from pyrigi.graph._rigidity.generic import is_min_rigid
+from pyrigi.graph._utils import _input_check as _graph_input_check
 
 
 def Cycle(n: int) -> Graph:
@@ -410,6 +411,11 @@ def _min_rigidity_dimension_encoding(graph: nx.Graph) -> int:
     ----
     Move this function to an appropriate module with SQLite database implementation
     """
+    _graph_input_check.no_loop(graph)
+
+    if not nx.is_connected(graph):
+        return 0
+
     n = graph.number_of_nodes()
     m = graph.number_of_edges()
 

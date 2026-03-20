@@ -7,6 +7,7 @@ from copy import deepcopy
 from random import randint
 
 import networkx as nx
+import sympy as sp
 from sympy import zeros
 
 import pyrigi._utils._input_check as _input_check
@@ -14,7 +15,7 @@ import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.redundant as redundant_rigidity
 import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graph._utils._input_check as _graph_input_check
-from pyrigi.data_type import Vertex
+from pyrigi.data_type import Vertex, Inf
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
 
@@ -294,3 +295,73 @@ def is_weakly_globally_linked(
     pebble_digraph = sparsity._get_pebble_digraph(B, K=2, L=3)
     V_0 = pebble_digraph.fundamental_circuit(u, v)
     return is_globally_rigid(_make_outside_neighbors_clique(B, V_0))
+
+
+def max_globally_rigid_dimension(
+    graph: nx.Graph, algorithm: str = "randomized", prob: float = 0.0001
+) -> int | Inf:
+    """
+    Compute the maximum dimension in which the graph is globally rigid.
+
+    For checking global rigidity, the method uses a randomized algorithm,
+    see :meth:`~.is_globally_rigid` for details.
+
+    Definitions
+    -----------
+    :prf:ref:`Maximum globally rigid dimension <def-max-globally-rigid-dimension>`
+
+    Parameters
+    ----------
+    algorithm:
+        If ``"randomized"``, the rigidity of the graph is checked
+        in each dimension using :meth:`.is_globally_rigid` with
+        ``algorithm="randomized"``.
+        Since this is a randomized algorithm, false negatives are possible.
+        However, the actual maximum rigid dimension is never lower than
+        the output of this method.
+
+        If ``"numerical"``, the rigidity of the graph is checked
+        in each dimension using :meth:`.is_globally_rigid` with
+        ``algorithm="numerical"``.
+        With this choice of algorithm, we do not have the guarantee that
+        is mentioned above on the maximum globally rigid dimension.
+    prob:
+        A bound on the probability for false negatives of the rigidity testing.
+
+        *Warning:* this is not the probability of wrong results in this method,
+        but is just passed on to global rigidity testing.
+
+    Examples
+    --------
+    >>> import pyrigi.graphDB as graphs
+    >>> G = graphs.Complete(3)
+    >>> rigid_dim = G.max_globally_rigid_dimension(); rigid_dim
+    oo
+    >>> rigid_dim.is_infinite
+    True
+
+    >>> import pyrigi.graphDB as graphs
+    >>> G = graphs.Complete(5)
+    >>> G.add_edges([(0,5),(1,5),(2,5),(3,5)])
+    >>> G.max_globally_rigid_dimension()
+    3
+
+    Notes
+    -----
+    This is done by taking the
+    :prf:ref:`maximum rigid dimension <def-max-rigid-dimension>`
+    as a starting point and iteratively reducing the dimension until
+    global rigidity is found.
+    This method returns ``sympy.oo`` (infinity) if and only if the graph
+    is complete. It has the data type ``Inf``.
+    """
+    warn_randomized_alg(graph, max_globally_rigid_dimension)
+    max_rigid_dimension = generic_rigidity.max_rigid_dimension(
+        graph, algorithm=algorithm, prob=prob
+    )
+    if max_rigid_dimension == sp.oo:
+        return sp.oo
+    for dim in range(max_rigid_dimension, 0, -1):
+        if is_globally_rigid(graph, dim, algorithm=algorithm, prob=prob):
+            return dim
+    return 0

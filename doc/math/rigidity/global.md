@@ -290,3 +290,22 @@ The resulting graph is $C(B, V_0)$.
 
 {{references}} {cite:p}`JordanVillanyi2024{Thm 5.8}`
 :::
+
+
+
+::: {prf:definition} maximum globally rigid dimension
+:label: def-max-globally-rigid-dimension
+
+Let $G$ be a graph.
+If $G$ is complete, then it is globally $d$-rigid for every $d\in\NN$,
+hence its _maximum globally rigid dimension_ is $\infty$.
+If $G$ is not globally $1$-rigid, its _maximum globally rigid dimension_ is $0$.
+Otherwise, the _maximum globally rigid dimension_ of $G$ is the integer $d\geq 1$ such that
+$G$ is globally $d'$-rigid for all $d'\leq d$
+and $G$ is not globally $d'$-rigid for all $d'>d$.
+
+{{references}} well-defined by {prf:ref}`thm-rigidity-dim-monotonicity`
+and {prf:ref}`thm-globally-necessary`
+
+{{pyrigi_crossref}} {meth}`~.Graph.max_globally_rigid_dimension`
+:::
