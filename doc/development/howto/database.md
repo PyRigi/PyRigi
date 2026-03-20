@@ -16,7 +16,6 @@ Here we describe how values in the columns of the database are created.
 | `rigidity`            | [$d$-rigidity](#rigidity)                                |
 | `min_rigidity`        | [Minimal $d$-rigidity](#minimal-rigidity)                |
 | `global_rigidity`     | [Global $d$-rigidity](#global-rigidity)                  |
-| `min_global_rigidity` | [Minimal global  $d$-rigidity](#minimal-global-rigidity) |
 
 
 
@@ -32,7 +31,7 @@ If $G$ is complete, then $G$ is minimally $d$-rigid
 for all $|V|-1 \leq d$ and $G$ is not minimally $d$-rigid for all $1\leq d<|V|-1$
 (see {prf:ref}`thm-gen-rigidity-small-complete`).
 If $G$ is not complete, then there is at most one $d\in\NN$
-such that $G$ is $d$-rigid (it follows from {prf:ref}`thm-gen-rigidity-tight`).
+such that $G$ is minimally $d$-rigid (it follows from {prf:ref}`thm-gen-rigidity-tight`).
 Hence, we store the following value for $G=(V,E)$:
 \begin{equation*}
     d_\text{min} = 
@@ -59,7 +58,3 @@ and $G$ is not globally $d'$-rigid for all $d'>d$.
 By {prf:ref}`thm-rigidity-dim-monotonicity` and {prf:ref}`thm-globally-necessary`,
 $d$ is well-defined.
 Therefore, a graph is globally $d$-rigid if and only if $d$ is at most the stored value.
-
-### Minimal Global Rigidity
-
-TBA
