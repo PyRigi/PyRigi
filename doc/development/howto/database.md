@@ -6,16 +6,16 @@ We assume that each graph in the database has at least two vertices.
 
 Here we describe how values in the columns of the database are created.
 
-| Column name           | Property                                                 |
-|-----------------------|----------------------------------------------------------|
-| `graph`               | Graph encoded in `sparse6`???                            |
-| `num_vertices`        | The number of vertices                                   |
-| `num_edges`           | The number of edges                                      |
-| `min_degree`          | The minimum degree                                       |
-| `max_degree`          | The maximum degree                                       |
-| `rigidity`            | [$d$-rigidity](#rigidity)                                |
-| `min_rigidity`        | [Minimal $d$-rigidity](#minimal-rigidity)                |
-| `global_rigidity`     | [Global $d$-rigidity](#global-rigidity)                  |
+| Column name           | Property                                       |
+|-----------------------|------------------------------------------------|
+| `graph`               | Graph encoded in `sparse6`???                  |
+| `num_vertices`        | The number of vertices                         |
+| `num_edges`           | The number of edges                            |
+| `min_degree`          | The minimum degree                             |
+| `max_degree`          | The maximum degree                             |
+| `rigidity`            | [$d$-rigidity](#rigidity)                      |
+| `min_rigidity`        | [Minimal $d$-rigidity](#encoding-min-rigidity) |
+| `global_rigidity`     | [Global $d$-rigidity](#global-rigidity)        |  
 
 
 
@@ -24,6 +24,7 @@ Here we describe how values in the columns of the database are created.
 We store the {prf:ref}`maximum rigid dimension <def-max-rigid-dimension>`.
 Hence, a graph is $d$-rigid if and only if $d$ is at most the stored value.
 
+(encoding-min-rigidity)=
 ### Minimal rigidity
 
 Let $G=(V,E)$ be a connected graph with at least two vertices.
@@ -41,6 +42,7 @@ Hence, we store the following value for $G=(V,E)$:
             0 & \text{otherwise}.
         \end{cases}
 \end{equation*}
+The function is implemented in `graphDB._min_rigidity_dimension` (to be moved later).
 Conversely, a graph is minimally $d$-rigid if and only if $d=d_\text{min}$, or
 $d_\text{min}<0$ and $|d_\text{min}| \leq d$.
 
