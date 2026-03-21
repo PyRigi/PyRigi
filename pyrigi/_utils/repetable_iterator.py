@@ -3,35 +3,44 @@ from typing import Iterable, Iterator, TypeVar
 T = TypeVar("T")
 
 
-class RepeatableIterator(Iterator[T]):
+class RepeatableIterator:
     """
-    Wrapper for an iterator that caches all the items yielded by the iterator
-    in the first pass for future passes.
-    The iterator must be exhausted the first time it is iterated.
+    Wrapper for an iterator that caches all the items yielded
+    by the iterator for future iterations.
 
     Suggested Improvements
     ---------------------
     Use class generics in Python 3.12.
     """
 
-    def __init__(self, iterable: Iterable[T]):
-        if isinstance(iterable, list):
-            self._is_first = False
-            self._cache: list[T] = iterable
-            return
+    __slots__ = ("_source", "_cache")
 
-        self._iterable = iter(iterable)
-        self._is_first = True
+    def __init__(self, iterable: Iterable[T]):
+        self._source: Iterator[T] = iter(iterable)
         self._cache: list[T] = []
 
     def __iter__(self) -> Iterator[T]:
-        if self._is_first:
-            self._is_first = False
-            return self
-        else:
-            return iter(self._cache)
+        return self._Cursor(self)
 
-    def __next__(self) -> T:
-        item = next(self._iterable)
-        self._cache.append(item)
-        return item
+    class _Cursor(Iterator[T]):
+        __slots__ = ("_parent", "_index")
+
+        def __init__(self, parent: "RepeatableIterator"):
+            self._parent = parent
+            self._index = 0
+
+        def __next__(self) -> T:
+            parent = self._parent
+            cache = parent._cache
+
+            if self._index < len(cache):
+                item = cache[self._index]
+            else:
+                try:
+                    item = next(parent._source)
+                    cache.append(item)
+                except StopIteration:
+                    raise StopIteration from None
+
+            self._index += 1
+            return item
