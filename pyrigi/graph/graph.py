@@ -1180,7 +1180,7 @@ class Graph(nx.Graph):
 
     @doc_category("Flexibility")
     @copy_doc(nac_colorings.has_NAC_coloring)
-    def has_NAC_colorings(
+    def has_NAC_coloring(
         self,
         algorithm: str = "default",
         use_cycles_optimization: bool = True,

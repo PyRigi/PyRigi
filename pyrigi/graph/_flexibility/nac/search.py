@@ -93,17 +93,19 @@ def _relabel_graph_for_NAC_coloring(
     graph: nx.Graph,
 ) -> Iterable[NACColoring]:
     """
-    Relabel vertices of the graph to be named from 0 to N-1.
+    Relabel vertices of a graph to the range from 0 to N-1 and continues search.
 
-    Returns
-    -------
+    Many of the following functions assume vertex names are in the range from 0 to N-1,
+    where N is the number of vertices in the graph.
+    This function renames the vertices to the specified range before processing
+    and renames the found NAC-colorings back to the original vertex names.
+
+    Parameters
+    ----------
     processor:
-        Lists all :prf:ref:`NAC-colorings <def-nac>` for a given graph.
+        Generator for all NAC-colorings for a given graph.
     graph:
-        The graph to relabels and search on.
-    seed:
-    copy:
-        If the graph should be copied before making any destructive changes.
+        The graph to relabel and search on.
     """
     vertices = list(graph.nodes)
 
