@@ -62,7 +62,6 @@ def can_have_NAC_coloring(
     """
     if graph.number_of_edges() <= 1:
         return False
-    assert nx.node_connectivity(graph) > 0
     n = graph.number_of_nodes()
     m = graph.number_of_edges()
 
