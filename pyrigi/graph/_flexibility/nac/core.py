@@ -36,40 +36,37 @@ class SubgraphColorings(NamedTuple):
     subgraph_mask: int
 
 
-def can_have_NAC_coloring(graph: nx.Graph) -> bool:
+def can_have_NAC_coloring(
+    graph: nx.Graph,
+) -> bool:
     """
-    Check whether the given graph can have a :prf:ref:`NAC-coloring <def-nac>`
-    and if the graph is valid for the :prf:ref:`NAC-coloring <def-nac>` search.
+    Return if the graph may have a NAC-coloring.
 
-    `True` is returned if a NAC coloring may exist,
-    `False` if there can be none by doing constant complexity checks.
+    Use equivalence from :cite:p:`GraseggerLegerskySchicho2019{Thm 3.1}`
+    that a graph has a :prf:ref:`NAC-colorings <def-nac>`
+    if and only if it has a flexible realization.
+    For a flexible realization, the upper bound
+    on the number of edges in a graph is known
+    :cite:p:`GraseggerLegerskySchicho2019{Thm 4.7}`.
 
-    Graph with less than two edges cannot have a :prf:ref:`NAC-coloring <def-nac>`.
-    Graph with more than `n(n-2)/2 - (n-2)` edges
-    cannot have a :prf:ref:`NAC-coloring <def-nac>`
-    as shown in :prf:ref:`thm-flexible-edge-bound`.
+    Definitions
+    -----------
+    * :prf:ref:`NAC-coloring <def-nac>`
+    * :prf:ref:`Flexibility <def-cont-rigid-framework>`
+    * :prf:ref:`Realization <def-realization>`
 
-    If the graph is empty, contains self loops or is directed,
-    :class:`~ValueError` is raised.
+    Parameters
+    ----------
+    graph:
+        A connected graph with at least one edge.
     """
-    if graph.nodes() == 0:
-        raise ValueError("NAC-coloring search is undefined for the empty graph")
-
-    if nx.number_of_selfloops(graph) > 0:
-        raise LookupError()
-
-    if nx.is_directed(graph):
-        raise ValueError("NAC-coloring search is undefined for directed graphs")
-
-    if len(nx.edges(graph)) < 2:
+    if graph.number_of_edges() <= 1:
         return False
-
+    assert nx.node_connectivity(graph) > 0
     n = graph.number_of_nodes()
     m = graph.number_of_edges()
-    if m > n * (n - 1) // 2 - (n - 2):
-        return False
 
-    return True
+    return m <= n * (n - 1) // 2 - (n - 2)
 
 
 ################################################################################

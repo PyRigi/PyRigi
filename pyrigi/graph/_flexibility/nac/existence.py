@@ -4,42 +4,9 @@ This module checks whether a graph can have a :prf:ref:`NAC-colorings <def-nac>`
 
 import networkx as nx
 
-from pyrigi.graph._flexibility.nac.core import NACColoring
+from pyrigi.graph._flexibility.nac.core import NACColoring, can_have_NAC_coloring
 from pyrigi.graph._flexibility.nac.mono_classes import MonoClassType, find_mono_classes
 from pyrigi.graph._rigidity.generic import is_min_rigid
-
-
-def _can_have_NAC_coloring(
-    graph: nx.Graph,
-) -> bool:
-    """
-    Return if the graph may have a NAC-coloring.
-
-    Use equivalence from :cite:p:`GraseggerLegerskySchicho2019{Thm 3.1}`
-    that a graph has a :prf:ref:`NAC-colorings <def-nac>`
-    if and only if it has a flexible realization.
-    For a flexible realization, the upper bound
-    on the number of edges in a graph is known
-    :cite:p:`GraseggerLegerskySchicho2019{Thm 4.7}`.
-
-    Definitions
-    -----------
-    * :prf:ref:`NAC-coloring <def-nac>`
-    * :prf:ref:`Flexibility <def-cont-rigid-framework>`
-    * :prf:ref:`Realization <def-realization>`
-
-    Parameters
-    ----------
-    graph:
-        A connected graph with at least one edge.
-    """
-    if graph.number_of_edges() <= 1:
-        return False
-    assert nx.node_connectivity(graph) > 0
-    n = graph.number_of_nodes()
-    m = graph.number_of_edges()
-
-    return m <= n * (n - 1) // 2 - (n - 2)
 
 
 def _check_for_vertex_out_of_3_cycle(
@@ -102,8 +69,10 @@ def _check_for_vertex_out_of_3_cycle(
         blue.difference_update(red)
         blue.difference_update((u, v) for v, u in red)
 
-        assert len(red) > 0
-        assert len(blue) > 0
+        if len(red) == 0 or len(blue) == 0:
+            raise ValueError(
+                "Construction of NAC-coloring from stable separating set failed."
+            )
 
         return (red, blue)
 
@@ -169,7 +138,7 @@ def has_NAC_coloring_checks(graph: nx.Graph) -> bool | None:
         return True
 
     # Needs to be run after connectivity checks
-    if not _can_have_NAC_coloring(graph):
+    if not can_have_NAC_coloring(graph):
         return False
 
     res = _check_is_min_rigid_and_NAC_coloring_exists(graph)

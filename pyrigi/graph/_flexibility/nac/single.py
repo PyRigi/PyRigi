@@ -9,9 +9,8 @@ from typing import Literal
 
 import networkx as nx
 
-from pyrigi.graph._flexibility.nac.core import NACColoring
+from pyrigi.graph._flexibility.nac.core import NACColoring, can_have_NAC_coloring
 from pyrigi.graph._flexibility.nac.existence import (
-    _can_have_NAC_coloring,
     _check_for_vertex_out_of_3_cycle,
     has_NAC_coloring_checks,
 )
@@ -186,7 +185,7 @@ def single_NAC_coloring_impl(
             return res
 
         # Need to be run after connectivity checks
-        if not _can_have_NAC_coloring(graph):
+        if not can_have_NAC_coloring(graph):
             return None
 
     return next(
