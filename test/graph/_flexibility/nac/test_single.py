@@ -6,51 +6,53 @@ import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 
 
+algorithms = ["default", "naive", "subgraphs"] + [
+    "subgraphs-{}-{}-{}".format(split, merge, size)
+    for split in ["none", "neighbors", "neighbors_degree"]
+    for merge in ["linear", "shared_vertices"]
+    for size in [1, 4]
+]
+
+
 @pytest.mark.parametrize(
-    ("graph", "result"),
+    "graph",
     [
-        (Graph.from_vertices([0]), False),
-        (Graph.from_vertices([0, 1]), False),
-        (Graph.from_vertices_and_edges([0, 1], [(0, 1)]), False),
-        (nx.complete_graph(5), False),
-        (graphs.Path(3), True),
-        (graphs.Cycle(3), False),
-        (graphs.Cycle(4), True),
-        (graphs.Cycle(5), True),
-        (graphs.Complete(5), False),
-        (graphs.CompleteBipartite(3, 4), True),
-        (graphs.Diamond(), False),
-        (graphs.ThreePrism(), True),
-        (graphs.ThreePrismPlusEdge(), False),
-        (graphs.DiamondWithZeroExtension(), True),
-    ],
-    ids=[
-        "singleton",
-        "two_vertices_no_edge",
-        "single_edge",
-        "complete_graph",
-        "path",
-        "cycle3",
-        "cycle4",
-        "cycle5",
-        "complete5",
-        "bipartite5",
-        "diamond",
-        "prism",
-        "prismPlus",
-        "minimallyRigid",
+        graphs.Path(3),
+        graphs.Cycle(4),
+        graphs.Cycle(5),
+        graphs.CompleteBipartite(3, 3),
+        graphs.CompleteBipartite(3, 4),
+        graphs.ThreePrism(),
+        graphs.DiamondWithZeroExtension(),
+        graphs.Frustum(4),
     ],
 )
 @pytest.mark.parametrize(
     "algorithm",
-    ["default", "naive", "subgraphs"]
-    + [
-        "subgraphs-{}-{}-{}".format(split, merge, size)
-        for split in ["none", "neighbors", "neighbors_degree"]
-        for merge in ["linear", "shared_vertices"]
-        for size in [1, 4]
+    algorithms,
+)
+def test_single_and_has_NAC_coloring(graph: nx.Graph, algorithm: str):
+    assert nac.single_NAC_coloring(nx.Graph(graph), algorithm=algorithm) is not None
+    assert nac.has_NAC_coloring(nx.Graph(graph), algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph",
+    [
+        Graph.from_vertices([0]),
+        Graph.from_vertices([0, 1]),
+        Graph.from_vertices_and_edges([0, 1], [(0, 1)]),
+        nx.complete_graph(5),
+        graphs.Cycle(3),
+        graphs.Complete(5),
+        graphs.Diamond(),
+        graphs.ThreePrismPlusEdge(),
     ],
 )
-def test_single_and_has_NAC_coloring(graph: nx.Graph, algorithm: str, result: bool):
-    assert result == (nac.single_NAC_coloring(graph, algorithm=algorithm) is not None)
-    assert result == nac.has_NAC_coloring(graph, algorithm=algorithm)
+@pytest.mark.parametrize(
+    "algorithm",
+    algorithms,
+)
+def test_single_and_has_no_NAC_coloring(graph: nx.Graph, algorithm: str):
+    assert nac.single_NAC_coloring(nx.Graph(graph), algorithm=algorithm) is None
+    assert not nac.has_NAC_coloring(nx.Graph(graph), algorithm=algorithm)
