@@ -1178,6 +1178,40 @@ class Graph(nx.Graph):
             seed=seed,
         )
 
+    @doc_category("Flexibility")
+    @copy_doc(nac_colorings.has_NAC_coloring)
+    def has_NAC_coloring(
+        self,
+        algorithm: str = "default",
+        use_cycles_optimization: bool = True,
+        mono_class_type: str = "triangle-extended",
+        seed: int | None = 42,
+    ) -> bool:
+        return nac_colorings.has_NAC_coloring(
+            self,
+            algorithm=algorithm,
+            use_cycles_optimization=use_cycles_optimization,
+            mono_class_type=mono_class_type,
+            seed=seed,
+        )
+
+    @doc_category("Flexibility")
+    @copy_doc(nac_colorings.single_NAC_coloring)
+    def single_NAC_coloring(
+        self,
+        algorithm: str = "default",
+        use_cycles_optimization: bool = True,
+        mono_class_type: str = "triangle-extended",
+        seed: int | None = 42,
+    ) -> tuple[list[Edge], list[Edge]] | None:
+        return nac_colorings.single_NAC_coloring(
+            self,
+            algorithm=algorithm,
+            use_cycles_optimization=use_cycles_optimization,
+            mono_class_type=mono_class_type,
+            seed=seed,
+        )
+
 
 Graph.__doc__ = Graph.__doc__.replace(
     "METHODS",

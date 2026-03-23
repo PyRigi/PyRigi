@@ -30,7 +30,7 @@ class MonoClassType(Enum):
     EDGES = "edges"
     """
     Corresponds to
-    :prf:ref:`\\triangle-connected components<def-triangle-connected-comp>`.
+    :prf:ref:`\\triangle-connected components <def-triangle-connected-comp>`.
     """
     TRI_CONNECTED = "triangle"
     """
@@ -56,7 +56,7 @@ def _trivial_mono_classes(
     graph: nx.Graph,
 ) -> tuple[dict[Edge, int], list[list[Edge]]]:
     """
-    Makes each edge its own NAC-mono class
+    Make each edge its own NAC-mono class.
     """
     edge_to_class: dict[Edge, int] = {}
     class_to_edges: list[list[Edge]] = []
@@ -77,20 +77,16 @@ def find_mono_classes(
     Then these are optionally extended to larger NAC-mono classes
     as described in :cite:p:`LastovickaLegersky2024`.
 
-    Parameters
-    ----------
-    graph:
-        Input graph
-    class_type:
-        Type of :prf:ref:`NAC-mono classes <def-nac-mono>`
-
-    Returns
-    -------
     An ID of a :prf:ref:`NAC-mono class <def-nac-mono>`
     corresponds to its index in a list of all NAC-mono classes.
-    Return a mapping from edges to their class ID
-    and a list of NAC-mono classes where
+    A mapping from edges to their class ID is returned
+    together with a list of NAC-mono classes where
     the index corresponds to the class ID.
+
+    Parameters
+    ----------
+    class_type:
+        Type of :prf:ref:`NAC-mono classes <def-nac-mono>`
     """
     if class_type == MonoClassType.EDGES:
         return _trivial_mono_classes(graph)
@@ -113,10 +109,10 @@ def find_mono_classes(
             classes.join((u, v), (w, u))
 
     # Checks for edges & triangles over class
-    # This MUST be run before search for squares for cartesian NAC-coloring
-    # of other search that may produce disconnected classes,
+    # This MUST be run before searching for squares for Cartesian NAC-coloring
+    # or other searches that may produce disconnected classes,
     # as cycles may not exist!
-    # There routines are highly inefficient, but the time is still
+    # These routines are highly inefficient, but the time is still
     # negligible compared to the main algorithm running time.
     if class_type == MonoClassType.TRI_EXTENDED:
         # we try again until we find no other class to merge
@@ -146,7 +142,7 @@ def find_mono_classes(
                         class_to_vertices[class_of_vertex].add(u)
 
                 # if we found more edges to the same class,
-                # we also found a triangle and we merge it's arms
+                # we also found a triangle and we merge its arms
                 for class_of_vertex, vertices in class_to_vertices.items():
                     if class_of_vertex == len(vertices) <= 1:
                         continue
