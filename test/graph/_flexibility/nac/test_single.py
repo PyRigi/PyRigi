@@ -22,9 +22,16 @@ algorithms = ["default", "naive", "subgraphs"] + [
         graphs.Cycle(5),
         graphs.CompleteBipartite(3, 3),
         graphs.CompleteBipartite(3, 4),
+        graphs.K33plusEdge(),
         graphs.ThreePrism(),
+        graphs.ThreePrismPlusTriangleOnSide(),
         graphs.DiamondWithZeroExtension(),
         graphs.Frustum(4),
+        graphs.CubeWithDiagonal(),
+        graphs.Dodecahedral(),
+        graphs.DoubleBanana(),
+        graphs.Grid(3, 3),
+        graphs.K66MinusPerfectMatching(),
     ],
 )
 @pytest.mark.parametrize(
@@ -41,12 +48,17 @@ def test_single_and_has_NAC_coloring(graph: nx.Graph, algorithm: str):
     [
         Graph.from_vertices([0]),
         Graph.from_vertices([0, 1]),
-        Graph.from_vertices_and_edges([0, 1], [(0, 1)]),
-        nx.complete_graph(5),
-        graphs.Cycle(3),
+        graphs.Complete(2),
+        graphs.Complete(3),
+        graphs.Complete(4),
         graphs.Complete(5),
+        graphs.CompleteMinusOne(5),
         graphs.Diamond(),
         graphs.ThreePrismPlusEdge(),
+        graphs.Octahedral(),
+        graphs.Icosahedral(),
+        graphs.Wheel(4),
+        graphs.Wheel(5),
     ],
 )
 @pytest.mark.parametrize(
