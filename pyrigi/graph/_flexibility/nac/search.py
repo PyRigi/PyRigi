@@ -93,7 +93,7 @@ def _relabel_graph_for_NAC_coloring(
     graph: nx.Graph,
 ) -> Iterable[NACColoring]:
     """
-    Relabel vertices of a graph to the range from 0 to N-1 and continues search.
+    Relabel vertices of a graph to the range from 0 to N-1 and continue searching.
 
     Many of the following functions assume vertex names are in the range from 0 to N-1,
     where N is the number of vertices in the graph.

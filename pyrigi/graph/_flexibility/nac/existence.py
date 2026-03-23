@@ -70,13 +70,13 @@ def _check_for_vertex_out_of_3_cycle(
         blue.difference_update((u, v) for v, u in red)
 
         if len(red) == 0 or len(blue) == 0:
-            raise ValueError(
-                "Construction of NAC-coloring from stable separating set failed."
+            raise RuntimeError(
+                "Construction of a NAC-coloring from a stable separating set failed."
             )
 
         return (red, blue)
 
-    raise ValueError("NAC-coloring was not found even though it should exist.")
+    raise RuntimeError("NAC-coloring was not found even though it should exist.")
 
 
 def _check_is_min_rigid_and_NAC_coloring_exists(
