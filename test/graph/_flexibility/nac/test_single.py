@@ -39,8 +39,11 @@ algorithms = ["default", "naive", "subgraphs"] + [
     algorithms,
 )
 def test_single_and_has_NAC_coloring(graph: nx.Graph, algorithm: str):
-    assert nac.single_NAC_coloring(nx.Graph(graph), algorithm=algorithm) is not None
-    assert nac.has_NAC_coloring(nx.Graph(graph), algorithm=algorithm)
+    graph = nx.Graph(graph)
+    NAC_col = nac.single_NAC_coloring(graph, algorithm=algorithm)
+    assert NAC_col is not None
+    assert nac.is_NAC_coloring(graph, NAC_col)
+    assert nac.has_NAC_coloring(graph, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -66,5 +69,6 @@ def test_single_and_has_NAC_coloring(graph: nx.Graph, algorithm: str):
     algorithms,
 )
 def test_single_and_has_no_NAC_coloring(graph: nx.Graph, algorithm: str):
-    assert nac.single_NAC_coloring(nx.Graph(graph), algorithm=algorithm) is None
-    assert not nac.has_NAC_coloring(nx.Graph(graph), algorithm=algorithm)
+    graph = nx.Graph(graph)
+    assert nac.single_NAC_coloring(graph, algorithm=algorithm) is None
+    assert not nac.has_NAC_coloring(graph, algorithm=algorithm)
