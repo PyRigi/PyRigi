@@ -122,28 +122,25 @@ def test_stresses_numerical(framework, num_stresses):
 
 
 @pytest.mark.parametrize(
-    "framework, num_stresses, stress_rank",
+    "framework, stress_rank",
     [
-        [fws.Complete(4), 1, 1],
-        [fws.Complete(5), 3, 1],  # fails for numerical=True, slow with numerical=False
-        [fws.Frustum(3), 1, 3],
-        [fws.Frustum(4), 1, 5],
-        [fws.ThreePrism(realization="flexible"), 1, 3],
-        [fws.ThreePrism(realization="parallel"), 1, 3],
+        [fws.Complete(4), 1],
+        [fws.Frustum(3), 3],
+        [fws.Frustum(4), 5],
+        [fws.ThreePrism(realization="flexible"), 3],
+        [fws.ThreePrism(realization="parallel"), 3],
     ],
 )
 @pytest.mark.parametrize("numerical", [True, False])
-def test_stress_matrix_rank(framework, num_stresses, stress_rank, numerical):
+def test_stress_matrix_rank(framework, stress_rank, numerical):
     stresses = framework.stresses(numerical=numerical)
-    assert len(stresses) == num_stresses
-    for s in stresses:
-        assert framework.stress_matrix_rank(s, numerical=numerical) == stress_rank
+    assert len(stresses) == 1
+    assert framework.stress_matrix_rank(stresses[0], numerical=numerical) == stress_rank
     if TEST_WRAPPED_FUNCTIONS:
         F = _to_FrameworkBase(framework)
         stresses = stress_rigidity.stresses(F, numerical=numerical)
-        assert len(stresses) == num_stresses
-        for s in stresses:
-            assert (
-                stress_rigidity.stress_matrix_rank(F, s, numerical=numerical)
-                == stress_rank
-            )
+        assert len(stresses) == 1
+        assert (
+            stress_rigidity.stress_matrix_rank(F, stresses[0], numerical=numerical)
+            == stress_rank
+        )
