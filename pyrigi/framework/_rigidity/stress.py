@@ -159,7 +159,7 @@ def stress_matrix(
     Construct the stress matrix of a stress.
 
     Definitions
-    -----
+    -----------
     * :prf:ref:`Stress Matrix <def-stress-matrix>`
 
     Parameters
@@ -206,6 +206,52 @@ def stress_matrix(
         stress_matr[j, i] = -stressval
 
     return stress_matr
+
+
+def stress_matrix_rank(
+    framework: FrameworkBase,
+    stress: Stress,
+    edge_order: Sequence[Edge] = None,
+    numerical: bool = False,
+    tolerance: float = 1e-9,
+) -> int:
+    """
+    Return the rank of the stress matrix for a given stress.
+
+    Definitions
+    -----------
+    * :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+    * :prf:ref:`Stress Matrix <def-stress-matrix>`
+
+    Parameters
+    ----------
+    stress:
+        A stress of the framework given as a vector.
+    edge_order:
+        A list of edges, providing the ordering of edges in ``stress``.
+        If ``None``, :meth:`.Graph.edge_list` is assumed.
+    numerical:
+        If ``True``, the rank of the stress matrix with entries as floats
+        is computed.
+
+        *Warning:* For ``numerical=True`` the numerical rank computation
+        may produce different results than the computation over exact
+        coordinates.
+    tolerance:
+        Numerical tolerance used for computing the rank.
+    """
+    framework._warn_numerical_coord(stress_matrix_rank, numerical)
+    if numerical:
+        F = FrameworkBase(
+            framework._graph, framework.realization(as_points=True, numerical=True)
+        )
+        return np.linalg.matrix_rank(
+            np.array(stress_matrix(F, stress=stress, edge_order=edge_order)).astype(
+                np.float64
+            ),
+            tol=tolerance,
+        )
+    return stress_matrix(framework, stress=stress, edge_order=edge_order).rank()
 
 
 def stresses(
