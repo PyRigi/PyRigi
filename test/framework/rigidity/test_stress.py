@@ -144,3 +144,56 @@ def test_stress_matrix_rank(framework, stress_rank, numerical):
             stress_rigidity.stress_matrix_rank(F, stresses[0], numerical=numerical)
             == stress_rank
         )
+
+
+@pytest.mark.parametrize(
+    "framework, stress_dim",
+    [
+        [fws.Complete(4, dim=1), [1, 1, 1]],
+        [fws.Complete(5), [1, 1, 1]],
+        [fws.SecondOrderRigid(), [2, 2]],
+    ],
+)
+def test_stress_matrix_rank_symbolic(framework, stress_dim):
+    stresses = framework.stresses(numerical=False)
+    assert len(stresses) > 1
+    if TEST_WRAPPED_FUNCTIONS:
+        F = _to_FrameworkBase(framework)
+        stresses = stress_rigidity.stresses(F, numerical=False)
+        print(stresses)
+        # assert len(stresses) == len(stress_dim)
+        for i in range(len(stresses)):
+            assert (
+                stress_rigidity.stress_matrix_rank(F, stresses[i], numerical=False)
+                <= F.graph.number_of_nodes() - F.dim - 1
+            )
+            assert (
+                stress_rigidity.stress_matrix_rank(F, stresses[i], numerical=False)
+                == stress_dim[i]
+            )
+
+
+@pytest.mark.parametrize(
+    "framework, stress_dim",
+    [
+        [fws.Complete(4, dim=1), [2, 2, 2]],
+        [fws.Complete(5), [2, 2, 2]],
+        [fws.SecondOrderRigid(), [3, 3]],
+    ],
+)
+def test_stress_matrix_rank_numerical(framework, stress_dim):
+    stresses = framework.stresses(numerical=True)
+    assert len(stresses) > 1
+    if TEST_WRAPPED_FUNCTIONS:
+        F = _to_FrameworkBase(framework)
+        stresses = stress_rigidity.stresses(F, numerical=True)
+        # assert len(stresses) == len(stress_dim)
+        for i in range(len(stresses)):
+            assert (
+                stress_rigidity.stress_matrix_rank(F, stresses[i], numerical=True)
+                <= F.graph.number_of_nodes() - F.dim - 1
+            )
+            assert (
+                stress_rigidity.stress_matrix_rank(F, stresses[i], numerical=True)
+                == stress_dim[i]
+            )
