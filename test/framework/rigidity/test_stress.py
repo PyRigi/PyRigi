@@ -154,26 +154,28 @@ def test_stress_matrix_rank(framework, stress_rank, numerical):
         [fws.SecondOrderRigid(), [2, 2]],
     ],
 )
-def test_stress_matrix_rank_symbolic(framework, stress_dim):
+@pytest.mark.parametrize("numerical", [True, False])
+def test_stress_matrix_rank_symbolic_stresses(framework, stress_dim, numerical):
     stresses = framework.stresses(numerical=False)
     assert len(stresses) == len(stress_dim)
     for stress, rank in zip(stresses, stress_dim):
         assert (
-            framework.stress_matrix_rank(stress, numerical=False)
+            framework.stress_matrix_rank(stress, numerical=numerical)
             <= framework.graph.number_of_nodes() - framework.dim - 1
         )
-        assert framework.stress_matrix_rank(stress, numerical=False) == rank
+        assert framework.stress_matrix_rank(stress, numerical=numerical) == rank
     if TEST_WRAPPED_FUNCTIONS:
         F = _to_FrameworkBase(framework)
         stresses = stress_rigidity.stresses(F, numerical=False)
         assert len(stresses) == len(stress_dim)
         for stress, rank in zip(stresses, stress_dim):
             assert (
-                stress_rigidity.stress_matrix_rank(F, stress, numerical=False)
+                stress_rigidity.stress_matrix_rank(F, stress, numerical=numerical)
                 <= F.graph.number_of_nodes() - F.dim - 1
             )
             assert (
-                stress_rigidity.stress_matrix_rank(F, stress, numerical=False) == rank
+                stress_rigidity.stress_matrix_rank(F, stress, numerical=numerical)
+                == rank
             )
 
 
@@ -185,7 +187,7 @@ def test_stress_matrix_rank_symbolic(framework, stress_dim):
         [fws.SecondOrderRigid(), [3, 3]],
     ],
 )
-def test_stress_matrix_rank_numerical(framework, stress_dim):
+def test_stress_matrix_rank_numerical_stresses(framework, stress_dim):
     stresses = framework.stresses(numerical=True)
     assert len(stresses) == len(stress_dim)
     for stress, rank in zip(stresses, stress_dim):
