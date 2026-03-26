@@ -239,6 +239,21 @@ def stress_matrix_rank(
         coordinates.
     tolerance:
         Numerical tolerance used for computing the rank.
+
+    Examples
+    --------
+    >>> F = Framework.Complete([(0, 0), (0, 1), (-1, -1), (1, -1)])
+    >>> omega = [-8, -4, -4, 2, 2, 1]
+    >>> F.is_stress(omega)
+    True
+    >>> F.stress_matrix(omega)
+    Matrix([
+    [-16,  8,  4,  4],
+    [  8, -4, -2, -2],
+    [  4, -2, -1, -1],
+    [  4, -2, -1, -1]])
+    >>> F.stress_matrix_rank(omega)
+    1
     """
     framework._warn_numerical_coord(stress_matrix_rank, numerical)
     if numerical:
