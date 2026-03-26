@@ -242,13 +242,10 @@ def stress_matrix_rank(
     """
     framework._warn_numerical_coord(stress_matrix_rank, numerical)
     if numerical:
-        F = FrameworkBase(
-            framework._graph, framework.realization(as_points=True, numerical=True)
-        )
         return np.linalg.matrix_rank(
-            np.array(stress_matrix(F, stress=stress, edge_order=edge_order)).astype(
-                np.float64
-            ),
+            np.array(
+                stress_matrix(framework, stress=stress, edge_order=edge_order)
+            ).astype(np.float64),
             tol=tolerance,
         )
     return stress_matrix(framework, stress=stress, edge_order=edge_order).rank()
