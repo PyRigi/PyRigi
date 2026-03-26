@@ -150,24 +150,30 @@ def test_stress_matrix_rank(framework, stress_rank, numerical):
     "framework, stress_dim",
     [
         [fws.Complete(4, dim=1), [1, 1, 1]],
-        [fws.Complete(5), [1, 1, 1]],
+        pytest.param(fws.Complete(5), [1, 1, 1], marks=pytest.mark.long_local),
         [fws.SecondOrderRigid(), [2, 2]],
     ],
 )
 def test_stress_matrix_rank_symbolic(framework, stress_dim):
     stresses = framework.stresses(numerical=False)
-    assert len(stresses) > 1
+    assert len(stresses) == len(stress_dim)
+    for stress, rank in zip(stresses, stress_dim):
+        assert (
+            framework.stress_matrix_rank(stress, numerical=False)
+            <= framework.graph.number_of_nodes() - framework.dim - 1
+        )
+        assert framework.stress_matrix_rank(stress, numerical=False) == rank
     if TEST_WRAPPED_FUNCTIONS:
         F = _to_FrameworkBase(framework)
         stresses = stress_rigidity.stresses(F, numerical=False)
-        for i, s in enumerate(stresses):
+        assert len(stresses) == len(stress_dim)
+        for stress, rank in zip(stresses, stress_dim):
             assert (
-                stress_rigidity.stress_matrix_rank(F, s, numerical=False)
+                stress_rigidity.stress_matrix_rank(F, stress, numerical=False)
                 <= F.graph.number_of_nodes() - F.dim - 1
             )
             assert (
-                stress_rigidity.stress_matrix_rank(F, s, numerical=False)
-                == stress_dim[i]
+                stress_rigidity.stress_matrix_rank(F, stress, numerical=False) == rank
             )
 
 
@@ -181,16 +187,20 @@ def test_stress_matrix_rank_symbolic(framework, stress_dim):
 )
 def test_stress_matrix_rank_numerical(framework, stress_dim):
     stresses = framework.stresses(numerical=True)
-    assert len(stresses) > 1
+    assert len(stresses) == len(stress_dim)
+    for stress, rank in zip(stresses, stress_dim):
+        assert (
+            framework.stress_matrix_rank(stress, numerical=True)
+            <= framework.graph.number_of_nodes() - framework.dim - 1
+        )
+        assert framework.stress_matrix_rank(stress, numerical=True) == rank
     if TEST_WRAPPED_FUNCTIONS:
         F = _to_FrameworkBase(framework)
         stresses = stress_rigidity.stresses(F, numerical=True)
-        for i, s in enumerate(stresses):
+        assert len(stresses) == len(stress_dim)
+        for stress, rank in zip(stresses, stress_dim):
             assert (
-                stress_rigidity.stress_matrix_rank(F, s, numerical=True)
+                stress_rigidity.stress_matrix_rank(F, stress, numerical=True)
                 <= F.graph.number_of_nodes() - F.dim - 1
             )
-            assert (
-                stress_rigidity.stress_matrix_rank(F, s, numerical=True)
-                == stress_dim[i]
-            )
+            assert stress_rigidity.stress_matrix_rank(F, stress, numerical=True) == rank
