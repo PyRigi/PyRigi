@@ -514,6 +514,23 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.stress_matrix_rank)
+    def stress_matrix_rank(
+        self,
+        stress: Stress,
+        edge_order: Sequence[Edge] = None,
+        numerical: bool = False,
+        tolerance: float = 1e-9,
+    ) -> int:
+        return stress_rigidity.stress_matrix_rank(
+            self,
+            stress=stress,
+            edge_order=edge_order,
+            numerical=numerical,
+            tolerance=tolerance,
+        )
+
+    @doc_category("Infinitesimal rigidity")
     @copy_doc(infinitesimal_rigidity.trivial_inf_flexes)
     def trivial_inf_flexes(self, vertex_order: Sequence[Vertex] = None) -> list[Matrix]:
         return infinitesimal_rigidity.trivial_inf_flexes(
