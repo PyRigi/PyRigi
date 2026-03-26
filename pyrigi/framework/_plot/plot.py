@@ -298,8 +298,14 @@ def _resolve_stress(
         stress_edgewise = stress_rigidity._transform_stress_to_edgewise(
             framework, stress
         )
+    elif isinstance(stress, Sequence) and all(
+        isinstance(stress[i], Number) for i in range(len(stress))
+    ):
+        stress_edgewise = stress_rigidity._transform_stress_to_edgewise(
+            framework, stress
+        )
     elif isinstance(stress, dict) and all(
-        isinstance(stress[key], int | float | str) for key in stress.keys()
+        isinstance(stress[key], Number) for key in stress.keys()
     ):
         stress_edgewise = stress
     else:
@@ -307,6 +313,15 @@ def _resolve_stress(
 
     if not stress_rigidity.is_dict_stress(framework, stress_edgewise, numerical=True):
         raise ValueError("The provided `stress` is not an equilibrium stress.")
+
+    if any(
+        isinstance(stress_edgewise[edge], float | np.floating)
+        for edge in stress_edgewise.keys()
+    ):
+        stress_edgewise = {
+            edge: round(stress, plot_style.stress_digits)
+            for (edge, stress) in stress_edgewise.items()
+        }
 
     if plot_style.stress_normalization:
         numerical_stress = {

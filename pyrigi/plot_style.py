@@ -60,6 +60,8 @@ class PlotStyle(object):
     stress_normalization:
         A boolean indicating whether the stress values should be turned into
         floating point numbers. If ``True``, the stress is automatically normalized.
+    stress_digits:
+        Number of decimal places that are displayed for a (numerical) stress.
     font_size:
         The size of the font used for the labels.
     font_color:
@@ -107,6 +109,7 @@ class PlotStyle(object):
         stress_fontsize: int = 10,
         stress_rotate_labels: bool = True,
         stress_normalization: bool = False,
+        stress_digits: int = 2,
         font_size: int = 12,
         font_color: str = "whitesmoke",
         canvas_width: float | int = 6.4,
@@ -129,6 +132,7 @@ class PlotStyle(object):
         self.stress_fontsize = stress_fontsize
         self.stress_rotate_labels = stress_rotate_labels
         self.stress_normalization = stress_normalization
+        self.stress_digits = stress_digits
         self.font_size = font_size
         self.font_color = font_color
         self.canvas_width = canvas_width
@@ -320,6 +324,17 @@ class PlotStyle(object):
             self._stress_normalization = value
         else:
             raise TypeError("stress_normalization must be a boolean.")
+
+    @property
+    def stress_digits(self) -> int:
+        return self._stress_digits
+
+    @stress_digits.setter
+    def stress_digits(self, value) -> None:
+        if isinstance(value, int):
+            self._stress_digits = value
+        else:
+            raise TypeError("stress_digits must be an integer.")
 
     @property
     def font_size(self) -> int:

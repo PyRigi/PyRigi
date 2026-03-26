@@ -25,6 +25,7 @@ def test_PlotStyle():
         stress_fontsize=10,
         stress_rotate_labels=True,
         stress_normalization=False,
+        stress_digits=7,
         font_size=12,
         font_color="whitesmoke",
         canvas_width=6.4,
@@ -48,6 +49,7 @@ def test_PlotStyle():
     assert plot_style.stress_fontsize == 10
     assert plot_style.stress_rotate_labels is True
     assert plot_style.stress_normalization is False
+    assert plot_style.stress_digits == 7
     assert plot_style.font_size == 12
     assert plot_style.font_color == "whitesmoke"
     assert plot_style.canvas_width == 6.4
@@ -151,6 +153,12 @@ def test_PlotStyle_getters_setters():
     assert plot_style.stress_fontsize == 15
     with pytest.raises(TypeError):
         plot_style.stress_fontsize = "15"
+
+    # Test stress_fontsize property
+    plot_style.stress_digits = 13
+    assert plot_style.stress_digits == 13
+    with pytest.raises(TypeError):
+        plot_style.stress_digits = "13"
 
     # Test stress_rotate_labels property
     plot_style.stress_rotate_labels = False
