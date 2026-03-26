@@ -78,6 +78,12 @@ def test_plot2D():
     F = fws.Complete(4, dim=1)
     F.plot2D(stress=0)
 
+    F = fws.Complete(4, dim=1)
+    F.plot2D(stress=F.stresses()[0])
+
+    F = fws.Complete(4, dim=1)
+    F.plot2D(stress=F.stresses(numerical=True)[0])
+
     plt.close("all")
     if TEST_WRAPPED_FUNCTIONS:
         F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
