@@ -299,15 +299,13 @@ def _resolve_stress(
             framework, stress
         )
     elif isinstance(stress, Sequence) and all(
-        isinstance(stress[i], int | float | str | np.floating)
-        for i in range(len(stress))
+        isinstance(stress[i], Number) for i in range(len(stress))
     ):
         stress_edgewise = stress_rigidity._transform_stress_to_edgewise(
             framework, stress
         )
     elif isinstance(stress, dict) and all(
-        isinstance(stress[key], int | float | str | np.floating)
-        for key in stress.keys()
+        isinstance(stress[key], Number) for key in stress.keys()
     ):
         stress_edgewise = stress
     else:

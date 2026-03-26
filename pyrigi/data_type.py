@@ -8,6 +8,7 @@ from collections.abc import Sequence
 from typing import Hashable, TypeAlias
 
 import sympy as sp
+import numpy as np
 
 Vertex: TypeAlias = Hashable
 """
@@ -24,7 +25,7 @@ DirectedEdge: TypeAlias = tuple[Vertex, Vertex] | list[Vertex]
 An ordered pair of :obj:`Vertices <pyrigi.data_type.Vertex>`.
 """
 
-Number: TypeAlias = int | float | str
+Number: TypeAlias = int | float | str | np.floating
 """
 An integer, float or a string interpretable by :func:`~sympy.core.sympify.sympify`.
 """

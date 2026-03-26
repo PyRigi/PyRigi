@@ -68,20 +68,20 @@ def test_plot2D():
     with pytest.raises(ValueError):
         F.plot2D(inf_flex={0: [-1, 0, 0], 1: [1, 0, 0], 2: [0, 0, 0]})
     F.plot2D(inf_flex=0)
+    F.plot2D(inf_flex=F.inf_flexes()[0])
+    F.plot2D(inf_flex=F.inf_flexes(numerical=True)[0])
     F.plot2D(inf_flex=0, fixed_vertices=[0])
     F.plot2D(inf_flex=0, fixed_vertices=[0, 1])
 
     F = fws.Complete(4)
     F.plot2D(stress=0, dpi=200, filename="K4_Test_output")
     os.remove("K4_Test_output.png")
+    F.plot2D(stress=F.stresses()[0])
+    F.plot2D(stress=F.stresses(numerical=True)[0])
 
     F = fws.Complete(4, dim=1)
     F.plot2D(stress=0)
-
-    F = fws.Complete(4, dim=1)
     F.plot2D(stress=F.stresses()[0])
-
-    F = fws.Complete(4, dim=1)
     F.plot2D(stress=F.stresses(numerical=True)[0])
 
     plt.close("all")
@@ -105,6 +105,8 @@ def test_plot2D():
                 F, inf_flex={0: [-1, 0, 0], 1: [1, 0, 0], 2: [0, 0, 0]}
             )
         framework_plot.plot2D(F, inf_flex=0)
+        framework_plot.plot2D(F, inf_flex=Framework.inf_flexes(F)[0])
+        framework_plot.plot2D(F, inf_flex=Framework.inf_flexes(F, numerical=True)[0])
         framework_plot.plot2D(F, inf_flex=0, fixed_vertices=[0])
         framework_plot.plot2D(F, inf_flex=0, fixed_vertices=[0, 1])
 
@@ -112,10 +114,14 @@ def test_plot2D():
         F = _to_FrameworkBase(F)
         framework_plot.plot2D(F, stress=0, dpi=200, filename="K4_Test_output")
         os.remove("K4_Test_output.png")
+        framework_plot.plot2D(F, stress=Framework.stresses(F)[0])
+        framework_plot.plot2D(F, stress=Framework.stresses(F, numerical=True)[0])
 
         F = fws.Complete(4, dim=1)
         F = _to_FrameworkBase(F)
         framework_plot.plot2D(F, stress=0)
+        framework_plot.plot2D(F, stress=Framework.stresses(F)[0])
+        framework_plot.plot2D(F, stress=Framework.stresses(F, numerical=True)[0])
 
         plt.close("all")
 
@@ -133,6 +139,8 @@ def test_plot3D():
 
     F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
     F.plot3D(inf_flex=0)
+    F.plot3D(inf_flex=F.inf_flexes()[0])
+    F.plot3D(inf_flex=F.inf_flexes(numerical=True)[0])
     F.plot3D(inf_flex=0, fixed_vertices=[0, 1])
 
     F = fws.Octahedron(realization="Bricard_plane")
@@ -142,9 +150,13 @@ def test_plot3D():
     F = fws.Complete(4)
     F.plot3D(stress=0, dpi=200, filename="K4_Test_output")
     os.remove("K4_Test_output.png")
+    F.plot3D(stress=F.stresses()[0])
+    F.plot3D(stress=F.stresses(numerical=True)[0])
 
     F = fws.Complete(4, dim=1)
     F.plot3D(stress=0)
+    F.plot3D(stress=F.stresses()[0])
+    F.plot3D(stress=F.stresses(numerical=True)[0])
 
     plt.close("all")
     if TEST_WRAPPED_FUNCTIONS:
@@ -167,6 +179,8 @@ def test_plot3D():
         F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
         F = _to_FrameworkBase(F)
         framework_plot.plot3D(F, inf_flex=0)
+        framework_plot.plot3D(F, inf_flex=Framework.inf_flexes(F)[0])
+        framework_plot.plot3D(F, inf_flex=Framework.inf_flexes(F, numerical=True)[0])
         framework_plot.plot3D(F, inf_flex=0, fixed_vertices=[0, 1])
 
         F = fws.Octahedron(realization="Bricard_plane")
@@ -180,10 +194,14 @@ def test_plot3D():
         F = _to_FrameworkBase(F)
         framework_plot.plot3D(F, stress=0, dpi=200, filename="K4_Test_output")
         os.remove("K4_Test_output.png")
+        framework_plot.plot3D(F, stress=Framework.stresses(F)[0])
+        framework_plot.plot3D(F, stress=Framework.stresses(F, numerical=True)[0])
 
         F = fws.Complete(4, dim=1)
         F = _to_FrameworkBase(F)
         framework_plot.plot3D(F, stress=0)
+        framework_plot.plot3D(F, stress=Framework.stresses(F)[0])
+        framework_plot.plot3D(F, stress=Framework.stresses(F, numerical=True)[0])
 
         plt.close("all")
 
