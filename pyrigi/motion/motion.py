@@ -165,7 +165,7 @@ class Motion(object):
             a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same
             color or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings
             and the values are lists of vertices.
-            The ommited vertices are given the value ``plot_style.vertex_color``.
+            The omitted vertices are given the value ``plot_style.vertex_color``.
         edge_colors_custom:
             Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
@@ -369,7 +369,7 @@ class Motion(object):
             a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same
             color or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings
             and the values are lists of vertices.
-            The ommited vertices are given the value ``plot_style.vertex_color``.
+            The omitted vertices are given the value ``plot_style.vertex_color``.
         edge_colors_custom:
             Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
@@ -556,7 +556,7 @@ class Motion(object):
             a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same
             color or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings
             and the values are lists of vertices.
-            The ommited vertices are given the value ``plot_style.vertex_color``.
+            The omitted vertices are given the value ``plot_style.vertex_color``.
         edge_colors_custom:
             Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
@@ -697,7 +697,7 @@ class Motion(object):
             a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same
             color or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings
             and the values are lists of vertices.
-            The ommited vertices are given the value ``plot_style.vertex_color``.
+            The omitted vertices are given the value ``plot_style.vertex_color``.
         edge_colors_custom:
             Optional parameter to specify the colors of edges. It can be
             a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color

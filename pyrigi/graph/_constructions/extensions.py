@@ -353,7 +353,7 @@ def all_extensions(
 
     Notes
     -----
-    It turns out that possible errors on bad input paramters are only raised,
+    It turns out that possible errors on bad input parameters are only raised,
     when the output iterator is actually used,
     not when it is created.
     """  # noqa: E501

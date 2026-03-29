@@ -67,7 +67,7 @@ class NumericalAlgorithmWarning(UserWarning):
         else:
             msg_str = (
                 f"The method {method.__qualname__} uses a numerical algorithm, "
-                + "that is not guaranteed to work everytime!"
+                + "that is not guaranteed to work every time!"
             )
             if class_off is not None:
                 msg_str += (

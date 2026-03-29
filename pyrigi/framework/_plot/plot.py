@@ -956,11 +956,11 @@ def plot2D(
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
         or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
         values are lists of edges.
-        The ommited edges are given the value ``plot_style.edge_color``.
+        The omitted edges are given the value ``plot_style.edge_color``.
     stress_label_positions:
         Dictionary specifying the position of stress labels along the edges. Keys are
         ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
-        Ommited edges are given the value ``0.5``.
+        Omitted edges are given the value ``0.5``.
     arc_angles_dict:
         Optional parameter to specify custom arc angle for edges. Can be a
         ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
@@ -1114,13 +1114,13 @@ def animate3D_rotation(
         a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same color
         or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings and the
         values are lists of vertices.
-        The ommited vertices are given the value ``plot_style.vertex_color``.
+        The omitted vertices are given the value ``plot_style.vertex_color``.
     edge_colors_custom:
         Optional parameter to specify the colors of edges. It can be
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
         or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
         values are lists of edges.
-        The ommited edges are given the value ``plot_style.edge_color``.
+        The omitted edges are given the value ``plot_style.edge_color``.
     total_frames:
         Total number of frames for the animation sequence.
     delay:
@@ -1306,17 +1306,17 @@ def plot3D(
         a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same color
         or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings and the
         values are lists of vertices.
-        The ommited vertices are given the value ``plot_style.vertex_color``.
+        The omitted vertices are given the value ``plot_style.vertex_color``.
     edge_colors_custom:
         Optional parameter to specify the colors of edges. It can be
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
         or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
         values are lists of edges.
-        The ommited edges are given the value ``plot_style.edge_color``.
+        The omitted edges are given the value ``plot_style.edge_color``.
     stress_label_positions:
         Dictionary specifying the position of stress labels along the edges. Keys are
         ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
-        Ommited edges are given the value ``0.5``.
+        Omitted edges are given the value ``0.5``.
     filename:
         The filename under which the produced figure is saved. The default value is
         ``None`` which indicates that the figure is currently not saved.
