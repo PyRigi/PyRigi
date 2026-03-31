@@ -525,7 +525,7 @@ class Graph(nx.Graph):
         algorithm: str = "default",
         spherical: bool = False,
         count_reflection: bool = False,
-    ) -> int | float:
+    ) -> int | Inf:
         return realization_counting.number_of_realizations(
             self,
             dim=dim,
