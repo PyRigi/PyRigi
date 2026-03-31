@@ -4,6 +4,7 @@ from copy import deepcopy
 
 import networkx as nx
 import pytest
+import sympy as sp
 
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
@@ -85,7 +86,7 @@ def test_number_of_realizations_count_reflection_rigid(graph, num_of_realization
     ],
 )
 def test_number_of_realizations_count_reflection_flex(graph, dim):
-    assert graph.number_of_realizations(dim, count_reflection=True) == math.inf
+    assert graph.number_of_realizations(dim, count_reflection=True) == sp.oo
 
 
 @pytest.mark.parametrize(
@@ -145,7 +146,7 @@ def test_number_of_realizations_globally_rigid(graph, dim):
     ],
 )
 def test_number_of_realizations_flex(graph, dim):
-    assert graph.number_of_realizations(dim) == math.inf
+    assert graph.number_of_realizations(dim) == sp.oo
 
 
 @pytest.mark.parametrize(
@@ -208,7 +209,7 @@ def test_number_of_realizations_sphere_globally_rigid(graph, dim):
     ],
 )
 def test_number_of_realizations_sphere_flex(graph, dim):
-    assert graph.number_of_realizations(dim, spherical=True) == math.inf
+    assert graph.number_of_realizations(dim, spherical=True) == sp.oo
 
 
 @pytest.mark.parametrize(
@@ -285,7 +286,7 @@ def test_number_of_realizations_sphere_count_reflection_globally_rigid(
 def test_number_of_realizations_sphere_count_reflection_flex(graph, dim):
     assert (
         graph.number_of_realizations(dim, spherical=True, count_reflection=True)
-        == math.inf
+        == sp.oo
     )
 
 
@@ -412,13 +413,13 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
     assert cp <= cs
     assert cp > 0
     if G.is_rigid(dim):
-        assert cs < math.inf
+        assert cs < sp.oo
         if G.number_of_nodes() >= dim + 1:
             G2 = G.zero_extension(G.vertex_list()[0:dim], dim=dim)
             assert 2 * cp == G2.number_of_realizations(dim)
             assert 2 * cs == G2.number_of_realizations(dim, spherical=True)
     else:
-        assert cs == math.inf
+        assert cs == sp.oo
 
     if G.min_degree() == dim and G.number_of_nodes() > dim + 1:
         G2 = deepcopy(G)

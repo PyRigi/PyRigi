@@ -8,10 +8,12 @@ from copy import copy, deepcopy
 
 import more_itertools
 import networkx as nx
+import sympy as sp
 
 import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.global_ as global_rigidity
 from pyrigi._utils import _input_check
+from pyrigi.data_type import Inf
 from pyrigi.graph._export import export
 from pyrigi.graph._sparsity import sparsity
 
@@ -22,12 +24,13 @@ def number_of_realizations(  # noqa: C901
     algorithm: str = "default",
     spherical: bool = False,
     count_reflection: bool = False,
-) -> int | float:
+) -> int | Inf:
     """
-    Count the number of complex realizations of a ``dim``-rigid graph.
+    Count the number of complex realizations in the ``dim``-dimensional space.
 
     Realizations in ``dim``-dimensional sphere
     can be counted using ``spherical=True``.
+    Infinity ``sp.oo`` is returned for ``dim``-flexible graphs.
 
     For minimally rigid graphs, algorithms of :cite:p:`CapcoGalletEtAl2018` and
     :cite:p:`GalletGraseggerSchicho2020` are used.
@@ -82,6 +85,9 @@ def number_of_realizations(  # noqa: C901
     >>> G = graphs.ThreePrism()
     >>> G.number_of_realizations() # number of planar realizations
     12
+    >>> G = graphs.Cycle(4) # 2-flexible graph
+    >>> G.number_of_realizations() # number of planar realizations
+    oo
     """  # noqa: E501
 
     algorithm_in = algorithm
@@ -115,7 +121,7 @@ def number_of_realizations(  # noqa: C901
         return 1
 
     if not generic_rigidity.is_rigid(graph, dim):
-        return math.inf
+        return sp.oo
 
     fac = 1 if count_reflection else 2
 
