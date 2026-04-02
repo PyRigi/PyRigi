@@ -475,7 +475,7 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
     cs = G.number_of_realizations(dim, spherical=True)
     csr = G.number_of_realizations(dim, spherical=True, count_reflection=True)
 
-    assert cp <= cs # :prf:ref:`thm-sphere-plane-realization`
+    assert cp <= cs  # :prf:ref:`thm-sphere-plane-realization`
     assert cp > 0
     assert cpr == 2 * cp or (cpr == cp and cp == 1)
     assert csr == 2 * cs or (csr == cs and cs == 1)
