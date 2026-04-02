@@ -137,7 +137,7 @@ def test_number_of_realizations_rigid(graph, num_of_realizations):
         [Graph.from_int(222), 1],
         [graphs.Complete(3), 3],
         [Graph.from_int(16351), 3],
-        [Graph.from_int(1048063), 4]
+        [Graph.from_int(1048063), 4],
     ],
 )
 def test_number_of_realizations_globally_rigid(graph, dim):
@@ -316,16 +316,18 @@ def test_number_of_realizations_sphere_count_reflection_flex(graph, dim):
     ],
 )
 def test_number_of_realizations_rigid_higher_dim(
-    graph, dim, num_of_realizations,
+    graph,
+    dim,
+    num_of_realizations,
 ):
     assert (
         graph.number_of_realizations(dim=dim, count_reflection=True)
         == num_of_realizations
     )
-    assert (
-        graph.number_of_realizations(dim=dim)
-        == ((num_of_realizations // 2) if num_of_realizations != 1 else 1)
+    assert graph.number_of_realizations(dim=dim) == (
+        (num_of_realizations // 2) if num_of_realizations != 1 else 1
     )
+
 
 @pytest.mark.parametrize(
     "graph, dim",
@@ -352,15 +354,11 @@ def test_number_of_realizations_type_error(graph, dim):
 
 @pytest.mark.parametrize(
     "alg",
-    [
-        "checktrivial",
-        "test",
-        "standard"
-    ],
+    ["checktrivial", "test", "standard"],
 )
 def test_number_of_realizations_algorithm_error(alg):
     with pytest.raises(ValueError):
-        graphs.Complete(3).number_of_realizations(dim = 2, algorithm = alg)
+        graphs.Complete(3).number_of_realizations(dim=2, algorithm=alg)
 
 
 @pytest.mark.parametrize(
@@ -451,6 +449,23 @@ def test__bigraph_delete_contract(biedges, select, result):
     assert realization_counting._bigraph_delete_contract(biedges, select) == result
 
 
+@pytest.mark.parametrize(
+    "biedges, result",
+    [
+        [[[[1, 2], [1, 2]], [[1, 3], [1, 3]], [[2, 3], [2, 3]]], True],
+        [[[[1, 2], [1, 2]], [[1, 2], [1, 3]], [[2, 3], [2, 3]]], True],
+        [[[[1, 3], [1, 3]]], True],
+        [[[[1, 3], [1, 4]]], True],
+        [[[[1, 2], [1, 2]], [[1, 2], [3, 4]]], True],
+        [[[[1, 2], [1, 2]], [[2, 3], [2, 3]]], False],
+        [[[[1, 4], [1, 4]], [[2, 3], [2, 3]]], False],
+        [[[[1, 2], [1, 2]], [[4, 5], [3, 4]]], False],
+    ],
+)
+def test__bigraph_is_pseudo_laman(biedges, result):
+    assert realization_counting._bigraph_is_pseudo_laman(biedges) == result
+
+
 def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> None:
     """
     Run a set of realization counting tests on a given graph
@@ -487,7 +502,6 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
     assert cp_p == cp
     cs_p = G.number_of_realizations(dim, spherical=True, algorithm="native")
     assert cs_p == cs
-
 
     if dim == 2 and check_lnumber and G.is_min_rigid(dim):
         cp_l = G.number_of_realizations(dim, algorithm="lnumber")

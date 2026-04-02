@@ -57,13 +57,14 @@ def number_of_realizations(  # noqa: C901
     ----------
     dim:
         The dimension in which the realizations are counted.
-        Currently, only ``dim=1`` and ``dim=2`` are supported.
+        Currently, only ``dim=1`` and ``dim=2`` are fully supported.
+        Higher dimensions work just for trivial cases.
     algorithm:
         If ``"default"``, PyRigi checks which algorithm is available for the parameters and choses this one.
         If ``"native"``, a pure PyRigi implementation is used.
         If ``"lnumber"``, the ``lnumber`` package is used.
         This needs to be installed separately
-        but is much faster than the ``pyrigi`` implementation.
+        but is much faster than the ``native`` implementation.
         This works only for minimally rigid graphs in dimension 2.
     spherical:
         If ``True``, the number of spherical realizations of the graph is returned.
@@ -82,7 +83,7 @@ def number_of_realizations(  # noqa: C901
     >>> G = Graph([(0,1),(1,2),(2,0)])
     >>> G.number_of_realizations() # number of planar realizations
     1
-    >>> G.number_of_realizations(spherical=True)
+    >>> G.number_of_realizations(spherical=True) # number of spherical realizations
     1
     >>> G = graphs.ThreePrism()
     >>> G.number_of_realizations() # number of planar realizations
@@ -131,7 +132,7 @@ def number_of_realizations(  # noqa: C901
     fac = 1 if count_reflection else 2
 
     # Check trivial cases for higher dimensions
-    # currently just for internal use to resolve default in higher dimensions
+    # currently just for internal use to resolve default in higher dimensions if possible
     if algorithm == "checktrivial":
 
         # reduce by deleting vertices of degree = dim
@@ -146,11 +147,11 @@ def number_of_realizations(  # noqa: C901
         if n <= dim and G.number_of_edges() == math.comb(n, 2):
             return 2**deg_dim // fac if deg_dim > 0 else 1
         if n == dim + 1 and G.number_of_edges() == math.comb(dim + 1, 2):
-            return 2**(deg_dim + 1) // fac
+            return 2 ** (deg_dim + 1) // fac
 
         # globally rigid in any dimension
         if global_rigidity.is_globally_rigid(G, dim):
-            return 2**(deg_dim + 1) // fac
+            return 2 ** (deg_dim + 1) // fac
 
         # all other cases
         raise NotImplementedError(
