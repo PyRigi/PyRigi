@@ -475,12 +475,13 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
     cs = G.number_of_realizations(dim, spherical=True)
     csr = G.number_of_realizations(dim, spherical=True, count_reflection=True)
 
-    assert cp <= cs
+    assert cp <= cs # :prf:ref:`thm-sphere-plane-realization`
     assert cp > 0
     assert cpr == 2 * cp or (cpr == cp and cp == 1)
     assert csr == 2 * cs or (csr == cs and cs == 1)
 
     # do a 0-extension on rigid graphs
+    # :prf:ref:`lem-realization-0-extension`
     if G.is_rigid(dim):
         assert cs < sp.oo
         if G.number_of_nodes() >= dim + 1:
@@ -491,6 +492,7 @@ def _run_realization_test_on_graph(G: Graph, dim: int, check_lnumber: bool) -> N
         assert cs == sp.oo
 
     # do a 0-reduction
+    # :prf:ref:`lem-realization-0-extension`
     if G.min_degree() == dim and G.number_of_nodes() > dim + 1:
         G2 = deepcopy(G)
         min_v = [v for v in G2.vertex_list() if G2.degree(v) == dim]

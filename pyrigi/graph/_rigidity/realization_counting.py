@@ -41,7 +41,9 @@ def number_of_realizations(  # noqa: C901
     but it can be changed using the parameter ``count_reflection``.
 
     For 2-rigid graphs which are not minimal,
-    the algorithm of :cite:p:`DewarGraseggerEtAl2025` is used.
+    the algorithm of :cite:p:`DewarGraseggerEtAl2025` is used
+    (see :prf:ref:`thm-realization-rigid-not-3-connected` and
+    :prf:ref:`thm-realization-rigid-3-connected`).
 
     Caution: PyRigi can compute realizations counts directly but this might be slow.
     Faster computation works only if the python package ``lnumber``
@@ -136,6 +138,7 @@ def number_of_realizations(  # noqa: C901
     if algorithm == "checktrivial":
 
         # reduce by deleting vertices of degree = dim
+        # :prf:ref:`lem-realization-0-extension`
         G = deepcopy(graph)
         deg_dim = 0
         while G.number_of_nodes() > dim + 1 and G.min_degree() == dim:
@@ -165,6 +168,7 @@ def number_of_realizations(  # noqa: C901
         if generic_rigidity.is_min_rigid(graph, dim):
             G = deepcopy(graph)
             deg_1 = 0
+            # use :prf:ref:`lem-realization-0-extension`
             while G.number_of_nodes() > 2 and G.min_degree() == 1:
                 min_v = [v for v in G.nodes if G.degree(v) == 1]
                 G.delete_vertices(min_v)
@@ -235,7 +239,10 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
     """
     Compute the number of realizations in dimension 2
     for a graph that is rigid but
-    neither minimally nor globally rigid.
+    neither minimally nor globally rigid using
+    :prf:ref:`thm-realization-rigid-3-connected`
+    and
+    :prf:ref:`thm-realization-rigid-not-3-connected`.
 
     Parameters
     ----------
@@ -254,6 +261,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
     # Since the graph is not globally rigid,
     # it is not 3-connected or not redundantly rigid
     # Case where the graph is not 3-connected
+    # :prf:ref:`thm-realization-rigid-not-3-connected`
     if len(cut) == 2:
         G.delete_vertices(cut)
         con = nx.connected_components(G)
@@ -289,6 +297,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
         )
     # Case where the graph is 3-connected but not redundantly rigid
     # Find edge e such that graph - e is not rigid
+    # :prf:ref:`thm-realization-rigid-3-connected`
     G = deepcopy(graph)
     edges = G.edge_list()
     found = False
@@ -344,6 +353,7 @@ def _number_of_sphere_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     """
     G = deepcopy(graph)
     deg_2 = 0
+    # use :prf:ref:`lem-realization-0-extension`
     while G.number_of_nodes() > 2 and G.min_degree() == 2:
         min_v = [v for v in G.nodes if G.degree(v) == 2]
         G.delete_vertices(min_v)
@@ -455,6 +465,7 @@ def _number_of_plane_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     """
     G = deepcopy(graph)
     deg_2 = 0
+    # use :prf:ref:`lem-realization-0-extension`
     while G.number_of_nodes() > 2 and G.min_degree() == 2:
         min_v = [v for v in G.nodes if G.degree(v) == 2]
         G.delete_vertices(min_v)
