@@ -703,7 +703,9 @@ class ApproximateMotion(Motion):
         damping = 2e-1
         while not cur_error < self.tolerance:
             rigidity_matrix = np.array(
-                F.rigidity_matrix(vertex_order=self._graph.nodes)
+                 F.rigidity_matrix(
+                    vertex_order=self._graph.nodes, edge_order=self._edge_lengths.keys()
+                )
             ).astype(np.float64)
             equations = [
                 np.linalg.norm(
