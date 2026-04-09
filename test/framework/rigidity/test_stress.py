@@ -127,7 +127,7 @@ def test_stresses_numerical(framework, num_stresses):
         [fws.Complete(4), 1],
         [fws.Frustum(3), 3],
         [fws.Frustum(4), 5],
-        pytest.param(fws.Frustum(5), 7, marks=pytest.mark.slow_main),
+        pytest.param(fws.Frustum(5), 7, marks=pytest.mark.long_local),
         [fws.ThreePrism(realization="flexible"), 3],
         [fws.ThreePrism(realization="parallel"), 3],
         [fws.Octahedron(realization="Bricard_line"), 2],
