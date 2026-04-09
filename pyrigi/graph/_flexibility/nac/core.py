@@ -1,5 +1,5 @@
 """
-The module contains functions related to converting from and to
+The module contains functions for converting from and to
 :prf:ref:`NAC-mono <def-nac-mono>` classes represented by bit masks
 to sets of edges representing a :prf:ref:`NAC-coloring <def-nac>`.
 """
@@ -36,43 +36,36 @@ class SubgraphColorings(NamedTuple):
     subgraph_mask: int
 
 
-def can_have_NAC_coloring(graph: nx.Graph) -> bool:
+def can_have_NAC_coloring(
+    graph: nx.Graph,
+) -> bool:
     """
-    Check whether the given graph can have a :prf:ref:`NAC-coloring <def-nac>`
-    and if the graph is valid for the :prf:ref:`NAC-coloring <def-nac>` search.
+    Return if the graph may have a NAC-coloring.
 
-    Graph with less than two edges cannot have a :prf:ref:`NAC-coloring <def-nac>`.
-    Graph with more than `n(n-2)/2 - (n-2)` edges
-    cannot have a :prf:ref:`NAC-coloring <def-nac>`
-    as show in :prf:ref:`thm-flexible-edge-bound`.
+    Use equivalence from :cite:p:`GraseggerLegerskySchicho2019{Thm 3.1}`
+    that a graph has a :prf:ref:`NAC-colorings <def-nac>`
+    if and only if it has a flexible realization.
+    For a flexible realization, the upper bound
+    on the number of edges in a graph is known
+    :cite:p:`GraseggerLegerskySchicho2019{Thm 4.7}`.
 
-    Return
-    ------
-    `True` if a NAC coloring may exist, `False` if there can be none
-    by doing constant complexity checks.
+    Definitions
+    -----------
+    * :prf:ref:`NAC-coloring <def-nac>`
+    * :prf:ref:`Flexibility <def-cont-rigid-framework>`
+    * :prf:ref:`Realization <def-realization>`
 
-    Throw
-    -----
-    :class:`~ValueError` if the graph is empty, contains self loops or is directed.
+    Parameters
+    ----------
+    graph:
+        A connected graph with at least one edge.
     """
-    if graph.nodes() == 0:
-        raise ValueError("NAC-coloring search is undefined for the empty graph")
-
-    if nx.number_of_selfloops(graph) > 0:
-        raise LookupError()
-
-    if nx.is_directed(graph):
-        raise ValueError("NAC-coloring search is undefined for directed graphs")
-
-    if len(nx.edges(graph)) < 2:
+    if graph.number_of_edges() <= 1:
         return False
-
     n = graph.number_of_nodes()
     m = graph.number_of_edges()
-    if m > n * (n - 1) // 2 - (n - 2):
-        return False
 
-    return True
+    return m <= n * (n - 1) // 2 - (n - 2)
 
 
 ################################################################################
@@ -88,7 +81,7 @@ def coloring_from_mask(
     Parameters
     ----------
     ordered_class_ids:
-        List of class IDs, mask's bits point into it.
+        List of class IDs that the mask's bits point into.
     class_to_edges:
         Mapping from class ID to its edges.
     mask:
@@ -150,27 +143,22 @@ def create_bitmask_for_class_graph_cycle(
     if they are the only class with the other color,
     an almost cycle exists.
 
+    Tuple ``(template, valid)`` is returned:
+    ``template`` is a bit mask representing the cycle,
+    and ``valid`` is a bit mask representing classes of the cycle such that
+    if they are the only class with the other color,
+    an almost cycle exists.
+
     Parameters
     ----------
-    graph:
-        Input graph.
     class_to_edges:
         Mapping from class to its edges.
-        Method :meth:`~list.__getitem__` can be also passed.
+        The method :meth:`~list.__getitem__` can also be passed.
     cycle:
         A cycle in the class graph.
     local_ordered_class_ids:
-        can be used if the graph given is subgraph of the original graph
-        and class_to_edges also represent the original graph.
-
-    Returns
-    -------
-    template:
-        Bit mask representing the cycle.
-    valid:
-        Bit mask representing classes of the cycle such that
-        if they are the only class with the other color,
-        an almost cycle exists.
+        It can be used if the given graph is a subgraph of the original graph
+        and ``class_to_edges`` also represents the original graph.
     """
 
     template = 0
@@ -181,9 +169,9 @@ def create_bitmask_for_class_graph_cycle(
 
     def check_for_connecting_edge(prev: int, curr: int, next: int) -> bool:
         """
-        Checks if for the class given there exists a path through
-        the class using single edge only - in that case,
-        if the class is colored by the other color then the other classes,
+        Check whether for the given class there exists a path through
+        the class using a single edge only - in that case,
+        if the class is colored by the other color than the other classes,
         an almost cycle exists.
         """
         vertices_curr = {v for e in class_to_edges(curr) for v in e}
@@ -267,7 +255,7 @@ def NAC_colorings_with_non_surjective(
     colorings: Iterable[NACColoring],
 ) -> Iterable[NACColoring]:
     """
-    Add monochromatic colorings to iterator of NAC-colorings.
+    Add monochromatic colorings to the iterator of NAC-colorings.
     """
     r, b = [], list(graph.edges())
     yield r, b

@@ -98,11 +98,15 @@ class Framework(FrameworkBase):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
         filename: str = None,
-        dpi=300,
+        dpi: int = 300,
+        fixed_vertices: Sequence[Vertex] = [],
         **kwargs,
     ) -> None:
         return plot.plot2D(
@@ -113,11 +117,13 @@ class Framework(FrameworkBase):
             coordinates=coordinates,
             inf_flex=inf_flex,
             stress=stress,
+            vertex_colors_custom=vertex_colors_custom,
             edge_colors_custom=edge_colors_custom,
             stress_label_positions=stress_label_positions,
             arc_angles_dict=arc_angles_dict,
             filename=filename,
             dpi=dpi,
+            fixed_vertices=fixed_vertices,
             **kwargs,
         )
 
@@ -126,6 +132,9 @@ class Framework(FrameworkBase):
     def animate3D_rotation(
         self,
         plot_style: PlotStyle = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         total_frames: int = 100,
         delay: int = 75,
@@ -135,6 +144,7 @@ class Framework(FrameworkBase):
         return plot.animate3D_rotation(
             self,
             plot_style=plot_style,
+            vertex_colors_custom=vertex_colors_custom,
             edge_colors_custom=edge_colors_custom,
             total_frames=total_frames,
             delay=delay,
@@ -152,10 +162,14 @@ class Framework(FrameworkBase):
         coordinates: Sequence[int] = None,
         inf_flex: int | InfFlex = None,
         stress: int | Stress = None,
+        vertex_colors_custom: (
+            Sequence[Sequence[Vertex]] | dict[str, Sequence[Vertex]]
+        ) = None,
         edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
         stress_label_positions: dict[DirectedEdge, float] = None,
         filename: str = None,
-        dpi=300,
+        dpi: int = 300,
+        fixed_vertices: Sequence[Vertex] = [],
         **kwargs,
     ) -> None:
         return plot.plot3D(
@@ -166,10 +180,12 @@ class Framework(FrameworkBase):
             coordinates=coordinates,
             inf_flex=inf_flex,
             stress=stress,
+            vertex_colors_custom=vertex_colors_custom,
             edge_colors_custom=edge_colors_custom,
             stress_label_positions=stress_label_positions,
             filename=filename,
             dpi=dpi,
+            fixed_vertices=fixed_vertices,
             **kwargs,
         )
 
@@ -498,6 +514,23 @@ class Framework(FrameworkBase):
         )
 
     @doc_category("Infinitesimal rigidity")
+    @copy_doc(stress_rigidity.stress_matrix_rank)
+    def stress_matrix_rank(
+        self,
+        stress: Stress,
+        edge_order: Sequence[Edge] = None,
+        numerical: bool = False,
+        tolerance: float = 1e-9,
+    ) -> int:
+        return stress_rigidity.stress_matrix_rank(
+            self,
+            stress=stress,
+            edge_order=edge_order,
+            numerical=numerical,
+            tolerance=tolerance,
+        )
+
+    @doc_category("Infinitesimal rigidity")
     @copy_doc(infinitesimal_rigidity.trivial_inf_flexes)
     def trivial_inf_flexes(self, vertex_order: Sequence[Vertex] = None) -> list[Matrix]:
         return infinitesimal_rigidity.trivial_inf_flexes(
@@ -517,6 +550,7 @@ class Framework(FrameworkBase):
         vertex_order: Sequence[Vertex] = None,
         numerical: bool = False,
         tolerance: float = 1e-9,
+        fixed_vertices: Sequence[Vertex] = [],
     ) -> list[Matrix] | list[list[float]]:
         return infinitesimal_rigidity.inf_flexes(
             self,
@@ -524,6 +558,7 @@ class Framework(FrameworkBase):
             vertex_order=vertex_order,
             numerical=numerical,
             tolerance=tolerance,
+            fixed_vertices=fixed_vertices,
         )
 
     @doc_category("Infinitesimal rigidity")

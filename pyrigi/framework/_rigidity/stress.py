@@ -116,6 +116,7 @@ def is_vector_stress(
     >>> F.is_stress(stresses[0])
     True
     """
+    framework._warn_numerical_coord(is_vector_stress, numerical)
     edge_order = _graph_input_check.is_edge_order(
         framework._graph, edge_order=edge_order
     )
@@ -158,7 +159,7 @@ def stress_matrix(
     Construct the stress matrix of a stress.
 
     Definitions
-    -----
+    -----------
     * :prf:ref:`Stress Matrix <def-stress-matrix>`
 
     Parameters
@@ -207,6 +208,64 @@ def stress_matrix(
     return stress_matr
 
 
+def stress_matrix_rank(
+    framework: FrameworkBase,
+    stress: Stress,
+    edge_order: Sequence[Edge] = None,
+    numerical: bool = False,
+    tolerance: float = 1e-9,
+) -> int:
+    """
+    Return the rank of the stress matrix for a given stress.
+
+    Definitions
+    -----------
+    * :prf:ref:`Equilibrium stress <def-equilibrium-stress>`
+    * :prf:ref:`Stress Matrix <def-stress-matrix>`
+
+    Parameters
+    ----------
+    stress:
+        A stress of the framework given as a vector.
+    edge_order:
+        A list of edges, providing the ordering of edges in ``stress``.
+        If ``None``, :meth:`.Graph.edge_list` is assumed.
+    numerical:
+        If ``True``, the rank of the stress matrix with entries as floats
+        is computed.
+
+        *Warning:* For ``numerical=True`` the numerical rank computation
+        may produce different results than the computation over exact
+        coordinates.
+    tolerance:
+        Numerical tolerance used for computing the rank.
+
+    Examples
+    --------
+    >>> F = Framework.Complete([(0, 0), (0, 1), (-1, -1), (1, -1)])
+    >>> omega = [-8, -4, -4, 2, 2, 1]
+    >>> F.is_stress(omega)
+    True
+    >>> F.stress_matrix(omega)
+    Matrix([
+    [-16,  8,  4,  4],
+    [  8, -4, -2, -2],
+    [  4, -2, -1, -1],
+    [  4, -2, -1, -1]])
+    >>> F.stress_matrix_rank(omega)
+    1
+    """
+    framework._warn_numerical_coord(stress_matrix_rank, numerical)
+    if numerical:
+        return np.linalg.matrix_rank(
+            np.array(
+                stress_matrix(framework, stress=stress, edge_order=edge_order)
+            ).astype(np.float64),
+            tol=tolerance,
+        )
+    return stress_matrix(framework, stress=stress, edge_order=edge_order).rank()
+
+
 def stresses(
     framework: FrameworkBase,
     edge_order: Sequence[Edge] = None,
@@ -244,6 +303,7 @@ def stresses(
     [ 2],
     [ 1]])]
     """
+    framework._warn_numerical_coord(stresses, numerical)
     if not numerical:
         return (
             infinitesimal_rigidity.rigidity_matrix(framework, edge_order=edge_order)
@@ -253,13 +313,15 @@ def stresses(
     F = FrameworkBase(
         framework._graph, framework.realization(as_points=True, numerical=True)
     )
-    stresses = _null_space(
+    equilibrium_stresses = _null_space(
         np.array(
             infinitesimal_rigidity.rigidity_matrix(F, edge_order=edge_order).transpose()
         ).astype(np.float64),
         tolerance=tolerance,
     )
-    return [list(stresses[:, i]) for i in range(stresses.shape[1])]
+    return [
+        list(equilibrium_stresses[:, i]) for i in range(equilibrium_stresses.shape[1])
+    ]
 
 
 def _transform_stress_to_edgewise(

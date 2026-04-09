@@ -82,7 +82,7 @@ def subgraphs_strategy_neighbors(
         # vertices of the already chosen classes
         used_vertices = vertices_of_classes(target_chunk, class_to_edges)
 
-        # vertices to search trough
+        # vertices to search through
         opened: set[int] = set()
 
         # add all the neighbors of the vertices of the already added classes
