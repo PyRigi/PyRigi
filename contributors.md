@@ -3,6 +3,16 @@
 (M) indicates maintainers
 <!-- start-input -->
 
+
+## Version 1.2.0 (April 9, 2026)
+
+* Matteo Gallet (M)
+* Georg Grasegger (M)
+* Matthias Himmelmann (M)
+* Petr Laštovička
+* Jan Legerský (M)
+
+
 ## Version 1.1.0 (May 28, 2025)
 
 * Matteo Gallet (M)
