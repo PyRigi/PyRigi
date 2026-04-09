@@ -5,7 +5,6 @@ import pyrigi.graph._flexibility.nac as nac
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 
-
 algorithms = ["default", "naive", "subgraphs"] + [
     "subgraphs-{}-{}-{}".format(split, merge, size)
     for split in ["none", "neighbors", "neighbors_degree"]
