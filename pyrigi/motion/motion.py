@@ -12,8 +12,8 @@ from IPython.display import SVG
 from matplotlib.animation import FuncAnimation
 
 import pyrigi._utils._input_check as _input_check
-from pyrigi._utils._zero_check import is_zero
 from pyrigi._utils._conversion import _rgb_to_hex_array
+from pyrigi._utils._zero_check import is_zero
 from pyrigi.data_type import (
     Edge,
     Number,

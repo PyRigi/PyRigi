@@ -7,8 +7,8 @@ Module for defining data type used for type hinting.
 from collections.abc import Sequence
 from typing import Hashable, TypeAlias
 
-import sympy as sp
 import numpy as np
+import sympy as sp
 
 Vertex: TypeAlias = Hashable
 """

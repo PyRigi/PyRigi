@@ -6,7 +6,9 @@ Module for defining warnings.
 
 import warnings
 from collections.abc import Callable
+
 import networkx as nx
+
 from pyrigi.data_type import (
     Number,
     Sequence,

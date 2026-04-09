@@ -9,8 +9,9 @@ import sympy as sp
 from sympy import Matrix
 
 from pyrigi.data_type import InfFlex, Number, Sequence, Vertex
-from ._input_check import integrality_and_range
+
 from ._conversion import sympy_expr_to_float
+from ._input_check import integrality_and_range
 from ._zero_check import is_zero
 
 

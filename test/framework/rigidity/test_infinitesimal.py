@@ -4,12 +4,12 @@ from sympy import Matrix, sympify
 
 import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
+from pyrigi._utils._zero_check import is_zero_vector
 from pyrigi.framework import Framework
 from pyrigi.framework._rigidity import infinitesimal as infinitesimal_rigidity
 from pyrigi.graph import Graph
 from test import TEST_WRAPPED_FUNCTIONS
 from test.framework import _to_FrameworkBase
-from pyrigi._utils._zero_check import is_zero_vector
 
 
 @pytest.mark.parametrize(

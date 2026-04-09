@@ -4,17 +4,16 @@ Base module for the functionality concerning frameworks.
 
 from __future__ import annotations
 
+import warnings
+from collections.abc import Callable
 from copy import deepcopy
 
-from collections.abc import Callable
 import networkx as nx
 import numpy as np
 import sympy as sp
 from sympy import Matrix
-import warnings
 
 import pyrigi._utils._input_check as _input_check
-from pyrigi.graph import _general as graph_general
 import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi._utils._doc import doc_category, generate_category_tables
 from pyrigi.data_type import (
@@ -25,6 +24,7 @@ from pyrigi.data_type import (
     Vertex,
 )
 from pyrigi.graph import Graph
+from pyrigi.graph import _general as graph_general
 from pyrigi.warning import NumericalCoordinateWarning
 
 
