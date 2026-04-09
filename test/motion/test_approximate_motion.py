@@ -38,6 +38,16 @@ def test_animate3D():
         ) and not F.is_congruent_realization(sample, numerical=True)
     motion.animate()
 
+    F = Framework(
+        graphs.Diamond(), {0: (0, 0, 0), 1: (0, 0, 1), 2: (1, 0, 0), 3: (0, 1, 0)}
+    )
+    motion = ApproximateMotion(F, 5)
+    for sample in motion.motion_samples[1:]:
+        assert F.is_equivalent_realization(
+            sample, numerical=True, tolerance=1e-3
+        ) and not F.is_congruent_realization(sample, numerical=True)
+    motion.animate()
+
 
 @pytest.mark.parametrize(
     "framework",
