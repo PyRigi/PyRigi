@@ -88,16 +88,14 @@ def has_NAC_coloring(
     """
     Return if the graph has a NAC-coloring.
 
-    Same as :func:`pyrigi.graph._flexibility.nac.facade.single_NAC_coloring`,
+    Same as :func:`Graph.single_NAC_coloring`,
     but no certificate of existence is provided.
+
+    See :meth:`.Graph.NAC_colorings` for parameter descriptions.
 
     Definitions
     -----------
     * :prf:ref:`NAC-coloring <def-nac>`
-
-    Parameters
-    ----------
-    See :meth:`~pyrigi.graph.Graph.NAC_colorings` for parameters description.
     """
     _check_input_graph_for_NAC_coloring(graph)
 
@@ -127,13 +125,11 @@ def single_NAC_coloring(
     Some polynomial time checks are run.
     If they fail, an exhaustive search is run.
 
+    See :meth:`.Graph.NAC_colorings` for parameter descriptions.
+
     Definitions
     -----------
     * :prf:ref:`NAC-coloring <def-nac>`
-
-    Parameters
-    ----------
-    See :meth:`~pyrigi.graph.Graph.NAC_colorings` for parameters description.
     """
     _check_input_graph_for_NAC_coloring(graph)
 
