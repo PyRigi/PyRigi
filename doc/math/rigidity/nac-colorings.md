@@ -14,6 +14,8 @@ every cycle of the graph is either monochromatic or it contains each color at le
 {{references}} {cite:p}`GraseggerLegerskySchicho2019`
 
 {{pyrigi_crossref}} {meth}`~.Graph.NAC_colorings`
+{meth}`~.Graph.has_NAC_coloring`
+{meth}`~.Graph.single_NAC_coloring`
 :::
 
 
