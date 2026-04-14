@@ -425,7 +425,7 @@ def _min_rigidity_dimension_encoding(graph: nx.Graph) -> int:
         # if the graph is minimally d-rigid, then by :prf:ref:`thm-gen-rigidity-tight`
         # m = d*n - (d+1)*d/2
         # equivalently
-        # d**2 + d*(1-2*n) + 2*m
+        # d**2 + d*(1-2*n) + 2*m = 0
         disc = (1 - 2 * n) ** 2 - 4 * 2 * m
         if sp.ntheory.primetest.is_square(disc) and sp.sqrt(disc) % 2 == 1:
             # the smaller root is taken

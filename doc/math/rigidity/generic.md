@@ -95,7 +95,7 @@ then it is {prf:ref}`globally <def-globally-rigid-graph>` $d$-rigid.
 
 Let $G$ be a graph.
 If $G$ is disconnected, resp. complete,
-then its _maximum rigid dimension_ $0$, resp. $\infty$.
+then its _maximum rigid dimension_ is $0$, resp. $\infty$.
 Otherwise, the _maximum rigid dimension_ of $G$ is the integer $d\geq 1$ such that
 $G$ is $d'$-rigid for all $d'\leq d$ and $G$ is $d'$-flexible for all $d'>d$. 
 
