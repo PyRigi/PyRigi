@@ -11,6 +11,7 @@ from _utils import (
     benchmark_merger,
     test_generator_mult,
     runner,
+    checkpoint,
 )
 from _utils.models import RunConfig
 
@@ -84,17 +85,12 @@ def _filter_existing_benchmarks(
     return existing_results, configs, missing_combinations
 
 
-def run_benchmark_pipeline(config: RunConfig) -> None:
-    """Execute the full benchmarking pipeline based on the provided configuration."""
-    timeout_str = f"{config.timeout}s" if config.timeout else "none"
-    print(
-        f"Benchmark settings: min_rounds={config.min_rounds}, "
-        f"max_time={config.max_time}s, "
-        f"warmup={config.warmup}, warmup_iterations={config.warmup_iterations}, "
-        f"timeout={timeout_str}"
-    )
+def _exit_with_error(prefix: str, error: Exception) -> None:
+    print(f"{prefix}: {error}")
+    sys.exit(1)
 
-    # 1. Load Function & Detect Graph Parameter
+
+def _load_function_and_hash(config: RunConfig):
     print(f"Loading function from {config.target}...")
     try:
         func, graph_param_name = function_loader.load_function_and_detect_param(
@@ -104,23 +100,30 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
             f"Found function '{func.__name__}' with graph parameter '{graph_param_name}'"
         )
     except Exception as e:
-        print(f"Error loading function: {e}")
-        sys.exit(1)
+        _exit_with_error("Error loading function", e)
 
-    # 2. Load Dataset
+    source_hash = function_loader.get_function_hash(func)
+    print(f"Source hash for {func.__name__}: {source_hash}")
+
+    return func, graph_param_name, source_hash
+
+
+def _load_dataset_paths(config: RunConfig) -> list:
     print(f"Loading dataset from {config.dataset}...")
     try:
         dataset_paths = dataset_loader.get_dataset_files(config.dataset)
         print(f"Found {len(dataset_paths)} graph files.")
     except Exception as e:
-        print(f"Error loading dataset: {e}")
-        sys.exit(1)
+        _exit_with_error("Error loading dataset", e)
 
     if not dataset_paths:
         print("No .g6 files found in dataset directory.")
         sys.exit(1)
 
-    # 3. Parse Parameters
+    return dataset_paths
+
+
+def _parse_configurations(config: RunConfig) -> list:
     print("Parsing parameters...")
 
     if (
@@ -128,60 +131,78 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
         and len(config.params) > 0
         and isinstance(config.params[0], dict)
     ):
-        # Already parsed by YAML loader
-        configs = config.params
+        parsed_configs = config.params
         print(
-            f"Loaded {len(configs)} configuration(s) from config file "
+            f"Loaded {len(parsed_configs)} configuration(s) from config file "
             f"(cartesian + explicit)."
         )
-    else:
-        # Needs parsing from CLI strings
-        raw_params = param_parser.parse_cli_strings(config.params)
-        configs = param_parser.build_cartesian_product(raw_params)
-        print(
-            f"Generated {len(configs)} configuration(s) from CLI "
-            f"using Cartesian product strategy."
-        )
+        return parsed_configs
 
-    # 3.5. Validate Parameters Against Function Signature
-    _validate_function_parameters(func, graph_param_name, configs)
+    raw_params = param_parser.parse_cli_strings(config.params)
+    parsed_configs = param_parser.build_cartesian_product(raw_params)
+    print(
+        f"Generated {len(parsed_configs)} configuration(s) from CLI "
+        f"using Cartesian product strategy."
+    )
+    return parsed_configs
 
-    # 4. Filter Existing Benchmarks
+
+def _recover_checkpoint_if_present(checkpoint_file: str, output: str) -> None:
+    if not checkpoint.exists(checkpoint_file):
+        return
+
+    print("\nFound checkpoint from a previous interrupted run. Recovering...")
+    try:
+        n_recovered = checkpoint.drain_into_results(checkpoint_file, output)
+        print(f"Recovered {n_recovered} result(s) into {output}.\n")
+    except Exception as e:
+        print(f"Warning: Checkpoint recovery failed ({e}). Continuing without it.")
+        checkpoint.clear(checkpoint_file)
+
+
+def _prepare_run_scope(
+    config: RunConfig, func_name: str, dataset_paths: list, configs: list
+):
     if os.path.exists(config.output):
         print(f"Loading existing results from {config.output}...")
-        existing_results, configs_to_run, explicit_tasks = _filter_existing_benchmarks(
-            config.output, config.force_rerun, func.__name__, dataset_paths, configs
+        return _filter_existing_benchmarks(
+            config.output, config.force_rerun, func_name, dataset_paths, configs
         )
-    else:
-        existing_results = {}
-        configs_to_run = configs
-        explicit_tasks = None
-        print(f"Creating new results file: {config.output}")
 
-    # Paths for temp files
-    test_file = str(BENCHMARK_DIR / "temp_benchmark_test.py")
-    temp_results_file = str(BENCHMARK_DIR / "temp_benchmark_results.json")
-    conftest_file = str(BENCHMARK_DIR / "conftest.py")
-    timeout_log_file = str(BENCHMARK_DIR / "timeout_log.json")
+    print(f"Creating new results file: {config.output}")
+    return {}, configs, None
 
-    # 5. Generate Test File First (to compute nodes_total)
+
+def _generate_test_file(
+    config: RunConfig,
+    func_name: str,
+    graph_param_name: str,
+    dataset_paths: list,
+    configs_to_run: list,
+    explicit_tasks,
+    test_file: str,
+    source_hash: str,
+):
     print("Generating temporary test file...")
     try:
-        test_file, nodes_total = test_generator_mult.generate_benchmark_test_file(
+        return test_generator_mult.generate_benchmark_test_file(
             func_path=config.target,
-            func_name=func.__name__,
+            func_name=func_name,
             graph_param_name=graph_param_name,
             dataset_paths=dataset_paths,
             configurations=configs_to_run,
             explicit_combinations=explicit_tasks,
             output_path=test_file,
+            source_hash=source_hash,
+            min_rounds=config.min_rounds,
+            max_time=config.max_time,
+            warmup=config.warmup,
         )
-        print(f"Test file generated at {test_file}")
     except Exception as e:
-        print(f"Error generating test file: {e}")
-        sys.exit(1)
+        _exit_with_error("Error generating test file", e)
 
-    # 6. Generate conftest.py
+
+def _generate_conftest(config: RunConfig, conftest_file: str, nodes_total: int) -> None:
     print("Generating conftest.py (data-strip hook + timeout support)...")
     try:
         test_generator_mult.generate_conftest_file(
@@ -192,10 +213,60 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
         )
         print(f"conftest.py generated at {conftest_file}")
     except Exception as e:
-        print(f"Error generating conftest.py: {e}")
-        sys.exit(1)
+        _exit_with_error("Error generating conftest.py", e)
 
-    # 7. Run Benchmarks
+
+def _cleanup_temp_files(*temp_paths: str) -> None:
+    for tmp in temp_paths:
+        if os.path.exists(tmp):
+            try:
+                os.remove(tmp)
+            except Exception:
+                pass
+
+
+def _enrich_results(
+    temp_results_file: str, func_name: str, target: str, source_hash: str
+) -> dict:
+    with open(temp_results_file, "r") as f:
+        new_results = json.load(f)
+
+    timestamp = datetime.datetime.now().isoformat()
+    for benchmark in new_results.get("benchmarks", []):
+        benchmark["function"] = func_name
+        benchmark["module_path"] = target
+        benchmark["timestamp"] = timestamp
+        benchmark["source_hash"] = source_hash
+
+    return new_results
+
+
+def _merge_and_write_results(
+    config: RunConfig, existing_results: dict, new_results: dict, func_name: str
+) -> None:
+    final_results = benchmark_merger.merge_results(
+        existing_results, new_results, func_name, config.force_rerun
+    )
+
+    tmp_output = config.output + ".tmp"
+    with open(tmp_output, "w") as f:
+        json.dump(final_results, f, indent=2)
+    os.replace(tmp_output, config.output)
+
+    print(f"Results successfully merged and saved to {config.output}")
+
+
+def _run_and_persist_results(
+    config: RunConfig,
+    test_file: str,
+    conftest_file: str,
+    temp_results_file: str,
+    timeout_log_file: str,
+    checkpoint_file: str,
+    existing_results: dict,
+    func_name: str,
+    source_hash: str,
+) -> None:
     print("Running benchmarks...")
     try:
         runner.run_pytest_benchmark(
@@ -207,48 +278,81 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
             warmup_iterations=config.warmup_iterations,
             timeout=config.timeout,
             timeout_log_file=timeout_log_file,
+            checkpoint_file=checkpoint_file,
         )
         print(f"Benchmarks completed. Results in {temp_results_file}")
 
-        # 8. Load temp results & enrich
         if os.path.exists(temp_results_file):
-            with open(temp_results_file, "r") as f:
-                new_results = json.load(f)
-
-            timestamp = datetime.datetime.now().isoformat()
-            source_hash = function_loader.get_function_hash(func)
-            print(f"Computed source hash for {func.__name__}: {source_hash}")
-
-            for benchmark in new_results.get("benchmarks", []):
-                benchmark["function"] = func.__name__
-                benchmark["module_path"] = config.target
-                benchmark["timestamp"] = timestamp
-                benchmark["source_hash"] = source_hash
-
-            # 9. Merge and Write
-            final_results = benchmark_merger.merge_results(
-                existing_results, new_results, func.__name__, config.force_rerun
+            new_results = _enrich_results(
+                temp_results_file, func_name, config.target, source_hash
             )
-
-            with open(config.output, "w") as f:
-                json.dump(final_results, f, indent=2)
-
-            print(f"Results successfully merged and saved to {config.output}")
+            _merge_and_write_results(config, existing_results, new_results, func_name)
+            checkpoint.clear(checkpoint_file)
         else:
             print("Warning: No results generated (maybe no tests were run?)")
 
-        # 10. Process timeout log
         _process_timeout_log(timeout_log_file, config)
-
     except Exception as e:
         print(f"Benchmark run failed: {e}")
     finally:
-        for tmp in (test_file, conftest_file, temp_results_file, timeout_log_file):
-            if os.path.exists(tmp):
-                try:
-                    os.remove(tmp)
-                except Exception:
-                    pass
+        _cleanup_temp_files(
+            test_file, conftest_file, temp_results_file, timeout_log_file
+        )
+
+
+def run_benchmark_pipeline(config: RunConfig) -> None:
+    """Execute the full benchmarking pipeline based on the provided configuration."""
+    timeout_str = f"{config.timeout}s" if config.timeout else "none"
+    print(
+        f"Benchmark settings: min_rounds={config.min_rounds}, "
+        f"max_time={config.max_time}s, "
+        f"warmup={config.warmup}, warmup_iterations={config.warmup_iterations}, "
+        f"timeout={timeout_str}"
+    )
+
+    func, graph_param_name, source_hash = _load_function_and_hash(config)
+    dataset_paths = _load_dataset_paths(config)
+    configs = _parse_configurations(config)
+
+    _validate_function_parameters(func, graph_param_name, configs)
+
+    checkpoint_file = str(BENCHMARK_DIR / "benchmark_checkpoint.jsonl")
+    _recover_checkpoint_if_present(checkpoint_file, config.output)
+
+    existing_results, configs_to_run, explicit_tasks = _prepare_run_scope(
+        config, func.__name__, dataset_paths, configs
+    )
+
+    test_file = str(BENCHMARK_DIR / "temp_benchmark_test.py")
+    temp_results_file = str(BENCHMARK_DIR / "temp_benchmark_results.json")
+    conftest_file = str(BENCHMARK_DIR / "conftest.py")
+    timeout_log_file = str(BENCHMARK_DIR / "timeout_log.json")
+
+    test_file, nodes_total = _generate_test_file(
+        config,
+        func.__name__,
+        graph_param_name,
+        dataset_paths,
+        configs_to_run,
+        explicit_tasks,
+        test_file,
+        source_hash,
+    )
+    print(f"Test file generated at {test_file}")
+
+    _generate_conftest(config, conftest_file, nodes_total)
+
+    _run_and_persist_results(
+        config,
+        test_file,
+        conftest_file,
+        temp_results_file,
+        timeout_log_file,
+        checkpoint_file,
+        existing_results,
+        func.__name__,
+        source_hash,
+    )
 
 
 def _process_timeout_log(timeout_log_file: str, config: RunConfig) -> None:

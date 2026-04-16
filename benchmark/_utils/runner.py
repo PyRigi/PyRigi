@@ -12,6 +12,7 @@ def run_pytest_benchmark(
     warmup_iterations: int = 1,
     timeout: float = None,
     timeout_log_file: str = None,
+    checkpoint_file: str = None,
 ):
     """
     Run pytest on the generated test file with benchmark options.
@@ -30,6 +31,8 @@ def run_pytest_benchmark(
                            Ignored when warmup='off'.  Default: 1.
         timeout: Per-test-case timeout in seconds. None to disable.
         timeout_log_file: Path where the conftest hook will write timeout data.
+        checkpoint_file: Path to the JSONL checkpoint file. If provided, each
+                         completed test writes its result there immediately.
 
     Returns:
         Path to temporary results file.
@@ -54,6 +57,8 @@ def run_pytest_benchmark(
     env = os.environ.copy()
     if timeout_log_file:
         env["BENCHMARK_TIMEOUT_LOG"] = timeout_log_file
+    if checkpoint_file:
+        env["BENCHMARK_CHECKPOINT_FILE"] = checkpoint_file
 
     print(f"Running benchmark command: {' '.join(cmd)}")
     if timeout is not None:

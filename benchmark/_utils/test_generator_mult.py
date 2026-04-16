@@ -106,6 +106,10 @@ def generate_benchmark_test_file(
     configurations: List[Dict[str, Any]],
     output_path: str = "benchmark/temp_benchmark_test.py",
     explicit_combinations: Optional[List[tuple]] = None,
+    source_hash: str = "",
+    min_rounds: int = 5,
+    max_time: float = 0.5,
+    warmup: str = "off",
 ) -> tuple[str, dict]:
     """
     Generate a pytest file using parametrization to capture config values in JSON output.
@@ -120,7 +124,7 @@ def generate_benchmark_test_file(
     tq = '"""'  # triple-quote helper
 
     print("Pre-loading graphs from dataset files...")
-    all_graphs = dataset_loader.load_graph_infos(dataset_paths, func_name, 20)
+    all_graphs = dataset_loader.load_graph_infos(dataset_paths, func_name, 10)
     print(f"Loaded {len(all_graphs)} graphs from {len(dataset_paths)} files")
 
     # Parameter combinations: (config_dict, graph_metadata)
@@ -153,6 +157,9 @@ import signal
 import networkx as nx
 import sys
 import importlib.util
+import json
+import os
+import datetime
 
 # Dynamic Import
 try:
@@ -174,6 +181,45 @@ class BenchmarkTimeout(Exception):
 def _timeout_handler(signum, frame):
     raise BenchmarkTimeout("BENCHMARK_TIMEOUT")
 # --- End timeout support ---
+
+
+# --- Checkpoint support ---
+_CHECKPOINT_FILE = os.environ.get("BENCHMARK_CHECKPOINT_FILE", "")
+_MODULE_PATH     = "{func_path}"
+_SOURCE_HASH     = "{source_hash}"
+_MIN_ROUNDS      = {min_rounds}
+_MAX_TIME        = {max_time}
+_WARMUP_STR      = "{warmup}"
+
+def _write_checkpoint(benchmark, config, graph_info, n):
+    if not _CHECKPOINT_FILE:
+        return
+    _ck = str(dict(sorted(config.items())))
+    _entry = {{
+        "group": None,
+        "name": "checkpoint_recovery",
+        "fullname": "checkpoint_recovery",
+        "param": _ck + "_n" + str(n),
+        "extra_info": {{}},
+        "options": {{
+            "disable_gc": True,
+            "timer": "perf_counter",
+            "min_rounds": _MIN_ROUNDS,
+            "max_time": _MAX_TIME,
+            "min_time": 5e-06,
+            "warmup": _WARMUP_STR != "off",
+        }},
+        "params": {{"config": config, "graph_info": graph_info}},
+        "stats": benchmark.stats.as_dict(include_data=False)["stats"],
+        "function": "{func_name}",
+        "module_path": _MODULE_PATH,
+        "timestamp": datetime.datetime.now().isoformat(),
+        "source_hash": _SOURCE_HASH,
+        "recovered_from_checkpoint": True,
+    }}
+    with open(_CHECKPOINT_FILE, "a") as _cf:
+        _cf.write(json.dumps(_entry) + "\\n")
+# --- End checkpoint support ---
 
 
 # Parametrized Benchmark
@@ -219,6 +265,7 @@ def test_benchmark(benchmark, config, graph_info, timeout_seconds, timeout_track
         signal.alarm(int(timeout_seconds))
         try:
             benchmark(target_func, **kwargs)
+            _write_checkpoint(benchmark, config, graph_info, n)
         except BenchmarkTimeout:
             # Register timeout and check for early stop
             timeout_tracker["timeout_log"].append(
@@ -277,9 +324,11 @@ def test_benchmark(benchmark, config, graph_info, timeout_seconds, timeout_track
             stacklevel=1,
         )
         benchmark(target_func, **kwargs)
+        _write_checkpoint(benchmark, config, graph_info, n)
     else:
         # No timeout - original behavior
         benchmark(target_func, **kwargs)
+        _write_checkpoint(benchmark, config, graph_info, n)
 """
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
