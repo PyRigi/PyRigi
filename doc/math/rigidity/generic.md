@@ -78,3 +78,29 @@ of $G$ that are $d$-{prf:ref}`rigid <def-gen-rigid>`.
 
 {{pyrigi_crossref}} {meth}`~.Graph.rigid_components`
 :::
+
+:::{prf:theorem}
+:label: thm-rigidity-dim-monotonicity
+
+Let $d \in \NN$.
+If a graph is $(d+1)$-rigid,
+then it is {prf:ref}`globally <def-globally-rigid-graph>` $d$-rigid.
+
+{{references}} {cite:p}`Jordan2017{Thm 6}`
+:::
+
+
+:::{prf:definition}
+:label: def-max-rigid-dimension
+
+Let $G$ be a graph.
+If $G$ is disconnected, resp. complete,
+then its _maximum rigid dimension_ is $0$, resp. $\infty$.
+Otherwise, the _maximum rigid dimension_ of $G$ is the integer $d\geq 1$ such that
+$G$ is $d'$-rigid for all $d'\leq d$ and $G$ is $d'$-flexible for all $d'>d$. 
+
+{{references}} well-defined by {prf:ref}`thm-rigidity-dim-monotonicity`
+and {prf:ref}`thm-globally-necessary`
+
+{{pyrigi_crossref}} {meth}`~.Graph.max_rigid_dimension`
+:::

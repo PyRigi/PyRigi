@@ -2,13 +2,17 @@
 This is a module for providing common types of graphs.
 """
 
+import math
 from itertools import combinations
 
 import networkx as nx
+import sympy as sp
 
 import pyrigi._utils._input_check as _input_check
 from pyrigi.data_type import Sequence, Vertex
 from pyrigi.graph import Graph
+from pyrigi.graph._rigidity.generic import is_min_rigid
+from pyrigi.graph._utils import _input_check as _graph_input_check
 
 
 def Cycle(n: int) -> Graph:
@@ -395,3 +399,38 @@ def Grid(n1: int, n2: int) -> Graph:
     ]
     vertical = [(i + j * n2, i + n2 + j * n2) for i in range(n2) for j in range(n1 - 1)]
     return Graph.from_vertices_and_edges(range(n1 * n2), vertical + horizontal)
+
+
+def _min_rigidity_dimension_encoding(graph: nx.Graph) -> int:
+    """
+    Return encoding of the minimal rigidity.
+
+    See :ref:`encoding-min-rigidity` for more details.
+
+    TODO
+    ----
+    Move this function to an appropriate module with SQLite database implementation
+    """
+    _graph_input_check.no_loop(graph)
+
+    if not nx.is_connected(graph):
+        return 0
+
+    n = graph.number_of_nodes()
+    m = graph.number_of_edges()
+
+    if m == math.comb(n, 2):
+        return -(graph.number_of_nodes() - 1)
+    else:
+        # if the graph is minimally d-rigid, then by :prf:ref:`thm-gen-rigidity-tight`
+        # m = d*n - (d+1)*d/2
+        # equivalently
+        # d**2 + d*(1-2*n) + 2*m = 0
+        disc = (1 - 2 * n) ** 2 - 4 * 2 * m
+        if sp.ntheory.primetest.is_square(disc) and sp.sqrt(disc) % 2 == 1:
+            # the smaller root is taken
+            # since the larger one gives the dimension greater than the number of vertices
+            dim = int((2 * n - 1 - sp.sqrt(disc)) / 2)
+            if is_min_rigid(graph, dim):
+                return dim
+        return 0

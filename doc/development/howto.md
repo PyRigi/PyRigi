@@ -36,4 +36,5 @@ howto/package_structure
 howto/documentation
 howto/notation
 howto/input_checks
+howto/database
 :::

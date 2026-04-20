@@ -2,6 +2,7 @@ from itertools import combinations
 
 import networkx as nx
 import pytest
+import sympy as sp
 
 import pyrigi.graph._rigidity.global_ as global_rigidity
 import pyrigi.graphDB as graphs
@@ -264,3 +265,32 @@ def test_is_weakly_globally_linked_articles_graphs(graph, u, v):
     assert graph.is_weakly_globally_linked(u, v, dim=2)
     if TEST_WRAPPED_FUNCTIONS:
         assert global_rigidity.is_weakly_globally_linked(nx.Graph(graph), u, v, dim=2)
+
+
+###############################################################
+# max_globally_rigid_dimension
+###############################################################
+
+
+@pytest.mark.parametrize(
+    "graph, expected",
+    [
+        (graphs.Complete(2), sp.oo),
+        (graphs.Complete(3), sp.oo),
+        (graphs.Complete(4), sp.oo),
+        (graphs.Complete(5), sp.oo),
+        (graphs.Path(3), 0),
+        (graphs.Cycle(4), 1),
+        (graphs.Cycle(5), 1),
+        (graphs.CompleteBipartite(3, 3), 1),
+        (graphs.Diamond(), 1),
+        (graphs.ThreePrism(), 1),
+        (graphs.CompleteMinusOne(3), 0),
+        (graphs.CompleteMinusOne(4), 1),
+        (graphs.CompleteMinusOne(5), 2),
+        (graphs.Octahedral(), 2),
+        (graphs.Complete(5) + Graph([(0, 5), (1, 5), (2, 5), (3, 5)]), 3),
+    ],
+)
+def test_max_globally_rigid_dimension(graph, expected):
+    assert global_rigidity.max_globally_rigid_dimension(nx.Graph(graph)) == expected

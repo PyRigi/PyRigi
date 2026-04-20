@@ -188,3 +188,30 @@ def test_Grid():
             G = graphs.Grid(n1, n2)
             assert G.number_of_nodes() == n1 * n2
             assert G.number_of_edges() == 2 * n1 * n2 - n1 - n2
+
+
+@pytest.mark.parametrize(
+    "graph, expected",
+    [
+        (graphs.Complete(1), 0),
+        (graphs.Complete(2), -1),
+        (graphs.Complete(3), -2),
+        (graphs.Complete(4), -3),
+        (graphs.Complete(5), -4),
+        (graphs.Path(4), 1),
+        (graphs.Path(5), 1),
+        (graphs.Cycle(4), 0),
+        (graphs.Cycle(5), 0),
+        (graphs.CompleteBipartite(2, 3), 0),
+        (graphs.K33plusEdge(), 0),
+        (graphs.Diamond(), 2),
+        (graphs.DiamondWithZeroExtension(), 2),
+        (graphs.ThreePrism(), 2),
+        (graphs.ThreePrismPlusEdge(), 0),
+        (graphs.Wheel(4), 0),
+        (graphs.CompleteMinusOne(5), 3),
+        (graphs.Octahedral(), 3),
+    ],
+)
+def test__min_rigidity_dimension_encoding(graph, expected):
+    assert graphs._min_rigidity_dimension_encoding(graph) == expected

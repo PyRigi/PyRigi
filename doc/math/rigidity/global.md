@@ -13,12 +13,22 @@ are {prf:ref}`congruent <def-equivalent-framework>` to $(G,p)$.
 {meth}`~.Graph.is_globally_rigid`
 :::
 
+:::{prf:theorem}
+:label: thm-globally-necessary
+
+If a graph $G$ is globally $d$-rigid,
+then either it is a complete graph on at most $d+1$ vertices,
+or it is $(d+1)$-connected and {prf:ref}`redundantly <def-redundantly-rigid-graph>` $d$-rigid.
+
+{{references}} {cite:p}`Hendrickson1992`
+:::
 
 :::{prf:theorem}
 :label: thm-globally-redundant-3connected
 
 A graph $G$ is globally $2$-rigid if and only if it either is a
-complete graph on at most three vertices or it is $3$-connected and {prf:ref}`redundantly rigid<def-redundantly-rigid-graph>`.
+complete graph on at most three vertices or it is $3$-connected
+and {prf:ref}`redundantly 2-rigid<def-redundantly-rigid-graph>`.
 
 {{references}} {cite:p}`JacksonJordan2005{Thm 7.1}`
 :::
@@ -279,4 +289,23 @@ The resulting graph is $C(B, V_0)$.
 {{pyrigi_crossref}} {meth}`~.Graph.is_weakly_globally_linked`
 
 {{references}} {cite:p}`JordanVillanyi2024{Thm 5.8}`
+:::
+
+
+
+::: {prf:definition} maximum globally rigid dimension
+:label: def-max-globally-rigid-dimension
+
+Let $G$ be a graph.
+If $G$ is complete, then it is globally $d$-rigid for every $d\in\NN$,
+hence its _maximum globally rigid dimension_ is $\infty$.
+If $G$ is not globally $1$-rigid, its _maximum globally rigid dimension_ is $0$.
+Otherwise, the _maximum globally rigid dimension_ of $G$ is the integer $d\geq 1$ such that
+$G$ is globally $d'$-rigid for all $d'\leq d$
+and $G$ is not globally $d'$-rigid for all $d'>d$.
+
+{{references}} well-defined by {prf:ref}`thm-rigidity-dim-monotonicity`
+and {prf:ref}`thm-globally-necessary`
+
+{{pyrigi_crossref}} {meth}`~.Graph.max_globally_rigid_dimension`
 :::

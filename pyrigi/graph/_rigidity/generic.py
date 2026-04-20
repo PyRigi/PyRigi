@@ -299,7 +299,7 @@ def max_rigid_dimension(
 
     Definitions
     -----------
-    :prf:ref:`Generical rigidity <def-gen-rigid>`
+    :prf:ref:`Maximum rigid dimension <def-max-rigid-dimension>`
 
     Parameters
     ----------
