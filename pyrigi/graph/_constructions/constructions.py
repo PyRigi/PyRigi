@@ -62,7 +62,7 @@ def sum_t(graph: nx.Graph, other_graph: nx.Graph, edge: Edge, t: int = 2) -> nx.
     --------
     >>> G1 = Graph([[1,2],[2,3],[3,1],[3,4]])
     >>> G2 = Graph([[0,1],[1,2],[2,3],[3,1]])
-    >>> H = G2.sum_t(G1, [1, 2], 3)
+    >>> H = sum_t(G2, G1, [1, 2], 3)
     >>> print(H)
     Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [1, 3], [2, 3], [3, 4]]
     """
@@ -90,14 +90,14 @@ def intersection(graph: nx.Graph, other_graph: nx.Graph) -> nx.Graph:
     --------
     >>> H = Graph([[1,2],[2,3],[3,1],[3,4]])
     >>> G = Graph([[0,1],[1,2],[2,3],[3,1]])
-    >>> graph = G.intersection(H)
+    >>> graph = intersection(G, H)
     >>> print(graph)
     Graph with vertices [1, 2, 3] and edges [[1, 2], [1, 3], [2, 3]]
     >>> G = Graph([[0,1],[0,2],[1,2]])
     >>> G.add_vertex(3)
     >>> H = Graph([[0,1],[1,2],[2,4],[4,0]])
     >>> H.add_vertex(3)
-    >>> graph = G.intersection(H)
+    >>> graph = intersection(G, H)
     >>> print(graph)
     Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [1, 2]]
     """

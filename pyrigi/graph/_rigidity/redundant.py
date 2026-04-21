@@ -45,25 +45,25 @@ def is_k_vertex_redundantly_rigid(
     dim:
         dimension
     algorithm:
-        See :meth:`.is_rigid` for the possible algorithms used
-        for checking rigidity in this method.
+        See :func:`.is_rigid` for the possible algorithms used
+        for checking rigidity in this function.
     prob:
         bound on the probability for false negatives of the rigidity testing
         when ``algorithm="randomized"``.
 
-        *Warning:* this is not the probability of wrong results in this method
+        *Warning:* this is not the probability of wrong results in this function
         but is just passed on to rigidity testing.
 
     Examples
     --------
     >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3],
     ...            [1, 4], [2, 3], [2, 4], [3, 4]])
-    >>> G.is_k_vertex_redundantly_rigid(1, 2)
+    >>> is_k_vertex_redundantly_rigid(G, 1, 2)
     True
-    >>> G.is_k_vertex_redundantly_rigid(2, 2)
+    >>> is_k_vertex_redundantly_rigid(G, 2, 2)
     False
     >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]])
-    >>> G.is_k_vertex_redundantly_rigid(1, 2)
+    >>> is_k_vertex_redundantly_rigid(G, 1, 2)
     False
     """
     _input_check.dimension(dim)
@@ -149,7 +149,7 @@ def is_vertex_redundantly_rigid(
     """
     Return whether the graph is vertex redundantly ``dim``-rigid.
 
-    See :meth:`.is_k_vertex_redundantly_rigid` (using ``k=1``) for details.
+    See :func:`.is_k_vertex_redundantly_rigid` (using ``k=1``) for details.
 
     Definitions
     -----------
@@ -186,28 +186,28 @@ def is_min_k_vertex_redundantly_rigid(
     dim:
         Dimension.
     algorithm:
-        See :meth:`.is_rigid` for the possible algorithms used
-        for checking rigidity in this method.
+        See :func:`.is_rigid` for the possible algorithms used
+        for checking rigidity in this function.
     prob:
         A bound on the probability for false negatives of the rigidity testing
         when ``algorithm="randomized"``.
 
-        *Warning:* this is not the probability of wrong results in this method,
+        *Warning:* this is not the probability of wrong results in this function,
         but is just passed on to rigidity testing.
 
     Examples
     --------
     >>> G = Graph([[0, 3], [0, 4], [0, 5], [1, 3], [1, 4], [1, 5],
     ...            [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
-    >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
+    >>> is_min_k_vertex_redundantly_rigid(G, 1, 2)
     True
-    >>> G.is_min_k_vertex_redundantly_rigid(2, 2)
+    >>> is_min_k_vertex_redundantly_rigid(G, 2, 2)
     False
     >>> G = Graph([[0, 2], [0, 3], [0, 4], [0, 5], [1, 2], [1, 3],
     ...            [1, 4], [1, 5], [2, 4], [2, 5], [3, 4], [3, 5]])
-    >>> G.is_k_vertex_redundantly_rigid(1, 2)
+    >>> is_k_vertex_redundantly_rigid(G, 1, 2)
     True
-    >>> G.is_min_k_vertex_redundantly_rigid(1, 2)
+    >>> is_min_k_vertex_redundantly_rigid(G, 1, 2)
     False
     """
 
@@ -286,7 +286,7 @@ def is_min_vertex_redundantly_rigid(
     """
     Return whether the graph is minimally vertex redundantly ``dim``-rigid.
 
-    See :meth:`.is_min_k_vertex_redundantly_rigid` (using ``k=1``) for details.
+    See :func:`.is_min_k_vertex_redundantly_rigid` (using ``k=1``) for details.
 
     Definitions
     -----------
@@ -327,28 +327,28 @@ def is_k_redundantly_rigid(
     dim:
         Dimension.
     algorithm:
-        See :meth:`.is_rigid` for the possible algorithms used
-        for checking rigidity in this method.
+        See :func:`.is_rigid` for the possible algorithms used
+        for checking rigidity in this function.
     prob:
         A bound on the probability for false negatives of the rigidity testing
         when ``algorithm="randomized"``.
 
-        *Warning:* this is not the probability of wrong results in this method,
+        *Warning:* this is not the probability of wrong results in this function,
         but is just passed on to rigidity testing.
 
     Examples
     --------
     >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 5], [1, 2],
     ...            [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]])
-    >>> G.is_k_redundantly_rigid(1, 2)
+    >>> is_k_redundantly_rigid(G, 1, 2)
     True
     >>> G = Graph([[0, 3], [0, 4], [1, 2], [1, 3], [1, 4],
     ...            [2, 3], [2, 4], [3, 4]])
-    >>> G.is_k_redundantly_rigid(1, 2)
+    >>> is_k_redundantly_rigid(G, 1, 2)
     False
     >>> G = Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2],
     ...            [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]])
-    >>> G.is_k_redundantly_rigid(2, 2)
+    >>> is_k_redundantly_rigid(G, 2, 2)
     True
 
     Suggested Improvements
@@ -419,7 +419,7 @@ def is_redundantly_rigid(
     """
     Return whether the graph is redundantly ``dim``-rigid.
 
-    See :meth:`.is_k_redundantly_rigid` (using ``k=1``) for details.
+    See :func:`.is_k_redundantly_rigid` (using ``k=1``) for details.
 
     Definitions
     -----------
@@ -453,28 +453,28 @@ def is_min_k_redundantly_rigid(
     dim:
         Dimension.
     algorithm:
-        See :meth:`.is_rigid` for the possible algorithms used
-        for checking rigidity in this method.
+        See :func:`.is_rigid` for the possible algorithms used
+        for checking rigidity in this function.
     prob:
         A bound on the probability for false negatives of the rigidity testing
         when ``algorithm="randomized"``.
 
-        *Warning:* this is not the probability of wrong results in this method,
+        *Warning:* this is not the probability of wrong results in this function,
         but is just passed on to rigidity testing.
 
     Examples
     --------
     >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2],
     ...            [1, 3], [1, 4], [2, 4], [3, 4]])
-    >>> G.is_min_k_redundantly_rigid(1, 2)
+    >>> is_min_k_redundantly_rigid(G, 1, 2)
     True
-    >>> G.is_min_k_redundantly_rigid(2, 2)
+    >>> is_min_k_redundantly_rigid(G, 2, 2)
     False
     >>> G = Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3],
     ...            [1, 4], [2, 3], [2, 4], [3, 4]])
-    >>> G.is_k_redundantly_rigid(1, 2)
+    >>> is_k_redundantly_rigid(G, 1, 2)
     True
-    >>> G.is_min_k_redundantly_rigid(1, 2)
+    >>> is_min_k_redundantly_rigid(G, 1, 2)
     False
     """
 
@@ -539,7 +539,7 @@ def is_min_redundantly_rigid(
     """
     Return whether the graph is minimally redundantly ``dim``-rigid.
 
-    See :meth:`.is_min_k_redundantly_rigid` (using ``k=1``) for details.
+    See :func:`.is_min_k_redundantly_rigid` (using ``k=1``) for details.
 
     Definitions
     -----------

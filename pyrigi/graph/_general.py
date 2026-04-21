@@ -19,7 +19,7 @@ def min_degree(graph: nx.Graph) -> int:
     Examples
     --------
     >>> G = Graph([(0,1), (1,2)])
-    >>> G.min_degree()
+    >>> min_degree(G)
     1
     """
     return min([int(graph.degree(v)) for v in graph.nodes])
@@ -32,7 +32,7 @@ def max_degree(graph: nx.Graph) -> int:
     Examples
     --------
     >>> G = Graph([(0,1), (1,2)])
-    >>> G.max_degree()
+    >>> max_degree(G)
     2
     """
     return max([int(graph.degree(v)) for v in graph.nodes])
@@ -54,7 +54,7 @@ def degree_sequence(
     Examples
     --------
     >>> G = Graph([(0,1), (1,2)])
-    >>> G.degree_sequence()
+    >>> degree_sequence(G)
     [1, 2, 1]
     """
     vertex_order = _graph_input_check.is_vertex_order(graph, vertex_order)
@@ -75,7 +75,7 @@ def adjacency_matrix(graph: nx.Graph, vertex_order: Sequence[Vertex] = None) -> 
     Examples
     --------
     >>> G = Graph([(0,1), (1,2), (1,3)])
-    >>> G.adjacency_matrix()
+    >>> adjacency_matrix(G)
     Matrix([
     [0, 1, 0, 0],
     [1, 0, 1, 1],
@@ -85,7 +85,7 @@ def adjacency_matrix(graph: nx.Graph, vertex_order: Sequence[Vertex] = None) -> 
     Notes
     -----
     :func:`networkx.linalg.graphmatrix.adjacency_matrix`
-    requires ``scipy``. To avoid unnecessary imports, the method is implemented here.
+    requires ``scipy``. To avoid unnecessary imports, the function is implemented here.
     """
     vertex_order = _graph_input_check.is_vertex_order(graph, vertex_order)
 
@@ -111,19 +111,19 @@ def edge_list(graph: nx.Graph, as_tuples: bool = False) -> list[Edge]:
     Examples
     --------
     >>> G = Graph([[0, 3], [3, 1], [0, 1], [2, 0]])
-    >>> G.edge_list()
+    >>> edge_list(G)
     [[0, 1], [0, 2], [0, 3], [1, 3]]
 
     >>> G = Graph.from_vertices(['a', 'c', 'b'])
-    >>> G.edge_list()
+    >>> edge_list(G)
     []
 
     >>> G = Graph([['c', 'b'], ['b', 'a']])
-    >>> G.edge_list()
+    >>> edge_list(G)
     [['a', 'b'], ['b', 'c']]
 
     >>> G = Graph([['c', 1], [2, 'a']]) # incomparable vertices
-    >>> G.edge_list()
+    >>> edge_list(G)
     [('c', 1), (2, 'a')]
     """
     try:
@@ -148,15 +148,15 @@ def vertex_list(graph: nx.Graph) -> list[Vertex]:
     Examples
     --------
     >>> G = Graph.from_vertices_and_edges([2, 0, 3, 1], [[0, 1], [0, 2], [0, 3]])
-    >>> G.vertex_list()
+    >>> vertex_list(G)
     [0, 1, 2, 3]
 
     >>> G = Graph.from_vertices(['c', 'a', 'b'])
-    >>> G.vertex_list()
+    >>> vertex_list(G)
     ['a', 'b', 'c']
 
     >>> G = Graph.from_vertices(['b', 1, 'a']) # incomparable vertices
-    >>> G.vertex_list()
+    >>> vertex_list(G)
     ['b', 1, 'a']
     """
     try:

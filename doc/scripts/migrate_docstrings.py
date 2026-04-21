@@ -11,7 +11,7 @@ import difflib
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from pyrigi._utils._doc import method_to_func_doc  # noqa: E402

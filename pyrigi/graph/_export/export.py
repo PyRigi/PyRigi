@@ -281,12 +281,12 @@ def to_int(graph: nx.Graph, vertex_order: Sequence[Vertex] = None) -> int:
     Examples
     --------
     >>> G = Graph([(0,1), (1,2)])
-    >>> G.adjacency_matrix()
+    >>> adjacency_matrix(G)
     Matrix([
     [0, 1, 0],
     [1, 0, 1],
     [0, 1, 0]])
-    >>> G.to_int()
+    >>> to_int(G)
     5
 
     Suggested Improvements

@@ -73,10 +73,10 @@ def is_rigid(
     --------
     >>> from pyrigi import Graph
     >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-    >>> G.is_rigid()
+    >>> is_rigid(G)
     False
     >>> G.add_edge(0,2)
-    >>> G.is_rigid()
+    >>> is_rigid(G)
     True
     """
     _input_check.dimension(dim)
@@ -166,7 +166,7 @@ def is_min_rigid(
         If ``"extension_sequence"`` (only if ``dim=2``),
         then the existence of a sequence
         of rigidity preserving extensions is checked,
-        see :meth:`.has_extension_sequence`.
+        see :func:`.has_extension_sequence`.
 
         If ``"default"``, then ``"graphic"`` is used for ``dim=1``
         and ``"sparsity"`` for ``dim=2`` and ``"randomized"`` for ``dim>=3``.
@@ -185,10 +185,10 @@ def is_min_rigid(
     Examples
     --------
     >>> G = Graph([(0,1), (1,2), (2,3), (3,0), (1,3)])
-    >>> G.is_min_rigid()
+    >>> is_min_rigid(G)
     True
     >>> G.add_edge(0,2)
-    >>> G.is_min_rigid()
+    >>> is_min_rigid(G)
     False
 
     Suggested Improvements
@@ -269,12 +269,12 @@ def is_linked(graph: nx.Graph, u: Vertex, v: Vertex, dim: int = 2) -> bool:
     Examples
     --------
     >>> H = Graph([[0, 1], [0, 2], [1, 3], [1, 5], [2, 3], [2, 6], [3, 5], [3, 7], [5, 7], [6, 7], [3, 6]])
-    >>> H.is_linked(1,7)
+    >>> is_linked(H, 1,7)
     True
     >>> H = Graph([[0, 1], [0, 2], [1, 3], [2, 3]])
-    >>> H.is_linked(0,3)
+    >>> is_linked(H, 0,3)
     False
-    >>> H.is_linked(1,3)
+    >>> is_linked(H, 1,3)
     True
 
     Suggested Improvements
@@ -294,8 +294,8 @@ def max_rigid_dimension(
     """
     Compute the maximum dimension in which the graph is generically rigid.
 
-    For checking rigidity, the method uses a randomized algorithm,
-    see :meth:`~.is_rigid` for details.
+    For checking rigidity, the function uses a randomized algorithm,
+    see :func:`~.is_rigid` for details.
 
     Definitions
     -----------
@@ -305,28 +305,28 @@ def max_rigid_dimension(
     ----------
     algorithm:
         If ``"randomized"``, the rigidity of the graph is checked
-        in each dimension using :meth:`.is_rigid` with
+        in each dimension using :func:`.is_rigid` with
         ``algorithm="randomized"``.
         Since this is a randomized algorithm, false negatives are possible.
         However, the actual maximum rigid dimension is never lower than
-        the output of this method.
+        the output of this function.
 
         If ``"numerical"``, the rigidity of the graph is checked
-        in each dimension using :meth:`.is_rigid` with
+        in each dimension using :func:`.is_rigid` with
         ``algorithm="numerical"``.
         With this choice of algorithm, we do not have the guarantee that
         is mentioned above on the maximum rigid dimension.
     prob:
         A bound on the probability for false negatives of the rigidity testing.
 
-        *Warning:* this is not the probability of wrong results in this method,
+        *Warning:* this is not the probability of wrong results in this function,
         but is just passed on to rigidity testing.
 
     Examples
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(3)
-    >>> rigid_dim = G.max_rigid_dimension(); rigid_dim
+    >>> rigid_dim = max_rigid_dimension(G); rigid_dim
     oo
     >>> rigid_dim.is_infinite
     True
@@ -334,7 +334,7 @@ def max_rigid_dimension(
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(4)
     >>> G.add_edges([(0,4),(1,4),(2,4)])
-    >>> G.max_rigid_dimension()
+    >>> max_rigid_dimension(G)
     3
 
     Notes
@@ -383,17 +383,17 @@ def rigid_components(  # noqa: 901
 
         If ``"subgraphs-pebble"`` (only if ``dim=2``),
         then all subgraphs are checked
-        using :meth:`.is_rigid` with ``algorithm="pebble"``.
+        using :func:`.is_rigid` with ``algorithm="pebble"``.
 
         If ``"pebble"`` (only if ``dim=2``),
-        then :meth:`.Rd_closure` with ``algorithm="pebble"``
+        then :func:`.Rd_closure` with ``algorithm="pebble"``
         is used.
 
         If ``"randomized"``, all subgraphs are checked
-        using :meth:`.is_rigid` with ``algorithm="randomized"``.
+        using :func:`.is_rigid` with ``algorithm="randomized"``.
 
         If ``"numerical"``, all subgraphs are checked
-        using :meth:`.is_rigid` with ``algorithm="numerical"``.
+        using :func:`.is_rigid` with ``algorithm="numerical"``.
 
         If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
         ``"pebble"`` for ``dim=2``, and ``"randomized"`` for ``dim>=3``.
@@ -401,19 +401,19 @@ def rigid_components(  # noqa: 901
         A bound on the probability for false negatives of the rigidity testing
         when ``algorithm="randomized"``.
 
-        *Warning:* this is not the probability of wrong results in this method,
+        *Warning:* this is not the probability of wrong results in this function,
         but is just passed on to rigidity testing.
 
     Examples
     --------
     >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-    >>> G.rigid_components(algorithm="randomized")
+    >>> rigid_components(G, algorithm="randomized")
     [[0, 1], [0, 3], [1, 2], [2, 3]]
 
     >>> G = Graph([(0,1), (1,2), (2,3), (3,4), (4,5), (5,0), (0,2), (5,3)])
-    >>> G.is_rigid()
+    >>> is_rigid(G)
     False
-    >>> G.rigid_components(algorithm="randomized")
+    >>> rigid_components(G, algorithm="randomized")
     [[0, 5], [2, 3], [0, 1, 2], [3, 4, 5]]
 
     Notes

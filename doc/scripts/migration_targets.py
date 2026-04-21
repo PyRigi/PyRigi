@@ -4,7 +4,7 @@ Target files for docstring migration (method-style → function-style).
 
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 
 TARGET_FILES = [
     ROOT / "pyrigi/graph/_general.py",
