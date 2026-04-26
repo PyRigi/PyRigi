@@ -8,6 +8,7 @@ Pass --apply to write changes to disk.
 
 import ast
 import difflib
+import re
 import sys
 from pathlib import Path
 
@@ -48,6 +49,43 @@ def _collect_graph_wrapper_methods() -> set[str]:
 
 GRAPH_WRAPPER_METHODS = _collect_graph_wrapper_methods()
 
+from pyrigi._utils._graph_alias_mapping import GRAPH_ALIAS_METHOD_TO_NX
+
+
+def _transform_alias_doctest_line(line: str) -> str:
+    """Convert Graph alias method calls in doctests to NetworkX forms."""
+    match = re.match(
+        r"^(\s*(?:>>>|\.\.\.)\s+)"
+        r"((?:\w+\s*=\s*)?)"
+        r"(\w+)"
+        r"\."
+        r"(\w+)"
+        r"\(([^)]*)\)"
+        r"(.*)$",
+        line,
+    )
+    if not match:
+        return line
+
+    prefix, assignment, var, method, args, suffix = match.groups()
+
+    if method == "is_isomorphic":
+        nx_args = f"{var}, {args}" if args else var
+        return f"{prefix}{assignment}nx.is_isomorphic({nx_args}){suffix}"
+
+    nx_method = GRAPH_ALIAS_METHOD_TO_NX.get(method)
+    if nx_method is None:
+        return line
+
+    return f"{prefix}{assignment}{var}.{nx_method}({args}){suffix}"
+
+
+def _transform_aliases_method_to_nx_doc(docstring: str) -> str:
+    """Apply alias conversion line-by-line for one docstring."""
+    return "\n".join(
+        _transform_alias_doctest_line(line) for line in docstring.split("\n")
+    )
+
 
 def _quote_style(literal_text: str) -> str | None:
     if literal_text.startswith('"""'):
@@ -83,6 +121,7 @@ def transform_file(filepath: Path, dry_run: bool = True) -> int:
 
         old_value = const_node.value
         new_value = method_to_func_doc(old_value, GRAPH_WRAPPER_METHODS)
+        new_value = _transform_aliases_method_to_nx_doc(new_value)
         if new_value == old_value:
             continue
 

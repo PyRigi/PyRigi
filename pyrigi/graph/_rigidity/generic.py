@@ -333,7 +333,7 @@ def max_rigid_dimension(
 
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(4)
-    >>> G.add_edges([(0,4),(1,4),(2,4)])
+    >>> G.add_edges_from([(0,4),(1,4),(2,4)])
     >>> max_rigid_dimension(G)
     3
 

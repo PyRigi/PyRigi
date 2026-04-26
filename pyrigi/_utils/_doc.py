@@ -75,6 +75,9 @@ def _collect_graph_methods() -> set[str]:
 GRAPH_METHODS = _collect_graph_methods()
 
 
+from ._graph_alias_mapping import GRAPH_ALIAS_METHOD_TO_NX, GRAPH_ALIAS_NX_TO_METHOD
+
+
 def _transform_doctest_method_to_func(line: str, class_methods: set[str]) -> str:
     """
     Transform a single doctest line from method-style to function-style.
@@ -157,6 +160,50 @@ def _transform_doctest_func_to_method(line: str, class_methods: set[str]) -> str
                 return f"{prefix}{assignment}{var}.{func}({rest_args}){suffix}"
             else:
                 return f"{prefix}{assignment}{var}.{func}(){suffix}"
+
+    return line
+
+
+def _transform_doctest_nx_to_graph_alias(line: str) -> str:
+    """
+    Transform a single doctest line from NetworkX style to Graph alias style.
+
+    ``>>> G.add_node(3)``            -> ``>>> G.add_vertex(3)``
+    ``>>> H.remove_edges_from(E)``   -> ``>>> H.delete_edges(E)``
+    ``>>> nx.is_isomorphic(G, H)``   -> ``>>> G.is_isomorphic(H)``
+    """
+    method_match = re.match(
+        r"^(\s*(?:>>>|\.\.\.)\s+)"  # group 1: prefix with >>> or ...
+        r"((?:\w+\s*=\s*)?)"  # group 2: optional assignment
+        r"(\w+)"  # group 3: variable name (G, H, etc.)
+        r"\."  # the dot
+        r"(\w+)"  # group 4: method name
+        r"\(([^)]*)\)"  # group 5: arguments
+        r"(.*)"  # group 6: suffix
+        r"$",
+        line,
+    )
+    if method_match:
+        prefix, assignment, var, method, args, suffix = method_match.groups()
+        graph_alias = GRAPH_ALIAS_NX_TO_METHOD.get(method)
+        if graph_alias is not None:
+            return f"{prefix}{assignment}{var}.{graph_alias}({args}){suffix}"
+
+    isomorphic_match = re.match(
+        r"^(\s*(?:>>>|\.\.\.)\s+)"  # group 1: prefix with >>> or ...
+        r"((?:\w+\s*=\s*)?)"  # group 2: optional assignment
+        r"(?:nx|networkx)\.is_isomorphic\("  # function name with module prefix
+        r"(\w+)"  # group 3: graph variable (self)
+        r"(?:,\s*(.*?))?"  # group 4: remaining args
+        r"\)"
+        r"(.*)"  # group 5: suffix
+        r"$",
+        line,
+    )
+    if isomorphic_match:
+        prefix, assignment, var, rest_args, suffix = isomorphic_match.groups()
+        if rest_args:
+            return f"{prefix}{assignment}{var}.is_isomorphic({rest_args}){suffix}"
 
     return line
 
@@ -261,10 +308,11 @@ def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
 
     Transformations applied:
     1. Doctest: ``>>> method(G, args)`` -> ``>>> G.method(args)``
-    2. ``:func:`.name``` -> ``:meth:`.name``` (bare names only)
-    3. ``this function`` -> ``this method``
-    4. ``the function`` -> ``the method``
-    5. ``The function`` -> ``The function``
+    2. Doctest aliases: ``>>> G.add_node(v)`` -> ``>>> G.add_vertex(v)``
+    3. ``:func:`.name``` -> ``:meth:`.name``` (bare names only)
+    4. ``this function`` -> ``this method``
+    5. ``the function`` -> ``the method``
+    6. ``The function`` -> ``The method``
     """
     if docstring is None:
         return None
@@ -279,10 +327,16 @@ def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
             result.append(new_line)
             continue
 
-        # 2. :func: -> :meth: for bare names
+        # 2. Convert NetworkX alias examples back to Graph alias methods.
+        new_line = _transform_doctest_nx_to_graph_alias(line)
+        if new_line != line:
+            result.append(new_line)
+            continue
+
+        # 3. :func: -> :meth: for bare names
         line = _transform_func_to_meth_refs(line, class_methods)
 
-        # 3. "this function" / "the function" / "The function"
+        # 4. "this function" / "the function" / "The function"
         line = re.sub(r"\bthis function\b", "this method", line)
         line = re.sub(r"\bthe function\b", "the method", line)
         line = re.sub(r"\bThe function\b", "The method", line)
