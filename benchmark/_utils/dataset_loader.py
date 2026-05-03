@@ -61,4 +61,7 @@ def load_graph_infos(
                 }
             )
 
+    # Sort graphs by size (ascending) to run smaller graphs first.
+    graph_infos.sort(key=lambda g: g["num_nodes"])
+
     return graph_infos

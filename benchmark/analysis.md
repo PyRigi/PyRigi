@@ -13,347 +13,557 @@ kernelspec:
 
 # Benchmark Result Analysis
 
-Run this notebook to visualize the results from `benchmark_results.json`.
+Edit **only § 1 (Configuration)**, then `Kernel → Restart & Run All`.
+
+---
+
+## § 0  Imports & helpers
 
 ```{code-cell} ipython3
 import json
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
+import warnings
+from itertools import combinations
 from pathlib import Path
 
-# ========== CONFIGURATION ==========
-# Edit these variables to customize analysis
-
-# Filter by function (None = all functions)
-# Example: 'is_min_rigid' or None
-FILTER_FUNCTION = 'is_min_rigid'
-
-# X-axis for scaling analysis
-# Options: 'num_nodes', 'num_edges', 'density', 'avg_degree'
-X_AXIS = 'num_edges'  
-
-# Scale type
-# Options: 'linear', 'log'
-X_SCALE = 'linear'  
-Y_SCALE = 'log'  
-
-# Filter by configs (None = all)
-# Example: ['dim=1, algorithm=graphic'] or None
-FILTER_CONFIGS = ['algorithm=graphic, dim=1', 'algorithm=randomized, dim=1']  
-
-# Set plotting style
-sns.set_theme(style="whitegrid")
-plt.rcParams['figure.figsize'] = [12, 6]
-```
-
-## Data Preprocessing
-Extracting parameters and metrics from the raw JSON data.
-
-```{code-cell} ipython3
-results_path = './benchmark_results.json'
-
-try:
-    with open(results_path, 'r') as f:
-        data = json.load(f)
-    print(f"Loaded {len(data.get('benchmarks', []))} benchmark runs.")
-except FileNotFoundError:
-    print(f"File not found: {results_path}")
-    data = {'benchmarks': []}
-
-# Convert to DataFrame
-rows = []
-for b in data.get('benchmarks', []):
-    params = b.get('params', {})
-    config = params.get('config', {})
-    graph_info = params.get('graph_info', {})
-    stats = b.get('stats', {})
-    
-    # Create readable config label
-    if config:
-        config_label = ', '.join(f"{k}={v}" for k, v in sorted(config.items()))
-    else:
-        config_label = "Unknown Config"
-    
-    # Extract graph metadata
-    if not graph_info and 'graph_path' in params:
-         graph_name = Path(params['graph_path']).stem
-         num_nodes = params.get('num_nodes', np.nan)
-         num_edges = params.get('num_edges', np.nan)
-    else:
-        graph_name = graph_info.get('file_name', 'Unknown Graph')
-        num_nodes = graph_info.get('num_nodes', np.nan)
-        num_edges = graph_info.get('num_edges', np.nan)
-
-    # Determine function name
-    func_name = b.get('function', b.get('group', 'unknown'))
-    
-    if ':' in func_name:
-        func_name = func_name.split(':')[-1]
-
-    row = {
-        'function': func_name,
-        'config_label': config_label,
-        'graph_name': graph_name,
-        'num_nodes': num_nodes,
-        'num_edges': num_edges,
-        'timestamp': b.get('timestamp', None),
-        'mean_time': stats.get('mean', np.nan),
-        'std_dev': stats.get('stddev', np.nan),
-        'min_time': stats.get('min', np.nan),
-        'max_time': stats.get('max', np.nan)
-    }
-    rows.append(row)
-
-df = pd.DataFrame(rows)
-
-if not df.empty:
-    df['density'] = df['num_edges'] / (df['num_nodes'] * (df['num_nodes'] - 1) / 2)
-    df['avg_degree'] = 2 * df['num_edges'] / df['num_nodes']
-    
-    print("\nAvailable Functions:", df['function'].unique())
-    print("\nAvailable Configs:", df['config_label'].unique())
-else:
-    print("DataFrame is empty.")
-
-df.head()
-```
-
-```{code-cell} ipython3
-# Apply Filters
-df_filtered = df.copy()
-
-if FILTER_FUNCTION:
-    df_filtered = df_filtered[df_filtered['function'] == FILTER_FUNCTION]
-    print(f"Filtered to function: {FILTER_FUNCTION}")
-
-if FILTER_CONFIGS:
-    df_filtered = df_filtered[df_filtered['config_label'].isin(FILTER_CONFIGS)]
-    print(f"Filtered to configs: {FILTER_CONFIGS}")
-
-# Aggregate by config and graph
-group_cols = ['function', 'config_label', 'graph_name', 'num_nodes', 'num_edges']
-df_agg = df_filtered.groupby(group_cols).agg({
-    'mean_time': 'mean',
-    'std_dev': 'mean',
-    'min_time': 'min',
-    'max_time': 'max'
-}).reset_index()
-
-# Sort for better plotting
-if X_AXIS in df_agg.columns:
-    df_agg = df_agg.sort_values([X_AXIS, 'config_label'])
-
-print(f"\nAnalyzing {len(df_agg)} unique combinations after filtering.")
-df_agg.head()
-```
-
-## 1. Algorithm Comparison
-Comparing mean execution time for different configurations.
-
-```{code-cell} ipython3
-if not df_agg.empty:
-    plt.figure(figsize=(14, 6))
-    
-    # Convert config_label to string to avoid categorical issues
-    df_agg['config_label'] = df_agg['config_label'].astype(str)
-    
-    sns.barplot(data=df_agg, x='graph_name', y='mean_time', hue='config_label')
-    
-    plt.xticks(rotation=45, ha='right')
-    plt.title(f'Mean Execution Time by Graph ({FILTER_FUNCTION or "All Functions"})')
-    plt.ylabel('Time (s)')
-    plt.legend(title='Configuration', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
-    plt.show()
-else:
-    print("No data to plot")
-```
-
-## 2. Scaling Analysis
-Log-log plot to analyze time complexity (Time vs Graph Size).
-
-```{code-cell} ipython3
-if not df_agg.empty and X_AXIS in df_agg.columns:
-    plt.figure(figsize=(10, 6))
-    
-    sns.lineplot(
-        data=df_agg, 
-        x=X_AXIS, 
-        y='mean_time', 
-        hue='config_label',
-        style='config_label',
-        markers=True,
-        dashes=False
-    )
-    
-    plt.xscale(X_SCALE)
-    plt.yscale(Y_SCALE)
-    
-    x_label = X_AXIS.replace('_', ' ').title()
-    plt.title(f'Scaling Analysis: Time vs {x_label}')
-    plt.xlabel(f'{x_label} ({X_SCALE} scale)')
-    plt.ylabel(f'Time (s) ({Y_SCALE} scale)')
-    
-    plt.grid(True, which="both", ls="--", alpha=0.7)
-    plt.legend(title='Configuration', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
-    plt.show()
-else:
-    print(f"Skipping Scaling Analysis: Could not extract {X_AXIS}.")
-```
-
-```{code-cell} ipython3
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+import seaborn as sns
+from scipy import stats
+from scipy.optimize import curve_fit
 
-complexity_axis = 'num_nodes'
+# ── Style ──────────────────────────────────────────────────────────────────
+plt.rcParams.update({
+    "font.family": "sans-serif",
+    "font.size": 11,
+    "axes.titlesize": 12,
+    "axes.titleweight": "bold",
+    "axes.labelsize": 11,
+    "figure.dpi": 110,
+    "legend.framealpha": 0.9,
+    "axes.spines.top": False,
+    "axes.spines.right": False,
+})
 
-if not df_agg.empty and complexity_axis in df_agg.columns:
-    print("### Empirical Complexity Analysis ###\n")
-    
-    def r_squared(y_true, y_pred):
-        """Calculate R² score (1.0 = perfect fit)"""
-        ss_res = np.sum((y_true - y_pred) ** 2)
-        ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-        return 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
-    
-    # Filter for the specific function if set
-    df_complexity = df_agg.copy()
-    
-    # Further aggregate by config and N
-    df_complexity = df_complexity.groupby(['config_label', complexity_axis], as_index=False).agg({
-        'mean_time': 'mean'
-    })
-    
-    for config in df_complexity['config_label'].unique():
-        subset = df_complexity[df_complexity['config_label'] == config].sort_values(complexity_axis)
-        
-        if len(subset) < 3:
-            print(f"{config}: Not enough data points (need at least 3, have {len(subset)})\n")
-            continue
-        
-        n = subset[complexity_axis].values
-        t = subset['mean_time'].values
-        
-        # Debug: show the data points
-        print(f"\n{config}: Analyzing {len(n)} data points")
-        # print(f"  N: {n}")
-        # print(f"  T: {t}")
-        
-        models = {}
-        
-        # Model 1: O(log n)
-        try:
-            log_n = np.log(n)
-            c = np.polyfit(log_n, t, 1)[0]
-            t_pred = c * log_n
-            models['O(log n)'] = r_squared(t, t_pred)
-        except Exception as e:
-            pass # print(f"  O(log n) failed")
-        
-        # Model 2: O(n) - Linear
-        try:
-            c = np.polyfit(n, t, 1)[0]
-            t_pred = c * n
-            models['O(n)'] = r_squared(t, t_pred)
-        except Exception:
-            pass
-        
-        # Model 3: O(n log n)
-        try:
-            n_log_n = n * np.log(n)
-            c = np.polyfit(n_log_n, t, 1)[0]
-            t_pred = c * n_log_n
-            models['O(n log n)'] = r_squared(t, t_pred)
-        except Exception:
-            pass
-        
-        # Model 4: O(n^k) - Polynomial (via log-log regression)
-        try:
-            log_n = np.log(n)
-            log_t = np.log(t)
-            k, log_c = np.polyfit(log_n, log_t, 1)
-            t_pred = np.exp(log_c) * (n ** k)
-            models[f'O(n^{k:.2f})'] = r_squared(t, t_pred)
-        except Exception:
-            pass
-        
-        # Model 5: O(2^n) - Exponential
-        try:
-            log_t = np.log(t)
-            a, log_c = np.polyfit(n, log_t, 1)
-            t_pred = np.exp(log_c) * (2 ** (a * n))
-            models['O(2^n)'] = r_squared(t, t_pred)
-        except Exception:
-            pass
-        
-        if models:
-            best_model = max(models, key=models.get)
-            best_r2 = models[best_model]
-            
-            print(f"\n{config}:")
-            print(f"  Best fit: {best_model} (R² = {best_r2:.3f})")
-            # print(f"  All models: {models}")
-            
-        else:
-            print(f"  No models could be fitted!\n")
-else:
-    print(f"Cannot perform complexity analysis: insufficient data or missing {complexity_axis}")
+def _si_time(x, _=None):
+    if x == 0: return "0"
+    a = abs(x)
+    if a >= 1:     return f"{x:.3g} s"
+    if a >= 1e-3:  return f"{x*1e3:.3g} ms"
+    if a >= 1e-6:  return f"{x*1e6:.3g} µs"
+    return f"{x*1e9:.3g} ns"
+
+SI_TIME_FMT = FuncFormatter(_si_time)
 ```
 
-## 3. Distribution Analysis
-Box plots showing the spread of execution times.
+---
+
+## § 1  Configuration
 
 ```{code-cell} ipython3
-if not df_agg.empty:
-    if 'std_dev' in df_agg.columns and df_agg['std_dev'].notna().any():
-        pivot_mean = df_agg.pivot(index='graph_name', columns='config_label', values='mean_time')
-        pivot_std = df_agg.pivot(index='graph_name', columns='config_label', values='std_dev')
-        
-        pivot_mean.plot(
-            kind='bar', 
-            yerr=pivot_std, 
-            capsize=4, 
-            figsize=(14, 6),
-            rot=45
+# =====================================================================
+#  ⚙️  CONFIGURATION — edit only this cell, then "Restart & Run All"
+# =====================================================================
+
+RESULTS_FILE = "./benchmark_results.json"
+
+# ── Filters (None = no filter) ────────────────────────────────────────
+FILTER_FUNCTION  = "is_min_rigid"   # e.g. "is_min_rigid"  or  None
+FILTER_CONFIGS   = None             # e.g. ["algorithm=graphic, dim=1"]
+FILTER_MIN_NODES = None             # e.g. 10
+FILTER_MAX_NODES = None             # e.g. 100
+
+# ── Plot axes ─────────────────────────────────────────────────────────
+X_AXIS  = "num_nodes"   # "num_nodes"  or  "num_edges"
+X_SCALE = "log"         # "linear"  or  "log"
+Y_SCALE = "log"         # "linear"  or  "log"
+
+# ── Statistics ────────────────────────────────────────────────────────
+CONFIDENCE       = 0.95   # 0.90, 0.95, or 0.99
+MIN_CI_INSTANCES = 3      # t-CI requires at least this many instances
+
+# Bootstrap fallback: when n < MIN_CI_INSTANCES use bootstrap instead
+USE_BOOTSTRAP = True
+N_BOOTSTRAP   = 2000
+
+# ── Comparison chart (§ 7) ────────────────────────────────────────────
+# None → auto-pick up to 4 representative sizes from the data
+COMPARISON_SIZES = None   # e.g. [10, 30, 60]
+
+# ── Figure export ─────────────────────────────────────────────────────
+SAVE_FIGURES  = False        # True → save to ./figures/
+FIGURE_FORMAT = "pdf"        # "png", "pdf", or "svg"
+_FIG_DIR      = Path("./figures")
+
+def _savefig(fig, name):
+    if SAVE_FIGURES:
+        _FIG_DIR.mkdir(exist_ok=True)
+        fig.savefig(_FIG_DIR / f"{name}.{FIGURE_FORMAT}", bbox_inches="tight")
+```
+
+---
+
+## § 2  Data loading
+
+```{code-cell} ipython3
+def _load(path):
+    with open(path) as f:
+        raw = json.load(f)
+    rows = []
+    for b in raw.get("benchmarks", []):
+        params = b.get("params", {})
+        cfg    = params.get("config", {})
+        gi     = params.get("graph_info", {})
+        st     = b.get("stats", {})
+        fn     = b.get("function", b.get("group", "unknown"))
+        if ":" in fn:
+            fn = fn.rsplit(":", 1)[-1]
+        rows.append({
+            "function":     fn,
+            "config_label": (", ".join(f"{k}={v}" for k, v in sorted(cfg.items()))
+                             if cfg else "unknown"),
+            "graph_name":   gi.get("file_name", "unknown"),
+            "graph_idx":    gi.get("idx",        np.nan),
+            "num_nodes":    gi.get("num_nodes",  np.nan),
+            "num_edges":    gi.get("num_edges",  np.nan),
+            "mean_time":    st.get("mean",       np.nan),
+            "std_dev":      st.get("stddev",     np.nan),
+            "rounds":       st.get("rounds",     np.nan),
+            "min_time":     st.get("min",        np.nan),
+            "max_time":     st.get("max",        np.nan),
+            "iqr":          st.get("iqr",        np.nan),
+            "source_hash":  b.get("source_hash", None),
+            "timestamp":    b.get("timestamp",   None),
+        })
+    df = pd.DataFrame(rows)
+    if not df.empty:
+        denom            = df["num_nodes"] * (df["num_nodes"] - 1) / 2
+        df["density"]    = df["num_edges"] / denom
+        df["avg_degree"] = 2 * df["num_edges"] / df["num_nodes"]
+        df["cv"]         = df["std_dev"] / df["mean_time"]
+    return df
+
+df_all = _load(RESULTS_FILE)
+print(f"✓  Loaded {len(df_all):,} benchmark entries.")
+print(f"\nFunctions : {sorted(df_all['function'].unique())}")
+print(f"Configs   : {sorted(df_all['config_label'].unique())}")
+```
+
+### Staleness check
+
+```{code-cell} ipython3
+def _check_staleness(df):
+    for fn in df["function"].unique():
+        hashes = df.loc[df["function"] == fn, "source_hash"].dropna().unique()
+        if len(hashes) > 1:
+            warnings.warn(
+                f"'{fn}' has {len(hashes)} different source versions in results. "
+                f"Run check_staleness.py or --force-rerun to clean up.",
+                stacklevel=2,
+            )
+        elif len(hashes) == 0:
+            print(f"'{fn}': no source_hash stored — staleness unknown.")
+
+_check_staleness(df_all)
+```
+
+---
+
+## § 3  Data overview
+
+Sample counts per (config × graph size).  CI bands require ≥ **MIN_CI_INSTANCES** instances.
+
+```{code-cell} ipython3
+count_piv = (
+    df_all.groupby(["config_label", "num_nodes"])
+          .size()
+          .unstack(fill_value=0)
+)
+display(
+    count_piv.style
+        .background_gradient(cmap="Blues", axis=None)
+        .format("{:d}")
+        .set_caption(
+            f"Sample counts per (config × node count)  |  "
+            f"CI drawn when count ≥ {MIN_CI_INSTANCES}"
         )
-        
-        plt.title('Performance Stability by Config (Mean +/- Std Dev)')
-        plt.ylabel('Time (s)')
-        plt.legend(title='Configuration', bbox_to_anchor=(1.05, 1), loc='upper left')
-        plt.tight_layout()
-        plt.show()
-    else:
-        print("Standard deviation data not available/valid for plot.")
-else:
-    print("No data.")
+)
 ```
 
-## 4. Relative Performance Heatmap
+---
+
+## § 4  🔍 Filter & data quality
 
 ```{code-cell} ipython3
-if not df_agg.empty:
-    pivot_df = df_agg.pivot(index='graph_name', columns='config_label', values='mean_time')
-    
-    # Normalize by the fastest config for each graph
-    pivot_normalized = pivot_df.div(pivot_df.min(axis=1), axis=0)
-    
-    plt.figure(figsize=(10, max(6, len(pivot_df) * 0.5)))
-    
-    sns.heatmap(
-        pivot_normalized, 
-        annot=True, 
-        fmt=".2f", 
-        cmap="YlOrRd",
-        cbar_kws={'label': 'Slowdown Factor (1.0 = Fastest)'}
-    )
-    
-    plt.title('Relative Performance (Lower is Better)')
-    plt.ylabel('Graph')
-    plt.xlabel('Configuration')
-    plt.tight_layout()
-    plt.show()
+def _filter(df):
+    d = df.copy()
+    if FILTER_FUNCTION:  d = d[d["function"]     == FILTER_FUNCTION]
+    if FILTER_CONFIGS:   d = d[d["config_label"].isin(FILTER_CONFIGS)]
+    if FILTER_MIN_NODES: d = d[d["num_nodes"]    >= FILTER_MIN_NODES]
+    if FILTER_MAX_NODES: d = d[d["num_nodes"]    <= FILTER_MAX_NODES]
+    print(f"{len(d):,} entries after filtering  ({len(df)-len(d):,} removed).")
+    if d.empty:
+        raise ValueError("No data after filtering — check FILTER_* settings.")
+    return d.reset_index(drop=True)
+
+df = _filter(df_all)
+
+# Consistent colour per config (used in every plot)
+_cfgs    = sorted(df["config_label"].unique())
+_pal     = sns.color_palette("tab10", len(_cfgs))
+CONFIG_COLORS = dict(zip(_cfgs, _pal))
+```
+
+### Coefficient of Variation (CV = σ/μ)
+
+Green ≤ 0.05 → stable measurement.  Red > 0.05 → noisy; interpret with caution.
+
+```{code-cell} ipython3
+cv_piv = (
+    df.groupby(["config_label", "num_nodes"])["cv"]
+      .mean()
+      .unstack()
+)
+noisy = int((cv_piv > 0.05).sum().sum())
+if noisy:
+    print(f"{noisy} cell(s) have CV > 0.05.")
+
+display(
+    cv_piv.style
+        .format("{:.3f}")
+        .background_gradient(cmap="RdYlGn_r", vmin=0, vmax=0.10, axis=None)
+        .set_caption("CV per (config × node count)  |  green ≤ 0.05  red > 0.05")
+)
+```
+
+---
+
+## § 5  Scaling analysis
+
+For each (config, size) the shaded band is the **95 % Student-t CI on the mean**
+across graph instances at that size.  When fewer than `MIN_CI_INSTANCES` instances
+are available a lighter **bootstrap CI** is shown instead.
+Dashed lines show the fitted power-law curve `T(n) = a · nᵇ`.
+
+```{code-cell} ipython3
+# ── CI helpers ────────────────────────────────────────────────────────────
+
+def _tci(times, conf):
+    n, mu = len(times), times.mean()
+    se    = times.std(ddof=1) / np.sqrt(n)
+    t     = stats.t.ppf((1 + conf) / 2, df=n - 1)
+    return mu, mu - t * se, mu + t * se
+
+def _bootci(times, n_boot, conf):
+    rng   = np.random.default_rng(42)
+    boots = rng.choice(times, size=(n_boot, len(times)), replace=True).mean(axis=1)
+    a     = (1 - conf) / 2
+    lo, hi = np.quantile(boots, [a, 1 - a])
+    return times.mean(), lo, hi
+
+def _agg(df, x_col, conf, min_ci, use_boot, n_boot):
+    rows = []
+    for (cfg, xv), grp in df.groupby(["config_label", x_col]):
+        times = grp["mean_time"].dropna().values
+        n = len(times)
+        if n == 0:
+            continue
+        if n >= min_ci:
+            mu, lo, hi, src = *_tci(times, conf), "t"
+        elif n >= 2 and use_boot:
+            mu, lo, hi, src = *_bootci(times, n_boot, conf), "boot"
+        elif n == 1:
+            mu, lo, hi, src = times[0], np.nan, np.nan, "none"
+        else:
+            mu, lo, hi, src = times.mean(), np.nan, np.nan, "none"
+        rows.append({"config_label": cfg, x_col: xv,
+                     "mu": mu, "ci_lo": lo, "ci_hi": hi, "n": n, "src": src})
+    return pd.DataFrame(rows).sort_values([x_col, "config_label"]).reset_index(drop=True)
+
+# ── Power-law fit  T(n) = a · n^b ─────────────────────────────────────────
+
+def _fit(stats_df, x_col):
+    rows = []
+    for cfg, grp in stats_df.groupby("config_label"):
+        g = grp.dropna(subset=[x_col, "mu"]).sort_values(x_col)
+        if len(g) < 4:
+            rows.append({"config_label": cfg, "a": np.nan, "a_std": np.nan,
+                         "b": np.nan, "b_std": np.nan})
+            continue
+        x, y = g[x_col].values.astype(float), g["mu"].values
+        try:
+            popt, pcov = curve_fit(lambda n, a, b: a * np.power(n, b),
+                                   x, y, p0=[1e-6, 2.0], maxfev=10_000)
+            perr = np.sqrt(np.diag(pcov))
+            rows.append({"config_label": cfg,
+                         "a": popt[0], "a_std": perr[0],
+                         "b": popt[1], "b_std": perr[1]})
+        except RuntimeError:
+            rows.append({"config_label": cfg, "a": np.nan, "a_std": np.nan,
+                         "b": np.nan, "b_std": np.nan})
+    return pd.DataFrame(rows)
+
+# ── Compute & plot ─────────────────────────────────────────────────────────
+
+stats_df = _agg(df, X_AXIS, CONFIDENCE, MIN_CI_INSTANCES, USE_BOOTSTRAP, N_BOOTSTRAP)
+fit_df   = _fit(stats_df, X_AXIS)
+
+fig, ax = plt.subplots(figsize=(12, 6))
+used_boot = False
+
+for cfg, grp in stats_df.groupby("config_label"):
+    color = CONFIG_COLORS[cfg]
+    grp   = grp.sort_values(X_AXIS)
+
+    ax.plot(grp[X_AXIS], grp["mu"], marker="o", ms=5,
+            color=color, label=cfg, zorder=3)
+
+    for mask, alpha, label in [
+        (grp["src"] == "t",    0.22, None),
+        (grp["src"] == "boot", 0.11, None),
+    ]:
+        sel = grp[mask & grp["ci_lo"].notna()]
+        if not sel.empty:
+            ax.fill_between(sel[X_AXIS], sel["ci_lo"], sel["ci_hi"],
+                            color=color, alpha=alpha, linewidth=0)
+            if grp["src"].eq("boot").any():
+                used_boot = True
+
+    fr = fit_df[fit_df["config_label"] == cfg]
+    if not fr.empty and not np.isnan(fr["b"].values[0]):
+        a, b  = fr["a"].values[0], fr["b"].values[0]
+        x_fit = np.linspace(grp[X_AXIS].min(), grp[X_AXIS].max(), 300)
+        ax.plot(x_fit, a * x_fit**b, "--", color=color, alpha=0.7,
+                label=f"  fit n^{b:.2f}")
+
+ax.set_xscale(X_SCALE)
+ax.set_yscale(Y_SCALE)
+ax.yaxis.set_major_formatter(SI_TIME_FMT)
+ax.set_xlabel({"num_nodes": "Vertex count  n",
+               "num_edges": "Edge count  m"}.get(X_AXIS, X_AXIS))
+ax.set_ylabel("Execution time")
+ax.set_title(
+    f"Scaling analysis — {FILTER_FUNCTION or 'all functions'}\n"
+    f"Band = {int(CONFIDENCE*100)} % CI across instances"
+    + ("  (light = bootstrap)" if used_boot else "")
+)
+ax.grid(True, which="both", linestyle="--", linewidth=0.4, alpha=0.5)
+ax.legend(title="Config / fit", bbox_to_anchor=(1.02, 1), loc="upper left",
+          fontsize=10, title_fontsize=10)
+fig.tight_layout()
+_savefig(fig, "01_scaling")
+plt.show()
+```
+
+---
+
+## § 6  Power-law fit summary  `T(n) = a · nᵇ`
+
+```{code-cell} ipython3
+if fit_df.empty or fit_df["b"].isna().all():
+    print("Not enough data for fitting (need ≥ 4 distinct sizes per config).")
 else:
-    print("No data.")
+    print(f"{'Config':<45}  {'a':>12}  {'b':>8}  {'±2σ(b)':>8}  Implied")
+    print("─" * 88)
+    for _, row in fit_df.iterrows():
+        if np.isnan(row["b"]):
+            print(f"  {row['config_label']:<43}  (fit failed)")
+            continue
+        print(
+            f"  {row['config_label']:<43}  {row['a']:>12.3e}"
+            f"  {row['b']:>8.3f}  {row['b_std']*2:>8.3f}  O(n^{row['b']:.2f})"
+        )
+    print("─" * 88)
+    print("\n— LaTeX for thesis —")
+    for _, row in fit_df.iterrows():
+        if not np.isnan(row["b"]):
+            print(f"  {row['config_label']}: "
+                  f"$T(n) \\propto n^{{{row['b']:.2f} \\pm {row['b_std']*2:.2f}}}$")
+```
+
+---
+
+## § 7  Algorithm comparison at specific sizes
+
+Side-by-side 95 % CI error bars.  Non-overlapping CIs → statistically distinguishable.
+A Welch *t*-test *p*-value table is shown below.
+
+```{code-cell} ipython3
+_cfgs_list = sorted(df["config_label"].unique())
+
+if len(_cfgs_list) < 2:
+    print("Only one config present — comparison section skipped.")
+else:
+    _all_sizes = sorted(stats_df[X_AXIS].dropna().unique())
+    if COMPARISON_SIZES is not None:
+        _sizes = [s for s in COMPARISON_SIZES if s in _all_sizes]
+    else:
+        _idx   = np.round(np.linspace(0, len(_all_sizes)-1,
+                                      min(4, len(_all_sizes)))).astype(int)
+        _sizes = [_all_sizes[i] for i in _idx]
+
+    sub    = stats_df[stats_df[X_AXIS].isin(_sizes)]
+    n_cfg  = len(_cfgs_list)
+    width  = 0.8 / n_cfg
+    x_pos  = np.arange(len(_sizes))
+
+    fig, ax = plt.subplots(figsize=(max(10, len(_sizes)*2.5), 6))
+
+    for i, cfg in enumerate(_cfgs_list):
+        color = CONFIG_COLORS[cfg]
+        csub  = sub[sub["config_label"] == cfg].set_index(X_AXIS)
+        mus   = [csub.loc[s, "mu"]    if s in csub.index else np.nan for s in _sizes]
+        lo_e  = [csub.loc[s, "mu"] - csub.loc[s, "ci_lo"]
+                 if s in csub.index and not np.isnan(csub.loc[s, "ci_lo"]) else 0
+                 for s in _sizes]
+        hi_e  = [csub.loc[s, "ci_hi"] - csub.loc[s, "mu"]
+                 if s in csub.index and not np.isnan(csub.loc[s, "ci_hi"]) else 0
+                 for s in _sizes]
+        off   = (i - (n_cfg-1)/2) * width
+        ax.bar(x_pos + off, mus, width=width*0.9, color=color, alpha=0.85,
+               label=cfg, yerr=[lo_e, hi_e],
+               error_kw={"capsize": 4, "elinewidth": 1.2})
+
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels([f"n={s}" for s in _sizes])
+    ax.yaxis.set_major_formatter(SI_TIME_FMT)
+    ax.set_yscale(Y_SCALE)
+    ax.set_ylabel("Execution time")
+    ax.set_xlabel("Graph size")
+    ax.set_title(
+        f"Algorithm comparison — {FILTER_FUNCTION or 'all functions'}\n"
+        f"Error bars = {int(CONFIDENCE*100)} % CI  (non-overlapping → distinguishable)"
+    )
+    ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left")
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.4, alpha=0.5)
+    fig.tight_layout()
+    _savefig(fig, "02_comparison")
+    plt.show()
+
+    print(f"\nWelch's t-test  (p < 0.05 = ✓ significant)")
+    print("─" * 70)
+    for size in _sizes:
+        size_data = {
+            cfg: df[(df["config_label"] == cfg) & (df[X_AXIS] == size)
+                    ]["mean_time"].dropna().values
+            for cfg in _cfgs_list
+        }
+        size_data = {k: v for k, v in size_data.items() if len(v) >= 2}
+        if len(size_data) < 2:
+            continue
+        print(f"\n  n = {size}")
+        for c1, c2 in combinations(size_data, 2):
+            _, p = stats.ttest_ind(size_data[c1], size_data[c2], equal_var=False)
+            mark = " ✓" if p < 0.05 else ""
+            print(f"    {c1}  vs  {c2}:  p = {p:.4f}{mark}")
+```
+
+---
+
+## § 8  Relative performance heatmap
+
+Each cell = slowdown factor vs the fastest config **at that graph size** (1.00 = fastest).
+
+```{code-cell} ipython3
+pivot = stats_df.pivot_table(
+    index="config_label", columns=X_AXIS, values="mu", aggfunc="first"
+)
+
+if pivot.empty or pivot.shape[0] < 2:
+    print("Need ≥ 2 configs to build the heatmap.")
+else:
+    normalized = pivot.div(pivot.min(axis=0), axis=1)
+    fig, ax = plt.subplots(
+        figsize=(max(10, len(pivot.columns)*0.9), max(4, len(pivot)*0.8))
+    )
+    sns.heatmap(
+        normalized, annot=True, fmt=".2f",
+        cmap="YlOrRd", linewidths=0.5, linecolor="white",
+        cbar_kws={"label": "Slowdown factor  (1.00 = fastest at this size)"},
+        ax=ax,
+    )
+    ax.set_title(
+        f"Relative performance — {FILTER_FUNCTION or 'all functions'}\n"
+        f"Lower is better"
+    )
+    ax.set_xlabel({"num_nodes": "Vertex count  n",
+                   "num_edges": "Edge count  m"}.get(X_AXIS, X_AXIS))
+    ax.set_ylabel("Configuration")
+    fig.tight_layout()
+    _savefig(fig, "03_heatmap")
+    plt.show()
+```
+
+---
+
+## § 9  Variability analysis
+
+### 9a — CV heatmap (filtered data)
+
+```{code-cell} ipython3
+cv_filt = (
+    df.groupby(["config_label", "num_nodes"])["cv"]
+      .mean()
+      .unstack()
+)
+fig, ax = plt.subplots(
+    figsize=(max(10, len(cv_filt.columns)*0.9), max(4, len(cv_filt)*0.8))
+)
+sns.heatmap(
+    cv_filt, annot=True, fmt=".3f",
+    cmap="RdYlGn_r", vmin=0, vmax=0.10,
+    linewidths=0.5, linecolor="white",
+    cbar_kws={"label": "Mean CV = σ/μ  (≤ 0.05 = stable)"},
+    ax=ax,
+)
+ax.set_title("Measurement stability (CV) — filtered data")
+ax.set_xlabel({"num_nodes": "Vertex count  n",
+               "num_edges": "Edge count  m"}.get(X_AXIS, X_AXIS))
+ax.set_ylabel("Configuration")
+fig.tight_layout()
+_savefig(fig, "04_cv_heatmap")
+plt.show()
+```
+
+### 9b — Distribution of instance timings (box plots)
+
+Each box shows how `mean_time` varies across different graph instances at the same
+size — capturing sensitivity to graph structure, not just timing noise.
+
+```{code-cell} ipython3
+_cfgs_var = sorted(df["config_label"].unique())
+n_row = (len(_cfgs_var) + 1) // 2
+n_col = min(2, len(_cfgs_var))
+
+fig, axes = plt.subplots(n_row, n_col,
+                          figsize=(n_col*7, n_row*4),
+                          sharey=True, squeeze=False)
+
+for ax, cfg in zip(axes.flat, _cfgs_var):
+    sub   = df[df["config_label"] == cfg].copy()
+    sub["sz"] = sub["num_nodes"].astype(int).astype(str)
+    order = [str(s) for s in sorted(sub["num_nodes"].dropna().unique().astype(int))]
+    sns.boxplot(data=sub, x="sz", y="mean_time", order=order,
+                color=CONFIG_COLORS[cfg], ax=ax,
+                flierprops={"marker": ".", "markersize": 3, "alpha": 0.5})
+    ax.set_title(cfg)
+    ax.yaxis.set_major_formatter(SI_TIME_FMT)
+    ax.set_yscale(Y_SCALE)
+    ax.set_xlabel("Vertex count  n")
+    ax.set_ylabel("mean_time per instance")
+    ax.tick_params(axis="x", rotation=45)
+    ax.grid(True, axis="y", linestyle="--", linewidth=0.4, alpha=0.5)
+
+for ax in axes.flat[len(_cfgs_var):]:
+    ax.set_visible(False)
+
+fig.suptitle(
+    f"Instance-level timing distribution — {FILTER_FUNCTION or 'all functions'}\n"
+    f"Box = IQR · whiskers = 1.5×IQR · dots = outliers",
+    fontsize=12, y=1.01,
+)
+fig.tight_layout()
+_savefig(fig, "05_boxplots")
+plt.show()
 ```
