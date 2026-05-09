@@ -28,9 +28,7 @@ def copy_doc(
     proxy_func: Callable[P, T],
 ) -> Callable[[Callable[..., T]], Callable[P, T]]:
     """
-    Copy the docstring from the provided function.
-
-    In tests, it also ensures that the signatures match.
+    Copy the docstring from the provided function, converting it to method-style.
     """
 
     def wrapped(method: Callable[..., T]) -> Callable[P, T]:
@@ -45,7 +43,7 @@ def copy_doc(
     return wrapped
 
 
-# Dynamically collect the set of public method names defined on the Graph class,
+# Dynamically collect the set of public method names defined on the Graph class.
 def _collect_graph_methods() -> set[str]:
     """Return the set of public method names defined on the Graph class."""
     graph_path = Path(__file__).resolve().parents[1] / "graph" / "graph.py"
