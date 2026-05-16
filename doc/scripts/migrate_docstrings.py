@@ -14,7 +14,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from pyrigi._utils._doc import method_to_func_doc  # noqa: E402
 from pyrigi._utils._graph_alias_mapping import GRAPH_ALIAS_METHOD_TO_NX  # noqa: E402
 from migration_targets import TARGET_FILES  # noqa: E402
 
@@ -48,6 +47,110 @@ def _collect_graph_wrapper_methods() -> set[str]:
 
 
 GRAPH_WRAPPER_METHODS = _collect_graph_wrapper_methods()
+
+
+def _transform_doctest_method_to_func(line: str, class_methods: set[str]) -> str:
+    """
+    Transform a single doctest line from method-style to function-style.
+
+    ``>>> G.is_rigid()``           -> ``>>> is_rigid(G)``
+    ``>>> G.is_rigid(dim=2)``      -> ``>>> is_rigid(G, dim=2)``
+    ``>>> H.is_linked(1,7)``       -> ``>>> is_linked(H, 1,7)``
+    ``>>> H = G.zero_extension(...)`` -> ``>>> H = zero_extension(G, ...)``
+    ``>>> rigid_dim = G.max_rigid_dimension(); rigid_dim``
+        -> ``>>> rigid_dim = max_rigid_dimension(G); rigid_dim``
+
+    Does NOT transform:
+    - ``>>> G.add_edge(0,2)``  — add_edge is NOT in class_methods
+    - ``>>> print(G)``         — print is NOT in class_methods
+    - ``>>> graphs.Complete(5)``  — Complete is NOT in class_methods
+    """
+    m = re.match(
+        r"^(\s*>>> )"  # group 1: prefix with >>>
+        r"((?:\w+\s*=\s*)?)"  # group 2: optional assignment like "H = " or "rigid_dim = "
+        r"(\w+)"  # group 3: variable name (G, H, etc.)
+        r"\."  # the dot
+        r"(\w+)"  # group 4: method name
+        r"\(([^)]*)\)"  # group 5: arguments (everything inside parens)
+        r"(.*)"  # group 6: suffix (e.g., "; rigid_dim" or trailing comment)
+        r"$",
+        line,
+    )
+    if m:
+        prefix, assignment, var, method, args, suffix = m.groups()
+        if method in class_methods:
+            if args:
+                new_args = f"{var}, {args}"
+            else:
+                new_args = var
+            return f"{prefix}{assignment}{method}({new_args}){suffix}"
+
+    return line
+
+
+def _transform_meth_to_func_refs(line: str, class_methods: set[str]) -> str:
+    """
+    Transform :meth: references to :func: for bare method names.
+
+    ``:meth:`.is_rigid```        -> ``:func:`.is_rigid```
+    ``:meth:`~.is_rigid```       -> ``:func:`~.is_rigid```
+
+    Does NOT transform (has class prefix — these stay as :meth:):
+    ``:meth:`.Framework.is_inf_rigid```
+    ``:meth:`~.Graph.is_k_vertex_apex```
+    ``:meth:`~pyrigi.graph.Graph.is_stable_set```
+    ``:meth:`~Graph.layout```
+    """
+
+    def _replace(m):
+        prefix = m.group(1)
+        name = m.group(2)
+        if name in class_methods:
+            return f":func:`{prefix}{name}`"
+        return m.group(0)
+
+    return re.sub(
+        r":meth:`([~]?\.?)([A-Za-z_]\w*)(?:\(\))?`",
+        _replace,
+        line,
+    )
+
+
+def method_to_func_doc(docstring: str, class_methods: set[str]) -> str:
+    """
+    Convert a method-style docstring to function-style.
+
+    Transformations applied:
+    1. Doctest: ``>>> G.method(args)`` -> ``>>> method(G, args)``
+    2. ``:meth:`.name``` -> ``:func:`.name``` (bare names only)
+    3. ``this method`` -> ``this function``
+    4. ``the method`` -> ``the function``
+    5. ``The method`` -> ``The function``
+    """
+    if docstring is None:
+        return None
+
+    lines = docstring.split("\n")
+    result = []
+
+    for line in lines:
+        # 1. Doctest lines
+        new_line = _transform_doctest_method_to_func(line, class_methods)
+        if new_line != line:
+            result.append(new_line)
+            continue
+
+        # 2. :meth: -> :func: for bare names
+        line = _transform_meth_to_func_refs(line, class_methods)
+
+        # 3. "this method" / "the method" / "The method"
+        line = re.sub(r"\bthis method\b", "this function", line)
+        line = re.sub(r"\bthe method\b", "the function", line)
+        line = re.sub(r"\bThe method\b", "The function", line)
+
+        result.append(line)
+
+    return "\n".join(result)
 
 
 def _transform_alias_doctest_line(line: str) -> str:
