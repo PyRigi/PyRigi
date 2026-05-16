@@ -1,12 +1,13 @@
 """End-to-end tests for GraphStoreService."""
+
 import pytest
 import networkx as nx
 
-from pyrigi.graphDB import AndExpr, ColumnDef, GraphStoreService, OrExpr, QueryFilter
+from pyrigi.graphDB import AndExpr, GraphStoreService, OrExpr, QueryFilter
 
 
 @pytest.fixture
-def store(tmp_path):
+def store():
     """In-memory store, initialised and ready to use."""
     s = GraphStoreService(":memory:").init()
     yield s
@@ -74,7 +75,7 @@ class TestIngest:
         # graph6 for a single vertex is "@"
         g6_file = tmp_path / "test.g6"
         g6_file.write_text("@\n")
-        stats = store.ingest(str(g6_file))
+        store.ingest(str(g6_file))
         assert store.count() == 0
 
     def test_ingest_from_directory(self, store, tmp_path):
@@ -133,14 +134,28 @@ class TestPopulateColumn:
         with pytest.raises(KeyError, match="Unknown column"):
             store.count_unpopulated("does_not_exist")
 
+    def test_populate_column_batch_size(self, store_with_data):
+        store_with_data.add_column("batch_test", "INTEGER")
+        total = store_with_data.count()
+        # batch_size=1 forces a flush after every single row, exercising both
+        # the mid-loop flush and the tail flush paths
+        stats = store_with_data.populate_column(
+            "batch_test",
+            populator=lambda row: row["num_edges"],
+            batch_size=1,
+        )
+        assert stats.errors == 0
+        assert stats.processed == total
+        rows = store_with_data.fetch(select=["num_edges", "batch_test"])
+        assert all(r["batch_test"] == r["num_edges"] for r in rows)
+
     def test_populate_all_rows_has_access_to_all_fields(self, store_with_data):
         store_with_data.add_column("density", "REAL")
         stats = store_with_data.populate_column(
             "density",
             all_rows=True,
-            populator=lambda row: row["num_edges"] / (
-                row["num_vertices"] * (row["num_vertices"] - 1) / 2
-            ),
+            populator=lambda row: row["num_edges"]
+            / (row["num_vertices"] * (row["num_vertices"] - 1) / 2),
         )
         assert stats.errors == 0
         assert stats.processed == store_with_data.count()
@@ -156,18 +171,18 @@ class TestFetch:
         assert all(set(r.keys()) == {"graph", "num_vertices"} for r in rows)
 
     def test_fetch_with_filter(self, store_with_data):
-        rows = store_with_data.fetch(
-            filters=[QueryFilter("num_vertices", "=", 5)]
-        )
+        rows = store_with_data.fetch(filters=[QueryFilter("num_vertices", "=", 5)])
         assert all(r["num_vertices"] == 5 for r in rows)
 
     def test_fetch_with_grouped_expr(self, store_with_data):
         rows = store_with_data.fetch(
             select=["num_edges"],
-            expr=OrExpr([
-                QueryFilter("num_edges", "=", 4),
-                QueryFilter("num_edges", "=", 5),
-            ]),
+            expr=OrExpr(
+                [
+                    QueryFilter("num_edges", "=", 4),
+                    QueryFilter("num_edges", "=", 5),
+                ]
+            ),
             order_by="num_edges",
         )
         assert [r["num_edges"] for r in rows] == [4, 5]
@@ -176,10 +191,12 @@ class TestFetch:
         rows = store_with_data.fetch(
             select=["num_edges"],
             filters=[QueryFilter("num_edges", ">", 4)],
-            expr=OrExpr([
-                QueryFilter("num_edges", "=", 4),
-                QueryFilter("num_edges", "=", 10),
-            ]),
+            expr=OrExpr(
+                [
+                    QueryFilter("num_edges", "=", 4),
+                    QueryFilter("num_edges", "=", 10),
+                ]
+            ),
         )
         assert len(rows) == 1
         assert rows[0]["num_edges"] == 10
@@ -211,7 +228,7 @@ class TestFetch:
         store_with_data.add_column(
             "score",
             "INTEGER",
-            fetch_strategy=lambda col, op, val: (f"{col} >= ?", [val]),
+            fetch_strategy=lambda col, _, val: (f"{col} >= ?", [val]),  # noqa: U101
         )
         store_with_data.populate_column("score", populator=lambda row: row["num_edges"])
 
@@ -286,25 +303,25 @@ class TestQueryBuilder:
         assert all(r["num_vertices"] == 5 for r in rows)
 
     def test_filter_shorthand(self, store_with_data):
-        rows = (
-            store_with_data.query()
-            .filter("num_vertices", "=", 5)
-            .fetch()
-        )
+        rows = store_with_data.query().filter("num_vertices", "=", 5).fetch()
         assert len(rows) > 0
 
     def test_where_any_groups(self, store_with_data):
         rows = (
             store_with_data.query()
             .select(["num_edges"])
-            .where_any([
-                QueryFilter("num_edges", "=", 4),
-                QueryFilter("num_edges", "=", 5),
-            ])
-            .where_any([
-                QueryFilter("num_vertices", "=", 5),
-                QueryFilter("num_vertices", "=", 7),
-            ])
+            .where_any(
+                [
+                    QueryFilter("num_edges", "=", 4),
+                    QueryFilter("num_edges", "=", 5),
+                ]
+            )
+            .where_any(
+                [
+                    QueryFilter("num_vertices", "=", 5),
+                    QueryFilter("num_vertices", "=", 7),
+                ]
+            )
             .order_by("num_edges")
             .fetch()
         )
@@ -315,16 +332,22 @@ class TestQueryBuilder:
             store_with_data.query()
             .select(["num_edges"])
             .where_expr(
-                AndExpr([
-                    OrExpr([
-                        QueryFilter("num_edges", "=", 4),
-                        QueryFilter("num_edges", "=", 5),
-                    ]),
-                    OrExpr([
-                        QueryFilter("num_vertices", "=", 5),
-                        QueryFilter("num_vertices", "=", 7),
-                    ]),
-                ])
+                AndExpr(
+                    [
+                        OrExpr(
+                            [
+                                QueryFilter("num_edges", "=", 4),
+                                QueryFilter("num_edges", "=", 5),
+                            ]
+                        ),
+                        OrExpr(
+                            [
+                                QueryFilter("num_vertices", "=", 5),
+                                QueryFilter("num_vertices", "=", 7),
+                            ]
+                        ),
+                    ]
+                )
             )
             .order_by("num_edges")
             .fetch()
@@ -375,7 +398,7 @@ class TestInfo:
     def test_update_column_populator(self, store_with_data):
         store_with_data.update_column_populator(
             "rigidity",
-            populator=lambda row: 2,
+            populator=lambda _: 2,  # noqa: U101
         )
         stats = store_with_data.populate_column("rigidity")
         assert stats.processed == store_with_data.count()
@@ -387,7 +410,7 @@ class TestInfo:
         assert before is not None
         assert before.populator_ref is not None
 
-        store.update_column_populator("rigidity", populator=lambda row: 2)
+        store.update_column_populator("rigidity", populator=lambda _: 2)  # noqa: U101
 
         after = store.get_column("rigidity")
         assert after is not None

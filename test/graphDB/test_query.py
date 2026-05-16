@@ -1,4 +1,5 @@
-"""Tests for graph_db.query (QueryBuilder + CompiledQuery)."""
+"""Tests for pyrigi.graphDB.query (QueryBuilder + CompiledQuery)."""
+
 import pytest
 from pyrigi.graphDB.db import DatabaseManager
 from pyrigi.graphDB.models import AndExpr, NotExpr, OrExpr, QueryFilter
@@ -33,41 +34,51 @@ class TestQueryBuilder:
         assert compiled.params == [7]
 
     def test_where_multiple_filters(self, registry):
-        qb = QueryBuilder(registry).where([
-            QueryFilter("num_vertices", "=", 7),
-            QueryFilter("min_rigidity", "=", 3),
-        ])
+        qb = QueryBuilder(registry).where(
+            [
+                QueryFilter("num_vertices", "=", 7),
+                QueryFilter("min_rigidity", "=", 3),
+            ]
+        )
         compiled = qb.compile()
-        assert compiled.sql.count("AND") == 1
-        assert compiled.params == [7, 3]
+        # num_vertices filter + min_rigidity expanded by custom strategy
+        assert "num_vertices = ?" in compiled.sql
+        assert "min_rigidity = ?" in compiled.sql
+        assert compiled.params == [7, 3, -3]
 
     def test_where_in_operator(self, registry):
-        qb = QueryBuilder(registry).where([
-            QueryFilter("num_vertices", "IN", [5, 6, 7])
-        ])
+        qb = QueryBuilder(registry).where(
+            [QueryFilter("num_vertices", "IN", [5, 6, 7])]
+        )
         compiled = qb.compile()
         assert "IN (?, ?, ?)" in compiled.sql
         assert compiled.params == [5, 6, 7]
 
     def test_where_between_operator(self, registry):
-        qb = QueryBuilder(registry).where([
-            QueryFilter("num_edges", "BETWEEN", (3, 10))
-        ])
+        qb = QueryBuilder(registry).where(
+            [QueryFilter("num_edges", "BETWEEN", (3, 10))]
+        )
         compiled = qb.compile()
         assert "BETWEEN ? AND ?" in compiled.sql
         assert compiled.params == [3, 10]
 
     def test_where_expr_grouped_or_and(self, registry):
-        expr = AndExpr([
-            OrExpr([
-                QueryFilter("num_vertices", "=", 5),
-                QueryFilter("num_vertices", "=", 7),
-            ]),
-            OrExpr([
-                QueryFilter("num_edges", ">=", 5),
-                QueryFilter("num_edges", "IS NULL", None),
-            ]),
-        ])
+        expr = AndExpr(
+            [
+                OrExpr(
+                    [
+                        QueryFilter("num_vertices", "=", 5),
+                        QueryFilter("num_vertices", "=", 7),
+                    ]
+                ),
+                OrExpr(
+                    [
+                        QueryFilter("num_edges", ">=", 5),
+                        QueryFilter("num_edges", "IS NULL", None),
+                    ]
+                ),
+            ]
+        )
         compiled = QueryBuilder(registry).where_expr(expr).compile()
         assert "(num_vertices = ? OR num_vertices = ?)" in compiled.sql
         assert "(num_edges >= ? OR num_edges IS NULL)" in compiled.sql
@@ -76,14 +87,18 @@ class TestQueryBuilder:
     def test_where_any_helper_composes_with_and(self, registry):
         compiled = (
             QueryBuilder(registry)
-            .where_any([
-                QueryFilter("num_vertices", "=", 5),
-                QueryFilter("num_vertices", "=", 7),
-            ])
-            .where_any([
-                QueryFilter("num_edges", "=", 4),
-                QueryFilter("num_edges", "=", 5),
-            ])
+            .where_any(
+                [
+                    QueryFilter("num_vertices", "=", 5),
+                    QueryFilter("num_vertices", "=", 7),
+                ]
+            )
+            .where_any(
+                [
+                    QueryFilter("num_edges", "=", 4),
+                    QueryFilter("num_edges", "=", 5),
+                ]
+            )
             .compile()
         )
         assert "(num_vertices = ? OR num_vertices = ?)" in compiled.sql
@@ -92,9 +107,11 @@ class TestQueryBuilder:
         assert compiled.params == [5, 7, 4, 5]
 
     def test_where_expr_not(self, registry):
-        compiled = QueryBuilder(registry).where_expr(
-            NotExpr(QueryFilter("num_vertices", "=", 5))
-        ).compile()
+        compiled = (
+            QueryBuilder(registry)
+            .where_expr(NotExpr(QueryFilter("num_vertices", "=", 5)))
+            .compile()
+        )
         assert "WHERE (NOT num_vertices = ?)" in compiled.sql
         assert compiled.params == [5]
 

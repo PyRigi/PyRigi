@@ -14,8 +14,12 @@ Typical usage::
     print(stats)                            # IngestStats(inserted=853, ...)
 
     # Add a custom column (runtime callable, not persisted across sessions)
-    store.add_column("density", "REAL",
-                     populator=lambda row: row["num_edges"] / (row["num_vertices"] * (row["num_vertices"] - 1) / 2))
+    store.add_column(
+        "density", "REAL",
+        populator=lambda row: (
+            row["num_edges"] / (row["num_vertices"] * (row["num_vertices"] - 1) / 2)
+        ),
+    )
     store.populate_column("density")
 
     # Query
@@ -26,6 +30,7 @@ Typical usage::
         limit=10,
     )
 """
+
 from __future__ import annotations
 
 import logging
@@ -35,7 +40,13 @@ from typing import Any, Callable, Iterator, Optional, TextIO, cast
 from pyrigi.graphDB.db import DatabaseManager
 from pyrigi.graphDB.defaults.columns import DEFAULT_COLUMNS
 from pyrigi.graphDB.ingestion import DefaultColumnComputer, G6Reader, GraphParser
-from pyrigi.graphDB.models import ColumnDef, IngestStats, PopulateStats, QueryExpr, QueryFilter
+from pyrigi.graphDB.models import (
+    ColumnDef,
+    IngestStats,
+    PopulateStats,
+    QueryExpr,
+    QueryFilter,
+)
 from pyrigi.graphDB.query import QueryBuilder
 from pyrigi.graphDB.repositories.column_registry import ColumnRegistryRepo
 from pyrigi.graphDB.repositories.graph_repo import GraphRepository
@@ -92,7 +103,7 @@ class GraphStoreService:
     def __enter__(self) -> "GraphStoreService":
         return self.init()
 
-    def __exit__(self, *_) -> None:
+    def __exit__(self, *_) -> None:  # noqa: U101
         self.close()
 
     # ------------------------------------------------------------------
@@ -156,7 +167,10 @@ class GraphStoreService:
 
         log.info(
             "Ingest complete: files=%d inserted=%d skipped=%d errors=%d",
-            stats.files_processed, stats.inserted, stats.skipped, stats.errors,
+            stats.files_processed,
+            stats.inserted,
+            stats.skipped,
+            stats.errors,
         )
         return stats
 
@@ -341,24 +355,38 @@ class GraphStoreService:
                 "store.update_column_populator(name, populator=fn)."
             )
 
+        bs = batch_size or self._batch_size
         stats = PopulateStats(column=column)
-        iterator = self._repo.iter_all() if all_rows else self._repo.iter_unpopulated(column)
+        iterator = (
+            self._repo.iter_all() if all_rows else self._repo.iter_unpopulated(column)
+        )
+        pending: list[tuple[Any, int]] = []
 
         for row in iterator:
             try:
                 value = fn(row)
-                self._repo.update_column(column, row["id"], value)
+                pending.append((value, row["id"]))
                 stats.processed += 1
             except Exception as exc:
                 log.error(
                     "Populator error for column=%s row_id=%s: %s",
-                    column, row.get("id"), exc,
+                    column,
+                    row.get("id"),
+                    exc,
                 )
                 stats.errors += 1
+            if len(pending) >= bs:
+                self._repo.update_column_batch(column, pending)
+                pending.clear()
+
+        if pending:
+            self._repo.update_column_batch(column, pending)
 
         log.info(
             "Population complete: column=%s processed=%d errors=%d",
-            column, stats.processed, stats.errors,
+            column,
+            stats.processed,
+            stats.errors,
         )
         return stats
 

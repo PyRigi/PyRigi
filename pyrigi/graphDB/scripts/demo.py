@@ -1,120 +1,84 @@
 import networkx as nx
 
-from pyrigi.graphDB import AndExpr, GraphStoreService, OrExpr, QueryFilter
+from pyrigi.graphDB import GraphStoreService, QueryFilter
 
-# -- Init (creates pyrigi/graphDB/outputs/graph_store.db)
+# 1. Setup
 store = GraphStoreService("pyrigi/graphDB/outputs/graph_store.db").init()
+store.ingest("pyrigi/graphDB/outputs/g6")
+print(store.count(), "graphs ingested")
 
-# -- Ingest all g6 files
-stats = store.ingest("pyrigi/graphDB/outputs/g6")
-print(stats)
-
-# -- Populate rigidity columns
+# 2. Populate built-in rigidity columns
 store.populate_column("min_rigidity")
 store.populate_column("rigidity")
 store.populate_column("global_rigidity")
 
-# -- Basic sanity
-print(store.count())       # total graphs
-print(store.info())        # all columns + whether they have a populator
-
-# -- Query: all 5-vertex graphs
-rows = store.fetch(
-    select=["graph", "num_vertices", "num_edges", "min_degree", "max_degree"],
-    filters=[QueryFilter("num_vertices", "=", 5)],
-    order_by="num_edges",
-)
-print(f"{len(rows)} five-vertex graphs")
-print(rows[0])
-
-# -- Add a custom column
-store.add_column("density", "REAL",
-    populator=lambda row: row["num_edges"] / (row["num_vertices"] * (row["num_vertices"] - 1) / 2))
-pstats = store.populate_column("density")
-print(pstats)
-
-# -- Query custom column
-rows = store.fetch(
-    select=["graph", "num_vertices", "density"],
-    filters=[QueryFilter("num_vertices", "=", 7)],
-    order_by="density",
-    limit=10,
-)
-for r in rows:
-    print(r)
-
-# -- Grouped boolean logic with expression tree
-rows = store.fetch(
-    select=["graph", "num_vertices", "density"],
-    expr=AndExpr([
-        OrExpr([
-            QueryFilter("num_vertices", "=", 5),
-            QueryFilter("num_vertices", "=", 7),
-        ]),
-        OrExpr([
-            QueryFilter("density", ">=", 0.5),
-            QueryFilter("density", "IS NULL", None),
-        ]),
-    ]),
-    order_by="density",
-    limit=10,
-)
-
+# 3. Basic fetch — filters, ordering, pretty-print
 store.pretty_print_results(
-    rows,
+    store.fetch(
+        select=[
+            "graph",
+            "num_vertices",
+            "num_edges",
+            "rigidity",
+            "min_rigidity",
+            "global_rigidity",
+        ],
+        filters=[QueryFilter("num_vertices", "=", 5)],
+        order_by="num_edges",
+    ),
     show_index=True,
-    max_rows=10,
+    max_rows=5,
 )
-print(f"Grouped fetch returned {len(rows)} rows")
 
-# -- Fluent builder grouped equivalent using OR helper groups
-rows = (
-    store.query()
-    .select(["graph", "num_vertices", "density"])
-    .where_any([
-        QueryFilter("num_vertices", "=", 5),
-        QueryFilter("num_vertices", "=", 7),
-    ])
-    .where_any([
-        QueryFilter("density", ">=", 0.5),
-        QueryFilter("density", "IS NULL", None),
-    ])
-    .order_by("density", asc=False)
-    .limit(5)
-    .fetch()
+# 4. Rigidity-aware queries
+# >= 2 includes complete graphs (stored as NULL — rigid in all dimensions)
+store.pretty_print_results(
+    store.fetch(
+        select=["graph", "num_vertices", "rigidity"],
+        filters=[QueryFilter("rigidity", ">=", 2)],
+        limit=5,
+    ),
+    show_index=True,
 )
-print(rows)
 
-# -- Pretty print already-fetched rows
-store.pretty_print_results(rows, max_rows=5, show_index=True)
+# = 2 includes complete graphs that are minimally 2-rigid (e.g. K3, stored as -2)
+store.pretty_print_results(
+    store.fetch(
+        select=["graph", "num_vertices", "min_rigidity"],
+        filters=[QueryFilter("min_rigidity", "=", 2)],
+        limit=5,
+    ),
+    show_index=True,
+)
 
-# -- Pretty print directly from fluent query
+# 5. Custom column + fluent query builder
+store.add_column(
+    "density",
+    "REAL",
+    populator=lambda row: (
+        row["num_edges"] / (row["num_vertices"] * (row["num_vertices"] - 1) / 2)
+    ),
+)
+store.populate_column("density")
+
 (
     store.query()
-    .select(["num_vertices", "num_edges", "density"])
+    .select(["graph", "num_vertices", "density", "rigidity"])
+    .where_any(
+        [QueryFilter("num_vertices", "=", 5), QueryFilter("num_vertices", "=", 7)]
+    )
     .order_by("density", asc=False)
     .limit(5)
     .pretty_print(show_index=True)
 )
 
-# -- Streaming results as networkx.Graph objects
-def to_nx_graph(row: dict) -> nx.Graph:
-    return nx.from_graph6_bytes(row["graph"].encode("ascii"))
-
-
-graphs_iter = store.iter_fetch(
+# 6. Streaming with a mapper — yields networkx Graph objects
+for g in store.iter_fetch(
     select=["graph"],
-    filters=[QueryFilter("num_vertices", "=", 7)],
+    filters=[QueryFilter("num_vertices", "=", 5)],
     limit=3,
-    mapper=to_nx_graph,
-)
-for g in graphs_iter:
-    print("streamed graph:", g.number_of_nodes(), g.number_of_edges())
+    mapper=lambda row: nx.from_graph6_bytes(row["graph"].encode("ascii")),
+):
+    print(g.number_of_nodes(), "vertices,", g.number_of_edges(), "edges")
 
-# -- What rigidity looks like before you plug in a solver
-print(store.fetch(select=["graph", "rigidity"], limit=3))
-
-# -- Simulate plugging in a solver (placeholder returns a fixed value)
-store.update_column_populator("rigidity", populator=lambda row: 2)
-store.populate_column("rigidity")
-print(store.fetch(select=["rigidity"], limit=3))
+store.close()

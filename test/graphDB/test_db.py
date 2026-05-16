@@ -1,4 +1,5 @@
-"""Tests for graph_db.db (DatabaseManager)."""
+"""Tests for pyrigi.graphDB.db (DatabaseManager)."""
+
 import pytest
 from pyrigi.graphDB.db import DatabaseManager
 
@@ -37,9 +38,14 @@ class TestDatabaseManager:
         rows = db.execute("SELECT name FROM column_registry").fetchall()
         names = {r[0] for r in rows}
         expected = {
-            "graph", "num_vertices", "num_edges",
-            "min_degree", "max_degree",
-            "rigidity", "min_rigidity", "global_rigidity",
+            "graph",
+            "num_vertices",
+            "num_edges",
+            "min_degree",
+            "max_degree",
+            "rigidity",
+            "min_rigidity",
+            "global_rigidity",
         }
         assert expected.issubset(names)
 

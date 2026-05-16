@@ -4,6 +4,7 @@ pyrigi.graphDB.models.resolvers
 Private helpers for resolving importable callable references and
 providing the default SQL fetch strategy.
 """
+
 from __future__ import annotations
 
 import importlib
@@ -25,9 +26,7 @@ def _import_callable(ref: str) -> Callable:
     return obj
 
 
-def _default_fetch_strategy(
-    column: str, operator: str, value: Any
-) -> tuple[str, list]:
+def _default_fetch_strategy(column: str, operator: str, value: Any) -> tuple[str, list]:
     """Pass-through fetch strategy used when no custom one is registered."""
     op = operator.upper()
     if op == "IS NULL":

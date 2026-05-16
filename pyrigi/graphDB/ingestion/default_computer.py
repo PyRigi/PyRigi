@@ -4,6 +4,7 @@ pyrigi.graphDB.ingestion.default_computer
 :class:`DefaultColumnComputer` — computes the always-populated default
 columns in a single pass over a decoded networkx Graph.
 """
+
 from __future__ import annotations
 
 try:
@@ -34,9 +35,9 @@ class DefaultColumnComputer:
         """
         degrees = [d for _, d in graph.degree()]
         return {
-            "graph":        g6,
+            "graph": g6,
             "num_vertices": graph.number_of_nodes(),
-            "num_edges":    graph.number_of_edges(),
-            "min_degree":   min(degrees) if degrees else 0,
-            "max_degree":   max(degrees) if degrees else 0,
+            "num_edges": graph.number_of_edges(),
+            "min_degree": min(degrees) if degrees else 0,
+            "max_degree": max(degrees) if degrees else 0,
         }

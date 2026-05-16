@@ -8,6 +8,7 @@ from user-provided column names and :class:`~pyrigi.graphDB.models.QueryFilter`
 objects.  Raw SQL access to the database is delegated entirely to
 :class:`~pyrigi.graphDB.repositories.graph_repo.GraphRepository`.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
 # Compiled output
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class CompiledQuery:
     """Immutable SQL statement and its bound parameters.
@@ -31,6 +33,7 @@ class CompiledQuery:
     Produced by :meth:`QueryBuilder.compile` and consumed by
     :meth:`~pyrigi.graphDB.repositories.graph_repo.GraphRepository.fetch`.
     """
+
     sql: str
     params: list[Any]
 
@@ -38,6 +41,7 @@ class CompiledQuery:
 # ---------------------------------------------------------------------------
 # Builder
 # ---------------------------------------------------------------------------
+
 
 class QueryBuilder:
     """Fluent builder for SELECT queries against the ``graphs`` table.
@@ -195,6 +199,7 @@ class QueryBuilder:
 
         # Unknown column — fall back to pass-through
         from pyrigi.graphDB.models.resolvers import _default_fetch_strategy
+
         return _default_fetch_strategy
 
     def _compile_filter(self, filt: QueryFilter) -> tuple[str, list[Any]]:

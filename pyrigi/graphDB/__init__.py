@@ -23,6 +23,7 @@ SQLite graph database quick start::
         ],
     )
 """
+
 # Graph generators (formerly pyrigi/graphDB.py)
 from pyrigi.graphDB.small_graphs import (
     Cycle,
@@ -49,6 +50,7 @@ from pyrigi.graphDB.small_graphs import (
     ThreeConnectedR3Circuit,
     Wheel,
     Grid,
+    _min_rigidity_dimension_encoding,
 )
 
 # SQLite graph database interface

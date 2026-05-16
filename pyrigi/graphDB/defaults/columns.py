@@ -9,9 +9,14 @@ can be referenced by the importable path
 ``"pyrigi.graphDB.defaults.populators:<function_name>"`` and thus survive
 across Python sessions when stored in ``column_registry.populator_ref``.
 """
+
 from __future__ import annotations
 
 from pyrigi.graphDB.models import ColumnDef
+from pyrigi.graphDB.defaults.fetch_strategies import (
+    _min_rigidity_fetch_strategy,
+    _rigidity_fetch_strategy,
+)
 from pyrigi.graphDB.defaults.populators import (
     _compute_num_vertices,
     _compute_num_edges,
@@ -27,6 +32,7 @@ from pyrigi.graphDB.defaults.populators import (
 # ---------------------------------------------------------------------------
 
 _REF = "pyrigi.graphDB.defaults.populators"
+_FETCH_REF = "pyrigi.graphDB.defaults.fetch_strategies"
 
 DEFAULT_COLUMNS: list[ColumnDef] = [
     ColumnDef(
@@ -34,7 +40,7 @@ DEFAULT_COLUMNS: list[ColumnDef] = [
         data_type="TEXT",
         description="Graph6-encoded graph string (unique identifier)",
         is_default=True,
-        populator=None,          # populated by ingestion, not by populator
+        populator=None,  # populated by ingestion, not by populator
         populator_ref=None,
     ),
     ColumnDef(
@@ -73,12 +79,13 @@ DEFAULT_COLUMNS: list[ColumnDef] = [
         name="rigidity",
         data_type="INTEGER",
         description=(
-            "Maximum d such that G is d-rigid. "
-            "G is d-rigid iff d ≤ stored value."
+            "Maximum d such that G is d-rigid. " "G is d-rigid iff d ≤ stored value."
         ),
         is_default=True,
         populator=_compute_rigidity,
         populator_ref=f"{_REF}:_compute_rigidity",
+        fetch_strategy=_rigidity_fetch_strategy,
+        fetch_ref=f"{_FETCH_REF}:_rigidity_fetch_strategy",
     ),
     ColumnDef(
         name="min_rigidity",
@@ -90,6 +97,8 @@ DEFAULT_COLUMNS: list[ColumnDef] = [
         is_default=True,
         populator=_compute_min_rigidity,
         populator_ref=f"{_REF}:_compute_min_rigidity",
+        fetch_strategy=_min_rigidity_fetch_strategy,
+        fetch_ref=f"{_FETCH_REF}:_min_rigidity_fetch_strategy",
     ),
     ColumnDef(
         name="global_rigidity",
@@ -101,6 +110,8 @@ DEFAULT_COLUMNS: list[ColumnDef] = [
         is_default=True,
         populator=_compute_global_rigidity,
         populator_ref=f"{_REF}:_compute_global_rigidity",
+        fetch_strategy=_rigidity_fetch_strategy,
+        fetch_ref=f"{_FETCH_REF}:_rigidity_fetch_strategy",
     ),
 ]
 

@@ -15,10 +15,19 @@ All public names (and the private helpers used in tests) are re-exported
 here so that existing ``from pyrigi.graphDB.models import ...`` calls continue
 to work without any changes.
 """
+
 from __future__ import annotations
 
 from pyrigi.graphDB.models.column_def import ColumnDef
-from pyrigi.graphDB.models.expressions import AndExpr, NotExpr, OrExpr, QueryExpr, all_of, any_of, not_
+from pyrigi.graphDB.models.expressions import (
+    AndExpr,
+    NotExpr,
+    OrExpr,
+    QueryExpr,
+    all_of,
+    any_of,
+    not_,
+)
 from pyrigi.graphDB.models.filters import QueryFilter
 from pyrigi.graphDB.models.resolvers import _default_fetch_strategy, _import_callable
 from pyrigi.graphDB.models.stats import IngestStats, PopulateStats

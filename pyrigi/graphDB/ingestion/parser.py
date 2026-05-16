@@ -3,6 +3,7 @@ pyrigi.graphDB.ingestion.parser
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 :class:`GraphParser` — decodes graph6 strings into networkx Graph objects.
 """
+
 from __future__ import annotations
 
 import logging

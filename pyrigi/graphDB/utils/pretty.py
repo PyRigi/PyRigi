@@ -1,4 +1,5 @@
 """Pretty-print helpers for query results."""
+
 from __future__ import annotations
 
 from typing import Any, Iterable, Optional, TextIO
@@ -25,7 +26,9 @@ def _stringify(value: Any, max_col_width: int) -> str:
     return text
 
 
-def _collect_sample(rows: Iterable[Any], max_rows: Optional[int]) -> tuple[list[dict[str, Any]], bool]:
+def _collect_sample(
+    rows: Iterable[Any], max_rows: Optional[int]
+) -> tuple[list[dict[str, Any]], bool]:
     sample: list[dict[str, Any]] = []
     if max_rows is not None and max_rows < 0:
         raise ValueError("max_rows must be >= 0 or None")
@@ -83,7 +86,9 @@ def format_result_table(
 
     table_rows: list[list[str]] = []
     for idx, row in enumerate(sample):
-        values = [_stringify(row.get(col, ""), max_col_width=max_col_width) for col in columns]
+        values = [
+            _stringify(row.get(col, ""), max_col_width=max_col_width) for col in columns
+        ]
         if show_index:
             values = [str(idx)] + values
         table_rows.append(values)

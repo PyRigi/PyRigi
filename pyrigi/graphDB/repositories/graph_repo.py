@@ -5,6 +5,7 @@ CRUD and query operations for the ``graphs`` table.
 
 All SQL lives here.  No business logic.
 """
+
 from __future__ import annotations
 
 import re
@@ -82,6 +83,15 @@ class GraphRepository:
                 (value, row_id),
             )
 
+    def update_column_batch(self, column: str, updates: list[tuple[Any, int]]) -> None:
+        """Apply multiple ``(value, id)`` updates in a single transaction."""
+        self._assert_known_column(column)
+        with self._db.connection:
+            self._db.executemany(
+                f"UPDATE graphs SET {column} = ? WHERE id = ?",
+                updates,
+            )
+
     # ------------------------------------------------------------------
     # Iteration helpers for population
     # ------------------------------------------------------------------
@@ -152,9 +162,7 @@ class GraphRepository:
         """Count rows where *column* IS NULL or IS NOT NULL."""
         self._assert_known_column(column)
         pred = "IS NULL" if is_null else "IS NOT NULL"
-        cur = self._db.execute(
-            f"SELECT COUNT(*) FROM graphs WHERE {column} {pred}"
-        )
+        cur = self._db.execute(f"SELECT COUNT(*) FROM graphs WHERE {column} {pred}")
         return cur.fetchone()[0]
 
     def _assert_known_column(self, name: str) -> None:

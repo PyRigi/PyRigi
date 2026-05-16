@@ -1,7 +1,4 @@
-"""Tests for graph_db.ingestion."""
-import io
-import textwrap
-from pathlib import Path
+"""Tests for pyrigi.graphDB.ingestion."""
 
 import pytest
 import networkx as nx
@@ -12,6 +9,7 @@ from pyrigi.graphDB.ingestion import DefaultColumnComputer, G6Reader, GraphParse
 # ---------------------------------------------------------------------------
 # G6Reader
 # ---------------------------------------------------------------------------
+
 
 class TestG6Reader:
     def test_reads_single_file(self, tmp_path):
@@ -51,17 +49,18 @@ class TestG6Reader:
 # GraphParser
 # ---------------------------------------------------------------------------
 
+
 class TestGraphParser:
     def test_parse_k3(self):
         parser = GraphParser()
-        g = parser.parse("Bw")   # K_3
+        g = parser.parse("Bw")  # K_3
         assert g is not None
         assert g.number_of_nodes() == 3
         assert g.number_of_edges() == 3
 
     def test_parse_path_2(self):
         parser = GraphParser()
-        g = parser.parse("A_")   # K_2
+        g = parser.parse("A_")  # K_2
         assert g is not None
         assert g.number_of_nodes() == 2
         assert g.number_of_edges() == 1
@@ -80,6 +79,7 @@ class TestGraphParser:
 # ---------------------------------------------------------------------------
 # DefaultColumnComputer
 # ---------------------------------------------------------------------------
+
 
 class TestDefaultColumnComputer:
     def test_k3(self):

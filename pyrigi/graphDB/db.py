@@ -9,6 +9,7 @@ Responsibilities
 * Bootstrap the core ``graphs`` and ``column_registry`` tables.
 * Apply ``ALTER TABLE`` migrations when new custom columns are added.
 """
+
 from __future__ import annotations
 
 import re
@@ -45,7 +46,9 @@ class DatabaseManager:
     @property
     def connection(self) -> sqlite3.Connection:
         if self._conn is None:
-            raise RuntimeError("DatabaseManager is not connected. Call connect() first.")
+            raise RuntimeError(
+                "DatabaseManager is not connected. Call connect() first."
+            )
         return self._conn
 
     def connect(self) -> sqlite3.Connection:
@@ -70,7 +73,7 @@ class DatabaseManager:
         self.connect()
         return self
 
-    def __exit__(self, *_) -> None:
+    def __exit__(self, *_) -> None:  # noqa: U101
         self.close()
 
     # ------------------------------------------------------------------
@@ -87,14 +90,26 @@ class DatabaseManager:
             conn.execute(_GRAPHS_DDL)
             conn.execute(_REGISTRY_DDL)
             defaults_data = [
-                (c.name, c.data_type, c.description, c.populator_ref, c.fetch_ref, int(c.is_default))
+                (
+                    c.name,
+                    c.data_type,
+                    c.description,
+                    c.populator_ref,
+                    c.fetch_ref,
+                    int(c.is_default),
+                )
                 for c in DEFAULT_COLUMNS
             ]
             conn.executemany(
                 """
-                INSERT OR IGNORE INTO column_registry
+                INSERT INTO column_registry
                     (name, data_type, description, populator_ref, fetch_ref, is_default)
                 VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(name) DO UPDATE SET
+                    data_type     = excluded.data_type,
+                    description   = excluded.description,
+                    populator_ref = excluded.populator_ref,
+                    fetch_ref     = excluded.fetch_ref
                 """,
                 defaults_data,
             )
@@ -118,9 +133,7 @@ class DatabaseManager:
         if name in existing:
             return  # idempotent
         with self.connection:
-            self.connection.execute(
-                f"ALTER TABLE graphs ADD COLUMN {name} {data_type}"
-            )
+            self.connection.execute(f"ALTER TABLE graphs ADD COLUMN {name} {data_type}")
 
     @staticmethod
     def _validate_identifier(name: str) -> None:

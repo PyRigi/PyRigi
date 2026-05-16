@@ -18,6 +18,7 @@ DefaultColumnComputer
 The :class:`~pyrigi.graphDB.service.GraphStoreService` orchestrates these three
 objects; they are independent and individually testable.
 """
+
 from pyrigi.graphDB.ingestion.reader import G6Reader
 from pyrigi.graphDB.ingestion.parser import GraphParser
 from pyrigi.graphDB.ingestion.default_computer import DefaultColumnComputer

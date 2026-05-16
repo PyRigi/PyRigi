@@ -3,6 +3,7 @@ pyrigi.graphDB.ingestion.reader
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 :class:`G6Reader` — iterates over graph6 strings from files or directories.
 """
+
 from __future__ import annotations
 
 import gzip
@@ -39,11 +40,7 @@ class G6Reader:
         if p.is_file():
             return [p]
         if p.is_dir():
-            result = sorted(
-                f
-                for f in p.iterdir()
-                if f.is_file() and self._is_g6(f)
-            )
+            result = sorted(f for f in p.iterdir() if f.is_file() and self._is_g6(f))
             if not result:
                 log.warning("No .g6 or .g6.gz files found in %s", p)
             return result

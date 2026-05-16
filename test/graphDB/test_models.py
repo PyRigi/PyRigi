@@ -1,4 +1,5 @@
-"""Tests for graph_db.models."""
+"""Tests for pyrigi.graphDB.models."""
+
 import pytest
 import networkx as nx
 import pyrigi.graphDB.defaults.populators as default_populators
@@ -19,8 +20,19 @@ from pyrigi.graphDB.models import (
 
 class TestQueryFilter:
     def test_valid_operators(self):
-        for op in ["=", "!=", "<", "<=", ">", ">=", "IN", "BETWEEN", "LIKE",
-                   "IS NULL", "IS NOT NULL"]:
+        for op in [
+            "=",
+            "!=",
+            "<",
+            "<=",
+            ">",
+            ">=",
+            "IN",
+            "BETWEEN",
+            "LIKE",
+            "IS NULL",
+            "IS NOT NULL",
+        ]:
             qf = QueryFilter("col", op, None)
             assert qf.operator == op.upper()
 
@@ -62,7 +74,9 @@ class TestDefaultFetchStrategy:
 
 class TestColumnDef:
     def test_resolve_runtime_populator(self):
-        fn = lambda row: 42
+        def fn(_):  # noqa: U101
+            return 42
+
         col = ColumnDef("x", populator=fn)
         assert col.resolve_populator() is fn
 

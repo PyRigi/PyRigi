@@ -6,6 +6,7 @@ CRUD operations for the ``column_registry`` table.
 This repository is the single source of truth for which columns exist,
 their types, import references, and whether they are default or custom.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -49,16 +50,12 @@ class ColumnRegistryRepo:
 
     def get(self, name: str) -> Optional[ColumnDef]:
         """Return the :class:`ColumnDef` for *name*, or ``None`` if not found."""
-        cur = self._db.execute(
-            "SELECT * FROM column_registry WHERE name = ?", (name,)
-        )
+        cur = self._db.execute("SELECT * FROM column_registry WHERE name = ?", (name,))
         row = cur.fetchone()
         return self._row_to_def(row) if row else None
 
     def exists(self, name: str) -> bool:
-        cur = self._db.execute(
-            "SELECT 1 FROM column_registry WHERE name = ?", (name,)
-        )
+        cur = self._db.execute("SELECT 1 FROM column_registry WHERE name = ?", (name,))
         return cur.fetchone() is not None
 
     def column_names(self) -> list[str]:

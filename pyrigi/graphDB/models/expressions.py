@@ -6,6 +6,7 @@ Boolean expression nodes for grouped query predicates.
 These are composed from :class:`~pyrigi.graphDB.models.filters.QueryFilter`
 leaves and used by :class:`~pyrigi.graphDB.query.QueryBuilder.where_expr`.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
