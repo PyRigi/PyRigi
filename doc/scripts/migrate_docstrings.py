@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from pyrigi._utils._doc import method_to_func_doc  # noqa: E402
+from pyrigi._utils._graph_alias_mapping import GRAPH_ALIAS_METHOD_TO_NX  # noqa: E402
 from migration_targets import TARGET_FILES  # noqa: E402
 
 
@@ -48,8 +49,6 @@ def _collect_graph_wrapper_methods() -> set[str]:
 
 GRAPH_WRAPPER_METHODS = _collect_graph_wrapper_methods()
 
-from pyrigi._utils._graph_alias_mapping import GRAPH_ALIAS_METHOD_TO_NX
-
 
 def _transform_alias_doctest_line(line: str) -> str:
     """Convert Graph-alias method calls in a doctest line to NetworkX forms."""
@@ -68,7 +67,7 @@ def _transform_alias_doctest_line(line: str) -> str:
 
     prefix, assignment, var, method, args, suffix = match.groups()
 
-    if method == "is_isomorphic":
+    if method == "is_isomorphic" and var not in ("nx", "networkx"):
         nx_args = f"{var}, {args}" if args else var
         return f"{prefix}{assignment}nx.is_isomorphic({nx_args}){suffix}"
 

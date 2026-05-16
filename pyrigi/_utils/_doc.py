@@ -4,6 +4,8 @@ import re
 from pathlib import Path
 from typing import Callable, ParamSpec, TypeVar
 
+from ._graph_alias_mapping import GRAPH_ALIAS_NX_TO_METHOD
+
 P = ParamSpec("P")
 T = TypeVar("T")
 
@@ -71,9 +73,6 @@ def _collect_graph_methods() -> set[str]:
 
 
 GRAPH_METHODS = _collect_graph_methods()
-
-
-from ._graph_alias_mapping import GRAPH_ALIAS_METHOD_TO_NX, GRAPH_ALIAS_NX_TO_METHOD
 
 
 def _transform_doctest_method_to_func(line: str, class_methods: set[str]) -> str:
