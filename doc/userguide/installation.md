@@ -21,8 +21,9 @@ Here we list the groups of optional packages that may be used to increase the fu
 
 ### Realization counting
 
-For counting the number of realizations of a minimally rigid graph,
-the package `lnumber` is necessary. To install `PyRigi` including [`lnumber`](https://github.com/jcapco/lnumber), run
+Counting the number of realizations of a (minimally) rigid graph can be done in PyRigi.
+However, a faster implementation for minimally rigid graphs is provided by
+the package `lnumber`. To install `PyRigi` including and using [`lnumber`](https://github.com/jcapco/lnumber), run
 ```
 pip install pyrigi[realization-counting]
 ```
