@@ -1,7 +1,8 @@
-"""Tests for pyrigi.graphDB.db (DatabaseManager)."""
+"""Tests for pyrigi.graphDB.db (DatabaseManager) and GraphRepository."""
 
 import pytest
 from pyrigi.graphDB.db import DatabaseManager
+from pyrigi.graphDB.repositories.graph_repo import GraphRepository
 
 
 @pytest.fixture
@@ -74,3 +75,32 @@ class TestDatabaseManager:
                 ).fetchall()
             }
             assert "graphs" in tables
+
+
+class TestGraphRepository:
+    def test_add_column_invalid_identifier_raises(self, db):
+        repo = GraphRepository(db)
+        with pytest.raises(ValueError, match="Invalid SQL identifier"):
+            repo._assert_known_column("bad-name!")
+
+    def test_insert_batch_empty_is_noop(self, db):
+        repo = GraphRepository(db)
+        inserted, skipped = repo.insert_batch([])
+        assert inserted == 0 and skipped == 0
+
+    def test_iter_all_with_specific_columns(self, db):
+        repo = GraphRepository(db)
+        repo.insert_batch(
+            [
+                {
+                    "graph": "Bw",
+                    "num_vertices": 3,
+                    "num_edges": 3,
+                    "min_degree": 2,
+                    "max_degree": 2,
+                }
+            ]
+        )
+        rows = list(repo.iter_all(columns=["graph", "num_vertices"]))
+        assert len(rows) == 1
+        assert set(rows[0].keys()) == {"graph", "num_vertices"}

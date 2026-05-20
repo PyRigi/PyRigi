@@ -127,8 +127,7 @@ class TestQueryBuilder:
         compiled = QueryBuilder(registry).limit(10).compile()
         assert "LIMIT 10" in compiled.sql
 
-    def test_offset_requires_limit(self, registry):
-        # offset without limit still works syntactically (offset is simply appended)
+    def test_limit_and_offset(self, registry):
         compiled = QueryBuilder(registry).limit(5).offset(10).compile()
         assert "LIMIT 5" in compiled.sql
         assert "OFFSET 10" in compiled.sql

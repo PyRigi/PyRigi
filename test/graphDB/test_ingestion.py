@@ -14,7 +14,6 @@ from pyrigi.graphDB.ingestion import DefaultColumnComputer, G6Reader, GraphParse
 class TestG6Reader:
     def test_reads_single_file(self, tmp_path):
         f = tmp_path / "test.g6"
-        # K3 in graph6
         f.write_text("B?\n")
         reader = G6Reader(f)
         strings = list(reader.iter_strings())
@@ -43,6 +42,42 @@ class TestG6Reader:
         (tmp_path / "graph.g6").write_text("B?\n")
         files = G6Reader(tmp_path).files()
         assert all(str(f).endswith(".g6") or str(f).endswith(".g6.gz") for f in files)
+
+    def test_reads_gz_file(self, tmp_path):
+        import gzip
+
+        gz_file = tmp_path / "test.g6.gz"
+        with gzip.open(gz_file, "wt", encoding="ascii") as fh:
+            fh.write("B?\nBw\n")
+        strings = list(G6Reader(gz_file).iter_strings())
+        assert "B?" in strings
+        assert "Bw" in strings
+
+    def test_iter_strings_with_file_yields_path_pairs(self, tmp_path):
+        f = tmp_path / "test.g6"
+        f.write_text("B?\nBw\n")
+        pairs = list(G6Reader(f).iter_strings_with_file())
+        assert len(pairs) == 2
+        assert all(path == f for path, _ in pairs)
+        assert {g6 for _, g6 in pairs} == {"B?", "Bw"}
+
+    def test_empty_directory_logs_warning(self, tmp_path, caplog):
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="pyrigi.graphDB.ingestion.reader"):
+            files = G6Reader(tmp_path).files()
+        assert files == []
+        assert "No .g6" in caplog.text
+
+    def test_unreadable_file_logs_error_and_yields_nothing(self, tmp_path, caplog):
+        import logging
+
+        bad = tmp_path / "bad.g6"
+        bad.write_bytes(b"\xff\xfe")  # invalid ASCII — triggers decode error
+        with caplog.at_level(logging.ERROR, logger="pyrigi.graphDB.ingestion.reader"):
+            strings = list(G6Reader(bad).iter_strings())
+        assert strings == []
+        assert "Failed to read" in caplog.text
 
 
 # ---------------------------------------------------------------------------

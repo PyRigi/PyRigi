@@ -51,6 +51,26 @@ class TestInit:
 
 
 class TestIngest:
+    def test_ingest_counts_parse_errors(self, store, tmp_path):
+        g6_file = tmp_path / "test.g6"
+        g = nx.complete_graph(3)
+        good = nx.to_graph6_bytes(g, header=False).strip().decode("ascii")
+        g6_file.write_text(good + "\n" + "!!!INVALID!!!\n")
+        stats = store.ingest(str(g6_file))
+        assert stats.errors == 1
+        assert stats.inserted == 1
+
+    def test_ingest_mid_batch_flush(self, store, tmp_path):
+        g6_file = tmp_path / "test.g6"
+        lines = []
+        for n in [3, 4, 5]:
+            g = nx.complete_graph(n)
+            lines.append(nx.to_graph6_bytes(g, header=False).strip().decode("ascii"))
+        g6_file.write_text("\n".join(lines) + "\n")
+        # batch_size=1 forces a flush after each graph, exercising the mid-loop path
+        stats = store.ingest(str(g6_file), batch_size=1)
+        assert stats.inserted == 3
+
     def test_ingest_from_file(self, store, tmp_path):
         g6_file = tmp_path / "test.g6"
         g = nx.complete_graph(3)
@@ -89,6 +109,17 @@ class TestIngest:
 
 
 class TestAddColumn:
+    def test_add_column_caches_populator(self, store_with_data):
+        store_with_data.add_column(
+            "cached_ec",
+            "INTEGER",
+            populator=lambda row: row["num_edges"],
+        )
+        # populate_column without explicit populator should use the cached one
+        stats = store_with_data.populate_column("cached_ec")
+        assert stats.errors == 0
+        assert stats.processed == store_with_data.count()
+
     def test_add_custom_column(self, store):
         col = store.add_column("density", "REAL", description="Edge density")
         assert col.name == "density"
@@ -115,6 +146,15 @@ class TestPopulateColumn:
         )
         assert stats.errors == 0
         assert stats.processed == store_with_data.count()
+
+    def test_populate_column_error_increments_stats(self, store_with_data):
+        store_with_data.add_column("boom", "INTEGER")
+        stats = store_with_data.populate_column(
+            "boom",
+            populator=lambda _: 1 / 0,  # noqa: U101  # always raises
+        )
+        assert stats.errors == store_with_data.count()
+        assert stats.processed == 0
 
     def test_populate_raises_without_populator(self, store_with_data):
         store_with_data.add_column("no_pop", "INTEGER")
@@ -200,6 +240,19 @@ class TestFetch:
         )
         assert len(rows) == 1
         assert rows[0]["num_edges"] == 10
+
+    def test_fetch_with_offset(self, store_with_data):
+        all_rows = store_with_data.fetch(
+            select=["num_edges"], order_by="num_edges", asc=True
+        )
+        offset_rows = store_with_data.fetch(
+            select=["num_edges"],
+            order_by="num_edges",
+            asc=True,
+            limit=10,
+            offset=1,
+        )
+        assert offset_rows == all_rows[1:]
 
     def test_fetch_with_limit(self, store_with_data):
         rows = store_with_data.fetch(limit=1)
@@ -395,6 +448,8 @@ class TestInfo:
         assert "columns" in info
         assert any(c["name"] == "rigidity" for c in info["columns"])
 
+
+class TestUpdateColumnPopulator:
     def test_update_column_populator(self, store_with_data):
         store_with_data.update_column_populator(
             "rigidity",
@@ -415,6 +470,21 @@ class TestInfo:
         after = store.get_column("rigidity")
         assert after is not None
         assert after.populator_ref == before.populator_ref
+
+    def test_update_column_populator_unknown_column_raises(self, store):
+        with pytest.raises(KeyError):
+            store.update_column_populator("nonexistent_col")
+
+    def test_update_column_populator_clears_cache(self, store_with_data):
+        # Prime the cache by populating with an explicit lambda
+        store_with_data.update_column_populator(
+            "rigidity", populator=lambda _: 1  # noqa: U101
+        )
+        # Now clear the runtime populator — the cache entry should be removed
+        store_with_data.update_column_populator("rigidity", populator=None)
+        # populate_column must now fall back to the populator_ref, not the cache
+        stats = store_with_data.populate_column("rigidity")
+        assert stats.errors == 0
 
     def test_update_column_populator_can_clear_ref_explicitly(self, store):
         store.update_column_populator("rigidity", populator_ref=None)
