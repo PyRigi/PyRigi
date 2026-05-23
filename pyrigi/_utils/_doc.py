@@ -85,6 +85,10 @@ def _transform_doctest_func_to_method(line: str, class_methods: set[str]) -> str
     ``>>> H = zero_extension(G, ...)`` -> ``>>> H = G.zero_extension(...)``
     ``>>> rigid_dim = max_rigid_dimension(G); rigid_dim``
         -> ``>>> rigid_dim = G.max_rigid_dimension(); rigid_dim``
+    ``>>> len(list(all_k_extensions(G, 0)))``
+        -> ``>>> len(list(G.all_k_extensions(0)))``
+    ``>>> type(all_extensions(G))``
+        -> ``>>> type(G.all_extensions())``
 
     Does NOT transform:
     - ``>>> print(G)``         — print is NOT in class_methods
@@ -112,7 +116,17 @@ def _transform_doctest_func_to_method(line: str, class_methods: set[str]) -> str
             else:
                 return f"{prefix}{assignment}{var}.{func}(){suffix}"
 
-    return line
+    # Fallback: re.sub for wrapped calls
+    if not re.search(r"(?:>>>|\.\.\.)\s", line):
+        return line
+
+    def _replace(m):
+        func, var, rest = m.group(1), m.group(2), m.group(3)
+        if func not in class_methods:
+            return m.group(0)
+        return f"{var}.{func}({rest})" if rest else f"{var}.{func}()"
+
+    return re.sub(r"(\w+)\((\w+)(?:,\s*(.*?))?\)", _replace, line)
 
 
 def _transform_doctest_nx_to_graph_alias(line: str) -> str:

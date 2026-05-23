@@ -59,6 +59,10 @@ def _transform_doctest_method_to_func(line: str, class_methods: set[str]) -> str
     ``>>> H = G.zero_extension(...)`` -> ``>>> H = zero_extension(G, ...)``
     ``>>> rigid_dim = G.max_rigid_dimension(); rigid_dim``
         -> ``>>> rigid_dim = max_rigid_dimension(G); rigid_dim``
+    ``>>> len(list(G.all_k_extensions(0)))``
+        -> ``>>> len(list(all_k_extensions(G, 0)))``
+    ``>>> type(G.all_extensions())``
+        -> ``>>> type(all_extensions(G))``
 
     Does NOT transform:
     - ``>>> G.add_edge(0,2)``  — add_edge is NOT in class_methods
@@ -85,7 +89,17 @@ def _transform_doctest_method_to_func(line: str, class_methods: set[str]) -> str
                 new_args = var
             return f"{prefix}{assignment}{method}({new_args}){suffix}"
 
-    return line
+    # Fallback: re.sub for wrapped calls
+    if not re.search(r"(?:>>>|\.\.\.)\s", line):
+        return line
+
+    def _replace(m):
+        var, method, args = m.group(1), m.group(2), m.group(3)
+        if method not in class_methods:
+            return m.group(0)
+        return f"{method}({var}, {args})" if args else f"{method}({var})"
+
+    return re.sub(r"(\w+)\.(\w+)\(([^)]*)\)", _replace, line)
 
 
 def _transform_meth_to_func_refs(line: str, class_methods: set[str]) -> str:

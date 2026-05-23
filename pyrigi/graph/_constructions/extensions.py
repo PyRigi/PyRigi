@@ -255,14 +255,15 @@ def all_k_extensions(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(3)
-    >>> type(G.all_k_extensions(0))
+    >>> type(all_k_extensions(G, 0))
     <class 'generator'>
-    >>> len(list(G.all_k_extensions(0)))
+    >>> len(list(all_k_extensions(G, 0)))
     3
-    >>> len(list(G.all_k_extensions(0, only_non_isomorphic=True)))
+    >>> len(list(all_k_extensions(G, 0, only_non_isomorphic=True)))
     1
 
-    >>> len(list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)))
+    >>> diamond_graph = graphs.Diamond()
+    >>> len(list(all_k_extensions(diamond_graph, 1, 2, only_non_isomorphic=True)))
     2
 
     Notes
@@ -340,15 +341,17 @@ def all_extensions(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(3)
-    >>> type(G.all_extensions())
+    >>> type(all_extensions(G))
     <class 'generator'>
-    >>> len(list(G.all_extensions()))
+    >>> len(list(all_extensions(G)))
     6
-    >>> len(list(G.all_extensions(only_non_isomorphic=True)))
+    >>> len(list(all_extensions(G, only_non_isomorphic=True)))
     1
 
-    >>> list(graphs.Diamond().all_extensions(2, only_non_isomorphic=True, k_min=1, k_max=1)
-    ... ) == list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True))
+    >>> diamond_graph = graphs.Diamond()
+    >>> result1 = list(all_extensions(diamond_graph, 2, only_non_isomorphic=True, k_min=1, k_max=1))  # noqa: E501
+    >>> result2 = list(all_k_extensions(diamond_graph, 1, 2, only_non_isomorphic=True))
+    >>> result1 == result2
     True
 
     Notes
@@ -356,7 +359,7 @@ def all_extensions(
     It turns out that possible errors on bad input parameters are only raised,
     when the output iterator is actually used,
     not when it is created.
-    """  # noqa: E501
+    """
     _input_check.dimension(dim)
     _graph_input_check.no_loop(graph)
     _input_check.integrality_and_range(k_min, "k_min", min_val=0)
