@@ -126,7 +126,7 @@ def _transform_doctest_func_to_method(line: str, class_methods: set[str]) -> str
             return m.group(0)
         return f"{var}.{func}({rest})" if rest else f"{var}.{func}()"
 
-    return re.sub(r"(\w+)\((\w+)(?:,\s*(.*?))?\)", _replace, line)
+    return re.sub(r"(?<!\.)(\w+)\(([A-Za-z_]\w*)(?:,\s*(.*?))?\)", _replace, line)
 
 
 def _transform_doctest_nx_to_graph_alias(line: str) -> str:
@@ -159,7 +159,7 @@ def _transform_doctest_nx_to_graph_alias(line: str) -> str:
         r"((?:\w+\s*=\s*)?)"  # group 2: optional assignment
         r"(?:nx|networkx)\.is_isomorphic\("  # function name with module prefix
         r"(\w+)"  # group 3: graph variable (self)
-        r"(?:,\s*(.*?))?"  # group 4: remaining args
+        r"(?:,\s*(.*))?"  # group 4: remaining args (greedy to handle nested parens)
         r"\)"
         r"(.*)"  # group 5: suffix
         r"$",
