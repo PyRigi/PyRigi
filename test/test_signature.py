@@ -18,6 +18,9 @@ import pytest
 from pyrigi import Framework
 from pyrigi.graph import Graph
 
+from test.wrapper._wrappers import _BadWrappers
+from test.wrapper._proxies import _BadWrappersBase
+
 P = ParamSpec("P")
 T = TypeVar("T")
 
@@ -304,14 +307,19 @@ def _assert_params_forwarded(
 
     # First positional arg must be the instance itself
     first_arg = call_args[0][0]
-    if cls == Graph:
+    if cls == _BadWrappers:
+        assert isinstance(
+            first_arg, _BadWrappersBase
+        ), f"{cls.__name__}.{attr_name} didn't pass "
+        "the _BadWrappers instance as first arg."
+    elif cls == Graph:
         assert isinstance(
             first_arg, nx.Graph
-        ), f"{cls.__name__}.{attr_name} didn't pass the Graph instance as first arg"
+        ), f"{cls.__name__}.{attr_name} didn't pass the Graph instance as first arg."
     else:
         assert isinstance(first_arg, Framework), (
             f"{cls.__name__}.{attr_name} didn't pass "
-            f"the Framework instance as first arg"
+            f"the Framework instance as first arg."
         )
 
     # Every other parameter must be forwarded with the same value
@@ -331,11 +339,26 @@ def _assert_params_forwarded(
         )
 
 
-@pytest.mark.parametrize(("cls"), [Graph, Framework])
-def test_wrapper_parameter_forwarding(cls: Type):
+@pytest.mark.parametrize(
+    ("cls", "expect_pass", "test_instance"),
+    [
+        (Graph, True, Graph([(0, 1), (1, 2)])),
+        (
+            Framework,
+            True,
+            Framework(
+                Graph([(0, 1), (1, 2)]),
+                {0: (0, 0), 1: (1, 0), 2: (0, 1)},
+            ),
+        ),
+        (_BadWrappers, False, _BadWrappers()),
+    ],
+)
+def test_wrapper_parameter_forwarding(cls, expect_pass, test_instance):
     """
     Test that all @copy_doc wrapper methods correctly forward parameters
-    to their underlying proxy functions.
+    to their underlying proxy functions, and that every class of
+    forwarding mistake is detected.
     """
     any_checked = False
 
@@ -350,25 +373,19 @@ def test_wrapper_parameter_forwarding(cls: Type):
         # Build mock sentinels for every param except the first (graph/framework)
         mock_args = {p: Mock(name=p) for p in params[1:]}
 
-        if cls == Graph:
-            test_instance = Graph([(0, 1), (1, 2)])
-        else:
-            test_instance = Framework(
-                Graph([(0, 1), (1, 2)]),
-                {0: (0, 0), 1: (1, 0), 2: (0, 1)},
-            )
-
         patch_module, patch_name = _find_patch_target(method, wrapped_func)
 
         with patch.object(patch_module, patch_name) as mock_func:
             try:
                 result = getattr(test_instance, attr_name)(**mock_args)
             except Exception as e:
-                pytest.fail(
-                    f"{cls.__name__}.{attr_name} raised an unexpected exception "
-                    f"while forwarding parameters — the wrapper may be modifying "
-                    f"an argument before passing it: {type(e).__name__}: {e}"
-                )
+                if expect_pass:
+                    pytest.fail(
+                        f"{cls.__name__}.{attr_name} raised an "
+                        f"unexpected exception while forwarding parameters — "
+                        f"the wrapper may be modifying an argument before "
+                        f"passing it: {type(e).__name__}: {e}"
+                    )
 
             # If the wrapper returns a generator, consume it to trigger the call
             if hasattr(result, "__iter__") and hasattr(result, "__next__"):
@@ -377,12 +394,26 @@ def test_wrapper_parameter_forwarding(cls: Type):
                 except Exception:
                     pass
 
-            assert (
-                mock_func.called
-            ), f"{cls.__name__}.{attr_name} didn't call {wrapped_func.__name__}"
-
-            _assert_params_forwarded(cls, attr_name, params, mock_args, mock_func)
+            if not expect_pass:
+                if not mock_func.called:
+                    continue  # proxy_not_called — proxy was never invoked
+                with pytest.raises(AssertionError) as error:
+                    _assert_params_forwarded(
+                        cls, attr_name, params, mock_args, mock_func
+                    )
+                print("Did not raise error: ", attr_name, error)
+            else:
+                assert mock_func.called, (
+                    f"{cls.__name__}.{attr_name} didn't call "
+                    f"{wrapped_func.__name__}"
+                )
+                _assert_params_forwarded(cls, attr_name, params, mock_args, mock_func)
 
         any_checked = True
 
     assert any_checked
+
+
+# def test_temp():
+#     with pytest.raises(TypeError):
+#         pass
