@@ -47,7 +47,7 @@ class _BadWrappers(_BadWrappersBase):
 
     # a different instance is passed as first positional arg
     @copy_doc(different_instance_first)
-    def different_instance_first(self, x: _BadWrappers, label: str = "a") -> str:
+    def different_instance_first(self, x: _BadWrappersBase, label: str = "a") -> str:
         return different_instance_first(x, self, label)
 
     # the proxy function is never invoked

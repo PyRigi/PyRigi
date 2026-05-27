@@ -247,7 +247,7 @@ def _assert_same_sign(  # noqa: C901
                 )
 
 
-@pytest.mark.parametrize(("cls"), [Graph, Framework])
+@pytest.mark.parametrize(("cls"), [Graph, Framework, _BadWrappers])
 def test_signature_graph(cls: Type):
     """
     Test that all methods have the same signature as the proxy functions
