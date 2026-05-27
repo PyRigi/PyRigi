@@ -10,7 +10,11 @@ class _BadWrappersBase(object):
         self.order = 1
 
 
-def missing_param(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
+def missing_kwarg_param(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
+    return f"{label}:{x} (graph has {graph.order} nodes)"
+
+
+def missing_positional_param(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
     return f"{label}:{x} (graph has {graph.order} nodes)"
 
 
@@ -19,6 +23,12 @@ def wrong_value(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
 
 
 def instance_not_first(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
+    return f"{label}:{x} (graph has {graph.order} nodes)"
+
+
+def different_instance_first(
+    graph: _BadWrappersBase, x: _BadWrappersBase, label: str = "a"
+) -> str:
     return f"{label}:{x} (graph has {graph.order} nodes)"
 
 
@@ -35,4 +45,12 @@ def extra_positional(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
 
 
 def correct_wrapping(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
+    return f"{label}:{x} (graph has {graph.order} nodes)"
+
+
+def different_function(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
+    return f"{label}:{x} (graph has {graph.order} nodes)"
+
+
+def different_function2(graph: _BadWrappersBase, x: int, label: str = "a") -> str:
     return f"{label}:{x} (graph has {graph.order} nodes)"
