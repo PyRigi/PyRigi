@@ -268,6 +268,9 @@ def test_signature_graph(cls: Type):
     assert any_checked
 
 
+_MISSING = object()
+
+
 def _find_patch_target(method: Callable, wrapped_func: Callable) -> tuple:
     """
     Determine the module and attribute name to patch so that
@@ -291,10 +294,17 @@ def _find_patch_target(method: Callable, wrapped_func: Callable) -> tuple:
     return sys.modules[wrapped_func.__module__], wrapped_func.__name__
 
 
+def _assert_name_matches(cls: Type, attr_name: str, proxy_func_name: str) -> None:
+    assert attr_name == proxy_func_name, (
+        f"{cls.__name__}.{attr_name} is decorated with @copy_doc({proxy_func_name}) "
+        f"but the method name differs from the proxy function name"
+    )
+
+
 def _assert_params_forwarded(
     cls: Type,
     attr_name: str,
-    params: list,
+    proxy_param_names: list,
     mock_args: dict,
     mock_func: Any,
 ) -> None:
@@ -302,6 +312,8 @@ def _assert_params_forwarded(
     Assert that ``mock_func`` was called with the graph/framework instance
     as the first positional argument and all entries of ``mock_args``
     forwarded unchanged.
+
+    ``proxy_param_names`` is the ordered list of the proxy's parameter names
     """
     call_args = mock_func.call_args
 
@@ -322,12 +334,12 @@ def _assert_params_forwarded(
             f"the Framework instance as first arg."
         )
 
-    # Every other parameter must be forwarded with the same value
+    # Every other parameter must be forwarded with the same value.
     for param_name, expected_value in mock_args.items():
-        actual_value = call_args.kwargs.get(param_name)
-        if actual_value is None and len(call_args[0]) > 1:
+        actual_value = call_args.kwargs.get(param_name, _MISSING)
+        if actual_value is _MISSING and len(call_args[0]) > 1:
             try:
-                idx = params.index(param_name)
+                idx = proxy_param_names.index(param_name)
                 if idx < len(call_args[0]):
                     actual_value = call_args[0][idx]
             except ValueError:
@@ -337,6 +349,25 @@ def _assert_params_forwarded(
             f"{cls.__name__}.{attr_name} didn't forward '{param_name}' correctly. "
             f"Expected {expected_value}, got {actual_value}"
         )
+
+    # Reverse check: no unexpected arguments must arrive at the proxy.
+    forwarded_names: set[str] = set(call_args.kwargs.keys())
+    for i, _ in enumerate(call_args[0][1:], start=1):
+        if i < len(proxy_param_names):
+            forwarded_names.add(proxy_param_names[i])
+
+    # Extra positionals beyond the proxy's named params are always unexpected.
+    extra_positional_count = max(0, len(call_args[0]) - len(proxy_param_names))
+    assert extra_positional_count == 0, (
+        f"{cls.__name__}.{attr_name} forwarded {extra_positional_count} unexpected "
+        f"positional argument(s) to the proxy"
+    )
+
+    unexpected = forwarded_names - set(mock_args.keys())
+    assert not unexpected, (
+        f"{cls.__name__}.{attr_name} forwarded unexpected argument(s) to the proxy: "
+        f"{unexpected}"
+    )
 
 
 @pytest.mark.parametrize(
@@ -368,10 +399,19 @@ def test_wrapper_parameter_forwarding(cls, expect_pass, test_instance):
             continue
 
         sig = inspect.signature(wrapped_func)
-        params = list(sig.parameters.keys())
+        proxy_param_names = list(sig.parameters.keys())
 
-        # Build mock sentinels for every param except the first (graph/framework)
-        mock_args = {p: Mock(name=p) for p in params[1:]}
+        # Exclude VAR_KEYWORD/VAR_POSITIONAL; probe **kwargs with a sentinel key.
+        mock_args = {
+            name: Mock(name=name)
+            for name, param in list(sig.parameters.items())[1:]
+            if param.kind
+            not in (inspect.Parameter.VAR_KEYWORD, inspect.Parameter.VAR_POSITIONAL)
+        }
+        if any(
+            p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
+        ):
+            mock_args["_test_kwarg"] = Mock(name="_test_kwarg")
 
         patch_module, patch_name = _find_patch_target(method, wrapped_func)
 
@@ -396,10 +436,11 @@ def test_wrapper_parameter_forwarding(cls, expect_pass, test_instance):
 
             if not expect_pass:
                 if not mock_func.called:
-                    continue  # proxy_not_called — proxy was never invoked
+                    continue  # proxy was never invoked
                 with pytest.raises(AssertionError) as error:
+                    _assert_name_matches(cls, attr_name, wrapped_func.__name__)
                     _assert_params_forwarded(
-                        cls, attr_name, params, mock_args, mock_func
+                        cls, attr_name, proxy_param_names, mock_args, mock_func
                     )
                 print("Did not raise error: ", attr_name, error)
             else:
@@ -407,7 +448,10 @@ def test_wrapper_parameter_forwarding(cls, expect_pass, test_instance):
                     f"{cls.__name__}.{attr_name} didn't call "
                     f"{wrapped_func.__name__}"
                 )
-                _assert_params_forwarded(cls, attr_name, params, mock_args, mock_func)
+                _assert_name_matches(cls, attr_name, wrapped_func.__name__)
+                _assert_params_forwarded(
+                    cls, attr_name, proxy_param_names, mock_args, mock_func
+                )
 
         any_checked = True
 
