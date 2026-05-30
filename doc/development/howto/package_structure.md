@@ -94,6 +94,20 @@ invert them to method-style at import time:
    >>> len(list(all_k_extensions(G, 0)))  # OK — linear args
    ```
 
+3. **For multiline calls, place the graph variable alone on the first continuation
+   line.** This is the only multiline pattern that `copy_doc` can invert:
+   ```python
+   >>> print(to_tikz(          # graph variable NOT on this line
+   ...     G,                  # graph variable alone here — OK
+   ...     layout_type="circular",
+   ...     vertex_style="myvertex"))
+   ```
+   The following patterns are **not** converted and must be avoided:
+   ```python
+   >>> print(to_tikz(G,        # G on the >>> line without closing paren — NOT handled
+   ...     layout_type="circular"))
+   ```
+
 Regarding type hinting, {class}`networkx.Graph` should be used in the function signature,
 while {class}`pyrigi.Graph<.Graph>` should be used in the method signature.
 This is needed, for example, when a function/method returns a `Graph`.
