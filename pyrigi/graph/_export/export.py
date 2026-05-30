@@ -109,7 +109,8 @@ def to_tikz(
         \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(G.to_tikz(
+    >>> print(to_tikz(
+    ...     G,
     ...     layout_type = "circular",
     ...     vertex_style = "myvertex",
     ...     edge_style = "myedge")
@@ -122,7 +123,8 @@ def to_tikz(
         \draw[myedge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(G.to_tikz(
+    >>> print(to_tikz(
+    ...     G,
     ...     layout_type="circular",
     ...     edge_style={"red edge": [[1, 2]], "green edge": [[2, 3], [0, 1]]},
     ...     vertex_style={"red vertex": [0], "blue vertex": [2, 3]})
