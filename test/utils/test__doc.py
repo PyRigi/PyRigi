@@ -170,3 +170,18 @@ def test_transform_doctest_func_to_method_continuation_line_unchanged():
     line = "...            [1, 4], [2, 3], [2, 4], [3, 4]])"
     result = _transform_doctest_func_to_method(line, {"is_rigid"})
     assert result == line
+
+
+def test_func_to_method_doc_multiline_doctest():
+    doc = "\n".join(
+        [
+            "    >>> print(to_tikz(",
+            "    ...     G,",
+            "    ...     layout_type='circular')",
+            "    ... ) # doctest: +NORMALIZE_WHITESPACE",
+        ]
+    )
+    result = func_to_method_doc(doc, {"to_tikz"})
+    assert "    >>> print(G.to_tikz(" in result
+    assert "    ...     G," not in result
+    assert "    ...     layout_type='circular')" in result

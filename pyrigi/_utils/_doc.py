@@ -199,6 +199,34 @@ def _transform_func_to_meth_refs(line: str, class_methods: set[str]) -> str:
     )
 
 
+def _transform_multiline_doctest_func_to_method(
+    docstring: str, class_methods: set[str]
+) -> str:
+    """
+    Transform multiline function-style doctests where the graph variable
+    appears alone on the first continuation line.
+
+    ``>>> print(func_name(``    ->   ``>>> print(G.func_name(``
+    ``...     G,``                   ``...     arg,``
+    ``...     arg,``
+    """
+
+    def _replace(m):
+        prefix, func, var = m.group(1), m.group(2), m.group(3)
+        if func not in class_methods:
+            return m.group(0)
+        return f"{prefix}{var}.{func}(\n"
+
+    return re.sub(
+        r"([ \t]*>>> (?:[^(\n]*\()*)"  # >>> and any outer wrappers, e.g. print(
+        r"(\w+)\(\n"  # func_name(  + newline
+        r"[ \t]*\.\.\. +(\w+),\n",  # ...     G,  + newline (graph var alone)
+        _replace,
+        docstring,
+        flags=re.MULTILINE,
+    )
+
+
 def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
     """
     Convert a function-style docstring to method-style.
@@ -206,15 +234,18 @@ def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
     This is what ``copy_doc`` will call.
 
     Transformations applied:
-    1. Doctest: ``>>> method(G, args)`` -> ``>>> G.method(args)``
-    2. Doctest aliases: ``>>> G.add_node(v)`` -> ``>>> G.add_vertex(v)``
-    3. ``:func:`.name``` -> ``:meth:`.name``` (bare names only)
-    4. ``this function`` -> ``this method``
-    5. ``the function`` -> ``the method``
-    6. ``The function`` -> ``The method``
+    1. Multiline doctest: ``>>> func(`` / ``...  G,`` -> ``>>> G.func(``
+    2. Doctest: ``>>> method(G, args)`` -> ``>>> G.method(args)``
+    3. Doctest aliases: ``>>> G.add_node(v)`` -> ``>>> G.add_vertex(v)``
+    4. ``:func:`.name``` -> ``:meth:`.name``` (bare names only)
+    5. ``this function`` -> ``this method``
+    6. ``the function`` -> ``the method``
+    7. ``The function`` -> ``The method``
     """
     if docstring is None:
         return None
+
+    docstring = _transform_multiline_doctest_func_to_method(docstring, class_methods)
 
     lines = docstring.split("\n")
     result = []
