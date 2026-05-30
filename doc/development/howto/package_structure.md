@@ -87,7 +87,7 @@ invert them to method-style at import time:
    Chained calls like `graphs.Diamond().all_k_extensions(...)` are not caught
    by the regex and will remain in method-style inside the function docstring.
 
-2. **Outer wrappers are allowed** (`list`, `len`, `type`, `sorted`, etc.), as
+2. **Outer wrappers are allowed** (`list`, `len`, `type`, `sorted`, `print`, etc.), as
    long as no argument to the class method is itself a function call:
    ```python
    >>> type(all_extensions(G))          # OK — no nested call in args
