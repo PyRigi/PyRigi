@@ -123,12 +123,22 @@ def test_func_to_method_doc_on_real_docstring():
     True
     """
 
-    transformed = func_to_method_doc(doc, GRAPH_METHODS)
+    expected = """
+    Return whether a pair of vertices is ``dim``-linked.
 
-    assert ">>> H.is_linked(1,7)" in transformed
-    assert ">>> H.is_linked(0,3)" in transformed
-    assert ">>> H.is_linked(1,3)" in transformed
-    assert ">>> is_linked(" not in transformed
+    Examples
+    --------
+    >>> H = Graph([[0, 1], [0, 2], [1, 3], [1, 5], [2, 3], [2, 6], [3, 5], [3, 7], [5, 7], [6, 7], [3, 6]])  # noqa: E501
+    >>> H.is_linked(1,7)
+    True
+    >>> H = Graph([[0, 1], [0, 2], [1, 3], [2, 3]])
+    >>> H.is_linked(0,3)
+    False
+    >>> H.is_linked(1,3)
+    True
+    """
+
+    assert func_to_method_doc(doc, GRAPH_METHODS) == expected
 
 
 def test_func_to_method_doc_rewrites_doctest_lines():
@@ -143,3 +153,20 @@ def test_func_to_method_doc_rewrites_doctest_lines():
     assert ">>> G.is_rigid()" in result
     assert ">>> G.is_rigid(dim=2)" in result
     assert ">>> H = G.zero_extension(3, 4)" in result
+
+
+def test_transform_doctest_func_to_method_wrapped_call():
+    # Exercises the re.sub fallback, not the re.match primary path.
+    line = ">>> len(list(all_k_extensions(G, 0)))"
+    result = _transform_doctest_func_to_method(line, {"all_k_extensions"})
+    assert result == ">>> len(list(G.all_k_extensions(0)))"
+
+
+def test_func_to_method_doc_none_docstring():
+    assert func_to_method_doc(None, {"is_rigid"}) is None
+
+
+def test_transform_doctest_func_to_method_continuation_line_unchanged():
+    line = "...            [1, 4], [2, 3], [2, 4], [3, 4]])"
+    result = _transform_doctest_func_to_method(line, {"is_rigid"})
+    assert result == line

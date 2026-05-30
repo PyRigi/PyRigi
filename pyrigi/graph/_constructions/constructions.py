@@ -2,6 +2,8 @@
 This module provides constructions of graphs.
 """
 
+from __future__ import annotations
+
 from copy import deepcopy
 
 import networkx as nx
@@ -30,7 +32,8 @@ def cone(graph: nx.Graph, inplace: bool = False, vertex: Vertex = None) -> nx.Gr
 
     Examples
     --------
-    >>> G = Graph([(0,1)]).cone()
+    >>> g = Graph([(0,1)])
+    >>> G = cone(g)
     >>> nx.is_isomorphic(G, Graph([(0,1),(1,2),(0,2)]))
     True
     """

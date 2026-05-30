@@ -254,7 +254,7 @@ def is_stable_separating_set(
     """
     Return whether ``vertices`` are a stable separating set.
 
-    See :meth:`~Graph.is_stable_set` and :meth:`~Graph.is_separating_set`
+    See :func:`~.is_stable_set` and :func:`~.is_separating_set`
     for the description of the parameters.
 
     Definitions

@@ -2,6 +2,8 @@
 This module provides algorithms related to global rigidity.
 """
 
+from __future__ import annotations
+
 import math
 from copy import deepcopy
 from random import randint

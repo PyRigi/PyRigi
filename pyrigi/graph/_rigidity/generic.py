@@ -2,6 +2,8 @@
 This module provides algorithms related to generic rigidity.
 """
 
+from __future__ import annotations
+
 import math
 from itertools import combinations
 from typing import TypeVar

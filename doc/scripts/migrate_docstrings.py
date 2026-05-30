@@ -204,9 +204,10 @@ def _transform_graph_alias_to_nx_doc(docstring: str) -> str:
 
 def _quote_style(literal_text: str) -> str | None:
     """Return the triple-quote style used, or None for single-quoted/f-strings."""
-    if literal_text.startswith('"""'):
+    text = literal_text.lstrip("r")
+    if text.startswith('"""'):
         return '"""'
-    if literal_text.startswith("'''"):
+    if text.startswith("'''"):
         return "'''"
     return None
 
@@ -253,7 +254,8 @@ def transform_file(filepath: Path, dry_run: bool = True) -> int:
         if quote is None:
             continue  # single-quoted or f-string — skip
 
-        new_literal = f"{quote}{new_value}{quote}"
+        raw_prefix = "r" if orig_literal.startswith("r") else ""
+        new_literal = f"{raw_prefix}{quote}{new_value}{quote}"
         replacements.append((node.name, orig_literal, new_literal))
 
     if not replacements:

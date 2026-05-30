@@ -2,6 +2,8 @@
 This module provides algorithms related to graph sparsity.
 """
 
+from __future__ import annotations
+
 import math
 from itertools import combinations
 
@@ -90,7 +92,7 @@ def spanning_kl_sparse_subgraph(
     --------
     >>> from pyrigi import graphDB
     >>> G = graphDB.Complete(4)
-    >>> H = G.spanning_kl_sparse_subgraph(2,3)
+    >>> H = spanning_kl_sparse_subgraph(G, 2,3)
     >>> print(H)
     Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
     """  # noqa: E501
@@ -160,10 +162,10 @@ def is_kl_sparse(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.DoubleBanana()
-    >>> G.is_kl_sparse(3,6)
+    >>> is_kl_sparse(G, 3,6)
     True
     >>> G.add_edge(0,1)
-    >>> G.is_kl_sparse(3,6)
+    >>> is_kl_sparse(G, 3,6)
     False
     """
     _input_check.integrality_and_range(K, "K", min_val=1)
@@ -226,7 +228,7 @@ def is_kl_tight(
     K:
     L:
     algorithm:
-        See :meth:`.is_kl_sparse`.
+        See :func:`.is_kl_sparse`.
     use_precomputed_pebble_digraph:
         If ``True``, the :prf:ref:`pebble digraph <def-pebble-digraph>`
         present in the cache is used.
@@ -238,10 +240,10 @@ def is_kl_tight(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(4)
-    >>> G.is_kl_tight(2,2)
+    >>> is_kl_tight(G, 2,2)
     True
     >>> G1 = graphs.CompleteBipartite(4,4)
-    >>> G1.is_kl_tight(3,6)
+    >>> is_kl_tight(G1, 3,6)
     False
     """
     return graph.number_of_edges() == K * graph.number_of_nodes() - L and is_kl_sparse(

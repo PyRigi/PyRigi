@@ -2,6 +2,8 @@
 This module provides some general graph functionality.
 """
 
+from __future__ import annotations
+
 from typing import Sequence
 
 import networkx as nx

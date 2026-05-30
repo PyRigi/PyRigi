@@ -2,6 +2,8 @@
 This module provides algorithms related to redundant rigidity.
 """
 
+from __future__ import annotations
+
 import math
 from copy import deepcopy
 from itertools import combinations

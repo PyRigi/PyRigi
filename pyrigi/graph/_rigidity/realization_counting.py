@@ -2,6 +2,8 @@
 This module provides algorithms related to rigid realization counting.
 """
 
+from __future__ import annotations
+
 import importlib.util
 import math
 from copy import copy, deepcopy

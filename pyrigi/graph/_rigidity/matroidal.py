@@ -2,6 +2,8 @@
 This module provides algorithms related to the generic rigidity matroid.
 """
 
+from __future__ import annotations
+
 from copy import deepcopy
 from itertools import combinations
 
