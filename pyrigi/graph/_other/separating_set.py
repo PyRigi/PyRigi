@@ -42,6 +42,7 @@ def is_stable_set(
 
     Parameters
     ----------
+    graph:
     vertices:
         A set of vertices to be checked.
     certificate:
@@ -91,6 +92,7 @@ def _remove_apply_restore_vertices(
 
     Parameters
     ----------
+    graph:
     vertices:
         Vertex set to remove.
     func:
@@ -142,6 +144,7 @@ def is_separating_set(
 
     Parameters
     ----------
+    graph:
     vertices:
         The vertices to check.
     use_copy:
@@ -197,6 +200,7 @@ def is_uv_separating_set(
 
     Parameters
     ----------
+    graph:
     vertices:
         The set of vertices to be checked to separate ``u`` and ``v``.
         If ``u`` or ``v`` is contained in ``vertices``,
@@ -264,6 +268,7 @@ def is_stable_separating_set(
 
     Parameters
     ----------
+    graph:
     vertices:
     use_copy:
 
@@ -309,6 +314,7 @@ def stable_separating_set(
 
     Parameters
     ----------
+    graph:
     u:
         See the description above,
         an arbitrary vertex is chosen if none is specified.

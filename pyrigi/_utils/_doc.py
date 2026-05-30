@@ -241,6 +241,7 @@ def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
     5. ``this function`` -> ``this method``
     6. ``the function`` -> ``the method``
     7. ``The function`` -> ``The method``
+    8. Remove bare ``graph:`` / ``framework:`` first entry from Parameters section.
     """
     if docstring is None:
         return None
@@ -250,7 +251,27 @@ def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
     lines = docstring.split("\n")
     result = []
 
+    in_params = False
+    after_dashes = False
     for line in lines:
+        stripped = line.strip()
+
+        # Track when we enter the Parameters section and its dashes line.
+        if stripped == "Parameters":
+            in_params = True
+            after_dashes = False
+        elif in_params and not after_dashes and re.match(r"^-+$", stripped):
+            after_dashes = True
+        elif in_params and after_dashes:
+            # Skip a bare 'graph:' or 'framework:' entry (no description follows).
+            if re.match(r"^(?:graph|framework):$", stripped):
+                in_params = False
+                after_dashes = False
+                continue
+            else:
+                in_params = False
+                after_dashes = False
+
         # 1. Doctest lines
         new_line = _transform_doctest_func_to_method(line, class_methods)
         if new_line != line:

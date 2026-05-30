@@ -59,6 +59,7 @@ def number_of_realizations(  # noqa: C901
 
     Parameters
     ----------
+    graph:
     dim:
         The dimension in which the realizations are counted.
         Currently, only ``dim=1`` and ``dim=2`` are fully supported.
@@ -377,6 +378,7 @@ def _number_of_sphere_realizations_min_rigid_dim_2_rec(quadrograph: list) -> int
 
     Parameters
     ----------
+    graph:
     quadrograph:
         A pair [N, Q] representing vertices and edges of a quadrograph.
         This pair comes initially from `_graph_to_quadrograph`
@@ -490,6 +492,7 @@ def _number_of_plane_realizations_min_rigid_dim_2_rec(
 
     Parameters
     ----------
+    graph:
     bigraph:
         A set of biedges.
         This set comes initially from `_graph_to_bigraph`

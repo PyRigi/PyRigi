@@ -22,6 +22,7 @@ def cone(graph: nx.Graph, inplace: bool = False, vertex: Vertex = None) -> nx.Gr
 
     Parameters
     ----------
+    graph:
     inplace:
         If ``True``, the graph is modified,
         otherwise a new modified graph is created,
@@ -87,6 +88,7 @@ def intersection(graph: nx.Graph, other_graph: nx.Graph) -> nx.Graph:
 
     Parameters
     ----------
+    graph:
     other_graph: Graph
 
     Examples

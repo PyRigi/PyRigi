@@ -33,6 +33,7 @@ def zero_extension(
 
     Parameters
     ----------
+    graph:
     vertices:
         A new vertex is connected to these vertices.
         All the vertices must be contained in the graph
@@ -88,6 +89,7 @@ def one_extension(
 
     Parameters
     ----------
+    graph:
     vertices:
         A new vertex is connected to these vertices.
         All the vertices must be contained in the graph
@@ -155,6 +157,7 @@ def k_extension(
 
     Parameters
     ----------
+    graph:
     k
     vertices:
         A new vertex is connected to these vertices.
@@ -248,6 +251,7 @@ def all_k_extensions(
 
     Parameters
     ----------
+    graph:
     k:
     dim:
     only_non_isomorphic:
@@ -331,6 +335,7 @@ def all_extensions(
 
     Parameters
     ----------
+    graph:
     dim:
     only_non_isomorphic:
         If ``True``, only one graph per isomorphism class is included.
@@ -411,6 +416,7 @@ def extension_sequence(  # noqa: C901
 
     Parameters
     ----------
+    graph:
     dim:
         The dimension in which the extensions are created.
     return_type:
@@ -525,6 +531,7 @@ def has_extension_sequence(
 
     Parameters
     ----------
+    graph:
     dim:
         The dimension in which the extensions are created.
 

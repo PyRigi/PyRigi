@@ -48,6 +48,7 @@ def degree_sequence(
 
     Parameters
     ----------
+    graph:
     vertex_order:
         By listing vertices in the preferred order, the degree_sequence
         can be computed in a way the user expects. If no vertex order is
@@ -69,6 +70,7 @@ def adjacency_matrix(graph: nx.Graph, vertex_order: Sequence[Vertex] = None) -> 
 
     Parameters
     ----------
+    graph:
     vertex_order:
         By listing vertices in the preferred order, the adjacency matrix
         can be computed in a way the user expects. If no vertex order is
@@ -107,6 +109,7 @@ def edge_list(graph: nx.Graph, as_tuples: bool = False) -> list[Edge]:
 
     Parameters
     ----------
+    graph:
     as_tuples:
         If ``True``, all edges are returned as tuples instead of lists.
 

@@ -24,6 +24,7 @@ def _build_pebble_digraph(graph: nx.Graph, K: int, L: int) -> None:
 
     Parameters
     ----------
+    graph:
     K:
     L:
     """
@@ -45,6 +46,7 @@ def _get_pebble_digraph(
 
     Parameters
     ----------
+    graph:
     use_precomputed_pebble_digraph:
         If ``use_precomputed_pebble_digraph`` is ``True``,
         then the cached one is used. Otherwise,
@@ -79,6 +81,7 @@ def spanning_kl_sparse_subgraph(
 
     Parameters
     ----------
+    graph:
     K:
     L:
     use_precomputed_pebble_digraph:
@@ -113,6 +116,7 @@ def _is_pebble_digraph_sparse(
 
     Parameters
     ----------
+    graph:
     K:
     L:
     use_precomputed_pebble_digraph:
@@ -143,6 +147,7 @@ def is_kl_sparse(
 
     Parameters
     ----------
+    graph:
     K:
     L:
     algorithm:
@@ -225,6 +230,7 @@ def is_kl_tight(
 
     Parameters
     ----------
+    graph:
     K:
     L:
     algorithm:

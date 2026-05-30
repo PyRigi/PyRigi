@@ -32,6 +32,7 @@ def to_tikz(
 
     Parameters
     ----------
+    graph:
     placement:
         If ``placement`` is not specified,
         then it is generated depending on parameter ``layout``.
@@ -250,6 +251,7 @@ def layout(graph: nx.Graph, layout_type: str = "spring") -> dict[Vertex, Point]:
 
     Parameters
     ----------
+    graph:
     layout_type:
         The supported layouts are ``circular``, ``planar``,
         ``random`` and ``spring`` (default).
@@ -277,6 +279,7 @@ def to_int(graph: nx.Graph, vertex_order: Sequence[Vertex] = None) -> int:
 
     Parameters
     ----------
+    graph:
     vertex_order:
         By listing vertices in the preferred order, the adjacency matrix
         is computed with the given order. If no vertex order is

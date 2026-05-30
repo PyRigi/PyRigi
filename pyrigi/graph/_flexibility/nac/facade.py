@@ -32,6 +32,7 @@ def NAC_colorings(
 
     Parameters
     ----------
+    graph:
     algorithm:
         The algorithm to use.
         The options are ``"naive"`` for the naive approach and

@@ -34,6 +34,7 @@ def is_Rd_independent(
 
     Parameters
     ---------
+    graph:
     dim:
         Dimension of the rigidity matroid.
     algorithm:
@@ -159,6 +160,7 @@ def is_Rd_circuit(  # noqa: C901
 
     Parameters
     ---------
+    graph:
     dim:
         Dimension of the rigidity matroid.
     algorithm:
@@ -286,6 +288,7 @@ def is_Rd_closed(graph: nx.Graph, dim: int = 2, algorithm: str = "default") -> b
 
     Parameters
     ---------
+    graph:
     dim:
         Dimension of the rigidity matroid.
     algorithm:
@@ -311,6 +314,7 @@ def Rd_closure(graph: nx.Graph, dim: int = 2, algorithm: str = "default") -> lis
 
     Parameters
     ---------
+    graph:
     dim:
         Dimension of the rigidity matroid.
     algorithm:
@@ -418,6 +422,7 @@ def _Rd_fundamental_circuit(
 
     Parameters
     ----------
+    graph:
     u, v:
     dim:
         Currently, only the dimension ``dim=2`` is supported.

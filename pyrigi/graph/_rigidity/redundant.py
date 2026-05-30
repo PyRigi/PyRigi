@@ -42,6 +42,7 @@ def is_k_vertex_redundantly_rigid(
 
     Parameters
     ----------
+    graph:
     k:
         level of redundancy
     dim:
@@ -183,6 +184,7 @@ def is_min_k_vertex_redundantly_rigid(
 
     Parameters
     ----------
+    graph:
     k:
         Level of redundancy.
     dim:
@@ -324,6 +326,7 @@ def is_k_redundantly_rigid(
 
     Parameters
     ----------
+    graph:
     k:
         Level of redundancy.
     dim:
@@ -450,6 +453,7 @@ def is_min_k_redundantly_rigid(
 
     Parameters
     ----------
+    graph:
     k:
         Level of redundancy.
     dim:

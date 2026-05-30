@@ -51,6 +51,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
+        graph:
         value:
             value K must be an integer and 0 < K. Also, L < 2K.
         """
@@ -73,6 +74,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
+        graph:
         value:
             value L must be integer and 0 <= L. Also, L < 2K.
         """
@@ -87,6 +89,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
+        graph:
         K:
             ``K`` is integer and ``0 < K``.
         L:
@@ -124,6 +127,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
         Parameters
         ----------
+        graph:
         edge:
             A directed edge to redirect.
         vertex_to:
@@ -161,6 +165,7 @@ class PebbleDiGraph(nx.MultiDiGraph):
 
             Parameters
             ----------
+            graph:
             vertex:
                 Starting position of the dfs
             visited:

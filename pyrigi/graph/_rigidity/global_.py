@@ -33,6 +33,7 @@ def is_globally_rigid(
 
     Parameters
     ----------
+    graph:
     dim:
         Dimension.
     algorithm:
@@ -241,6 +242,7 @@ def is_weakly_globally_linked(
 
     Parameters
     ----------
+    graph:
     u, v:
     dim:
         Currently, only the dimension ``dim=2`` is supported.

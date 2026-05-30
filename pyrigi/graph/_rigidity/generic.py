@@ -38,6 +38,7 @@ def is_rigid(
 
     Parameters
     ----------
+    graph:
     dim:
         Dimension.
     algorithm:
@@ -151,6 +152,7 @@ def is_min_rigid(
 
     Parameters
     ----------
+    graph:
     dim:
         Dimension.
     algorithm:
@@ -264,6 +266,7 @@ def is_linked(graph: nx.Graph, u: Vertex, v: Vertex, dim: int = 2) -> bool:
 
     Parameters
     ----------
+    graph:
     u,v:
     dim:
         Currently, only the dimension ``dim=2`` is supported.
@@ -305,6 +308,7 @@ def max_rigid_dimension(
 
     Parameters
     ----------
+    graph:
     algorithm:
         If ``"randomized"``, the rigidity of the graph is checked
         in each dimension using :func:`.is_rigid` with
@@ -377,6 +381,7 @@ def rigid_components(  # noqa: 901
 
     Parameters
     ---------
+    graph:
     dim:
         The dimension that is used for the rigidity check.
     algorithm:
