@@ -1,12 +1,11 @@
 """
-Deliberately broken @copy_doc wrappers used by test_signature.py.
+Deliberately broken @copy_doc wrappers used by test_wrapper.py to verify
+that every class of forwarding mistake is detected by the assertion helpers.
 """
 
 from __future__ import annotations
 
 from pyrigi._utils._doc import copy_doc
-
-# from pyrigi.graph import Graph
 
 from test.wrapper._proxies import (
     different_function,
@@ -19,7 +18,6 @@ from test.wrapper._proxies import (
     missing_positional_param,
     proxy_not_called,
     wrong_value,
-    # correct_wrapping,
 )
 from test.wrapper._proxies import _BadWrappersBase
 
