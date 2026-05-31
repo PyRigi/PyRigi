@@ -32,6 +32,7 @@ def NAC_colorings(
 
     Parameters
     ----------
+    graph:
     algorithm:
         The algorithm to use.
         The options are ``"naive"`` for the naive approach and
@@ -88,10 +89,10 @@ def has_NAC_coloring(
     """
     Return if the graph has a NAC-coloring.
 
-    Same as :func:`Graph.single_NAC_coloring`,
+    Same as :func:`~.single_NAC_coloring`,
     but no certificate of existence is provided.
 
-    See :meth:`.Graph.NAC_colorings` for parameter descriptions.
+    See :func:`~.NAC_colorings` for parameter descriptions.
 
     Definitions
     -----------
@@ -125,7 +126,7 @@ def single_NAC_coloring(
     Some polynomial time checks are run.
     If they fail, an exhaustive search is run.
 
-    See :meth:`.Graph.NAC_colorings` for parameter descriptions.
+    See :func:`~.NAC_colorings` for parameter descriptions.
 
     Definitions
     -----------

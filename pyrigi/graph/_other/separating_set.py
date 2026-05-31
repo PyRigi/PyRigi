@@ -42,6 +42,7 @@ def is_stable_set(
 
     Parameters
     ----------
+    graph:
     vertices:
         A set of vertices to be checked.
     certificate:
@@ -54,15 +55,15 @@ def is_stable_set(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
-    >>> H.is_stable_set([1,3])
+    >>> is_stable_set(H, [1,3])
     True
-    >>> H.is_stable_set([1,3], certificate=False)
+    >>> is_stable_set(H, [1,3], certificate=False)
     True
-    >>> H.is_stable_set([1,3], certificate=True)
+    >>> is_stable_set(H, [1,3], certificate=True)
     (True, None)
-    >>> H.is_stable_set([1,2], certificate=True)
+    >>> is_stable_set(H, [1,2], certificate=True)
     (False, (1, 2))
-    >>> H.is_stable_set([0,2,4], certificate=True)
+    >>> is_stable_set(H, [0,2,4], certificate=True)
     (False, (0, 4))
     """
     for v in vertices:
@@ -91,6 +92,7 @@ def _remove_apply_restore_vertices(
 
     Parameters
     ----------
+    graph:
     vertices:
         Vertex set to remove.
     func:
@@ -142,6 +144,7 @@ def is_separating_set(
 
     Parameters
     ----------
+    graph:
     vertices:
         The vertices to check.
     use_copy:
@@ -155,14 +158,14 @@ def is_separating_set(
     >>> from pyrigi.graph import Graph
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
-    >>> H.is_separating_set([1,3])
+    >>> is_separating_set(H, [1,3])
     True
     >>> G = Graph([[0,1],[1,2],[2,3],[2,4],[4,3],[4,5]])
-    >>> G.is_separating_set([2])
+    >>> is_separating_set(G, [2])
     True
-    >>> G.is_separating_set([3])
+    >>> is_separating_set(G, [3])
     False
-    >>> G.is_separating_set([3,4])
+    >>> is_separating_set(G, [3,4])
     True
     """
 
@@ -197,6 +200,7 @@ def is_uv_separating_set(
 
     Parameters
     ----------
+    graph:
     vertices:
         The set of vertices to be checked to separate ``u`` and ``v``.
         If ``u`` or ``v`` is contained in ``vertices``,
@@ -212,9 +216,9 @@ def is_uv_separating_set(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
-    >>> H.is_uv_separating_set([1,3], 0, 2)
+    >>> is_uv_separating_set(H, [1,3], 0, 2)
     True
-    >>> H.is_uv_separating_set([2,4], 0, 1)
+    >>> is_uv_separating_set(H, [2,4], 0, 1)
     False
     """
     if u in vertices:
@@ -254,7 +258,7 @@ def is_stable_separating_set(
     """
     Return whether ``vertices`` are a stable separating set.
 
-    See :meth:`~Graph.is_stable_set` and :meth:`~Graph.is_separating_set`
+    See :func:`~.is_stable_set` and :func:`~.is_separating_set`
     for the description of the parameters.
 
     Definitions
@@ -264,6 +268,7 @@ def is_stable_separating_set(
 
     Parameters
     ----------
+    graph:
     vertices:
     use_copy:
 
@@ -271,9 +276,9 @@ def is_stable_separating_set(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> H = graphs.Cycle(5)
-    >>> H.is_stable_separating_set([1,3])
+    >>> is_stable_separating_set(H, [1,3])
     True
-    >>> H.is_stable_separating_set([1,2])
+    >>> is_stable_separating_set(H, [1,2])
     False
     """
     return is_stable_set(graph, vertices) and is_separating_set(
@@ -309,6 +314,7 @@ def stable_separating_set(
 
     Parameters
     ----------
+    graph:
     u:
         See the description above,
         an arbitrary vertex is chosen if none is specified.

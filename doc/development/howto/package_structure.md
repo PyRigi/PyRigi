@@ -69,12 +69,44 @@ which is of type {class}`networkx.Graph` and is always called `graph`.
 Therefore, if new graph functionalities are added,
 they should be implemented as a function accepting {class}`networkx.Graph`
 and then wrapped as methods of {class}`pyrigi.Graph<.Graph>`.
-Since the docstrings are shown as those of methods,
-they should be written keeping that in mind,
-hence not referring to their first parameter,
-but rather to expressions like "the graph" and not as `graph`.
-Moreover, examples in docstrings should be methods of {class}`pyrigi.Graph<.Graph>` instances,
-and not functions taking {class}`networkx.Graph`.
+The decorator `@copy_doc` not only copies the docstring but also converts
+function-style examples to method-style at import time.
+Therefore, docstrings should be written in **function-style**, referring to the
+graph as "the graph" rather than by the parameter name `graph`.
+
+### Writing examples for `copy_doc`-wrapped functions
+
+Examples in function-style docstrings must follow two rules so `copy_doc` can
+invert them to method-style at import time:
+
+1. **No chained instantiation.** Assign the graph to a variable first:
+   ```python
+   >>> g = graphs.Diamond()
+   >>> len(list(all_k_extensions(g, 1, 2, only_non_isomorphic=True)))
+   ```
+   Chained calls like `graphs.Diamond().all_k_extensions(...)` are not caught
+   by the regex and will remain in method-style inside the function docstring.
+
+2. **Outer wrappers are allowed** (`list`, `len`, `type`, `sorted`, `print`, etc.), as
+   long as no argument to the class method is itself a function call:
+   ```python
+   >>> type(all_extensions(G))          # OK — no nested call in args
+   >>> len(list(all_k_extensions(G, 0)))  # OK — linear args
+   ```
+
+3. **For multiline calls, place the graph variable alone on the first continuation
+   line.** This is the only multiline pattern that `copy_doc` can invert:
+   ```python
+   >>> print(to_tikz(          # graph variable NOT on this line
+   ...     G,                  # graph variable alone here — OK
+   ...     layout_type="circular",
+   ...     vertex_style="myvertex"))
+   ```
+   The following patterns are **not** converted and must be avoided:
+   ```python
+   >>> print(to_tikz(G,        # G on the >>> line without closing paren — NOT handled
+   ...     layout_type="circular"))
+   ```
 
 Regarding type hinting, {class}`networkx.Graph` should be used in the function signature,
 while {class}`pyrigi.Graph<.Graph>` should be used in the method signature.

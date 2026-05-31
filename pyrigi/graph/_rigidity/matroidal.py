@@ -2,6 +2,8 @@
 This module provides algorithms related to the generic rigidity matroid.
 """
 
+from __future__ import annotations
+
 from copy import deepcopy
 from itertools import combinations
 
@@ -32,6 +34,7 @@ def is_Rd_independent(
 
     Parameters
     ---------
+    graph:
     dim:
         Dimension of the rigidity matroid.
     algorithm:
@@ -60,7 +63,7 @@ def is_Rd_independent(
     Examples
     --------
     >>> G = Graph([(0,1), (1,2), (2,3), (3,0)])
-    >>> G.is_Rd_independent()
+    >>> is_Rd_independent(G)
     True
 
     Suggested Improvements
@@ -115,7 +118,7 @@ def is_Rd_dependent(
     """
     Return whether the edge set is dependent in the generic ``dim``-rigidity matroid.
 
-    See :meth:`.is_Rd_independent` for the possible parameters.
+    See :func:`.is_Rd_independent` for the possible parameters.
 
     Definitions
     -----------
@@ -126,7 +129,7 @@ def is_Rd_dependent(
     --------
     >>> from pyrigi import graphDB
     >>> G = graphDB.K33plusEdge()
-    >>> G.is_Rd_dependent()
+    >>> is_Rd_dependent(G)
     True
 
     Notes
@@ -157,6 +160,7 @@ def is_Rd_circuit(  # noqa: C901
 
     Parameters
     ---------
+    graph:
     dim:
         Dimension of the rigidity matroid.
     algorithm:
@@ -170,7 +174,7 @@ def is_Rd_circuit(  # noqa: C901
         whose fundamental circuit is the whole graph.
 
         If ``"randomized"``, it is checked using randomized
-        :meth:`.is_Rd_independent` whether removing
+        :func:`.is_Rd_independent` whether removing
         every single edge from the graph results in an Rd-independent graph.
 
         If ``"default"``, then ``"graphic"`` is used for ``dim=1``,
@@ -187,10 +191,10 @@ def is_Rd_circuit(  # noqa: C901
     --------
     >>> from pyrigi import graphDB
     >>> G = graphDB.K33plusEdge()
-    >>> G.is_Rd_circuit()
+    >>> is_Rd_circuit(G)
     True
     >>> G.add_edge(1,2)
-    >>> G.is_Rd_circuit()
+    >>> is_Rd_circuit(G)
     False
 
     Suggested Improvements
@@ -284,15 +288,16 @@ def is_Rd_closed(graph: nx.Graph, dim: int = 2, algorithm: str = "default") -> b
 
     Parameters
     ---------
+    graph:
     dim:
         Dimension of the rigidity matroid.
     algorithm:
-        See :meth:`.Rd_closure` for the options.
+        See :func:`.Rd_closure` for the options.
 
     Examples
     --------
     >>> G = Graph([(0,1),(1,2),(0,2),(3,4)])
-    >>> G.is_Rd_closed(dim=1)
+    >>> is_Rd_closed(G, dim=1)
     True
     """
     return len(Rd_closure(graph, dim, algorithm)) == graph.number_of_edges()
@@ -309,6 +314,7 @@ def Rd_closure(graph: nx.Graph, dim: int = 2, algorithm: str = "default") -> lis
 
     Parameters
     ---------
+    graph:
     dim:
         Dimension of the rigidity matroid.
     algorithm:
@@ -329,7 +335,7 @@ def Rd_closure(graph: nx.Graph, dim: int = 2, algorithm: str = "default") -> lis
     Examples
     --------
     >>> G = Graph([(0,1),(0,2),(3,4)])
-    >>> G.Rd_closure(dim=1)
+    >>> Rd_closure(G, dim=1)
     [[0, 1], [0, 2], [1, 2], [3, 4]]
 
     Notes
@@ -416,6 +422,7 @@ def _Rd_fundamental_circuit(
 
     Parameters
     ----------
+    graph:
     u, v:
     dim:
         Currently, only the dimension ``dim=2`` is supported.
