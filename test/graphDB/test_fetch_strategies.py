@@ -16,14 +16,14 @@ from pyrigi.graphDB import GraphStoreService, QueryFilter
 
 
 class TestRigidityFetchStrategy:
-    def test_gte_includes_null(self):
+    def test_gte_includes_complete(self):
         sql, params = _rigidity_fetch_strategy("rigidity", ">=", 2)
-        assert sql == "(rigidity >= ? OR rigidity IS NULL)"
+        assert sql == "(rigidity >= ? OR rigidity = -1)"
         assert params == [2]
 
-    def test_gt_includes_null(self):
+    def test_gt_includes_complete(self):
         sql, params = _rigidity_fetch_strategy("rigidity", ">", 1)
-        assert sql == "(rigidity > ? OR rigidity IS NULL)"
+        assert sql == "(rigidity > ? OR rigidity = -1)"
         assert params == [1]
 
     def test_eq_passthrough(self):
@@ -53,7 +53,7 @@ class TestRigidityFetchStrategy:
 
     def test_operator_case_insensitive(self):
         sql, params = _rigidity_fetch_strategy("global_rigidity", ">=", 1)
-        assert "IS NULL" in sql
+        assert "= -1" in sql
         assert params == [1]
 
 
@@ -107,7 +107,7 @@ def store_with_rigidity_data(tmp_path):
     """Store ingested with K3 (complete), path P4, and diamond."""
     g6_file = tmp_path / "graphs.g6"
     graphs = [
-        nx.complete_graph(3),  # K3: rigidity=NULL, min_rigidity=-2
+        nx.complete_graph(3),  # K3: rigidity=-1, min_rigidity=-2
         nx.path_graph(4),  # P4: minimally 1-rigid, min_rigidity=1
         nx.Graph([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)]),  # diamond: min_rigidity=2
     ]
@@ -124,7 +124,7 @@ class TestRigidityFetchIntegration:
     def test_gte_returns_complete_graph(self, store_with_rigidity_data):
         store = store_with_rigidity_data
         store.populate_column("rigidity")
-        # K3 has rigidity=NULL (complete); ">= 1" must include it
+        # K3 has rigidity=-1 (complete); ">= 1" must include it
         rows = store.fetch(
             select=["graph"],
             filters=[QueryFilter("rigidity", ">=", 1)],
@@ -146,7 +146,7 @@ class TestRigidityFetchIntegration:
     def test_eq_does_not_return_complete_graph(self, store_with_rigidity_data):
         store = store_with_rigidity_data
         store.populate_column("rigidity")
-        # "=" queries the raw stored value; complete graphs store NULL, not an integer
+        # "=" queries the raw stored value; complete graphs store -1, so "= 1" must not match them
         rows = store.fetch(
             select=["graph"],
             filters=[QueryFilter("rigidity", "=", 1)],

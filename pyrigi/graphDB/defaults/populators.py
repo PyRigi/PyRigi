@@ -60,12 +60,12 @@ def _compute_max_degree(row: dict) -> int:
 
 
 def _compute_rigidity(row: dict):
-    """Maximum d such that G is d-rigid. Returns NULL for complete graphs (infinite)."""
+    """Maximum d such that G is d-rigid. Returns -1 for complete graphs (infinite)."""
     from pyrigi.graph._rigidity.generic import max_rigid_dimension
     import sympy
 
     result = max_rigid_dimension(_decoded_graph(row))
-    return None if result == sympy.oo else int(result)
+    return -1 if result == sympy.oo else int(result)
 
 
 def _compute_min_rigidity(row: dict):
@@ -76,9 +76,9 @@ def _compute_min_rigidity(row: dict):
 
 
 def _compute_global_rigidity(row: dict):
-    """Maximum d such that G is globally d-rigid. Returns NULL for complete graphs."""
+    """Maximum d such that G is globally d-rigid. Returns -1 for complete graphs."""
     from pyrigi.graph._rigidity.global_ import max_globally_rigid_dimension
     import sympy
 
     result = max_globally_rigid_dimension(_decoded_graph(row))
-    return None if result == sympy.oo else int(result)
+    return -1 if result == sympy.oo else int(result)

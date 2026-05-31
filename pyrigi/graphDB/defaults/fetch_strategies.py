@@ -12,11 +12,11 @@ via both ``fetch_strategy`` (runtime) and ``fetch_ref`` (persisted in the DB).
 
 Rigidity / global-rigidity encoding
 -------------------------------------
-The stored value is the *maximum* d such that G is d-rigid (or ``NULL``
+The stored value is the *maximum* d such that G is d-rigid (or ``-1``
 for complete graphs, which are rigid in all dimensions).  A graph is
 d-rigid iff ``d ≤ stored_value``, so "give me all 2-rigid graphs"
-translates to ``rigidity >= 2 OR rigidity IS NULL``.  The ``>=`` and
-``>`` operators therefore need to include the ``NULL`` case; all other
+translates to ``rigidity >= 2 OR rigidity = -1``.  The ``>=`` and
+``>`` operators therefore need to include the ``-1`` case; all other
 operators pass through to the default strategy.
 
 Minimal-rigidity encoding
@@ -45,14 +45,14 @@ def _rigidity_fetch_strategy(
 ) -> tuple[str, list]:
     """Fetch strategy for ``rigidity`` and ``global_rigidity`` columns.
 
-    Handles ``>=`` and ``>`` to include complete graphs (stored as ``NULL``).
+    Handles ``>=`` and ``>`` to include complete graphs (stored as ``-1``).
     All other operators fall back to the default pass-through.
     """
     op = operator.upper()
     if op == ">=":
-        return f"({column} >= ? OR {column} IS NULL)", [value]
+        return f"({column} >= ? OR {column} = -1)", [value]
     if op == ">":
-        return f"({column} > ? OR {column} IS NULL)", [value]
+        return f"({column} > ? OR {column} = -1)", [value]
     return _default_fetch_strategy(column, operator, value)
 
 

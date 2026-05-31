@@ -23,6 +23,8 @@ Here we describe how values in the columns of the database are created.
 
 We store the {prf:ref}`maximum rigid dimension <def-max-rigid-dimension>`.
 Hence, a graph is $d$-rigid if and only if $d$ is at most the stored value.
+Complete graphs, which are rigid in every dimension, are stored as $-1$
+(since $-1$ is not a valid rigidity dimension, this sentinel is unambiguous).
 
 (encoding-min-rigidity)=
 ### Minimal rigidity
@@ -52,3 +54,4 @@ $d_\text{min}<0$ and $|d_\text{min}| \leq d$.
 
 We store the {prf:ref}`maximum globally rigid dimension <def-max-globally-rigid-dimension>`.
 Hence, a graph is globally $d$-rigid if and only if $d$ is at most the stored value.
+Complete graphs are stored as $-1$, using the same sentinel as the `rigidity` column.
