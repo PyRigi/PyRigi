@@ -117,7 +117,7 @@ def _transform_doctest_func_to_method(line: str, class_methods: set[str]) -> str
                 return f"{prefix}{assignment}{var}.{func}(){suffix}"
 
     # Fallback: re.sub for wrapped calls
-    if not re.search(r"(?:>>>|\.\.\.)\s", line):
+    if not re.search(r"^\s*(?:>>>|\.\.\.)\s", line):
         return line
 
     def _replace(m):
