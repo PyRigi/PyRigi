@@ -171,6 +171,79 @@ class TestQueryBuilder:
     # compile_delete
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # valid_operators validation
+    # ------------------------------------------------------------------
+
+    def test_compile_raises_for_invalid_operator_on_restricted_column(self, registry):
+        from pyrigi.graphDB.models import ColumnDef
+
+        registry.register(
+            ColumnDef("restricted", "INTEGER", valid_operators=frozenset({"=", "IN"}))
+        )
+        qb = QueryBuilder(registry).filter("restricted", ">", 1)
+        with pytest.raises(ValueError, match="not supported"):
+            qb.compile()
+
+    def test_compile_passes_for_valid_operator_on_restricted_column(self, registry):
+        from pyrigi.graphDB.models import ColumnDef
+
+        registry.register(
+            ColumnDef("restricted", "INTEGER", valid_operators=frozenset({"=", "IN"}))
+        )
+        compiled = QueryBuilder(registry).filter("restricted", "=", 1).compile()
+        assert "restricted = ?" in compiled.sql
+
+    def test_compile_no_restriction_on_unrestricted_column(self, registry):
+        compiled = QueryBuilder(registry).filter("num_vertices", ">", 3).compile()
+        assert "num_vertices > ?" in compiled.sql
+
+    def test_compile_raises_for_invalid_operator_inside_and_expr(self, registry):
+        from pyrigi.graphDB.models import ColumnDef
+
+        registry.register(
+            ColumnDef("restricted", "INTEGER", valid_operators=frozenset({"="}))
+        )
+        qb = QueryBuilder(registry).where_expr(
+            AndExpr(
+                children=(
+                    QueryFilter("num_vertices", "=", 5),
+                    QueryFilter("restricted", ">", 1),
+                )
+            )
+        )
+        with pytest.raises(ValueError, match="not supported"):
+            qb.compile()
+
+    def test_compile_raises_for_invalid_operator_inside_or_expr(self, registry):
+        from pyrigi.graphDB.models import ColumnDef
+
+        registry.register(
+            ColumnDef("restricted", "INTEGER", valid_operators=frozenset({"="}))
+        )
+        qb = QueryBuilder(registry).where_expr(
+            OrExpr(
+                children=(
+                    QueryFilter("num_vertices", "=", 5),
+                    QueryFilter("restricted", ">=", 1),
+                )
+            )
+        )
+        with pytest.raises(ValueError, match="not supported"):
+            qb.compile()
+
+    def test_compile_delete_rejects_invalid_operator_on_restricted_column(
+        self, registry
+    ):
+        from pyrigi.graphDB.models import ColumnDef
+
+        registry.register(
+            ColumnDef("restricted", "INTEGER", valid_operators=frozenset({"="}))
+        )
+        qb = QueryBuilder(registry).filter("restricted", ">", 1)
+        with pytest.raises(ValueError, match="not supported"):
+            qb.compile_delete()
+
     def test_compile_delete_no_filters(self, registry):
         compiled = QueryBuilder(registry).compile_delete()
         assert compiled.sql == "DELETE FROM graphs"
@@ -178,9 +251,7 @@ class TestQueryBuilder:
 
     def test_compile_delete_with_filter(self, registry):
         compiled = (
-            QueryBuilder(registry)
-            .filter("num_vertices", "=", 6)
-            .compile_delete()
+            QueryBuilder(registry).filter("num_vertices", "=", 6).compile_delete()
         )
         assert compiled.sql == "DELETE FROM graphs WHERE num_vertices = ?"
         assert compiled.params == [6]
@@ -189,10 +260,12 @@ class TestQueryBuilder:
         compiled = (
             QueryBuilder(registry)
             .where_expr(
-                AndExpr(children=(
-                    QueryFilter("num_vertices", "=", 5),
-                    QueryFilter("num_edges", ">", 3),
-                ))
+                AndExpr(
+                    children=(
+                        QueryFilter("num_vertices", "=", 5),
+                        QueryFilter("num_edges", ">", 3),
+                    )
+                )
             )
             .compile_delete()
         )

@@ -16,30 +16,21 @@ from pyrigi.graphDB import GraphStoreService, QueryFilter
 
 
 class TestRigidityFetchStrategy:
-    def test_gte_includes_complete(self):
-        sql, params = _rigidity_fetch_strategy("rigidity", ">=", 2)
-        assert sql == "(rigidity >= ? OR rigidity = -1)"
-        assert params == [2]
-
-    def test_gt_includes_complete(self):
-        sql, params = _rigidity_fetch_strategy("rigidity", ">", 1)
-        assert sql == "(rigidity > ? OR rigidity = -1)"
-        assert params == [1]
-
-    def test_eq_passthrough(self):
+    def test_eq_includes_complete(self):
         sql, params = _rigidity_fetch_strategy("rigidity", "=", 3)
-        assert sql == "rigidity = ?"
+        assert sql == "(rigidity = ? OR rigidity = -1)"
         assert params == [3]
 
-    def test_lt_passthrough(self):
-        sql, params = _rigidity_fetch_strategy("rigidity", "<", 3)
-        assert sql == "rigidity < ?"
-        assert params == [3]
+    def test_eq_minus_one_is_complete_only(self):
+        sql, params = _rigidity_fetch_strategy("rigidity", "=", -1)
+        assert sql == "(rigidity = ? OR rigidity = -1)"
+        assert params == [-1]
 
-    def test_lte_passthrough(self):
-        sql, params = _rigidity_fetch_strategy("rigidity", "<=", 2)
-        assert sql == "rigidity <= ?"
-        assert params == [2]
+    def test_in_includes_complete(self):
+        sql, params = _rigidity_fetch_strategy("rigidity", "IN", [1, 2])
+        assert "IN (?, ?)" in sql
+        assert "rigidity = -1" in sql
+        assert params == [1, 2]
 
     def test_is_null_passthrough(self):
         sql, params = _rigidity_fetch_strategy("rigidity", "IS NULL", None)
@@ -52,9 +43,9 @@ class TestRigidityFetchStrategy:
         assert params == []
 
     def test_operator_case_insensitive(self):
-        sql, params = _rigidity_fetch_strategy("global_rigidity", ">=", 1)
+        sql, params = _rigidity_fetch_strategy("global_rigidity", "=", 2)
         assert "= -1" in sql
-        assert params == [1]
+        assert params == [2]
 
 
 # ---------------------------------------------------------------------------
@@ -72,20 +63,21 @@ class TestMinRigidityFetchStrategy:
         sql, params = _min_rigidity_fetch_strategy("min_rigidity", "=", 1)
         assert params == [1, -1]
 
-    def test_gt_passthrough(self):
-        sql, params = _min_rigidity_fetch_strategy("min_rigidity", ">", 1)
-        assert sql == "min_rigidity > ?"
-        assert params == [1]
+    def test_in_expands_for_complete_graphs(self):
+        sql, params = _min_rigidity_fetch_strategy("min_rigidity", "IN", [1, 2])
+        assert "IN (?, ?)" in sql
+        assert "min_rigidity < 0" in sql
+        assert "min_rigidity >= ?" in sql
+        assert params == [1, 2, -2]
 
-    def test_lt_passthrough(self):
-        sql, params = _min_rigidity_fetch_strategy("min_rigidity", "<", 0)
-        assert sql == "min_rigidity < ?"
-        assert params == [0]
+    def test_in_uses_max_value_as_bound(self):
+        _, params = _min_rigidity_fetch_strategy("min_rigidity", "IN", [1, 3])
+        assert params == [1, 3, -3]
 
-    def test_gte_passthrough(self):
-        sql, params = _min_rigidity_fetch_strategy("min_rigidity", ">=", 0)
-        assert sql == "min_rigidity >= ?"
-        assert params == [0]
+    def test_is_null_passthrough(self):
+        sql, params = _min_rigidity_fetch_strategy("min_rigidity", "IS NULL", None)
+        assert sql == "min_rigidity IS NULL"
+        assert params == []
 
     def test_operator_case_insensitive(self):
         sql, params = _min_rigidity_fetch_strategy("min_rigidity", "=", 3)
@@ -121,38 +113,42 @@ def store_with_rigidity_data(tmp_path):
 
 
 class TestRigidityFetchIntegration:
-    def test_gte_returns_complete_graph(self, store_with_rigidity_data):
+    def test_eq_minus_one_returns_complete_graph(self, store_with_rigidity_data):
         store = store_with_rigidity_data
         store.populate_column("rigidity")
-        # K3 has rigidity=-1 (complete); ">= 1" must include it
+        # K3 is stored as -1 (complete-graph sentinel); query via = -1
         rows = store.fetch(
             select=["graph"],
-            filters=[QueryFilter("rigidity", ">=", 1)],
-        )
-        g6_k3 = _g6(nx.complete_graph(3))
-        graphs = {r["graph"] for r in rows}
-        assert g6_k3 in graphs
-
-    def test_gt_returns_complete_graph(self, store_with_rigidity_data):
-        store = store_with_rigidity_data
-        store.populate_column("rigidity")
-        rows = store.fetch(
-            select=["graph"],
-            filters=[QueryFilter("rigidity", ">", 0)],
+            filters=[QueryFilter("rigidity", "=", -1)],
         )
         g6_k3 = _g6(nx.complete_graph(3))
         assert any(r["graph"] == g6_k3 for r in rows)
 
-    def test_eq_does_not_return_complete_graph(self, store_with_rigidity_data):
+    def test_gte_rejected_for_rigidity_column(self, store_with_rigidity_data):
+        store = store_with_rigidity_data
+        with pytest.raises(ValueError, match="not supported"):
+            store.fetch(filters=[QueryFilter("rigidity", ">=", 1)])
+
+    def test_eq_d_returns_complete_graph(self, store_with_rigidity_data):
         store = store_with_rigidity_data
         store.populate_column("rigidity")
-        # "=" queries the raw stored value; complete graphs store -1, so "= 1" must not match them
+        # "= d" expands to (rigidity = d OR rigidity = -1), so K3 must appear
         rows = store.fetch(
             select=["graph"],
             filters=[QueryFilter("rigidity", "=", 1)],
         )
         g6_k3 = _g6(nx.complete_graph(3))
-        assert all(r["graph"] != g6_k3 for r in rows)
+        assert any(r["graph"] == g6_k3 for r in rows)
+
+    def test_in_returns_complete_graph(self, store_with_rigidity_data):
+        store = store_with_rigidity_data
+        store.populate_column("rigidity")
+        rows = store.fetch(
+            select=["graph"],
+            filters=[QueryFilter("rigidity", "IN", [1, 2])],
+        )
+        g6_k3 = _g6(nx.complete_graph(3))
+        assert any(r["graph"] == g6_k3 for r in rows)
 
 
 class TestMinRigidityFetchIntegration:
@@ -182,6 +178,34 @@ class TestMinRigidityFetchIntegration:
         graphs = {r["graph"] for r in rows}
         assert g6_diamond in graphs
         # K3 is minimally 2-rigid (complete on 3 vertices, n-1=2 <= d=2)
+        assert g6_k3 in graphs
+
+    def test_min_rigidity_in_returns_complete_graph(self, store_with_rigidity_data):
+        store = store_with_rigidity_data
+        store.populate_column("min_rigidity")
+        # IN [2] is equivalent to = 2 semantically: K3 (stored=-2) satisfies -2 >= -2
+        rows = store.fetch(
+            select=["graph"],
+            filters=[QueryFilter("min_rigidity", "IN", [2])],
+        )
+        g6_k3 = _g6(nx.complete_graph(3))
+        graphs = {r["graph"] for r in rows}
+        assert g6_k3 in graphs
+
+    def test_min_rigidity_in_multiple_values(self, store_with_rigidity_data):
+        store = store_with_rigidity_data
+        store.populate_column("min_rigidity")
+        # IN [1, 2]: P4 (stored=1), diamond (stored=2), K3 (stored=-2, -2 >= -2) all match
+        rows = store.fetch(
+            select=["graph"],
+            filters=[QueryFilter("min_rigidity", "IN", [1, 2])],
+        )
+        g6_p4 = _g6(nx.path_graph(4))
+        g6_diamond = _g6(nx.Graph([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)]))
+        g6_k3 = _g6(nx.complete_graph(3))
+        graphs = {r["graph"] for r in rows}
+        assert g6_p4 in graphs
+        assert g6_diamond in graphs
         assert g6_k3 in graphs
 
     def test_eq_3_returns_complete_not_path_or_diamond(self, store_with_rigidity_data):

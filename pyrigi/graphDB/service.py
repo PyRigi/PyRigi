@@ -188,6 +188,7 @@ class GraphStoreService:
         populator_ref: Optional[str] = None,
         fetch_strategy: Optional[Callable[[str, str, Any], tuple[str, list]]] = None,
         fetch_ref: Optional[str] = None,
+        valid_operators: Optional[frozenset[str]] = None,
     ) -> ColumnDef:
         """Register a new column and add it to the ``graphs`` table.
 
@@ -237,6 +238,7 @@ class GraphStoreService:
             populator_ref=populator_ref,
             fetch_strategy=fetch_strategy,
             fetch_ref=fetch_ref,
+            valid_operators=valid_operators,
         )
         self._registry.register(col)
         self._db.add_column(name, data_type)

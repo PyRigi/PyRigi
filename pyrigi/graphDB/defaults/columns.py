@@ -33,6 +33,7 @@ from pyrigi.graphDB.defaults.populators import (
 
 _REF = "pyrigi.graphDB.defaults.populators"
 _FETCH_REF = "pyrigi.graphDB.defaults.fetch_strategies"
+_RIGIDITY_VALID_OPS = frozenset({"=", "IN", "IS NULL", "IS NOT NULL"})
 
 DEFAULT_COLUMNS: list[ColumnDef] = [
     ColumnDef(
@@ -86,6 +87,7 @@ DEFAULT_COLUMNS: list[ColumnDef] = [
         populator_ref=f"{_REF}:_compute_rigidity",
         fetch_strategy=_rigidity_fetch_strategy,
         fetch_ref=f"{_FETCH_REF}:_rigidity_fetch_strategy",
+        valid_operators=_RIGIDITY_VALID_OPS,
     ),
     ColumnDef(
         name="min_rigidity",
@@ -99,6 +101,7 @@ DEFAULT_COLUMNS: list[ColumnDef] = [
         populator_ref=f"{_REF}:_compute_min_rigidity",
         fetch_strategy=_min_rigidity_fetch_strategy,
         fetch_ref=f"{_FETCH_REF}:_min_rigidity_fetch_strategy",
+        valid_operators=_RIGIDITY_VALID_OPS,
     ),
     ColumnDef(
         name="global_rigidity",
@@ -112,6 +115,7 @@ DEFAULT_COLUMNS: list[ColumnDef] = [
         populator_ref=f"{_REF}:_compute_global_rigidity",
         fetch_strategy=_rigidity_fetch_strategy,
         fetch_ref=f"{_FETCH_REF}:_rigidity_fetch_strategy",
+        valid_operators=_RIGIDITY_VALID_OPS,
     ),
 ]
 

@@ -493,6 +493,84 @@ class TestUpdateColumnPopulator:
         assert col.populator_ref is None
 
 
+class TestValidOperators:
+    def test_rigidity_rejects_gt_operator(self, store_with_data):
+        with pytest.raises(ValueError, match="not supported"):
+            store_with_data.fetch(filters=[QueryFilter("rigidity", ">", 2)])
+
+    def test_rigidity_rejects_gte_operator(self, store_with_data):
+        with pytest.raises(ValueError, match="not supported"):
+            store_with_data.fetch(filters=[QueryFilter("rigidity", ">=", 2)])
+
+    def test_rigidity_accepts_eq_operator(self, store_with_data):
+        rows = store_with_data.fetch(filters=[QueryFilter("rigidity", "=", 2)])
+        assert isinstance(rows, list)
+
+    def test_min_rigidity_rejects_lt_operator(self, store_with_data):
+        with pytest.raises(ValueError, match="not supported"):
+            store_with_data.fetch(filters=[QueryFilter("min_rigidity", "<", 1)])
+
+    def test_global_rigidity_rejects_neq_operator(self, store_with_data):
+        with pytest.raises(ValueError, match="not supported"):
+            store_with_data.fetch(filters=[QueryFilter("global_rigidity", "!=", 1)])
+
+    def test_structural_column_accepts_all_operators(self, store_with_data):
+        rows = store_with_data.fetch(filters=[QueryFilter("num_vertices", ">", 3)])
+        assert isinstance(rows, list)
+
+    def test_add_column_with_valid_operators(self, store):
+        store.add_column(
+            "restricted_col",
+            "INTEGER",
+            valid_operators=frozenset({"="}),
+        )
+        with pytest.raises(ValueError, match="not supported"):
+            store.fetch(filters=[QueryFilter("restricted_col", ">", 0)])
+
+    def test_rigidity_accepts_in_operator(self, store_with_data):
+        rows = store_with_data.fetch(filters=[QueryFilter("rigidity", "IN", [1, 2])])
+        assert isinstance(rows, list)
+
+    def test_rigidity_accepts_is_null_operator(self, store_with_data):
+        rows = store_with_data.fetch(filters=[QueryFilter("rigidity", "IS NULL", None)])
+        assert isinstance(rows, list)
+
+    def test_rigidity_accepts_is_not_null_operator(self, store_with_data):
+        rows = store_with_data.fetch(
+            filters=[QueryFilter("rigidity", "IS NOT NULL", None)]
+        )
+        assert isinstance(rows, list)
+
+    def test_min_rigidity_accepts_in_operator(self, store_with_data):
+        rows = store_with_data.fetch(
+            filters=[QueryFilter("min_rigidity", "IN", [1, 2])]
+        )
+        assert isinstance(rows, list)
+
+    def test_valid_operators_persist_across_session_restart(self, tmp_path):
+        db_path = str(tmp_path / "persist_test.db")
+        with GraphStoreService(db_path).init() as store:
+            store.add_column(
+                "restricted_col",
+                "INTEGER",
+                valid_operators=frozenset({"="}),
+            )
+        # Reopen a completely new service instance against the same file
+        with GraphStoreService(db_path).init() as store:
+            with pytest.raises(ValueError, match="not supported"):
+                store.fetch(filters=[QueryFilter("restricted_col", ">", 0)])
+
+    def test_default_rigidity_restriction_persists_across_session_restart(
+        self, tmp_path
+    ):
+        db_path = str(tmp_path / "rigidity_persist_test.db")
+        with GraphStoreService(db_path).init() as _:
+            pass  # just bootstrap
+        with GraphStoreService(db_path).init() as store:
+            with pytest.raises(ValueError, match="not supported"):
+                store.fetch(filters=[QueryFilter("rigidity", ">=", 2)])
+
+
 class TestDropColumn:
     def test_drop_column_removes_from_registry(self, store):
         store.add_column("tmp_col", "INTEGER")
@@ -507,7 +585,7 @@ class TestDropColumn:
         assert "tmp_col" not in cols
 
     def test_drop_column_clears_caches(self, store):
-        fn = lambda row: 0  # noqa: E731
+        fn = lambda _row: 0  # noqa: E731, U101
         store.add_column("tmp_col", "INTEGER", populator=fn, fetch_strategy=fn)
         assert "tmp_col" in store._populator_cache
         assert "tmp_col" in store._fetch_cache
@@ -560,12 +638,12 @@ class TestDeleteGraph:
 
 class TestUpdateColumnFetchStrategy:
     def test_update_column_fetch_strategy_caches_callable(self, store):
-        fn = lambda col, op, val: (f"{col} = ?", [val])  # noqa: E731
+        fn = lambda col, _op, val: (f"{col} = ?", [val])  # noqa: E731, U101
         store.update_column_fetch_strategy("rigidity", fetch_strategy=fn)
         assert store._fetch_cache.get("rigidity") is fn
 
     def test_update_column_fetch_strategy_clears_cache_when_none(self, store):
-        fn = lambda col, op, val: (f"{col} = ?", [val])  # noqa: E731
+        fn = lambda col, _op, val: (f"{col} = ?", [val])  # noqa: E731, U101
         store.update_column_fetch_strategy("rigidity", fetch_strategy=fn)
         store.update_column_fetch_strategy("rigidity", fetch_strategy=None)
         assert "rigidity" not in store._fetch_cache
@@ -577,11 +655,15 @@ class TestUpdateColumnFetchStrategy:
         assert col is not None
         assert col.fetch_ref == ref
 
-    def test_update_column_fetch_strategy_preserves_existing_ref_when_unset(self, store):
+    def test_update_column_fetch_strategy_preserves_existing_ref_when_unset(
+        self, store
+    ):
         before = store.get_column("rigidity")
         assert before is not None
         original_ref = before.fetch_ref
-        store.update_column_fetch_strategy("rigidity", fetch_strategy=lambda c, o, v: (c, []))
+        store.update_column_fetch_strategy(
+            "rigidity", fetch_strategy=lambda c, _o, _v: (c, [])  # noqa: U101
+        )
         after = store.get_column("rigidity")
         assert after is not None
         assert after.fetch_ref == original_ref

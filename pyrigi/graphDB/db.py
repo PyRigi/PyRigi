@@ -96,6 +96,7 @@ class DatabaseManager:
                     c.description,
                     c.populator_ref,
                     c.fetch_ref,
+                    "|".join(sorted(c.valid_operators)) if c.valid_operators else None,
                     int(c.is_default),
                 )
                 for c in DEFAULT_COLUMNS
@@ -103,13 +104,15 @@ class DatabaseManager:
             conn.executemany(
                 """
                 INSERT INTO column_registry
-                    (name, data_type, description, populator_ref, fetch_ref, is_default)
-                VALUES (?, ?, ?, ?, ?, ?)
+                    (name, data_type, description, populator_ref, fetch_ref,
+                     valid_operators, is_default)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(name) DO UPDATE SET
-                    data_type     = excluded.data_type,
-                    description   = excluded.description,
-                    populator_ref = excluded.populator_ref,
-                    fetch_ref     = excluded.fetch_ref
+                    data_type       = excluded.data_type,
+                    description     = excluded.description,
+                    populator_ref   = excluded.populator_ref,
+                    fetch_ref       = excluded.fetch_ref,
+                    valid_operators = excluded.valid_operators
                 """,
                 defaults_data,
             )

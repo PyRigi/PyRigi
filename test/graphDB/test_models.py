@@ -130,6 +130,17 @@ class TestDefaultPopulators:
         assert call_count["n"] == 1
 
 
+class TestColumnDefValidOperators:
+    def test_valid_operators_none_by_default(self):
+        col = ColumnDef("my_col", "INTEGER")
+        assert col.valid_operators is None
+
+    def test_valid_operators_stored(self):
+        ops = frozenset({"=", "IN", "IS NULL", "IS NOT NULL"})
+        col = ColumnDef("my_col", "INTEGER", valid_operators=ops)
+        assert col.valid_operators == ops
+
+
 class TestQueryExpressions:
     def test_and_expr_requires_children(self):
         with pytest.raises(ValueError, match="at least one"):

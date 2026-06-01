@@ -73,18 +73,24 @@ class ColumnRegistryRepo:
         updated; otherwise a new row is inserted.
         """
         now = datetime.now(tz=timezone.utc).isoformat()
+        valid_ops_str = (
+            "|".join(sorted(col.valid_operators))
+            if col.valid_operators is not None
+            else None
+        )
         with self._db.connection:
             self._db.execute(
                 """
                 INSERT INTO column_registry
                     (name, data_type, description, populator_ref, fetch_ref,
-                     is_default, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                     valid_operators, is_default, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(name) DO UPDATE SET
-                    data_type     = excluded.data_type,
-                    description   = excluded.description,
-                    populator_ref = excluded.populator_ref,
-                    fetch_ref     = excluded.fetch_ref
+                    data_type       = excluded.data_type,
+                    description     = excluded.description,
+                    populator_ref   = excluded.populator_ref,
+                    fetch_ref       = excluded.fetch_ref,
+                    valid_operators = excluded.valid_operators
                 """,
                 (
                     col.name,
@@ -92,6 +98,7 @@ class ColumnRegistryRepo:
                     col.description,
                     col.populator_ref,
                     col.fetch_ref,
+                    valid_ops_str,
                     int(col.is_default),
                     now,
                 ),
@@ -117,11 +124,14 @@ class ColumnRegistryRepo:
 
     @staticmethod
     def _row_to_def(row) -> ColumnDef:
+        raw = row["valid_operators"]
+        valid_ops = frozenset(raw.split("|")) if raw else None
         return ColumnDef(
             name=row["name"],
             data_type=row["data_type"],
             description=row["description"] or "",
             populator_ref=row["populator_ref"],
             fetch_ref=row["fetch_ref"],
+            valid_operators=valid_ops,
             is_default=bool(row["is_default"]),
         )

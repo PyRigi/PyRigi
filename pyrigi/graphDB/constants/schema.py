@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS column_registry (
     description     TEXT    NOT NULL DEFAULT '',
     populator_ref   TEXT,
     fetch_ref       TEXT,
+    valid_operators TEXT,
     is_default      INTEGER NOT NULL DEFAULT 0,
     created_at      TEXT    NOT NULL DEFAULT (datetime('now'))
 );

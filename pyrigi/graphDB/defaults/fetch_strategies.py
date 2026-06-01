@@ -13,11 +13,16 @@ via both ``fetch_strategy`` (runtime) and ``fetch_ref`` (persisted in the DB).
 Rigidity / global-rigidity encoding
 -------------------------------------
 The stored value is the *maximum* d such that G is d-rigid (or ``-1``
-for complete graphs, which are rigid in all dimensions).  A graph is
-d-rigid iff ``d ≤ stored_value``, so "give me all 2-rigid graphs"
-translates to ``rigidity >= 2 OR rigidity = -1``.  The ``>=`` and
-``>`` operators therefore need to include the ``-1`` case; all other
-operators pass through to the default strategy.
+for complete graphs, which are rigid in all dimensions).  Because
+complete graphs are rigid in every dimension, they must appear in the
+results of any ``= d`` or ``IN [...]`` query.  The ``=`` and ``IN``
+operators therefore expand to include the ``-1`` sentinel:
+
+* ``= d``       →  ``(column = d OR column = -1)``
+* ``IN [...]``  →  ``(column IN (...) OR column = -1)``
+
+``IS NULL`` and ``IS NOT NULL`` pass through unchanged (``NULL`` means
+the column has not been populated yet).
 
 Minimal-rigidity encoding
 --------------------------
@@ -29,8 +34,9 @@ The stored value uses a three-way encoding:
 
 A graph is minimally d-rigid iff ``stored = d`` OR
 ``(stored < 0 AND stored >= -d)``  (the complete-graph case).
-The ``=`` operator is therefore expanded to cover both branches; all
-other operators pass through to the default strategy.
+The ``=`` operator expands to cover both branches.  The ``IN``
+operator expands analogously: for ``IN [d1, ..., dk]`` the complete-graph
+branch uses ``stored >= -max(d1, ..., dk)`` as the lower bound.
 """
 
 from __future__ import annotations
@@ -45,14 +51,15 @@ def _rigidity_fetch_strategy(
 ) -> tuple[str, list]:
     """Fetch strategy for ``rigidity`` and ``global_rigidity`` columns.
 
-    Handles ``>=`` and ``>`` to include complete graphs (stored as ``-1``).
-    All other operators fall back to the default pass-through.
+    Expands ``=`` and ``IN`` to include complete graphs (stored as ``-1``).
+    ``IS NULL`` and ``IS NOT NULL`` fall back to the default pass-through.
     """
     op = operator.upper()
-    if op == ">=":
-        return f"({column} >= ? OR {column} = -1)", [value]
-    if op == ">":
-        return f"({column} > ? OR {column} = -1)", [value]
+    if op == "=":
+        return f"({column} = ? OR {column} = -1)", [value]
+    if op == "IN":
+        placeholders = ", ".join("?" * len(value))
+        return f"({column} IN ({placeholders}) OR {column} = -1)", list(value)
     return _default_fetch_strategy(column, operator, value)
 
 
@@ -61,9 +68,12 @@ def _min_rigidity_fetch_strategy(
 ) -> tuple[str, list]:
     """Fetch strategy for the ``min_rigidity`` column.
 
-    Expands the ``=`` operator to cover both the non-complete case
-    (``stored = d``) and the complete-graph case
-    (``stored < 0 AND stored >= -d``).
+    Expands ``=`` and ``IN`` to cover both the non-complete case and the
+    complete-graph case.
+
+    * ``= d``        → ``(stored = d OR (stored < 0 AND stored >= -d))``
+    * ``IN [d1,...]``→ ``(stored IN (...) OR (stored < 0 AND stored >= -max_d))``
+
     All other operators fall back to the default pass-through.
     """
     op = operator.upper()
@@ -71,5 +81,12 @@ def _min_rigidity_fetch_strategy(
         return (
             f"({column} = ? OR ({column} < 0 AND {column} >= ?))",
             [value, -value],
+        )
+    if op == "IN":
+        placeholders = ", ".join("?" * len(value))
+        max_d = max(value)
+        return (
+            f"({column} IN ({placeholders}) OR ({column} < 0 AND {column} >= ?))",
+            list(value) + [-max_d],
         )
     return _default_fetch_strategy(column, operator, value)

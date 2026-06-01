@@ -50,8 +50,10 @@ from pyrigi.graphDB.small_graphs import (
     ThreeConnectedR3Circuit,
     Wheel,
     Grid,
-    _min_rigidity_dimension_encoding,
 )
+
+# Re-exported for test access via `pyrigi.graphDB._min_rigidity_dimension_encoding`
+from pyrigi.graphDB.small_graphs import _min_rigidity_dimension_encoding  # noqa: F401
 
 # SQLite graph database interface
 from pyrigi.graphDB.models import (

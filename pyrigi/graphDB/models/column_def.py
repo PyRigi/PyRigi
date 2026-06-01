@@ -60,6 +60,9 @@ class ColumnDef:
     )
     fetch_ref: Optional[str] = None
 
+    # ---- operator whitelist -----------------------------------------------
+    valid_operators: Optional[frozenset[str]] = field(default=None, repr=False)
+
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------

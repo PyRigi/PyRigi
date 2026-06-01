@@ -117,3 +117,34 @@ class TestWrite:
         registry.register(ColumnDef("nodesc", "INTEGER"))
         col = registry.get("nodesc")
         assert col.description == ""
+
+    def test_register_persists_valid_operators(self, registry):
+        ops = frozenset({"=", "IN", "IS NULL", "IS NOT NULL"})
+        registry.register(ColumnDef("restricted", "INTEGER", valid_operators=ops))
+        col = registry.get("restricted")
+        assert col is not None
+        assert col.valid_operators == ops
+
+    def test_register_persists_null_valid_operators(self, registry):
+        registry.register(ColumnDef("unrestricted", "INTEGER", valid_operators=None))
+        col = registry.get("unrestricted")
+        assert col is not None
+        assert col.valid_operators is None
+
+    def test_register_overwrites_valid_operators_on_upsert(self, registry):
+        from pyrigi.graphDB.models import ColumnDef
+
+        registry.register(ColumnDef("col", "INTEGER", valid_operators=frozenset({"="})))
+        assert registry.get("col").valid_operators == frozenset({"="})
+        registry.register(
+            ColumnDef("col", "INTEGER", valid_operators=frozenset({"=", "IN"}))
+        )
+        assert registry.get("col").valid_operators == frozenset({"=", "IN"})
+
+    def test_default_rigidity_columns_have_valid_operators(self, registry):
+        for name in ("rigidity", "min_rigidity", "global_rigidity"):
+            col = registry.get(name)
+            assert col is not None
+            assert col.valid_operators == frozenset(
+                {"=", "IN", "IS NULL", "IS NOT NULL"}
+            )

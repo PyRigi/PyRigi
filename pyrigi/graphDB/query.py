@@ -233,6 +233,14 @@ class QueryBuilder:
         return _default_fetch_strategy
 
     def _compile_filter(self, filt: QueryFilter) -> tuple[str, list[Any]]:
+        col_def = self._registry.get(filt.column)
+        if col_def is not None and col_def.valid_operators is not None:
+            if filt.operator not in col_def.valid_operators:
+                allowed = sorted(col_def.valid_operators)
+                raise ValueError(
+                    f"Operator {filt.operator!r} is not supported for column "
+                    f"{filt.column!r}. Allowed operators: {allowed}"
+                )
         strategy = self._resolve_filter_strategy(filt.column)
         return strategy(filt.column, filt.operator, filt.value)
 

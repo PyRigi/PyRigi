@@ -31,17 +31,29 @@ store.pretty_print_results(
 )
 
 # 4. Rigidity-aware queries
-# >= 2 includes complete graphs (stored as -1 — rigid in all dimensions)
+# = 2: fetch strategy expands to (rigidity = 2 OR rigidity = -1), so complete
+# graphs (stored as -1) are included alongside graphs with max_rigid_dim = 2
 store.pretty_print_results(
     store.fetch(
         select=["graph", "num_vertices", "rigidity"],
-        filters=[QueryFilter("rigidity", ">=", 2)],
+        filters=[QueryFilter("rigidity", "=", 2)],
         limit=5,
     ),
     show_index=True,
 )
 
-# = 2 includes complete graphs that are minimally 2-rigid (e.g. K3, stored as -2)
+# IN [1, 2]: expands to (rigidity IN (1, 2) OR rigidity = -1), including complete graphs
+store.pretty_print_results(
+    store.fetch(
+        select=["graph", "num_vertices", "rigidity"],
+        filters=[QueryFilter("rigidity", "IN", [1, 2])],
+        limit=5,
+    ),
+    show_index=True,
+)
+
+# = 2 on min_rigidity: includes non-complete minimally 2-rigid graphs and K3
+# (complete, stored as -2, satisfies -2 >= -2)
 store.pretty_print_results(
     store.fetch(
         select=["graph", "num_vertices", "min_rigidity"],
@@ -101,7 +113,10 @@ store.add_column(
     populator=lambda row: int(row["num_edges"] == row["num_vertices"] - 1),  # correct
 )
 store.populate_column("is_tree")
-print("is_tree column corrected:", store.fetch(select=["num_vertices", "is_tree"], limit=3))
+print(
+    "is_tree column corrected:",
+    store.fetch(select=["num_vertices", "is_tree"], limit=3),
+)
 
 # 8. Re-registering a fetch strategy with update_column_fetch_strategy
 # Runtime callables (lambdas) are not persisted across sessions.
