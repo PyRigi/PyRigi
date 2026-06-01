@@ -491,3 +491,101 @@ class TestUpdateColumnPopulator:
         col = store.get_column("rigidity")
         assert col is not None
         assert col.populator_ref is None
+
+
+class TestDropColumn:
+    def test_drop_column_removes_from_registry(self, store):
+        store.add_column("tmp_col", "INTEGER")
+        assert store.get_column("tmp_col") is not None
+        store.drop_column("tmp_col")
+        assert store.get_column("tmp_col") is None
+
+    def test_drop_column_removes_from_schema(self, store):
+        store.add_column("tmp_col", "INTEGER")
+        store.drop_column("tmp_col")
+        cols = store._db._existing_columns()
+        assert "tmp_col" not in cols
+
+    def test_drop_column_clears_caches(self, store):
+        fn = lambda row: 0  # noqa: E731
+        store.add_column("tmp_col", "INTEGER", populator=fn, fetch_strategy=fn)
+        assert "tmp_col" in store._populator_cache
+        assert "tmp_col" in store._fetch_cache
+        store.drop_column("tmp_col")
+        assert "tmp_col" not in store._populator_cache
+        assert "tmp_col" not in store._fetch_cache
+
+    def test_drop_column_raises_for_default(self, store):
+        with pytest.raises(ValueError, match="built-in"):
+            store.drop_column("rigidity")
+
+    def test_drop_column_raises_for_unknown(self, store):
+        with pytest.raises(KeyError):
+            store.drop_column("nonexistent_col")
+
+
+class TestDeleteGraph:
+    def test_delete_graph_returns_true_when_found(self, store_with_data):
+        g6 = nx.to_graph6_bytes(nx.complete_graph(5), header=False).strip().decode()
+        assert store_with_data.delete_graph(g6) is True
+
+    def test_delete_graph_returns_false_when_not_found(self, store_with_data):
+        assert store_with_data.delete_graph("not_a_real_graph6") is False
+
+    def test_delete_graph_reduces_count(self, store_with_data):
+        before = store_with_data.count()
+        g6 = nx.to_graph6_bytes(nx.path_graph(5), header=False).strip().decode()
+        store_with_data.delete_graph(g6)
+        assert store_with_data.count() == before - 1
+
+    def test_delete_where_by_filter(self, store_with_data):
+        before = store_with_data.count()
+        deleted = store_with_data.delete_where(
+            filters=[QueryFilter("num_vertices", "=", 5)]
+        )
+        assert deleted == before
+        assert store_with_data.count() == 0
+
+    def test_delete_where_returns_rowcount(self, store_with_data):
+        deleted = store_with_data.delete_where(
+            filters=[QueryFilter("num_edges", "<", 0)]
+        )
+        assert deleted == 0
+
+    def test_delete_where_no_filters_deletes_all(self, store_with_data):
+        assert store_with_data.count() > 0
+        store_with_data.delete_where()
+        assert store_with_data.count() == 0
+
+
+class TestUpdateColumnFetchStrategy:
+    def test_update_column_fetch_strategy_caches_callable(self, store):
+        fn = lambda col, op, val: (f"{col} = ?", [val])  # noqa: E731
+        store.update_column_fetch_strategy("rigidity", fetch_strategy=fn)
+        assert store._fetch_cache.get("rigidity") is fn
+
+    def test_update_column_fetch_strategy_clears_cache_when_none(self, store):
+        fn = lambda col, op, val: (f"{col} = ?", [val])  # noqa: E731
+        store.update_column_fetch_strategy("rigidity", fetch_strategy=fn)
+        store.update_column_fetch_strategy("rigidity", fetch_strategy=None)
+        assert "rigidity" not in store._fetch_cache
+
+    def test_update_column_fetch_strategy_persists_ref(self, store):
+        ref = "pyrigi.graphDB.defaults.fetch_strategies:_rigidity_fetch_strategy"
+        store.update_column_fetch_strategy("rigidity", fetch_ref=ref)
+        col = store.get_column("rigidity")
+        assert col is not None
+        assert col.fetch_ref == ref
+
+    def test_update_column_fetch_strategy_preserves_existing_ref_when_unset(self, store):
+        before = store.get_column("rigidity")
+        assert before is not None
+        original_ref = before.fetch_ref
+        store.update_column_fetch_strategy("rigidity", fetch_strategy=lambda c, o, v: (c, []))
+        after = store.get_column("rigidity")
+        assert after is not None
+        assert after.fetch_ref == original_ref
+
+    def test_update_column_fetch_strategy_unknown_column_raises(self, store):
+        with pytest.raises(KeyError):
+            store.update_column_fetch_strategy("nonexistent_col")

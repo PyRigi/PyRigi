@@ -166,3 +166,37 @@ class TestQueryBuilder:
         compiled = QueryBuilder(registry).filter("num_vertices", "=", 6).compile()
         assert "num_vertices = ?" in compiled.sql
         assert compiled.params == [6]
+
+    # ------------------------------------------------------------------
+    # compile_delete
+    # ------------------------------------------------------------------
+
+    def test_compile_delete_no_filters(self, registry):
+        compiled = QueryBuilder(registry).compile_delete()
+        assert compiled.sql == "DELETE FROM graphs"
+        assert compiled.params == []
+
+    def test_compile_delete_with_filter(self, registry):
+        compiled = (
+            QueryBuilder(registry)
+            .filter("num_vertices", "=", 6)
+            .compile_delete()
+        )
+        assert compiled.sql == "DELETE FROM graphs WHERE num_vertices = ?"
+        assert compiled.params == [6]
+
+    def test_compile_delete_with_expr(self, registry):
+        compiled = (
+            QueryBuilder(registry)
+            .where_expr(
+                AndExpr(children=(
+                    QueryFilter("num_vertices", "=", 5),
+                    QueryFilter("num_edges", ">", 3),
+                ))
+            )
+            .compile_delete()
+        )
+        assert "DELETE FROM graphs WHERE" in compiled.sql
+        assert "num_vertices = ?" in compiled.sql
+        assert "num_edges > ?" in compiled.sql
+        assert compiled.params == [5, 3]

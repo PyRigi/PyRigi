@@ -135,6 +135,20 @@ class DatabaseManager:
         with self.connection:
             self.connection.execute(f"ALTER TABLE graphs ADD COLUMN {name} {data_type}")
 
+    def drop_column(self, name: str) -> None:
+        """Drop a column from ``graphs`` if it exists.
+
+        Parameters
+        ----------
+        name:
+            Column name (must be a valid SQLite identifier).
+        """
+        self._validate_identifier(name)
+        if name not in self._existing_columns():
+            return  # idempotent
+        with self.connection:
+            self.connection.execute(f"ALTER TABLE graphs DROP COLUMN {name}")
+
     @staticmethod
     def _validate_identifier(name: str) -> None:
         if not _IDENTIFIER_RE.fullmatch(name):

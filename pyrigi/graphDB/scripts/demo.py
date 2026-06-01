@@ -31,7 +31,7 @@ store.pretty_print_results(
 )
 
 # 4. Rigidity-aware queries
-# >= 2 includes complete graphs (stored as NULL — rigid in all dimensions)
+# >= 2 includes complete graphs (stored as -1 — rigid in all dimensions)
 store.pretty_print_results(
     store.fetch(
         select=["graph", "num_vertices", "rigidity"],
@@ -80,5 +80,35 @@ for g in store.iter_fetch(
     mapper=lambda row: nx.from_graph6_bytes(row["graph"].encode("ascii")),
 ):
     print(g.number_of_nodes(), "vertices,", g.number_of_edges(), "edges")
+
+# 7. Correcting a column mistake with drop_column
+# Suppose a column is added with wrong logic.
+store.add_column(
+    "is_tree",
+    "INTEGER",
+    description="1 if the graph is a tree, 0 otherwise",
+    populator=lambda row: int(row["num_edges"] == row["num_vertices"]),  # wrong
+)
+store.populate_column("is_tree")
+
+# Realise the mistake: a tree satisfies num_edges == num_vertices - 1.
+# Drop the column and re-add it with the correct populator.
+store.drop_column("is_tree")
+store.add_column(
+    "is_tree",
+    "INTEGER",
+    description="1 if the graph is a tree, 0 otherwise",
+    populator=lambda row: int(row["num_edges"] == row["num_vertices"] - 1),  # correct
+)
+store.populate_column("is_tree")
+print("is_tree column corrected:", store.fetch(select=["num_vertices", "is_tree"], limit=3))
+
+# 8. Re-registering a fetch strategy with update_column_fetch_strategy
+# Runtime callables (lambdas) are not persisted across sessions.
+store.update_column_fetch_strategy(
+    "density",
+    fetch_strategy=lambda col, op, val: (f"{col} {op} ?", [val]),
+)
+print("Fetch strategy re-registered for density column")
 
 store.close()

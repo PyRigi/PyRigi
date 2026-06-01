@@ -150,6 +150,40 @@ class GraphRepository:
             yield dict(row)
 
     # ------------------------------------------------------------------
+    # Delete
+    # ------------------------------------------------------------------
+
+    def delete_graph(self, g6: str) -> bool:
+        """Delete the graph with the given graph6 string.
+
+        Returns
+        -------
+        bool:
+            ``True`` if a row was deleted, ``False`` if it was not found.
+        """
+        with self._db.connection:
+            cur = self._db.execute("DELETE FROM graphs WHERE graph = ?", (g6,))
+        return cur.rowcount > 0
+
+    def delete(self, compiled: "CompiledQuery") -> int:
+        """Execute a compiled DELETE statement.
+
+        Parameters
+        ----------
+        compiled:
+            A :class:`~pyrigi.graphDB.query.CompiledQuery` produced by
+            :meth:`~pyrigi.graphDB.query.QueryBuilder.compile_delete`.
+
+        Returns
+        -------
+        int:
+            Number of rows deleted.
+        """
+        with self._db.connection:
+            cur = self._db.execute(compiled.sql, compiled.params)
+        return cur.rowcount
+
+    # ------------------------------------------------------------------
     # Aggregates
     # ------------------------------------------------------------------
 

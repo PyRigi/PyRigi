@@ -182,6 +182,36 @@ class QueryBuilder:
 
         return CompiledQuery(sql=" ".join(sql_parts), params=params)
 
+    def compile_delete(self) -> CompiledQuery:
+        """Assemble a ``DELETE FROM graphs`` statement from the current filters.
+
+        ORDER BY, LIMIT, and OFFSET are ignored — they are not valid in a
+        DELETE statement.  If no filters are set, all rows are deleted.
+
+        Returns
+        -------
+        CompiledQuery:
+            Immutable (sql, params) pair ready for the repository.
+        """
+        sql_parts = ["DELETE FROM graphs"]
+        params: list[Any] = []
+
+        if self._filters or self._exprs:
+            clauses = []
+            for f in self._filters:
+                fragment, fparams = self._compile_filter(f)
+                clauses.append(fragment)
+                params.extend(fparams)
+
+            for expr in self._exprs:
+                fragment, eparams = self._compile_expr(expr)
+                clauses.append(fragment)
+                params.extend(eparams)
+
+            sql_parts.append("WHERE " + " AND ".join(clauses))
+
+        return CompiledQuery(sql=" ".join(sql_parts), params=params)
+
     def _resolve_filter_strategy(
         self,
         column: str,

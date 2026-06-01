@@ -65,6 +65,15 @@ class TestDatabaseManager:
         with pytest.raises(ValueError, match="Invalid SQL identifier"):
             db.add_column("bad-name", "INTEGER")
 
+    def test_drop_column_removes_from_schema(self, db):
+        db.add_column("temp_col", "INTEGER")
+        assert "temp_col" in db._existing_columns()
+        db.drop_column("temp_col")
+        assert "temp_col" not in db._existing_columns()
+
+    def test_drop_column_idempotent(self, db):
+        db.drop_column("nonexistent_col")  # must not raise
+
     def test_context_manager(self):
         with DatabaseManager(":memory:") as mgr:
             mgr.bootstrap()

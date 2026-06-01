@@ -289,6 +289,69 @@ class GraphStoreService:
         elif name in self._populator_cache:
             del self._populator_cache[name]
 
+    def drop_column(self, name: str) -> None:
+        """Remove a custom column from the registry and the ``graphs`` table.
+
+        Parameters
+        ----------
+        name:
+            Column name to remove.
+
+        Raises
+        ------
+        ValueError:
+            If *name* is a built-in default column.
+        KeyError:
+            If *name* is not registered.
+        """
+        self._require_init()
+        default_names = {c.name for c in DEFAULT_COLUMNS}
+        if name in default_names:
+            raise ValueError(
+                f"Column {name!r} is a built-in default column and cannot be dropped."
+            )
+        if self._registry.get(name) is None:
+            raise KeyError(f"Column {name!r} not found in registry.")
+        self._registry.delete(name)
+        self._db.drop_column(name)
+        self._populator_cache.pop(name, None)
+        self._fetch_cache.pop(name, None)
+        log.info("Dropped custom column: %s", name)
+
+    def update_column_fetch_strategy(
+        self,
+        name: str,
+        fetch_strategy: Optional[Callable[[str, str, Any], tuple[str, list]]] = None,
+        fetch_ref: Optional[str] | object = _UNSET,
+    ) -> None:
+        """Replace the fetch strategy for any column (including defaults).
+
+        Parameters
+        ----------
+        name:
+            Column name.
+        fetch_strategy:
+            New runtime callable ``(col, op, val) -> (sql, params)``.
+            Not persisted across sessions.
+        fetch_ref:
+            New importable path (replaces the stored reference).
+            If omitted, the existing persisted reference is kept.
+            Pass ``None`` explicitly to clear the stored reference.
+        """
+        self._require_init()
+        col = self._registry.get(name)
+        if col is None:
+            raise KeyError(f"Column {name!r} not found in registry.")
+        col.fetch_strategy = fetch_strategy
+        if fetch_ref is not _UNSET:
+            col.fetch_ref = cast(Optional[str], fetch_ref)
+        self._registry.register(col)
+        if fetch_strategy is not None:
+            self._fetch_cache[name] = fetch_strategy
+        elif name in self._fetch_cache:
+            del self._fetch_cache[name]
+        log.info("Updated fetch strategy for column: %s", name)
+
     def list_columns(self) -> list[ColumnDef]:
         """Return all registered columns (defaults + custom)."""
         self._require_init()
@@ -389,6 +452,55 @@ class GraphStoreService:
             stats.errors,
         )
         return stats
+
+    # ------------------------------------------------------------------
+    # Delete
+    # ------------------------------------------------------------------
+
+    def delete_graph(self, g6: str) -> bool:
+        """Delete the graph with the given graph6 string.
+
+        Parameters
+        ----------
+        g6:
+            graph6-encoded identifier of the graph to remove.
+
+        Returns
+        -------
+        bool:
+            ``True`` if the graph was found and deleted, ``False`` otherwise.
+        """
+        self._require_init()
+        return self._repo.delete_graph(g6)
+
+    def delete_where(
+        self,
+        filters: Optional[list[QueryFilter]] = None,
+        expr: Optional[QueryExpr] = None,
+    ) -> int:
+        """Delete all graphs matching the given filters.
+
+        Parameters
+        ----------
+        filters:
+            List of :class:`~pyrigi.graphDB.models.QueryFilter` predicates
+            combined with AND.
+        expr:
+            Optional grouped boolean predicate expression.
+
+        Returns
+        -------
+        int:
+            Number of rows deleted.
+        """
+        self._require_init()
+        builder = self.query()
+        if filters:
+            builder.where(filters)
+        if expr is not None:
+            builder.where_expr(expr)
+        compiled = builder.compile_delete()
+        return self._repo.delete(compiled)
 
     # ------------------------------------------------------------------
     # Querying
