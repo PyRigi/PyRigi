@@ -12,16 +12,14 @@ Responsibilities
 
 from __future__ import annotations
 
-import re
 import sqlite3
 import threading
 from pathlib import Path
 from typing import Optional
 
+from pyrigi.graphDB.constants.identifiers import IDENTIFIER_RE
 from pyrigi.graphDB.constants.schema import _GRAPHS_DDL, _REGISTRY_DDL
 from pyrigi.graphDB.defaults.columns import DEFAULT_COLUMNS
-
-_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 class DatabaseManager:
@@ -154,7 +152,7 @@ class DatabaseManager:
 
     @staticmethod
     def _validate_identifier(name: str) -> None:
-        if not _IDENTIFIER_RE.fullmatch(name):
+        if not IDENTIFIER_RE.fullmatch(name):
             raise ValueError(f"Invalid SQL identifier: {name!r}")
 
     def _existing_columns(self) -> set[str]:

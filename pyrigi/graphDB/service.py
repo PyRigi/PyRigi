@@ -74,6 +74,8 @@ class GraphStoreService:
         db_path: str | Path = "outputs/graph_store.db",
         batch_size: int = 500,
     ) -> None:
+        if batch_size < 1:
+            raise ValueError("batch_size must be a positive integer")
         self._db = DatabaseManager(db_path)
         self._batch_size = batch_size
         self._registry: Optional[ColumnRegistryRepo] = None
@@ -137,7 +139,7 @@ class GraphStoreService:
         reader = G6Reader(source)
         parser = GraphParser(strict=False)
         computer = DefaultColumnComputer()
-        bs = batch_size or self._batch_size
+        bs = self._resolve_batch_size(batch_size)
 
         stats = IngestStats()
         batch: list[dict] = []
@@ -420,7 +422,7 @@ class GraphStoreService:
                 "store.update_column_populator(name, populator=fn)."
             )
 
-        bs = batch_size or self._batch_size
+        bs = self._resolve_batch_size(batch_size)
         stats = PopulateStats(column=column)
         iterator = (
             self._repo.iter_all() if all_rows else self._repo.iter_unpopulated(column)
@@ -695,6 +697,13 @@ class GraphStoreService:
             raise RuntimeError(
                 "GraphStoreService is not initialised. Call init() first."
             )
+
+    def _resolve_batch_size(self, batch_size: Optional[int]) -> int:
+        """Resolve and validate the effective batch size for an operation."""
+        bs = self._batch_size if batch_size is None else batch_size
+        if bs < 1:
+            raise ValueError("batch_size must be a positive integer")
+        return bs
 
     def _resolve_runtime_fetch_strategy(
         self,

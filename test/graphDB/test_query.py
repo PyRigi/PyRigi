@@ -31,7 +31,7 @@ class TestQueryBuilder:
         compiled = qb.compile()
         assert "WHERE" in compiled.sql
         assert "num_vertices = ?" in compiled.sql
-        assert compiled.params == [7]
+        assert compiled.params == (7,)
 
     def test_where_multiple_filters(self, registry):
         qb = QueryBuilder(registry).where(
@@ -44,7 +44,7 @@ class TestQueryBuilder:
         # num_vertices filter + min_rigidity expanded by custom strategy
         assert "num_vertices = ?" in compiled.sql
         assert "min_rigidity = ?" in compiled.sql
-        assert compiled.params == [7, 3, -3]
+        assert compiled.params == (7, 3, -3)
 
     def test_where_in_operator(self, registry):
         qb = QueryBuilder(registry).where(
@@ -52,7 +52,7 @@ class TestQueryBuilder:
         )
         compiled = qb.compile()
         assert "IN (?, ?, ?)" in compiled.sql
-        assert compiled.params == [5, 6, 7]
+        assert compiled.params == (5, 6, 7)
 
     def test_where_between_operator(self, registry):
         qb = QueryBuilder(registry).where(
@@ -60,7 +60,7 @@ class TestQueryBuilder:
         )
         compiled = qb.compile()
         assert "BETWEEN ? AND ?" in compiled.sql
-        assert compiled.params == [3, 10]
+        assert compiled.params == (3, 10)
 
     def test_where_expr_grouped_or_and(self, registry):
         expr = AndExpr(
@@ -82,7 +82,7 @@ class TestQueryBuilder:
         compiled = QueryBuilder(registry).where_expr(expr).compile()
         assert "(num_vertices = ? OR num_vertices = ?)" in compiled.sql
         assert "(num_edges >= ? OR num_edges IS NULL)" in compiled.sql
-        assert compiled.params == [5, 7, 5]
+        assert compiled.params == (5, 7, 5)
 
     def test_where_any_helper_composes_with_and(self, registry):
         compiled = (
@@ -104,7 +104,7 @@ class TestQueryBuilder:
         assert "(num_vertices = ? OR num_vertices = ?)" in compiled.sql
         assert "(num_edges = ? OR num_edges = ?)" in compiled.sql
         assert " AND " in compiled.sql
-        assert compiled.params == [5, 7, 4, 5]
+        assert compiled.params == (5, 7, 4, 5)
 
     def test_where_expr_not(self, registry):
         compiled = (
@@ -113,7 +113,7 @@ class TestQueryBuilder:
             .compile()
         )
         assert "WHERE (NOT num_vertices = ?)" in compiled.sql
-        assert compiled.params == [5]
+        assert compiled.params == (5,)
 
     def test_order_by_asc(self, registry):
         compiled = QueryBuilder(registry).order_by("num_vertices").compile()
@@ -165,7 +165,7 @@ class TestQueryBuilder:
     def test_filter_shorthand(self, registry):
         compiled = QueryBuilder(registry).filter("num_vertices", "=", 6).compile()
         assert "num_vertices = ?" in compiled.sql
-        assert compiled.params == [6]
+        assert compiled.params == (6,)
 
     # ------------------------------------------------------------------
     # compile_delete
@@ -247,14 +247,14 @@ class TestQueryBuilder:
     def test_compile_delete_no_filters(self, registry):
         compiled = QueryBuilder(registry).compile_delete()
         assert compiled.sql == "DELETE FROM graphs"
-        assert compiled.params == []
+        assert compiled.params == ()
 
     def test_compile_delete_with_filter(self, registry):
         compiled = (
             QueryBuilder(registry).filter("num_vertices", "=", 6).compile_delete()
         )
         assert compiled.sql == "DELETE FROM graphs WHERE num_vertices = ?"
-        assert compiled.params == [6]
+        assert compiled.params == (6,)
 
     def test_compile_delete_with_expr(self, registry):
         compiled = (
@@ -272,4 +272,4 @@ class TestQueryBuilder:
         assert "DELETE FROM graphs WHERE" in compiled.sql
         assert "num_vertices = ?" in compiled.sql
         assert "num_edges > ?" in compiled.sql
-        assert compiled.params == [5, 3]
+        assert compiled.params == (5, 3)

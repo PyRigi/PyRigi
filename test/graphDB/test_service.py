@@ -49,6 +49,34 @@ class TestInit:
         with pytest.raises(RuntimeError, match="init\\(\\)"):
             s.count()
 
+    def test_constructor_rejects_nonpositive_batch_size(self):
+        with pytest.raises(ValueError, match="batch_size must be a positive integer"):
+            GraphStoreService(":memory:", batch_size=0)
+
+    def test_ingest_rejects_nonpositive_batch_size(self, tmp_path):
+        g6_file = tmp_path / "test.g6"
+        g6 = (
+            nx.to_graph6_bytes(nx.complete_graph(3), header=False)
+            .strip()
+            .decode("ascii")
+        )
+        g6_file.write_text(g6 + "\n")
+        with GraphStoreService(":memory:").init() as s:
+            with pytest.raises(
+                ValueError, match="batch_size must be a positive integer"
+            ):
+                s.ingest(str(g6_file), batch_size=0)
+
+    def test_populate_rejects_nonpositive_batch_size(self):
+        with GraphStoreService(":memory:").init() as s:
+            s.add_column("c", "INTEGER")
+            with pytest.raises(
+                ValueError, match="batch_size must be a positive integer"
+            ):
+                s.populate_column(
+                    "c", populator=lambda _row: 1, batch_size=-1  # noqa: U101
+                )
+
 
 class TestIngest:
     def test_ingest_counts_parse_errors(self, store, tmp_path):

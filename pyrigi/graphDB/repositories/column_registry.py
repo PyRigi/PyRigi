@@ -105,12 +105,13 @@ class ColumnRegistryRepo:
             )
 
     def delete(self, name: str) -> None:
-        """Remove a custom column registration.
+        """Remove a custom column registration from ``column_registry``.
 
         .. note::
-            This does *not* drop the SQL column from ``graphs``; SQLite
-            does not support ``DROP COLUMN`` before version 3.35.  The
-            column will simply remain unpopulated.
+            This removes only the registry row.  Dropping the corresponding
+            SQL column from the ``graphs`` table is handled by the service
+            layer (:meth:`GraphStoreService.drop_column`), which calls
+            :meth:`DatabaseManager.drop_column` after this method.
         """
         with self._db.connection:
             self._db.execute(

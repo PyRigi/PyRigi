@@ -8,15 +8,13 @@ All SQL lives here.  No business logic.
 
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING, Any, Iterator
+
+from pyrigi.graphDB.constants.identifiers import IDENTIFIER_RE
 
 if TYPE_CHECKING:
     from pyrigi.graphDB.db import DatabaseManager
     from pyrigi.graphDB.query import CompiledQuery
-
-
-_IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 class GraphRepository:
@@ -200,7 +198,7 @@ class GraphRepository:
         return cur.fetchone()[0]
 
     def _assert_known_column(self, name: str) -> None:
-        if not _IDENTIFIER_RE.fullmatch(name):
+        if not IDENTIFIER_RE.fullmatch(name):
             raise ValueError(f"Invalid SQL identifier: {name!r}")
         if name not in self._existing_columns():
             raise KeyError(f"Unknown column: {name!r}")

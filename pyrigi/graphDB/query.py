@@ -35,7 +35,11 @@ class CompiledQuery:
     """
 
     sql: str
-    params: list[Any]
+    params: tuple[Any, ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.params, tuple):
+            object.__setattr__(self, "params", tuple(self.params))
 
 
 # ---------------------------------------------------------------------------
@@ -155,21 +159,10 @@ class QueryBuilder:
         """
         col_list = ", ".join(self._select)
         sql_parts = [f"SELECT {col_list} FROM graphs"]
-        params: list[Any] = []
 
-        if self._filters or self._exprs:
-            clauses = []
-            for f in self._filters:
-                fragment, fparams = self._compile_filter(f)
-                clauses.append(fragment)
-                params.extend(fparams)
-
-            for expr in self._exprs:
-                fragment, eparams = self._compile_expr(expr)
-                clauses.append(fragment)
-                params.extend(eparams)
-
-            sql_parts.append("WHERE " + " AND ".join(clauses))
+        where_sql, params = self._compile_where()
+        if where_sql:
+            sql_parts.append(where_sql)
 
         if self._order_col:
             direction = "ASC" if self._order_asc else "DESC"
@@ -194,23 +187,32 @@ class QueryBuilder:
             Immutable (sql, params) pair ready for the repository.
         """
         sql_parts = ["DELETE FROM graphs"]
-        params: list[Any] = []
 
-        if self._filters or self._exprs:
-            clauses = []
-            for f in self._filters:
-                fragment, fparams = self._compile_filter(f)
-                clauses.append(fragment)
-                params.extend(fparams)
-
-            for expr in self._exprs:
-                fragment, eparams = self._compile_expr(expr)
-                clauses.append(fragment)
-                params.extend(eparams)
-
-            sql_parts.append("WHERE " + " AND ".join(clauses))
+        where_sql, params = self._compile_where()
+        if where_sql:
+            sql_parts.append(where_sql)
 
         return CompiledQuery(sql=" ".join(sql_parts), params=params)
+
+    def _compile_where(self) -> tuple[str, list[Any]]:
+        """Compile the filters and expressions into a WHERE clause.
+
+        Returns an empty string and empty parameter list when no filters or
+        expressions are set, so callers can omit the clause entirely.
+        """
+        clauses: list[str] = []
+        params: list[Any] = []
+        for f in self._filters:
+            fragment, fparams = self._compile_filter(f)
+            clauses.append(fragment)
+            params.extend(fparams)
+        for expr in self._exprs:
+            fragment, eparams = self._compile_expr(expr)
+            clauses.append(fragment)
+            params.extend(eparams)
+        if not clauses:
+            return "", []
+        return "WHERE " + " AND ".join(clauses), params
 
     def _resolve_filter_strategy(
         self,
