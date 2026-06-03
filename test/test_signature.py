@@ -243,6 +243,7 @@ def _assert_same_sign(  # noqa: C901
                 )
 
 
+# _BadWrappers has correct signatures but bad forwarding
 @pytest.mark.parametrize(("cls"), [Graph, Framework, _BadWrappers])
 def test_signature_graph(cls: Type):
     """

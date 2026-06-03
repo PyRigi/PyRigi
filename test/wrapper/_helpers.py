@@ -1,10 +1,12 @@
 import inspect
 import sys
 from typing import Any, Callable, Type
+from unittest.mock import patch
 
 import networkx as nx
 
 from pyrigi import Framework
+from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
 
 from test.wrapper._proxies import _BadWrappersBase
@@ -36,58 +38,80 @@ def _find_patch_target(method: Callable, wrapped_func: Callable) -> tuple:
     return sys.modules[wrapped_func.__module__], wrapped_func.__name__
 
 
-def _assert_name_matches(cls: Type, attr_name: str, proxy_func_name: str) -> None:
-    assert attr_name == proxy_func_name, (
-        f"{cls.__name__}.{attr_name} is decorated with @copy_doc({proxy_func_name}) "
-        f"but the method name differs from the proxy function name"
-    )
+def _invoke_wrapper(
+    test_instance: Any,
+    attr_name: str,
+    method: Callable,
+    mock_args: dict,
+) -> tuple:
+    """
+    Patch the proxy for ``method``, call ``attr_name(**mock_args)`` on
+    ``test_instance``, and return ``(proxy_was_called, call_args, exception)``.
+
+    ``call_args`` persists after the patch context exits.
+    ``exception`` is the first exception raised during the call or generator
+    consumption, or ``None`` if everything ran cleanly.
+    """
+    patch_module, patch_name = _find_patch_target(method, method._wrapped_func)
+    with patch.object(patch_module, patch_name) as mock_func:
+        exc = None
+        result = None
+        try:
+            result = getattr(test_instance, attr_name)(**mock_args)
+        except Exception as e:
+            exc = e
+
+        if exc is None and inspect.isgeneratorfunction(method):
+            try:
+                list(result)
+            except Exception as e:
+                exc = e
+
+        return mock_func.called, mock_func.call_args, exc
 
 
-def _assert_params_forwarded(
+def _check_name_matches(
+    cls: Type, attr_name: str, proxy_func_name: str
+) -> tuple[bool, str]:
+    """Return ``(True, "")`` if the method name matches the proxy function name."""
+    if attr_name != proxy_func_name:
+        return False, (
+            f"{cls.__name__}.{attr_name} is decorated with @copy_doc({proxy_func_name}) "
+            f"but the method name differs from the proxy function name"
+        )
+    return True, ""
+
+
+def _check_first_arg(cls: Type, attr_name: str, call_args: Any) -> tuple[bool, str]:
+    """Check that the first positional argument to the proxy is the correct instance."""
+    first_arg = call_args[0][0]
+    if cls == _BadWrappers:
+        expected_type, label = _BadWrappersBase, "_BadWrappers"
+    elif cls == Graph:
+        expected_type, label = nx.Graph, "Graph"
+    elif cls == Framework:
+        expected_type, label = FrameworkBase, "Framework"
+    else:
+        raise NotImplementedError(f"_check_first_arg: unsupported class {cls.__name__}")
+    if not isinstance(first_arg, expected_type):
+        return False, (
+            f"{cls.__name__}.{attr_name} didn't pass the {label} instance as first arg."
+        )
+    return True, ""
+
+
+def _check_param_values(
     cls: Type,
     attr_name: str,
     proxy_param_names: list,
     mock_args: dict,
-    mock_func: Any,
-) -> None:
+    call_args: Any,
+) -> tuple[bool, str]:
+    """Check that every entry in mock_args was forwarded with the same value.
+
+    Falls back to positional lookup for wrappers that forward some args
+    positionally (e.g. ``rescale``, ``is_critically_k_edge_apex``).
     """
-    Assert correct parameter forwarding in both directions:
-
-    1. The instance is passed as the first positional argument.
-    2. Every entry in ``mock_args`` arrives at the proxy with the same value
-       (checks both keyword and positional forwarding).
-    3. No unexpected arguments arrive at the proxy beyond what ``mock_args``
-       sent (reverse check).
-
-    ``proxy_param_names`` is the ordered list of the proxy's parameter names
-    (including the first graph/framework parameter) and is used to resolve
-    arguments that were forwarded positionally rather than by keyword.
-    """
-    call_args = mock_func.call_args
-
-    # First positional arg must be the instance itself
-    first_arg = call_args[0][0]
-    if cls == _BadWrappers:
-        assert isinstance(first_arg, _BadWrappersBase), (
-            f"{cls.__name__}.{attr_name} didn't pass "
-            f"the _BadWrappers instance as first arg."
-        )
-    elif cls == Graph:
-        assert isinstance(
-            first_arg, nx.Graph
-        ), f"{cls.__name__}.{attr_name} didn't pass the Graph instance as first arg."
-    elif cls == Framework:
-        assert isinstance(
-            first_arg, Framework
-        ), f"{cls.__name__}.{attr_name} didn't pass the Framework instance as first arg."
-    else:
-        raise NotImplementedError(
-            f"_assert_params_forwarded: unsupported class {cls.__name__}"
-        )
-
-    # Every other parameter must be forwarded with the same value.
-    # Some wrappers forward args positionally (e.g. rescale, is_critically_k_edge_apex),
-    # so fall back to positional lookup when a key is absent from call_args.kwargs.
     for param_name, expected_value in mock_args.items():
         actual_value = call_args.kwargs.get(param_name, _MISSING)
         if actual_value is _MISSING and len(call_args[0]) > 1:
@@ -98,26 +122,72 @@ def _assert_params_forwarded(
             except ValueError:
                 pass
 
-        assert actual_value == expected_value, (
-            f"{cls.__name__}.{attr_name} didn't forward '{param_name}' correctly. "
-            f"Expected {expected_value}, got {actual_value}"
-        )
+        if actual_value != expected_value:
+            return False, (
+                f"{cls.__name__}.{attr_name} didn't forward '{param_name}' "
+                f"correctly. Expected {expected_value}, got {actual_value}"
+            )
+    return True, ""
 
-    # Reverse check: no unexpected arguments must arrive at the proxy.
+
+def _check_no_extra_args(
+    cls: Type,
+    attr_name: str,
+    proxy_param_names: list,
+    mock_args: dict,
+    call_args: Any,
+) -> tuple[bool, str]:
+    """Check that no unexpected arguments arrived at the proxy (reverse check)."""
     forwarded_names: set[str] = set(call_args.kwargs.keys())
-    for i, _ in enumerate(call_args[0][1:], start=1):
+    for i in range(1, len(call_args[0])):
         if i < len(proxy_param_names):
             forwarded_names.add(proxy_param_names[i])
 
-    # Extra positionals beyond the proxy's named params are always unexpected.
     extra_positional_count = max(0, len(call_args[0]) - len(proxy_param_names))
-    assert extra_positional_count == 0, (
-        f"{cls.__name__}.{attr_name} forwarded {extra_positional_count} unexpected "
-        f"positional argument(s) to the proxy"
-    )
+    if extra_positional_count > 0:
+        return False, (
+            f"{cls.__name__}.{attr_name} forwarded {extra_positional_count} "
+            f"unexpected positional argument(s) to the proxy"
+        )
 
     unexpected = forwarded_names - set(mock_args.keys())
-    assert not unexpected, (
-        f"{cls.__name__}.{attr_name} forwarded unexpected argument(s) to the proxy: "
-        f"{unexpected}"
+    if unexpected:
+        return False, (
+            f"{cls.__name__}.{attr_name} forwarded unexpected argument(s) "
+            f"to the proxy: {unexpected}"
+        )
+    return True, ""
+
+
+def _check_params_forwarded(
+    cls: Type,
+    attr_name: str,
+    proxy_param_names: list,
+    mock_args: dict,
+    call_args: Any,
+) -> tuple[bool, str]:
+    """
+    Check correct parameter forwarding in both directions.
+
+    1. The instance is passed as the first positional argument.
+    2. Every entry in ``mock_args`` arrives at the proxy with the same value
+       (checks both keyword and positional forwarding).
+    3. No unexpected arguments arrive at the proxy beyond what ``mock_args``
+       sent (reverse check).
+
+    ``proxy_param_names`` is the ordered list of the proxy's parameter names
+    (including the first graph/framework parameter) and is used to resolve
+    arguments that were forwarded positionally rather than by keyword.
+
+    Returns ``(True, "")`` on success or ``(False, message)`` on the first
+    failed check.
+    """
+    ok, msg = _check_first_arg(cls, attr_name, call_args)
+    if not ok:
+        return False, msg
+    ok, msg = _check_param_values(
+        cls, attr_name, proxy_param_names, mock_args, call_args
     )
+    if not ok:
+        return False, msg
+    return _check_no_extra_args(cls, attr_name, proxy_param_names, mock_args, call_args)

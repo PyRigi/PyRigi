@@ -1,15 +1,15 @@
 import inspect
 
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from pyrigi import Framework
 from pyrigi.graph import Graph
 
 from test.wrapper._helpers import (
-    _assert_name_matches,
-    _assert_params_forwarded,
-    _find_patch_target,
+    _check_name_matches,
+    _check_params_forwarded,
+    _invoke_wrapper,
 )
 from test.wrapper._wrappers import _BadWrappers
 
@@ -60,28 +60,26 @@ def test_wrapper_parameter_forwarding(cls, test_instance):
         proxy_param_names = list(sig.parameters.keys())
         mock_args = _build_mock_args(sig)
 
-        patch_module, patch_name = _find_patch_target(method, wrapped_func)
+        called, call_args, exc = _invoke_wrapper(
+            test_instance, attr_name, method, mock_args
+        )
 
-        with patch.object(patch_module, patch_name) as mock_func:
-            try:
-                result = getattr(test_instance, attr_name)(**mock_args)
-            except Exception as e:
-                pytest.fail(
-                    f"{cls.__name__}.{attr_name} raised an unexpected exception "
-                    f"while forwarding parameters — the wrapper may be modifying "
-                    f"an argument before passing it: {type(e).__name__}: {e}"
-                )
-
-            if inspect.isgeneratorfunction(method):
-                list(result)
-
-            assert (
-                mock_func.called
-            ), f"{cls.__name__}.{attr_name} didn't call {wrapped_func.__name__}"
-            _assert_name_matches(cls, attr_name, wrapped_func.__name__)
-            _assert_params_forwarded(
-                cls, attr_name, proxy_param_names, mock_args, mock_func
+        if exc is not None:
+            pytest.fail(
+                f"{cls.__name__}.{attr_name} raised an unexpected exception "
+                f"while forwarding parameters — the wrapper may be modifying "
+                f"an argument before passing it: {type(exc).__name__}: {exc}"
             )
+
+        assert called, f"{cls.__name__}.{attr_name} didn't call {wrapped_func.__name__}"
+
+        name_ok, name_msg = _check_name_matches(cls, attr_name, wrapped_func.__name__)
+        assert name_ok, name_msg
+
+        params_ok, params_msg = _check_params_forwarded(
+            cls, attr_name, proxy_param_names, mock_args, call_args
+        )
+        assert params_ok, params_msg
 
         any_checked = True
 
@@ -106,12 +104,12 @@ def test_wrapper_parameter_forwarding(cls, test_instance):
 def test_bad_wrapper_detected(attr_name, proxy_reaches_mock):
     """
     Test that each known forwarding mistake in _BadWrappers is caught
-    by the assertion helpers.
+    by the check helpers.
 
     ``proxy_reaches_mock`` documents whether the proxy mock is expected to be
     called at all. When False, the bad behaviour manifests before the proxy is
     reached (exception or wrong function called); when True, the proxy is called
-    but the assertion helpers catch the forwarding mistake.
+    but the check helpers catch the forwarding mistake.
     """
     test_instance = _BadWrappers()
     method = getattr(_BadWrappers, attr_name)
@@ -121,29 +119,19 @@ def test_bad_wrapper_detected(attr_name, proxy_reaches_mock):
     proxy_param_names = list(sig.parameters.keys())
     mock_args = _build_mock_args(sig)
 
-    patch_module, patch_name = _find_patch_target(method, wrapped_func)
+    called, call_args, _ = _invoke_wrapper(test_instance, attr_name, method, mock_args)
 
-    with patch.object(patch_module, patch_name) as mock_func:
-        result = None
-        try:
-            result = getattr(test_instance, attr_name)(**mock_args)
-        except Exception:
-            pass
+    assert called == proxy_reaches_mock, (
+        f"_BadWrappers.{attr_name}: expected proxy "
+        f"{'to be' if proxy_reaches_mock else 'not to be'} called"
+    )
 
-        if inspect.isgeneratorfunction(method):
-            try:
-                list(result)
-            except Exception:
-                pass
-
-        assert mock_func.called == proxy_reaches_mock, (
-            f"_BadWrappers.{attr_name}: expected proxy "
-            f"{'to be' if proxy_reaches_mock else 'not to be'} called"
+    if proxy_reaches_mock:
+        name_ok, _ = _check_name_matches(_BadWrappers, attr_name, wrapped_func.__name__)
+        params_ok, _ = _check_params_forwarded(
+            _BadWrappers, attr_name, proxy_param_names, mock_args, call_args
         )
-
-        if proxy_reaches_mock:
-            with pytest.raises(AssertionError):
-                _assert_name_matches(_BadWrappers, attr_name, wrapped_func.__name__)
-                _assert_params_forwarded(
-                    _BadWrappers, attr_name, proxy_param_names, mock_args, mock_func
-                )
+        assert not (name_ok and params_ok), (
+            f"_BadWrappers.{attr_name}: bad wrapper was not detected "
+            f"by the check helpers"
+        )
