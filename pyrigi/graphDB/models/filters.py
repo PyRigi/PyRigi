@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.models.filters
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :class:`QueryFilter` — a single WHERE-clause predicate.
 """
 

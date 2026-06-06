@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.db
-~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 Database tier: manages the SQLite connection and schema lifecycle.
 
 Responsibilities
@@ -43,6 +43,10 @@ class DatabaseManager:
 
     @property
     def connection(self) -> sqlite3.Connection:
+        """The active sqlite3 connection.
+
+        Raises :class:`RuntimeError` if :meth:`connect` has not been called.
+        """
         if self._conn is None:
             raise RuntimeError(
                 "DatabaseManager is not connected. Call connect() first."
@@ -169,4 +173,5 @@ class DatabaseManager:
         return self.connection.execute(sql, params)
 
     def executemany(self, sql: str, params_seq) -> sqlite3.Cursor:
+        """Run *sql* once per parameter set and return the cursor."""
         return self.connection.executemany(sql, params_seq)

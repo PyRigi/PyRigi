@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.service
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 User-facing facade: :class:`GraphStoreService`.
 
 Typical usage::
@@ -67,6 +67,13 @@ class GraphStoreService:
         Use ``":memory:"`` for an in-memory database (useful for testing).
     batch_size:
         Default batch size for ingestion inserts.
+
+    Notes
+    -----
+    Every method other than :meth:`init` requires the store to be
+    initialised.  Calling any other method before :meth:`init` (for example
+    when the service is constructed directly rather than through the context
+    manager) raises :class:`RuntimeError`.
     """
 
     def __init__(
@@ -100,6 +107,7 @@ class GraphStoreService:
         return self
 
     def close(self) -> None:
+        """Close the database connection."""
         self._db.close()
 
     def __enter__(self) -> "GraphStoreService":
@@ -132,7 +140,7 @@ class GraphStoreService:
 
         Returns
         -------
-        IngestStats:
+        IngestStats
             Summary of inserted, skipped, and errored rows.
         """
         self._require_init()
@@ -211,15 +219,20 @@ class GraphStoreService:
             Runtime callable ``(col, op, val) -> (sql, params)``.
         fetch_ref:
             Importable path for the fetch strategy.  Persisted in DB.
+        valid_operators:
+            Restrict which query operators this column accepts.  When set,
+            a query that filters on this column with an operator outside
+            the set raises :class:`ValueError`.  ``None`` (default) accepts
+            every globally valid operator.
 
         Returns
         -------
-        ColumnDef:
+        ColumnDef
             The registered column definition.
 
         Raises
         ------
-        ValueError:
+        ValueError
             If *name* conflicts with an existing default column name.
         """
         self._require_init()
@@ -303,9 +316,9 @@ class GraphStoreService:
 
         Raises
         ------
-        ValueError:
+        ValueError
             If *name* is a built-in default column.
-        KeyError:
+        KeyError
             If *name* is not registered.
         """
         self._require_init()
@@ -395,14 +408,14 @@ class GraphStoreService:
 
         Returns
         -------
-        PopulateStats:
+        PopulateStats
             Summary of processed rows and any errors.
 
         Raises
         ------
-        KeyError:
+        KeyError
             If *column* is not registered.
-        RuntimeError:
+        RuntimeError
             If no populator is available for *column*.
         """
         self._require_init()
@@ -471,7 +484,7 @@ class GraphStoreService:
 
         Returns
         -------
-        bool:
+        bool
             ``True`` if the graph was found and deleted, ``False`` otherwise.
         """
         self._require_init()
@@ -494,7 +507,7 @@ class GraphStoreService:
 
         Returns
         -------
-        int:
+        int
             Number of rows deleted.
         """
         self._require_init()
@@ -568,7 +581,7 @@ class GraphStoreService:
 
         Returns
         -------
-        list[Any]:
+        list[Any]
             Materialized query results.
         """
         return list(

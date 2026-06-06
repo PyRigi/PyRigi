@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.ingestion.reader
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :class:`G6Reader` — iterates over graph6 strings from files or directories.
 """
 

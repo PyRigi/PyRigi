@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.repositories.graph_repo
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 CRUD and query operations for the ``graphs`` table.
 
 All SQL lives here.  No business logic.
@@ -156,7 +156,7 @@ class GraphRepository:
 
         Returns
         -------
-        bool:
+        bool
             ``True`` if a row was deleted, ``False`` if it was not found.
         """
         with self._db.connection:
@@ -174,7 +174,7 @@ class GraphRepository:
 
         Returns
         -------
-        int:
+        int
             Number of rows deleted.
         """
         with self._db.connection:

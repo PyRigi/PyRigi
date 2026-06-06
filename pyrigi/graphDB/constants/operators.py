@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.constants.operators
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SQL operator whitelist used by :class:`~pyrigi.graphDB.models.filters.QueryFilter`.
 """
 

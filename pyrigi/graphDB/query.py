@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.query
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 Fluent ``QueryBuilder`` and the ``CompiledQuery`` it produces.
 
 The builder never touches the database itself; it only assembles SQL
@@ -154,7 +154,7 @@ class QueryBuilder:
 
         Returns
         -------
-        CompiledQuery:
+        CompiledQuery
             Immutable (sql, params) pair ready for the repository.
         """
         col_list = ", ".join(self._select)
@@ -183,7 +183,7 @@ class QueryBuilder:
 
         Returns
         -------
-        CompiledQuery:
+        CompiledQuery
             Immutable (sql, params) pair ready for the repository.
         """
         sql_parts = ["DELETE FROM graphs"]

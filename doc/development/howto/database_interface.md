@@ -7,8 +7,8 @@ for offline, exploratory analysis of property distributions across large graph
 collections, where recomputing properties on every run would be impractical. Properties
 computed in one session are persisted and available in all later sessions.
 
-Callers interact only with the `GraphStoreService` class. The mathematical encoding of
-the rigidity columns is described under
+Callers interact only with the {class}`~pyrigi.graphDB.service.GraphStoreService` class.
+The mathematical encoding of the rigidity columns is described under
 [Rigidity column encoding](#rigidity-column-encoding).
 
 The typical workflow is: open a store, ingest graphs, populate computed columns, query.
@@ -66,8 +66,8 @@ lines beginning with `>>` are ignored and gzip is handled transparently.
 - The four structural columns are computed during ingestion; the rigidity columns are
   left empty for on-demand population.
 
-`ingest` returns an `IngestStats` with fields `inserted`, `skipped`, `errors`,
-`files_processed`.
+`ingest` returns an {class}`~pyrigi.graphDB.models.stats.IngestStats` with fields
+`inserted`, `skipped`, `errors`, `files_processed`.
 
 ## The default schema
 
@@ -111,11 +111,13 @@ cached at registration, then the column's importable reference. No populator rai
 
 A failure on one row is logged at `ERROR` level (with the offending graph6 string) and
 skipped, so one bad graph does not abort the run. Configure a logging handler to observe
-these. Returns a `PopulateStats` with fields `column`, `processed`, `errors`.
+these. Returns a {class}`~pyrigi.graphDB.models.stats.PopulateStats` with fields
+`column`, `processed`, `errors`.
 
 ## Querying
 
-A single predicate is a `QueryFilter(column, operator, value)`. The operator is
+A single predicate is a {class}`~pyrigi.graphDB.models.filters.QueryFilter`, written
+`QueryFilter(column, operator, value)`. The operator is
 normalised to upper case and validated against eleven operators:
 
 ```
@@ -185,14 +187,18 @@ expr = all_of(
 rows = store.fetch(select=["graph"], expr=expr)
 ```
 
-The helpers are shorthand for the node classes `AndExpr`, `OrExpr`, and `NotExpr`: for
+The helpers are shorthand for the node classes
+{class}`~pyrigi.graphDB.models.expressions.AndExpr`,
+{class}`~pyrigi.graphDB.models.expressions.OrExpr`, and
+{class}`~pyrigi.graphDB.models.expressions.NotExpr`: for
 example `all_of(a, b)` is exactly `AndExpr([a, b])`. The classes accept a list, the
 helpers accept positional arguments; use whichever reads better. `AndExpr` and `OrExpr`
 require at least one child, otherwise they raise `ValueError`.
 
 ### The fluent builder
 
-`store.query()` returns a `QueryBuilder` whose methods chain; `fetch` runs the query:
+`store.query()` returns a {class}`~pyrigi.graphDB.query.QueryBuilder` whose methods chain;
+`fetch` runs the query:
 
 ```python
 rows = (
@@ -221,8 +227,9 @@ with `AND`. `where_any` is a convenience for the common case of OR-ing a few fil
 `where(filters)` and `where_expr(expr)` correspond to the `filters` and `expr` parameters
 of `fetch`.
 
-`compile()` returns an immutable `CompiledQuery` (SQL string plus bound parameters) that
-can be inspected before execution, which is useful for debugging and tests.
+`compile()` returns an immutable {class}`~pyrigi.graphDB.query.CompiledQuery` (SQL string
+plus bound parameters) that can be inspected before execution, which is useful for
+debugging and tests.
 
 ### Mapping and streaming
 
@@ -354,7 +361,7 @@ references and are always available.
 | `count()`                    | Total number of graphs.                                              |
 | `count_unpopulated(column)`  | Number of rows where `column` is `NULL`.                             |
 | `info()`                     | Dict with `total_graphs` and `columns` (`name`, `type`, `default`, `description`, `has_populator`). |
-| `list_columns()`             | `ColumnDef` objects for all columns.                                 |
+| `list_columns()`             | {class}`~pyrigi.graphDB.models.column_def.ColumnDef` objects for all columns. |
 | `get_column(name)`           | `ColumnDef` for one column, or `None`.                               |
 
 ## Displaying results
@@ -393,4 +400,4 @@ through `fetch_ref`.
 
 **See also**
 
-- {doc}`/userguide/api/graphDB` for the auto-generated API reference.
+- {doc}`/userguide/api/graph_store` for the auto-generated API reference.

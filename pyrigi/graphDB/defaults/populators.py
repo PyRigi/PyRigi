@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.defaults.populators
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Populator functions for the built-in
 :class:`~pyrigi.graphDB.models.column_def.ColumnDef` objects.
 

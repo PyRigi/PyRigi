@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.models.expressions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Boolean expression nodes for grouped query predicates.
 
 These are composed from :class:`~pyrigi.graphDB.models.filters.QueryFilter`

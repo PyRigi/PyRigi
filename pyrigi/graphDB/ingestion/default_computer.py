@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.ingestion.default_computer
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :class:`DefaultColumnComputer` — computes the always-populated default
 columns in a single pass over a decoded networkx Graph.
 """
@@ -32,6 +32,14 @@ class DefaultColumnComputer:
             The raw graph6 string (stored verbatim).
         graph:
             The decoded networkx Graph.
+
+        Returns
+        -------
+        dict
+            A mapping with the keys ``graph`` (the graph6 string),
+            ``num_vertices``, ``num_edges``, ``min_degree``, and
+            ``max_degree``, that is, one entry per always-populated
+            default column.
         """
         degrees = [d for _, d in graph.degree()]
         return {

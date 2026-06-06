@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.ingestion.parser
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :class:`GraphParser` — decodes graph6 strings into networkx Graph objects.
 """
 

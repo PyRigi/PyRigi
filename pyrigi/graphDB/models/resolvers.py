@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.models.resolvers
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Private helpers for resolving importable callable references and
 providing the default SQL fetch strategy.
 """

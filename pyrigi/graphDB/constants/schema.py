@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.constants.schema
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 DDL strings for the core ``graphs`` and ``column_registry`` tables.
 Centralised here so that ``db.py`` stays free of inline SQL literals.
 """

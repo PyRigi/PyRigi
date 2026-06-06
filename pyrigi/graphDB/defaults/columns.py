@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.defaults.columns
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Declaration of the built-in :class:`~pyrigi.graphDB.models.ColumnDef`
 objects.
 

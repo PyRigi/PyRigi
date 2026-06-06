@@ -1,6 +1,6 @@
 """
 pyrigi.graphDB.repositories.column_registry
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 CRUD operations for the ``column_registry`` table.
 
 This repository is the single source of truth for which columns exist,
