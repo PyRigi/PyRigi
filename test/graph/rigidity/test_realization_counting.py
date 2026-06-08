@@ -375,6 +375,24 @@ def test_number_of_realizations_method_error(graph, dim):
 
 
 @pytest.mark.parametrize(
+    "graph, spherical",
+    [
+        [
+            Graph.from_int(
+                6150858705727482471019974709635959982168934430285755028263275095240828515064317915561691490273212836847545209791495302665006341793976509940790263469976141825536
+            ),
+            False,
+        ],
+        [Graph.from_int(4430181106770348766766771073215415674403291170816), True],
+    ],
+)
+@pytest.mark.realization_counting
+def test_number_of_realizations_lnumber_error(graph, spherical):
+    with pytest.raises(ValueError):
+        graph.number_of_realizations(algorithm="lnumber", spherical=spherical)
+
+
+@pytest.mark.parametrize(
     "biedges, select, result",
     [
         [
