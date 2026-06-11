@@ -5,6 +5,8 @@ It includes an algorithm for a stable separating set search in a 2-flexible grap
 according to Algorithm 1 in :cite:p:`ClinchGaramvölgyiEtAl2024`.
 """
 
+from __future__ import annotations
+
 from typing import (
     Any,
     Callable,

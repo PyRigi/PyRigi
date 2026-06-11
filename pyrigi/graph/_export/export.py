@@ -243,7 +243,7 @@ def layout(graph: nx.Graph, layout_type: str = "spring") -> dict[Vertex, Point]:
     """
     Generate a placement of the vertices.
 
-    This method is a wrapper for the functions
+    This function is a wrapper for the functions
     :func:`~networkx.drawing.layout.spring_layout`,
     :func:`~networkx.drawing.layout.random_layout`,
     :func:`~networkx.drawing.layout.circular_layout`
