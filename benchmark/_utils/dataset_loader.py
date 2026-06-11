@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 
 def get_dataset_files(directory: str) -> List[str]:
@@ -19,7 +19,7 @@ def get_dataset_files(directory: str) -> List[str]:
 def load_graph_infos(
     dataset_paths: List[str],
     func_name: str,
-    limit_per_file: int = 10,
+    limit_per_file: Optional[int] = None,
 ) -> List[dict]:
     """
     Read all .g6 files and return a flat list of graph_info dicts.
@@ -30,7 +30,7 @@ def load_graph_infos(
     Args:
         dataset_paths: Absolute paths to .g6 dataset files.
         func_name: Name of the benchmark function (stored in each dict).
-        limit_per_file: Max number of graphs to load per file.
+        limit_per_file: Max number of graphs to load per file. None loads all.
 
     Returns:
         Flat list of graph_info dicts.

@@ -90,6 +90,17 @@ def _exit_with_error(prefix: str, error: Exception) -> None:
     sys.exit(1)
 
 
+def _load_early_stop_state(path: str) -> dict:
+    """Load the persisted early-stop stopped dict, or return empty dict."""
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
 def _load_function_and_hash(config: RunConfig):
     print(f"Loading function from {config.target}...")
     try:
@@ -202,7 +213,13 @@ def _generate_test_file(
         _exit_with_error("Error generating test file", e)
 
 
-def _generate_conftest(config: RunConfig, conftest_file: str, nodes_total: int) -> None:
+def _generate_conftest(
+    config: RunConfig,
+    conftest_file: str,
+    nodes_total: int,
+    initial_stopped: dict = None,
+    early_stop_state_file: str = "",
+) -> None:
     print("Generating conftest.py (data-strip hook + timeout support)...")
     try:
         test_generator_mult.generate_conftest_file(
@@ -210,6 +227,8 @@ def _generate_conftest(config: RunConfig, conftest_file: str, nodes_total: int) 
             timeout_seconds=config.timeout,
             timeout_threshold=config.timeout_threshold,
             nodes_total=nodes_total,
+            initial_stopped=initial_stopped,
+            early_stop_state_file=early_stop_state_file,
         )
         print(f"conftest.py generated at {conftest_file}")
     except Exception as e:
@@ -266,6 +285,7 @@ def _run_and_persist_results(
     existing_results: dict,
     func_name: str,
     source_hash: str,
+    early_stop_state_file: str = "",
 ) -> None:
     print("Running benchmarks...")
     try:
@@ -287,7 +307,12 @@ def _run_and_persist_results(
                 temp_results_file, func_name, config.target, source_hash
             )
             _merge_and_write_results(config, existing_results, new_results, func_name)
-            checkpoint.clear(checkpoint_file)
+            # Persist timeout markers (pytest-benchmark omits skipped tests).
+            checkpoint.drain_into_results(
+                checkpoint_file, config.output, only_timeouts=True
+            )
+            if os.path.exists(early_stop_state_file):
+                os.remove(early_stop_state_file)
         else:
             print("Warning: No results generated (maybe no tests were run?)")
 
@@ -317,11 +342,37 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
     _validate_function_parameters(func, graph_param_name, configs)
 
     checkpoint_file = str(BENCHMARK_DIR / "benchmark_checkpoint.jsonl")
+    early_stop_state_file = str(BENCHMARK_DIR / "early_stop_state.json")
+    # On force-rerun, discard prior early-stop state so the run starts fresh.
+    if config.force_rerun and os.path.exists(early_stop_state_file):
+        os.remove(early_stop_state_file)
+    initial_stopped = (
+        {} if config.force_rerun else _load_early_stop_state(early_stop_state_file)
+    )
+    if initial_stopped:
+        print(f"Loaded early-stop state: {initial_stopped}")
+
     _recover_checkpoint_if_present(checkpoint_file, config.output)
 
     existing_results, configs_to_run, explicit_tasks = _prepare_run_scope(
         config, func.__name__, dataset_paths, configs
     )
+
+    if explicit_tasks and initial_stopped:
+        before = len(explicit_tasks)
+        explicit_tasks = [
+            (cfg, gi)
+            for cfg, gi in explicit_tasks
+            if not (
+                str(dict(sorted(cfg.items()))) in initial_stopped
+                and gi["num_nodes"] >= initial_stopped[str(dict(sorted(cfg.items())))]
+            )
+        ]
+        skipped = before - len(explicit_tasks)
+        if skipped:
+            print(
+                f"Skipping {skipped} combinations (early-stop state from previous run)."
+            )
 
     test_file = str(BENCHMARK_DIR / "temp_benchmark_test.py")
     temp_results_file = str(BENCHMARK_DIR / "temp_benchmark_results.json")
@@ -340,7 +391,9 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
     )
     print(f"Test file generated at {test_file}")
 
-    _generate_conftest(config, conftest_file, nodes_total)
+    _generate_conftest(
+        config, conftest_file, nodes_total, initial_stopped, early_stop_state_file
+    )
 
     _run_and_persist_results(
         config,
@@ -352,11 +405,23 @@ def run_benchmark_pipeline(config: RunConfig) -> None:
         existing_results,
         func.__name__,
         source_hash,
+        early_stop_state_file=early_stop_state_file,
     )
 
 
+def _aggregate_timeouts(timed_out: list) -> dict:
+    """Aggregate structured timeout records into {config_key: {num_nodes: count}}."""
+    by_config: dict = {}
+    for rec in timed_out:
+        cfg = rec["config"]
+        n = str(rec["num_nodes"])
+        by_config.setdefault(cfg, {})
+        by_config[cfg][n] = by_config[cfg].get(n, 0) + 1
+    return by_config
+
+
 def _process_timeout_log(timeout_log_file: str, config: RunConfig) -> None:
-    """Read the timeout log, print a summary, and save timeout_results.json."""
+    """Read the timeout log, print a compact summary, and save timeout_results.json."""
     if not os.path.exists(timeout_log_file):
         return
 
@@ -371,58 +436,60 @@ def _process_timeout_log(timeout_log_file: str, config: RunConfig) -> None:
         print("No test cases timed out or stopped early.")
         return
 
+    by_config = _aggregate_timeouts(timed_out)
+
+    # Compact console summary: counts per (config, num_nodes), not per test.
     print(f"\n{'=' * 60}")
     print(
         f"TIMEOUT SUMMARY: {len(timed_out)} test(s) timed out (limit: {timeout_seconds}s)"
     )
-    if early_stops:
-        print(f"EARLY STOPS: {len(early_stops)} config(s) hit timeout threshold")
-    print(f"{'=' * 60}")
-    for nodeid in timed_out:
-        print(f"  - {nodeid}")
-    for stop in early_stops:
-        print(
-            f"  - Config {stop['config']} stopped at n={stop['stopped_at_num_nodes']} "
-            f"({stop['timeout_count']}/{stop['total_count']} timeouts)"
+    for cfg in sorted(by_config):
+        counts = by_config[cfg]
+        detail = ",  ".join(
+            f"n={n} -> {counts[n]}"
+            for n in sorted(counts, key=lambda x: int(x) if x.isdigit() else 1 << 30)
         )
+        print(f"  {cfg}:  {detail}")
+    if early_stops:
+        print("EARLY STOPS:")
+        for stop in early_stops:
+            print(
+                f"  - {stop['config']} stopped at n={stop['stopped_at_num_nodes']} "
+                f"({stop['timeout_count']}/{stop['total_count']} = "
+                f"{stop['ratio'] * 100:.1f}%)"
+            )
     print(f"{'=' * 60}\n")
 
-    # Save to a separate timeout_results.json
+    # Persist a bounded per-run summary (not a per-test list).
     output_dir = Path(config.output).parent
     timeout_results_path = str(output_dir / "timeout_results.json")
 
-    # Load existing timeout results
-    existing_timeouts = []
+    existing_runs = []
     existing_early_stops = []
     if os.path.exists(timeout_results_path):
         with open(timeout_results_path, "r") as f:
             existing_data = json.load(f)
-        existing_timeouts = existing_data.get("timeouts", [])
+        existing_runs = existing_data.get("runs", [])
         existing_early_stops = existing_data.get("early_stops", [])
 
     timestamp = datetime.datetime.now().isoformat()
-    new_entries = [
-        {
-            "nodeid": nodeid,
-            "function": config.target.split(":")[-1],
-            "timeout_seconds": timeout_seconds,
-            "timestamp": timestamp,
-        }
-        for nodeid in timed_out
-    ]
-
+    func_name = config.target.split(":")[-1]
+    run_summary = {
+        "timestamp": timestamp,
+        "function": func_name,
+        "timeout_seconds": timeout_seconds,
+        "total": len(timed_out),
+        "by_config": by_config,
+    }
     for stop in early_stops:
-        stop["function"] = config.target.split(":")[-1]
+        stop["function"] = func_name
         stop["timestamp"] = timestamp
-
-    all_timeouts = existing_timeouts + new_entries
-    all_early_stops = existing_early_stops + early_stops
 
     with open(timeout_results_path, "w") as f:
         json.dump(
             {
-                "timeouts": all_timeouts,
-                "early_stops": all_early_stops,
+                "runs": existing_runs + [run_summary],
+                "early_stops": existing_early_stops + early_stops,
             },
             f,
             indent=2,

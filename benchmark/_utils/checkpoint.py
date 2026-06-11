@@ -31,7 +31,9 @@ def write_entry(checkpoint_path: str, entry: Dict[str, Any]) -> None:
         f.write(json.dumps(entry) + "\n")
 
 
-def drain_into_results(checkpoint_path: str, results_path: str) -> int:
+def drain_into_results(
+    checkpoint_path: str, results_path: str, only_timeouts: bool = False
+) -> int:
     """
     Merge checkpoint into results_path, then delete the checkpoint.
 
@@ -39,6 +41,10 @@ def drain_into_results(checkpoint_path: str, results_path: str) -> int:
     Malformed lines (partial crash writes) are silently skipped.
     Deduplicates via compute_benchmark_key — no entry is written twice.
     Write is atomic: results go to <results_path>.tmp, then os.replace().
+
+    Args:
+        only_timeouts: If True, merge only timeout markers and skip completed
+            entries (which already come from pytest-benchmark's JSON on a clean run).
 
     Returns number of new entries added.
     """
@@ -81,6 +87,8 @@ def drain_into_results(checkpoint_path: str, results_path: str) -> int:
     count_added = 0
 
     for entry in entries:
+        if only_timeouts and not entry.get("timed_out"):
+            continue  # clean-run drain: completed entries are already in results
         params = entry.get("params", {})
         config = params.get("config", {})
         graph_info = params.get("graph_info", {})

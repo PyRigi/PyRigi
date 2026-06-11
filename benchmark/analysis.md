@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.17.1
+    jupytext_version: 1.19.1
 kernelspec:
   display_name: pyrigi-Cuq7u1lD-py3.12
   language: python
@@ -63,7 +63,7 @@ SI_TIME_FMT = FuncFormatter(_si_time)
 
 ```{code-cell} ipython3
 # =====================================================================
-#  ⚙️  CONFIGURATION — edit only this cell, then "Restart & Run All"
+#  CONFIGURATION — edit only this cell, then "Restart & Run All"
 # =====================================================================
 
 RESULTS_FILE = "./benchmark_results.json"
@@ -112,6 +112,8 @@ def _load(path):
         raw = json.load(f)
     rows = []
     for b in raw.get("benchmarks", []):
+        if b.get("timed_out"):          # skip timeout markers — no stats to analyse
+            continue
         params = b.get("params", {})
         cfg    = params.get("config", {})
         gi     = params.get("graph_info", {})
@@ -193,7 +195,7 @@ display(
 
 ---
 
-## § 4  🔍 Filter & data quality
+## § 4  Filter & data quality
 
 ```{code-cell} ipython3
 def _filter(df):
@@ -566,4 +568,84 @@ fig.suptitle(
 fig.tight_layout()
 _savefig(fig, "05_boxplots")
 plt.show()
+```
+
+---
+
+## § 10  Timeout rate per (config × size)
+
+Timed-out instances are excluded from every section above (they carry no timing
+data).  This section is the only place they appear.  For each (config, size) the
+rate is computed over **attempted** instances only — completed plus timed out —
+so a value of 100 % means every graph that was run at that size exceeded the
+budget.  A config disappears from the plot at the size where early-stop halted
+it, since larger sizes were never attempted.
+
+```{code-cell} ipython3
+EARLY_STOP_THRESHOLD = 0.75   # matches benchmark config; reference line only
+
+def _load_timeout_stats(path):
+    with open(path) as f:
+        raw = json.load(f)
+    rows = []
+    for b in raw.get("benchmarks", []):
+        cfg = b.get("params", {}).get("config", {})
+        gi  = b.get("params", {}).get("graph_info", {})
+        fn  = b.get("function", "unknown")
+        if ":" in fn:
+            fn = fn.rsplit(":", 1)[-1]
+        rows.append({
+            "function":     fn,
+            "config_label": (", ".join(f"{k}={v}" for k, v in sorted(cfg.items()))
+                             if cfg else "unknown"),
+            "num_nodes":    gi.get("num_nodes", np.nan),
+            "timed_out":    bool(b.get("timed_out", False)),
+        })
+    return pd.DataFrame(rows)
+
+to_df = _load_timeout_stats(RESULTS_FILE)
+if FILTER_FUNCTION:
+    to_df = to_df[to_df["function"] == FILTER_FUNCTION]
+if FILTER_CONFIGS:
+    to_df = to_df[to_df["config_label"].isin(FILTER_CONFIGS)]
+if FILTER_MIN_NODES:
+    to_df = to_df[to_df["num_nodes"] >= FILTER_MIN_NODES]
+if FILTER_MAX_NODES:
+    to_df = to_df[to_df["num_nodes"] <= FILTER_MAX_NODES]
+
+if to_df.empty:
+    print("No data available for timeout analysis.")
+else:
+    grp = (to_df.groupby(["config_label", "num_nodes"])
+                .agg(attempted=("timed_out", "size"),
+                     timeouts =("timed_out", "sum")))
+    grp["pct"] = 100 * grp["timeouts"] / grp["attempted"]
+    grp = grp.reset_index()
+
+    total_to = int(grp["timeouts"].sum())
+    if total_to == 0:
+        print("No timed-out instances recorded for the current filter.")
+    else:
+        fig, ax = plt.subplots(figsize=(12, 5))
+        for cfg, g in grp.groupby("config_label"):
+            g = g.sort_values("num_nodes")
+            ax.plot(g["num_nodes"], g["pct"], marker="o", ms=4,
+                    label=cfg, color=CONFIG_COLORS.get(cfg))
+        ax.axhline(EARLY_STOP_THRESHOLD * 100, ls="--", color="grey", lw=1,
+                   label=f"early-stop threshold ({EARLY_STOP_THRESHOLD*100:.0f}%)")
+        ax.set_xscale(X_SCALE)
+        ax.set_xlabel({"num_nodes": "Vertex count  n",
+                       "num_edges": "Edge count  m"}.get(X_AXIS, "Vertex count  n"))
+        ax.set_ylabel("Timed-out instances (%)")
+        ax.set_ylim(-2, 102)
+        ax.set_title(
+            f"Timeout rate per config — {FILTER_FUNCTION or 'all functions'}\n"
+            f"Denominator = attempted instances (completed + timed out)"
+        )
+        ax.grid(True, ls="--", lw=0.4, alpha=0.5)
+        ax.legend(title="Config", bbox_to_anchor=(1.02, 1), loc="upper left",
+                  fontsize=10, title_fontsize=10)
+        fig.tight_layout()
+        _savefig(fig, "06_timeout_rate")
+        plt.show()
 ```
