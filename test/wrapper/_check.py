@@ -139,11 +139,10 @@ def _check_no_extra_args(
 ) -> tuple[bool, str]:
     """Check that no unexpected arguments arrived at the proxy (reverse check)."""
     forwarded_names: set[str] = set(call_args.kwargs.keys())
-    for i in range(1, len(call_args[0])):
-        if i < len(proxy_param_names):
-            forwarded_names.add(proxy_param_names[i])
+    for _, param_name in zip(call_args[0][1:], proxy_param_names[1:]):
+        forwarded_names.add(param_name)
 
-    extra_positional_count = max(0, len(call_args[0]) - len(proxy_param_names))
+    extra_positional_count = len(call_args[0]) - len(proxy_param_names)
     if extra_positional_count > 0:
         return False, (
             f"{cls.__name__}.{attr_name} forwarded {extra_positional_count} "
