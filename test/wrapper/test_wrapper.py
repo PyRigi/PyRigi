@@ -6,12 +6,12 @@ from unittest.mock import Mock
 from pyrigi import Framework
 from pyrigi.graph import Graph
 
-from test.wrapper._helpers import (
+from test.wrapper._check import (
     _check_name_matches,
     _check_params_forwarded,
     _invoke_wrapper,
 )
-from test.wrapper._wrappers import _BadWrappers
+from test.wrapper._bad_wrapper import _BadWrapper
 
 
 def _build_mock_args(sig: inspect.Signature) -> dict:
@@ -46,7 +46,7 @@ def _build_mock_args(sig: inspect.Signature) -> dict:
 )
 def test_wrapper_parameter_forwarding(cls, test_instance):
     """
-    Test that all @copy_doc wrapper methods on Graph and Framework correctly
+    Test that all ``@copy_doc`` wrapper methods on ``Graph`` and ``Framework`` correctly
     forward parameters to their underlying proxy functions.
     """
     any_checked = False
@@ -103,7 +103,7 @@ def test_wrapper_parameter_forwarding(cls, test_instance):
 )
 def test_bad_wrapper_detected(attr_name, proxy_reaches_mock):
     """
-    Test that each known forwarding mistake in _BadWrappers is caught
+    Test that each known forwarding mistake in _BadWrapper is caught
     by the check helpers.
 
     ``proxy_reaches_mock`` documents whether the proxy mock is expected to be
@@ -111,8 +111,8 @@ def test_bad_wrapper_detected(attr_name, proxy_reaches_mock):
     reached (exception or wrong function called); when True, the proxy is called
     but the check helpers catch the forwarding mistake.
     """
-    test_instance = _BadWrappers()
-    method = getattr(_BadWrappers, attr_name)
+    test_instance = _BadWrapper()
+    method = getattr(_BadWrapper, attr_name)
     wrapped_func = method._wrapped_func
 
     sig = inspect.signature(wrapped_func)
@@ -122,16 +122,16 @@ def test_bad_wrapper_detected(attr_name, proxy_reaches_mock):
     called, call_args, _ = _invoke_wrapper(test_instance, attr_name, method, mock_args)
 
     assert called == proxy_reaches_mock, (
-        f"_BadWrappers.{attr_name}: expected proxy "
+        f"_BadWrapper.{attr_name}: expected proxy "
         f"{'to be' if proxy_reaches_mock else 'not to be'} called"
     )
 
     if proxy_reaches_mock:
-        name_ok, _ = _check_name_matches(_BadWrappers, attr_name, wrapped_func.__name__)
+        name_ok, _ = _check_name_matches(_BadWrapper, attr_name, wrapped_func.__name__)
         params_ok, _ = _check_params_forwarded(
-            _BadWrappers, attr_name, proxy_param_names, mock_args, call_args
+            _BadWrapper, attr_name, proxy_param_names, mock_args, call_args
         )
         assert not (name_ok and params_ok), (
-            f"_BadWrappers.{attr_name}: bad wrapper was not detected "
+            f"_BadWrapper.{attr_name}: bad wrapper was not detected "
             f"by the check helpers"
         )

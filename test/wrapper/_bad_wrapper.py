@@ -1,5 +1,5 @@
 """
-Deliberately broken @copy_doc wrappers used by test_wrapper.py to verify
+Deliberately broken ``@copy_doc`` wrappers used by test_wrapper.py to verify
 that every class of forwarding mistake is detected by the assertion helpers.
 """
 
@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pyrigi._utils._doc import copy_doc
 
-from test.wrapper._proxies import (
+from test.wrapper._bad_wrapper_base import (
     different_function,
     different_function2,
     different_instance_first,
@@ -19,10 +19,10 @@ from test.wrapper._proxies import (
     proxy_not_called,
     wrong_value,
 )
-from test.wrapper._proxies import _BadWrappersBase
+from test.wrapper._bad_wrapper_base import _BadWrapperBase
 
 
-class _BadWrappers(_BadWrappersBase):
+class _BadWrapper(_BadWrapperBase):
     # a keyword parameter is not forwarded to the proxy
     @copy_doc(missing_kwarg_param)
     def missing_kwarg_param(self, x: int, label: str = "a") -> str:  # noqa: U100
@@ -45,7 +45,7 @@ class _BadWrappers(_BadWrappersBase):
 
     # a different instance is passed as first positional arg
     @copy_doc(different_instance_first)
-    def different_instance_first(self, x: _BadWrappersBase, label: str = "a") -> str:
+    def different_instance_first(self, x: _BadWrapperBase, label: str = "a") -> str:
         return different_instance_first(x, self, label)
 
     # the proxy function is never invoked
