@@ -55,3 +55,7 @@ def different_function(graph: _BadWrapperBase, x: int, label: str = "a") -> str:
 
 def different_function2(graph: _BadWrapperBase, x: int, label: str = "a") -> str:
     return f"{label}:{x} (graph has {graph.order} nodes)"
+
+
+def missing_kwargs(graph: _BadWrapperBase, x: int, label: str = "a", **kwargs) -> str:
+    return f"{label}:{x} (graph has {graph.order} nodes: {kwargs.keys()})"

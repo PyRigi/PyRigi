@@ -15,6 +15,7 @@ from test.wrapper._bad_wrapper_base import (
     extra_positional,
     instance_not_first,
     missing_kwarg_param,
+    missing_kwargs,
     missing_positional_param,
     proxy_not_called,
     wrong_value,
@@ -72,3 +73,8 @@ class _BadWrapper(_BadWrapperBase):
     @copy_doc(different_function)
     def function_named_differently(self, x: int, label: str = "a") -> str:
         return different_function(self, x, label)
+
+    # missing kwargs
+    @copy_doc(missing_kwargs)
+    def missing_kwargs(self, x: int, label: str = "a", **kwargs) -> str:  # noqa: U100
+        return missing_kwargs(self, x, label)
