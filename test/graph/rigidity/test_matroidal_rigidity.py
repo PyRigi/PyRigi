@@ -5,7 +5,6 @@ import pyrigi.graph._rigidity.matroidal as matroidal_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from pyrigi.warning import RandomizedAlgorithmWarning
-from test import TEST_WRAPPED_FUNCTIONS
 from test.graph.test_graph import read_sparsity
 
 Rd_algorithms_all_d = ["default", "randomized"]
@@ -27,11 +26,9 @@ is_Rd_closed_algorithms_d2 = is_Rd_closed_algorithms_all_d + ["pebble"]
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d1)
 def test_is_Rd_circuit_d1(graph, algorithm):
-    assert graph.is_Rd_circuit(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_circuit(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_circuit(
+        nx.Graph(graph), dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -52,11 +49,9 @@ def test_is_Rd_circuit_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d1)
 def test_is_not_Rd_circuit_d1(graph, algorithm):
-    assert not graph.is_Rd_circuit(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_circuit(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_circuit(
+        nx.Graph(graph), dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -76,11 +71,9 @@ def test_is_not_Rd_circuit_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d2)
 def test_is_Rd_circuit_d2(graph, algorithm):
-    assert graph.is_Rd_circuit(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_circuit(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_circuit(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -118,11 +111,9 @@ def test_is_Rd_circuit_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d2)
 def test_is_not_Rd_circuit_d2(graph, algorithm):
-    assert not graph.is_Rd_circuit(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_circuit(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_circuit(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -135,11 +126,9 @@ def test_is_not_Rd_circuit_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_all_d)
 def test_is_Rd_circuit_d3(graph, algorithm):
-    assert graph.is_Rd_circuit(dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_circuit(
-            nx.Graph(graph), dim=3, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_circuit(
+        nx.Graph(graph), dim=3, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -154,11 +143,9 @@ def test_is_Rd_circuit_d3(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_all_d)
 def test_is_not_Rd_circuit_d3(graph, algorithm):
-    assert not graph.is_Rd_circuit(dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_circuit(
-            nx.Graph(graph), dim=3, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_circuit(
+        nx.Graph(graph), dim=3, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -175,11 +162,9 @@ def test_is_not_Rd_circuit_d3(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_Rd_closed_algorithms_all_d)
 def test_is_Rd_closed(graph, dim, algorithm):
-    assert graph.is_Rd_closed(dim=dim, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_closed(
-            nx.Graph(graph), dim=dim, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_closed(
+        nx.Graph(graph), dim=dim, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -191,11 +176,9 @@ def test_is_Rd_closed(graph, dim, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_Rd_closed_algorithms_all_d)
 def test_is_not_Rd_closed(graph, dim, algorithm):
-    assert not graph.is_Rd_closed(dim=dim, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_closed(
-            nx.Graph(graph), dim=dim, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_closed(
+        nx.Graph(graph), dim=dim, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -207,11 +190,9 @@ def test_is_not_Rd_closed(graph, dim, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_Rd_closed_algorithms_d1)
 def test_is_Rd_closed_d1(graph, algorithm):
-    assert graph.is_Rd_closed(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_closed(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_closed(
+        nx.Graph(graph), dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -222,11 +203,9 @@ def test_is_Rd_closed_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_Rd_closed_algorithms_d1)
 def test_is_not_Rd_closed_d1(graph, algorithm):
-    assert not graph.is_Rd_closed(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_closed(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_closed(
+        nx.Graph(graph), dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -239,11 +218,9 @@ def test_is_not_Rd_closed_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_Rd_closed_algorithms_d2)
 def test_is_Rd_closed_d2(graph, algorithm):
-    assert graph.is_Rd_closed(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_closed(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_closed(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -256,11 +233,9 @@ def test_is_Rd_closed_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_Rd_closed_algorithms_d2)
 def test_is_not_Rd_closed_d2(graph, algorithm):
-    assert not graph.is_Rd_closed(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_closed(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_closed(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -280,11 +255,9 @@ def test_is_not_Rd_closed_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d1)
 def test_is_Rd_dependent_d1(graph, algorithm):
-    assert graph.is_Rd_dependent(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_independent(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_independent(
+        nx.Graph(graph), dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -297,11 +270,9 @@ def test_is_Rd_dependent_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d1)
 def test_is_Rd_independent_d1(graph, algorithm):
-    assert graph.is_Rd_independent(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_independent(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_independent(
+        nx.Graph(graph), dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -318,11 +289,9 @@ def test_is_Rd_independent_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d2)
 def test_is_Rd_dependent_d2(graph, algorithm):
-    assert graph.is_Rd_dependent(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_independent(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_independent(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -340,11 +309,9 @@ def test_is_Rd_dependent_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d2)
 def test_is_Rd_independent_d2(graph, algorithm):
-    assert graph.is_Rd_independent(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_independent(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_independent(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -353,11 +320,9 @@ def test_is_Rd_independent_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_all_d)
 def test_is_Rd_dependent_d3(graph, algorithm):
-    assert graph.is_Rd_dependent(dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_Rd_independent(
-            nx.Graph(graph), dim=3, algorithm=algorithm
-        )
+    assert not matroidal_rigidity.is_Rd_independent(
+        nx.Graph(graph), dim=3, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -373,17 +338,12 @@ def test_is_Rd_dependent_d3(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_all_d)
 def test_is_Rd_independent_d3(graph, algorithm):
-    assert graph.is_Rd_independent(dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_Rd_independent(
-            nx.Graph(graph), dim=3, algorithm=algorithm
-        )
+    assert matroidal_rigidity.is_Rd_independent(
+        nx.Graph(graph), dim=3, algorithm=algorithm
+    )
 
 
 def test_is_Rd_independent_d3_warning():
     G = graphs.K33plusEdge()
     with pytest.warns(RandomizedAlgorithmWarning):
-        G.is_Rd_independent(dim=3)
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.warns(RandomizedAlgorithmWarning):
-            matroidal_rigidity.is_Rd_independent(nx.Graph(G), dim=3)
+        matroidal_rigidity.is_Rd_independent(nx.Graph(G), dim=3)
