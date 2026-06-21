@@ -337,7 +337,7 @@ for cfg, grp in stats_df.groupby("config_label"):
         a, b  = fr["a"].values[0], fr["b"].values[0]
         x_fit = np.linspace(grp[X_AXIS].min(), grp[X_AXIS].max(), 300)
         ax.plot(x_fit, a * x_fit**b, "--", color=color, alpha=0.7,
-                label=f"  fit n^{b:.2f}")
+                label=f"  fit {a:.2e}·n^{b:.2f}")
 
 ax.set_xscale(X_SCALE)
 ax.set_yscale(Y_SCALE)
@@ -346,8 +346,8 @@ ax.set_xlabel({"num_nodes": "Vertex count  n",
                "num_edges": "Edge count  m"}.get(X_AXIS, X_AXIS))
 ax.set_ylabel("Execution time")
 ax.set_title(
-    f"Scaling analysis — {FILTER_FUNCTION or 'all functions'}\n"
-    f"Band = {int(CONFIDENCE*100)} % CI across instances"
+    f"Scaling analysis: {FILTER_FUNCTION or 'all functions'}\n"
+    f"Band = {int(CONFIDENCE*100)} % CI across instances (excluding timeout instances)"
     + ("  (light = bootstrap)" if used_boot else "")
 )
 ax.grid(True, which="both", linestyle="--", linewidth=0.4, alpha=0.5)
@@ -377,7 +377,7 @@ else:
             f"  {row['b']:>8.3f}  {row['b_std']*2:>8.3f}  O(n^{row['b']:.2f})"
         )
     print("─" * 88)
-    print("\n— LaTeX for thesis —")
+    print("\n— LaTeX —")
     for _, row in fit_df.iterrows():
         if not np.isnan(row["b"]):
             print(f"  {row['config_label']}: "
