@@ -29,6 +29,7 @@ The branch prefixes should be named according the following convention:
 | Branch prefix | Usage                                                    | Usual PR prefix                |
 |---------------|----------------------------------------------------------|--------------------------------|
 | `feature-`    | adding new features, parameters or algorithms\*          | `Feature:`                     |
+| `epic-`       | a grouping of related features\*,\*\*                    | `Feature:`                     |
 | `bugfix-`     | fixing bugs on `dev` introduced since the latest release | `Feature:`                     |
 | `doc-`        | changing the documentation (including fixes)             | `Doc:`, `Guide:` or `Minor`    |
 | `hotfix-`     | fixing bugs on `main`                                    | `Fix:`                         |
@@ -39,6 +40,11 @@ The branch prefixes should be named according the following convention:
 | `major-`      | introducing backward incompatible changes                | `Update:`                      |
 
 \* Only in backward compatible manner.
+
+\*\*The purpose of `epic-` branches is that when a larger new feature
+or a set of related features is developed,
+it can be done incrementally by several PRs to an `epic-new-functionality` branch.
+This branch is later merged to `dev` when the feature is complete. 
 
 :::{warning}
 Changes that are not backward compatible can only be introduced on a `major-` branch.

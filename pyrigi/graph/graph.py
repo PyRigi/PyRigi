@@ -25,6 +25,7 @@ from ._rigidity import generic as generic_rigidity
 from ._rigidity import global_ as global_rigidity
 from ._rigidity import matroidal as matroidal_rigidity
 from ._rigidity import redundant as redundant_rigidity
+from ._rigidity import realization_counting as realization_counting
 from ._sparsity import sparsity
 from ._utils import _input_check as _graph_input_check
 
@@ -517,104 +518,21 @@ class Graph(nx.Graph):
         return constructions.cone(self, inplace=inplace, vertex=vertex)
 
     @doc_category("Generic rigidity")
+    @copy_doc(realization_counting.number_of_realizations)
     def number_of_realizations(
         self,
         dim: int = 2,
+        algorithm: str = "default",
         spherical: bool = False,
-        check_min_rigid: bool = True,
         count_reflection: bool = False,
-    ) -> int:
-        """
-        Count the number of complex realizations of a minimally ``dim``-rigid graph.
-
-        Realizations in ``dim``-dimensional sphere
-        can be counted using ``spherical=True``.
-
-        Algorithms of :cite:p:`CapcoGalletEtAl2018` and
-        :cite:p:`GalletGraseggerSchicho2020` are used.
-        Note, however, that here the result from these algorithms
-        is by default divided by two.
-        This behaviour accounts better for global rigidity,
-        but it can be changed using the parameter ``count_reflection``.
-
-        Note that by default,
-        the method checks if the input graph is indeed minimally 2-rigid.
-
-        Caution: Currently the method only works if the python package ``lnumber``
-        is installed :cite:p:`Capco2024`.
-        See :ref:`installation-guide` for details on installing.
-
-        Definitions
-        -----------
-        * :prf:ref:`Number of complex realizations<def-number-of-realizations>`
-        * :prf:ref:`Number of complex spherical realizations<def-number-of-spherical-realizations>`
-
-        Parameters
-        ----------
-        dim:
-            The dimension in which the realizations are counted.
-            Currently, only ``dim=2`` is supported.
-        check_min_rigid:
-            If ``True``, a ``ValueError`` is raised if the graph is not minimally 2-rigid
-            If ``False``, it is assumed that the user is inputting a minimally rigid graph.
-        spherical:
-            If ``True``, the number of spherical realizations of the graph is returned.
-            If ``False`` (default), the number of planar realizations is returned.
-        count_reflection:
-            If ``True``, the number of realizations is computed modulo direct isometries.
-            But reflection is counted to be non-congruent as used in
-            :cite:p:`CapcoGalletEtAl2018` and
-            :cite:p:`GalletGraseggerSchicho2020`.
-            If ``False`` (default), reflection is not counted.
-
-        Examples
-        --------
-        >>> from pyrigi import Graph
-        >>> import pyrigi.graphDB as graphs
-        >>> G = Graph([(0,1),(1,2),(2,0)])
-        >>> G.number_of_realizations() # number of planar realizations
-        1
-        >>> G.number_of_realizations(spherical=True)
-        1
-        >>> G = graphs.ThreePrism()
-        >>> G.number_of_realizations() # number of planar realizations
-        12
-
-        Suggested Improvements
-        ----------------------
-        Implement the counting for ``dim=1``.
-        """  # noqa: E501
-        _input_check.dimension_for_algorithm(
-            dim, [2], "the method number_of_realizations"
+    ) -> int | Inf:
+        return realization_counting.number_of_realizations(
+            self,
+            dim=dim,
+            algorithm=algorithm,
+            spherical=spherical,
+            count_reflection=count_reflection,
         )
-
-        try:
-            import lnumber
-
-            if check_min_rigid and not generic_rigidity.is_min_rigid(self):
-                raise ValueError("The graph must be minimally 2-rigid!")
-
-            if self.number_of_nodes() == 1:
-                return 1
-
-            if self.number_of_nodes() == 2 and self.number_of_edges() == 1:
-                return 1
-
-            graph_int = self.to_int()
-            if count_reflection:
-                fac = 1
-            else:
-                fac = 2
-            if spherical:
-                return lnumber.lnumbers(graph_int) // fac
-            else:
-                return lnumber.lnumber(graph_int) // fac
-        except ImportError:
-            raise ImportError(
-                "For counting the number of realizations, "
-                "the optional package 'lnumber' is used, "
-                "run `pip install pyrigi[realization-counting]`!"
-            )
 
     @doc_category("Generic rigidity")
     @copy_doc(redundant_rigidity.is_vertex_redundantly_rigid)
@@ -1174,6 +1092,40 @@ class Graph(nx.Graph):
             algorithm=algorithm,
             use_cycles_optimization=use_cycles_optimization,
             use_blocks_decomposition=use_blocks_decomposition,
+            mono_class_type=mono_class_type,
+            seed=seed,
+        )
+
+    @doc_category("Flexibility")
+    @copy_doc(nac_colorings.has_NAC_coloring)
+    def has_NAC_coloring(
+        self,
+        algorithm: str = "default",
+        use_cycles_optimization: bool = True,
+        mono_class_type: str = "triangle-extended",
+        seed: int | None = 42,
+    ) -> bool:
+        return nac_colorings.has_NAC_coloring(
+            self,
+            algorithm=algorithm,
+            use_cycles_optimization=use_cycles_optimization,
+            mono_class_type=mono_class_type,
+            seed=seed,
+        )
+
+    @doc_category("Flexibility")
+    @copy_doc(nac_colorings.single_NAC_coloring)
+    def single_NAC_coloring(
+        self,
+        algorithm: str = "default",
+        use_cycles_optimization: bool = True,
+        mono_class_type: str = "triangle-extended",
+        seed: int | None = 42,
+    ) -> tuple[list[Edge], list[Edge]] | None:
+        return nac_colorings.single_NAC_coloring(
+            self,
+            algorithm=algorithm,
+            use_cycles_optimization=use_cycles_optimization,
             mono_class_type=mono_class_type,
             seed=seed,
         )

@@ -38,6 +38,7 @@ def _resolve_inf_flex(
     inf_flex: int | Matrix | InfFlex,
     realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
+    fixed_vertices: Sequence[Vertex] = [],
 ) -> dict[Vertex, Point]:
     """
     Resolve an infinitesimal flex from various datatypes.
@@ -52,10 +53,12 @@ def _resolve_inf_flex(
         If ``None``, the framework realization is used.
     projection_matrix:
         A matrix used for projection to a lower dimension.
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
     """
     if isinstance(inf_flex, int) and inf_flex >= 0:
         inf_flex_basis = infinitesimal_rigidity.nontrivial_inf_flexes(
-            framework, numerical=True
+            framework, numerical=True, fixed_vertices=fixed_vertices
         )
         if inf_flex >= len(inf_flex_basis):
             raise IndexError(
@@ -112,7 +115,7 @@ def _resolve_inf_flex(
             + "length and the dimension needs to be 2 or 3."
         )
 
-    magnidutes = []
+    magnitudes = []
     for flex_key in inf_flex_pointwise.keys():
         if len(inf_flex_pointwise[flex_key]) != len(
             realization[list(realization.keys())[0]]
@@ -122,18 +125,15 @@ def _resolve_inf_flex(
                 + f"in dimension {len(realization[list(realization.keys())[0]])}."
             )
         inf_flex = [float(x) for x in inf_flex_pointwise[flex_key]]
-        magnidutes.append(np.linalg.norm(inf_flex))
+        magnitudes.append(np.linalg.norm(inf_flex))
 
     # normalize the edge lengths by the Euclidean norm of the longest one
-    flex_mag = max(magnidutes)
-    for v, flex in inf_flex_pointwise.items():
-        if not is_zero_vector(inf_flex):
-            inf_flex_pointwise[v] = tuple(coord / flex_mag for coord in flex)
+    flex_mag = max(magnitudes)
     # Delete the edges with zero length
     inf_flex_pointwise = {
-        v: np.array(flex, dtype=float)
+        v: np.array([coord / flex_mag for coord in flex], dtype=float)
         for v, flex in inf_flex_pointwise.items()
-        if not is_zero_vector(flex)
+        if not is_zero_vector(flex, numerical=True)
     }
 
     return inf_flex_pointwise
@@ -146,6 +146,7 @@ def _plot_inf_flex2D(
     realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
     plot_style: PlotStyle2D = None,
+    fixed_vertices: Sequence[Vertex] = [],
 ) -> None:
     """
     Plot a 2D infinitesimal flex on the canvas.
@@ -160,9 +161,11 @@ def _plot_inf_flex2D(
     projection_matrix:
         A matrix used to project the infinitesimal flex to 2D.
     plot_style:
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
     """
     inf_flex_pointwise = _resolve_inf_flex(
-        framework, inf_flex, realization, projection_matrix
+        framework, inf_flex, realization, projection_matrix, fixed_vertices
     )
 
     x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
@@ -208,6 +211,7 @@ def _plot_inf_flex3D(
     realization: dict[Vertex, Point] = None,
     projection_matrix: Matrix = None,
     plot_style: PlotStyle3D = None,
+    fixed_vertices: Sequence[Vertex] = [],
 ) -> None:
     """
     Plot a 3D infinitesimal flex on the canvas.
@@ -222,9 +226,11 @@ def _plot_inf_flex3D(
     projection_matrix:
         A matrix used to project the infinitesimal flex to 3D.
     plot_style:
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
     """
     inf_flex_pointwise = _resolve_inf_flex(
-        framework, inf_flex, realization, projection_matrix
+        framework, inf_flex, realization, projection_matrix, fixed_vertices
     )
     x_canvas_width = ax.get_xlim()[1] - ax.get_xlim()[0]
     y_canvas_width = ax.get_ylim()[1] - ax.get_ylim()[0]
@@ -292,8 +298,14 @@ def _resolve_stress(
         stress_edgewise = stress_rigidity._transform_stress_to_edgewise(
             framework, stress
         )
+    elif isinstance(stress, Sequence) and all(
+        isinstance(stress[i], Number) for i in range(len(stress))
+    ):
+        stress_edgewise = stress_rigidity._transform_stress_to_edgewise(
+            framework, stress
+        )
     elif isinstance(stress, dict) and all(
-        isinstance(stress[key], int | float | str) for key in stress.keys()
+        isinstance(stress[key], Number) for key in stress.keys()
     ):
         stress_edgewise = stress
     else:
@@ -301,6 +313,15 @@ def _resolve_stress(
 
     if not stress_rigidity.is_dict_stress(framework, stress_edgewise, numerical=True):
         raise ValueError("The provided `stress` is not an equilibrium stress.")
+
+    if any(
+        isinstance(stress_edgewise[edge], float | np.floating)
+        for edge in stress_edgewise.keys()
+    ):
+        stress_edgewise = {
+            edge: round(stress, plot_style.stress_digits)
+            for (edge, stress) in stress_edgewise.items()
+        }
 
     if plot_style.stress_normalization:
         numerical_stress = {
@@ -876,7 +897,8 @@ def plot2D(
     stress_label_positions: dict[DirectedEdge, float] = None,
     arc_angles_dict: Sequence[float] | dict[DirectedEdge, float] = None,
     filename: str = None,
-    dpi=300,
+    dpi: int = 300,
+    fixed_vertices: Sequence[Vertex] = [],
     **kwargs,
 ) -> None:
     """
@@ -934,11 +956,11 @@ def plot2D(
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
         or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
         values are lists of edges.
-        The ommited edges are given the value ``plot_style.edge_color``.
+        The omitted edges are given the value ``plot_style.edge_color``.
     stress_label_positions:
         Dictionary specifying the position of stress labels along the edges. Keys are
         ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
-        Ommited edges are given the value ``0.5``.
+        Omitted edges are given the value ``0.5``.
     arc_angles_dict:
         Optional parameter to specify custom arc angle for edges. Can be a
         ``Sequence[float]`` or a ``dict[Edge, float]`` where values define
@@ -950,6 +972,8 @@ def plot2D(
         ``matplotlib``.
     dpi: Dots per inched in case the figure is saved. Default is 300 for producing
         a print-quality image.
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
 
     Examples
     --------
@@ -1043,6 +1067,7 @@ def plot2D(
             realization=placement,
             plot_style=plot_style,
             projection_matrix=projection_matrix,
+            fixed_vertices=fixed_vertices,
         )
     if stress is not None:
         _plot_stress2D(
@@ -1089,13 +1114,13 @@ def animate3D_rotation(
         a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same color
         or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings and the
         values are lists of vertices.
-        The ommited vertices are given the value ``plot_style.vertex_color``.
+        The omitted vertices are given the value ``plot_style.vertex_color``.
     edge_colors_custom:
         Optional parameter to specify the colors of edges. It can be
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
         or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
         values are lists of edges.
-        The ommited edges are given the value ``plot_style.edge_color``.
+        The omitted edges are given the value ``plot_style.edge_color``.
     total_frames:
         Total number of frames for the animation sequence.
     delay:
@@ -1114,7 +1139,9 @@ def animate3D_rotation(
     _input_check.dimension_for_algorithm(framework.dim, [3], "animate3D")
     if plot_style is None:
         # change some PlotStyle default values to fit 3D plotting better
-        plot_style = PlotStyle3D(vertex_size=13.5, edge_width=1.5, dpi=150)
+        plot_style = PlotStyle3D(
+            vertex_size=13.5, edge_width=1.5, dpi=150, vertex_labels=False
+        )
     else:
         plot_style = PlotStyle3D.from_plot_style(plot_style)
 
@@ -1223,7 +1250,8 @@ def plot3D(
     edge_colors_custom: Sequence[Sequence[Edge]] | dict[str, Sequence[Edge]] = None,
     stress_label_positions: dict[DirectedEdge, float] = None,
     filename: str = None,
-    dpi=300,
+    dpi: int = 300,
+    fixed_vertices: Sequence[Vertex] = [],
     **kwargs,
 ) -> None:
     """
@@ -1278,17 +1306,17 @@ def plot3D(
         a ``Sequence[Sequence[Vertex]]`` to define groups of vertices with the same color
         or a ``dict[str, Sequence[Vertex]]`` where the keys are color strings and the
         values are lists of vertices.
-        The ommited vertices are given the value ``plot_style.vertex_color``.
+        The omitted vertices are given the value ``plot_style.vertex_color``.
     edge_colors_custom:
         Optional parameter to specify the colors of edges. It can be
         a ``Sequence[Sequence[Edge]]`` to define groups of edges with the same color
         or a ``dict[str, Sequence[Edge]]`` where the keys are color strings and the
         values are lists of edges.
-        The ommited edges are given the value ``plot_style.edge_color``.
+        The omitted edges are given the value ``plot_style.edge_color``.
     stress_label_positions:
         Dictionary specifying the position of stress labels along the edges. Keys are
         ``DirectedEdge`` objects, and values are floats (e.g., 0.5 for midpoint).
-        Ommited edges are given the value ``0.5``.
+        Omitted edges are given the value ``0.5``.
     filename:
         The filename under which the produced figure is saved. The default value is
         ``None`` which indicates that the figure is currently not saved.
@@ -1296,6 +1324,8 @@ def plot3D(
         ``matplotlib``.
     dpi: Dots per inched in case the figure is saved. Default is 300 for producing
         a print-quality image.
+    fixed_vertices:
+        Vertices that are assigned a zero flex in the plot.
 
     Examples
     --------
@@ -1393,6 +1423,7 @@ def plot3D(
             realization=_placement,
             plot_style=plot_style,
             projection_matrix=projection_matrix,
+            fixed_vertices=fixed_vertices,
         )
 
     if stress is not None:

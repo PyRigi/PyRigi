@@ -24,13 +24,13 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "PyRigi"
-copyright = "2024, The PyRigi Developers"
+copyright = "2024-2026, The PyRigi Developers"
 author = "The PyRigi Developers"
 
 # The short X.Y version
-version = "1.1"
+version = "1.2"
 # The full version, including alpha/beta/rc tags
-release = "1.1.1"
+release = "1.2.0"
 
 
 # -- General configuration ---------------------------------------------------

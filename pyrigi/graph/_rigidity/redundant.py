@@ -405,7 +405,7 @@ def is_k_redundantly_rigid(
     # in all other cases check by definition
     # and :prf:ref:`thm-redundant-edge-subset`
     G = deepcopy(graph)
-    for edge_set in combinations(graph.edges, k):
+    for edge_set in combinations(G.edges, k):
         G.remove_edges_from(edge_set)
         if not generic_rigidity.is_rigid(G, dim=dim, algorithm=algorithm, prob=prob):
             return False

@@ -5,9 +5,9 @@ name: Pytest-dev
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "dev", "epic-*" ]
   pull_request:
-    branches: [ "dev" ]
+    branches: [ "dev", "epic-*" ]
 
 permissions:
   contents: read
@@ -50,3 +50,7 @@ jobs:
       run: |
         cd doc
         poetry run make SPHINXOPTS=--fail-on-warning html
+    - name: Test without lnumber
+      run: |
+        poetry sync
+        poetry run pytest -m "not realization_counting"  test/graph/rigidity/test_realization_counting.py

@@ -12,6 +12,10 @@ both colors occur (i.e. $\delta$ is surjective) and
 every cycle of the graph is either monochromatic or it contains each color at least twice.
 
 {{references}} {cite:p}`GraseggerLegerskySchicho2019`
+
+{{pyrigi_crossref}} {meth}`~.Graph.NAC_colorings`
+{meth}`~.Graph.has_NAC_coloring`
+{meth}`~.Graph.single_NAC_coloring`
 :::
 
 
@@ -44,6 +48,8 @@ NAC-coloring.
 Let $G$ be a connected graph. If $G$ has a {prf:ref}`stable<def-stable-set>` {prf:ref}`separating set<def-separating-set>`, than $G$ has a NAC-coloring.
 
 {{references}} {cite:p}`GraseggerLegerskySchicho2019{Thm 4.4}`
+
+{{pyrigi_crossref}} {meth}`~.Graph.stable_separating_set`
 :::
 
 
@@ -88,7 +94,7 @@ It is shown that the existence problem of a NAC-coloring for a general graph is 
 The same is true even for graphs with degree at most 5 {cite:p}`LastovickaLegersky2024{Thm 2.1}`.
 Nevertheless, for many reasonably small graphs NAC-colorings can be computed.
 
-In the implementation here we use the strategy from {cite:p}`LastovickaLegersky2024{Sec 3}`:
+In the implementation here we use the strategy from {cite:p}`LastovickaLegersky2024{Sec 4}`:
 * Compute all {prf:ref}`NAC-mono classes<def-nac-mono>`
 * Decompose the graph into smaller edge-disjoint subgraphs by either
     * taking consecutive NAC-mono classes, or by

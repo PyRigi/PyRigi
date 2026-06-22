@@ -1,5 +1,5 @@
 """
-Implement various approaches for :prf:ref:`NAC-coloring <def-nac>` search.
+This module implements various approaches for :prf:ref:`NAC-coloring <def-nac>` search.
 
 Made in a generic way to also support
 :prf:ref:`Cartesian NAC-coloring <def-cartesian-nac>` in the future.
@@ -221,7 +221,7 @@ def _subgraphs_join_epochs(
     subgraph_mask_2: int,
 ) -> Iterable[int]:
     """
-    Join :prf:ref:`NAC-colorings <def-nac>` of two edge disjoined subgraphs.
+    Join :prf:ref:`NAC-colorings <def-nac>` of two edge-disjoint subgraphs.
 
     This function works by taking pairs of subgraph NAC-colorings,
     joining them into red-blue-colorings on the merged subgraph,
@@ -352,23 +352,18 @@ def _colorings_merge(
     graph:
         The graph to search on.
     class_to_edges:
-        Maps a :prf:ref:`NAC-mono class<def-nac-mono>` to its edges.
+        Maps a :prf:ref:`NAC-mono class <def-nac-mono>` to its edges.
     is_NAC_coloring_routine:
         The NAC-coloring routine to use.
     ordered_class_ids:
-        List of :prf:ref:`NAC-mono classes<def-nac-mono>`
+        List of :prf:ref:`NAC-mono classes <def-nac-mono>`
         corresponding to bit masks.
     colorings_1:
-        :prf:ref:`NAC-colorings<def-nac>` of
+        :prf:ref:`NAC-colorings <def-nac>` of
         the first subgraph's coloring and subgraph mask.
     colorings_2:
-        :prf:ref:`NAC-colorings<def-nac>` of
+        :prf:ref:`NAC-colorings <def-nac>` of
         the second subgraph's coloring and subgraph mask.
-
-    Returns
-    -------
-    All :prf:ref:`NAC-colorings <def-nac>` of the merged subgraph
-    and its subgraph mask.
 
     Suggested improvements
     ---------------------
@@ -462,10 +457,12 @@ def NAC_colorings_subgraphs(
     preferred_chunk_size: int = 5,
 ) -> Iterable[NACColoring]:
     """
-    This version of the algorithm splits the graphs into subgraphs,
-    find :prf:ref:`NAC-colorings <def-nac>` for each of them.
+    Return NAC-colorings by splitting to subgraphs.
+
+    This version of the algorithm splits the graph into subgraphs and
+    finds :prf:ref:`NAC-colorings <def-nac>` for each of them.
     The subgraphs are then merged,
-    and new colorings are reevaluated till we reach the original graph again.
+    and new colorings are reevaluated until we reach the original graph again.
 
     Parameters
     ----------
@@ -494,7 +491,7 @@ def NAC_colorings_subgraphs(
 
     def create_chunk_sizes() -> list[int]:
         """
-        Makes sure all the chunks are the same size of 1 bigger
+        Make sure all the chunks are the same size, or differing by one.
         """
         chunk_no = classes_no // preferred_chunk_size
         chunk_sizes = []

@@ -93,7 +93,7 @@ in ``conf.py``. This is also available for references to ``python`` and ``sympy`
 
 :::{csv-table}
 `` {ref}`installation-guide` ``, {ref}`installation-guide`
-`` {ref}`Link to Instalation Guide<installation-guide>` ``, {ref}`Link to Instalation Guide<installation-guide>`
+`` {ref}`Link to Installation Guide<installation-guide>` ``, {ref}`Link to Installation Guide<installation-guide>`
 `` {doc}`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::
@@ -103,7 +103,7 @@ in ``conf.py``. This is also available for references to ``python`` and ``sympy`
 
 :::{csv-table}
 `` :ref:`installation-guide` ``, {ref}`installation-guide`
-`` :ref:`Link to Instalation Guide<installation-guide>` ``, {ref}`Link to Instalation Guide<installation-guide>`
+`` :ref:`Link to Installation Guide<installation-guide>` ``, {ref}`Link to Installation Guide<installation-guide>`
 `` :doc:`networkx:reference/drawing` ``, {doc}`networkx:reference/drawing`
 :::
 ::::

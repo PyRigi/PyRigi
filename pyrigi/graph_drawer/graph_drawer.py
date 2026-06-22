@@ -885,7 +885,7 @@ class GraphDrawer(object):
             ]
             for v in H.nodes
         }
-        # when grid is True update (assing grid coordinates) the positions
+        # when grid is True update (assign grid coordinates) the positions
         # of the vertices
         if self._grid_checkbox.value and grid:
             for v in H.nodes:

@@ -1,14 +1,15 @@
+import warnings
+
+import numpy as np
 import pytest
 from sympy import sympify
-import numpy as np
 
 import pyrigi.frameworkDB as fws
 from pyrigi._utils._zero_check import is_zero, is_zero_vector
+from pyrigi.framework._rigidity.infinitesimal import rigidity_matrix_rank
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import Graph
 from pyrigi.warning import NumericalCoordinateWarning
-from pyrigi.framework._rigidity.infinitesimal import rigidity_matrix_rank
-import warnings
 
 
 def test__str__():
