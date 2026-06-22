@@ -99,7 +99,7 @@ If you would like to cite PyRigi, please use the following reference:
 
 Matthias Adrian-Himmelmann, Matteo Gallet, Georg Grasegger, and Jan Legerský. *PyRigi
 – a general-purpose Python package for the rigidity and flexibility of bar-and-joint
-frameworks*, 2026, ACM Transactions on Mathematical Software. Just Accepted (May 2026).
+frameworks*, 2026, ACM Transactions on Mathematical Software.
 [doi:10.1145/3815171](https://doi.org/10.1145/3815171).
 
 ```
@@ -109,6 +109,5 @@ frameworks*, 2026, ACM Transactions on Mathematical Software. Just Accepted (May
       year = {2026},
       doi = {https://doi.org/10.1145/3815171},
       journal = {ACM Transactions on Mathematical Software},
-      note = {Just Accepted (May 2026)},
 }
 ```
