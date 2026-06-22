@@ -36,7 +36,7 @@ documentation = "https://pyrigi.github.io/PyRigi/"
 Issues = "https://github.com/PyRigi/PyRigi/issues"
 
 [project.optional-dependencies]
-realization-counting = ["lnumber (>=0.14,<0.15)"]
+realization-counting = ["lnumber (>=0.20,<0.21)"]
 meshing = ["trimesh (>=4.5.0, <5.0.0)", "manifold3d (>=3.0.1, <4.0.0)"]
 
 [tool.poetry]
