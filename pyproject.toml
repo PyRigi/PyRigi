@@ -60,8 +60,8 @@ pandas = "^2.2.0"
 seaborn = "^0.13.0"
 ipykernel = "^6.29.0"
 ipywidgets = "^8.1.0"
-notebook = "^7.5.2"
 scipy = "^1.17.1"
+jupyterlab = "^4.6.0"
 
 
 [tool.poetry.group.doc.dependencies]
