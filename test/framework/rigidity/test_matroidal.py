@@ -4,7 +4,6 @@ import pyrigi.frameworkDB as fws
 import pyrigi.graphDB as graphs
 from pyrigi.framework import Framework
 from pyrigi.framework._rigidity import matroidal as matroidal_rigidity
-from test import TEST_WRAPPED_FUNCTIONS
 from test.framework import _to_FrameworkBase
 
 
@@ -40,13 +39,10 @@ from test.framework import _to_FrameworkBase
     + [fws.Cycle(n + 1, dim=n) for n in range(3, 7)],
 )
 def test_is_independent(framework):
-    assert framework.is_independent()
-    assert framework.is_independent(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_independent(_to_FrameworkBase(framework))
-        assert matroidal_rigidity.is_independent(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert matroidal_rigidity.is_independent(_to_FrameworkBase(framework))
+    assert matroidal_rigidity.is_independent(
+        _to_FrameworkBase(framework), numerical=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -69,13 +65,10 @@ def test_is_independent(framework):
     + [Framework.Random(graphs.Complete(n), dim=n - 2) for n in range(3, 8)],
 )
 def test_is_dependent(framework):
-    assert framework.is_dependent()
-    assert framework.is_dependent(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_dependent(_to_FrameworkBase(framework))
-        assert matroidal_rigidity.is_dependent(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert matroidal_rigidity.is_dependent(_to_FrameworkBase(framework))
+    assert matroidal_rigidity.is_dependent(
+        _to_FrameworkBase(framework), numerical=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -96,13 +89,10 @@ def test_is_dependent(framework):
     + [fws.Complete(n - 1, dim=n) for n in range(2, 7)],
 )
 def test_is_isostatic(framework):
-    assert framework.is_isostatic()
-    assert framework.is_isostatic(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert matroidal_rigidity.is_isostatic(_to_FrameworkBase(framework))
-        assert matroidal_rigidity.is_isostatic(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert matroidal_rigidity.is_isostatic(_to_FrameworkBase(framework))
+    assert matroidal_rigidity.is_isostatic(
+        _to_FrameworkBase(framework), numerical=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -134,9 +124,7 @@ def test_is_isostatic(framework):
     + [Framework.Random(graphs.Complete(n), dim=n - 2) for n in range(3, 8)],
 )
 def test_is_not_isostatic(framework):
-    assert not framework.is_isostatic()
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not matroidal_rigidity.is_isostatic(_to_FrameworkBase(framework))
-        assert not matroidal_rigidity.is_isostatic(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert not matroidal_rigidity.is_isostatic(_to_FrameworkBase(framework))
+    assert not matroidal_rigidity.is_isostatic(
+        _to_FrameworkBase(framework), numerical=True
+    )

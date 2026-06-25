@@ -3,7 +3,6 @@ import pytest
 from pyrigi.framework import Framework
 from pyrigi.framework._export import export as framework_export
 from pyrigi.graph import Graph
-from test import TEST_WRAPPED_FUNCTIONS
 from test.framework import _to_FrameworkBase
 
 
@@ -44,10 +43,8 @@ def test__generate_stl_bar_error(holes_dist, holes_diam, bar_w, bar_h):
 def test_generate_stl_bars():
     G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
     F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]})
-    assert F.generate_stl_bars(scale=20, filename_prefix="mybar") is None
-    if TEST_WRAPPED_FUNCTIONS:
-        F = _to_FrameworkBase(F)
-        assert (
-            framework_export.generate_stl_bars(F, scale=20, filename_prefix="mybar")
-            is None
-        )
+    F = _to_FrameworkBase(F)
+    assert (
+        framework_export.generate_stl_bars(F, scale=20, filename_prefix="mybar")
+        is None
+    )

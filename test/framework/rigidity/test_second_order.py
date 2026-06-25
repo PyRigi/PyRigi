@@ -3,7 +3,6 @@ import pytest
 import pyrigi.frameworkDB as fws
 from pyrigi.framework import Framework
 from pyrigi.framework._rigidity import second_order as second_order_rigidity
-from test import TEST_WRAPPED_FUNCTIONS
 from test.framework import _to_FrameworkBase
 
 
@@ -24,13 +23,10 @@ from test.framework import _to_FrameworkBase
     ],
 )
 def test_is_prestress_stable(framework):
-    assert framework.is_prestress_stable()
-    assert framework.is_prestress_stable(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert second_order_rigidity.is_prestress_stable(_to_FrameworkBase(framework))
-        assert second_order_rigidity.is_prestress_stable(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert second_order_rigidity.is_prestress_stable(_to_FrameworkBase(framework))
+    assert second_order_rigidity.is_prestress_stable(
+        _to_FrameworkBase(framework), numerical=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -48,15 +44,10 @@ def test_is_prestress_stable(framework):
     ],
 )
 def test_is_not_prestress_stable(framework):
-    assert not framework.is_prestress_stable()
-    assert not framework.is_prestress_stable(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not second_order_rigidity.is_prestress_stable(
-            _to_FrameworkBase(framework)
-        )
-        assert not second_order_rigidity.is_prestress_stable(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert not second_order_rigidity.is_prestress_stable(_to_FrameworkBase(framework))
+    assert not second_order_rigidity.is_prestress_stable(
+        _to_FrameworkBase(framework), numerical=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -68,10 +59,7 @@ def test_is_not_prestress_stable(framework):
 )
 def test_is_prestress_stable_error(framework):
     with pytest.raises(ValueError):
-        framework.is_prestress_stable()
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(ValueError):
-            second_order_rigidity.is_prestress_stable(_to_FrameworkBase(framework))
+        second_order_rigidity.is_prestress_stable(_to_FrameworkBase(framework))
 
 
 @pytest.mark.parametrize(
@@ -91,13 +79,10 @@ def test_is_prestress_stable_error(framework):
     ],
 )
 def test_is_second_order_rigid(framework):
-    assert framework.is_second_order_rigid()
-    assert framework.is_second_order_rigid(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert second_order_rigidity.is_second_order_rigid(_to_FrameworkBase(framework))
-        assert second_order_rigidity.is_second_order_rigid(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert second_order_rigidity.is_second_order_rigid(_to_FrameworkBase(framework))
+    assert second_order_rigidity.is_second_order_rigid(
+        _to_FrameworkBase(framework), numerical=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -115,15 +100,12 @@ def test_is_second_order_rigid(framework):
     ],
 )
 def test_is_not_second_order_rigid(framework):
-    assert not framework.is_second_order_rigid()
-    assert not framework.is_second_order_rigid(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not second_order_rigidity.is_second_order_rigid(
-            _to_FrameworkBase(framework)
-        )
-        assert not second_order_rigidity.is_second_order_rigid(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert not second_order_rigidity.is_second_order_rigid(
+        _to_FrameworkBase(framework)
+    )
+    assert not second_order_rigidity.is_second_order_rigid(
+        _to_FrameworkBase(framework), numerical=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -135,7 +117,4 @@ def test_is_not_second_order_rigid(framework):
 )
 def test_is_second_order_rigid_error(framework):
     with pytest.raises(ValueError):
-        framework.is_second_order_rigid()
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(ValueError):
-            second_order_rigidity.is_second_order_rigid(_to_FrameworkBase(framework))
+        second_order_rigidity.is_second_order_rigid(_to_FrameworkBase(framework))
