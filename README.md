@@ -83,9 +83,9 @@ See the complete [list of contributors](https://pyrigi.github.io/PyRigi/developm
 
 The current maintainers of the project are:
 
+[Matthias Adrian-Himmelmann](https://matthiashimmelmann.github.io/) \
 [Matteo Gallet](mailto:matteo.gallet@units.it) \
 Georg Grasegger \
-[Matthias Himmelmann](https://matthiashimmelmann.github.io/) \
 [Jan Legerský](https://jan.legersky.cz/)
 
 The decision to create PyRigi was made by the participants of the workshop
@@ -97,16 +97,17 @@ Special Semester on Rigidity and Flexibility at [RICAM](https://www.oeaw.ac.at/r
 
 If you would like to cite PyRigi, please use the following reference:
 
-Matteo Gallet, Georg Grasegger, Matthias Himmelmann, and Jan Legerský. *PyRigi
+Matthias Adrian-Himmelmann, Matteo Gallet, Georg Grasegger, and Jan Legerský. *PyRigi
 – a general-purpose Python package for the rigidity and flexibility of bar-and-joint
-frameworks*, 2025, preprint. [doi:10.48550/arXiv.2505.22652](https://doi.org/10.48550/arXiv.2505.22652).
+frameworks*, 2026, ACM Transactions on Mathematical Software.
+[doi:10.1145/3815171](https://doi.org/10.1145/3815171).
 
 ```
-@misc{pyrigi,
+@article{pyrigi,
       title = {{PyRigi -- a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks}},
-      author = {Matteo Gallet and Georg Grasegger and Matthias Himmelmann and Jan Legerský},
-      year = {2025},
-      doi = {10.48550/arXiv.2505.22652},
-      note = {preprint},
+      author = {{Matthias Adrian-Himmelmann and Matteo Gallet and Georg Grasegger and Jan Legerský},
+      year = {2026},
+      doi = {https://doi.org/10.1145/3815171},
+      journal = {ACM Transactions on Mathematical Software},
 }
 ```
