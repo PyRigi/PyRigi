@@ -59,3 +59,7 @@ def different_function2(graph: _BadWrapperBase, x: int, label: str = "a") -> str
 
 def missing_kwargs(graph: _BadWrapperBase, x: int, label: str = "a", **kwargs) -> str:
     return f"{label}:{x} (graph has {graph.order} nodes: {kwargs.keys()})"
+
+
+def switched_positional(graph: _BadWrapperBase, x: int, y: int) -> str:
+    return f"{y}:{x} (graph has {graph.order} nodes)"
