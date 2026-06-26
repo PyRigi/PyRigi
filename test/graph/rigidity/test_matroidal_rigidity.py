@@ -245,7 +245,7 @@ def test_is_not_Rd_closed_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d1)
 def test_is_Rd_dependent_d1(graph, algorithm):
-    assert not matroidal_rigidity.is_Rd_independent(
+    assert matroidal_rigidity.is_Rd_dependent(
         nx.Graph(graph), dim=1, algorithm=algorithm
     )
 
@@ -279,7 +279,7 @@ def test_is_Rd_independent_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d2)
 def test_is_Rd_dependent_d2(graph, algorithm):
-    assert not matroidal_rigidity.is_Rd_independent(
+    assert matroidal_rigidity.is_Rd_dependent(
         nx.Graph(graph), dim=2, algorithm=algorithm
     )
 
@@ -310,7 +310,7 @@ def test_is_Rd_independent_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_all_d)
 def test_is_Rd_dependent_d3(graph, algorithm):
-    assert not matroidal_rigidity.is_Rd_independent(
+    assert matroidal_rigidity.is_Rd_dependent(
         nx.Graph(graph), dim=3, algorithm=algorithm
     )
 
