@@ -183,9 +183,7 @@ def test_inf_flexes():
         and infinitesimal_rigidity.is_vector_nontrivial_inf_flex(
             F, explicit_flex, numerical=True
         )
-        and infinitesimal_rigidity.is_nontrivial_flex(
-            F, explicit_flex, numerical=True
-        )
+        and infinitesimal_rigidity.is_nontrivial_flex(F, explicit_flex, numerical=True)
     )
     explicit_flex_reorder = sympify(
         ["-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, "-sqrt(2)*pi", 0, 0, 0, 0, 0, 0, 0]
@@ -225,15 +223,11 @@ def test_inf_flexes():
     F = fws.Path(4)
     F = _to_FrameworkBase(F)
     for inf_flex in infinitesimal_rigidity.nontrivial_inf_flexes(F):
-        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
-            F, inf_flex
-        )
+        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(F, inf_flex)
         assert infinitesimal_rigidity.is_dict_inf_flex(
             F, dict_flex
         ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(F, dict_flex)
-    assert (
-        Matrix.hstack(*(infinitesimal_rigidity.nontrivial_inf_flexes(F))).rank() == 2
-    )
+    assert Matrix.hstack(*(infinitesimal_rigidity.nontrivial_inf_flexes(F))).rank() == 2
 
     F = fws.Frustum(4)
     F = _to_FrameworkBase(F)
@@ -244,9 +238,7 @@ def test_inf_flexes():
         and infinitesimal_rigidity.is_vector_nontrivial_inf_flex(
             F, explicit_flex, numerical=True
         )
-        and infinitesimal_rigidity.is_nontrivial_flex(
-            F, explicit_flex, numerical=True
-        )
+        and infinitesimal_rigidity.is_nontrivial_flex(F, explicit_flex, numerical=True)
     )
     QF = Matrix.hstack(*(infinitesimal_rigidity.inf_flexes(F, include_trivial=True)))
     Q_exp = Matrix(explicit_flex)
@@ -258,9 +250,7 @@ def test_inf_flexes():
     F = _to_FrameworkBase(F)
     F_triv = infinitesimal_rigidity.trivial_inf_flexes(F)
     for inf_flex in F_triv:
-        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
-            F, inf_flex
-        )
+        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(F, inf_flex)
         assert infinitesimal_rigidity.is_dict_inf_flex(
             F, dict_flex
         ) and infinitesimal_rigidity.is_dict_trivial_inf_flex(F, dict_flex)
@@ -311,9 +301,7 @@ def test_inf_flexes_numerical():
     F = fws.Path(4)
     F = _to_FrameworkBase(F)
     for inf_flex in infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True):
-        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
-            F, inf_flex
-        )
+        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(F, inf_flex)
         assert infinitesimal_rigidity.is_dict_inf_flex(
             F, dict_flex, numerical=True
         ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(
@@ -338,9 +326,7 @@ def test_inf_flexes_numerical():
     assert np.linalg.matrix_rank(QF) == 5
     QF = np.vstack(
         tuple(
-            infinitesimal_rigidity.inf_flexes(
-                F, include_trivial=False, numerical=True
-            )
+            infinitesimal_rigidity.inf_flexes(F, include_trivial=False, numerical=True)
         )
     )
     assert np.linalg.matrix_rank(QF) == 2
@@ -348,9 +334,7 @@ def test_inf_flexes_numerical():
     F = fws.Complete(5, dim=4)
     F = _to_FrameworkBase(F)
     assert (
-        len(
-            infinitesimal_rigidity.inf_flexes(F, include_trivial=True, numerical=True)
-        )
+        len(infinitesimal_rigidity.inf_flexes(F, include_trivial=True, numerical=True))
         == 10
     )
 
@@ -445,9 +429,7 @@ def test_is_vector_inf_flex():
     F = _to_FrameworkBase(F)
     assert infinitesimal_rigidity.is_vector_inf_flex(F, [0, 0, 0, 1, -1, 0])
     assert not infinitesimal_rigidity.is_vector_inf_flex(F, [0, 0, 0, 1, -2, 0])
-    assert infinitesimal_rigidity.is_vector_inf_flex(
-        F, [0, 1, 0, 0, -1, 0], [1, 0, 2]
-    )
+    assert infinitesimal_rigidity.is_vector_inf_flex(F, [0, 1, 0, 0, -1, 0], [1, 0, 2])
 
     F.delete_edge([1, 2])
     assert infinitesimal_rigidity.is_vector_inf_flex(F, [0, 0, 0, 1, -1, 0])

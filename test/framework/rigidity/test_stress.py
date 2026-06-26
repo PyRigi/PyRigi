@@ -68,10 +68,7 @@ def test_stresses(framework, num_stresses):
 
     stresses = stress_rigidity.stresses(_to_FrameworkBase(framework))
     assert len(stresses) == num_stresses and all(
-        [
-            stress_rigidity.is_stress(_to_FrameworkBase(framework), s)
-            for s in stresses
-        ]
+        [stress_rigidity.is_stress(_to_FrameworkBase(framework), s) for s in stresses]
     )
 
 

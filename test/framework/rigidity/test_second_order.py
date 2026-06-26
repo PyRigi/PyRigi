@@ -100,9 +100,7 @@ def test_is_second_order_rigid(framework):
     ],
 )
 def test_is_not_second_order_rigid(framework):
-    assert not second_order_rigidity.is_second_order_rigid(
-        _to_FrameworkBase(framework)
-    )
+    assert not second_order_rigidity.is_second_order_rigid(_to_FrameworkBase(framework))
     assert not second_order_rigidity.is_second_order_rigid(
         _to_FrameworkBase(framework), numerical=True
     )

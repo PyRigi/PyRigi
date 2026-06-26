@@ -45,6 +45,5 @@ def test_generate_stl_bars():
     F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [1, "1/2 * sqrt(5)"], 3: [1 / 2, "4/3"]})
     F = _to_FrameworkBase(F)
     assert (
-        framework_export.generate_stl_bars(F, scale=20, filename_prefix="mybar")
-        is None
+        framework_export.generate_stl_bars(F, scale=20, filename_prefix="mybar") is None
     )

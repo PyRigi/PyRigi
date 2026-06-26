@@ -55,9 +55,7 @@ def test_plot2D():
     F = Framework(graphs.Path(3), {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 1]})
     F = _to_FrameworkBase(F)
     with pytest.raises(ValueError):
-        framework_plot.plot2D(
-            F, inf_flex={0: [-1, 0, 0], 1: [1, 0, 0], 2: [0, 0, 0]}
-        )
+        framework_plot.plot2D(F, inf_flex={0: [-1, 0, 0], 1: [1, 0, 0], 2: [0, 0, 0]})
     framework_plot.plot2D(F, inf_flex=0)
     framework_plot.plot2D(F, inf_flex=Framework.inf_flexes(F)[0])
     framework_plot.plot2D(F, inf_flex=Framework.inf_flexes(F, numerical=True)[0])
@@ -84,9 +82,7 @@ def test_plot3D():
     F = Framework(graphs.Complete(2), {0: [1, 0, 0, 0], 1: [0, 1, 0, 0]})
     F = _to_FrameworkBase(F)
     with pytest.raises(ValueError):
-        framework_plot.plot3D(
-            F, projection_matrix=[[1, 0, 0], [0, 0, 1], [0, 0, 0]]
-        )
+        framework_plot.plot3D(F, projection_matrix=[[1, 0, 0], [0, 0, 1], [0, 0, 0]])
     framework_plot.plot3D(F)
 
     F = Framework(graphs.Complete(2), {0: [0, 0, 0, 0], 1: [1, 0, 0, 0]})

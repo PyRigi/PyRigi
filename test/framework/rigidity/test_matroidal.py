@@ -66,9 +66,7 @@ def test_is_independent(framework):
 )
 def test_is_dependent(framework):
     assert matroidal_rigidity.is_dependent(_to_FrameworkBase(framework))
-    assert matroidal_rigidity.is_dependent(
-        _to_FrameworkBase(framework), numerical=True
-    )
+    assert matroidal_rigidity.is_dependent(_to_FrameworkBase(framework), numerical=True)
 
 
 @pytest.mark.parametrize(
@@ -90,9 +88,7 @@ def test_is_dependent(framework):
 )
 def test_is_isostatic(framework):
     assert matroidal_rigidity.is_isostatic(_to_FrameworkBase(framework))
-    assert matroidal_rigidity.is_isostatic(
-        _to_FrameworkBase(framework), numerical=True
-    )
+    assert matroidal_rigidity.is_isostatic(_to_FrameworkBase(framework), numerical=True)
 
 
 @pytest.mark.parametrize(

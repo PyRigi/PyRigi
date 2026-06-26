@@ -43,9 +43,7 @@ def test_is_redundantly_inf_rigid(framework):
     ],
 )
 def test_is_not_redundantly_inf_rigid(framework):
-    assert not redundant_rigidity.is_redundantly_inf_rigid(
-        _to_FrameworkBase(framework)
-    )
+    assert not redundant_rigidity.is_redundantly_inf_rigid(_to_FrameworkBase(framework))
     assert not redundant_rigidity.is_redundantly_inf_rigid(
         _to_FrameworkBase(framework), numerical=True
     )
