@@ -20,9 +20,9 @@ def test_adjacency_matrix():
     G = Graph.from_vertices(["C", 1, "D"])
     assert G.adjacency_matrix() == Matrix.zeros(3)
     G = Graph.from_vertices_and_edges(["C", 1, "D"], [[1, "D"], ["C", "D"]])
-    assert general.adjacency_matrix(
-        nx.Graph(G), vertex_order=["C", 1, "D"]
-    ) == Matrix([[0, 0, 1], [0, 0, 1], [1, 1, 0]])
+    assert general.adjacency_matrix(nx.Graph(G), vertex_order=["C", 1, "D"]) == Matrix(
+        [[0, 0, 1], [0, 0, 1], [1, 1, 0]]
+    )
     M = Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
     assert G.from_adjacency_matrix(M).adjacency_matrix() == M
     M = Matrix([[1, 1, 0], [1, 0, 1], [0, 1, 0]])

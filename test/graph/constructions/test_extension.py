@@ -180,11 +180,7 @@ def test_all_k_extensions2(graph, k, dim, sol):
 
 def test_all_k_extension_error():
     with pytest.raises(ValueError):
-        list(
-            extension.all_k_extensions(
-                nx.Graph(Graph.from_vertices([0, 1, 2])), 1, 1
-            )
-        )
+        list(extension.all_k_extensions(nx.Graph(Graph.from_vertices([0, 1, 2])), 1, 1))
 
 
 ###############################################################
@@ -208,9 +204,7 @@ def test_all_k_extension_error():
 )
 def test_all_extensions(graph, dim, sol):
     assert is_isomorphic_graph_list(
-        list(
-            extension.all_extensions(nx.Graph(graph), dim, only_non_isomorphic=True)
-        ),
+        list(extension.all_extensions(nx.Graph(graph), dim, only_non_isomorphic=True)),
         [Graph.from_int(igraph) for igraph in sol],
     )
 
@@ -263,9 +257,7 @@ def test_all_extensions_single(graph, dim):
 def test_all_extensions_value_error(graph, dim, k_min, k_max):
     with pytest.raises(ValueError):
         list(
-            extension.all_extensions(
-                nx.Graph(graph), dim=dim, k_min=k_min, k_max=k_max
-            )
+            extension.all_extensions(nx.Graph(graph), dim=dim, k_min=k_min, k_max=k_max)
         )
 
 
@@ -286,9 +278,7 @@ def test_all_extensions_value_error(graph, dim, k_min, k_max):
 def test_all_extensions_type_error(graph, dim, k_min, k_max):
     with pytest.raises(TypeError):
         list(
-            extension.all_extensions(
-                nx.Graph(graph), dim=dim, k_min=k_min, k_max=k_max
-            )
+            extension.all_extensions(nx.Graph(graph), dim=dim, k_min=k_min, k_max=k_max)
         )
 
 
@@ -338,15 +328,11 @@ def test_has_not_extension_sequence(graph):
 # extension_sequence
 ###############################################################
 def test_extension_sequence_solution():
-    assert extension.extension_sequence(
-        graphs.Complete(2), return_type="graphs"
-    ) == [
+    assert extension.extension_sequence(graphs.Complete(2), return_type="graphs") == [
         Graph([[0, 1]]),
     ]
 
-    assert extension.extension_sequence(
-        graphs.Complete(3), return_type="graphs"
-    ) == [
+    assert extension.extension_sequence(graphs.Complete(3), return_type="graphs") == [
         Graph([[1, 2]]),
         Graph([[0, 1], [0, 2], [1, 2]]),
     ]
@@ -511,9 +497,7 @@ def test_extension_sequence_dim(graph, dim):
     ],
 )
 def test_extension_sequence_min_rigid(graph, dim):
-    ext = extension.extension_sequence(
-        nx.Graph(graph), dim=dim, return_type="graphs"
-    )
+    ext = extension.extension_sequence(nx.Graph(graph), dim=dim, return_type="graphs")
     assert ext is not None
     for current in ext:
         assert generic_rigidity.is_min_rigid(current, dim)
@@ -562,6 +546,4 @@ def test_extension_sequence_dim_none(graph, dim):
 
 def test_extension_sequence_error():
     with pytest.raises(NotSupportedValueError):
-        extension.extension_sequence(
-            nx.Graph(graphs.Complete(3)), return_type="Test"
-        )
+        extension.extension_sequence(nx.Graph(graphs.Complete(3)), return_type="Test")
