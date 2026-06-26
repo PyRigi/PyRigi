@@ -124,8 +124,8 @@ def test_fetched_rigid_are_rigid(store_connected, rigidity_type, rigidity_functi
         for row in rows:
             G = nx.from_graph6_bytes(row["graph"].encode())
             assert rigidity_function(G, dim=dim), (
-                f"Graph with g6 encoding '{row["graph"]}' was fetched "
-                f"as {dim}-{rigidity_type.replace("dity", "d")}, but it is not. "
+                f"Graph with g6 encoding '{row['graph']}' was fetched "
+                f"as {dim}-{rigidity_type.replace('dity', 'd')}, but it is not. "
                 f"The stored '{rigidity_type}' value is {row[rigidity_type]}."
             )
 
@@ -145,7 +145,7 @@ def test_fetched_non_rigid_are_not_rigid(
         for row in rows:
             G = nx.from_graph6_bytes(row["graph"].encode())
             assert not rigidity_function(G, dim=dim), (
-                f"Graph with g6 encoding '{row["graph"]}' was fetched as "
-                f"not {dim}-{rigidity_type.replace("dity", "d")}, but it is. "
+                f"Graph with g6 encoding '{row['graph']}' was fetched as "
+                f"not {dim}-{rigidity_type.replace('dity', 'd')}, but it is. "
                 f"The stored '{rigidity_type}' value is {row[rigidity_type]}."
             )
