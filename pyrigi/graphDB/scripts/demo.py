@@ -33,8 +33,8 @@ def main() -> None:
     )
 
     # 4. Rigidity-aware queries
-    # = 2: fetch strategy expands to (rigidity = 2 OR rigidity = -1), so complete
-    # graphs (stored as -1) are included alongside graphs with max_rigid_dim = 2
+    # "rigidity = 2" means "is 2-rigid": expands to (rigidity >= 2 OR rigidity = -1),
+    # so graphs with max rigid dimension >= 2 and complete graphs (stored as -1) match.
     store.pretty_print_results(
         store.fetch(
             select=["graph", "num_vertices", "rigidity"],
@@ -44,8 +44,8 @@ def main() -> None:
         show_index=True,
     )
 
-    # IN [1, 2]: expands to (rigidity IN (1, 2) OR rigidity = -1),
-    # including complete graphs
+    # IN [1, 2]: expands to (rigidity >= 1 OR rigidity >= 2 OR rigidity = -1),
+    # i.e. is 1-rigid or 2-rigid
     store.pretty_print_results(
         store.fetch(
             select=["graph", "num_vertices", "rigidity"],

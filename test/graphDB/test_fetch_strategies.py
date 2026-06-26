@@ -16,20 +16,16 @@ from pyrigi.graphDB import GraphStoreService, QueryFilter
 
 
 class TestRigidityFetchStrategy:
-    def test_eq_includes_complete(self):
+    def test_eq_expands_with_gte(self):
+        # "= d" means "is d-rigid"; a graph is d-rigid iff its stored
+        # maximum rigid dimension is >= d (or it is complete, stored as -1).
         sql, params = _rigidity_fetch_strategy("rigidity", "=", 3)
-        assert sql == "(rigidity = ? OR rigidity = -1)"
+        assert sql == "(rigidity >= ? OR rigidity = -1)"
         assert params == [3]
 
-    def test_eq_minus_one_is_complete_only(self):
-        sql, params = _rigidity_fetch_strategy("rigidity", "=", -1)
-        assert sql == "(rigidity = ? OR rigidity = -1)"
-        assert params == [-1]
-
-    def test_in_includes_complete(self):
+    def test_in_expands_to_disjunction_of_gte(self):
         sql, params = _rigidity_fetch_strategy("rigidity", "IN", [1, 2])
-        assert "IN (?, ?)" in sql
-        assert "rigidity = -1" in sql
+        assert sql == "(rigidity >= ? OR rigidity >= ? OR rigidity = -1)"
         assert params == [1, 2]
 
     def test_is_null_passthrough(self):
@@ -113,17 +109,6 @@ def store_with_rigidity_data(tmp_path):
 
 
 class TestRigidityFetchIntegration:
-    def test_eq_minus_one_returns_complete_graph(self, store_with_rigidity_data):
-        store = store_with_rigidity_data
-        store.populate_column("rigidity")
-        # K3 is stored as -1 (complete-graph sentinel); query via = -1
-        rows = store.fetch(
-            select=["graph"],
-            filters=[QueryFilter("rigidity", "=", -1)],
-        )
-        g6_k3 = _g6(nx.complete_graph(3))
-        assert any(r["graph"] == g6_k3 for r in rows)
-
     def test_gte_rejected_for_rigidity_column(self, store_with_rigidity_data):
         store = store_with_rigidity_data
         with pytest.raises(ValueError, match="not supported"):
@@ -132,7 +117,8 @@ class TestRigidityFetchIntegration:
     def test_eq_d_returns_complete_graph(self, store_with_rigidity_data):
         store = store_with_rigidity_data
         store.populate_column("rigidity")
-        # "= d" expands to (rigidity = d OR rigidity = -1), so K3 must appear
+        # "= d" expands to (rigidity >= d OR rigidity = -1), so K3 (complete,
+        # rigid in every dimension) must appear.
         rows = store.fetch(
             select=["graph"],
             filters=[QueryFilter("rigidity", "=", 1)],
@@ -149,6 +135,32 @@ class TestRigidityFetchIntegration:
         )
         g6_k3 = _g6(nx.complete_graph(3))
         assert any(r["graph"] == g6_k3 for r in rows)
+
+    def test_eq_is_monotone(self, store_with_rigidity_data):
+        store = store_with_rigidity_data
+        store.populate_column("rigidity")
+        g6_p4 = _g6(nx.path_graph(4))  # max rigid dimension 1
+        g6_diamond = _g6(
+            nx.Graph([(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)])
+        )  # max rigid dimension 2
+
+        # "rigidity = 1" (is 1-rigid) must include the 2-rigid diamond.
+        rows1 = {
+            r["graph"]
+            for r in store.fetch(
+                select=["graph"], filters=[QueryFilter("rigidity", "=", 1)]
+            )
+        }
+        assert g6_diamond in rows1
+
+        # "rigidity = 2" (is 2-rigid) must exclude the only-1-rigid path.
+        rows2 = {
+            r["graph"]
+            for r in store.fetch(
+                select=["graph"], filters=[QueryFilter("rigidity", "=", 2)]
+            )
+        }
+        assert g6_p4 not in rows2
 
 
 class TestMinRigidityFetchIntegration:

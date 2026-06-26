@@ -255,20 +255,27 @@ for row in store.iter_fetch(filters=[QueryFilter("num_vertices", "=", 8)]):
 
 ## Rigidity-aware querying
 
-Complete graphs are stored with a sentinel value (`-1` for `rigidity` and
-`global_rigidity`; a negative value for `min_rigidity`), because they are rigid in every
-dimension. To keep queries correct without exposing this encoding, the three rigidity
-columns accept only `=`, `IN`, `IS NULL`, `IS NOT NULL` (any other operator raises
-`ValueError`), and the query layer rewrites `=` and `IN` to include complete graphs
-automatically:
+The `rigidity` and `global_rigidity` columns store the *maximum* dimension in which a
+graph is rigid, and complete graphs (rigid in every dimension) are stored with the
+sentinel `-1`. A graph is therefore d-rigid for every dimension up to its stored maximum.
+The three rigidity columns accept only `=`, `IN`, `IS NULL`, `IS NOT NULL` (any other
+operator raises `ValueError`). On these columns `=` means "is d-rigid": the query layer
+rewrites `rigidity = d` to match every graph whose stored value is at least `d`, plus
+every complete graph.
 
 ```python
-store.fetch(filters=[QueryFilter("rigidity", "=", 2)])       # dim-2 rigid + complete
-store.fetch(filters=[QueryFilter("rigidity", "IN", [1, 2])]) # likewise
+# graphs that are 2-rigid (stored maximum >= 2), plus complete graphs
+store.fetch(filters=[QueryFilter("rigidity", "=", 2)])
+# is 1-rigid or 2-rigid (a disjunction of the above)
+store.fetch(filters=[QueryFilter("rigidity", "IN", [1, 2])])
 ```
 
-Complete graphs alone are selected with `QueryFilter("rigidity", "=", -1)`. See
-[Rigidity column encoding](#rigidity-column-encoding) for the stored encoding.
+Because the property is monotone, `rigidity = 1` returns every connected graph (all are
+1-rigid), while `rigidity = 2` returns the strictly smaller set that is also 2-rigid.
+
+`min_rigidity` behaves differently: minimal d-rigidity is not monotone, so
+`min_rigidity = d` matches graphs that are *minimally* d-rigid, an exact property, as
+described under [Rigidity column encoding](#rigidity-column-encoding).
 
 (rigidity-column-encoding)=
 ## Rigidity column encoding

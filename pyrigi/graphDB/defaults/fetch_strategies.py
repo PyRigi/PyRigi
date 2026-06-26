@@ -13,13 +13,14 @@ via both ``fetch_strategy`` (runtime) and ``fetch_ref`` (persisted in the DB).
 Rigidity / global-rigidity encoding
 -------------------------------------
 The stored value is the *maximum* d such that G is d-rigid (or ``-1``
-for complete graphs, which are rigid in all dimensions).  Because
-complete graphs are rigid in every dimension, they must appear in the
-results of any ``= d`` or ``IN [...]`` query.  The ``=`` and ``IN``
-operators therefore expand to include the ``-1`` sentinel:
+for complete graphs, which are rigid in all dimensions).  A graph is
+d-rigid for every dimension up to its stored maximum, so a query for
+d-rigid graphs must match every stored value ``>= d`` (and every complete
+graph).  The ``=`` operator therefore means "is d-rigid" and expands with
+``>=``; ``IN`` is the disjunction of such tests:
 
-* ``= d``       →  ``(column = d OR column = -1)``
-* ``IN [...]``  →  ``(column IN (...) OR column = -1)``
+* ``= d``       →  ``(column >= d OR column = -1)``
+* ``IN [...]``  →  ``(column >= d1 OR ... OR column >= dk OR column = -1)``
 
 ``IS NULL`` and ``IS NOT NULL`` pass through unchanged (``NULL`` means
 the column has not been populated yet).
@@ -51,15 +52,17 @@ def _rigidity_fetch_strategy(
 ) -> tuple[str, list]:
     """Fetch strategy for ``rigidity`` and ``global_rigidity`` columns.
 
-    Expands ``=`` and ``IN`` to include complete graphs (stored as ``-1``).
+    The stored value is the maximum rigid dimension, so ``= d`` means
+    "is d-rigid" and matches every graph stored as ``>= d`` plus complete
+    graphs (stored as ``-1``).  ``IN`` is the disjunction of such tests.
     ``IS NULL`` and ``IS NOT NULL`` fall back to the default pass-through.
     """
     op = operator.upper()
     if op == "=":
-        return f"({column} = ? OR {column} = -1)", [value]
+        return f"({column} >= ? OR {column} = -1)", [value]
     if op == "IN":
-        placeholders = ", ".join("?" * len(value))
-        return f"({column} IN ({placeholders}) OR {column} = -1)", list(value)
+        ors = " OR ".join(f"{column} >= ?" for _ in value)
+        return f"({ors} OR {column} = -1)", list(value)
     return _default_fetch_strategy(column, operator, value)
 
 
