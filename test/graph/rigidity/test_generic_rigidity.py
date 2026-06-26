@@ -70,9 +70,7 @@ def test_is_rigid_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_not_rigid_d1(graph, algorithm):
-    assert not generic_rigidity.is_rigid(
-        nx.Graph(graph), dim=1, algorithm=algorithm
-    )
+    assert not generic_rigidity.is_rigid(nx.Graph(graph), dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -109,9 +107,7 @@ def test_is_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_not_is_rigid_d2(graph, algorithm):
-    assert not generic_rigidity.is_rigid(
-        nx.Graph(graph), dim=2, algorithm=algorithm
-    )
+    assert not generic_rigidity.is_rigid(nx.Graph(graph), dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -142,9 +138,7 @@ def test_is_rigid_dimension_sparsity_error(method, params):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_d1)
 def test_is_min_rigid_d1(graph, algorithm):
-    assert generic_rigidity.is_min_rigid(
-        nx.Graph(graph), dim=1, algorithm=algorithm
-    )
+    assert generic_rigidity.is_min_rigid(nx.Graph(graph), dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -180,9 +174,7 @@ def test_is_not_min_rigid_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_d2)
 def test_is_min_rigid_d2(graph, algorithm):
-    assert generic_rigidity.is_min_rigid(
-        nx.Graph(graph), dim=2, algorithm=algorithm
-    )
+    assert generic_rigidity.is_min_rigid(nx.Graph(graph), dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -222,9 +214,7 @@ def test_is_not_min_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_all_d)
 def test_is_min_rigid_d3(graph, algorithm):
-    assert generic_rigidity.is_min_rigid(
-        nx.Graph(graph), dim=3, algorithm=algorithm
-    )
+    assert generic_rigidity.is_min_rigid(nx.Graph(graph), dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(

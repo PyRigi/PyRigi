@@ -26,9 +26,7 @@ is_Rd_closed_algorithms_d2 = is_Rd_closed_algorithms_all_d + ["pebble"]
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d1)
 def test_is_Rd_circuit_d1(graph, algorithm):
-    assert matroidal_rigidity.is_Rd_circuit(
-        nx.Graph(graph), dim=1, algorithm=algorithm
-    )
+    assert matroidal_rigidity.is_Rd_circuit(nx.Graph(graph), dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -71,9 +69,7 @@ def test_is_not_Rd_circuit_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_d2)
 def test_is_Rd_circuit_d2(graph, algorithm):
-    assert matroidal_rigidity.is_Rd_circuit(
-        nx.Graph(graph), dim=2, algorithm=algorithm
-    )
+    assert matroidal_rigidity.is_Rd_circuit(nx.Graph(graph), dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -126,9 +122,7 @@ def test_is_not_Rd_circuit_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", Rd_algorithms_all_d)
 def test_is_Rd_circuit_d3(graph, algorithm):
-    assert matroidal_rigidity.is_Rd_circuit(
-        nx.Graph(graph), dim=3, algorithm=algorithm
-    )
+    assert matroidal_rigidity.is_Rd_circuit(nx.Graph(graph), dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -190,9 +184,7 @@ def test_is_not_Rd_closed(graph, dim, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_Rd_closed_algorithms_d1)
 def test_is_Rd_closed_d1(graph, algorithm):
-    assert matroidal_rigidity.is_Rd_closed(
-        nx.Graph(graph), dim=1, algorithm=algorithm
-    )
+    assert matroidal_rigidity.is_Rd_closed(nx.Graph(graph), dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -218,9 +210,7 @@ def test_is_not_Rd_closed_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_Rd_closed_algorithms_d2)
 def test_is_Rd_closed_d2(graph, algorithm):
-    assert matroidal_rigidity.is_Rd_closed(
-        nx.Graph(graph), dim=2, algorithm=algorithm
-    )
+    assert matroidal_rigidity.is_Rd_closed(nx.Graph(graph), dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
