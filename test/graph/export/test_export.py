@@ -21,8 +21,8 @@ from pyrigi.graph._export import export
 def test_integer_representation(graph, gint):
     assert export.to_int(nx.Graph(graph)) == gint
     assert Graph.from_int(gint).is_isomorphic(graph)
-    assert Graph.from_int(gint).to_int() == gint
-    assert Graph.from_int(graph.to_int()).is_isomorphic(graph)
+    assert export.to_int(nx.Graph(Graph.from_int(gint))) == gint
+    assert Graph.from_int(export.to_int(nx.Graph(graph))).is_isomorphic(graph)
 
 
 def test_integer_representation_error():

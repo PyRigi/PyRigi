@@ -7,26 +7,26 @@ from pyrigi.graph import _general as general
 
 
 def test_adjacency_matrix():
-    G = Graph()
-    assert G.adjacency_matrix() == Matrix([])
-    G = Graph([[2, 1], [2, 3]])
-    assert G.adjacency_matrix() == Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
-    assert G.adjacency_matrix(vertex_order=[2, 3, 1]) == Matrix(
+    G = nx.Graph()
+    assert general.adjacency_matrix(G) == Matrix([])
+    G = nx.Graph([[2, 1], [2, 3]])
+    assert general.adjacency_matrix(G) == Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+    assert general.adjacency_matrix(G, vertex_order=[2, 3, 1]) == Matrix(
         [[0, 1, 1], [1, 0, 0], [1, 0, 0]]
     )
-    assert graphs.Complete(4).adjacency_matrix() == Matrix.ones(4) - Matrix.diag(
-        [1, 1, 1, 1]
-    )
-    G = Graph.from_vertices(["C", 1, "D"])
-    assert G.adjacency_matrix() == Matrix.zeros(3)
+    assert general.adjacency_matrix(nx.Graph(graphs.Complete(4))) == Matrix.ones(
+        4
+    ) - Matrix.diag([1, 1, 1, 1])
+    G = nx.Graph(Graph.from_vertices(["C", 1, "D"]))
+    assert general.adjacency_matrix(G) == Matrix.zeros(3)
     G = Graph.from_vertices_and_edges(["C", 1, "D"], [[1, "D"], ["C", "D"]])
     assert general.adjacency_matrix(nx.Graph(G), vertex_order=["C", 1, "D"]) == Matrix(
         [[0, 0, 1], [0, 0, 1], [1, 1, 0]]
     )
     M = Matrix([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
-    assert G.from_adjacency_matrix(M).adjacency_matrix() == M
+    assert general.adjacency_matrix(nx.Graph(Graph.from_adjacency_matrix(M))) == M
     M = Matrix([[1, 1, 0], [1, 0, 1], [0, 1, 0]])
-    assert G.from_adjacency_matrix(M).adjacency_matrix() == M
+    assert general.adjacency_matrix(nx.Graph(Graph.from_adjacency_matrix(M))) == M
 
 
 def test_vertex_and_edge_lists():

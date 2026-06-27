@@ -142,7 +142,7 @@ def test_all_k_extensions():
         == all_diamond_0_2[2]
     )
     all_diamond_1_2 = extension.all_k_extensions(
-        graphs.Diamond(), 1, 2, only_non_isomorphic=True
+        nx.Graph(graphs.Diamond()), 1, 2, only_non_isomorphic=True
     )
     assert Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3], [2, 4]]) == next(
         all_diamond_1_2
@@ -328,11 +328,15 @@ def test_has_not_extension_sequence(graph):
 # extension_sequence
 ###############################################################
 def test_extension_sequence_solution():
-    assert extension.extension_sequence(graphs.Complete(2), return_type="graphs") == [
+    assert extension.extension_sequence(
+        nx.Graph(graphs.Complete(2)), return_type="graphs"
+    ) == [
         Graph([[0, 1]]),
     ]
 
-    assert extension.extension_sequence(graphs.Complete(3), return_type="graphs") == [
+    assert extension.extension_sequence(
+        nx.Graph(graphs.Complete(3)), return_type="graphs"
+    ) == [
         Graph([[1, 2]]),
         Graph([[0, 1], [0, 2], [1, 2]]),
     ]
@@ -358,7 +362,7 @@ def test_extension_sequence_solution():
     ]
     assert (
         extension.extension_sequence(
-            graphs.CompleteBipartite(3, 3), return_type="graphs"
+            nx.Graph(graphs.CompleteBipartite(3, 3)), return_type="graphs"
         )
         == solution
     )
@@ -375,13 +379,17 @@ def test_extension_sequence_solution():
         if i < len(solution_ext):
             extension.k_extension(G, *solution_ext[i], dim=2, inplace=True)
 
-    assert extension.extension_sequence(graphs.Diamond(), return_type="graphs") == [
+    assert extension.extension_sequence(
+        nx.Graph(graphs.Diamond()), return_type="graphs"
+    ) == [
         Graph([[2, 3]]),
         Graph([[0, 2], [0, 3], [2, 3]]),
         Graph([[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]),
     ]
 
-    result = extension.extension_sequence(graphs.ThreePrism(), return_type="graphs")
+    result = extension.extension_sequence(
+        nx.Graph(graphs.ThreePrism()), return_type="graphs"
+    )
     solution = [
         Graph([[4, 5]]),
         Graph([[3, 4], [3, 5], [4, 5]]),
@@ -500,7 +508,7 @@ def test_extension_sequence_min_rigid(graph, dim):
     ext = extension.extension_sequence(nx.Graph(graph), dim=dim, return_type="graphs")
     assert ext is not None
     for current in ext:
-        assert generic_rigidity.is_min_rigid(current, dim)
+        assert generic_rigidity.is_min_rigid(nx.Graph(current), dim)
 
 
 @pytest.mark.parametrize(
