@@ -2,6 +2,8 @@
 This module provides some general functionality for frameworks.
 """
 
+from __future__ import annotations
+
 from itertools import combinations
 
 import numpy as np
@@ -27,6 +29,7 @@ def is_quasi_injective(
 
     Parameters
     ----------
+    framework:
     numerical:
         Whether the check is symbolic (default) or numerical.
     tolerance:
@@ -54,6 +57,7 @@ def is_injective(
 
     Parameters
     ----------
+    framework:
     numerical:
         Whether the check is symbolic (default) or numerical.
     tolerance:
@@ -88,6 +92,7 @@ def is_congruent_realization(
 
     Parameters
     ----------
+    framework:
     other_realization
         The realization for checking the congruence.
     numerical
@@ -130,6 +135,7 @@ def is_congruent(
 
     Parameters
     ----------
+    framework:
     other_framework
         The framework for checking the congruence.
     numerical
@@ -159,6 +165,7 @@ def is_equivalent_realization(
 
     Parameters
     ----------
+    framework:
     other_realization
         The realization for checking the equivalence.
     numerical
@@ -201,6 +208,7 @@ def is_equivalent(
 
     Parameters
     ----------
+    framework:
     other_framework
         The framework for checking the equivalence.
     numerical
@@ -223,6 +231,7 @@ def edge_lengths(
 
     Parameters
     -------
+    framework:
     numerical:
         If ``True``, numerical positions are used for the computation of the edge lengths.
 
@@ -230,9 +239,9 @@ def edge_lengths(
     --------
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:['1/2','4/3']})
-    >>> F.edge_lengths(numerical=False)
+    >>> edge_lengths(F, numerical=False)
     {(0, 1): 1, (0, 3): sqrt(73)/6, (1, 2): sqrt(5)/2, (2, 3): sqrt((-4/3 + sqrt(5)/2)**2 + 1/4)}
-    >>> F.edge_lengths(numerical=True)
+    >>> edge_lengths(F, numerical=True)
     {(0, 1): 1.0, (0, 3): 1.4240006242195884, (1, 2): 1.118033988749895, (2, 3): 0.5443838790578374}
     """  # noqa: E501
     if numerical:

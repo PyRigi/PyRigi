@@ -2,6 +2,8 @@
 Module for plotting functionality.
 """
 
+from __future__ import annotations
+
 import functools
 from typing import Any
 
@@ -266,7 +268,7 @@ def _resolve_stress(
     Resolve an equilibrium stress from various datatypes and
     position of the labels on edges.
 
-    The method returns a tuple with two dictionaries:
+    The function returns a tuple with two dictionaries:
     one for the stress values and another for the label positions.
 
     Parameters
@@ -912,6 +914,7 @@ def plot2D(
 
     Parameters
     ----------
+    framework:
     plot_style:
         An instance of the ``PlotStyle`` class that defines the visual style
         for plotting, see :class:`.PlotStyle` for more details.
@@ -927,10 +930,10 @@ def plot2D(
         Indices of two coordinates to which the framework is projected.
     inf_flex:
         Optional parameter for plotting a given infinitesimal flex. The standard
-        input format is a ``Matrix`` that is the output of e.g. the method
-        :meth:`~.Framework.inf_flexes`. Alternatively, an ``int`` can be specified
+        input format is a ``Matrix`` that is the output of e.g. the function
+        :func:`~.inf_flexes`. Alternatively, an ``int`` can be specified
         to directly choose the 0,1,2,...-th nontrivial infinitesimal flex (according
-        to the method :meth:`~.Framework.nontrivial_inf_flexes`) for plotting.
+        to the function :func:`~.nontrivial_inf_flexes`) for plotting.
         For these input types, it is important to use the same vertex order
         as the one from :meth:`.Graph.vertex_list`.
         If the vertex order needs to be specified, a
@@ -938,10 +941,10 @@ def plot2D(
         vertex labels to vectors (i.e. a sequence of coordinates).
     stress:
         Optional parameter for plotting a given equilibrium stress. The standard
-        input format is a ``Matrix`` that is the output of e.g. the method
-        :meth:`~.Framework.stresses`. Alternatively, an ``int`` can be specified
+        input format is a ``Matrix`` that is the output of e.g. the function
+        :func:`~.stresses`. Alternatively, an ``int`` can be specified
         to directly choose the 0,1,2,...-th equilibrium stress (according
-        to the method :meth:`~.Framework.stresses`) for plotting.
+        to the function :func:`~.stresses`) for plotting.
         For these input types, it is important to use the same edge order as the one
         from :meth:`.Graph.edge_list`.
         If the edge order needs to be specified, a ``Dict[Edge, Number]``
@@ -970,7 +973,8 @@ def plot2D(
         ``None`` which indicates that the figure is currently not saved.
         The figure is saved as a ``.png`` file using the ``save`` method from
         ``matplotlib``.
-    dpi: Dots per inched in case the figure is saved. Default is 300 for producing
+    dpi:
+        Dots per inched in case the figure is saved. Default is 300 for producing
         a print-quality image.
     fixed_vertices:
         Vertices that are assigned a zero flex in the plot.
@@ -982,29 +986,29 @@ def plot2D(
     >>> F = Framework(G, {0:(0,0), 1:(1,0), 2:(1,2), 3:(0,1), 4:(-1,0)})
     >>> from pyrigi import PlotStyle2D
     >>> style = PlotStyle2D(vertex_color="green", edge_color="blue")
-    >>> F.plot2D(plot_style=style)
+    >>> plot2D(F, plot_style=style)
 
     Use keyword arguments
 
-    >>> F.plot2D(vertex_color="red", edge_color="black", vertex_size=500)
+    >>> plot2D(F, vertex_color="red", edge_color="black", vertex_size=500)
 
     Specify stress and its labels positions
 
     >>> stress_label_positions = {(0, 1): 0.7, (1, 2): 0.2}
-    >>> F.plot2D(stress=0, stress_label_positions=stress_label_positions)
+    >>> plot2D(F, stress=0, stress_label_positions=stress_label_positions)
 
     Specify infinitesimal flex
 
-    >>> F.plot2D(inf_flex=0)
+    >>> plot2D(F, inf_flex=0)
 
     Use both stress and infinitesimal flex
 
-    >>> F.plot2D(stress=0, inf_flex=0)
+    >>> plot2D(F, stress=0, inf_flex=0)
 
     Use custom edge colors
 
     >>> edge_colors = {'red': [(0, 1), (1, 2)], 'blue': [(2, 3), (0, 3)]}
-    >>> F.plot2D(edge_colors_custom=edge_colors)
+    >>> plot2D(F, edge_colors_custom=edge_colors)
 
     The following is just to close all figures after running the example:
 
@@ -1106,6 +1110,7 @@ def animate3D_rotation(
 
     Parameters
     ----------
+    framework:
     plot_style:
         An instance of the ``PlotStyle`` class that defines the visual style
         for plotting, see :class:`PlotStyle` for more details.
@@ -1134,7 +1139,7 @@ def animate3D_rotation(
     --------
     >>> from pyrigi import frameworkDB
     >>> F = frameworkDB.Complete(4, dim=3)
-    >>> F.animate3D_rotation()
+    >>> animate3D_rotation(F)
     """
     _input_check.dimension_for_algorithm(framework.dim, [3], "animate3D")
     if plot_style is None:
@@ -1266,6 +1271,7 @@ def plot3D(
 
     Parameters
     ----------
+    framework:
     plot_style:
         An instance of the ``PlotStyle`` class that defines the visual style
         for plotting, see :class:`.PlotStyle` for more details.
@@ -1281,10 +1287,10 @@ def plot3D(
         Indices of two coordinates to which the framework is projected.
     inf_flex:
         Optional parameter for plotting a given infinitesimal flex. The standard
-        input format is a ``Matrix`` that is the output of e.g. the method
-        :meth:`~.Framework.inf_flexes`. Alternatively, an ``int`` can be specified
+        input format is a ``Matrix`` that is the output of e.g. the function
+        :func:`~.inf_flexes`. Alternatively, an ``int`` can be specified
         to directly choose the 0,1,2,...-th nontrivial infinitesimal flex (according
-        to the method :meth:`~.Framework.nontrivial_inf_flexes`) for plotting.
+        to the function :func:`~.nontrivial_inf_flexes`) for plotting.
         For these input types, is important to use the same vertex order as the one
         from :meth:`.Graph.vertex_list`.
         If the vertex order needs to be specified, a
@@ -1292,10 +1298,10 @@ def plot3D(
         vertex labels to vectors (i.e. a sequence of coordinates).
     stress:
         Optional parameter for plotting a given equilibrium stress. The standard
-        input format is a ``Matrix`` that is the output of e.g. the method
-        :meth:`~.Framework.stresses`. Alternatively, an ``int`` can be specified
+        input format is a ``Matrix`` that is the output of e.g. the function
+        :func:`~.stresses`. Alternatively, an ``int`` can be specified
         to directly choose the 0,1,2,...-th equilibrium stress (according
-        to the method :meth:`~.Framework.stresses`) for plotting.
+        to the function :func:`~.stresses`) for plotting.
         For these input types, is important to use the same edge order as the one
         from :meth:`.Graph.edge_list`.
         If the edge order needs to be specified, a ``Dict[Edge, Number]``
@@ -1322,7 +1328,8 @@ def plot3D(
         ``None`` which indicates that the figure is currently not saved.
         The figure is saved as a ``.png`` file using the ``save`` method from
         ``matplotlib``.
-    dpi: Dots per inched in case the figure is saved. Default is 300 for producing
+    dpi:
+        Dots per inched in case the figure is saved. Default is 300 for producing
         a print-quality image.
     fixed_vertices:
         Vertices that are assigned a zero flex in the plot.
@@ -1331,33 +1338,33 @@ def plot3D(
     --------
     >>> from pyrigi import frameworkDB
     >>> F = frameworkDB.Octahedron(realization="Bricard_plane")
-    >>> F.plot3D()
+    >>> plot3D(F)
 
     >>> from pyrigi import PlotStyle3D
     >>> style = PlotStyle3D(vertex_color="green", edge_color="blue")
-    >>> F.plot3D(plot_style=style)
+    >>> plot3D(F, plot_style=style)
 
     Use keyword arguments
 
-    >>> F.plot3D(vertex_color="red", edge_color="black", vertex_size=500)
+    >>> plot3D(F, vertex_color="red", edge_color="black", vertex_size=500)
 
     Specify stress and its positions
 
     >>> stress_label_positions = {(0, 2): 0.7, (1, 2): 0.2}
-    >>> F.plot3D(stress=0, stress_label_positions=stress_label_positions)
+    >>> plot3D(F, stress=0, stress_label_positions=stress_label_positions)
 
     Specify infinitesimal flex
 
-    >>> F.plot3D(inf_flex=0)
+    >>> plot3D(F, inf_flex=0)
 
     Use both stress and infinitesimal flex
 
-    >>> F.plot3D(stress=0, inf_flex=0)
+    >>> plot3D(F, stress=0, inf_flex=0)
 
     Use custom edge colors
 
     >>> edge_colors = {'red': [(5, 1), (1, 2)], 'blue': [(2, 4), (4, 3)]}
-    >>> F.plot3D(edge_colors_custom=edge_colors)
+    >>> plot3D(F, edge_colors_custom=edge_colors)
 
     The following is just to close all figures after running the example:
 
@@ -1452,7 +1459,7 @@ def plot(
 
     The framework can be plotted only if its dimension is less than 3.
     For plotting a projection of a higher dimensional framework,
-    use :meth:`.plot2D` or :meth:`.plot3D` instead.
+    use :func:`.plot2D` or :func:`.plot3D` instead.
     For various formatting options, see :class:`.PlotStyle`.
     """
     if framework.dim == 3:

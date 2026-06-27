@@ -12,7 +12,7 @@ def is_independent(framework: FrameworkBase, **kwargs) -> bool:
     Return whether the framework is independent.
 
     For implementation details and possible parameters, see
-    :meth:`~Framework.rigidity_matrix_rank`.
+    :func:`~.rigidity_matrix_rank`.
 
     Definitions
     -----------
@@ -21,10 +21,10 @@ def is_independent(framework: FrameworkBase, **kwargs) -> bool:
     Examples
     --------
     >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-    >>> F.is_independent()
+    >>> is_independent(F)
     False
     >>> F.delete_edge((0,2))
-    >>> F.is_independent()
+    >>> is_independent(F)
     True
     """
     return (
@@ -37,7 +37,7 @@ def is_dependent(framework: FrameworkBase, **kwargs) -> bool:
     """
     Return whether the framework is dependent.
 
-    See also :meth:`~.Framework.is_independent`.
+    See also :func:`~.is_independent`.
 
     Definitions
     -----------
@@ -51,8 +51,8 @@ def is_isostatic(framework: FrameworkBase, **kwargs) -> bool:
     Return whether the framework is isostatic.
 
     For implementation details and possible parameters, see
-    :meth:`~Framework.is_independent` and
-    :meth:`~Framework.is_inf_rigid`.
+    :func:`~.is_independent` and
+    :func:`~.is_inf_rigid`.
 
     Definitions
     -----------
