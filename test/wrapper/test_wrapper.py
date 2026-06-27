@@ -99,6 +99,8 @@ def test_wrapper_parameter_forwarding(cls, test_instance):
         ("extra_kwarg", True),  # proxy called - unexpected kwarg detected
         ("extra_positional", True),  # proxy called - extra positional detected
         ("function_named_differently", True),  # proxy called - name mismatch detected
+        ("missing_kwargs", True),  # proxy called - kwargs not forwarded
+        ("switched_positional", True),  # proxy called - positional arguments switched
     ],
 )
 def test_bad_wrapper_detected(attr_name, proxy_reaches_mock):
