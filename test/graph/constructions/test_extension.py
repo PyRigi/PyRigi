@@ -373,7 +373,7 @@ def test_extension_sequence_solution():
         [0, [1, 2], [], 5],
         [1, [3, 4, 5], [(3, 4)], 0],
     ]
-    G = Graph([[3, 4]])
+    G = nx.Graph([[3, 4]])
     for i in range(len(solution)):
         assert solution[i] == G
         if i < len(solution_ext):
@@ -416,9 +416,9 @@ def test_extension_sequence_solution():
         [0, [1, 5], [], 2],
         [1, [1, 2, 3], [(1, 3)], 0],
     ]
-    G = Graph([[4, 5]])
+    G = nx.Graph([[4, 5]])
     for i in range(len(result)):
-        assert result[i] == G
+        assert result[i] == Graph(G)
         if i < len(solution_ext):
             extension.k_extension(G, *solution_ext[i], dim=2, inplace=True)
 
