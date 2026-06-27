@@ -36,7 +36,13 @@ def copy_doc(
     def wrapped(method: Callable[..., T]) -> Callable[P, T]:
         method_doc = proxy_func.__doc__
         if method.__qualname__.startswith("Graph."):
-            method_doc = func_to_method_doc(method_doc, GRAPH_METHODS)
+            method_doc = func_to_method_doc(
+                method_doc, GRAPH_METHODS, convert_nx_alias=True
+            )
+        elif method.__qualname__.startswith("Framework."):
+            method_doc = func_to_method_doc(
+                method_doc, FRAMEWORK_METHODS, convert_nx_alias=False
+            )
 
         method.__doc__ = method_doc
         method._wrapped_func = proxy_func
@@ -45,22 +51,22 @@ def copy_doc(
     return wrapped
 
 
-# Dynamically collect the set of public method names defined on the Graph class.
-def _collect_graph_methods() -> set[str]:
-    """Return the set of public method names defined on the Graph class."""
-    graph_path = Path(__file__).resolve().parents[1] / "graph" / "graph.py"
-    graph_source = graph_path.read_text(encoding="utf-8")
-    tree = ast.parse(graph_source)
+# Dynamically collect the set of public method names defined on each class.
+def _collect_public_methods(class_name: str, rel_file: str) -> set[str]:
+    """Return the set of public method names defined in a class."""
+    file_path = Path(__file__).resolve().parents[1] / rel_file
+    source = file_path.read_text(encoding="utf-8")
+    tree = ast.parse(source)
 
     methods = set()
     for node in tree.body:
-        if isinstance(node, ast.ClassDef) and node.name == "Graph":
+        if isinstance(node, ast.ClassDef) and node.name == class_name:
             for class_node in node.body:
                 if not isinstance(class_node, ast.FunctionDef):
                     continue
                 if class_node.name.startswith("_"):
                     continue
-                # Skip classmethods; they are called as Graph.method(),
+                # Skip classmethods; they are called as Graph/Framework.method(),
                 # not instance.method().
                 is_classmethod = any(
                     isinstance(d, ast.Name) and d.id == "classmethod"
@@ -72,7 +78,8 @@ def _collect_graph_methods() -> set[str]:
     return methods
 
 
-GRAPH_METHODS = _collect_graph_methods()
+GRAPH_METHODS = _collect_public_methods("Graph", "graph/graph.py")
+FRAMEWORK_METHODS = _collect_public_methods("Framework", "framework/framework.py")
 
 
 def _transform_doctest_func_to_method(line: str, class_methods: set[str]) -> str:
@@ -227,7 +234,9 @@ def _transform_multiline_doctest_func_to_method(
     )
 
 
-def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
+def func_to_method_doc(
+    docstring: str, class_methods: set[str], convert_nx_alias: bool = True
+) -> str:
     """
     Convert a function-style docstring to method-style.
 
@@ -237,6 +246,7 @@ def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
     1. Multiline doctest: ``>>> func(`` / ``...  G,`` -> ``>>> G.func(``
     2. Doctest: ``>>> method(G, args)`` -> ``>>> G.method(args)``
     3. Doctest aliases: ``>>> G.add_node(v)`` -> ``>>> G.add_vertex(v)``
+       (only if ``convert_nx_alias=True``)
     4. ``:func:`.name``` -> ``:meth:`.name``` (bare names only)
     5. ``this function`` -> ``this method``
     6. ``the function`` -> ``the method``
@@ -278,11 +288,13 @@ def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
             result.append(new_line)
             continue
 
-        # 2. Convert NetworkX alias examples back to Graph alias methods.
-        new_line = _transform_doctest_nx_to_graph_alias(line)
-        if new_line != line:
-            result.append(new_line)
-            continue
+        # 2. Convert NetworkX alias examples back to Graph alias methods
+        #    (only relevant for Graph, not Framework).
+        if convert_nx_alias:
+            new_line = _transform_doctest_nx_to_graph_alias(line)
+            if new_line != line:
+                result.append(new_line)
+                continue
 
         # 3. :func: -> :meth: for bare names
         line = _transform_func_to_meth_refs(line, class_methods)
