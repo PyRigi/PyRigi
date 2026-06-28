@@ -1,6 +1,6 @@
 """
 The module checks if the given coloring is a NAC-coloring.
-The algorithm is based on :prf:ref:`<lem-color-components>`.
+The algorithm is based on :prf:ref:`lem-color-components`.
 """
 
 from typing import Collection, Iterable
@@ -74,7 +74,7 @@ def _is_NAC_coloring_impl(
 ) -> bool:
     """
     Check if the coloring given is a :prf:ref:`NAC-coloring <def-nac>`
-    by using algorithm described in :prf:ref:`<lem-color-components>`.
+    by using algorithm described in :prf:ref:`lem-color-components`.
 
     The algorithm checks if all the edges are in the same component.
     This is an internal implementation, so some properties like injectivity
@@ -82,6 +82,7 @@ def _is_NAC_coloring_impl(
 
     Parameters
     ----------
+    graph:
     coloring:
         The coloring to check if it is a NAC coloring.
     """
@@ -106,7 +107,7 @@ def is_NAC_coloring(
 ) -> bool:
     """
     Check if the coloring given is a :prf:ref:`NAC-coloring <def-nac>`
-    by using algorithm described in :prf:ref:`<lem-color-components>`.
+    by using algorithm described in :prf:ref:`lem-color-components`.
 
     The algorithm checks if all the edges are in the same component.
     This is an internal implementation, so some properties like injectivity
@@ -114,6 +115,7 @@ def is_NAC_coloring(
 
     Parameters
     ----------
+    graph:
     coloring:
         The coloring to check if it is a NAC coloring.
     """

@@ -2,6 +2,8 @@
 This module provides algorithms related to global rigidity.
 """
 
+from __future__ import annotations
+
 import math
 from copy import deepcopy
 from random import randint
@@ -31,6 +33,7 @@ def is_globally_rigid(
 
     Parameters
     ----------
+    graph:
     dim:
         Dimension.
     algorithm:
@@ -53,23 +56,23 @@ def is_globally_rigid(
     Examples
     --------
     >>> G = Graph([(0,1), (1,2), (2,0)])
-    >>> G.is_globally_rigid()
+    >>> is_globally_rigid(G)
     True
     >>> import pyrigi.graphDB as graphs
     >>> J = graphs.ThreePrism()
-    >>> J.is_globally_rigid(dim=3)
+    >>> is_globally_rigid(J, dim=3)
     False
-    >>> J.is_globally_rigid()
+    >>> is_globally_rigid(J)
     False
     >>> K = graphs.Complete(6)
-    >>> K.is_globally_rigid()
+    >>> is_globally_rigid(K)
     True
-    >>> K.is_globally_rigid(dim=3)
+    >>> is_globally_rigid(K, dim=3)
     True
     >>> C = graphs.CompleteMinusOne(5)
-    >>> C.is_globally_rigid()
+    >>> is_globally_rigid(C)
     True
-    >>> C.is_globally_rigid(dim=3)
+    >>> is_globally_rigid(C, dim=3)
     False
     """
     _input_check.dimension(dim)
@@ -239,6 +242,7 @@ def is_weakly_globally_linked(
 
     Parameters
     ----------
+    graph:
     u, v:
     dim:
         Currently, only the dimension ``dim=2`` is supported.
@@ -246,19 +250,19 @@ def is_weakly_globally_linked(
     Examples
     --------
     >>> G = Graph([[0,4],[0,6],[0,7],[1,3],[1,6],[1,7],[2,6],[2,7],[3,5],[4,5],[4,7],[5,6],[5,7],[6,7]])
-    >>> G.is_weakly_globally_linked(0,1)
+    >>> is_weakly_globally_linked(G, 0,1)
     True
-    >>> G.is_weakly_globally_linked(1,5)
+    >>> is_weakly_globally_linked(G, 1,5)
     True
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(10)
-    >>> G.is_weakly_globally_linked(0,1)
+    >>> is_weakly_globally_linked(G, 0,1)
     True
 
     The following example is Figure 1 of the article :cite:p:`JordanVillanyi2024`
 
     >>> G = Graph([[0,1],[0,2],[0,4],[1,2],[1,4],[2,3],[3,4]])
-    >>> G.is_weakly_globally_linked(2,4)
+    >>> is_weakly_globally_linked(G, 2,4)
     True
     """  # noqa: E501
 

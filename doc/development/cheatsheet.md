@@ -51,10 +51,10 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 :sync: myst
 
 :::{csv-table}
-`` {class}`~pyrigi.framework.Framework` `` , {class}`~pyrigi.framework.Framework`
-`` {class}`pyrigi.framework.Framework` `` , {class}`pyrigi.framework.Framework`
-`` {meth}`pyrigi.framework.Framework.delete_edge` `` , {meth}`pyrigi.framework.Framework.delete_edge`
-`` {meth}`~pyrigi.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.Framework.delete_edge`
+`` {class}`~pyrigi.framework.framework.Framework` `` , {class}`~pyrigi.framework.framework.Framework`
+`` {class}`pyrigi.framework.framework.Framework` `` , {class}`pyrigi.framework.framework.Framework`
+`` {meth}`pyrigi.framework.framework.Framework.delete_edge` `` , {meth}`pyrigi.framework.framework.Framework.delete_edge`
+`` {meth}`~pyrigi.framework.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.framework.Framework.delete_edge`
 `` {meth}`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` {meth}`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
 `` {func}`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`
@@ -65,10 +65,10 @@ For detailed overview of MyST syntax, see the [MyST documentation](https://myst-
 :sync: rest
 
 :::{csv-table}
-`` :class:`~pyrigi.framework.Framework` `` , {class}`~pyrigi.framework.Framework`
-`` :class:`pyrigi.framework.Framework` `` , {class}`pyrigi.framework.Framework`
-`` :meth:`pyrigi.framework.Framework.delete_edge` `` , {meth}`pyrigi.framework.Framework.delete_edge`
-`` :meth:`~pyrigi.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.Framework.delete_edge`
+`` :class:`~pyrigi.framework.framework.Framework` `` , {class}`~pyrigi.framework.framework.Framework`
+`` :class:`pyrigi.framework.framework.Framework` `` , {class}`pyrigi.framework.framework.Framework`
+`` :meth:`pyrigi.framework.framework.Framework.delete_edge` `` , {meth}`pyrigi.framework.framework.Framework.delete_edge`
+`` :meth:`~pyrigi.framework.framework.Framework.delete_edge` `` , {meth}`~pyrigi.framework.framework.Framework.delete_edge`
 `` :meth:`~.Framework.delete_edge` `` , {meth}`~.Framework.delete_edge`
 `` :meth:`.Framework.delete_edge` `` , {meth}`.Framework.delete_edge`
 `` :func:`networkx.classes.function.degree` `` , {func}`networkx.classes.function.degree`

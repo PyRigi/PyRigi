@@ -2,6 +2,8 @@
 This module provides algorithms related to rigid realization counting.
 """
 
+from __future__ import annotations
+
 import importlib.util
 import math
 from copy import copy, deepcopy
@@ -57,6 +59,7 @@ def number_of_realizations(  # noqa: C901
 
     Parameters
     ----------
+    graph:
     dim:
         The dimension in which the realizations are counted.
         Currently, only ``dim=1`` and ``dim=2`` are fully supported.
@@ -83,15 +86,15 @@ def number_of_realizations(  # noqa: C901
     >>> from pyrigi import Graph
     >>> import pyrigi.graphDB as graphs
     >>> G = Graph([(0,1),(1,2),(2,0)])
-    >>> G.number_of_realizations() # number of planar realizations
+    >>> number_of_realizations(G) # number of planar realizations
     1
-    >>> G.number_of_realizations(spherical=True) # number of spherical realizations
+    >>> number_of_realizations(G, spherical=True) # number of spherical realizations
     1
     >>> G = graphs.ThreePrism()
-    >>> G.number_of_realizations() # number of planar realizations
+    >>> number_of_realizations(G) # number of planar realizations
     12
     >>> G = graphs.Cycle(4) # 2-flexible graph
-    >>> G.number_of_realizations() # number of planar realizations
+    >>> number_of_realizations(G) # number of planar realizations
     oo
     """  # noqa: E501
 

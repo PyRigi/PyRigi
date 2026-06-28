@@ -2,6 +2,8 @@
 This module provides exports for frameworks.
 """
 
+from __future__ import annotations
+
 from typing import Any
 
 import pyrigi._utils._input_check as _input_check
@@ -35,6 +37,7 @@ def to_tikz(
 
     Parameters
     ----------
+    framework:
     vertex_style:
         If a single style is given as a string,
         then all vertices get this style.
@@ -61,8 +64,8 @@ def to_tikz(
     Examples
     ----------
     >>> G = Graph([(0, 1), (1, 2), (2, 3), (0, 3)])
-    >>> F=Framework(G,{0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
-    >>> print(F.to_tikz()) # doctest: +NORMALIZE_WHITESPACE
+    >>> F = Framework(G,{0: [0, 0], 1: [1, 0], 2: [1, 1], 3: [0, 1]})
+    >>> print(to_tikz(F)) # doctest: +NORMALIZE_WHITESPACE
     \begin{tikzpicture}[fvertex/.style={circle,inner sep=0pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt},edge/.style={line width=1.5pt,black!60!white}]
         \node[fvertex] (0) at (0, 0) {};
         \node[fvertex] (1) at (1, 0) {};
@@ -71,7 +74,7 @@ def to_tikz(
         \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(F.to_tikz(vertex_in_labels=True)) # doctest: +NORMALIZE_WHITESPACE
+    >>> print(to_tikz(F, vertex_in_labels=True)) # doctest: +NORMALIZE_WHITESPACE
     \begin{tikzpicture}[fvertex/.style={circle,inner sep=1pt,minimum size=3pt,fill=white,draw=black,double=white,double distance=0.25pt,outer sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
         \node[fvertex] (0) at (0, 0) {$0$};
         \node[fvertex] (1) at (1, 0) {$1$};
@@ -137,9 +140,9 @@ def _generate_stl_bar(
     """
     Generate an STL file for a bar.
 
-    The method uses ``Trimesh`` and ``Manifold3d`` packages to create
+    The function uses ``Trimesh`` and ``Manifold3d`` packages to create
     a model of a bar with two holes at the ends.
-    The method returns the bar as a ``Trimesh`` object and saves it as an STL file.
+    The function returns the bar as a ``Trimesh`` object and saves it as an STL file.
 
     Parameters
     ----------
@@ -226,6 +229,7 @@ def generate_stl_bars(
 
     Parameters
     ----------
+    framework:
     scale:
         Scale factor for the lengths of the edges, default is 1.0.
     width_of_bars:
@@ -244,7 +248,7 @@ def generate_stl_bars(
     --------
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
     >>> F = Framework(G, {0:[0,0], 1:[1,0], 2:[1,'1/2 * sqrt(5)'], 3:[1/2,'4/3']})
-    >>> F.generate_stl_bars(scale=20)
+    >>> generate_stl_bars(F, scale=20)
     STL files for the bars have been generated in the folder `stl_output`.
     """
     from pathlib import Path as plPath
