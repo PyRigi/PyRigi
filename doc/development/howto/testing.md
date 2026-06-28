@@ -18,12 +18,14 @@ Please, follow this naming convention for tests of a specific function/method:
 | `is_bar`  | `test_is_bar`    | that property `bar` holds
 | `is_bar`  | `test_is_not_bar`| that property `bar` does not hold
 
-There can be also more complex tests, i.e., testing more than a single method;
+There can be also more complex tests, i.e., testing more than a single function;
 please, choose a reasonable name for them following the idea above.
 
-Moreover, please add a section `EXAMPLES` in the docstring of the classes and methods that you introduce and provide there examples of the functionalities you implemented.
+Moreover, please add a section `EXAMPLES` in the docstring of the classes and functions
+that you introduce and provide there examples of the functionalities you implemented.
 
-Please keep in mind that whenever a pull request is opened, all the tests in the `test` folder and in the docstrings are run.
+Please keep in mind that whenever a pull request is opened,
+all the tests in the `test` folder and in the docstrings are run.
 Therefore, before opening a pull request we **strongly advise** to run
 ```
 pytest
@@ -35,6 +37,34 @@ If you do not want to run doctests, run
 ```
 pytest -p no:doctestplus
 ```
+
+## Function vs. method testing
+
+As described in [Package Structure](#pkg_structure), the functionality is implemented
+in functions in various modules, which are then wrapped as methods of {class}`.Graph`
+or {class}`.Framework`. Thanks to the tests described below, only the functions need
+to be tested as the wrapping is guaranteed to be correct.
+
+The test `test_signature` in `test/test_signature.py` checks whether the signatures
+of the methods and the wrapped function match.
+Hereby, "match" means that the parameters are the same, have the same default values,
+and have the same type (or inherited type).
+
+The plugin [`flake8-unused-arguments`](https://github.com/nhoad/flake8-unused-arguments)
+guarantees that all arguments of each method are indeed used when calling the wrapped
+function. This plugin is automatically used (calling `flake8`) once dependencies are
+installed [via Poetry](#dependencies-poetry).
+
+In addition, tests that verify correct wrapping are found in`test/wrapper/test_wrapper.py`.
+This test suite checks systematically that all
+`@copy_doc`-decorated methods of {class}`.Graph` and {class}`.Framework` correctly forward arguments
+to the underlying functions. It creates various mock arguments, invokes the method,
+and asserts that all parameters are properly passed through, both in name and value.
+
+The suite also includes negative tests using intentionally broken wrappers (see
+`test.wrapper._bad_wrapper._BadWrapper`), which verify that common mistakes in wrapping
+(such as missing, extra, or reordered arguments, or wrong function calls) are detected
+by the test helpers.
 
 ## Markers
 
