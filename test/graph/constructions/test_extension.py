@@ -35,37 +35,53 @@ def test_k_extension():
         ]
     )
 
-    assert graphs.CompleteBipartite(3, 2).k_extension(
-        2, [0, 1, 3], [(0, 3), (1, 3)], dim=1
-    ) == Graph([(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5)])
-    assert graphs.CompleteBipartite(3, 2).k_extension(
-        2, [0, 1, 3, 4], [(0, 3), (1, 3)]
-    ) == Graph([(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5), (4, 5)])
-    assert graphs.Cycle(6).k_extension(
-        4, [0, 1, 2, 3, 4], [(0, 1), (1, 2), (2, 3), (3, 4)], dim=1
-    ) == Graph([(0, 5), (0, 6), (1, 6), (2, 6), (3, 6), (4, 5), (4, 6)])
     assert Graph(
-        [(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5)]
-    ) == extension.k_extension(
-        nx.Graph(graphs.CompleteBipartite(3, 2)),
-        2,
-        [0, 1, 3],
-        [(0, 3), (1, 3)],
-        dim=1,
+        extension.k_extension(
+            nx.Graph(graphs.CompleteBipartite(3, 2)),
+            2,
+            [0, 1, 3],
+            [(0, 3), (1, 3)],
+            dim=1,
+        )
+    ) == Graph([(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5)])
+    assert Graph(
+        extension.k_extension(
+            nx.Graph(graphs.CompleteBipartite(3, 2)), 2, [0, 1, 3, 4], [(0, 3), (1, 3)]
+        )
+    ) == Graph([(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5), (4, 5)])
+    assert Graph(
+        extension.k_extension(
+            nx.Graph(graphs.Cycle(6)),
+            4,
+            [0, 1, 2, 3, 4],
+            [(0, 1), (1, 2), (2, 3), (3, 4)],
+            dim=1,
+        )
+    ) == Graph([(0, 5), (0, 6), (1, 6), (2, 6), (3, 6), (4, 5), (4, 6)])
+    assert Graph([(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5)]) == Graph(
+        extension.k_extension(
+            nx.Graph(graphs.CompleteBipartite(3, 2)),
+            2,
+            [0, 1, 3],
+            [(0, 3), (1, 3)],
+            dim=1,
+        )
     )
     assert Graph(
         [(0, 4), (0, 5), (1, 4), (1, 5), (2, 3), (2, 4), (3, 5), (4, 5)]
-    ) == extension.k_extension(
-        nx.Graph(graphs.CompleteBipartite(3, 2)), 2, [0, 1, 3, 4], [(0, 3), (1, 3)]
+    ) == Graph(
+        extension.k_extension(
+            nx.Graph(graphs.CompleteBipartite(3, 2)), 2, [0, 1, 3, 4], [(0, 3), (1, 3)]
+        )
     )
-    assert Graph(
-        [(0, 5), (0, 6), (1, 6), (2, 6), (3, 6), (4, 5), (4, 6)]
-    ) == extension.k_extension(
-        nx.Graph(graphs.Cycle(6)),
-        4,
-        [0, 1, 2, 3, 4],
-        [(0, 1), (1, 2), (2, 3), (3, 4)],
-        dim=1,
+    assert Graph([(0, 5), (0, 6), (1, 6), (2, 6), (3, 6), (4, 5), (4, 6)]) == Graph(
+        extension.k_extension(
+            nx.Graph(graphs.Cycle(6)),
+            4,
+            [0, 1, 2, 3, 4],
+            [(0, 1), (1, 2), (2, 3), (3, 4)],
+            dim=1,
+        )
     )
 
 
@@ -127,11 +143,12 @@ def test_all_k_extensions():
             Graph([[0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]),
             Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 4], [3, 4]]),
         ]
-    all_diamond_0_2 = list(
-        extension.all_k_extensions(
+    all_diamond_0_2 = [
+        Graph(G)
+        for G in extension.all_k_extensions(
             nx.Graph(graphs.Diamond()), 0, 2, only_non_isomorphic=True
         )
-    )
+    ]
     assert (
         len(all_diamond_0_2) == 3
         and Graph([[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3]])
@@ -141,13 +158,17 @@ def test_all_k_extensions():
         and Graph([[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 3], [3, 4]])
         == all_diamond_0_2[2]
     )
-    all_diamond_1_2 = extension.all_k_extensions(
-        nx.Graph(graphs.Diamond()), 1, 2, only_non_isomorphic=True
-    )
-    assert Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3], [2, 4]]) == next(
-        all_diamond_1_2
-    ) and Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3], [3, 4]]) == next(
-        all_diamond_1_2
+    all_diamond_1_2 = [
+        Graph(G)
+        for G in extension.all_k_extensions(
+            nx.Graph(graphs.Diamond()), 1, 2, only_non_isomorphic=True
+        )
+    ]
+    assert (
+        Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3], [2, 4]])
+        == all_diamond_1_2[0]
+        and Graph([[0, 2], [0, 3], [0, 4], [1, 2], [1, 4], [2, 3], [3, 4]])
+        == all_diamond_1_2[1]
     )
 
 
@@ -169,11 +190,12 @@ def test_all_k_extensions():
 )
 def test_all_k_extensions2(graph, k, dim, sol):
     assert is_isomorphic_graph_list(
-        list(
-            extension.all_k_extensions(
+        [
+            Graph(G)
+            for G in extension.all_k_extensions(
                 nx.Graph(graph), k, dim, only_non_isomorphic=True
             )
-        ),
+        ],
         [Graph.from_int(igraph) for igraph in sol],
     )
 
@@ -204,7 +226,12 @@ def test_all_k_extension_error():
 )
 def test_all_extensions(graph, dim, sol):
     assert is_isomorphic_graph_list(
-        list(extension.all_extensions(nx.Graph(graph), dim, only_non_isomorphic=True)),
+        [
+            Graph(G)
+            for G in extension.all_extensions(
+                nx.Graph(graph), dim, only_non_isomorphic=True
+            )
+        ],
         [Graph.from_int(igraph) for igraph in sol],
     )
 
@@ -328,15 +355,21 @@ def test_has_not_extension_sequence(graph):
 # extension_sequence
 ###############################################################
 def test_extension_sequence_solution():
-    assert extension.extension_sequence(
-        nx.Graph(graphs.Complete(2)), return_type="graphs"
-    ) == [
+    assert [
+        Graph(G)
+        for G in extension.extension_sequence(
+            nx.Graph(graphs.Complete(2)), return_type="graphs"
+        )
+    ] == [
         Graph([[0, 1]]),
     ]
 
-    assert extension.extension_sequence(
-        nx.Graph(graphs.Complete(3)), return_type="graphs"
-    ) == [
+    assert [
+        Graph(G)
+        for G in extension.extension_sequence(
+            nx.Graph(graphs.Complete(3)), return_type="graphs"
+        )
+    ] == [
         Graph([[1, 2]]),
         Graph([[0, 1], [0, 2], [1, 2]]),
     ]
@@ -360,12 +393,12 @@ def test_extension_sequence_solution():
             ],
         ),
     ]
-    assert (
-        extension.extension_sequence(
+    assert [
+        Graph(G)
+        for G in extension.extension_sequence(
             nx.Graph(graphs.CompleteBipartite(3, 3)), return_type="graphs"
         )
-        == solution
-    )
+    ] == solution
 
     solution_ext = [
         [0, [3, 4], [], 2],  # k, vertices, edges, new_vertex
@@ -379,9 +412,12 @@ def test_extension_sequence_solution():
         if i < len(solution_ext):
             extension.k_extension(G, *solution_ext[i], dim=2, inplace=True)
 
-    assert extension.extension_sequence(
-        nx.Graph(graphs.Diamond()), return_type="graphs"
-    ) == [
+    assert [
+        Graph(G)
+        for G in extension.extension_sequence(
+            nx.Graph(graphs.Diamond()), return_type="graphs"
+        )
+    ] == [
         Graph([[2, 3]]),
         Graph([[0, 2], [0, 3], [2, 3]]),
         Graph([[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]),
@@ -445,7 +481,7 @@ def test_extension_sequence(graph):
     current = ext[0]
     for i in range(1, len(ext)):
         current = extension.k_extension(nx.Graph(current), *ext[i][1])
-        assert Graph(current) == ext[i][0]
+        assert Graph(current) == Graph(ext[i][0])
 
 
 @pytest.mark.parametrize(
@@ -480,7 +516,7 @@ def test_extension_sequence_dim(graph, dim):
     current = ext[0]
     for i in range(1, len(ext)):
         current = extension.k_extension(nx.Graph(current), *ext[i][1], dim=dim)
-        assert Graph(current) == ext[i][0]
+        assert Graph(current) == Graph(ext[i][0])
 
 
 @pytest.mark.parametrize(
