@@ -24,7 +24,7 @@ please, choose a reasonable name for them following the idea above.
 Moreover, please add a section `EXAMPLES` in the docstring of the classes and functions
 that you introduce and provide there examples of the functionalities you implemented.
 
-Please keep in mind that whenever a pull request is opened,
+Please keep in mind that, whenever a pull request is opened,
 all the tests in the `test` folder and in the docstrings are run.
 Therefore, before opening a pull request we **strongly advise** to run
 ```
