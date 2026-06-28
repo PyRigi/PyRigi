@@ -74,6 +74,7 @@ function-style examples to method-style at import time.
 Therefore, docstrings should be written in **function-style**, referring to the
 graph as "the graph" rather than by the parameter name `graph`.
 
+(writing_examples)=
 ### Writing examples for `copy_doc`-wrapped functions
 
 Examples in function-style docstrings must follow two rules so `copy_doc` can
@@ -84,11 +85,11 @@ invert them to method-style at import time:
    >>> g = graphs.Diamond()
    >>> len(list(all_k_extensions(g, 1, 2, only_non_isomorphic=True)))
    ```
-   Chained calls like `graphs.Diamond().all_k_extensions(...)` are not caught
-   by the regex and will remain in method-style inside the function docstring.
+   Chained calls like `all_k_extensions(graphs.Diamond(), ...)` are not caught
+   by the regex and will remain in function-style inside the method docstring.
 
 2. **Outer wrappers are allowed** (`list`, `len`, `type`, `sorted`, `print`, etc.), as
-   long as no argument to the class method is itself a function call:
+   long as no argument to the function is itself a function call:
    ```python
    >>> type(all_extensions(G))          # OK — no nested call in args
    >>> len(list(all_k_extensions(G, 0)))  # OK — linear args
