@@ -14,7 +14,8 @@ api/plot_style
 :::
 :::{toctree}
 :maxdepth: 1
-api/graphDB
+api/predefined_graphs
+api/graph_store
 api/frameworkDB
 api/misc
 :::

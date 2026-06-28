@@ -59,7 +59,7 @@ Positions of vertices can be read using square brackets:
 F[2]
 ```
 
-There are also some predefined graphs and frameworks, see {mod}`~pyrigi.graphDB` and {mod}`~pyrigi.frameworkDB` (also [this tutorial](tutorial-framework-database))
+There are also some predefined graphs and frameworks, see {doc}`predefined graphs </userguide/api/predefined_graphs>` and {mod}`~pyrigi.frameworkDB` (also [this tutorial](tutorial-framework-database))
 
 ```{code-cell} ipython3
 import pyrigi.frameworkDB as frameworks
