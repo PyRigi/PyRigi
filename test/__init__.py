@@ -1,6 +1,3 @@
-TEST_WRAPPED_FUNCTIONS = True
-
-
 def is_marker_selected(config, marker_name: str) -> bool:
     """Return if the given marker is selected."""
     expr = config.getoption("-m")
