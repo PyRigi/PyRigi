@@ -14,7 +14,7 @@ def is_vertex_apex(graph: nx.Graph) -> bool:
     """
     Return whether the graph is vertex apex.
 
-    Alias for :meth:`~.Graph.is_k_vertex_apex` with ``k=1``.
+    Alias for :func:`~.is_k_vertex_apex` with ``k=1``.
 
     Definitions
     -----------
@@ -35,7 +35,7 @@ def is_k_vertex_apex(graph: nx.Graph, k: int) -> bool:
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(5)
-    >>> G.is_k_vertex_apex(1)
+    >>> is_k_vertex_apex(G, 1)
     True
     """
     _input_check.integrality_and_range(
@@ -55,7 +55,7 @@ def is_edge_apex(graph: nx.Graph) -> bool:
     """
     Return whether the graph is edge apex.
 
-    Alias for :meth:`~.Graph.is_k_edge_apex` with ``k=1``
+    Alias for :func:`~.is_k_edge_apex` with ``k=1``
 
     Definitions
     -----------
@@ -76,7 +76,7 @@ def is_k_edge_apex(graph: nx.Graph, k: int) -> bool:
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(5)
-    >>> G.is_k_edge_apex(1)
+    >>> is_k_edge_apex(G, 1)
     True
     """
     _input_check.integrality_and_range(
@@ -95,7 +95,7 @@ def is_critically_vertex_apex(graph: nx.Graph) -> bool:
     """
     Return whether the graph is critically vertex apex.
 
-    Alias for :meth:`~.Graph.is_critically_k_vertex_apex` with ``k=1``.
+    Alias for :func:`~.is_critically_k_vertex_apex` with ``k=1``.
 
     Definitions
     -----------
@@ -116,7 +116,7 @@ def is_critically_k_vertex_apex(graph: nx.Graph, k: int) -> bool:
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(5)
-    >>> G.is_critically_k_vertex_apex(1)
+    >>> is_critically_k_vertex_apex(G, 1)
     True
     """
     _input_check.integrality_and_range(
@@ -136,7 +136,7 @@ def is_critically_edge_apex(graph: nx.Graph) -> bool:
     """
     Return whether the graph is critically edge apex.
 
-    Alias for :meth:`~.Graph.is_critically_k_edge_apex` with ``k=1``.
+    Alias for :func:`~.is_critically_k_edge_apex` with ``k=1``.
 
     Definitions
     -----------
@@ -157,7 +157,7 @@ def is_critically_k_edge_apex(graph: nx.Graph, k: int) -> bool:
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(5)
-    >>> G.is_critically_k_edge_apex(1)
+    >>> is_critically_k_edge_apex(G, 1)
     True
     """
     _input_check.integrality_and_range(
