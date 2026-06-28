@@ -55,8 +55,8 @@ def main() -> None:
                 lambda s: s.fetch(filters=[QueryFilter("num_vertices", "=", 7)]),
             ),
             (
-                "Query: rigidity >= 2 (NULL-aware strategy)",
-                lambda s: s.fetch(filters=[QueryFilter("rigidity", ">=", 2)]),
+                "Query: rigidity = 2 (-1 sentinel strategy)",
+                lambda s: s.fetch(filters=[QueryFilter("rigidity", "=", 2)]),
             ),
             (
                 "Query: min_rigidity = 2 (encoding strategy)",
