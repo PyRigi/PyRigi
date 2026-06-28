@@ -9,7 +9,6 @@ import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from pyrigi.warning import RandomizedAlgorithmWarning
-from test import TEST_WRAPPED_FUNCTIONS
 from test.graph.test_graph import (
     is_rigid_algorithms_all_d,
     is_rigid_algorithms_d1,
@@ -38,9 +37,7 @@ is_min_rigid_algorithms_d1 = is_min_rigid_algorithms_all_d + ["graphic"]
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_rigid(graph, dim, algorithm):
-    assert graph.is_rigid(dim, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert generic_rigidity.is_rigid(nx.Graph(graph), dim, algorithm=algorithm)
+    assert generic_rigidity.is_rigid(nx.Graph(graph), dim, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -60,9 +57,7 @@ def test_is_rigid(graph, dim, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_rigid_d1(graph, algorithm):
-    assert graph.is_rigid(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert generic_rigidity.is_rigid(nx.Graph(graph), dim=1, algorithm=algorithm)
+    assert generic_rigidity.is_rigid(nx.Graph(graph), dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -75,11 +70,7 @@ def test_is_rigid_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_not_rigid_d1(graph, algorithm):
-    assert not graph.is_rigid(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not generic_rigidity.is_rigid(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert not generic_rigidity.is_rigid(nx.Graph(graph), dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -100,9 +91,7 @@ def test_is_not_rigid_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_rigid_d2(graph, algorithm):
-    assert graph.is_rigid(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert generic_rigidity.is_rigid(nx.Graph(graph), dim=2, algorithm=algorithm)
+    assert generic_rigidity.is_rigid(nx.Graph(graph), dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -118,11 +107,7 @@ def test_is_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_not_is_rigid_d2(graph, algorithm):
-    assert not graph.is_rigid(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not generic_rigidity.is_rigid(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert not generic_rigidity.is_rigid(nx.Graph(graph), dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -135,12 +120,8 @@ def test_not_is_rigid_d2(graph, algorithm):
 def test_is_rigid_dimension_sparsity_error(method, params):
     G = graphs.DoubleBanana()
     with pytest.raises(ValueError):
-        func = getattr(G, method)
-        func(*params, algorithm="sparsity")
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(ValueError):
-            func = getattr(generic_rigidity, method)
-            func(nx.Graph(G), *params, algorithm="sparsity")
+        func = getattr(generic_rigidity, method)
+        func(nx.Graph(G), *params, algorithm="sparsity")
 
 
 ###############################################################
@@ -157,11 +138,7 @@ def test_is_rigid_dimension_sparsity_error(method, params):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_d1)
 def test_is_min_rigid_d1(graph, algorithm):
-    assert graph.is_min_rigid(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert generic_rigidity.is_min_rigid(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert generic_rigidity.is_min_rigid(nx.Graph(graph), dim=1, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -180,11 +157,9 @@ def test_is_min_rigid_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_d1)
 def test_is_not_min_rigid_d1(graph, algorithm):
-    assert not graph.is_min_rigid(dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not generic_rigidity.is_min_rigid(
-            nx.Graph(graph), dim=1, algorithm=algorithm
-        )
+    assert not generic_rigidity.is_min_rigid(
+        nx.Graph(graph), dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -199,11 +174,7 @@ def test_is_not_min_rigid_d1(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_d2)
 def test_is_min_rigid_d2(graph, algorithm):
-    assert graph.is_min_rigid(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert generic_rigidity.is_min_rigid(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert generic_rigidity.is_min_rigid(nx.Graph(graph), dim=2, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -225,11 +196,9 @@ def test_is_min_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_d2)
 def test_is_not_min_rigid_d2(graph, algorithm):
-    assert not graph.is_min_rigid(dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not generic_rigidity.is_min_rigid(
-            nx.Graph(graph), dim=2, algorithm=algorithm
-        )
+    assert not generic_rigidity.is_min_rigid(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -245,11 +214,7 @@ def test_is_not_min_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_all_d)
 def test_is_min_rigid_d3(graph, algorithm):
-    assert graph.is_min_rigid(dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert generic_rigidity.is_min_rigid(
-            nx.Graph(graph), dim=3, algorithm=algorithm
-        )
+    assert generic_rigidity.is_min_rigid(nx.Graph(graph), dim=3, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -265,11 +230,9 @@ def test_is_min_rigid_d3(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_min_rigid_algorithms_all_d)
 def test_is_not_min_rigid_d3(graph, algorithm):
-    assert not graph.is_min_rigid(dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not generic_rigidity.is_min_rigid(
-            nx.Graph(graph), dim=3, algorithm=algorithm
-        )
+    assert not generic_rigidity.is_min_rigid(
+        nx.Graph(graph), dim=3, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -317,70 +280,51 @@ def test_rigid_components(graph, components, dim):
 
     if dim == 1:
         assert (
-            to_sets(graph.rigid_components(dim=dim, algorithm="graphic")) == comps_set
+            to_sets(
+                generic_rigidity.rigid_components(
+                    nx.Graph(graph), dim=dim, algorithm="graphic"
+                )
+            )
+            == comps_set
         )
-        if TEST_WRAPPED_FUNCTIONS:
-            assert (
-                to_sets(
-                    generic_rigidity.rigid_components(
-                        nx.Graph(graph), dim=dim, algorithm="graphic"
-                    )
-                )
-                == comps_set
-            )
     elif dim == 2:
-        assert to_sets(graph.rigid_components(dim=dim, algorithm="pebble")) == comps_set
-        if TEST_WRAPPED_FUNCTIONS:
-            assert (
-                to_sets(
-                    generic_rigidity.rigid_components(
-                        nx.Graph(graph), dim=dim, algorithm="pebble"
-                    )
+        assert (
+            to_sets(
+                generic_rigidity.rigid_components(
+                    nx.Graph(graph), dim=dim, algorithm="pebble"
                 )
-                == comps_set
             )
+            == comps_set
+        )
         if graph.number_of_nodes() <= 8:  # since it runs through all subgraphs
             assert (
-                to_sets(graph.rigid_components(dim=dim, algorithm="subgraphs-pebble"))
+                to_sets(
+                    generic_rigidity.rigid_components(
+                        nx.Graph(graph), dim=dim, algorithm="subgraphs-pebble"
+                    )
+                )
                 == comps_set
             )
-            if TEST_WRAPPED_FUNCTIONS:
-                assert (
-                    to_sets(
-                        generic_rigidity.rigid_components(
-                            nx.Graph(graph), dim=dim, algorithm="subgraphs-pebble"
-                        )
-                    )
-                    == comps_set
-                )
 
     # randomized algorithm is tested for all dimensions for graphs
     # with at most 8 vertices (since it runs through all subgraphs)
     if graph.number_of_nodes() <= 8:
         assert (
-            to_sets(graph.rigid_components(dim=dim, algorithm="randomized"))
+            to_sets(
+                generic_rigidity.rigid_components(
+                    nx.Graph(graph), dim=dim, algorithm="randomized"
+                )
+            )
             == comps_set
         )
         assert (
-            to_sets(graph.rigid_components(dim=dim, algorithm="numerical")) == comps_set
+            to_sets(
+                generic_rigidity.rigid_components(
+                    nx.Graph(graph), dim=dim, algorithm="numerical"
+                )
+            )
+            == comps_set
         )
-        if TEST_WRAPPED_FUNCTIONS:
-            assert (
-                to_sets(
-                    generic_rigidity.rigid_components(
-                        nx.Graph(graph), dim=dim, algorithm="randomized"
-                    )
-                )
-                == comps_set
-            )
-            assert (
-                to_sets(
-                    generic_rigidity.rigid_components(
-                        nx.Graph(graph), dim=dim, algorithm="numerical"
-                    )
-                )
-                == comps_set
-            )
 
 
 @pytest.mark.parametrize(
@@ -436,22 +380,15 @@ def test_rigid_components_pebble_random_graphs(graph):
     ],
 )
 def test_max_rigid_dimension(graph, k):
-    assert graph.max_rigid_dimension() == k
-    assert graph.max_rigid_dimension(algorithm="numerical") == k
-    if TEST_WRAPPED_FUNCTIONS:
-        assert generic_rigidity.max_rigid_dimension(nx.Graph(graph)) == k
-        assert (
-            generic_rigidity.max_rigid_dimension(nx.Graph(graph), algorithm="numerical")
-            == k
-        )
+    assert generic_rigidity.max_rigid_dimension(nx.Graph(graph)) == k
+    assert (
+        generic_rigidity.max_rigid_dimension(nx.Graph(graph), algorithm="numerical")
+        == k
+    )
 
 
 def test_max_rigid_dimension_warning():
     graph = graphs.K66MinusPerfectMatching()
     with pytest.warns(RandomizedAlgorithmWarning):
-        graph.max_rigid_dimension()
-        graph.max_rigid_dimension(algorithm="numerical")
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.warns(RandomizedAlgorithmWarning):
-            generic_rigidity.max_rigid_dimension(nx.Graph(graph))
-            generic_rigidity.max_rigid_dimension(nx.Graph(graph), algorithm="numerical")
+        generic_rigidity.max_rigid_dimension(nx.Graph(graph))
+        generic_rigidity.max_rigid_dimension(nx.Graph(graph), algorithm="numerical")
