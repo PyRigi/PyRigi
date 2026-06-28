@@ -22,24 +22,7 @@ def test_is_injective():
     F1 = _to_FrameworkBase(F1)
 
     F2 = deepcopy(F1)
-    F2 = _to_FrameworkBase(F2)
     F2.set_vertex_pos(0, F2[1])
-
-    # test symbolical injectivity with irrational numbers
-    F3 = framework_transformations.translate(F1, ["sqrt(2)", "pi"], inplace=False)
-    framework_transformations.rotate2D(F3, pi / 3, inplace=True)
-
-    # test numerical injectivity
-    F4 = deepcopy(F3)
-    F4.set_realization(F4.realization(numerical=True))
-
-    # test numerically not injective, but symbolically injective framework
-    F5 = deepcopy(F3)
-    F5.set_vertex_pos(0, F5[1] + point_to_vector([1e-10, 1e-10]))
-
-    # test tolerance in numerical injectivity check
-    F6 = deepcopy(F3)
-    F6.set_vertex_pos(0, F6[1] + point_to_vector([1e-8, 1e-8]))
 
     assert framework_general.is_injective(F1)
     assert framework_general.is_injective(F1, numerical=True)
@@ -48,19 +31,30 @@ def test_is_injective():
     assert not framework_general.is_injective(F2, numerical=True)
 
     # test symbolical injectivity with irrational numbers
+    F3 = framework_transformations.translate(F1, ["sqrt(2)", "pi"], inplace=False)
+    framework_transformations.rotate2D(F3, pi / 3, inplace=True)
+
     assert framework_general.is_injective(F3)
     assert framework_general.is_injective(F3, numerical=True)
 
     # test numerical injectivity
+    F4 = deepcopy(F3)
+    F4.set_realization(F4.realization(numerical=True))
+
     assert framework_general.is_injective(F4, numerical=True)
 
     # test numerically not injective, but symbolically injective framework
+    F5 = deepcopy(F3)
+    F5.set_vertex_pos(0, F5[1] + point_to_vector([1e-10, 1e-10]))
+
     assert not framework_general.is_injective(F5, numerical=True, tolerance=1e-8)
     assert not framework_general.is_injective(F5, numerical=True, tolerance=1e-9)
     assert framework_general.is_injective(F5)
 
     # test tolerance in numerical injectivity check
-    F6 = _to_FrameworkBase(F6)
+    F6 = deepcopy(F3)
+    F6.set_vertex_pos(0, F6[1] + point_to_vector([1e-8, 1e-8]))
+
     assert framework_general.is_injective(F6, numerical=True, tolerance=1e-9)
     assert framework_general.is_injective(F6)
 
@@ -69,58 +63,48 @@ def test_is_quasi_injective():
     F1 = fws.Complete(4, 2)
     F1 = _to_FrameworkBase(F1)
 
+    assert framework_general.is_quasi_injective(F1)
+    assert framework_general.is_quasi_injective(F1, numerical=True)
+
     # test framework that is quasi-injective, but not injective
     F1.set_vertex_pos(1, F1[2])
     F1.delete_edge((1, 2))
+
+    assert framework_general.is_quasi_injective(F1)
+    assert framework_general.is_quasi_injective(F1, numerical=True)
 
     # test not quasi-injective framework
     F2 = deepcopy(F1)
     F2.set_vertex_pos(0, F2[1])
 
+    assert not framework_general.is_quasi_injective(F2)
+    assert not framework_general.is_quasi_injective(F2, numerical=True)
+
     # test symbolical and numerical quasi-injectivity with irrational numbers
     F3 = framework_transformations.translate(F1, ["sqrt(2)", "pi"], inplace=False)
     F3 = framework_transformations.rotate2D(F3, pi / 2, inplace=False)
+
+    assert framework_general.is_quasi_injective(F3)
+    assert framework_general.is_quasi_injective(F3, numerical=True)
 
     # test numerical quasi-injectivity
     F4 = deepcopy(F3)
     F4.set_realization(F4.realization(numerical=True))
 
+    assert framework_general.is_quasi_injective(F4, numerical=True)
+
     # test numerically not quasi-injective, but symbolically quasi-injective framework
     F5 = deepcopy(F3)
     F5.set_vertex_pos(0, F5[1] + point_to_vector([1e-10, 1e-10]))
 
-    # test tolerance in numerical quasi-injectivity check
-    F6 = deepcopy(F3)
-    F6.set_vertex_pos(0, F6[1] + point_to_vector([1e-8, 1e-8]))
-
-    assert framework_general.is_quasi_injective(F1)
-    assert framework_general.is_quasi_injective(F1, numerical=True)
-
-    # test framework that is quasi-injective, but not injective
-    F1 = fws.Complete(4, 2)
-    F1 = _to_FrameworkBase(F1)
-    F1.set_vertex_pos(1, F1[2])
-    F1.delete_edge((1, 2))
-    assert framework_general.is_quasi_injective(F1)
-    assert framework_general.is_quasi_injective(F1, numerical=True)
-
-    # test not quasi-injective framework
-    assert not framework_general.is_quasi_injective(F2)
-    assert not framework_general.is_quasi_injective(F2, numerical=True)
-
-    # test symbolical and numerical quasi-injectivity with irrational numbers
-    assert framework_general.is_quasi_injective(F3)
-    assert framework_general.is_quasi_injective(F3, numerical=True)
-
-    # test numerical quasi-injectivity
-    assert framework_general.is_quasi_injective(F4, numerical=True)
-
-    # test numerically not quasi-injective, but symbolically quasi-injective framework
     assert not framework_general.is_quasi_injective(F5, numerical=True, tolerance=1e-8)
     assert not framework_general.is_quasi_injective(F5, numerical=True, tolerance=1e-9)
     assert framework_general.is_quasi_injective(F5)
 
     # test tolerance in numerical quasi-injectivity check
+    F6 = deepcopy(F3)
+    F6.set_vertex_pos(0, F6[1] + point_to_vector([1e-8, 1e-8]))
+
     assert framework_general.is_quasi_injective(F6, numerical=True, tolerance=1e-9)
     assert framework_general.is_quasi_injective(F6)
 
@@ -179,9 +163,6 @@ def test_is_equivalent():
     F8 = _to_FrameworkBase(F8)
 
     F9 = framework_transformations.translate(F5, (pi, "2/3"), False)
-
-    # testing numerical equivalence
-
     R1 = {v: sympy_expr_to_float(pos) for v, pos in F9.realization().items()}
 
     assert framework_general.is_equivalent_realization(
@@ -264,7 +245,6 @@ def test_is_congruent():
     F7 = fws.Complete(3, 2)
     F7 = _to_FrameworkBase(F7)
 
-    # testing numerical congruence
     R1 = {v: sympy_expr_to_float(pos) for v, pos in F4.realization().items()}
 
     assert framework_general.is_congruent_realization(
