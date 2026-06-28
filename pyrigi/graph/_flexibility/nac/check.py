@@ -68,6 +68,7 @@ def _is_NAC_coloring_impl(
 
     Parameters
     ----------
+    graph:
     coloring:
         The coloring to check if it is a NAC coloring.
     """
@@ -105,6 +106,7 @@ def is_NAC_coloring(
 
     Parameters
     ----------
+    graph:
     coloring:
         The coloring to check if it is a NAC coloring.
     """
