@@ -87,7 +87,6 @@ accept {class}`pyrigi.framework.base.FrameworkBase` as the first parameter, call
 are wrapped as methods of {class}`pyrigi.Framework<.Framework>`,
 which is inherited from {class}`pyrigi.framework.base.FrameworkBase`.
 
-
 ## Overview
 
 ```{literalinclude} ./pyrigi_structure.txt
