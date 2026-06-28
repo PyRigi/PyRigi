@@ -56,9 +56,6 @@ WRAPPER_METHODS = {
     "Framework": _collect_wrapper_methods("Framework", "pyrigi/framework/framework.py"),
 }
 
-# For backwards compatibility
-GRAPH_WRAPPER_METHODS = WRAPPER_METHODS["Graph"]
-
 
 def _transform_doctest_method_to_func(line: str, class_methods: set[str]) -> str:
     """
