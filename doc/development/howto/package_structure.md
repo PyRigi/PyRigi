@@ -74,9 +74,9 @@ function-style examples to method-style at import time.
 Therefore, docstrings should be written in **function-style**, referring to the
 graph as "the graph" rather than by the parameter name `graph`.
 
-In `Parameters` section of the functions docstrings, the first parameter has
-to be bare `graph`/`framework` (i.e. without any description),
-which is removed automatically by `@copy_doc` (the description would stay if being present).
+In the `Parameters` section of the functions docstrings, the first parameter has
+to be a bare `graph`/`framework` (i.e., without any description),
+which is removed automatically by `@copy_doc` (the description would remain, if present).
 
 (writing_examples)=
 ### Writing examples for `copy_doc`-wrapped functions
