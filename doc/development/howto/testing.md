@@ -40,9 +40,10 @@ pytest -p no:doctestplus
 
 ## Function vs. method testing
 
-As described in [Package Structure](#pkg_structure), the functionality is implemented
-in functions in various modules, which are then wrapped as methods of {class}`.Graph`
-or {class}`.Framework`. Thanks to the tests described below, only the functions need
+As described in [Package Structure](#pkg_structure), most of the functionality of
+the classes {class}`.Graph` and {class}`.Framework` is implemented
+via functions in various modules, which are then wrapped as methods.
+Thanks to the tests described below, only the functions need
 to be tested as the wrapping is guaranteed to be correct.
 
 The test `test_signature` in `test/test_signature.py` checks whether the signatures
