@@ -413,13 +413,15 @@ def test_inf_flexes_numerical():
 def test_vertex_fixing(framework, include_trivial, numerical):
     fixed_vertices = framework._graph.edge_list()[0]
     flexes = infinitesimal_rigidity.inf_flexes(
-        framework,
+        _to_FrameworkBase(framework),
         include_trivial=include_trivial,
         numerical=numerical,
         fixed_vertices=fixed_vertices,
     )
     pointwise_zero_flexes = [
-        infinitesimal_rigidity._transform_inf_flex_to_pointwise(framework, flex)
+        infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+            _to_FrameworkBase(framework), flex
+        )
         for flex in flexes
     ]
     assert all(
