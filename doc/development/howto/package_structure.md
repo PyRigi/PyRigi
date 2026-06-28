@@ -94,9 +94,21 @@ of the methods and the wrapped function match.
 Hereby, "match" means that the parameters are the same, have the same default values,
 and have the same type (or inherited type).
 
-The plugin [`flake8-unused-arguments`](https://github.com/nhoad/flake8-unused-arguments) guarantees that all arguments of each method are indeed used when calling the wrapped function.
-This plugin is automatically used (calling `flake8`) once dependences are installed [via Poetry](#dependencies-poetry).
+The plugin [`flake8-unused-arguments`](https://github.com/nhoad/flake8-unused-arguments)
+guarantees that all arguments of each method are indeed used when calling the wrapped
+function. This plugin is automatically used (calling `flake8`) once dependencies are
+installed [via Poetry](#dependencies-poetry).
 
+In addition, tests that verify correct wrapping are found in`test/wrapper/test_wrapper.py`.
+This test suite checks systematically that all
+`@copy_doc`-decorated methods of `Graph` and `Framework` correctly forward arguments
+to the underlying functions. It creates various mock arguments, invokes the method,
+and asserts that all parameters are properly passed through, both in name and value.
+
+The suite also includes negative tests using intentionally broken wrappers (see
+`test.wrapper._bad_wrapper._BadWrapper`), which verify that common mistakes in wrapping
+(such as missing, extra, or reordered arguments, or wrong function calls) are detected
+by the test helpers.
 
 ## Overview
 
