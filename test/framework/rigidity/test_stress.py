@@ -56,19 +56,16 @@ def test_stress_matrix():
     ],
 )
 def test_stresses(framework, num_stresses):
+    F = _to_FrameworkBase(framework)
     Q1 = Matrix.hstack(
-        *(
-            infinitesimal_rigidity.rigidity_matrix(_to_FrameworkBase(framework))
-            .transpose()
-            .nullspace()
-        )
+        *(infinitesimal_rigidity.rigidity_matrix(F).transpose().nullspace())
     )
-    Q2 = Matrix.hstack(*(stress_rigidity.stresses(_to_FrameworkBase(framework))))
+    Q2 = Matrix.hstack(*(stress_rigidity.stresses(F)))
     assert Q1.rank() == Q2.rank() and Q1.rank() == Matrix.hstack(Q1, Q2).rank()
 
-    stresses = stress_rigidity.stresses(_to_FrameworkBase(framework))
+    stresses = stress_rigidity.stresses(F)
     assert len(stresses) == num_stresses and all(
-        [stress_rigidity.is_stress(_to_FrameworkBase(framework), s) for s in stresses]
+        [stress_rigidity.is_stress(F, s) for s in stresses]
     )
 
 
