@@ -5,7 +5,6 @@ from sympy import Matrix
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from pyrigi.graph._export import export
-from test import TEST_WRAPPED_FUNCTIONS
 
 
 @pytest.mark.parametrize(
@@ -20,21 +19,19 @@ from test import TEST_WRAPPED_FUNCTIONS
     ],
 )
 def test_integer_representation(graph, gint):
-    assert graph.to_int() == gint
+    assert export.to_int(nx.Graph(graph)) == gint
     assert Graph.from_int(gint).is_isomorphic(graph)
-    assert Graph.from_int(gint).to_int() == gint
-    assert Graph.from_int(graph.to_int()).is_isomorphic(graph)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert export.to_int(nx.Graph(graph)) == gint
+    assert export.to_int(nx.Graph(Graph.from_int(gint))) == gint
+    assert Graph.from_int(export.to_int(nx.Graph(graph))).is_isomorphic(graph)
 
 
 def test_integer_representation_error():
     with pytest.raises(ValueError):
-        Graph([]).to_int()
+        export.to_int(nx.Graph([]))
     with pytest.raises(ValueError):
         M = Matrix([[0, 1, 0], [1, 0, 0], [0, 0, 0]])
         G = Graph.from_adjacency_matrix(M)
-        G.to_int()
+        export.to_int(nx.Graph(G))
     with pytest.raises(ValueError):
         Graph.from_int(0)
     with pytest.raises(TypeError):
@@ -43,10 +40,3 @@ def test_integer_representation_error():
         Graph.from_int(1.2)
     with pytest.raises(ValueError):
         Graph.from_int(-1)
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(ValueError):
-            export.to_int(nx.Graph([]))
-        with pytest.raises(ValueError):
-            M = Matrix([[0, 1, 0], [1, 0, 0], [0, 0, 0]])
-            G = Graph.from_adjacency_matrix(M)
-            export.to_int(nx.Graph(G))
