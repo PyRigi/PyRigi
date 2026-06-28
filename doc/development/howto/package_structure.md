@@ -81,7 +81,7 @@ which is removed automatically by `@copy_doc` (the description would remain, if 
 (writing_examples)=
 ### Writing examples for `copy_doc`-wrapped functions
 
-Examples in function-style docstrings must follow two rules so `copy_doc` can
+Examples in function-style docstrings must follow these rules so `copy_doc` can
 invert them to method-style at import time:
 
 1. **No chained instantiation.** Assign the graph to a variable first:

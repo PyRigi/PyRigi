@@ -1,5 +1,6 @@
 """
-Convert all wrapped function docstrings from method-style to function-style.
+Convert all wrapped function docstrings from method-style to function-style for both
+Graph and Framework (or other @copy_doc-wrapped method classes in the future).
 
 Dry-run by default — shows a unified diff per changed function.
 Pass --apply to write changes to disk.
@@ -15,18 +16,22 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from pyrigi._utils._graph_alias_mapping import GRAPH_ALIAS_METHOD_TO_NX  # noqa: E402
-from migration_targets import TARGET_FILES  # noqa: E402
+from migration_targets import CLASS_TO_TARGET_FILES  # noqa: E402
 
 
-def _collect_graph_wrapper_methods() -> set[str]:
-    """Return names of Graph methods decorated with @copy_doc(...)."""
-    graph_path = ROOT / "pyrigi/graph/graph.py"
-    graph_source = graph_path.read_text(encoding="utf-8")
-    tree = ast.parse(graph_source)
+def _collect_wrapper_methods(class_name: str, rel_file: str) -> set[str]:
+    """
+    Return names of methods in the given class decorated with @copy_doc(...).
+
+    The class has to be in `rel_file`.
+    """
+    file_path = ROOT / rel_file
+    source = file_path.read_text(encoding="utf-8")
+    tree = ast.parse(source)
 
     wrapper_methods = set()
     for node in tree.body:
-        if not isinstance(node, ast.ClassDef) or node.name != "Graph":
+        if not isinstance(node, ast.ClassDef) or node.name != class_name:
             continue
         for class_node in node.body:
             if not isinstance(class_node, ast.FunctionDef):
@@ -42,11 +47,14 @@ def _collect_graph_wrapper_methods() -> set[str]:
             )
             if is_wrapper:
                 wrapper_methods.add(class_node.name)
-
     return wrapper_methods
 
 
-GRAPH_WRAPPER_METHODS = _collect_graph_wrapper_methods()
+# Collect Graph and Framework wrapper sets up front
+WRAPPER_METHODS = {
+    "Graph": _collect_wrapper_methods("Graph", "pyrigi/graph/graph.py"),
+    "Framework": _collect_wrapper_methods("Framework", "pyrigi/framework/framework.py"),
+}
 
 
 def _transform_doctest_method_to_func(line: str, class_methods: set[str]) -> str:
@@ -212,7 +220,9 @@ def _quote_style(literal_text: str) -> str | None:
     return None
 
 
-def transform_file(filepath: Path, dry_run: bool = True) -> int:
+def transform_file(
+    filepath: Path, dry_run: bool = True, class_name: str = "Graph"
+) -> int:
     """Transform all function docstrings in filepath.
 
     Returns number of changed functions.
@@ -237,8 +247,9 @@ def transform_file(filepath: Path, dry_run: bool = True) -> int:
             continue
 
         old_value = const_node.value
-        new_value = method_to_func_doc(old_value, GRAPH_WRAPPER_METHODS)
-        new_value = _transform_graph_alias_to_nx_doc(new_value)
+        new_value = method_to_func_doc(old_value, WRAPPER_METHODS[class_name])
+        if class_name == "Graph":
+            new_value = _transform_graph_alias_to_nx_doc(new_value)
         if new_value == old_value:
             continue
 
@@ -293,18 +304,40 @@ def transform_file(filepath: Path, dry_run: bool = True) -> int:
 
 
 if __name__ == "__main__":
-    dry_run = "--apply" not in sys.argv
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Migrate docstrings for methods decorated with @copy_doc "
+        "in the specified class."
+    )
+    parser.add_argument("class_name", help="Class to migrate (e.g. Graph, Framework)")
+    parser.add_argument(
+        "--apply", action="store_true", help="Write changes to disk (default: dry run)"
+    )
+    args = parser.parse_args()
+    class_name = args.class_name
+    dry_run = not args.apply
+
+    print(f"\nDocstring migration for class: {class_name}\n")
     if dry_run:
         print("DRY RUN — pass --apply to write changes\n")
     else:
         print("APPLYING changes...\n")
 
+    if class_name not in WRAPPER_METHODS:
+        print(
+            f"ERROR: Unknown class '{class_name}'. "
+            f"Available: {list(WRAPPER_METHODS.keys())}"
+        )
+        sys.exit(1)
+
     total = 0
-    for filepath in TARGET_FILES:
+    target_files = CLASS_TO_TARGET_FILES[class_name]
+    for filepath in target_files:
         if not filepath.exists():
             print(f"  MISSING: {filepath}")
             continue
-        total += transform_file(filepath, dry_run=dry_run)
+        total += transform_file(filepath, dry_run=dry_run, class_name=class_name)
 
     mode = "would change" if dry_run else "changed"
     print(f"\nTotal functions {mode}: {total}")
