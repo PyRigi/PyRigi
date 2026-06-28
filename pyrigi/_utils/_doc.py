@@ -289,6 +289,7 @@ def func_to_method_doc(docstring: str, class_methods: set[str]) -> str:
 
         # 4. "this function" / "the function" / "The function"
         line = re.sub(r"\bthis function\b", "this method", line)
+        line = re.sub(r"\bThis function\b", "This method", line)
         line = re.sub(r"\bthe function\b", "the method", line)
         line = re.sub(r"\bThe function\b", "The method", line)
 
