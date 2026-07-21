@@ -330,25 +330,23 @@ def test_rigid_components(graph, components, dim):
 @pytest.mark.parametrize(
     "graph",
     [
-        Graph(nx.gnp_random_graph(20, 0.1)),
-        Graph(nx.gnm_random_graph(30, 62)),
-        pytest.param(Graph(nx.gnm_random_graph(25, 46)), marks=pytest.mark.slow_main),
-        pytest.param(Graph(nx.gnm_random_graph(40, 80)), marks=pytest.mark.slow_main),
-        pytest.param(
-            Graph(nx.gnm_random_graph(100, 230)), marks=pytest.mark.long_local
-        ),
-        pytest.param(
-            Graph(nx.gnm_random_graph(100, 190)), marks=pytest.mark.long_local
-        ),
+        nx.gnp_random_graph(20, 0.1),
+        nx.gnm_random_graph(30, 62),
+        pytest.param(nx.gnm_random_graph(25, 46), marks=pytest.mark.slow_main),
+        pytest.param(nx.gnm_random_graph(40, 80), marks=pytest.mark.slow_main),
+        pytest.param(nx.gnm_random_graph(100, 230), marks=pytest.mark.long_local),
+        pytest.param(nx.gnm_random_graph(100, 190), marks=pytest.mark.long_local),
     ],
 )
 def test_rigid_components_pebble_random_graphs(graph):
-    rigid_components = graph.rigid_components(dim=2, algorithm="pebble")
+    rigid_components = generic_rigidity.rigid_components(
+        graph, dim=2, algorithm="pebble"
+    )
 
     # Check that all components are rigid
     for c in rigid_components:
         new_graph = graph.subgraph(c)
-        assert new_graph.is_rigid(dim=2, algorithm="sparsity")
+        assert generic_rigidity.is_rigid(new_graph, dim=2, algorithm="sparsity")
 
     # Check that vertex-pairs that are not in a component are not in a rigid component
     # check every vertex pairs in the graph

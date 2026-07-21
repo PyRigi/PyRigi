@@ -149,7 +149,7 @@ def test_is_not_globally_d2(graph):
 def test_is_weakly_globally_linked_for_globally_rigid_graphs(graph):
     # in a globally rigid graph, each pair of vertices should be weakly globally linked
     for u, v in list(combinations(graph.nodes, 2)):
-        assert graph.is_weakly_globally_linked(u, v)
+        assert global_rigidity.is_weakly_globally_linked(nx.Graph(graph), u, v)
 
 
 @pytest.mark.parametrize(
@@ -168,9 +168,11 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
     for u, v in graph.edges:
         H = graph.copy()
         H.remove_edge(u, v)
+        H = nx.Graph(H)
         # now H is surely a rigid graph
-        if H.is_globally_rigid():
-            return test_is_weakly_globally_linked_for_globally_rigid_graphs(H)
+        if global_rigidity.is_globally_rigid(H):
+            for w1, w2 in list(combinations(graph.nodes, 2)):
+                assert global_rigidity.is_weakly_globally_linked(H, w1, w2)
         else:
             # if H is rigid but it is not globally rigid, then we know that there must
             # be at least one pair of vertices that is not weakly globally linked in
@@ -178,7 +180,7 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
             # not weakly globally linked pair of vertices is found
             counter = 0
             for a, b in list(combinations(H.nodes, 2)):
-                if not H.is_weakly_globally_linked(a, b):
+                if not global_rigidity.is_weakly_globally_linked(H, a, b):
                     counter = 1
                     break
             assert counter
