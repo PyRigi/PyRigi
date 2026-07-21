@@ -68,7 +68,7 @@ def number_of_realizations(  # noqa: C901
         This needs to be installed separately
         but is much faster than the ``native`` implementation.
         This works only for minimally rigid graphs in dimension 2.
-        Note that ``lnumber`` only works for graphs with less than 34 vertices.
+        Note that ``lnumber`` only works for graphs with less than 30 vertices.
     spherical:
         If ``True``, the number of spherical realizations of the graph is returned.
         If ``False`` (default), the number of planar realizations is returned.
@@ -107,7 +107,7 @@ def number_of_realizations(  # noqa: C901
         elif dim == 2:
             if graph.number_of_edges() > 2 * graph.number_of_nodes() - 3:
                 algorithm = "native"
-            elif graph.number_of_nodes() > 33:
+            elif graph.number_of_nodes() > 30:
                 algorithm = "native"
             elif importlib.util.find_spec("lnumber") is not None:
                 algorithm = "lnumber"
