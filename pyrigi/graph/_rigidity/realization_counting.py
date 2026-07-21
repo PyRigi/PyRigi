@@ -216,7 +216,7 @@ def number_of_realizations(  # noqa: C901
             if spherical:
                 if graph.number_of_nodes() > 30:
                     raise ValueError(
-                        "For `spherical` the algorithm `lnumber` is only available"
+                        "The algorithm `lnumber` is only available"
                         "for graphs with at most 30 vertices"
                         "but the input graph has more vertices."
                         "You may try the `native` algorithm instead."
