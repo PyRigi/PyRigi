@@ -16,3 +16,4 @@
 /.idea/
 *.stl
 /doc/development/howto/pyrigi_structure.txt
+.DS_Store

@@ -1,0 +1,71 @@
+# Benchmark Configuration File Example
+# 
+# You can use this as a template for your own benchmark configurations.
+
+# Target function to benchmark (required)
+# Format: "path/to/file.py:function_name"
+target: "pyrigi/graph/_rigidity/generic.py:is_min_rigid"
+
+# Dataset directory containing .g6 graph files (required)
+dataset: "benchmark/graph_store/minimally_rigid"
+
+# Output file for benchmark results
+# If relative, resolved to the benchmark/ directory.
+# (default: benchmark/benchmark_results.json)
+output: "benchmark_results.json"
+
+# Minimum number of rounds per test case (default: 5).
+# Lower values are suitable for complexity analysis (you care about the mean,
+# not convergence of the distribution).
+min_rounds: 5
+
+# Maximum time (seconds) for each test case's adaptive round loop (default: 0.05).
+# pytest-benchmark runs at least min_rounds, then keeps adding rounds until this
+# budget is exhausted.
+max_time: 0.5
+
+# Warmup mode: auto | on | off (default: auto).
+# 'off'  — no warmup, fastest; fine for complexity analysis.
+# 'auto' — let pytest-benchmark decide; adds calibration overhead.
+# 'on'   — always warm up; useful for cache-sensitive micro-benchmarks.
+warmup: "off"
+
+# Number of warmup rounds when warmup is 'on' or 'auto' (default: 1).
+# Has no effect when warmup='off'.
+warmup_iterations: 10
+
+# Per-test-case timeout in seconds (default: none).
+# If a single benchmark test case hangs longer than this, it is skipped
+# and recorded in a separate timeout_results.json file.
+# Set to null or omit to disable timeouts entirely.
+timeout: 3
+
+# Early-stop threshold (0.0–1.0) for skipping larger vertex sizes.
+# When the fraction of timed-out tests for a given (config, num_nodes)
+# reaches this value, all tests with num_nodes >= that size for that
+# config are automatically skipped.
+# Example: 0.75 means stop when 75% of tests at a vertex size time out.
+# Tracked per config — one config hitting the threshold won't affect others.
+# Set to null or omit to disable early stopping.
+timeout_threshold: 0.75
+
+# ===== HYBRID PARAMETER CONFIGURATION =====
+# You can use EITHER or BOTH of the following sections:
+
+# Option 1: Cartesian Product (auto-generate all combinations)
+# All possible combinations of these parameters will be tested
+cartesian_params:
+  dim: [2]
+  algorithm: ["sparsity", "extension_sequence", "randomized"]
+
+# Option 2: Explicit Configs (manual pairing to avoid invalid combinations)
+# Specify exact parameter combinations to test
+# explicit_configs:
+#   - dim: 2
+#     algorithm: "sparsity"
+
+# Notes:
+# - cartesian_params generates: dim=1,algorithm=graphic AND dim=1,algorithm=randomized
+# - explicit_configs adds: dim=2,algorithm=sparsity AND dim=2,algorithm=subgraph
+# - Total: 4 configurations will be tested
+# - You can use either section alone, or both together
