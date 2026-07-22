@@ -597,35 +597,50 @@ def _run_realization_test_on_graph(G: nx.Graph, dim: int, check_lnumber: bool) -
         assert cs_l == cs
 
 
-def test_randomized_realization_counting(request):
+@pytest.mark.parametrize(
+    "graph, dim, m, n",
+    [
+        [Graph(nx.gnm_random_graph(n, m)), dim, m, n]
+        for dim, n, _ in product(range(1, 4), range(1, 7), range(10))
+        for m in range(1, math.comb(n, 2) + 1)
+    ],
+)
+def test_randomized_realization_counting(request, graph, dim, m, n):
     check_lnumber = is_marker_selected(request.config, "realization_counting")
 
-    search_space = [range(1, 4), range(1, 7), range(10)]
-    for dim, n, _ in product(*search_space):
-        for m in range(1, math.comb(n, 2) + 1):
-            G = nx.gnm_random_graph(n, m)
-            assert G.number_of_nodes() == n
-            assert G.number_of_edges() == m
+    G = nx.Graph(graph)
+    # The graph is converted to pyrigi.Graph and then back to nx.Graph
+    # to see its vertices and edges in the output if a test fails.
 
-            if dim in [1, 2]:
-                _run_realization_test_on_graph(G, dim, check_lnumber)
-            else:
-                try:
-                    _run_realization_test_on_graph(G, dim, check_lnumber)
-                except ValueError:
-                    assert True
-                except NotImplementedError:
-                    assert True
+    assert G.number_of_nodes() == n
+    assert G.number_of_edges() == m
+
+    if dim in [1, 2]:
+        _run_realization_test_on_graph(G, dim, check_lnumber)
+    else:
+        try:
+            _run_realization_test_on_graph(G, dim, check_lnumber)
+        except ValueError:
+            assert True
+        except NotImplementedError:
+            assert True
 
 
-def test_small_realizations_counting(request):
+@pytest.mark.parametrize(
+    "n, edges",
+    [
+        [n, edges]
+        for n in range(1, 5)
+        for i in range(math.comb(n, 2) + 1)
+        for edges in combinations(combinations(range(n), 2), i)
+    ],
+)
+def test_small_realizations_counting(request, n, edges):
     check_lnumber = is_marker_selected(request.config, "realization_counting")
-    for n in range(1, 5):
-        for i in range(math.comb(n, 2) + 1):
-            for edges in combinations(combinations(range(n), 2), i):
-                G = nx.Graph(Graph.from_vertices_and_edges(range(n), edges))
-                assert G.number_of_nodes() == n
-                assert G.number_of_edges() == len(edges)
 
-                for dim in [1, 2]:
-                    _run_realization_test_on_graph(G, dim, check_lnumber)
+    G = nx.Graph(Graph.from_vertices_and_edges(range(n), edges))
+    assert G.number_of_nodes() == n
+    assert G.number_of_edges() == len(edges)
+
+    for dim in [1, 2]:
+        _run_realization_test_on_graph(G, dim, check_lnumber)
