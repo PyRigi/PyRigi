@@ -375,24 +375,17 @@ def test_number_of_realizations_method_error(graph, dim):
 
 
 @pytest.mark.parametrize(
-    "graph, spherical",
+    " spherical",
     [
-        [
-            Graph.from_int(
-                26972536622853608673052908671257806158342252981982659638273504703765618149465003241439368046052423751085822998770323228557321814803988  # noqa: E501
-            ),
-            False,
-        ],
-        [
-            Graph.from_int(
-                26972536622853608673052908671257806158342252981982659638273504703765618149465003241439368046052423751085822998770323228557321814803988  # noqa: E501
-            ),
-            True,
-        ],
+        False,
+        True,
     ],
 )
 @pytest.mark.realization_counting
-def test_number_of_realizations_lnumber_error(graph, spherical):
+def test_number_of_realizations_lnumber_error(spherical):
+    graph = Graph.from_int(
+        26972536622853608673052908671257806158342252981982659638273504703765618149465003241439368046052423751085822998770323228557321814803988  # noqa: E501
+    )
     with pytest.raises(ValueError):
         graph.number_of_realizations(algorithm="lnumber", spherical=spherical)
 

@@ -213,16 +213,6 @@ def number_of_realizations(  # noqa: C901
 
             graph_int = export.to_int(graph)
 
-            if spherical:
-                if graph.number_of_nodes() > 30:
-                    raise ValueError(
-                        "The algorithm `lnumber` is only available"
-                        "for graphs with at most 30 vertices"
-                        "but the input graph has more vertices."
-                        "You may try the `native` algorithm instead."
-                    )
-                else:
-                    return lnumber.lnumbers(graph_int) // fac
             if graph.number_of_nodes() > 30:
                 raise ValueError(
                     "The algorithm `lnumber` is only available"
@@ -231,7 +221,10 @@ def number_of_realizations(  # noqa: C901
                     "You may try the `native` algorithm instead."
                 )
             else:
-                return lnumber.lnumber(graph_int) // fac
+                if spherical:
+                    return lnumber.lnumbers(graph_int) // fac
+                else:
+                    return lnumber.lnumber(graph_int) // fac
         if algorithm == "native":
             if spherical:
                 return _number_of_sphere_realizations_min_rigid_dim_2(graph) // fac
