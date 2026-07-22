@@ -71,6 +71,7 @@ def number_of_realizations(  # noqa: C901
         This needs to be installed separately
         but is much faster than the ``native`` implementation.
         This works only for minimally rigid graphs in dimension 2.
+        Note that ``lnumber`` only works for graphs with less than 31 vertices.
     spherical:
         If ``True``, the number of spherical realizations of the graph is returned.
         If ``False`` (default), the number of planar realizations is returned.
@@ -108,6 +109,8 @@ def number_of_realizations(  # noqa: C901
             algorithm = "native"
         elif dim == 2:
             if graph.number_of_edges() > 2 * graph.number_of_nodes() - 3:
+                algorithm = "native"
+            elif graph.number_of_nodes() > 30:
                 algorithm = "native"
             elif importlib.util.find_spec("lnumber") is not None:
                 algorithm = "lnumber"
@@ -213,13 +216,25 @@ def number_of_realizations(  # noqa: C901
 
             graph_int = export.to_int(graph)
 
+            if graph.number_of_nodes() > 30:
+                raise ValueError(
+                    "The algorithm `lnumber` is only available"
+                    "for graphs with at most 30 vertices"
+                    "but the input graph has more vertices."
+                    "You may try the `native` algorithm instead."
+                )
             if spherical:
                 return lnumber.lnumbers(graph_int) // fac
-            return lnumber.lnumber(graph_int) // fac
+            else:
+                return lnumber.lnumber(graph_int) // fac
+
         if algorithm == "native":
             if spherical:
                 return _number_of_sphere_realizations_min_rigid_dim_2(graph) // fac
             return _number_of_plane_realizations_min_rigid_dim_2(graph) // fac
+
+        raise RuntimeError("This should be never reached.")
+
     else:  # not minimally rigid (but rigid)
         if algorithm == "lnumber":
             raise ValueError(
