@@ -18,6 +18,7 @@ from pyrigi._utils import _input_check
 from pyrigi.data_type import Inf
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph._export import export
+from pyrigi.graph._general import min_degree
 from pyrigi.graph._sparsity import sparsity
 
 
@@ -147,9 +148,9 @@ def number_of_realizations(  # noqa: C901
         # :prf:ref:`lem-realization-0-extension`
         G = deepcopy(graph)
         deg_dim = 0
-        while G.number_of_nodes() > dim + 1 and G.min_degree() == dim:
+        while G.number_of_nodes() > dim + 1 and min_degree(G) == dim:
             min_v = [v for v in G.nodes if G.degree(v) == dim]
-            G.delete_vertices(min_v)
+            G.remove_nodes_from(min_v)
             deg_dim += len(min_v)
 
         n = G.number_of_nodes()
@@ -175,9 +176,9 @@ def number_of_realizations(  # noqa: C901
             G = deepcopy(graph)
             deg_1 = 0
             # use :prf:ref:`lem-realization-0-extension`
-            while G.number_of_nodes() > 2 and G.min_degree() == 1:
+            while G.number_of_nodes() > 2 and min_degree(G) == 1:
                 min_v = [v for v in G.nodes if G.degree(v) == 1]
-                G.delete_vertices(min_v)
+                G.remove_nodes_from(min_v)
                 deg_1 += len(min_v)
             if G.number_of_nodes() == 1:
                 return (2**deg_1) // fac
@@ -185,7 +186,7 @@ def number_of_realizations(  # noqa: C901
         # not 2-connected
         G = deepcopy(graph)
         cut = next(iter(nx.all_node_cuts(G)))
-        G.delete_vertices(cut)
+        G.remove_nodes_from(cut)
         con = nx.connected_components(G)
         sub = [graph.subgraph(c.union(cut)).copy() for c in con]
         return (fac ** (len(sub) - 1)) * math.prod(
@@ -281,7 +282,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
     # Case where the graph is not 3-connected
     # :prf:ref:`thm-realization-rigid-not-3-connected`
     if len(cut) == 2:
-        G.delete_vertices(cut)
+        G.remove_nodes_from(cut)
         con = nx.connected_components(G)
         sub = [graph.subgraph(c.union(cut)).copy() for c in con]
         # Case where the vertices of the cut are adjacent
@@ -317,7 +318,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
     # Find edge e such that graph - e is not rigid
     # :prf:ref:`thm-realization-rigid-3-connected`
     G = deepcopy(graph)
-    edges = G.edge_list()
+    edges = list(G.edges)
     found = False
     while len(edges) > 0 and not found:
         e = edges.pop()
@@ -327,7 +328,7 @@ def _number_of_realizations_rigid_not_globally_rigid_dim_2(
         else:
             found = True
     # Get maximal rigid subgraphs
-    comp = G.rigid_components(2)
+    comp = generic_rigidity.rigid_components(G, 2)
     max_sub = [G.subgraph(c).copy() for c in comp]
     # Get minimally rigid spanning subgraphs
     span = [sparsity.spanning_kl_sparse_subgraph(g, 2, 3) for g in max_sub]
@@ -372,9 +373,9 @@ def _number_of_sphere_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     G = deepcopy(graph)
     deg_2 = 0
     # use :prf:ref:`lem-realization-0-extension`
-    while G.number_of_nodes() > 2 and G.min_degree() == 2:
+    while G.number_of_nodes() > 2 and min_degree(G) == 2:
         min_v = [v for v in G.nodes if G.degree(v) == 2]
-        G.delete_vertices(min_v)
+        G.remove_nodes_from(min_v)
         deg_2 += len(min_v)
 
     if G.number_of_nodes() == 0:
@@ -452,9 +453,7 @@ def _graph_to_quadrograph(graph: nx.Graph) -> list:
     if n < 2:
         raise ValueError("The graph is too small")
     quad_N = range(1, 2 * n + 1)
-    edges = graph.edge_list()
-    vertices = graph.vertex_list()
-    mapping = {vertices[i]: i + 1 for i in range(n)}
+    mapping = {v: i + 1 for i, v in enumerate(graph.nodes)}
     quad_Q = [
         [
             mapping[edge[0]],
@@ -462,7 +461,7 @@ def _graph_to_quadrograph(graph: nx.Graph) -> list:
             mapping[edge[0]] + n,
             mapping[edge[1]] + n,
         ]
-        for edge in edges
+        for edge in graph.edges
     ]
     return [quad_N, quad_Q]
 
@@ -484,9 +483,9 @@ def _number_of_plane_realizations_min_rigid_dim_2(graph: nx.Graph) -> int:
     G = deepcopy(graph)
     deg_2 = 0
     # use :prf:ref:`lem-realization-0-extension`
-    while G.number_of_nodes() > 2 and G.min_degree() == 2:
+    while G.number_of_nodes() > 2 and min_degree(G) == 2:
         min_v = [v for v in G.nodes if G.degree(v) == 2]
-        G.delete_vertices(min_v)
+        G.remove_nodes_from(min_v)
         deg_2 += len(min_v)
 
     if G.number_of_nodes() == 0:
@@ -587,15 +586,14 @@ def _graph_to_bigraph(graph: nx.Graph) -> list:
     n = graph.number_of_nodes()
     if n < 2:
         raise ValueError("The graph is too small")
-    edges = graph.edge_list()
-    vertices = graph.vertex_list()
-    mapping = {vertices[i]: i + 1 for i in range(n)}
+
+    mapping = {v: i + 1 for i, v in enumerate(graph.nodes)}
     biedges = [
         [
             [mapping[edge[0]], mapping[edge[1]]],
             [mapping[edge[0]], mapping[edge[1]]],
         ]
-        for edge in edges
+        for edge in graph.edges
     ]
     return biedges
 
