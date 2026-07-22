@@ -220,15 +220,18 @@ def number_of_realizations(  # noqa: C901
                     "but the input graph has more vertices."
                     "You may try the `native` algorithm instead."
                 )
+            if spherical:
+                return lnumber.lnumbers(graph_int) // fac
             else:
-                if spherical:
-                    return lnumber.lnumbers(graph_int) // fac
-                else:
-                    return lnumber.lnumber(graph_int) // fac
+                return lnumber.lnumber(graph_int) // fac
+
         if algorithm == "native":
             if spherical:
                 return _number_of_sphere_realizations_min_rigid_dim_2(graph) // fac
             return _number_of_plane_realizations_min_rigid_dim_2(graph) // fac
+
+        raise RuntimeError("This should be never reached.")
+
     else:  # not minimally rigid (but rigid)
         if algorithm == "lnumber":
             raise ValueError(
