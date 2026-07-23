@@ -373,11 +373,11 @@ def test_number_of_realizations_rigid_higher_dim(
 ):
     assert (
         realization_counting.number_of_realizations(
-            nx.Graph(graph), dim=dim, count_reflection=True
+            nx.Graph(graph), dim, count_reflection=True
         )
         == num_of_realizations
     )
-    assert realization_counting.number_of_realizations(nx.Graph(graph), dim=dim) == (
+    assert realization_counting.number_of_realizations(nx.Graph(graph), dim) == (
         (num_of_realizations // 2) if num_of_realizations != 1 else 1
     )
 

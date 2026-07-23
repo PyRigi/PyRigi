@@ -11,7 +11,6 @@ import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi import Graph
 from pyrigi.data_type import Vertex
-from pyrigi.graph._other.separating_set import _remove_apply_restore_vertices
 from test.graph.test_graph import relabeled_inc
 
 
@@ -90,17 +89,19 @@ def test__remove_apply_restore_vertices():
     def noop(_: nx.Graph):  # noqa: U101
         pass
 
-    _remove_apply_restore_vertices(graph2, set(), noop, use_copy=True)
+    separating_set._remove_apply_restore_vertices(graph2, set(), noop, use_copy=True)
     assert _eq(graph1, graph2)
-    _remove_apply_restore_vertices(graph2, set(), noop, use_copy=False)
+    separating_set._remove_apply_restore_vertices(graph2, set(), noop, use_copy=False)
     assert _eq(graph1, graph2)
-    _remove_apply_restore_vertices(graph2, {2}, noop, use_copy=False)
+    separating_set._remove_apply_restore_vertices(graph2, {2}, noop, use_copy=False)
     assert _eq(graph1, graph2)
-    _remove_apply_restore_vertices(graph2, {2}, noop, use_copy=True)
+    separating_set._remove_apply_restore_vertices(graph2, {2}, noop, use_copy=True)
     assert _eq(graph1, graph2)
-    _remove_apply_restore_vertices(graph2, {0, 1, 2, 3}, noop, use_copy=False)
+    separating_set._remove_apply_restore_vertices(
+        graph2, {0, 1, 2, 3}, noop, use_copy=False
+    )
     assert _eq(graph1, graph2)
-    _remove_apply_restore_vertices(
+    separating_set._remove_apply_restore_vertices(
         nx.induced_subgraph(graph2, [0, 1, 2]), {1}, noop, use_copy=False
     )
     assert _eq(graph1, graph2)
