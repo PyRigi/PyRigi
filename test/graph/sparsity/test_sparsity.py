@@ -553,19 +553,26 @@ def _run_sparsity_test_on_graph(G: Graph) -> None:
             return math.comb(K + 1, 2) + 1
 
     prop_sparse = {
-        K: [G.is_kl_sparse(K, L) for L in range(get_max_L(G, K))]
+        K: [sparsity.is_kl_sparse(G, K, L) for L in range(get_max_L(G, K))]
         for K in range(1, kmax)
     }
     prop_tight = {
-        K: [G.is_kl_tight(K, L) for L in range(get_max_L(G, K))] for K in range(1, kmax)
+        K: [sparsity.is_kl_tight(G, K, L) for L in range(get_max_L(G, K))]
+        for K in range(1, kmax)
     }
 
     prop_sparse_s = {
-        K: [G.is_kl_sparse(K, L, algorithm="subgraph") for L in range(get_max_L(G, K))]
+        K: [
+            sparsity.is_kl_sparse(G, K, L, algorithm="subgraph")
+            for L in range(get_max_L(G, K))
+        ]
         for K in range(1, kmax)
     }
     prop_tight_s = {
-        K: [G.is_kl_tight(K, L, algorithm="subgraph") for L in range(get_max_L(G, K))]
+        K: [
+            sparsity.is_kl_tight(G, K, L, algorithm="subgraph")
+            for L in range(get_max_L(G, K))
+        ]
         for K in range(1, kmax)
     }
 

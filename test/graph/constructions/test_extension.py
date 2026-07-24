@@ -13,13 +13,14 @@ from pyrigi.graph._utils.utils import is_isomorphic_graph_list
 # k_extension
 ###############################################################
 def test_k_extension():
-    assert graphs.Complete(2).zero_extension([0, 1]) == graphs.Complete(3)
-    assert graphs.Complete(2).zero_extension([1], dim=1) == graphs.Path(3)
-    assert graphs.Complete(4).one_extension([0, 1, 2], (0, 1)) == Graph(
-        [(0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4)]
-    )
-    assert graphs.CompleteBipartite(3, 2).one_extension(
-        [0, 1, 2, 3, 4], (0, 3), dim=4
+    g2 = nx.Graph(graphs.Complete(2))
+    assert extension.zero_extension(g2, [0, 1]) == graphs.Complete(3)
+    assert extension.zero_extension(g2, [1], dim=1) == graphs.Path(3)
+    assert extension.one_extension(
+        nx.Graph(graphs.Complete(4)), [0, 1, 2], (0, 1)
+    ) == Graph([(0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4)])
+    assert extension.one_extension(
+        nx.Graph(graphs.CompleteBipartite(3, 2)), [0, 1, 2, 3, 4], (0, 3), dim=4
     ) == Graph(
         [
             (0, 4),

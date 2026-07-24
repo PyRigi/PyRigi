@@ -6,6 +6,7 @@ import pytest
 
 import pyrigi.graphDB as graphs
 from pyrigi.graph._flexibility.nac import MonoClassType, is_NAC_coloring
+from pyrigi.graph._flexibility.nac.facade import NAC_colorings
 from pyrigi.graph._flexibility.nac.search import NAC_colorings_impl
 from pyrigi.graph.graph import Graph
 
@@ -236,7 +237,8 @@ def test_all_NAC_colorings_method(
         return
 
     coloring_list = list(
-        graph.NAC_colorings(
+        NAC_colorings(
+            graph,
             algorithm=algorithm,
             mono_class_type=class_type,
             use_cycles_optimization=use_cycles,

@@ -6,8 +6,20 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pytest
 
+import pyrigi.graph._constructions.constructions as constructions
+import pyrigi.graph._constructions.extensions as extensions
+import pyrigi.graph._general as general
+import pyrigi.graph._rigidity.generic as generic
+import pyrigi.graph._rigidity.global_ as g_global
+import pyrigi.graph._rigidity.matroidal as g_matroidal
+import pyrigi.graph._rigidity.redundant as g_redundant
+import pyrigi.graph._sparsity.sparsity as sparsity
+import pyrigi.framework._rigidity.infinitesimal as infinitesimal
+import pyrigi.framework._rigidity.matroidal as fw_matroidal
+import pyrigi.framework._rigidity.redundant as fw_redundant
 import pyrigi.graphDB as graphs
 from pyrigi.exception import LoopError
+from pyrigi.framework import Framework
 from pyrigi.graph import Graph
 
 is_rigid_algorithms_all_d = ["default", "randomized", "numerical"]
@@ -344,98 +356,106 @@ def test_randomized_rigidity_properties():  # noqa: C901
             assert G.number_of_nodes() == n
             assert G.number_of_edges() == m
 
-            prop_rigid = G.is_rigid(dim)
-            prop_min_rigid = G.is_min_rigid(dim)
-            prop_glob_rigid = G.is_globally_rigid(dim)
-            prop_red_rigid = G.is_redundantly_rigid(dim)
-            prop_2_red_rigid = G.is_k_redundantly_rigid(2, dim)
-            prop_3_red_rigid = G.is_k_redundantly_rigid(3, dim)
-            prop_vred_rigid = G.is_vertex_redundantly_rigid(dim)
-            prop_2_vred_rigid = G.is_k_vertex_redundantly_rigid(2, dim)
-            prop_3_vred_rigid = G.is_k_vertex_redundantly_rigid(3, dim)
-            prop_min_red_rigid = G.is_min_redundantly_rigid(dim)
-            prop_min_2_red_rigid = G.is_min_k_redundantly_rigid(2, dim)
-            prop_min_3_red_rigid = G.is_min_k_redundantly_rigid(3, dim)
-            prop_min_vred_rigid = G.is_min_vertex_redundantly_rigid(dim)
-            prop_min_2_vred_rigid = G.is_min_k_vertex_redundantly_rigid(2, dim)
-            prop_min_3_vred_rigid = G.is_min_k_vertex_redundantly_rigid(3, dim)
-            prop_sparse = G.is_kl_sparse(dim, math.comb(dim + 1, 2))
-            prop_tight = G.is_kl_tight(dim, math.comb(dim + 1, 2))
-            prop_seq = G.has_extension_sequence(dim)
-            prop_dep = G.is_Rd_dependent(dim)
-            prop_indep = G.is_Rd_independent(dim)
-            prop_circ = G.is_Rd_circuit(dim)
+            prop_rigid = generic.is_rigid(G, dim)
+            prop_min_rigid = generic.is_min_rigid(G, dim)
+            prop_glob_rigid = g_global.is_globally_rigid(G, dim)
+            prop_red_rigid = g_redundant.is_redundantly_rigid(G, dim)
+            prop_2_red_rigid = g_redundant.is_k_redundantly_rigid(G, 2, dim)
+            prop_3_red_rigid = g_redundant.is_k_redundantly_rigid(G, 3, dim)
+            prop_vred_rigid = g_redundant.is_vertex_redundantly_rigid(G, dim)
+            prop_2_vred_rigid = g_redundant.is_k_vertex_redundantly_rigid(G, 2, dim)
+            prop_3_vred_rigid = g_redundant.is_k_vertex_redundantly_rigid(G, 3, dim)
+            prop_min_red_rigid = g_redundant.is_min_redundantly_rigid(G, dim)
+            prop_min_2_red_rigid = g_redundant.is_min_k_redundantly_rigid(G, 2, dim)
+            prop_min_3_red_rigid = g_redundant.is_min_k_redundantly_rigid(G, 3, dim)
+            prop_min_vred_rigid = g_redundant.is_min_vertex_redundantly_rigid(G, dim)
+            prop_min_2_vred_rigid = g_redundant.is_min_k_vertex_redundantly_rigid(
+                G, 2, dim
+            )
+            prop_min_3_vred_rigid = g_redundant.is_min_k_vertex_redundantly_rigid(
+                G, 3, dim
+            )
+            prop_sparse = sparsity.is_kl_sparse(G, dim, math.comb(dim + 1, 2))
+            prop_tight = sparsity.is_kl_tight(G, dim, math.comb(dim + 1, 2))
+            prop_seq = extensions.has_extension_sequence(G, dim)
+            prop_dep = g_matroidal.is_Rd_dependent(G, dim)
+            prop_indep = g_matroidal.is_Rd_independent(G, dim)
+            prop_circ = g_matroidal.is_Rd_circuit(G, dim)
 
             # randomized algorithm
-            rprop_rigid = G.is_rigid(dim, algorithm="randomized")
-            rprop_min_rigid = G.is_min_rigid(dim, algorithm="randomized")
-            rprop_glob_rigid = G.is_globally_rigid(dim, algorithm="randomized")
-            rprop_red_rigid = G.is_redundantly_rigid(dim, algorithm="randomized")
-            rprop_2_red_rigid = G.is_k_redundantly_rigid(2, dim, algorithm="randomized")
-            rprop_3_red_rigid = G.is_k_redundantly_rigid(3, dim, algorithm="randomized")
-            rprop_vred_rigid = G.is_vertex_redundantly_rigid(
-                dim, algorithm="randomized"
+            # fmt: off
+            rprop_rigid = generic.is_rigid(G, dim, algorithm="randomized")
+            rprop_min_rigid = generic.is_min_rigid(G, dim, algorithm="randomized")
+            rprop_glob_rigid = g_global.is_globally_rigid(G, dim, algorithm="randomized")
+            rprop_red_rigid = g_redundant.is_redundantly_rigid(G, dim, algorithm="randomized")  # noqa: E501
+            rprop_2_red_rigid = g_redundant.is_k_redundantly_rigid(G, 2, dim, algorithm="randomized")  # noqa: E501
+            rprop_3_red_rigid = g_redundant.is_k_redundantly_rigid(G, 3, dim, algorithm="randomized")  # noqa: E501
+            rprop_vred_rigid = g_redundant.is_vertex_redundantly_rigid(
+                G, dim, algorithm="randomized"
             )
-            rprop_2_vred_rigid = G.is_k_vertex_redundantly_rigid(
-                2, dim, algorithm="randomized"
+            rprop_2_vred_rigid = g_redundant.is_k_vertex_redundantly_rigid(
+                G, 2, dim, algorithm="randomized"
             )
-            rprop_3_vred_rigid = G.is_k_vertex_redundantly_rigid(
-                3, dim, algorithm="randomized"
+            rprop_3_vred_rigid = g_redundant.is_k_vertex_redundantly_rigid(
+                G, 3, dim, algorithm="randomized"
             )
-            rprop_min_red_rigid = G.is_min_redundantly_rigid(
-                dim, algorithm="randomized"
+            rprop_min_red_rigid = g_redundant.is_min_redundantly_rigid(
+                G, dim, algorithm="randomized"
             )
-            rprop_min_2_red_rigid = G.is_min_k_redundantly_rigid(
-                2, dim, algorithm="randomized"
+            rprop_min_2_red_rigid = g_redundant.is_min_k_redundantly_rigid(
+                G, 2, dim, algorithm="randomized"
             )
-            rprop_min_3_red_rigid = G.is_min_k_redundantly_rigid(
-                3, dim, algorithm="randomized"
+            rprop_min_3_red_rigid = g_redundant.is_min_k_redundantly_rigid(
+                G, 3, dim, algorithm="randomized"
             )
-            rprop_min_vred_rigid = G.is_min_vertex_redundantly_rigid(
-                dim, algorithm="randomized"
+            rprop_min_vred_rigid = g_redundant.is_min_vertex_redundantly_rigid(
+                G, dim, algorithm="randomized"
             )
-            rprop_min_2_vred_rigid = G.is_min_k_vertex_redundantly_rigid(
-                2, dim, algorithm="randomized"
+            rprop_min_2_vred_rigid = g_redundant.is_min_k_vertex_redundantly_rigid(
+                G, 2, dim, algorithm="randomized"
             )
-            rprop_min_3_vred_rigid = G.is_min_k_vertex_redundantly_rigid(
-                3, dim, algorithm="randomized"
+            rprop_min_3_vred_rigid = g_redundant.is_min_k_vertex_redundantly_rigid(
+                G, 3, dim, algorithm="randomized"
             )
-            rprop_dep = G.is_Rd_dependent(dim, algorithm="randomized")
-            rprop_indep = G.is_Rd_independent(dim, algorithm="randomized")
-            rprop_circ = G.is_Rd_circuit(dim, algorithm="randomized")
+            rprop_dep = g_matroidal.is_Rd_dependent(G, dim, algorithm="randomized")
+            rprop_indep = g_matroidal.is_Rd_independent(G, dim, algorithm="randomized")
+            rprop_circ = g_matroidal.is_Rd_circuit(G, dim, algorithm="randomized")
+            # fmt: on
+            # black formatting is skipped to enable nice diff for code review
+            # It can be removed in the future, together with  # noqa: E501.
 
             # subgraph algorithm
-            sprop_sparse = G.is_kl_sparse(
-                dim, math.comb(dim + 1, 2), algorithm="subgraph"
+            sprop_sparse = sparsity.is_kl_sparse(
+                G, dim, math.comb(dim + 1, 2), algorithm="subgraph"
             )
-            sprop_tight = G.is_kl_tight(
-                dim, math.comb(dim + 1, 2), algorithm="subgraph"
+            sprop_tight = sparsity.is_kl_tight(
+                G, dim, math.comb(dim + 1, 2), algorithm="subgraph"
             )
 
             # cones
-            res_cone = G.cone()
-            cprop_rigid = res_cone.is_rigid(dim + 1)
-            cprop_min_rigid = res_cone.is_min_rigid(dim + 1)
-            cprop_glob_rigid = res_cone.is_globally_rigid(dim + 1)
+            res_cone = constructions.cone(G)
+            cprop_rigid = generic.is_rigid(res_cone, dim + 1)
+            cprop_min_rigid = generic.is_min_rigid(res_cone, dim + 1)
+            cprop_glob_rigid = g_global.is_globally_rigid(res_cone, dim + 1)
 
             # extensions
             if n > dim:
-                res_ext0 = G.all_k_extensions(0, dim)
+                res_ext0 = list(extensions.all_k_extensions(G, 0, dim))
             else:
                 res_ext0 = []
             if m > 1 and n > dim + 1:
-                res_ext1 = G.all_k_extensions(1, dim)
+                res_ext1 = list(extensions.all_k_extensions(G, 1, dim))
             else:
                 res_ext1 = []
 
             # framework
-            F = G.random_framework(dim)
-            fprop_inf_rigid = F.is_inf_rigid()
-            fprop_inf_flex = F.is_inf_flexible()
-            fprop_min_inf_rigid = F.is_min_inf_rigid()
-            fprop_red_rigid = F.is_redundantly_inf_rigid()
-            fprop_dep = F.is_dependent()
-            fprop_indep = F.is_independent()
+            F = Framework.Random(G, dim)
+            fprop_inf_rigid = infinitesimal.is_inf_rigid(F)
+            fprop_inf_flex = infinitesimal.is_inf_flexible(F)
+            fprop_min_inf_rigid = infinitesimal.is_min_inf_rigid(F)
+            fprop_red_rigid = fw_redundant.is_redundantly_inf_rigid(F)
+            fprop_dep = fw_matroidal.is_dependent(F)
+            fprop_indep = fw_matroidal.is_independent(F)
 
             # (min) rigidity
             if prop_min_rigid:
@@ -446,18 +466,20 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_indep
                 if n > dim:
                     assert m == n * dim - math.comb(dim + 1, 2)
-                    assert F.rigidity_matrix_rank() == n * dim - math.comb(dim + 1, 2)
-                    assert G.min_degree() >= dim
-                    assert G.min_degree() <= 2 * dim - 1
+                    assert infinitesimal.rigidity_matrix_rank(F) == n * dim - math.comb(
+                        dim + 1, 2
+                    )
+                    assert general.min_degree(G) >= dim
+                    assert general.min_degree(G) <= 2 * dim - 1
                     assert prop_sparse
                     assert prop_tight
                     assert prop_seq
                 else:
                     assert m == math.comb(n, 2)
                 for graph in res_ext0:
-                    assert graph.is_min_rigid(dim)
+                    assert generic.is_min_rigid(graph, dim)
                 for graph in res_ext1:
-                    assert graph.is_min_rigid(dim)
+                    assert generic.is_min_rigid(graph, dim)
             if rprop_min_rigid:
                 assert prop_min_rigid
             if prop_rigid:
@@ -466,8 +488,10 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert fprop_inf_rigid
                 if n > dim:
                     assert m >= n * dim - math.comb(dim + 1, 2)
-                    assert F.rigidity_matrix_rank() == n * dim - math.comb(dim + 1, 2)
-                    assert G.min_degree() >= dim
+                    assert infinitesimal.rigidity_matrix_rank(F) == n * dim - math.comb(
+                        dim + 1, 2
+                    )
+                    assert general.min_degree(G) >= dim
                     if m > n * dim - math.comb(dim + 1, 2):
                         assert prop_dep
                     else:
@@ -499,7 +523,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert fprop_red_rigid
                 assert m >= n * dim - math.comb(dim + 1, 2) + 1
                 if G.number_of_nodes() >= dim + 1 + 1:
-                    assert G.min_degree() >= dim + 1  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 1  # thm-vertex-red-min-deg
             if rprop_red_rigid:
                 assert prop_red_rigid
             if prop_2_red_rigid:
@@ -508,7 +532,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_red_rigid
                 assert m >= n * dim - math.comb(dim + 1, 2) + 2
                 if G.number_of_nodes() >= dim + 2 + 1:
-                    assert G.min_degree() >= dim + 2  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 2  # thm-vertex-red-min-deg
             if rprop_2_red_rigid:
                 assert prop_2_red_rigid
             if prop_3_red_rigid:
@@ -518,7 +542,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_red_rigid
                 assert m >= n * dim - math.comb(dim + 1, 2) + 2
                 if G.number_of_nodes() >= dim + 3 + 1:
-                    assert G.min_degree() >= dim + 3  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 3  # thm-vertex-red-min-deg
             if rprop_3_red_rigid:
                 assert prop_3_red_rigid
             if prop_vred_rigid:
@@ -526,7 +550,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_rigid
                 if G.number_of_nodes() >= dim + 1 + 1:
                     assert prop_red_rigid  # thm-vertex-implies_edge
-                    assert G.min_degree() >= dim + 1  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 1  # thm-vertex-red-min-deg
             if rprop_vred_rigid:
                 assert prop_vred_rigid
             if prop_2_vred_rigid:
@@ -535,7 +559,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_vred_rigid
                 if G.number_of_nodes() >= dim + 2 + 1:
                     assert prop_2_red_rigid  # thm-vertex-implies_edge
-                    assert G.min_degree() >= dim + 2  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 2  # thm-vertex-red-min-deg
             if rprop_2_vred_rigid:
                 assert prop_2_vred_rigid
             if prop_3_vred_rigid:
@@ -545,7 +569,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_vred_rigid
                 if G.number_of_nodes() >= dim + 3 + 1:
                     assert prop_3_red_rigid  # thm-vertex-implies_edge
-                    assert G.min_degree() >= dim + 3  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 3  # thm-vertex-red-min-deg
             if rprop_3_vred_rigid:
                 assert prop_3_vred_rigid
 
@@ -556,7 +580,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_red_rigid
                 assert m >= n * dim - math.comb(dim + 1, 2) + 1
                 if G.number_of_nodes() >= dim + 1 + 1:
-                    assert G.min_degree() >= dim + 1  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 1  # thm-vertex-red-min-deg
             if rprop_min_red_rigid:
                 assert prop_min_red_rigid
             if prop_min_2_red_rigid:
@@ -566,7 +590,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_2_red_rigid
                 assert m >= n * dim - math.comb(dim + 1, 2) + 2
                 if G.number_of_nodes() >= dim + 2 + 1:
-                    assert G.min_degree() >= dim + 2  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 2  # thm-vertex-red-min-deg
             if rprop_min_2_red_rigid:
                 assert prop_min_2_red_rigid
             if prop_min_3_red_rigid:
@@ -577,7 +601,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_3_red_rigid
                 assert m >= n * dim - math.comb(dim + 1, 2) + 3
                 if G.number_of_nodes() >= dim + 3 + 1:
-                    assert G.min_degree() >= dim + 3  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 3  # thm-vertex-red-min-deg
             if rprop_min_3_red_rigid:
                 assert prop_min_3_red_rigid
             if prop_min_vred_rigid:
@@ -586,7 +610,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_vred_rigid
                 if G.number_of_nodes() >= dim + 1 + 1:
                     assert prop_red_rigid  # thm-vertex-implies_edge
-                    assert G.min_degree() >= dim + 1  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 1  # thm-vertex-red-min-deg
             if rprop_min_vred_rigid:
                 assert prop_min_vred_rigid
             if prop_min_2_vred_rigid:
@@ -596,7 +620,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_2_vred_rigid
                 if G.number_of_nodes() >= dim + 2 + 1:
                     assert prop_2_red_rigid  # thm-vertex-implies_edge
-                    assert G.min_degree() >= dim + 2  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 2  # thm-vertex-red-min-deg
             if rprop_min_2_vred_rigid:
                 assert prop_min_2_vred_rigid
             if prop_min_3_vred_rigid:
@@ -607,7 +631,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_3_vred_rigid
                 if G.number_of_nodes() >= dim + 3 + 1:
                     assert prop_3_red_rigid  # thm-vertex-implies_edge
-                    assert G.min_degree() >= dim + 3  # thm-vertex-red-min-deg
+                    assert general.min_degree(G) >= dim + 3  # thm-vertex-red-min-deg
             if rprop_min_3_vred_rigid:
                 assert prop_min_3_vred_rigid
 
@@ -619,7 +643,7 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 if n > dim + 1:
                     assert m >= n * dim - math.comb(dim + 1, 2)
                     assert prop_red_rigid
-                    assert G.vertex_connectivity() >= dim + 1
+                    assert nx.node_connectivity(G) >= dim + 1
                 else:
                     assert m == math.comb(n, 2)
                 if prop_min_rigid:
@@ -674,10 +698,10 @@ def test_randomized_rigidity_properties():  # noqa: C901
                 assert prop_dep
 
             # closure
-            res_close = Graph(G.Rd_closure())
-            assert res_close.is_Rd_closed()
-            res_close = Graph(G.Rd_closure(), algorithm="randomized")
-            assert res_close.is_Rd_closed()
+            res_close = Graph(g_matroidal.Rd_closure(G))
+            assert g_matroidal.is_Rd_closed(res_close)
+            res_close = Graph(g_matroidal.Rd_closure(G, algorithm="randomized"))
+            assert g_matroidal.is_Rd_closed(res_close)
 
             # frameworks
             if fprop_inf_rigid:

@@ -173,18 +173,18 @@ def test_randomized_apex_properties():  # noqa: C901
     for n, _ in product(*search_space):
         for m in range(3, math.comb(n, 2) + 1):
             G = Graph(nx.gnm_random_graph(n, m))
-            prop_apex = G.is_k_edge_apex(1)
-            prop_2_apex = G.is_k_edge_apex(2)
-            prop_3_apex = G.is_k_edge_apex(3)
-            prop_vapex = G.is_k_vertex_apex(1)
-            prop_2_vapex = G.is_k_vertex_apex(2)
-            prop_3_vapex = G.is_k_vertex_apex(3)
-            prop_crit_apex = G.is_critically_k_edge_apex(1)
-            prop_crit_2_apex = G.is_critically_k_edge_apex(2)
-            prop_crit_3_apex = G.is_critically_k_edge_apex(3)
-            prop_crit_vapex = G.is_critically_k_vertex_apex(1)
-            prop_crit_2_vapex = G.is_critically_k_vertex_apex(2)
-            prop_crit_3_vapex = G.is_critically_k_vertex_apex(3)
+            prop_apex = apex.is_k_edge_apex(G, 1)
+            prop_2_apex = apex.is_k_edge_apex(G, 2)
+            prop_3_apex = apex.is_k_edge_apex(G, 3)
+            prop_vapex = apex.is_k_vertex_apex(G, 1)
+            prop_2_vapex = apex.is_k_vertex_apex(G, 2)
+            prop_3_vapex = apex.is_k_vertex_apex(G, 3)
+            prop_crit_apex = apex.is_critically_k_edge_apex(G, 1)
+            prop_crit_2_apex = apex.is_critically_k_edge_apex(G, 2)
+            prop_crit_3_apex = apex.is_critically_k_edge_apex(G, 3)
+            prop_crit_vapex = apex.is_critically_k_vertex_apex(G, 1)
+            prop_crit_2_vapex = apex.is_critically_k_vertex_apex(G, 2)
+            prop_crit_3_vapex = apex.is_critically_k_vertex_apex(G, 3)
 
             if prop_apex:
                 assert prop_vapex

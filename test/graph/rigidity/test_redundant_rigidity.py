@@ -25,7 +25,9 @@ from test.graph.test_graph import (
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_vertex_redundantly_rigid_d2(graph, algorithm):
-    assert graph.is_vertex_redundantly_rigid(dim=2, algorithm=algorithm)
+    assert redundant_rigidity.is_vertex_redundantly_rigid(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -39,7 +41,9 @@ def test_is_vertex_redundantly_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_not_vertex_redundantly_rigid_d2(graph, algorithm):
-    assert not graph.is_vertex_redundantly_rigid(dim=2, algorithm=algorithm)
+    assert not redundant_rigidity.is_vertex_redundantly_rigid(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -325,7 +329,9 @@ def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_redundantly_rigid_d2(graph, algorithm):
-    assert graph.is_redundantly_rigid(dim=2, algorithm=algorithm)
+    assert redundant_rigidity.is_redundantly_rigid(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -347,7 +353,9 @@ def test_is_redundantly_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_not_redundantly_rigid_d2(graph, algorithm):
-    assert not graph.is_redundantly_rigid(dim=2, algorithm=algorithm)
+    assert not redundant_rigidity.is_redundantly_rigid(
+        nx.Graph(graph), dim=2, algorithm=algorithm
+    )
 
 
 ###############################################################
