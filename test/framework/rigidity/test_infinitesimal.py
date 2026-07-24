@@ -344,48 +344,30 @@ def test_inf_flexes_numerical():
         == 10
     )
 
-    F = Framework.Random(graphs.DoubleBanana(), dim=3)
-    F = _to_FrameworkBase(F)
-    inf_flexes = infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True)
-    dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
-        F, inf_flexes[0]
+    @pytest.mark.parametrize(
+        "framework",
+        [
+            Framework.Random(graphs.DoubleBanana(), dim=3),
+            Framework(graphs.Complete(3), {0: [0, 0], 1: [1, 0], 2: [2, 0]}),
+            Framework(
+                graphs.Complete(4),
+                {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 0], 3: [0, 1, 0]},
+            ),
+        ],
     )
-    assert infinitesimal_rigidity.is_dict_inf_flex(
-        F, dict_flex, numerical=True, tolerance=1e-4
-    ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(
-        F, dict_flex, numerical=True, tolerance=1e-4
-    )
-    assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
-
-    G = graphs.Complete(3)
-    F = Framework(G, {0: [0, 0], 1: [1, 0], 2: [2, 0]})
-    F = _to_FrameworkBase(F)
-    inf_flexes = infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True)
-    assert len(inf_flexes) == 1
-    dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
-        F, inf_flexes[0]
-    )
-    assert infinitesimal_rigidity.is_dict_inf_flex(
-        F, dict_flex, numerical=True, tolerance=1e-4
-    ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(
-        F, dict_flex, numerical=True, tolerance=1e-4
-    )
-    assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
-
-    G = graphs.Complete(4)
-    F = Framework(G, {0: [0, 0, 0], 1: [1, 0, 0], 2: [1, 1, 0], 3: [0, 1, 0]})
-    F = _to_FrameworkBase(F)
-    inf_flexes = infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True)
-    assert len(inf_flexes) == 1
-    dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
-        F, inf_flexes[0]
-    )
-    assert infinitesimal_rigidity.is_dict_inf_flex(
-        F, dict_flex, numerical=True, tolerance=1e-4
-    ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(
-        F, dict_flex, numerical=True, tolerance=1e-4
-    )
-    assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
+    def test_nontrivial_inf_flexes_numerical(framework):
+        F = _to_FrameworkBase(framework)
+        inf_flexes = infinitesimal_rigidity.nontrivial_inf_flexes(F, numerical=True)
+        assert len(inf_flexes) == 1
+        dict_flex = infinitesimal_rigidity._transform_inf_flex_to_pointwise(
+            F, inf_flexes[0]
+        )
+        assert infinitesimal_rigidity.is_dict_inf_flex(
+            F, dict_flex, numerical=True, tolerance=1e-4
+        ) and infinitesimal_rigidity.is_dict_nontrivial_inf_flex(
+            F, dict_flex, numerical=True, tolerance=1e-4
+        )
+        assert np.linalg.matrix_rank(np.vstack(inf_flexes)) == 1
 
 
 @pytest.mark.parametrize(
