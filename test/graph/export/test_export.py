@@ -6,6 +6,8 @@ import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 from pyrigi.graph._export import export
 
+graph_class = nx.Graph
+
 
 @pytest.mark.parametrize(
     "graph, gint",
@@ -19,19 +21,19 @@ from pyrigi.graph._export import export
     ],
 )
 def test_integer_representation(graph, gint):
-    assert export.to_int(nx.Graph(graph)) == gint
+    assert export.to_int(graph_class(graph)) == gint
     assert Graph.from_int(gint).is_isomorphic(graph)
-    assert export.to_int(nx.Graph(Graph.from_int(gint))) == gint
-    assert Graph.from_int(export.to_int(nx.Graph(graph))).is_isomorphic(graph)
+    assert export.to_int(graph_class(Graph.from_int(gint))) == gint
+    assert Graph.from_int(export.to_int(graph_class(graph))).is_isomorphic(graph)
 
 
 def test_integer_representation_error():
     with pytest.raises(ValueError):
-        export.to_int(nx.Graph([]))
+        export.to_int(graph_class([]))
     with pytest.raises(ValueError):
         M = Matrix([[0, 1, 0], [1, 0, 0], [0, 0, 0]])
         G = Graph.from_adjacency_matrix(M)
-        export.to_int(nx.Graph(G))
+        export.to_int(graph_class(G))
     with pytest.raises(ValueError):
         Graph.from_int(0)
     with pytest.raises(TypeError):
