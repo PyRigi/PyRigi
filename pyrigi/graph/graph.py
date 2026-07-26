@@ -110,7 +110,7 @@ class Graph(nx.Graph):
         o_str += f"{self.edge_list(as_tuples=True)})"
         return o_str
 
-    def __eq__(self, other: Graph) -> bool:
+    def __eq__(self, other: object) -> bool:
         """
         Return whether the other graph has the same vertices and edges.
 
@@ -121,12 +121,16 @@ class Graph(nx.Graph):
         >>> H = Graph([[2,1]])
         >>> G == H
         True
+        >>> G == 5
+        False
 
         Notes
         -----
         :func:`~networkx.utils.misc.graphs_equal`
-        behaves strangely, hence it is not used.
+        behaves differently, hence it is not used.
         """
+        if not isinstance(other, nx.Graph):
+            return NotImplemented
         if (
             self.number_of_edges() != other.number_of_edges()
             or self.number_of_nodes() != other.number_of_nodes()
