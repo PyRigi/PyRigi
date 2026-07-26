@@ -91,6 +91,8 @@ class Graph(nx.Graph):
 
     silence_rand_alg_warns = False
 
+    __hash__ = nx.Graph.__hash__
+
     def __str__(self) -> str:
         """
         Return the string representation.
