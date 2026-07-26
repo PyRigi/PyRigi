@@ -11,8 +11,6 @@ Example usage::
     pytest test/graph/ --graph-class=both     # both, i.e., run twice
 """
 
-import sys
-
 import networkx as nx
 import pytest
 
@@ -66,12 +64,9 @@ def _graph_class(request, monkeypatch):
 
     Uses ``request.param`` (supplied by :func:`pytest_generate_tests` via
     ``indirect=True``) to set the module-level ``graph_class`` attribute
-    of the test function's own module through ``monkeypatch``, ensuring
-    that ``graph_class(...)`` in the test body constructs the correct
-    graph type.
+    of the test's own module through ``monkeypatch``, ensuring that
+    ``graph_class(...)`` in the test body constructs the correct graph type.
     """
-    func = getattr(request.node, "obj", None)
-    if func is not None:
-        mod = sys.modules.get(func.__module__)
-        if mod is not None and hasattr(mod, "graph_class"):
-            monkeypatch.setattr(mod, "graph_class", request.param)
+    mod = getattr(request, "module", None)
+    if mod is not None and hasattr(mod, "graph_class"):
+        monkeypatch.setattr(mod, "graph_class", request.param)
