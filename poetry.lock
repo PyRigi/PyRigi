@@ -1631,7 +1631,7 @@ description = ""
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "extra == \"realization-counting\""
+markers = "extra == \"lnumber\" or extra == \"realization-counting\""
 files = [
     {file = "lnumber-0.20-py2.py3-none-win32.whl", hash = "sha256:ee7e6176381ffea9019e07e158f91e7394213093f87e8d3374d990ab7e89a0b7"},
     {file = "lnumber-0.20-py2.py3-none-win_amd64.whl", hash = "sha256:74b1dcf37066c1859a68637e4f4e65f587fc8ea19a0456c9d29604b0d667eee4"},
@@ -4128,10 +4128,11 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more_it
 type = ["pytest-mypy"]
 
 [extras]
+lnumber = ["lnumber"]
 meshing = ["manifold3d", "trimesh"]
 realization-counting = ["lnumber"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "b53fbfbe97288feef581443723d06e2ffadf7bdeece35acc97e9db847acfec9f"
+content-hash = "07bfab0a28bb0e94fa449f01c64975f56b0072c471389c5999f3ae58f4ee9123"

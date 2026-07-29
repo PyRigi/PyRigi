@@ -36,7 +36,8 @@ documentation = "https://pyrigi.github.io/PyRigi/"
 Issues = "https://github.com/PyRigi/PyRigi/issues"
 
 [project.optional-dependencies]
-realization-counting = ["lnumber (>=0.20,<0.21)"]
+lnumber = ["lnumber (>=0.20,<0.21)"]
+realization_counting = ["lnumber (>=0.20,<0.21)"] # DEPRECATED
 meshing = ["trimesh (>=4.5.0, <5.0.0)", "manifold3d (>=3.0.1, <4.0.0)"]
 
 [tool.poetry]
@@ -90,7 +91,7 @@ addopts = "-m 'not slow_main and not long_local'" # deselect large tests by defa
 markers = [
     "slow_main: marks slower tests run at merge to main",
     "long_local: marks long tests run locally",
-    "realization_counting: marks tests using extra realization-counting",
+    "lnumber: marks tests using extra lnumber",
     "meshing: marks tests using extra meshing",
 ]
 filterwarnings = [
