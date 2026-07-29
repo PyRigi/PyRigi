@@ -70,7 +70,7 @@ def number_of_realizations(  # noqa: C901
         and chooses this one.
         If ``"native"``, a pure PyRigi implementation is used.
         If ``"lnumber"``, the ``lnumber`` package is used.
-        This needs to be installed separately with ``pip install pyrigi[lnumber]``
+        This needs to be installed separately with ``pip install pyrigi[lnumber]``,
         but is much faster than the ``native`` implementation.
         This works only for minimally rigid graphs in dimension 2.
         Note that ``lnumber`` only works for graphs with less than 31 vertices.
