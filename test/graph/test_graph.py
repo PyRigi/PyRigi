@@ -361,7 +361,7 @@ def test_plot():
 def test_randomized_rigidity_properties(graph, dim, n, m):  # noqa: C901
     G = graph_class(graph)
     # The graph is converted to pyrigi.Graph and then back according
-    # to graph_class    # to see its vertices and edges in the output
+    # to graph_class to see its vertices and edges in the output
     # if a test fails.
 
     assert G.number_of_nodes() == n
