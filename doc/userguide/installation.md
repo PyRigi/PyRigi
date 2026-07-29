@@ -32,6 +32,7 @@ Previously, this was installed via
 ```
 pip install pyrigi[realization-counting]
 ```
+which is now deprecated.
 
 ### Creation of meshes
 
