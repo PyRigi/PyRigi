@@ -34,7 +34,7 @@ jobs:
         poetry run flake8 . --count --show-source --statistics
     - name: Test with pytest
       run: |
-        poetry run pytest --doctest-modules -m 'not long_local'
+        poetry run pytest --doctest-modules -m 'not long_local' --graph-class=both
         # --doctest-modules overrides the default --doctest-plus
     - name: Remove skip-execution cell magic and convert notebooks from md to ipynb
       run: |

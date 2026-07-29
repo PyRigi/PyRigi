@@ -22,6 +22,8 @@ from pyrigi.exception import LoopError
 from pyrigi.framework import Framework
 from pyrigi.graph import Graph
 
+graph_class = nx.Graph
+
 is_rigid_algorithms_all_d = ["default", "randomized", "numerical"]
 is_rigid_algorithms_d1 = is_rigid_algorithms_all_d + ["graphic"]
 is_rigid_algorithms_d2 = is_rigid_algorithms_all_d + ["sparsity"]
@@ -357,9 +359,10 @@ def test_plot():
     ],
 )
 def test_randomized_rigidity_properties(graph, dim, n, m):  # noqa: C901
-    G = nx.Graph(graph)
-    # The graph is converted to pyrigi.Graph and then back to nx.Graph
-    # to see its vertices and edges in the output if a test fails.
+    G = graph_class(graph)
+    # The graph is converted to pyrigi.Graph and then back according
+    # to graph_class to see its vertices and edges in the output
+    # if a test fails.
 
     assert G.number_of_nodes() == n
     assert G.number_of_edges() == m
