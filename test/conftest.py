@@ -2,7 +2,7 @@
 
 Test modules that define a module-level ``graph_class`` variable are
 automatically parametrized so that each test in the module runs once per
-selected graph class.  Modules without ``graph_class`` are unaffected.
+selected graph class. Modules without ``graph_class`` are unaffected.
 
 Example usage::
 
@@ -38,8 +38,8 @@ def pytest_generate_tests(metafunc):
 
     For each test function whose module has a ``graph_class`` attribute,
     this hook injects the ``_graph_class`` fixture parametrized with the
-    graph classes selected by ``--graph-class``.  Modules without
-    ``graph_class`` are left untouched so they are never duplicated.
+    graph classes selected by ``--graph-class``. Modules without
+    ``graph_class`` are left untouched.
     """
     option = metafunc.config.getoption("--graph-class")
     if not hasattr(metafunc.module, "graph_class"):
