@@ -53,4 +53,4 @@ jobs:
     - name: Test without lnumber
       run: |
         poetry sync
-        poetry run pytest -m "not realization_counting"  test/graph/rigidity/test_realization_counting.py
+        poetry run pytest -m "not lnumber"  test/graph/rigidity/test_realization_counting.py

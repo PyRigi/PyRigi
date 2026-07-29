@@ -90,7 +90,7 @@ addopts = "-m 'not slow_main and not long_local'" # deselect large tests by defa
 markers = [
     "slow_main: marks slower tests run at merge to main",
     "long_local: marks long tests run locally",
-    "realization_counting: marks tests using extra lnumber",
+    "lnumber: marks tests using extra lnumber",
     "meshing: marks tests using extra meshing",
 ]
 filterwarnings = [

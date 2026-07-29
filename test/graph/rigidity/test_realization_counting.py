@@ -17,12 +17,12 @@ from test import is_marker_selected
 
 realization_count_plane_algorithms = [
     "default",
-    pytest.param("lnumber", marks=pytest.mark.realization_counting),
+    pytest.param("lnumber", marks=pytest.mark.lnumber),
     "native",
 ]
 realization_count_sphere_algorithms = [
     "default",
-    pytest.param("lnumber", marks=pytest.mark.realization_counting),
+    pytest.param("lnumber", marks=pytest.mark.lnumber),
     "native",
 ]
 
@@ -423,7 +423,7 @@ def test_number_of_realizations_algorithm_error(alg):
         [graphs.Complete(4), 2],
     ],
 )
-@pytest.mark.realization_counting
+@pytest.mark.lnumber
 def test_number_of_realizations_method_error(graph, dim):
     with pytest.raises(ValueError):
         realization_counting.number_of_realizations(
@@ -438,7 +438,7 @@ def test_number_of_realizations_method_error(graph, dim):
         True,
     ],
 )
-@pytest.mark.realization_counting
+@pytest.mark.lnumber
 def test_number_of_realizations_lnumber_error(spherical):
     graph = Graph.from_int(
         26972536622853608673052908671257806158342252981982659638273504703765618149465003241439368046052423751085822998770323228557321814803988  # noqa: E501
