@@ -66,10 +66,11 @@ def number_of_realizations(  # noqa: C901
         Currently, only ``dim=1`` and ``dim=2`` are fully supported.
         Higher dimensions work just for trivial cases.
     algorithm:
-        If ``"default"``, PyRigi checks which algorithm is available for the parameters and choses this one.
+        If ``"default"``, PyRigi checks which algorithm is available for the parameters
+        and chooses this one.
         If ``"native"``, a pure PyRigi implementation is used.
         If ``"lnumber"``, the ``lnumber`` package is used.
-        This needs to be installed separately
+        This needs to be installed separately with ``pip install pyrigi[lnumber]``
         but is much faster than the ``native`` implementation.
         This works only for minimally rigid graphs in dimension 2.
         Note that ``lnumber`` only works for graphs with less than 31 vertices.
@@ -212,7 +213,7 @@ def number_of_realizations(  # noqa: C901
                 raise ImportError(
                     "For counting the number of realizations with 'lnumber', "
                     "the optional package 'lnumber' is used, "
-                    "run `pip install pyrigi[realization-counting]`!"
+                    "run `pip install pyrigi[lnumber]`!"
                 )
 
             graph_int = export.to_int(graph)

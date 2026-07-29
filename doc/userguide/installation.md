@@ -25,7 +25,7 @@ Counting the number of realizations of a (minimally) rigid graph can be done in 
 However, a faster implementation for minimally rigid graphs is provided by
 the package `lnumber`. To install `PyRigi` including and using [`lnumber`](https://github.com/jcapco/lnumber), run
 ```
-pip install pyrigi[realization-counting]
+pip install pyrigi[lnumber]
 ```
 Before installing this package, please read the [Python instructions of the package](https://github.com/jcapco/lnumber).
 
