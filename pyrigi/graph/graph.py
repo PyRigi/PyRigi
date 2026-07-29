@@ -54,18 +54,6 @@ class Graph(nx.Graph):
     >>> print(G)
     Graph with vertices [0, 2, 5, 7, 'a'] and edges [[0, 7], [2, 5]]
 
-    Notes
-    -----
-    Equality between two objects of :class:`Graph` is by value,
-    but hashing is by identity
-    (``__hash__`` is inherited from :class:`~networkx.Graph`), since a
-    :class:`Graph` is mutable. Consequently, two graphs that compare
-    equal may have different hashes.
-    This means that ``in`` behaves differently when applied to lists/tuples
-    rather than sets/dictionaries.
-    In the first case equality is used; in the second case,
-    hash is first used, and then equality.
-
     METHODS
 
     This class inherits the class :class:`networkx.Graph`.
