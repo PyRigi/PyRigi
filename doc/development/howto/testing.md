@@ -67,6 +67,20 @@ The suite also includes negative tests using intentionally broken wrappers (see
 (such as missing, extra, or reordered arguments, or wrong function calls) are detected
 by the test helpers.
 
+Since functions operating on graphs take `nx.Graph` as their first argument,
+the tests are by default executed on `nx.Graph` instances.
+In order to test also on `pyrigi.Graph` on demand or when merging to `main`,
+we introduce a variable `graph_class` (set to n`x.Graph` at the beginning of each test file)
+and use it to convert objects as in `G = graph_class(Graph.from_int(k))`.
+This allows one to patch `graph_class` to `pyrigi.Graph`, which is implemented as `pytest` argument:
+```
+pytest                      # default, testing only on nx.Graphs
+pytest --graph-class=nx     # same as above
+pytest --graph-class=pyrigi # testing only on pyrigi.Graphs
+pytest --graph-class=both   # testing on both
+```
+See `test/conftest.py` for the implementation.
+
 ## Markers
 
 Functionalities requiring optional packages are tested by default;
