@@ -67,6 +67,9 @@ def _graph_class(request, monkeypatch):
     of the test's own module through ``monkeypatch``, ensuring that
     ``graph_class(...)`` in the test body constructs the correct graph type.
     """
+    param = getattr(request, "param", None)
+    if param is None:
+        return
     mod = getattr(request, "module", None)
     if mod is not None and hasattr(mod, "graph_class"):
         monkeypatch.setattr(mod, "graph_class", request.param)
