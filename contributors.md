@@ -4,6 +4,15 @@
 <!-- start-input -->
 
 
+## Version 1.3.0 (July 30, 2026)
+
+* Matthias Adrian-Himmelmann (M)
+* Matteo Gallet (M)
+* Georg Grasegger (M)
+* Khant Nyar Hein
+* Jan Legerský (M)
+
+
 ## Version 1.2.0 (April 9, 2026)
 
 * Matteo Gallet (M)
