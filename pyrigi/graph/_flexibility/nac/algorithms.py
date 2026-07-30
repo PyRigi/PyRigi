@@ -370,8 +370,8 @@ def _colorings_merge(
     Check if `epoch2_switched` is not causing major performance regression
     when all NAC-colorings of the second subgraph are always iterated.
     """
-    (epoch1, subgraph_mask_1) = colorings_1
-    (epoch2, subgraph_mask_2) = colorings_2
+    epoch1, subgraph_mask_1 = colorings_1
+    epoch2, subgraph_mask_2 = colorings_2
     epoch1 = RepeatableIterator(epoch1)
     epoch2 = RepeatableIterator(epoch2)
 
