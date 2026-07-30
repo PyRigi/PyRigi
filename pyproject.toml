@@ -49,13 +49,13 @@ classifiers = [
 ]
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.4.2"
-flake8 = "^7.0.0"
-pre-commit = "^3.7.1"
-pytest = "^8.2.1"
+black = "^26.5.1"
+flake8 = "^7.3.0"
+pre-commit = "^4.6.1"
+pytest = "^9.1.1"
 pytest-doctestplus = "^1.2.1"
-pytest-cov = "^6.0.0"
-flake8-unused-arguments = "^0.0.13"
+pytest-cov = "^7.1.0"
+flake8-unused-arguments = "^0.0.14"
 
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.8.6"
@@ -70,7 +70,7 @@ sphinx-tippy = "^0.4.3"
 sphinx-autodoc-typehints = "^3.1.0"
 sphinxcontrib-bibtex = "^2.6.3"
 jupytext = "^1.16.7"
-setuptools = "^75.8.0"
+setuptools = "^83.0.0"
 
 [build-system]
 requires = ["poetry-core"]

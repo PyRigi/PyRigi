@@ -489,7 +489,7 @@ class ApproximateMotion(Motion):
         """
         if len(fixed_pair) != 2:
             raise TypeError("The length of `fixed_pair` is not 2.")
-        (v1, v2) = (fixed_pair[0], fixed_pair[1])
+        v1, v2 = (fixed_pair[0], fixed_pair[1])
         if not (v1 in realizations[0] and v2 in realizations[0]):
             raise ValueError(
                 "The vertices of the edge {realizations} are not part of the graph."

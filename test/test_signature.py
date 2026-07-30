@@ -201,22 +201,18 @@ def _assert_same_sign(  # noqa: C901
             elif is_subtype(meth_return_ann, funct_return_ann):
                 pass
             else:
-                raise TypeError(
-                    f"""
+                raise TypeError(f"""
                     The return type of the method does not match
                     the one of the proxy function:
                     method  [{method.__name__}]={meth_return_ann}
                     function[{func.__name__}]={funct_return_ann}
-                    """.strip()
-                )
+                    """.strip())
     except TypeError as e:
-        raise TypeError(
-            f"""There is a problem with the return type of
+        raise TypeError(f"""There is a problem with the return type of
                         the method and the proxy function:
                         method  [{method.__name__}]={meth_return_ann}
                         function[{func.__name__}]={funct_return_ann}
-                        """.strip()
-        ) from e
+                        """.strip()) from e
 
     params_method = list(sgn_method.parameters.values())
     params_func = list(sgn_func.parameters.values())
@@ -233,14 +229,12 @@ def _assert_same_sign(  # noqa: C901
             ):
                 pass
             else:
-                raise TypeError(
-                    f"""
+                raise TypeError(f"""
                     The parameters signature of the method does not match
                     the one of the proxy function:
                     method  [{method.__name__}]={params_method[1:]}
                     function[{func.__name__}]={params_func[1:]}
-                    """.strip()
-                )
+                    """.strip())
 
 
 # _BadWrapper has correct signatures but bad forwarding
