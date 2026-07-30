@@ -4,9 +4,8 @@
 
 [![PyRigi documentation](https://img.shields.io/badge/PyRigi-Documentation-blue?style=plastic&link=pyrigi.github.io%2FPyRigi%2F%20)](https://pyrigi.github.io/PyRigi/)
 [![MIT license](https://img.shields.io/badge/license-MIT-yellow?style=plastic)](LICENSE)
-[![Black code style](https://img.shields.io/badge/code%20style-black-black?style=plastic)](https://github.com/psf/black)
-
 [![python](https://img.shields.io/badge/dynamic/toml?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&query=%24.project.requires-python&label=python&style=plastic&color=blue)](https://www.python.org/)
+[![Black code style](https://img.shields.io/badge/code%20style-black-black?style=plastic)](https://github.com/psf/black)
 <!-- The package badges read the minimal supported version from pyproject.toml with
 the regex "<package>\s*\(?>=\s*([^,")\s]+) ; it has to be percent-encoded below,
 since parentheses and backslashes are not allowed in a Markdown link. -->
