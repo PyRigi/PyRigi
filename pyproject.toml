@@ -6,9 +6,9 @@ description = "Python package concerning the rigidity and flexibility of bar-and
 requires-python = ">=3.11"
 license = { text = "MIT" }
 maintainers =  [
+    { name = "Matthias Adrian-Himmelmann", email = "matthias.himmelmann@tu-braunschweig.de"},
     { name = "Matteo Gallet", email = "matteo.gallet@units.it"},
     { name = "Georg Grasegger"},
-    { name = "Matthias Himmelmann", email = "himmelmann1@uni-potsdam.de"},
     { name = "Jan Legerský", email = "jan.legersky@fit.cvut.cz"}
 ]
 authors = [
