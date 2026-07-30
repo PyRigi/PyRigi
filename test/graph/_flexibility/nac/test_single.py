@@ -5,6 +5,8 @@ import pyrigi.graph._flexibility.nac as nac
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
 
+graph_class = nx.Graph
+
 algorithms = ["default", "naive", "subgraphs"] + [
     "subgraphs-{}-{}-{}".format(split, merge, size)
     for split in ["none", "neighbors", "neighbors_degree"]
@@ -38,7 +40,7 @@ algorithms = ["default", "naive", "subgraphs"] + [
     algorithms,
 )
 def test_single_and_has_NAC_coloring(graph: nx.Graph, algorithm: str):
-    graph = nx.Graph(graph)
+    graph = graph_class(graph)
     NAC_col = nac.single_NAC_coloring(graph, algorithm=algorithm)
     assert NAC_col is not None
     assert nac.is_NAC_coloring(graph, NAC_col)
@@ -68,6 +70,6 @@ def test_single_and_has_NAC_coloring(graph: nx.Graph, algorithm: str):
     algorithms,
 )
 def test_single_and_has_no_NAC_coloring(graph: nx.Graph, algorithm: str):
-    graph = nx.Graph(graph)
+    graph = graph_class(graph)
     assert nac.single_NAC_coloring(graph, algorithm=algorithm) is None
     assert not nac.has_NAC_coloring(graph, algorithm=algorithm)

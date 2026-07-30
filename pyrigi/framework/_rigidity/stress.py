@@ -2,6 +2,8 @@
 This module provides functionality related to stresses of frameworks.
 """
 
+from __future__ import annotations
+
 import numpy as np
 import sympy as sp
 from sympy import Matrix
@@ -33,20 +35,21 @@ def is_dict_stress(
 
     Parameters
     ----------
+    framework:
     dict_stress:
         Dictionary that maps the edges to stress values.
 
     Examples
     --------
     >>> F = Framework.Complete([[0,0], [1,0], ['1/2',0]])
-    >>> F.is_dict_stress({(0,1):'-1/2', (0,2):1, (1,2):1})
+    >>> is_dict_stress(F, {(0,1):'-1/2', (0,2):1, (1,2):1})
     True
-    >>> F.is_dict_stress({(0,1):1, (1,2):'-1/2', (0,2):1})
+    >>> is_dict_stress(F, {(0,1):1, (1,2):'-1/2', (0,2):1})
     False
 
     Notes
     -----
-    See :meth:`.is_vector_stress`.
+    See :func:`.is_vector_stress`.
     """
     stress_edge_list = [tuple(e) for e in list(dict_stress.keys())]
     _graph_input_check.is_edge_order(framework._graph, stress_edge_list, "dict_stress")
@@ -86,6 +89,7 @@ def is_vector_stress(
 
     Parameters
     ----------
+    framework:
     stress:
         A vector to be checked whether it is a stress of the framework.
     edge_order:
@@ -105,15 +109,15 @@ def is_vector_stress(
     >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
     >>> F = Framework(G, pos)
     >>> omega1 = [-8, -4, -4, 2, 2, 1]
-    >>> F.is_stress(omega1)
+    >>> is_stress(F, omega1)
     True
     >>> omega1[0] = 0
-    >>> F.is_stress(omega1)
+    >>> is_stress(F, omega1)
     False
     >>> from pyrigi import frameworkDB
     >>> F = frameworkDB.Complete(5, dim=2)
-    >>> stresses=F.stresses()
-    >>> F.is_stress(stresses[0])
+    >>> stresses_F = stresses(F)
+    >>> is_stress(F, stresses_F[0])
     True
     """
     framework._warn_numerical_coord(is_vector_stress, numerical)
@@ -130,13 +134,14 @@ def is_vector_stress(
 
 def is_stress(framework: FrameworkBase, stress: Stress, **kwargs) -> bool:
     """
-    Alias for :meth:`.is_vector_stress` and
-    :meth:`.is_dict_stress`.
+    Alias for :func:`.is_vector_stress` and
+    :func:`.is_dict_stress`.
 
     One of the alias methods is called depending on the type of the input.
 
     Parameters
     ----------
+    framework:
     stress
     """
     if isinstance(stress, list | Matrix):
@@ -164,6 +169,7 @@ def stress_matrix(
 
     Parameters
     ----------
+    framework:
     stress:
         A stress of the framework given as a vector.
     edge_order:
@@ -179,7 +185,7 @@ def stress_matrix(
     >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
     >>> F = Framework(G, pos)
     >>> omega = [-8, -4, -4, 2, 2, 1]
-    >>> F.stress_matrix(omega)
+    >>> stress_matrix(F, omega)
     Matrix([
     [-16,  8,  4,  4],
     [  8, -4, -2, -2],
@@ -225,6 +231,7 @@ def stress_matrix_rank(
 
     Parameters
     ----------
+    framework:
     stress:
         A stress of the framework given as a vector.
     edge_order:
@@ -244,15 +251,15 @@ def stress_matrix_rank(
     --------
     >>> F = Framework.Complete([(0, 0), (0, 1), (-1, -1), (1, -1)])
     >>> omega = [-8, -4, -4, 2, 2, 1]
-    >>> F.is_stress(omega)
+    >>> is_stress(F, omega)
     True
-    >>> F.stress_matrix(omega)
+    >>> stress_matrix(F, omega)
     Matrix([
     [-16,  8,  4,  4],
     [  8, -4, -2, -2],
     [  4, -2, -1, -1],
     [  4, -2, -1, -1]])
-    >>> F.stress_matrix_rank(omega)
+    >>> stress_matrix_rank(F, omega)
     1
     """
     framework._warn_numerical_coord(stress_matrix_rank, numerical)
@@ -281,6 +288,7 @@ def stresses(
 
     Parameters
     ----------
+    framework:
     edge_order:
         A list of edges, providing the ordering for the entries of the stresses.
         If none is provided, the list from :meth:`.Graph.edge_list` is taken.
@@ -294,7 +302,7 @@ def stresses(
     >>> G = Graph([[0,1],[0,2],[0,3],[1,2],[2,3],[3,1]])
     >>> pos = {0: (0, 0), 1: (0,1), 2: (-1,-1), 3: (1,-1)}
     >>> F = Framework(G, pos)
-    >>> F.stresses()
+    >>> stresses(F)
     [Matrix([
     [-8],
     [-4],
@@ -333,6 +341,7 @@ def _transform_stress_to_edgewise(
 
     Parameters
     ----------
+    framework:
     stress:
         An equilibrium stress in the form of a ``Matrix``.
     edge_order:
@@ -342,15 +351,15 @@ def _transform_stress_to_edgewise(
     Examples
     ----
     >>> F = Framework.Complete([(0,0),(1,0),(1,1),(0,1)])
-    >>> stress = F.stresses()[0]
+    >>> stress = stresses(F)[0]
     >>> from pyrigi.framework._rigidity.stress import _transform_stress_to_edgewise
     >>> _transform_stress_to_edgewise(F, stress)
     {(0, 1): 1, (0, 2): -1, (0, 3): 1, (1, 2): 1, (1, 3): -1, (2, 3): 1}
 
     Notes
     ----
-    For example, this method can be used for generating an
-    equilibrium stresss for plotting purposes.
+    For example, this function can be used for generating an
+    equilibrium stress for plotting purposes.
     """
     edge_order = _graph_input_check.is_edge_order(framework._graph, edge_order)
     return {tuple(edge_order[i]): stress[i] for i in range(len(edge_order))}

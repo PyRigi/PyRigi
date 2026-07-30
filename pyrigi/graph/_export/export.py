@@ -2,6 +2,8 @@
 This module provides exports for graphs.
 """
 
+from __future__ import annotations
+
 import networkx as nx
 
 from pyrigi._utils import _input_check as _input_check
@@ -30,6 +32,7 @@ def to_tikz(
 
     Parameters
     ----------
+    graph:
     placement:
         If ``placement`` is not specified,
         then it is generated depending on parameter ``layout``.
@@ -62,7 +65,7 @@ def to_tikz(
     Examples
     --------
     >>> G = Graph([(0,1), (1,2), (2,3), (0,3)])
-    >>> print(G.to_tikz()) # doctest: +SKIP
+    >>> print(to_tikz(G)) # doctest: +SKIP
     \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
         \node[gvertex] (0) at (-0.98794, -0.61705) {};
         \node[gvertex] (1) at (0.62772, -1.0) {};
@@ -71,7 +74,7 @@ def to_tikz(
         \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(G.to_tikz(layout_type = "circular")) # doctest: +NORMALIZE_WHITESPACE
+    >>> print(to_tikz(G, layout_type = "circular")) # doctest: +NORMALIZE_WHITESPACE
     \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
         \node[gvertex] (0) at (1.0, 0.0) {};
         \node[gvertex] (1) at (-0.0, 1.0) {};
@@ -80,7 +83,7 @@ def to_tikz(
         \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(G.to_tikz(placement = {0:[0, 0], 1:[1, 1], 2:[2, 2], 3:[3, 3]})) # doctest: +NORMALIZE_WHITESPACE
+    >>> print(to_tikz(G, placement = {0:[0, 0], 1:[1, 1], 2:[2, 2], 3:[3, 3]})) # doctest: +NORMALIZE_WHITESPACE
     \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white}]
         \node[gvertex] (0) at (0, 0) {};
         \node[gvertex] (1) at (1, 1) {};
@@ -89,7 +92,7 @@ def to_tikz(
         \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(G.to_tikz(layout_type = "circular", vertex_out_labels = True)) # doctest: +NORMALIZE_WHITESPACE
+    >>> print(to_tikz(G, layout_type = "circular", vertex_out_labels = True)) # doctest: +NORMALIZE_WHITESPACE
     \begin{tikzpicture}[gvertex/.style={fill=black,draw=white,circle,inner sep=0pt,minimum size=4pt},edge/.style={line width=1.5pt,black!60!white},labelsty/.style={font=\scriptsize,black!70!white}]
         \node[gvertex,label={[labelsty]right:$0$}] (0) at (1.0, 0.0) {};
         \node[gvertex,label={[labelsty]right:$1$}] (1) at (-0.0, 1.0) {};
@@ -98,7 +101,7 @@ def to_tikz(
         \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(G.to_tikz(layout_type = "circular", vertex_in_labels = True)) # doctest: +NORMALIZE_WHITESPACE
+    >>> print(to_tikz(G, layout_type = "circular", vertex_in_labels = True)) # doctest: +NORMALIZE_WHITESPACE
     \begin{tikzpicture}[gvertex/.style={white,fill=black,draw=black,circle,inner sep=1pt,font=\scriptsize},edge/.style={line width=1.5pt,black!60!white}]
         \node[gvertex] (0) at (1.0, 0.0) {$0$};
         \node[gvertex] (1) at (-0.0, 1.0) {$1$};
@@ -107,7 +110,8 @@ def to_tikz(
         \draw[edge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(G.to_tikz(
+    >>> print(to_tikz(
+    ...     G,
     ...     layout_type = "circular",
     ...     vertex_style = "myvertex",
     ...     edge_style = "myedge")
@@ -120,7 +124,8 @@ def to_tikz(
         \draw[myedge] (0) to (1) (0) to (3) (1) to (2) (2) to (3);
     \end{tikzpicture}
 
-    >>> print(G.to_tikz(
+    >>> print(to_tikz(
+    ...     G,
     ...     layout_type="circular",
     ...     edge_style={"red edge": [[1, 2]], "green edge": [[2, 3], [0, 1]]},
     ...     vertex_style={"red vertex": [0], "blue vertex": [2, 3]})
@@ -238,7 +243,7 @@ def layout(graph: nx.Graph, layout_type: str = "spring") -> dict[Vertex, Point]:
     """
     Generate a placement of the vertices.
 
-    This method is a wrapper for the functions
+    This function is a wrapper for the functions
     :func:`~networkx.drawing.layout.spring_layout`,
     :func:`~networkx.drawing.layout.random_layout`,
     :func:`~networkx.drawing.layout.circular_layout`
@@ -246,6 +251,7 @@ def layout(graph: nx.Graph, layout_type: str = "spring") -> dict[Vertex, Point]:
 
     Parameters
     ----------
+    graph:
     layout_type:
         The supported layouts are ``circular``, ``planar``,
         ``random`` and ``spring`` (default).
@@ -273,6 +279,7 @@ def to_int(graph: nx.Graph, vertex_order: Sequence[Vertex] = None) -> int:
 
     Parameters
     ----------
+    graph:
     vertex_order:
         By listing vertices in the preferred order, the adjacency matrix
         is computed with the given order. If no vertex order is
@@ -281,12 +288,12 @@ def to_int(graph: nx.Graph, vertex_order: Sequence[Vertex] = None) -> int:
     Examples
     --------
     >>> G = Graph([(0,1), (1,2)])
-    >>> G.adjacency_matrix()
+    >>> adjacency_matrix(G)  # doctest: +SKIP
     Matrix([
     [0, 1, 0],
     [1, 0, 1],
     [0, 1, 0]])
-    >>> G.to_int()
+    >>> to_int(G)
     5
 
     Suggested Improvements

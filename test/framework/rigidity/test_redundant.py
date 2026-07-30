@@ -2,7 +2,6 @@ import pytest
 
 import pyrigi.frameworkDB as fws
 from pyrigi.framework._rigidity import redundant as redundant_rigidity
-from test import TEST_WRAPPED_FUNCTIONS
 from test.framework import _to_FrameworkBase
 
 
@@ -18,13 +17,10 @@ from test.framework import _to_FrameworkBase
     ],
 )
 def test_is_redundantly_inf_rigid(framework):
-    assert framework.is_redundantly_inf_rigid()
-    assert framework.is_redundantly_inf_rigid(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_redundantly_inf_rigid(_to_FrameworkBase(framework))
-        assert redundant_rigidity.is_redundantly_inf_rigid(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert redundant_rigidity.is_redundantly_inf_rigid(_to_FrameworkBase(framework))
+    assert redundant_rigidity.is_redundantly_inf_rigid(
+        _to_FrameworkBase(framework), numerical=True
+    )
 
 
 @pytest.mark.parametrize(
@@ -47,12 +43,7 @@ def test_is_redundantly_inf_rigid(framework):
     ],
 )
 def test_is_not_redundantly_inf_rigid(framework):
-    assert not framework.is_redundantly_inf_rigid()
-    assert not framework.is_redundantly_inf_rigid(numerical=True)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_redundantly_inf_rigid(
-            _to_FrameworkBase(framework)
-        )
-        assert not redundant_rigidity.is_redundantly_inf_rigid(
-            _to_FrameworkBase(framework), numerical=True
-        )
+    assert not redundant_rigidity.is_redundantly_inf_rigid(_to_FrameworkBase(framework))
+    assert not redundant_rigidity.is_redundantly_inf_rigid(
+        _to_FrameworkBase(framework), numerical=True
+    )

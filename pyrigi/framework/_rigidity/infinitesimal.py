@@ -2,6 +2,8 @@
 This module provides algorithms related to infinitesimal rigidity of frameworks.
 """
 
+from __future__ import annotations
+
 import warnings
 from copy import deepcopy
 
@@ -38,6 +40,7 @@ def rigidity_matrix(
 
     Parameters
     ----------
+    framework:
     vertex_order:
         A list of vertices, providing the ordering for the columns
         of the rigidity matrix.
@@ -50,7 +53,7 @@ def rigidity_matrix(
     Examples
     --------
     >>> F = Framework.Complete([(0,0),(2,0),(1,3)])
-    >>> F.rigidity_matrix()
+    >>> rigidity_matrix(F)
     Matrix([
     [-2,  0, 2,  0,  0, 0],
     [-1, -3, 0,  0,  1, 3],
@@ -94,6 +97,7 @@ def rigidity_matrix_rank(
 
     Parameters
     ----------
+    framework:
     numerical:
         If ``True``, the rank of the rigidity matrix with entries as floats
         is computed.
@@ -107,13 +111,13 @@ def rigidity_matrix_rank(
     Examples
     --------
     >>> K4 = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-    >>> K4.rigidity_matrix_rank()   # the complete graph is a circuit
+    >>> rigidity_matrix_rank(K4)   # the complete graph is a circuit
     5
     >>> K4.delete_edge([0,1])
-    >>> K4.rigidity_matrix_rank()   # deleting a bar gives full rank
+    >>> rigidity_matrix_rank(K4)   # deleting a bar gives full rank
     5
     >>> K4.delete_edge([2,3])
-    >>> K4.rigidity_matrix_rank()   #so now deleting an edge lowers the rank
+    >>> rigidity_matrix_rank(K4)   #so now deleting an edge lowers the rank
     4
     """
     framework._warn_numerical_coord(rigidity_matrix_rank, numerical)
@@ -139,6 +143,7 @@ def trivial_inf_flexes(
 
     Parameters
     ----------
+    framework:
     vertex_order:
         A list of vertices, providing the ordering for the entries
         of the infinitesimal flexes.
@@ -146,7 +151,7 @@ def trivial_inf_flexes(
     Examples
     --------
     >>> F = Framework.Complete([(0,0), (2,0), (0,2)])
-    >>> F.trivial_inf_flexes()
+    >>> trivial_inf_flexes(F)
     [Matrix([
     [1],
     [0],
@@ -191,7 +196,7 @@ def nontrivial_inf_flexes(framework: FrameworkBase, **kwargs) -> list[Matrix]:
     """
     Return non-trivial infinitesimal flexes.
 
-    See :meth:`~Framework.inf_flexes` for possible keywords.
+    See :func:`~.inf_flexes` for possible keywords.
 
     Definitions
     -----------
@@ -201,7 +206,7 @@ def nontrivial_inf_flexes(framework: FrameworkBase, **kwargs) -> list[Matrix]:
     --------
     >>> import pyrigi.graphDB as graphs
     >>> F = Framework.Circular(graphs.CompleteBipartite(3, 3))
-    >>> F.nontrivial_inf_flexes()
+    >>> nontrivial_inf_flexes(F)
     [Matrix([
     [       3/2],
     [-sqrt(3)/2],
@@ -242,6 +247,7 @@ def inf_flexes(
 
     Parameters
     ----------
+    framework:
     include_trivial:
         Boolean that decides, whether the trivial flexes should
         be included.
@@ -261,7 +267,7 @@ def inf_flexes(
     --------
     >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
     >>> F.delete_edges([(0,2), (1,3)])
-    >>> F.inf_flexes(include_trivial=False)
+    >>> inf_flexes(F, include_trivial=False)
     [Matrix([
     [1],
     [0],
@@ -275,7 +281,7 @@ def inf_flexes(
     ...     Graph([[0, 1], [0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]),
     ...     {0: [0, 0], 1: [0, 1], 2: [0, 2], 3: [1, 2], 4: [-1, 2]},
     ... )
-    >>> F.inf_flexes()
+    >>> inf_flexes(F)
     [Matrix([
     [0],
     [0],
@@ -387,6 +393,7 @@ def is_inf_rigid(
 
     Parameters
     ----------
+    framework:
     numerical:
         If ``True``, the rigidity matrix rank computation for determining
         rigidity is numerical.
@@ -401,10 +408,10 @@ def is_inf_rigid(
     --------
     >>> from pyrigi import frameworkDB
     >>> F1 = frameworkDB.CompleteBipartite(4,4)
-    >>> F1.is_inf_rigid()
+    >>> is_inf_rigid(F1)
     True
     >>> F2 = frameworkDB.Cycle(4,dim=2)
-    >>> F2.is_inf_rigid()
+    >>> is_inf_rigid(F2)
     False
     """
     framework._warn_numerical_coord(is_inf_rigid, numerical)
@@ -426,7 +433,7 @@ def is_inf_flexible(framework: FrameworkBase, **kwargs) -> bool:
     Return whether the framework is infinitesimally flexible.
 
     For implementation details and possible parameters, see
-    :meth:`~Framework.is_inf_rigid`.
+    :func:`~.is_inf_rigid`.
 
     Definitions
     -----------
@@ -440,7 +447,7 @@ def is_min_inf_rigid(framework: FrameworkBase, use_copy: bool = True, **kwargs) 
     Return whether the framework is minimally infinitesimally rigid.
 
     For implementation details and possible parameters, see
-    :meth:`~Framework.is_inf_rigid`.
+    :func:`~.is_inf_rigid`.
 
     Definitions
     -----
@@ -448,6 +455,7 @@ def is_min_inf_rigid(framework: FrameworkBase, use_copy: bool = True, **kwargs) 
 
     Parameters
     ----------
+    framework:
     use_copy:
         If ``False``, the framework's edges are deleted and added back
         during runtime.
@@ -457,10 +465,10 @@ def is_min_inf_rigid(framework: FrameworkBase, use_copy: bool = True, **kwargs) 
     Examples
     --------
     >>> F = Framework.Complete([[0,0], [1,0], [1,1], [0,1]])
-    >>> F.is_min_inf_rigid()
+    >>> is_min_inf_rigid(F)
     False
     >>> F.delete_edge((0,2))
-    >>> F.is_min_inf_rigid()
+    >>> is_min_inf_rigid(F)
     True
     """
     if not is_inf_rigid(framework, **kwargs):
@@ -490,6 +498,7 @@ def _transform_inf_flex_to_pointwise(
 
     Parameters
     ----------
+    framework:
     inf_flex:
         An infinitesimal flex in the form of a ``Matrix``.
     vertex_order:
@@ -500,14 +509,14 @@ def _transform_inf_flex_to_pointwise(
     ----
     >>> F = Framework.from_points([(0,0), (1,0), (0,1)])
     >>> F.add_edges([(0,1),(0,2)])
-    >>> flex = F.nontrivial_inf_flexes()[0]
+    >>> flex = nontrivial_inf_flexes(F)[0]
     >>> from pyrigi.framework._rigidity.infinitesimal import _transform_inf_flex_to_pointwise
     >>> _transform_inf_flex_to_pointwise(F, flex)
     {0: [1, 0], 1: [1, 0], 2: [0, 0]}
 
     Notes
     ----
-    For example, this method can be used for generating an
+    For example, this function can be used for generating an
     infinitesimal flex for plotting purposes.
     """  # noqa: E501
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
@@ -546,6 +555,7 @@ def is_vector_inf_flex(
 
     Parameters
     ----------
+    framework:
     inf_flex:
         An infinitesimal flex of the framework specified by a vector.
     vertex_order:
@@ -564,13 +574,13 @@ def is_vector_inf_flex(
     >>> from pyrigi import frameworkDB as fws
     >>> F = fws.Square()
     >>> q = [0,0,0,0,-2,0,-2,0]
-    >>> F.is_vector_inf_flex(q)
+    >>> is_vector_inf_flex(F, q)
     True
     >>> q[0] = 1
-    >>> F.is_vector_inf_flex(q)
+    >>> is_vector_inf_flex(F, q)
     False
     >>> F = Framework.Complete([[0,0], [1,1]])
-    >>> F.is_vector_inf_flex(["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
+    >>> is_vector_inf_flex(F, ["sqrt(2)","-sqrt(2)",0,0], vertex_order=[1,0])
     True
     """
     framework._warn_numerical_coord(is_vector_inf_flex, numerical)
@@ -594,6 +604,7 @@ def is_dict_inf_flex(
 
     Parameters
     ----------
+    framework:
     vert_to_flex:
         Dictionary that maps the vertex labels to
         vectors of the same dimension as the framework is.
@@ -601,14 +612,14 @@ def is_dict_inf_flex(
     Examples
     --------
     >>> F = Framework.Complete([[0,0], [1,1]])
-    >>> F.is_dict_inf_flex({0:[0,0], 1:[-1,1]})
+    >>> is_dict_inf_flex(F, {0:[0,0], 1:[-1,1]})
     True
-    >>> F.is_dict_inf_flex({0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
+    >>> is_dict_inf_flex(F, {0:[0,0], 1:["sqrt(2)","-sqrt(2)"]})
     True
 
     Notes
     -----
-    See :meth:`.is_vector_inf_flex`.
+    See :func:`.is_vector_inf_flex`.
     """
     _graph_input_check.is_vertex_order(
         framework._graph, list(vert_to_flex.keys()), "vert_to_flex"
@@ -642,6 +653,7 @@ def is_vector_nontrivial_inf_flex(
 
     Parameters
     ----------
+    framework:
     inf_flex:
         An infinitesimal flex of the framework.
     vertex_order:
@@ -660,12 +672,12 @@ def is_vector_nontrivial_inf_flex(
     >>> from pyrigi import frameworkDB as fws
     >>> F = fws.Square()
     >>> q = [0,0,0,0,-2,0,-2,0]
-    >>> F.is_vector_nontrivial_inf_flex(q)
+    >>> is_vector_nontrivial_inf_flex(F, q)
     True
     >>> q = [1,-1,1,1,-1,1,-1,-1]
-    >>> F.is_vector_inf_flex(q)
+    >>> is_vector_inf_flex(F, q)
     True
-    >>> F.is_vector_nontrivial_inf_flex(q)
+    >>> is_vector_nontrivial_inf_flex(F, q)
     False
 
     Notes
@@ -718,7 +730,7 @@ def is_dict_nontrivial_inf_flex(
     r"""
     Return whether a dictionary specifies an infinitesimal flex which is nontrivial.
 
-    See :meth:`.is_vector_nontrivial_inf_flex` for details,
+    See :func:`.is_vector_nontrivial_inf_flex` for details,
     particularly concerning the possible parameters.
 
     Definitions
@@ -727,6 +739,7 @@ def is_dict_nontrivial_inf_flex(
 
     Parameters
     ----------
+    framework:
     vert_to_flex:
         An infinitesimal flex of the framework in the form of a dictionary.
 
@@ -735,10 +748,10 @@ def is_dict_nontrivial_inf_flex(
     >>> from pyrigi import frameworkDB as fws
     >>> F = fws.Square()
     >>> q = {0:[0,0], 1: [0,0], 2:[-2,0], 3:[-2,0]}
-    >>> F.is_dict_nontrivial_inf_flex(q)
+    >>> is_dict_nontrivial_inf_flex(F, q)
     True
     >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
-    >>> F.is_dict_nontrivial_inf_flex(q)
+    >>> is_dict_nontrivial_inf_flex(F, q)
     False
     """
     _graph_input_check.is_vertex_order(
@@ -763,8 +776,8 @@ def is_nontrivial_flex(
     **kwargs,
 ) -> bool:
     """
-    Alias for :meth:`.is_vector_nontrivial_inf_flex` and
-    :meth:`.is_dict_nontrivial_inf_flex`.
+    Alias for :func:`.is_vector_nontrivial_inf_flex` and
+    :func:`.is_dict_nontrivial_inf_flex`.
 
     It is distinguished between instances of ``list`` and instances of ``dict`` to
     call one of the alias methods.
@@ -775,6 +788,7 @@ def is_nontrivial_flex(
 
     Parameters
     ----------
+    framework:
     inf_flex
     """
     if isinstance(inf_flex, list | tuple | Matrix):
@@ -793,7 +807,7 @@ def is_vector_trivial_inf_flex(
     r"""
     Return whether an infinitesimal flex is trivial.
 
-    See also :meth:`.is_nontrivial_vector_inf_flex` for details,
+    See also :func:`.is_vector_nontrivial_inf_flex` for details,
     particularly concerning the possible parameters.
 
     Definitions
@@ -802,6 +816,7 @@ def is_vector_trivial_inf_flex(
 
     Parameters
     ----------
+    framework:
     inf_flex:
         An infinitesimal flex of the framework.
 
@@ -810,10 +825,10 @@ def is_vector_trivial_inf_flex(
     >>> from pyrigi import frameworkDB as fws
     >>> F = fws.Square()
     >>> q = [0,0,0,0,-2,0,-2,0]
-    >>> F.is_vector_trivial_inf_flex(q)
+    >>> is_vector_trivial_inf_flex(F, q)
     False
     >>> q = [1,-1,1,1,-1,1,-1,-1]
-    >>> F.is_vector_trivial_inf_flex(q)
+    >>> is_vector_trivial_inf_flex(F, q)
     True
     """
     if not is_vector_inf_flex(framework, inf_flex, **kwargs):
@@ -827,7 +842,7 @@ def is_dict_trivial_inf_flex(
     r"""
     Return whether an infinitesimal flex specified by a dictionary is trivial.
 
-    See :meth:`.is_vector_trivial_inf_flex` for details,
+    See :func:`.is_vector_trivial_inf_flex` for details,
     particularly concerning the possible parameters.
 
     Definitions
@@ -836,6 +851,7 @@ def is_dict_trivial_inf_flex(
 
     Parameters
     ----------
+    framework:
     inf_flex:
         An infinitesimal flex of the framework in the form of a dictionary.
 
@@ -844,10 +860,10 @@ def is_dict_trivial_inf_flex(
     >>> from pyrigi import frameworkDB as fws
     >>> F = fws.Square()
     >>> q = {0:[0,0], 1: [0,0], 2:[-2,0], 3:[-2,0]}
-    >>> F.is_dict_trivial_inf_flex(q)
+    >>> is_dict_trivial_inf_flex(F, q)
     False
     >>> q = {0:[1,-1], 1: [1,1], 2:[-1,1], 3:[-1,-1]}
-    >>> F.is_dict_trivial_inf_flex(q)
+    >>> is_dict_trivial_inf_flex(F, q)
     True
     """
     _graph_input_check.is_vertex_order(
@@ -872,10 +888,10 @@ def is_trivial_flex(
     **kwargs,
 ) -> bool:
     """
-    Alias for :meth:`.is_vector_trivial_inf_flex` and
-    :meth:`.is_dict_trivial_inf_flex`.
+    Alias for :func:`.is_vector_trivial_inf_flex` and
+    :func:`.is_dict_trivial_inf_flex`.
 
-    Ii is distinguished between instances of ``list`` and instances of ``dict`` to
+    It is distinguished between instances of ``list`` and instances of ``dict`` to
     call one of the alias methods.
 
     Definitions
@@ -884,6 +900,7 @@ def is_trivial_flex(
 
     Parameters
     ----------
+    framework:
     inf_flex
     """
     if isinstance(inf_flex, list | tuple | Matrix):

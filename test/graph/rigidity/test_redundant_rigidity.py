@@ -4,12 +4,13 @@ import pytest
 import pyrigi.graph._rigidity.redundant as redundant_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
-from test import TEST_WRAPPED_FUNCTIONS
 from test.graph.test_graph import (
     is_rigid_algorithms_all_d,
     is_rigid_algorithms_d1,
     is_rigid_algorithms_d2,
 )
+
+graph_class = nx.Graph
 
 
 ###############################################################
@@ -26,7 +27,9 @@ from test.graph.test_graph import (
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_vertex_redundantly_rigid_d2(graph, algorithm):
-    assert graph.is_vertex_redundantly_rigid(dim=2, algorithm=algorithm)
+    assert redundant_rigidity.is_vertex_redundantly_rigid(
+        graph_class(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -40,7 +43,9 @@ def test_is_vertex_redundantly_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_not_vertex_redundantly_rigid_d2(graph, algorithm):
-    assert not graph.is_vertex_redundantly_rigid(dim=2, algorithm=algorithm)
+    assert not redundant_rigidity.is_vertex_redundantly_rigid(
+        graph_class(graph), dim=2, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -63,11 +68,9 @@ def test_is_not_vertex_redundantly_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=1, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -81,11 +84,9 @@ def test_is_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_not_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=1, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -106,11 +107,9 @@ def test_is_not_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=2, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -127,11 +126,9 @@ def test_is_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_not_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=2, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -159,11 +156,9 @@ def test_is_not_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
-    assert graph.is_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=3, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=3, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -190,11 +185,9 @@ def test_is_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_not_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
-    assert not graph.is_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=3, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=3, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -217,11 +210,9 @@ def test_is_not_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_min_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=1, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -235,11 +226,9 @@ def test_is_min_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_not_min_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=1, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -259,11 +248,9 @@ def test_is_not_min_k_vertex_redundantly_rigid_d1(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_min_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=2, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -277,11 +264,9 @@ def test_is_min_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_not_min_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=2, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -293,11 +278,9 @@ def test_is_not_min_k_vertex_redundantly_rigid_d2(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
-    assert graph.is_min_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=3, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=3, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -326,11 +309,9 @@ def test_is_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
-    assert not graph.is_min_k_vertex_redundantly_rigid(k, dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
-            nx.Graph(graph), k, dim=3, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_min_k_vertex_redundantly_rigid(
+        graph_class(graph), k, dim=3, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -350,7 +331,9 @@ def test_is_not_min_k_vertex_redundantly_rigid_d3(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_redundantly_rigid_d2(graph, algorithm):
-    assert graph.is_redundantly_rigid(dim=2, algorithm=algorithm)
+    assert redundant_rigidity.is_redundantly_rigid(
+        graph_class(graph), dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -372,7 +355,9 @@ def test_is_redundantly_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_not_redundantly_rigid_d2(graph, algorithm):
-    assert not graph.is_redundantly_rigid(dim=2, algorithm=algorithm)
+    assert not redundant_rigidity.is_redundantly_rigid(
+        graph_class(graph), dim=2, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -397,11 +382,9 @@ def test_is_not_redundantly_rigid_d2(graph, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_k_redundantly_rigid_d1(graph, k, algorithm):
-    assert graph.is_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=1, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_k_redundantly_rigid(
+        graph_class(graph), k, dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -414,11 +397,9 @@ def test_is_k_redundantly_rigid_d1(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_not_k_redundantly_rigid_d1(graph, k, algorithm):
-    assert not graph.is_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=1, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_k_redundantly_rigid(
+        graph_class(graph), k, dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -441,11 +422,9 @@ def test_is_not_k_redundantly_rigid_d1(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_k_redundantly_rigid_d2(graph, k, algorithm):
-    assert graph.is_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=2, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_k_redundantly_rigid(
+        graph_class(graph), k, dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -470,11 +449,9 @@ def test_is_k_redundantly_rigid_d2(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_not_k_redundantly_rigid_d2(graph, k, algorithm):
-    assert not graph.is_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=2, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_k_redundantly_rigid(
+        graph_class(graph), k, dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -503,11 +480,9 @@ def test_is_not_k_redundantly_rigid_d2(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_k_redundantly_rigid_d3(graph, k, algorithm):
-    assert graph.is_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=3, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_k_redundantly_rigid(
+        graph_class(graph), k, dim=3, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -530,11 +505,9 @@ def test_is_k_redundantly_rigid_d3(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_not_k_redundantly_rigid_d3(graph, k, algorithm):
-    assert not graph.is_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=3, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_k_redundantly_rigid(
+        graph_class(graph), k, dim=3, algorithm=algorithm
+    )
 
 
 ###############################################################
@@ -557,11 +530,9 @@ def test_is_not_k_redundantly_rigid_d3(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_min_k_redundantly_rigid_d1(graph, k, algorithm):
-    assert graph.is_min_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_min_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=1, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_min_k_redundantly_rigid(
+        graph_class(graph), k, dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -577,11 +548,9 @@ def test_is_min_k_redundantly_rigid_d1(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d1)
 def test_is_not_min_k_redundantly_rigid_d1(graph, k, algorithm):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=1, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_min_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=1, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_min_k_redundantly_rigid(
+        graph_class(graph), k, dim=1, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -601,11 +570,9 @@ def test_is_not_min_k_redundantly_rigid_d1(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_min_k_redundantly_rigid_d2(graph, k, algorithm):
-    assert graph.is_min_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_min_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=2, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_min_k_redundantly_rigid(
+        graph_class(graph), k, dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -620,11 +587,9 @@ def test_is_min_k_redundantly_rigid_d2(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_d2)
 def test_is_not_min_k_redundantly_rigid_d2(graph, k, algorithm):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=2, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_min_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=2, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_min_k_redundantly_rigid(
+        graph_class(graph), k, dim=2, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -637,11 +602,9 @@ def test_is_not_min_k_redundantly_rigid_d2(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_min_k_redundantly_rigid_d3(graph, k, algorithm):
-    assert graph.is_min_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert redundant_rigidity.is_min_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=3, algorithm=algorithm
-        )
+    assert redundant_rigidity.is_min_k_redundantly_rigid(
+        graph_class(graph), k, dim=3, algorithm=algorithm
+    )
 
 
 @pytest.mark.parametrize(
@@ -657,8 +620,6 @@ def test_is_min_k_redundantly_rigid_d3(graph, k, algorithm):
 )
 @pytest.mark.parametrize("algorithm", is_rigid_algorithms_all_d)
 def test_is_not_min_k_redundantly_rigid_d3(graph, k, algorithm):
-    assert not graph.is_min_k_redundantly_rigid(k, dim=3, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not redundant_rigidity.is_min_k_redundantly_rigid(
-            nx.Graph(graph), k, dim=3, algorithm=algorithm
-        )
+    assert not redundant_rigidity.is_min_k_redundantly_rigid(
+        graph_class(graph), k, dim=3, algorithm=algorithm
+    )

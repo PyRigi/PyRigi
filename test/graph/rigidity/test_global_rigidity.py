@@ -6,8 +6,9 @@ import pytest
 import pyrigi.graph._rigidity.global_ as global_rigidity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
-from test import TEST_WRAPPED_FUNCTIONS
 from test.graph.test_graph import read_globally, read_redundantly
+
+graph_class = nx.Graph
 
 ###############################################################
 # is_globally_rigid
@@ -47,9 +48,7 @@ from test.graph.test_graph import read_globally, read_redundantly
     ],
 )
 def test_is_globally_rigid(graph, dim):
-    assert graph.is_globally_rigid(dim=dim)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert global_rigidity.is_globally_rigid(nx.Graph(graph), dim=dim)
+    assert global_rigidity.is_globally_rigid(graph_class(graph), dim=dim)
 
 
 @pytest.mark.parametrize(
@@ -98,9 +97,7 @@ def test_is_globally_rigid(graph, dim):
     ],
 )
 def test_is_not_globally_rigid(graph, dim):
-    assert not graph.is_globally_rigid(dim=dim)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not global_rigidity.is_globally_rigid(nx.Graph(graph), dim=dim)
+    assert not global_rigidity.is_globally_rigid(graph_class(graph), dim=dim)
 
 
 @pytest.mark.parametrize(
@@ -116,9 +113,7 @@ def test_is_not_globally_rigid(graph, dim):
     ],
 )
 def test_is_globally_rigid_d2(graph):
-    assert graph.is_globally_rigid(dim=2)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert global_rigidity.is_globally_rigid(nx.Graph(graph), dim=2)
+    assert global_rigidity.is_globally_rigid(graph_class(graph), dim=2)
 
 
 @pytest.mark.parametrize(
@@ -136,9 +131,7 @@ def test_is_globally_rigid_d2(graph):
     ],
 )
 def test_is_not_globally_d2(graph):
-    assert not graph.is_globally_rigid(dim=2)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not global_rigidity.is_globally_rigid(nx.Graph(graph), dim=2)
+    assert not global_rigidity.is_globally_rigid(graph_class(graph), dim=2)
 
 
 ###############################################################
@@ -158,7 +151,7 @@ def test_is_not_globally_d2(graph):
 def test_is_weakly_globally_linked_for_globally_rigid_graphs(graph):
     # in a globally rigid graph, each pair of vertices should be weakly globally linked
     for u, v in list(combinations(graph.nodes, 2)):
-        assert graph.is_weakly_globally_linked(u, v)
+        assert global_rigidity.is_weakly_globally_linked(graph_class(graph), u, v)
 
 
 @pytest.mark.parametrize(
@@ -177,9 +170,11 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
     for u, v in graph.edges:
         H = graph.copy()
         H.remove_edge(u, v)
+        H = graph_class(H)
         # now H is surely a rigid graph
-        if H.is_globally_rigid():
-            return test_is_weakly_globally_linked_for_globally_rigid_graphs(H)
+        if global_rigidity.is_globally_rigid(H):
+            for w1, w2 in list(combinations(graph.nodes, 2)):
+                assert global_rigidity.is_weakly_globally_linked(H, w1, w2)
         else:
             # if H is rigid but it is not globally rigid, then we know that there must
             # be at least one pair of vertices that is not weakly globally linked in
@@ -187,7 +182,7 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
             # not weakly globally linked pair of vertices is found
             counter = 0
             for a, b in list(combinations(H.nodes, 2)):
-                if not H.is_weakly_globally_linked(a, b):
+                if not global_rigidity.is_weakly_globally_linked(H, a, b):
                     counter = 1
                     break
             assert counter
@@ -261,6 +256,4 @@ def test_is_weakly_globally_linked_for_redundantly_rigid_graphs(graph):
     ],
 )
 def test_is_weakly_globally_linked_articles_graphs(graph, u, v):
-    assert graph.is_weakly_globally_linked(u, v, dim=2)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert global_rigidity.is_weakly_globally_linked(nx.Graph(graph), u, v, dim=2)
+    assert global_rigidity.is_weakly_globally_linked(graph_class(graph), u, v, dim=2)

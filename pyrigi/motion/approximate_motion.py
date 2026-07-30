@@ -87,6 +87,15 @@ class ApproximateMotion(Motion):
     ApproximateMotion of a Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 3], [1, 2], [2, 3]] with starting configuration
     {0: [0.0, 0.0], 1: [1.0, 0.0], 2: [1.0, 1.0], 3: [0.0, 1.0]},
     10 retraction steps and initial step size 0.05.
+
+    A ``fixed_direction`` that is not already a unit vector is accepted;
+    it is normalized internally:
+
+    >>> motion = ApproximateMotion(
+    ...     F, 10, fixed_pair=(0, 1), fixed_direction=[1, 2]
+    ... )
+    >>> isinstance(motion, ApproximateMotion)
+    True
     """  # noqa: E501
 
     silence_numerical_alg_warns = False
@@ -509,10 +518,12 @@ class ApproximateMotion(Motion):
                         len(_realizations[list(_realizations.keys())[0]]) - 1
                     )
                 ]
-            else:
-                fixed_direction = [
-                    coord / np.linalg.norm(fixed_direction) for coord in fixed_direction
-                ]
+
+        # Normalize ``fixed_direction`` to unit length.
+        norm = np.linalg.norm(fixed_direction)
+        if is_zero(norm, numerical=True, tolerance=1e-6):
+            raise ValueError("`fixed_direction` must be a nonzero vector.")
+        fixed_direction = [coord / norm for coord in fixed_direction]
 
         output_realizations = []
         for realization in _realizations:
@@ -521,10 +532,7 @@ class ApproximateMotion(Motion):
                     "This method ``_fix_edge`` is not implemented for "
                     + "dimensions other than 2 or 3."
                 )
-            if (
-                len(fixed_direction) not in [2, 3]
-                or np.linalg.norm(fixed_direction) != 1
-            ):
+            if len(fixed_direction) not in [2, 3]:
                 raise ValueError("`fixed_direction` does not have the correct format.")
 
             # Compute the signed angle `theta` between the `fixed_direction` and the

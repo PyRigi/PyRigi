@@ -8,8 +8,9 @@ import pytest
 import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graphDB as graphs
 from pyrigi.graph import Graph
-from test import TEST_WRAPPED_FUNCTIONS
 from test.graph.test_graph import read_sparsity
+
+graph_class = nx.Graph
 
 is_kl_sparse_algorithms_sparsity_all_kl = ["default", "subgraph"]
 is_kl_sparse_algorithms_sparsity_pebble = is_kl_sparse_algorithms_sparsity_all_kl + [
@@ -38,12 +39,9 @@ is_kl_sparse_algorithms_sparsity_pebble = is_kl_sparse_algorithms_sparsity_all_k
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
 def test_is_kl_sparse(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
-    assert graph.is_kl_sparse(K, L, algorithm=algorithm)
     graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
-    assert graph2.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
-        assert sparsity.is_kl_sparse(nx.Graph(graph2), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_sparse(graph_class(graph2), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -59,12 +57,9 @@ def test_is_kl_sparse(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
 def test_is_not_kl_sparse(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
-    assert not graph.is_kl_sparse(K, L, algorithm=algorithm)
     graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
-    assert not graph2.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
-        assert not sparsity.is_kl_sparse(nx.Graph(graph2), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_sparse(graph_class(graph2), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -84,12 +79,9 @@ def test_is_not_kl_sparse(graph, K, L, algorithm):
     ],
 )
 def test_is_2_3_sparse(graph):
-    assert graph.is_kl_sparse(2, 3, algorithm="subgraph")
-    assert graph.is_kl_sparse(2, 3, algorithm="pebble")
+    assert sparsity.is_kl_sparse(graph_class(graph), 2, 3, algorithm="subgraph")
+    assert sparsity.is_kl_sparse(graph_class(graph), 2, 3, algorithm="pebble")
     assert graph.is_sparse()
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_sparse(nx.Graph(graph), 2, 3, algorithm="subgraph")
-        assert sparsity.is_kl_sparse(nx.Graph(graph), 2, 3, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
@@ -103,12 +95,9 @@ def test_is_2_3_sparse(graph):
     ],
 )
 def test_is_not_2_3_sparse(graph):
-    assert not graph.is_kl_sparse(2, 3, algorithm="subgraph")
-    assert not graph.is_kl_sparse(2, 3, algorithm="pebble")
+    assert not sparsity.is_kl_sparse(graph_class(graph), 2, 3, algorithm="subgraph")
+    assert not sparsity.is_kl_sparse(graph_class(graph), 2, 3, algorithm="pebble")
     assert not graph.is_sparse()
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_sparse(nx.Graph(graph), 2, 3, algorithm="subgraph")
-        assert not sparsity.is_kl_sparse(nx.Graph(graph), 2, 3, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
@@ -130,12 +119,9 @@ def test_is_not_2_3_sparse(graph):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
 def test_is_kl_sparse_pebble(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
-    assert graph.is_kl_sparse(K, L, algorithm=algorithm)
     graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
-    assert graph2.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
-        assert sparsity.is_kl_sparse(nx.Graph(graph2), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_sparse(graph_class(graph2), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -151,12 +137,9 @@ def test_is_kl_sparse_pebble(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
 def test_is_not_kl_sparse_pebble(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
-    assert not graph.is_kl_sparse(K, L, algorithm=algorithm)
     graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
-    assert not graph2.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
-        assert not sparsity.is_kl_sparse(nx.Graph(graph2), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_sparse(graph_class(graph2), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -180,12 +163,9 @@ def test_is_not_kl_sparse_pebble(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
 def test_is_kl_sparse_with_loops(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) > 0
-    assert graph.is_kl_sparse(K, L, algorithm=algorithm)
     graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
-    assert graph2.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
-        assert sparsity.is_kl_sparse(nx.Graph(graph2), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_sparse(graph_class(graph2), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -203,12 +183,9 @@ def test_is_kl_sparse_with_loops(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
 def test_is_not_kl_sparse_with_loops(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) > 0
-    assert not graph.is_kl_sparse(K, L, algorithm=algorithm)
     graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
-    assert not graph2.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
-        assert not sparsity.is_kl_sparse(nx.Graph(graph2), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_sparse(graph_class(graph2), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -233,9 +210,7 @@ def test_is_not_kl_sparse_with_loops(graph, K, L, algorithm):
     ],
 )
 def test_is_not_sparse_graphs_big_random(graph, K, L):
-    assert not graph.is_kl_sparse(K, L, algorithm="pebble")
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm="pebble")
+    assert not sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
@@ -253,10 +228,7 @@ def test_is_not_sparse_graphs_big_random(graph, K, L):
 def test_is_kl_sparse_pebble_value_error(graph, K, L):
     assert nx.number_of_selfloops(graph) == 0
     with pytest.raises(ValueError):
-        graph.is_kl_sparse(K, L, algorithm="pebble")
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(ValueError):
-            sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm="pebble")
+        sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm="pebble")
 
 
 @pytest.mark.parametrize(
@@ -273,10 +245,7 @@ def test_is_kl_sparse_pebble_value_error(graph, K, L):
 def test_is_kl_sparse_value_error(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
     with pytest.raises(ValueError):
-        graph.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(ValueError):
-            sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
+        sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -292,10 +261,7 @@ def test_is_kl_sparse_value_error(graph, K, L, algorithm):
 def test_is_kl_sparse_type_error(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
     with pytest.raises(TypeError):
-        graph.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(TypeError):
-            sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
+        sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -313,10 +279,7 @@ def test_is_kl_sparse_type_error(graph, K, L, algorithm):
 def test_is_kl_sparse_with_loops_value_error(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) > 0
     with pytest.raises(ValueError):
-        graph.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(ValueError):
-            sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
+        sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -332,10 +295,7 @@ def test_is_kl_sparse_with_loops_value_error(graph, K, L, algorithm):
 def test_is_kl_sparse_with_loops_type_error(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) > 0
     with pytest.raises(TypeError):
-        graph.is_kl_sparse(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        with pytest.raises(TypeError):
-            sparsity.is_kl_sparse(nx.Graph(graph), K, L, algorithm=algorithm)
+        sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
 
 
 ###############################################################
@@ -355,9 +315,7 @@ def test_is_kl_sparse_with_loops_type_error(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
 def test_is_kl_tight(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
-    assert graph.is_kl_tight(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_tight(nx.Graph(graph), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_tight(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -377,9 +335,7 @@ def test_is_kl_tight(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
 def test_is_not_kl_tight(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
-    assert not graph.is_kl_tight(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_tight(nx.Graph(graph), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_tight(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -393,12 +349,9 @@ def test_is_not_kl_tight(graph, K, L, algorithm):
     ],
 )
 def test_is_2_3_tight(graph):
-    assert graph.is_kl_tight(2, 3, algorithm="pebble")
-    assert graph.is_kl_tight(2, 3, algorithm="subgraph")
+    assert sparsity.is_kl_tight(graph_class(graph), 2, 3, algorithm="pebble")
+    assert sparsity.is_kl_tight(graph_class(graph), 2, 3, algorithm="subgraph")
     assert graph.is_tight()
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_tight(nx.Graph(graph), 2, 3, algorithm="pebble")
-        assert sparsity.is_kl_tight(nx.Graph(graph), 2, 3, algorithm="subgraph")
 
 
 @pytest.mark.parametrize(
@@ -418,12 +371,9 @@ def test_is_2_3_tight(graph):
     ],
 )
 def test_is_not_2_3_tight(graph):
-    assert not graph.is_kl_tight(2, 3, algorithm="subgraph")
-    assert not graph.is_kl_tight(2, 3, algorithm="pebble")
+    assert not sparsity.is_kl_tight(graph_class(graph), 2, 3, algorithm="pebble")
+    assert not sparsity.is_kl_tight(graph_class(graph), 2, 3, algorithm="subgraph")
     assert not graph.is_tight()
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_tight(nx.Graph(graph), 2, 3, algorithm="pebble")
-        assert not sparsity.is_kl_tight(nx.Graph(graph), 2, 3, algorithm="subgraph")
 
 
 @pytest.mark.parametrize(
@@ -440,9 +390,7 @@ def test_is_not_2_3_tight(graph):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
 def test_is_kl_tight_pebble(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
-    assert graph.is_kl_tight(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_tight(nx.Graph(graph), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_tight(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -465,9 +413,7 @@ def test_is_kl_tight_pebble(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
 def test_is_not_kl_tight_pebble(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
-    assert not graph.is_kl_tight(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_tight(nx.Graph(graph), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_tight(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -488,9 +434,7 @@ def test_is_not_kl_tight_pebble(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
 def test_is_kl_tight_with_loops(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) > 0
-    assert graph.is_kl_tight(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_tight(nx.Graph(graph), K, L, algorithm=algorithm)
+    assert sparsity.is_kl_tight(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -517,9 +461,7 @@ def test_is_kl_tight_with_loops(graph, K, L, algorithm):
 @pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_pebble)
 def test_is_not_kl_tight_with_loops(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) > 0
-    assert not graph.is_kl_tight(K, L, algorithm=algorithm)
-    if TEST_WRAPPED_FUNCTIONS:
-        assert not sparsity.is_kl_tight(nx.Graph(graph), K, L, algorithm=algorithm)
+    assert not sparsity.is_kl_tight(graph_class(graph), K, L, algorithm=algorithm)
 
 
 @pytest.mark.parametrize(
@@ -540,9 +482,7 @@ def test_is_not_kl_tight_with_loops(graph, K, L, algorithm):
     ],
 )
 def test_is_tight_big_random(graph, K, L):
-    assert graph.is_kl_tight(K, L, algorithm="pebble")
-    if TEST_WRAPPED_FUNCTIONS:
-        assert sparsity.is_kl_tight(nx.Graph(graph), K, L, algorithm="pebble")
+    assert sparsity.is_kl_tight(graph_class(graph), K, L, algorithm="pebble")
 
 
 ###############################################################
@@ -563,49 +503,53 @@ def test_is_tight_big_random(graph, K, L):
 def test_spanning_kl_sparse_subgraph(graph):
     for K in range(1, 3):
         for L in range(0, 2 * K):
-            spanning_subgraph = graph.spanning_kl_sparse_subgraph(K, L)
-            assert spanning_subgraph.is_kl_sparse(K, L, algorithm="subgraph")
-            assert set(graph.vertex_list()) == set(spanning_subgraph.vertex_list())
-            if TEST_WRAPPED_FUNCTIONS:
-                spanning_subgraph = sparsity.spanning_kl_sparse_subgraph(
-                    nx.Graph(graph), K, L
-                )
-                assert sparsity.is_kl_sparse(
-                    spanning_subgraph, K, L, algorithm="subgraph"
-                )
-                assert set(graph.nodes) == set(spanning_subgraph.nodes)
+            spanning_subgraph = sparsity.spanning_kl_sparse_subgraph(
+                graph_class(graph), K, L
+            )
+            assert sparsity.is_kl_sparse(spanning_subgraph, K, L, algorithm="subgraph")
+            assert set(graph.nodes) == set(spanning_subgraph.nodes)
 
 
 ###############################################################
 # large tests
 ###############################################################
+@pytest.mark.parametrize(
+    "graph, n, m",
+    [
+        [Graph(nx.gnm_random_graph(n, m)), n, m]
+        for n, _ in product(range(1, 8), range(10))
+        for m in range(1, math.comb(n, 2) + 1)
+    ],
+)
 @pytest.mark.long_local
-def test_sparsity_properties_random_graphs_with_loops():
-    search_space = [range(1, 8), range(10)]
-    for n, _ in product(*search_space):
-        for m in range(1, math.comb(n, 2) + 1):
-            G = Graph(nx.gnm_random_graph(n, m))
-            loops = [[v, v] for v in G.vertex_list() if randint(0, 1)]
-            G.add_edges(loops)
-            assert G.number_of_nodes() == n
-            assert G.number_of_edges() == m + len(loops)
+def test_sparsity_properties_random_graphs_with_loops(graph, n, m):
+    G = graph_class(graph)
+    loops = [[v, v] for v in G.nodes if randint(0, 1)]
+    G.add_edges_from(loops)
+    assert G.number_of_nodes() == n
+    assert G.number_of_edges() == m + len(loops)
 
-            _run_sparsity_test_on_graph(G)
+    _run_sparsity_test_on_graph(G)
 
 
+@pytest.mark.parametrize(
+    "graph, n, m",
+    [
+        [Graph(nx.gnm_random_graph(n, m)), n, m]
+        for n, _ in product(range(1, 8), range(10))
+        for m in range(1, math.comb(n, 2) + 1)
+    ],
+)
 @pytest.mark.long_local
-def test_sparsity_properties_random_graphs_without_loops():
-    search_space = [range(1, 8), range(10)]
-    for n, _ in product(*search_space):
-        for m in range(1, math.comb(n, 2) + 1):
-            G = Graph(nx.gnm_random_graph(n, m))
-            assert G.number_of_nodes() == n
-            assert G.number_of_edges() == m
+def test_sparsity_properties_random_graphs_without_loops(graph, n, m):
+    G = graph_class(graph)
+    assert G.number_of_nodes() == n
+    assert G.number_of_edges() == m
 
-            _run_sparsity_test_on_graph(G)
+    _run_sparsity_test_on_graph(G)
 
 
-def _run_sparsity_test_on_graph(G: Graph) -> None:
+def _run_sparsity_test_on_graph(G: nx.Graph) -> None:
     """
     Run a set of sparsity tests on a given graph
     """
@@ -621,19 +565,26 @@ def _run_sparsity_test_on_graph(G: Graph) -> None:
             return math.comb(K + 1, 2) + 1
 
     prop_sparse = {
-        K: [G.is_kl_sparse(K, L) for L in range(get_max_L(G, K))]
+        K: [sparsity.is_kl_sparse(G, K, L) for L in range(get_max_L(G, K))]
         for K in range(1, kmax)
     }
     prop_tight = {
-        K: [G.is_kl_tight(K, L) for L in range(get_max_L(G, K))] for K in range(1, kmax)
+        K: [sparsity.is_kl_tight(G, K, L) for L in range(get_max_L(G, K))]
+        for K in range(1, kmax)
     }
 
     prop_sparse_s = {
-        K: [G.is_kl_sparse(K, L, algorithm="subgraph") for L in range(get_max_L(G, K))]
+        K: [
+            sparsity.is_kl_sparse(G, K, L, algorithm="subgraph")
+            for L in range(get_max_L(G, K))
+        ]
         for K in range(1, kmax)
     }
     prop_tight_s = {
-        K: [G.is_kl_tight(K, L, algorithm="subgraph") for L in range(get_max_L(G, K))]
+        K: [
+            sparsity.is_kl_tight(G, K, L, algorithm="subgraph")
+            for L in range(get_max_L(G, K))
+        ]
         for K in range(1, kmax)
     }
 
@@ -665,16 +616,22 @@ def _run_sparsity_test_on_graph(G: Graph) -> None:
             assert nx.is_tree(G)
 
 
+@pytest.mark.parametrize(
+    "n, edges",
+    [
+        [n, edges]
+        for n in range(1, 5)
+        for i in range(math.comb(n, 2) + 1)
+        for edges in combinations(combinations(range(n), 2), i)
+    ],
+)
 @pytest.mark.long_local
-def test_sparsity_properties_small_graphs_without_loops():
-    for n in range(1, 5):
-        for i in range(math.comb(n, 2) + 1):
-            for edges in combinations(combinations(range(n), 2), i):
-                G = Graph.from_vertices_and_edges(range(n), edges)
-                assert G.number_of_nodes() == n
-                assert G.number_of_edges() == len(edges)
+def test_sparsity_properties_small_graphs_without_loops(n, edges):
+    G = graph_class(Graph.from_vertices_and_edges(range(n), edges))
+    assert G.number_of_nodes() == n
+    assert G.number_of_edges() == len(edges)
 
-                _run_sparsity_test_on_graph(G)
+    _run_sparsity_test_on_graph(G)
 
 
 @pytest.mark.long_local
@@ -698,7 +655,7 @@ def test_sparsity_properties_small_graphs_without_loops_different_vertex_names()
         for vertices in encodings:
             for i in range(math.comb(n, 2) + 1):
                 for edges in combinations(combinations(vertices, 2), i):
-                    G = Graph.from_vertices_and_edges(vertices, edges)
+                    G = graph_class(Graph.from_vertices_and_edges(vertices, edges))
                     assert G.number_of_nodes() == n
                     assert len(vertices) == n
                     assert G.number_of_edges() == len(edges)
@@ -706,20 +663,26 @@ def test_sparsity_properties_small_graphs_without_loops_different_vertex_names()
                     _run_sparsity_test_on_graph(G)
 
 
+@pytest.mark.parametrize(
+    "n, edges",
+    [
+        [n, edges]
+        for n in range(1, 5)
+        for i in range(math.comb(n, 2) + 1)
+        for edges in combinations(combinations(range(n), 2), i)
+    ],
+)
 @pytest.mark.long_local
-def test_sparsity_properties_small_graphs_with_loops():
-    for n in range(1, 5):
-        for i in range(math.comb(n, 2) + 1):
-            for edges in combinations(combinations(range(n), 2), i):
-                G = Graph.from_vertices_and_edges(range(n), edges)
-                for j in range(n + 1):
-                    for loops in combinations(range(n), j):
-                        G.add_edges([[jj, jj] for jj in loops])
-                        assert G.number_of_nodes() == n
-                        assert G.number_of_edges() == len(edges) + len(loops)
+def test_sparsity_properties_small_graphs_with_loops(n, edges):
+    G = graph_class(Graph.from_vertices_and_edges(range(n), edges))
+    for j in range(n + 1):
+        for loops in combinations(range(n), j):
+            G.add_edges_from([[jj, jj] for jj in loops])
+            assert G.number_of_nodes() == n
+            assert G.number_of_edges() == len(edges) + len(loops)
 
-                        _run_sparsity_test_on_graph(G)
-                        G.delete_edges([[jj, jj] for jj in loops])
+            _run_sparsity_test_on_graph(G)
+            G.remove_edges_from([[jj, jj] for jj in loops])
 
 
 @pytest.mark.long_local
@@ -743,13 +706,13 @@ def test_sparsity_properties_small_graphs_with_loops_different_vertex_names():
         for vertices in encodings:
             for i in range(math.comb(n, 2) + 1):
                 for edges in combinations(combinations(vertices, 2), i):
-                    G = Graph.from_vertices_and_edges(vertices, edges)
+                    G = graph_class(Graph.from_vertices_and_edges(vertices, edges))
                     for j in range(n + 1):
                         for loops in combinations(vertices, j):
-                            G.add_edges([[jj, jj] for jj in loops])
+                            G.add_edges_from([[jj, jj] for jj in loops])
                             assert G.number_of_nodes() == n
                             assert len(vertices) == n
                             assert G.number_of_edges() == len(edges) + len(loops)
 
                             _run_sparsity_test_on_graph(G)
-                            G.delete_edges([[jj, jj] for jj in loops])
+                            G.remove_edges_from([[jj, jj] for jj in loops])

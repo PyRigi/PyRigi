@@ -4,7 +4,14 @@
 
 [![PyRigi documentation](https://img.shields.io/badge/PyRigi-Documentation-blue?style=plastic&link=pyrigi.github.io%2FPyRigi%2F%20)](https://pyrigi.github.io/PyRigi/)
 [![MIT license](https://img.shields.io/badge/license-MIT-yellow?style=plastic)](LICENSE)
+[![python](https://img.shields.io/badge/dynamic/toml?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&query=%24.project.requires-python&label=python&style=plastic&color=blue)](https://www.python.org/)
 [![Black code style](https://img.shields.io/badge/code%20style-black-black?style=plastic)](https://github.com/psf/black)
+<!-- The package badges read the minimal supported version from pyproject.toml with
+the regex "<package>\s*\(?>=\s*([^,")\s]+) ; it has to be percent-encoded below,
+since parentheses and backslashes are not allowed in a Markdown link. -->
+[![networkx](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search=%22networkx%5Cs*%5C%28%3F%3E%3D%5Cs*%28%5B%5E%2C%22%29%5Cs%5D%2B%29&replace=%3E%3D%241&label=networkx&style=plastic&color=blue)](https://networkx.org/)
+[![numpy](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search=%22numpy%5Cs*%5C%28%3F%3E%3D%5Cs*%28%5B%5E%2C%22%29%5Cs%5D%2B%29&replace=%3E%3D%241&label=numpy&style=plastic&color=blue)](https://numpy.org/)
+[![sympy](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search=%22sympy%5Cs*%5C%28%3F%3E%3D%5Cs*%28%5B%5E%2C%22%29%5Cs%5D%2B%29&replace=%3E%3D%241&label=sympy&style=plastic&color=blue)](https://www.sympy.org/)
 
 
 <!-- start-input -->
@@ -15,7 +22,7 @@ such as infinitesimal, global, minimal, or generic rigidity. An article explaini
 and internal structure of PyRigi is freely available [here](https://doi.org/10.48550/arXiv.2505.22652).
 
 
-We use [NetworkX](https://networkx.org/) for graph theory, [SymPy](https://www.sympy.org/) 
+We use [NetworkX](https://networkx.org/) for graph theory, [SymPy](https://www.sympy.org/)
 for symbolic and [NumPy](https://numpy.org/) for numerical computations.
 We acknowledge these and all the other open-source projects upon which PyRigi is based.
 
@@ -29,9 +36,9 @@ Once installed, you can start using it with:
 ```python
 from pyrigi import Graph, Framework
 ```
-For more details, we refer to the 
+For more details, we refer to the
 [Getting started](https://pyrigi.github.io/PyRigi/userguide/getting_started.html)
-guide in the [documentation](https://pyrigi.github.io/PyRigi/). 
+guide in the [documentation](https://pyrigi.github.io/PyRigi/).
 The development version is available on the `dev` branch
 in [this GitHub repository](https://github.com/pyRigi/PyRigi).
 

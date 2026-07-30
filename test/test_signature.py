@@ -10,11 +10,12 @@ import sys
 from inspect import Parameter, Signature, _empty
 from types import GetSetDescriptorType, ModuleType
 from typing import Any, Callable, ParamSpec, Type, TypeVar, cast, get_args, get_origin
-
 import pytest
 
 from pyrigi import Framework
 from pyrigi.graph import Graph
+
+from test.wrapper._bad_wrapper import _BadWrapper
 
 P = ParamSpec("P")
 T = TypeVar("T")
@@ -242,7 +243,8 @@ def _assert_same_sign(  # noqa: C901
                 )
 
 
-@pytest.mark.parametrize(("cls"), [Graph, Framework])
+# _BadWrapper has correct signatures but bad forwarding
+@pytest.mark.parametrize(("cls"), [Graph, Framework, _BadWrapper])
 def test_signature_graph(cls: Type):
     """
     Test that all methods have the same signature as the proxy functions

@@ -2,6 +2,8 @@
 This module provides algorithms related to second order rigidity of frameworks.
 """
 
+from __future__ import annotations
+
 import sympy as sp
 from sympy import Matrix
 
@@ -32,7 +34,7 @@ def is_prestress_stable(
     """
     Return whether the framework is prestress stable.
 
-    See also :meth:`.is_second_order_rigid`.
+    See also :func:`.is_second_order_rigid`.
 
     Definitions
     ----------
@@ -40,10 +42,11 @@ def is_prestress_stable(
 
     Parameters
     -------
+    framework:
     numerical:
         If ``True``, numerical infinitesimal flexes and stresses
         are used in the check for prestress stability.
-        In case that ``numerical=False``, this method only
+        In case that ``numerical=False``, this function only
         properly works for symbolic coordinates.
     tolerance:
         Numerical tolerance used for the check that something is
@@ -56,7 +59,7 @@ def is_prestress_stable(
     --------
     >>> from pyrigi import frameworkDB as fws
     >>> F = fws.Frustum(3)
-    >>> F.is_prestress_stable()
+    >>> is_prestress_stable(F)
     True
     """
     framework._warn_numerical_coord(is_prestress_stable, numerical)
@@ -184,7 +187,7 @@ def is_second_order_rigid(
     Checking second-order-rigidity for a general framework is computationally hard.
     If there is only one stress or only one infinitesimal flex, second-order rigidity
     is identical to :prf:ref:`prestress stability <def-prestress-stability>`,
-    so we can apply :meth:`.is_prestress_stable`. See also
+    so we can apply :func:`.is_prestress_stable`. See also
     :prf:ref:`thm-second-order-implies-prestress-stability`.
 
     Definitions
@@ -193,10 +196,11 @@ def is_second_order_rigid(
 
     Parameters
     -------
+    framework:
     numerical:
         If ``True``, numerical infinitesimal flexes and stresses
         are used in the check for prestress stability.
-        In case that ``numerical=False``, this method only
+        In case that ``numerical=False``, this function only
         properly works for symbolic coordinates.
     tolerance:
         Numerical tolerance used for the check that something is
@@ -209,7 +213,7 @@ def is_second_order_rigid(
     --------
     >>> from pyrigi import frameworkDB as fws
     >>> F = fws.Frustum(3)
-    >>> F.is_second_order_rigid()
+    >>> is_second_order_rigid(F)
     True
     """
     framework._warn_numerical_coord(is_second_order_rigid, numerical)
@@ -251,6 +255,7 @@ def _process_list_of_inf_flexes(
 
     Parameters
     ----------
+    framework:
     inf_flexes:
         The infinitesimal flexes to be processed.
     numerical:
@@ -302,6 +307,7 @@ def _process_list_of_stresses(
 
     Parameters
     ----------
+    framework:
     stresses:
         The equilibrium stresses to be processed.
     numerical:

@@ -2,6 +2,8 @@
 This module provides transformations of frameworks.
 """
 
+from __future__ import annotations
+
 from copy import deepcopy
 
 import numpy as np
@@ -32,6 +34,7 @@ def translate(
 
     Parameters
     ----------
+    framework:
     vector
         Translation vector
     inplace
@@ -63,6 +66,7 @@ def rescale(
 
     Parameters
     ----------
+    framework:
     factor:
         Scaling factor
     inplace:
@@ -92,6 +96,7 @@ def rotate2D(
 
     Parameters
     ----------
+    framework:
     angle:
         Rotation angle. If you want the coordinates to stay symbolic
         even after the rotation, you need to input the angle as a
@@ -140,6 +145,7 @@ def rotate3D(
 
     Parameters
     ----------
+    framework:
     angle:
         Rotation angle around the axis of rotation. If you want the
         coordinates to stay symbolic even after the rotation, you need
@@ -213,10 +219,10 @@ def rotate3D(
 def rotate(framework: FrameworkBase, **kwargs) -> None | FrameworkBase:
     """
     Alias for rotating frameworks based on
-    :meth:`~Framework.rotate2D` and :meth:`~Framework.rotate3D`.
+    :func:`~.rotate2D` and :func:`~.rotate3D`.
 
     For implementation details and possible parameters, see
-    :meth:`~Framework.rotate2D` and :meth:`~Framework.rotate3D`.
+    :func:`~.rotate2D` and :func:`~.rotate3D`.
     """
     _input_check.dimension_for_algorithm(framework.dim, [2, 3], "rotate")
     if framework.dim == 2:
@@ -237,6 +243,7 @@ def projected_realization(
 
     Parameters
     ----------
+    framework:
     proj_dim:
         The dimension to which the framework is projected.
         This is determined from ``projection_matrix`` if it is provided.

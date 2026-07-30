@@ -2,6 +2,8 @@
 This module provides algorithms related to redundant rigidity of frameworks.
 """
 
+from __future__ import annotations
+
 from copy import deepcopy
 
 from pyrigi.framework.base import FrameworkBase
@@ -17,7 +19,7 @@ def is_redundantly_inf_rigid(
     Return if the framework is infinitesimally redundantly rigid.
 
     For implementation details and possible parameters, see
-    :meth:`~Framework.is_inf_rigid`.
+    :func:`~.is_inf_rigid`.
 
     Definitions
     -----------
@@ -25,6 +27,7 @@ def is_redundantly_inf_rigid(
 
     Parameters
     ----------
+    framework:
     use_copy:
         If ``False``, the framework's edges are deleted and added back
         during runtime.
@@ -36,10 +39,10 @@ def is_redundantly_inf_rigid(
     >>> F = Framework.Empty(dim=2)
     >>> F.add_vertices([(1,0), (1,1), (0,3), (-1,1)], ['a','b','c','d'])
     >>> F.add_edges([('a','b'), ('b','c'), ('c','d'), ('a','d'), ('a','c'), ('b','d')])
-    >>> F.is_redundantly_inf_rigid()
+    >>> is_redundantly_inf_rigid(F)
     True
     >>> F.delete_edge(('a','c'))
-    >>> F.is_redundantly_inf_rigid()
+    >>> is_redundantly_inf_rigid(F)
     False
     """  # noqa: E501
     F = framework

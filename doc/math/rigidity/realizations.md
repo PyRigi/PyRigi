@@ -51,6 +51,7 @@ We define the _number of complex realizations_ by $c_d(G)$, where
 
 The implemented combinatorial algorithm for computing $2\cdot c_2(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`CapcoGalletEtAl2018`.
 Note that this algorithm does count reflections to be different realizations, while here we do not.
+For $2$-rigid graphs that are not minimally $2$-rigid the algorithm from {cite:p}`DewarGraseggerEtAl2025` is used to compute $c_2(G)$, (see also {prf:ref}`thm-realization-rigid-not-3-connected` and {prf:ref}`thm-realization-rigid-3-connected`).
 
 ## Complex Sphere
 
@@ -99,3 +100,58 @@ We define the _number of complex spherical realizations_ by $c_d^{\circ}(G)$, wh
 
 The implemented combinatorial algorithm for computing $2\cdot c_2^{\circ}(G)$ for minimally $2$-rigid graphs can be found in {cite:p}`GalletGraseggerSchicho2020`.
 Note that this algorithm does count reflections to be different realizations, while here we do not.
+For $2$-rigid graphs that are not minimally $2$-rigid the algorithm from {cite:p}`DewarGraseggerEtAl2025` is used to compute $c_2^{\circ}(G)$, (see also {prf:ref}`thm-realization-rigid-not-3-connected` and {prf:ref}`thm-realization-rigid-3-connected`).
+
+## Theorems
+
+
+:::{prf:theorem}
+:label: thm-sphere-plane-realization
+
+In any positive dimension we have $c_d(G)\leq c_d^{\circ}(G)$.
+
+{{references}} {cite:p}`DewarGrasegger2024{Thm 1.1}`
+:::
+
+:::{prf:lemma}
+:label: lem-realization-0-extension
+
+Let $G$ be a $d$-{prf:ref}`rigid<def-gen-rigid>` graph and let $G'$ be obtained from $G$ by a $0$-{prf:ref}`extension<def-k-extension>`.
+Then $c_d(G')=2c_d(G)$ and $c_d^{\circ}(G')=2c_d^{\circ}(G)$.
+
+{{references}} {cite:p}`DewarGrasegger2024{Lem 7.1}`
+:::
+
+:::{prf:theorem}
+:label: thm-realization-rigid-not-3-connected
+
+Let $G=(V,E)$ be a 2-{prf:ref}`rigid<def-gen-rigid>` graph that is not 3-connected with vertices $u,v$ separating $G$ into $G_1,G_2$.
+Then $G_1+uv$ and $G_2+uv$ are 2-rigid and $G_1$ or $G_2$ is 2-rigid and
+\begin{equation*}
+    c_2(G):=
+    \begin{cases}
+        2 c_2(G_1)c_2(G_2+uv), & \text{if $uv\not\in E$ and $G_1$ is 2-rigid, $G_2$ is not 2-rigid,}\\
+        2 c_2(G_1+uv)c_2(G_2+uv), & \text{if $uv\in E$ or both $G_1$ and $G_2$ are 2-rigid.}
+    \end{cases}
+\end{equation*}
+This also holds for $c_2^{\circ}$.
+
+
+{{references}} {cite:p}`JacksonOwen2019{Thm 6.6}`
+:::
+
+:::{prf:theorem}
+:label: thm-realization-rigid-3-connected
+
+Let $G=(V,E)$ be a 2-{prf:ref}`rigid<def-gen-rigid>` graph that is 3-{prf:ref}`connected<def-k-connected>` but not {prf:ref}`redundantly<def-redundantly-rigid-graph>` 2-rigid.
+Let $e\in E$ such that $G-e$ is not 2-rigid and let $G_1,\ldots,G_m$ be the maximal 2-rigid subgraphs of $G-e$.
+Let further be $H_i$ be a minimally 2-rigid subgraph of $G_i$ for each $i\in\{1,\ldots,m\}$
+and let $H=H_1\cup\cdots\cup H_m\cup\{e\}$. Then
+
+\begin{equation*}
+    c_2(G)= c_2(H) \prod_{i=1}^m \frac{c_2(G_i)}{c_2(H_i)}.
+\end{equation*}
+This also holds for $c_2^{\circ}$.
+
+{{references}} {cite:p}`DewarGraseggerEtAl2025{Thm 1}`
+:::

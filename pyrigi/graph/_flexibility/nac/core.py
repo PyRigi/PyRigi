@@ -151,6 +151,7 @@ def create_bitmask_for_class_graph_cycle(
 
     Parameters
     ----------
+    graph:
     class_to_edges:
         Mapping from class to its edges.
         The method :meth:`~list.__getitem__` can also be passed.

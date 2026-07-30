@@ -2,6 +2,8 @@
 Auxiliary class for directed graph used in pebble game style algorithms.
 """
 
+from __future__ import annotations
+
 import networkx as nx
 
 import pyrigi._utils._input_check as _input_check

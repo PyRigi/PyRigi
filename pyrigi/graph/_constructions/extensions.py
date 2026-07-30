@@ -2,6 +2,8 @@
 This module provides algorithms related to k-extensions of graphs.
 """
 
+from __future__ import annotations
+
 import math
 from copy import deepcopy
 from itertools import combinations
@@ -31,6 +33,7 @@ def zero_extension(
 
     Parameters
     ----------
+    graph:
     vertices:
         A new vertex is connected to these vertices.
         All the vertices must be contained in the graph
@@ -52,15 +55,15 @@ def zero_extension(
     >>> G = graphs.Complete(3)
     >>> print(G)
     Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-    >>> H = G.zero_extension([0, 2])
+    >>> H = zero_extension(G, [0, 2])
     >>> print(H)
     Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
-    >>> H = G.zero_extension([0, 2], 5)
+    >>> H = zero_extension(G, [0, 2], 5)
     >>> print(H)
     Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [2, 5]]
     >>> print(G)
     Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-    >>> H = G.zero_extension([0, 1, 2], 5, dim=3, inplace=True)
+    >>> H = zero_extension(G, [0, 1, 2], 5, dim=3, inplace=True)
     >>> print(H)
     Graph with vertices [0, 1, 2, 5] and edges [[0, 1], [0, 2], [0, 5], [1, 2], [1, 5], [2, 5]]
     >>> print(G)
@@ -86,6 +89,7 @@ def one_extension(
 
     Parameters
     ----------
+    graph:
     vertices:
         A new vertex is connected to these vertices.
         All the vertices must be contained in the graph
@@ -110,7 +114,7 @@ def one_extension(
     >>> G = graphs.Complete(3)
     >>> print(G)
     Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-    >>> H = G.one_extension([0, 1, 2], [0, 1])
+    >>> H = one_extension(G, [0, 1, 2], [0, 1])
     >>> print(H)
     Graph with vertices [0, 1, 2, 3] and edges [[0, 2], [0, 3], [1, 2], [1, 3], [2, 3]]
     >>> print(G)
@@ -118,13 +122,13 @@ def one_extension(
     >>> G = graphs.ThreePrism()
     >>> print(G)
     Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-    >>> H = G.one_extension([0, 1], [0, 1], dim=1)
+    >>> H = one_extension(G, [0, 1], [0, 1], dim=1)
     >>> print(H)
     Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 2], [0, 3], [0, 6], [1, 2], [1, 4], [1, 6], [2, 5], [3, 4], [3, 5], [4, 5]]
     >>> G = graphs.CompleteBipartite(3, 2)
     >>> print(G)
     Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 3], [0, 4], [1, 3], [1, 4], [2, 3], [2, 4]]
-    >>> H = G.one_extension([0, 1, 2, 3, 4], [0, 3], dim=4, inplace = True)
+    >>> H = one_extension(G, [0, 1, 2, 3, 4], [0, 3], dim=4, inplace = True)
     >>> print(H)
     Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 4], [0, 5], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5]]
     >>> print(G)
@@ -145,7 +149,7 @@ def k_extension(
     """
     Return a ``dim``-dimensional ``k``-extension.
 
-    See also :meth:`.zero_extension` and :meth:`.one_extension`.
+    See also :func:`.zero_extension` and :func:`.one_extension`.
 
     Definitions
     -----------
@@ -153,6 +157,7 @@ def k_extension(
 
     Parameters
     ----------
+    graph:
     k
     vertices:
         A new vertex is connected to these vertices.
@@ -180,19 +185,19 @@ def k_extension(
     >>> G = graphs.Complete(5)
     >>> print(G)
     Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-    >>> H = G.k_extension(2, [0, 1, 2, 3], [[0, 1], [0,2]])
+    >>> H = k_extension(G, 2, [0, 1, 2, 3], [[0, 1], [0,2]])
     >>> print(H)
     Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5]]
     >>> G = graphs.Complete(5)
     >>> print(G)
     Graph with vertices [0, 1, 2, 3, 4] and edges [[0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
-    >>> H = G.k_extension(2, [0, 1, 2, 3, 4], [[0, 1], [0,2]], dim = 3)
+    >>> H = k_extension(G, 2, [0, 1, 2, 3, 4], [[0, 1], [0,2]], dim = 3)
     >>> print(H)
     Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 3], [0, 4], [0, 5], [1, 2], [1, 3], [1, 4], [1, 5], [2, 3], [2, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
     >>> G = graphs.Path(6)
     >>> print(G)
     Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]]
-    >>> H = G.k_extension(2, [0, 1, 2], [[0, 1], [1,2]], dim = 1, inplace = True);
+    >>> H = k_extension(G, 2, [0, 1, 2], [[0, 1], [1,2]], dim = 1, inplace = True);
     >>> print(H)
     Graph with vertices [0, 1, 2, 3, 4, 5, 6] and edges [[0, 6], [1, 6], [2, 3], [2, 6], [3, 4], [4, 5]]
     >>> print(G)
@@ -246,6 +251,7 @@ def all_k_extensions(
 
     Parameters
     ----------
+    graph:
     k:
     dim:
     only_non_isomorphic:
@@ -255,14 +261,15 @@ def all_k_extensions(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(3)
-    >>> type(G.all_k_extensions(0))
+    >>> type(all_k_extensions(G, 0))
     <class 'generator'>
-    >>> len(list(G.all_k_extensions(0)))
+    >>> len(list(all_k_extensions(G, 0)))
     3
-    >>> len(list(G.all_k_extensions(0, only_non_isomorphic=True)))
+    >>> len(list(all_k_extensions(G, 0, only_non_isomorphic=True)))
     1
 
-    >>> len(list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True)))
+    >>> diamond_graph = graphs.Diamond()
+    >>> len(list(all_k_extensions(diamond_graph, 1, 2, only_non_isomorphic=True)))
     2
 
     Notes
@@ -328,6 +335,7 @@ def all_extensions(
 
     Parameters
     ----------
+    graph:
     dim:
     only_non_isomorphic:
         If ``True``, only one graph per isomorphism class is included.
@@ -340,15 +348,17 @@ def all_extensions(
     --------
     >>> import pyrigi.graphDB as graphs
     >>> G = graphs.Complete(3)
-    >>> type(G.all_extensions())
+    >>> type(all_extensions(G))
     <class 'generator'>
-    >>> len(list(G.all_extensions()))
+    >>> len(list(all_extensions(G)))
     6
-    >>> len(list(G.all_extensions(only_non_isomorphic=True)))
+    >>> len(list(all_extensions(G, only_non_isomorphic=True)))
     1
 
-    >>> list(graphs.Diamond().all_extensions(2, only_non_isomorphic=True, k_min=1, k_max=1)
-    ... ) == list(graphs.Diamond().all_k_extensions(1, 2, only_non_isomorphic=True))
+    >>> diamond_graph = graphs.Diamond()
+    >>> result1 = list(all_extensions(diamond_graph, 2, only_non_isomorphic=True, k_min=1, k_max=1))  # noqa: E501
+    >>> result2 = list(all_k_extensions(diamond_graph, 1, 2, only_non_isomorphic=True))
+    >>> result1 == result2
     True
 
     Notes
@@ -356,7 +366,7 @@ def all_extensions(
     It turns out that possible errors on bad input parameters are only raised,
     when the output iterator is actually used,
     not when it is created.
-    """  # noqa: E501
+    """
     _input_check.dimension(dim)
     _graph_input_check.no_loop(graph)
     _input_check.integrality_and_range(k_min, "k_min", min_val=0)
@@ -394,7 +404,7 @@ def extension_sequence(  # noqa: C901
     The sequence then starts from a complete graph on ``dim`` vertices.
     If no such sequence exists, ``None`` is returned.
 
-    The method returns either a sequence of graphs,
+    The function returns either a sequence of graphs,
     data on the extension, or both.
 
     Note that for dimensions larger than two, the
@@ -406,6 +416,7 @@ def extension_sequence(  # noqa: C901
 
     Parameters
     ----------
+    graph:
     dim:
         The dimension in which the extensions are created.
     return_type:
@@ -416,7 +427,7 @@ def extension_sequence(  # noqa: C901
 
         If ``"extensions"``, then an initial graph and a sequence of extensions
         of the form ``[k, vertices, edges, new_vertex]`` as needed
-        for the input of :meth:`.k_extension` is returned.
+        for the input of :func:`.k_extension` is returned.
 
         If ``"both"``, then an initial graph and a sequence of pairs
         ``[graph, extension]``, where the latter has the form from above,
@@ -428,14 +439,14 @@ def extension_sequence(  # noqa: C901
     >>> G = graphs.Complete(3)
     >>> print(G)
     Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2], [1, 2]]
-    >>> G.extension_sequence(return_type="graphs")
+    >>> extension_sequence(G, return_type="graphs")
     [Graph.from_vertices_and_edges([1, 2], [(1, 2)]), Graph.from_vertices_and_edges([0, 1, 2], [(0, 1), (0, 2), (1, 2)])]
     >>> G = graphs.Diamond()
     >>> print(G)
     Graph with vertices [0, 1, 2, 3] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [2, 3]]
-    >>> G.extension_sequence(return_type="graphs")
+    >>> extension_sequence(G, return_type="graphs")
     [Graph.from_vertices_and_edges([2, 3], [(2, 3)]), Graph.from_vertices_and_edges([0, 2, 3], [(0, 2), (0, 3), (2, 3)]), Graph.from_vertices_and_edges([0, 1, 2, 3], [(0, 1), (0, 2), (0, 3), (1, 2), (2, 3)])]
-    >>> G.extension_sequence(return_type="extensions")
+    >>> extension_sequence(G, return_type="extensions")
     [Graph.from_vertices_and_edges([2, 3], [(2, 3)]), [0, [3, 2], [], 0], [0, [0, 2], [], 1]]
     """  # noqa: E501
     _input_check.dimension(dim)
@@ -511,8 +522,8 @@ def has_extension_sequence(
     """
     Return if there exists a sequence of ``dim``-dimensional extensions.
 
-    The method returns whether there exists a sequence of extensions
-    as described in :meth:`extension_sequence`.
+    The function returns whether there exists a sequence of extensions
+    as described in :func:`extension_sequence`.
 
     Definitions
     -----------
@@ -520,6 +531,7 @@ def has_extension_sequence(
 
     Parameters
     ----------
+    graph:
     dim:
         The dimension in which the extensions are created.
 
@@ -529,12 +541,12 @@ def has_extension_sequence(
     >>> G = graphs.ThreePrism()
     >>> print(G)
     Graph with vertices [0, 1, 2, 3, 4, 5] and edges [[0, 1], [0, 2], [0, 3], [1, 2], [1, 4], [2, 5], [3, 4], [3, 5], [4, 5]]
-    >>> G.has_extension_sequence()
+    >>> has_extension_sequence(G)
     True
     >>> G = graphs.CompleteBipartite(1, 2)
     >>> print(G)
     Graph with vertices [0, 1, 2] and edges [[0, 1], [0, 2]]
-    >>> G.has_extension_sequence()
+    >>> has_extension_sequence(G)
     False
     """  # noqa: E501
     return extension_sequence(graph, dim) is not None
