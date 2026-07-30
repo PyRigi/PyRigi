@@ -7,9 +7,9 @@
 [![Black code style](https://img.shields.io/badge/code%20style-black-black?style=plastic)](https://github.com/psf/black)
 
 [![python](https://img.shields.io/badge/dynamic/toml?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&query=%24.project.requires-python&label=python&style=plastic&color=blue)](https://www.python.org/)
-[![networkx](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search=%22networkx%20%5C%28%3E%3D%28%5B%5E%2C%29%5D%2B%29&replace=%3E%3D%241&label=networkx&style=plastic&color=blue)](https://networkx.org/)
-[![numpy](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search=%22numpy%20%5C%28%3E%3D%28%5B%5E%2C%29%5D%2B%29&replace=%3E%3D%241&label=numpy&style=plastic&color=blue)](https://numpy.org/)
-[![sympy](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search=%22sympy%20%5C%28%3E%3D%28%5B%5E%2C%29%5D%2B%29&replace=%3E%3D%241&label=sympy&style=plastic&color=blue)](https://www.sympy.org/)
+[![networkx](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search="networkx\s*\(%3F>%3D\s*([^%2C")\s]%2B)&replace=>%3D%241&label=networkx&style=plastic&color=blue)](https://networkx.org/)
+[![numpy](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search="numpy\s*\(%3F>%3D\s*([^%2C")\s]%2B)&replace=>%3D%241&label=numpy&style=plastic&color=blue)](https://numpy.org/)
+[![sympy](https://img.shields.io/badge/dynamic/regex?url=https://raw.githubusercontent.com/PyRigi/PyRigi/main/pyproject.toml&search="sympy\s*\(%3F>%3D\s*([^%2C")\s]%2B)&replace=>%3D%241label=sympy&style=plastic&color=blue)](https://www.sympy.org/)
 
 
 <!-- start-input -->
