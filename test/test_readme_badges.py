@@ -11,7 +11,6 @@ the requirement declared in ``[project] dependencies``.
 import re
 import tomllib
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
 
 import pytest
 
@@ -23,7 +22,7 @@ _EXPECTED = {"networkx", "numpy", "sympy"}
 #: Matches ``[![name](https://img.shields.io/badge/dynamic/regex?...)](link)``.
 _BADGE = re.compile(
     r"\[!\[(?P<name>[^\]]+)\]"
-    r"\((?P<url>https://img\.shields\.io/badge/dynamic/regex\?[^)]+)\)\]"
+    r"\(https://img\.shields\.io/badge/dynamic/regex\?[^)]+\)\]"
 )
 
 #: Matches the lower bound of a requirement like ``networkx (>=3.4.2,<4.0.0)``.
@@ -36,19 +35,19 @@ def _dependencies() -> list[str]:
         return tomllib.load(file)["project"]["dependencies"]
 
 
-def _badges() -> list[tuple[str, str]]:
-    """Return the ``(name, url)`` pairs of all dynamic regex badges."""
+def _badge_names() -> list[str]:
+    """Return the names of all dynamic regex badges."""
     readme = (_ROOT / "README.md").read_text(encoding="utf-8")
-    return [(m.group("name"), m.group("url")) for m in _BADGE.finditer(readme)]
+    return [m.group("name") for m in _BADGE.finditer(readme)]
 
 
 def test_readme_badges_exist():
-    names = {name for name, _ in _badges()}
+    names = set(_badge_names())
     assert _EXPECTED <= names, f"missing version badges for {_EXPECTED - names}"
 
 
-@pytest.mark.parametrize("name, url", _badges(), ids=[name for name, _ in _badges()])
-def test_readme_badge_version(name, url):
+@pytest.mark.parametrize("name", _badge_names())
+def test_readme_badge_version(name):
     requirements = [dep for dep in _dependencies() if dep.startswith(name)]
     assert len(requirements) == 1, (
         f"the {name} badge does not correspond to exactly one dependency: "
