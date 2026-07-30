@@ -1,12 +1,11 @@
 """
 Consistency checks for the package version badges in ``README.md``.
 
-The package badges use the shields.io ``dynamic/toml`` endpoint, which accepts only a
-restricted JSONPath subset: a dependency can be selected by its position in
-``[project] dependencies``. Reordering the ``[project] dependencies`` array
-makes a badge advertise the wrong package.
-These tests check that the index of the package in the badge and
-in the ``[project] dependencies`` array are consistent.
+The package badges use the shields.io ``dynamic/regex`` endpoint: the badge applies
+its ``search`` regular expression to ``pyproject.toml`` and renders the ``replace``
+template, so that only the minimal supported version is advertised.
+These tests check that the regular expression of each badge still matches
+the requirement declared in ``[project] dependencies``.
 """
 
 import re
@@ -21,61 +20,42 @@ _ROOT = Path(__file__).parents[1]
 #: Packages that are expected to have a version badge in ``README.md``.
 _EXPECTED = {"networkx", "numpy", "sympy"}
 
-#: Matches ``[![name](https://img.shields.io/badge/dynamic/toml?...)](link)``.
+#: Matches ``[![name](https://img.shields.io/badge/dynamic/regex?...)](link)``.
 _BADGE = re.compile(
     r"\[!\[(?P<name>[^\]]+)\]"
-    r"\((?P<url>https://img\.shields\.io/badge/dynamic/toml\?[^)]+)\)\]"
+    r"\((?P<url>https://img\.shields\.io/badge/dynamic/regex\?[^)]+)\)\]"
 )
 
-#: Matches the JSONPath a badge uses to index into the dependency array.
-_INDEX_QUERY = re.compile(r"\$\.project\.dependencies\[(?P<index>\d+)\]")
+#: Matches the lower bound of a requirement like ``networkx (>=3.4.2,<4.0.0)``.
+_LOWER_BOUND = re.compile(r">=\s*(?P<version>[^,)\s]+)")
 
 
-def _project() -> dict:
-    """Return the ``[project]`` table of ``pyproject.toml``."""
+def _dependencies() -> list[str]:
+    """Return the ``[project] dependencies`` of ``pyproject.toml``."""
     with open(_ROOT / "pyproject.toml", "rb") as file:
-        return tomllib.load(file)["project"]
+        return tomllib.load(file)["project"]["dependencies"]
 
 
 def _badges() -> list[tuple[str, str]]:
-    """Return the ``(name, url)`` pairs of all dynamic TOML badges."""
+    """Return the ``(name, url)`` pairs of all dynamic regex badges."""
     readme = (_ROOT / "README.md").read_text(encoding="utf-8")
     return [(m.group("name"), m.group("url")) for m in _BADGE.finditer(readme)]
 
 
-def _query(url: str) -> str:
-    """Return the JSONPath that ``url`` queries ``pyproject.toml`` with."""
-    return parse_qs(urlparse(url).query)["query"][0]
-
-
-def _dependency_badges() -> list[tuple[str, str, int]]:
-    """Return the ``(name, url, index)`` triples of the badges reading a
-    position in ``[project] dependencies``."""
-    badges = []
-    for name, url in _badges():
-        match = _INDEX_QUERY.fullmatch(_query(url))
-        if match is not None:
-            badges.append((name, url, int(match.group("index"))))
-    return badges
-
-
 def test_readme_badges_exist():
-    names = {name for name, _, _ in _dependency_badges()}
+    names = {name for name, _ in _badges()}
     assert _EXPECTED <= names, f"missing version badges for {_EXPECTED - names}"
 
 
-@pytest.mark.parametrize(
-    "name, index",
-    [(name, index) for name, _, index in _dependency_badges()],
-    ids=[name for name, _, _ in _dependency_badges()],
-)
-def test_readme_badge_index(name, index):
-    dependencies = _project()["dependencies"]
-    assert index < len(dependencies), (
-        f"the {name} badge points at dependency {index}, but only "
-        f"{len(dependencies)} are declared"
+@pytest.mark.parametrize("name, url", _badges(), ids=[name for name, _ in _badges()])
+def test_readme_badge_version(name, url):
+    requirements = [dep for dep in _dependencies() if dep.startswith(name)]
+    assert len(requirements) == 1, (
+        f"the {name} badge does not correspond to exactly one dependency: "
+        f"{requirements}"
     )
-    assert dependencies[index].startswith(name), (
-        f"the {name} badge points at dependency {index}, which is now "
-        f"{dependencies[index]!r}; update the index in README.md"
+    lower_bound = _LOWER_BOUND.search(requirements[0])
+    assert lower_bound is not None, (
+        f"the requirement {requirements[0]!r} has no lower bound, "
+        f"so the {name} badge cannot display one"
     )
