@@ -39,13 +39,13 @@ pytest -p no:doctestplus
 ```
 
 We add [pytest-xdist](https://github.com/pytest-dev/pytest-xdist) as a development dependency,
-which allows to run tests in parallel.
+which allows one to run tests in parallel.
 By default, the number of available CPUs is determined automatically,
 but can be set manually:
 ```
 pytest -n 2
 ```
-The random seed has to be fixed to guarantee that the tests are collected in the same order
+A random seed has to be fixed to guarantee that the tests are collected in the same order
 by all workers.
 This is achieved by [pytest-randomly](https://github.com/pytest-dev/pytest-randomly).
 It gives control over the initialization of random seeds and hence allows
