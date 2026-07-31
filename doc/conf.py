@@ -358,6 +358,35 @@ todo_include_todos = True
 
 def setup(app: Sphinx):
     """Add functions to the Sphinx setup."""
+    # Workaround for docs builds: sympy may keep names used only in
+    # TYPE_CHECKING blocks out of ``sympy.core.basic`` at runtime. Then
+    # ``typing.get_type_hints`` (used by sphinx-autodoc-typehints) can fail
+    # when resolving aliases of sympy classes (for example
+    # ``pyrigi.data_type.Inf``). Inject only missing names and leave existing
+    # attributes untouched, so this remains safe if upstream behavior changes.
+    try:
+        from typing import Any, ClassVar, TypeVar, Self
+
+        from sympy.core.assumptions import StdFactKB
+        from sympy.core.symbol import Symbol
+
+        import sympy.core.basic
+
+        fallback_names = {
+            "ClassVar": ClassVar,
+            "TypeVar": TypeVar,
+            "Any": Any,
+            "Self": Self,
+            "StdFactKB": StdFactKB,
+            "Symbol": Symbol,
+        }
+        for name, value in fallback_names.items():
+            if not hasattr(sympy.core.basic, name):
+                setattr(sympy.core.basic, name, value)
+    except ImportError:
+        # Keep docs config resilient if optional imports change.
+        pass
+
     from myst_parser._docs import MystLexer
 
     app.add_lexer("myst", MystLexer)
