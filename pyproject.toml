@@ -94,6 +94,7 @@ markers = [
     "meshing: marks tests using extra meshing",
 ]
 filterwarnings = [
+    "error",
     'ignore::pyrigi.warning.RandomizedAlgorithmWarning',
     'ignore::pyrigi.warning.NumericalAlgorithmWarning',
     'ignore::pyrigi.warning.NumericalCoordinateWarning',
