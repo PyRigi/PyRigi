@@ -56,6 +56,8 @@ pytest = "^9.1.1"
 pytest-doctestplus = "^1.2.1"
 pytest-cov = "^7.1.0"
 flake8-unused-arguments = "^0.0.14"
+pytest-randomly = "^4.1.0"
+pytest-xdist = "^3.8.0"
 
 [tool.poetry.group.doc.dependencies]
 furo = "^2024.8.6"
@@ -87,11 +89,12 @@ testpaths = [
 ]
 addopts = [
     "-m not slow_main and not long_local", # deselect large tests by default
+        # you can run all tests with -m 'not slow_main or slow_main'
+    "-n", "auto", # automatically detect the number of CPUs to run in parallel
     "-ra", # print summary of all fails/errors
     "--strict-config", # force an error if a config setting is misspelled
     "--strict-markers", # force test markers to be specified in config
 ]
-# you can run all tests with -m 'not slow_main or slow_main'
 log_level = "INFO"
 markers = [
     "slow_main: marks slower tests run at merge to main",

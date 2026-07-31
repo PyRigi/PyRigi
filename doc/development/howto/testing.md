@@ -38,6 +38,24 @@ If you do not want to run doctests, run
 pytest -p no:doctestplus
 ```
 
+We add [pytest-xdist](https://github.com/pytest-dev/pytest-xdist) as a development dependency,
+which allows to run tests in parallel.
+By default, the number of available CPUs is determined automatically,
+but can be set manually:
+```
+pytest -n 2
+```
+The random seed has to be fixed to guarantee that the tests are collected in the same order
+by all workers.
+This is achieved by [pytest-randomly](https://github.com/pytest-dev/pytest-randomly).
+It gives control over the initialization of random seeds and hence allows
+reproducibility of failures of random tests:
+```
+pytest --randomly-seed=last
+```
+It also shuffles the tests before running to detect unintentional intertest dependencies.
+The plugin is used automatically, but can be switched off by `pytest -p no:randomly`.
+
 ## Function vs. method testing
 
 As described in [Package Structure](#pkg_structure), most of the functionality of
