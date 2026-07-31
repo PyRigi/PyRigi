@@ -489,7 +489,7 @@ def generate_category_tables(
         if category not in cat_order:
             cat_order.append(category)
 
-    res = "Methods\n-------"
+    res = "Methods\n-------\n"
     for category, functions in sorted(
         categories.items(), key=lambda t: cat_order.index(t[0])
     ):
