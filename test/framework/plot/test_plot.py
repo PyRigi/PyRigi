@@ -1,6 +1,5 @@
 import os
 
-import matplotlib.pyplot as plt
 import pytest
 
 import pyrigi.frameworkDB as fws

@@ -2,7 +2,6 @@ import math
 from itertools import product
 from random import randint
 
-import matplotlib.pyplot as plt
 import networkx as nx
 import pytest
 
