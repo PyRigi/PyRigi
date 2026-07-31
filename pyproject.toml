@@ -58,18 +58,18 @@ pytest-cov = "^7.1.0"
 flake8-unused-arguments = "^0.0.14"
 
 [tool.poetry.group.doc.dependencies]
-furo = "^2024.8.6"
-myst-nb = "^1.2.0"
-sphinx = "^8.2.1"
-sphinx-autobuild = "^2024.10.3"
-sphinx-copybutton = "^0.5.2"
-sphinx-design = "^0.6.1"
-sphinx-math-dollar = "^1.2.1"
-sphinx-proof = "^0.2.0"
-sphinx-tippy = "^0.4.3"
-sphinx-autodoc-typehints = "^3.1.0"
-sphinxcontrib-bibtex = "^2.6.3"
-jupytext = "^1.16.7"
+furo = { version = "^2025.12.19", python = ">=3.12" }
+myst-nb = { version = "^1.2.0", python = ">=3.12" }
+sphinx = { version = "^9.1.0", python = ">=3.12" }
+sphinx-autobuild = { version = "^2025.8.25", python = ">=3.12" }
+sphinx-copybutton = { version = "^0.5.2", python = ">=3.12" }
+sphinx-design = { version = "^0.7.0", python = ">=3.12" }
+sphinx-math-dollar = { version = "^1.2.1", python = ">=3.12" }
+sphinx-proof = { version = "^0.4.0", python = ">=3.12" }
+sphinx-tippy = { version = "^0.4.3", python = ">=3.12" }
+sphinx-autodoc-typehints = { version = "^3.13.0", python = ">=3.12" }
+sphinxcontrib-bibtex = { version = "^2.7.0", python = ">=3.12" }
+jupytext = "^1.19.5"
 setuptools = "^83.0.0"
 
 [build-system]
