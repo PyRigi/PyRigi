@@ -19,7 +19,7 @@ The typical workflow is: open a store, ingest graphs, populate computed columns,
 from pyrigi.graphDB import GraphStoreService, QueryFilter
 
 with GraphStoreService("outputs/graph_store.db") as store:
-    store.ingest("outputs/g6")          # load graph6 files
+    store.ingest("outputs/g6")          # a directory of .g6 files (a single .g6/.g6.gz file also works)
     store.populate_column("rigidity")   # compute the rigidity property
 
     rows = store.fetch(
@@ -44,10 +44,10 @@ store = GraphStoreService(db_path="outputs/graph_store.db", batch_size=500).init
 | `db_path`    | `"outputs/graph_store.db"`   | Path to the SQLite file. Use `":memory:"` for testing.     |
 | `batch_size` | `500`                        | Rows per transaction. Must be `>= 1`, else `ValueError`.   |
 
-`init()` opens the connection and creates the schema. It must be called before any other
-method, is idempotent, and returns the service for chaining. `close()` closes the
-connection. The context-manager form (`with GraphStoreService(...) as store:`) calls
-`init()` and `close()` automatically and is recommended.
+The `init()` method opens the connection and creates the schema. It must be called before
+any other method, is idempotent, and returns the service for chaining. The `close()` method
+closes the connection. The context-manager form (`with GraphStoreService(...) as store:`)
+calls `init()` and `close()` automatically and is recommended.
 
 ## Ingesting graphs
 
@@ -55,8 +55,8 @@ connection. The context-manager form (`with GraphStoreService(...) as store:`) c
 stats = store.ingest("outputs/g6")   # file, .g6.gz, or directory
 ```
 
-`ingest(source, batch_size=None)` accepts a `.g6` file, a `.g6.gz` file, or a directory
-(all `*.g6` and `*.g6.gz` files, in sorted order). Within each file, blank lines and
+The `ingest(source, batch_size=None)` method accepts a `.g6` file, a `.g6.gz` file, or a
+directory (all `*.g6` and `*.g6.gz` files, in sorted order). Within each file, blank lines and
 lines beginning with `>>` are ignored and gzip is handled transparently.
 
 - Undecodable lines are counted as errors and skipped.
@@ -222,14 +222,14 @@ rows = (
 | `order_by(column, asc=True)`, `limit(n)`, `offset(n)` | Ordering and paging.                    |
 
 All three predicate methods may be combined on one builder; their conditions are joined
-with `AND`. `where_any` is a convenience for the common case of OR-ing a few filters;
-`where_expr` handles everything else, including nesting and negation. The builder's
+with `AND`. The `where_any` method is a convenience for the common case of OR-ing a few
+filters; `where_expr` handles everything else, including nesting and negation. The builder's
 `where(filters)` and `where_expr(expr)` correspond to the `filters` and `expr` parameters
 of `fetch`.
 
-`compile()` returns an immutable {class}`~pyrigi.graphDB.query.CompiledQuery` (SQL string
-plus bound parameters) that can be inspected before execution, which is useful for
-debugging and tests.
+The `compile()` method returns an immutable {class}`~pyrigi.graphDB.query.CompiledQuery`
+(SQL string plus bound parameters) that can be inspected before execution, which is useful
+for debugging and tests.
 
 ### Mapping and streaming
 
