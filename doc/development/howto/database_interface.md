@@ -15,6 +15,9 @@ The typical workflow is: open a store, ingest graphs, populate computed columns,
 
 ## Quick start
 
+The following example runs the whole workflow end to end: open a store, ingest graphs,
+compute a property, then query it.
+
 ```python
 from pyrigi.graphDB import GraphStoreService, QueryFilter
 
@@ -35,6 +38,9 @@ entry, and closes the connection on exit.
 
 ## Opening a store
 
+Create a store by giving it a database path and, optionally, a batch size, then activate it
+with `init()`:
+
 ```python
 store = GraphStoreService(db_path="outputs/graph_store.db", batch_size=500).init()
 ```
@@ -50,6 +56,8 @@ closes the connection. The context-manager form (`with GraphStoreService(...) as
 calls `init()` and `close()` automatically and is recommended.
 
 ## Ingesting graphs
+
+Load graphs into the store from graph6 data, either a single file or a whole directory:
 
 ```python
 stats = store.ingest("outputs/g6")   # file, .g6.gz, or directory
@@ -88,6 +96,8 @@ been computed. Their stored encoding is described under
 
 ## Populating columns
 
+Compute the rigidity properties and store them, one column at a time:
+
 ```python
 store.populate_column("rigidity")
 store.populate_column("min_rigidity")
@@ -110,9 +120,26 @@ cached at registration, then the column's importable reference. No populator rai
 `RuntimeError`; an unknown column raises `KeyError`.
 
 A failure on one row is logged at `ERROR` level (with the offending graph6 string) and
-skipped, so one bad graph does not abort the run. Configure a logging handler to observe
-these. Returns a {class}`~pyrigi.graphDB.models.stats.PopulateStats` with fields
-`column`, `processed`, `errors`.
+skipped, so one bad graph does not abort the run. These `ERROR` messages already print to
+stderr by default (Python's last-resort handler shows `WARNING` and above, unformatted).
+Configure logging to format them, or to also see the `INFO`-level operational messages the
+default threshold hides. Do this in your own driver script, before `populate_column`
+(logging is the application's responsibility, not the library's; for example at the top of
+`main()` in `pyrigi/graphDB/scripts/demo.py`):
+
+```python
+import logging
+logging.basicConfig(level=logging.INFO)                 # INFO+ from every library
+# or scope to this subpackage only:
+logging.getLogger("pyrigi.graphDB").setLevel(logging.INFO)
+logging.getLogger("pyrigi.graphDB").addHandler(logging.StreamHandler())
+```
+
+The `pyrigi.graphDB` logger emits per-row populate failures at `ERROR` (with the graph6
+string), ingestion parse/read errors, and `INFO` operational messages.
+
+The method returns a {class}`~pyrigi.graphDB.models.stats.PopulateStats` with fields
+`column`, `processed`, and `errors`.
 
 ## Querying
 
@@ -135,6 +162,9 @@ An unknown operator raises `ValueError`. The form of `value`:
 
 ### One-line queries with `fetch`
 
+The `fetch` method runs a whole query in a single call, taking the columns, filters,
+ordering, and paging as arguments:
+
 ```python
 rows = store.fetch(
     select=["graph", "num_vertices"],
@@ -145,7 +175,10 @@ rows = store.fetch(
 )
 ```
 
-`fetch` returns a list of row dictionaries. Parameters:
+This returns up to ten graphs on exactly seven vertices, ordered from most to fewest edges,
+giving each graph's graph6 string and vertex count.
+
+The `fetch` method returns a list of row dictionaries. Parameters:
 
 | Parameter  | Meaning                                                          |
 |------------|------------------------------------------------------------------|
@@ -186,6 +219,9 @@ expr = all_of(
 )
 rows = store.fetch(select=["graph"], expr=expr)
 ```
+
+This returns the graphs on six vertices that are 2-rigid or globally 2-rigid but not
+minimally 2-rigid.
 
 The helpers are shorthand for the node classes
 {class}`~pyrigi.graphDB.models.expressions.AndExpr`,
@@ -321,6 +357,9 @@ stored as $-1$, using the same sentinel as the `rigidity` column.
 
 ## Custom columns
 
+Register a column of your own to store an additional computed property. The example below
+adds a `density` column and fills it from the edge and vertex counts:
+
 ```python
 store.add_column(
     "density",
@@ -372,6 +411,8 @@ references and are always available.
 | `get_column(name)`           | `ColumnDef` for one column, or `None`.                               |
 
 ## Displaying results
+
+Print a result set as a formatted table:
 
 ```python
 store.pretty_print_results(rows, show_index=True)
