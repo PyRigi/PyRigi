@@ -3,7 +3,15 @@
 import pytest
 import networkx as nx
 
-from pyrigi.graphDB import AndExpr, GraphStoreService, OrExpr, QueryFilter
+from pyrigi.graph import Graph
+from pyrigi.graphDB import (
+    AndExpr,
+    GraphStoreService,
+    OrExpr,
+    QueryFilter,
+    to_networkx,
+    to_pyrigi,
+)
 
 
 @pytest.fixture
@@ -347,6 +355,44 @@ class TestFetch:
         )
         assert len(graphs) == 3
         assert all(isinstance(g, nx.Graph) for g in graphs)
+
+    def test_fetch_with_to_networkx_mapper(self, store_with_data):
+        graphs = store_with_data.fetch(
+            select=["graph"],
+            filters=[QueryFilter("num_vertices", "=", 5)],
+            mapper=to_networkx,
+        )
+        assert len(graphs) == 3
+        # plain networkx graphs, not pyrigi Graph subclass
+        assert all(type(g) is nx.Graph for g in graphs)
+        assert sorted(g.number_of_edges() for g in graphs) == [4, 5, 10]
+
+    def test_fetch_with_to_pyrigi_mapper(self, store_with_data):
+        graphs = store_with_data.fetch(
+            select=["graph"],
+            filters=[QueryFilter("num_vertices", "=", 5)],
+            mapper=to_pyrigi,
+        )
+        assert len(graphs) == 3
+        assert all(isinstance(g, Graph) for g in graphs)
+        assert sorted(g.number_of_edges() for g in graphs) == [4, 5, 10]
+
+    def test_graph_mapper_without_graph_column_raises_clear_error(self, store_with_data):
+        with pytest.raises(KeyError, match="no 'graph' column"):
+            store_with_data.fetch(select=["num_edges"], mapper=to_networkx)
+        with pytest.raises(KeyError, match="no 'graph' column"):
+            store_with_data.fetch(select=["num_edges"], mapper=to_pyrigi)
+
+    def test_iter_fetch_with_to_pyrigi_mapper(self, store_with_data):
+        graphs = list(
+            store_with_data.iter_fetch(
+                select=["graph"],
+                filters=[QueryFilter("num_vertices", "=", 5)],
+                mapper=to_pyrigi,
+            )
+        )
+        assert len(graphs) == 3
+        assert all(isinstance(g, Graph) for g in graphs)
 
     def test_fetch_with_mapper_materializes_mapped_results(self, store_with_data):
         values = store_with_data.fetch(

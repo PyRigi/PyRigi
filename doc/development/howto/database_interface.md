@@ -269,17 +269,22 @@ for debugging and tests.
 
 ### Mapping and streaming
 
-`mapper` transforms each row, for example decoding graph6 strings back to `networkx`
-graphs:
+`mapper` transforms each row. The most common need, turning the stored graph6 strings back
+into graph objects, is covered by two ready-made mappers, `to_networkx` and `to_pyrigi`:
 
 ```python
-import networkx as nx
+from pyrigi.graphDB import to_networkx, to_pyrigi
 
-graphs = store.fetch(
-    select=["graph"],
-    mapper=lambda row: nx.from_graph6_bytes(row["graph"].encode("ascii")),
-)
+# pyrigi.Graph objects (a networkx.Graph subclass, with PyRigi's rigidity methods)
+graphs = store.fetch(select=["graph"], mapper=to_pyrigi)
+
+# plain networkx.Graph objects
+nx_graphs = store.fetch(select=["graph"], mapper=to_networkx)
 ```
+
+Both read the `graph` column, so the query must select it (include `"graph"` in `select`,
+or use `select=None`), and both work the same way with `iter_fetch`. Any other callable is
+still accepted for custom transforms.
 
 `fetch` builds the full list in memory. For very large results, `iter_fetch` takes the
 same arguments but yields rows one at a time:
@@ -289,15 +294,27 @@ for row in store.iter_fetch(filters=[QueryFilter("num_vertices", "=", 8)]):
     ...
 ```
 
-## Rigidity-aware querying
+(rigidity-column-encoding)=
+## Rigidity columns: encoding and queries
 
-The `rigidity` and `global_rigidity` columns store the *maximum* dimension in which a
-graph is rigid, and complete graphs (rigid in every dimension) are stored with the
-sentinel `-1`. A graph is therefore d-rigid for every dimension up to its stored maximum.
-The three rigidity columns accept only `=`, `IN`, `IS NULL`, `IS NOT NULL` (any other
-operator raises `ValueError`). On these columns `=` means "is d-rigid": the query layer
-rewrites `rigidity = d` to match every graph whose stored value is at least `d`, plus
-every complete graph.
+The three rigidity columns store integer encodings of rigidity-theoretic properties, and
+the query layer exposes them through a small operator set so callers need not handle the
+encoding directly. All three accept only `=`, `IN`, `IS NULL`, and `IS NOT NULL`; any other
+operator raises `ValueError`. Every graph in the database is assumed to have at least two
+vertices.
+
+### Rigidity and global rigidity
+
+**Encoding.** The stored value is the {prf:ref}`maximum rigid dimension
+<def-max-rigid-dimension>` (respectively the {prf:ref}`maximum globally rigid dimension
+<def-max-globally-rigid-dimension>`), so a graph is $d$-rigid if and only if $d$ is at most
+the stored value. Complete graphs, rigid in every dimension, are stored as the sentinel
+$-1$; since $-1$ is not a valid dimension, the sentinel is unambiguous.
+
+**Querying.** Because a graph is rigid in every dimension up to its stored maximum, `=`
+means "is d-rigid": the query layer rewrites `rigidity = d` to match every graph whose
+stored value is at least `d`, plus every complete graph. `IN` is the disjunction of such
+tests.
 
 ```python
 # graphs that are 2-rigid (stored maximum >= 2), plus complete graphs
@@ -307,33 +324,17 @@ store.fetch(filters=[QueryFilter("rigidity", "IN", [1, 2])])
 ```
 
 Because the property is monotone, `rigidity = 1` returns every connected graph (all are
-1-rigid), while `rigidity = 2` returns the strictly smaller set that is also 2-rigid.
-
-`min_rigidity` behaves differently: minimal d-rigidity is not monotone, so
-`min_rigidity = d` matches graphs that are *minimally* d-rigid, an exact property, as
-described under [Rigidity column encoding](#rigidity-column-encoding).
-
-(rigidity-column-encoding)=
-## Rigidity column encoding
-
-The three rigidity columns store integer encodings of rigidity-theoretic properties.
-Every graph in the database is assumed to have at least two vertices.
-
-### Rigidity
-
-The stored value is the {prf:ref}`maximum rigid dimension <def-max-rigid-dimension>`, so a
-graph is $d$-rigid if and only if $d$ is at most the stored value. Complete graphs, which
-are rigid in every dimension, are stored as $-1$. Since $-1$ is not a valid rigidity
-dimension, the sentinel is unambiguous.
+1-rigid), while `rigidity = 2` returns the strictly smaller set that is also 2-rigid. The
+`global_rigidity` column behaves identically with its own maximum.
 
 (encoding-min-rigidity)=
 ### Minimal rigidity
 
-Let $G=(V,E)$ be a connected graph with at least two vertices. If $G$ is complete, then $G$
-is minimally $d$-rigid for all $|V|-1 \leq d$ and is not minimally $d$-rigid for any
-$1\leq d<|V|-1$ (see {prf:ref}`thm-gen-rigidity-small-complete`). If $G$ is not complete,
-there is at most one $d\in\NN$ such that $G$ is minimally $d$-rigid (it follows from
-{prf:ref}`thm-gen-rigidity-tight`). The stored value is therefore:
+**Encoding.** Let $G=(V,E)$ be a connected graph with at least two vertices. If $G$ is
+complete, then $G$ is minimally $d$-rigid for all $|V|-1 \leq d$ and is not minimally
+$d$-rigid for any $1\leq d<|V|-1$ (see {prf:ref}`thm-gen-rigidity-small-complete`). If $G$
+is not complete, there is at most one $d\in\NN$ such that $G$ is minimally $d$-rigid (it
+follows from {prf:ref}`thm-gen-rigidity-tight`). The stored value is therefore:
 
 \begin{equation*}
     d_\text{min} =
@@ -344,16 +345,13 @@ there is at most one $d\in\NN$ such that $G$ is minimally $d$-rigid (it follows 
         \end{cases}
 \end{equation*}
 
-Conversely, a graph is minimally $d$-rigid if and only if $d=d_\text{min}$, or
-$d_\text{min}<0$ and $|d_\text{min}| \leq d$. The encoding is computed by
+A graph is minimally $d$-rigid if and only if $d=d_\text{min}$, or $d_\text{min}<0$ and
+$|d_\text{min}| \leq d$. The encoding is computed by
 `pyrigi.graphDB.small_graphs._min_rigidity_dimension_encoding`.
 
-### Global rigidity
-
-The stored value is the
-{prf:ref}`maximum globally rigid dimension <def-max-globally-rigid-dimension>`, so a graph
-is globally $d$-rigid if and only if $d$ is at most the stored value. Complete graphs are
-stored as $-1$, using the same sentinel as the `rigidity` column.
+**Querying.** Minimal $d$-rigidity is not monotone, so, unlike the other two columns,
+`min_rigidity = d` matches graphs that are *exactly* minimally $d$-rigid. The `=` expansion
+covers both branches of the encoding (the non-complete value and the complete-graph range).
 
 ## Custom columns
 

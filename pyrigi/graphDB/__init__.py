@@ -71,6 +71,7 @@ from pyrigi.graphDB.models import (
 )
 from pyrigi.graphDB.query import QueryBuilder
 from pyrigi.graphDB.service import GraphStoreService
+from pyrigi.graphDB.utils import to_networkx, to_pyrigi
 
 __all__ = [
     # Graph generators
@@ -112,4 +113,6 @@ __all__ = [
     "IngestStats",
     "PopulateStats",
     "QueryBuilder",
+    "to_networkx",
+    "to_pyrigi",
 ]
