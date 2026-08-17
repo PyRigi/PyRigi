@@ -1,7 +1,7 @@
 """
 pyrigi.graphDB.models.filters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-:class:`QueryFilter` — a single WHERE-clause predicate.
+:class:`QueryFilter`: a single WHERE-clause predicate.
 """
 
 from __future__ import annotations

@@ -85,7 +85,7 @@ class DatabaseManager:
     def bootstrap(self) -> None:
         """Create core tables and seed the default registry rows.
 
-        Idempotent — safe to call on an already-initialised database.
+        Idempotent, safe to call on an already-initialised database.
         """
         conn = self.connection
         with conn:

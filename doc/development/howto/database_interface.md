@@ -39,7 +39,7 @@ entry, and closes the connection on exit.
 ## Opening a store
 
 Create a store by giving it a database path and, optionally, a batch size, then activate it
-with `init()`:
+with {meth}`~pyrigi.graphDB.service.GraphStoreService.init`:
 
 ```python
 store = GraphStoreService(db_path="outputs/graph_store.db", batch_size=500).init()
@@ -51,7 +51,7 @@ store = GraphStoreService(db_path="outputs/graph_store.db", batch_size=500).init
 | `batch_size` | `500`                        | Rows per transaction. Must be `>= 1`, else `ValueError`.   |
 
 The `init()` method opens the connection and creates the schema. It must be called before
-any other method, is idempotent, and returns the service for chaining. The `close()` method
+any other method, is idempotent, and returns the service for chaining. The {meth}`~pyrigi.graphDB.service.GraphStoreService.close` method
 closes the connection. The context-manager form (`with GraphStoreService(...) as store:`)
 calls `init()` and `close()` automatically and is recommended.
 
@@ -63,7 +63,7 @@ Load graphs into the store from graph6 data, either a single file or a whole dir
 stats = store.ingest("outputs/g6")   # file, .g6.gz, or directory
 ```
 
-The `ingest(source, batch_size=None)` method accepts a `.g6` file, a `.g6.gz` file, or a
+The {meth}`ingest(source, batch_size=None) <pyrigi.graphDB.service.GraphStoreService.ingest>` method accepts a `.g6` file, a `.g6.gz` file, or a
 directory (all `*.g6` and `*.g6.gz` files, in sorted order). Within each file, blank lines and
 lines beginning with `>>` are ignored and gzip is handled transparently.
 
@@ -107,13 +107,13 @@ store.populate_column("global_rigidity")
 The rigidity properties are computed on demand because they are far more expensive than
 the structural columns.
 
-`populate_column(column, *, populator=None, batch_size=None, all_rows=False)`:
+{meth}`populate_column(column, *, populator=None, batch_size=None, recompute_all=False) <pyrigi.graphDB.service.GraphStoreService.populate_column>`:
 
 | Argument     | Effect                                                                       |
 |--------------|------------------------------------------------------------------------------|
 | `populator`  | Override the registered populator for this call only.                        |
 | `batch_size` | Override the instance default for this call.                                 |
-| `all_rows`   | `True` recomputes every row; `False` (default) computes only `NULL` rows.    |
+| `recompute_all` | `True` recomputes every row; `False` (default) computes only `NULL` rows.  |
 
 The populator is resolved in order: the `populator` argument, then an in-memory callable
 cached at registration, then the column's importable reference. No populator raises
@@ -162,7 +162,7 @@ An unknown operator raises `ValueError`. The form of `value`:
 
 ### One-line queries with `fetch`
 
-The `fetch` method runs a whole query in a single call, taking the columns, filters,
+The {meth}`~pyrigi.graphDB.service.GraphStoreService.fetch` method runs a whole query in a single call, taking the columns, filters,
 ordering, and paging as arguments:
 
 ```python
@@ -170,7 +170,7 @@ rows = store.fetch(
     select=["graph", "num_vertices"],
     filters=[QueryFilter("num_vertices", "=", 7)],
     order_by="num_edges",
-    asc=False,
+    ascending=False,
     limit=10,
 )
 ```
@@ -186,7 +186,7 @@ The `fetch` method returns a list of row dictionaries. Parameters:
 | `filters`  | List of `QueryFilter`, combined with `AND`.                      |
 | `expr`     | Optional grouped boolean expression (see below).                 |
 | `order_by` | Column to sort by.                                               |
-| `asc`      | Ascending if `True` (default), descending if `False`.            |
+| `ascending` | Ascending if `True` (default), descending if `False`.           |
 | `limit`    | Maximum rows to return.                                          |
 | `offset`   | Leading rows to skip; requires `limit`.                          |
 | `mapper`   | Function applied to each row dictionary before it is returned.   |
@@ -198,11 +198,11 @@ groups, negation, nesting) is built as an expression tree using three helpers:
 
 | Helper           | Builds                              |
 |------------------|-------------------------------------|
-| `all_of(*exprs)` | an `AND` over its arguments         |
-| `any_of(*exprs)` | an `OR` over its arguments          |
-| `not_(expr)`     | the negation of one expression      |
+| {func}`all_of(*exprs) <pyrigi.graphDB.models.expressions.all_of>` | an `AND` over its arguments |
+| {func}`any_of(*exprs) <pyrigi.graphDB.models.expressions.any_of>` | an `OR` over its arguments |
+| {func}`not_(expr) <pyrigi.graphDB.models.expressions.not_>`     | the negation of one expression |
 
-The tree is passed to the `expr` parameter of `fetch` (or to `where_expr` on the
+The tree is passed to the `expr` parameter of {meth}`~pyrigi.graphDB.service.GraphStoreService.fetch` (or to {meth}`~pyrigi.graphDB.query.QueryBuilder.where_expr` on the
 builder). Helpers nest to any depth and may contain `QueryFilter` leaves or other
 helpers:
 
@@ -233,8 +233,9 @@ require at least one child, otherwise they raise `ValueError`.
 
 ### The fluent builder
 
-`store.query()` returns a {class}`~pyrigi.graphDB.query.QueryBuilder` whose methods chain;
-`fetch` runs the query:
+{meth}`store.query() <pyrigi.graphDB.service.GraphStoreService.query>` returns a
+{class}`~pyrigi.graphDB.query.QueryBuilder` whose methods chain;
+{meth}`~pyrigi.graphDB.query.QueryBuilder.fetch` runs the query:
 
 ```python
 rows = (
@@ -242,7 +243,7 @@ rows = (
     .select(["graph", "num_edges"])
     .where([QueryFilter("num_vertices", "=", 5)])
     .where_any([QueryFilter("num_edges", "=", 4), QueryFilter("num_edges", "=", 5)])
-    .order_by("num_edges", asc=False)
+    .order_by("num_edges", ascending=False)
     .limit(20)
     .fetch()
 )
@@ -250,12 +251,12 @@ rows = (
 
 | Method                          | Effect                                                        |
 |---------------------------------|---------------------------------------------------------------|
-| `select(columns)`               | Choose returned columns (default all).                        |
-| `where(filters)`                | Add `AND` predicates; calls accumulate.                       |
-| `where_any(filters)`            | Add an `OR` group of filters (shortcut for `where_expr(any_of(...))`). |
-| `where_expr(expr)`              | Add any expression tree (the general form).                   |
-| `filter(column, operator, value)` | Add one predicate without building a `QueryFilter`.         |
-| `order_by(column, asc=True)`, `limit(n)`, `offset(n)` | Ordering and paging.                    |
+| {meth}`select(columns) <pyrigi.graphDB.query.QueryBuilder.select>` | Choose returned columns (default all). |
+| {meth}`where(filters) <pyrigi.graphDB.query.QueryBuilder.where>` | Add `AND` predicates; calls accumulate. |
+| {meth}`where_any(filters) <pyrigi.graphDB.query.QueryBuilder.where_any>` | Add an `OR` group of filters (shortcut for `where_expr(any_of(...))`). |
+| {meth}`where_expr(expr) <pyrigi.graphDB.query.QueryBuilder.where_expr>` | Add any expression tree (the general form). |
+| {meth}`filter(column, operator, value) <pyrigi.graphDB.query.QueryBuilder.filter>` | Add one predicate without building a `QueryFilter`. |
+| {meth}`order_by(column, ascending=True) <pyrigi.graphDB.query.QueryBuilder.order_by>`, {meth}`limit(n) <pyrigi.graphDB.query.QueryBuilder.limit>`, {meth}`offset(n) <pyrigi.graphDB.query.QueryBuilder.offset>` | Ordering and paging. |
 
 All three predicate methods may be combined on one builder; their conditions are joined
 with `AND`. The `where_any` method is a convenience for the common case of OR-ing a few
@@ -263,14 +264,16 @@ filters; `where_expr` handles everything else, including nesting and negation. T
 `where(filters)` and `where_expr(expr)` correspond to the `filters` and `expr` parameters
 of `fetch`.
 
-The `compile()` method returns an immutable {class}`~pyrigi.graphDB.query.CompiledQuery`
+The {meth}`~pyrigi.graphDB.query.QueryBuilder.compile` method returns an immutable {class}`~pyrigi.graphDB.query.CompiledQuery`
 (SQL string plus bound parameters) that can be inspected before execution, which is useful
 for debugging and tests.
 
 ### Mapping and streaming
 
 `mapper` transforms each row. The most common need, turning the stored graph6 strings back
-into graph objects, is covered by two ready-made mappers, `to_networkx` and `to_pyrigi`:
+into graph objects, is covered by two ready-made mappers,
+{func}`~pyrigi.graphDB.utils.mappers.to_networkx` and
+{func}`~pyrigi.graphDB.utils.mappers.to_pyrigi`:
 
 ```python
 from pyrigi.graphDB import to_networkx, to_pyrigi
@@ -283,10 +286,11 @@ nx_graphs = store.fetch(select=["graph"], mapper=to_networkx)
 ```
 
 Both read the `graph` column, so the query must select it (include `"graph"` in `select`,
-or use `select=None`), and both work the same way with `iter_fetch`. Any other callable is
+or use `select=None`), and both work the same way with
+{meth}`~pyrigi.graphDB.service.GraphStoreService.iter_fetch`. Any other callable is
 still accepted for custom transforms.
 
-`fetch` builds the full list in memory. For very large results, `iter_fetch` takes the
+{meth}`~pyrigi.graphDB.service.GraphStoreService.fetch` builds the full list in memory. For very large results, `iter_fetch` takes the
 same arguments but yields rows one at a time:
 
 ```python
@@ -371,7 +375,7 @@ store.add_column(
 store.populate_column("density")
 ```
 
-`add_column(name, data_type="INTEGER", description="", *, ...)` keyword-only arguments:
+{meth}`add_column(name, data_type="INTEGER", description="", *, ...) <pyrigi.graphDB.service.GraphStoreService.add_column>` keyword-only arguments:
 
 | Argument          | Purpose                                                                  |
 |-------------------|--------------------------------------------------------------------------|
@@ -392,21 +396,21 @@ references and are always available.
 
 | Method                                               | Effect                                                                 |
 |------------------------------------------------------|------------------------------------------------------------------------|
-| `update_column_populator(name, ...)`                 | Replace a column's populator (e.g. attach a custom rigidity solver).   |
-| `update_column_fetch_strategy(name, ...)`            | Replace a column's fetch strategy; re-register runtime ones each session. |
-| `drop_column(name)`                                  | Remove a custom column (defaults cannot be dropped; missing raises `KeyError`). |
-| `delete_graph(g6)`                                   | Delete one row by graph6 string; returns `True` if found.              |
-| `delete_where(filters=None, expr=None)`              | Delete all matching rows; returns the count. No arguments deletes all. |
+| {meth}`update_column_populator(name, ...) <pyrigi.graphDB.service.GraphStoreService.update_column_populator>` | Replace a column's populator (e.g. attach a custom rigidity solver). |
+| {meth}`update_column_fetch_strategy(name, ...) <pyrigi.graphDB.service.GraphStoreService.update_column_fetch_strategy>` | Replace a column's fetch strategy; re-register runtime ones each session. |
+| {meth}`drop_column(name) <pyrigi.graphDB.service.GraphStoreService.drop_column>` | Remove a custom column (defaults cannot be dropped; missing raises `KeyError`). |
+| {meth}`delete_graph(g6) <pyrigi.graphDB.service.GraphStoreService.delete_graph>` | Delete one row by graph6 string; returns `True` if found. |
+| {meth}`delete_where(filters=None, expr=None) <pyrigi.graphDB.service.GraphStoreService.delete_where>` | Delete all matching rows; returns the count. No arguments deletes all. |
 
 ## Inspecting the store
 
 | Method                       | Returns                                                              |
 |------------------------------|----------------------------------------------------------------------|
-| `count()`                    | Total number of graphs.                                              |
-| `count_unpopulated(column)`  | Number of rows where `column` is `NULL`.                             |
-| `info()`                     | Dict with `total_graphs` and `columns` (`name`, `type`, `default`, `description`, `has_populator`). |
-| `list_columns()`             | {class}`~pyrigi.graphDB.models.column_def.ColumnDef` objects for all columns. |
-| `get_column(name)`           | `ColumnDef` for one column, or `None`.                               |
+| {meth}`~pyrigi.graphDB.service.GraphStoreService.count` | Total number of graphs. |
+| {meth}`count_unpopulated(column) <pyrigi.graphDB.service.GraphStoreService.count_unpopulated>` | Number of rows where `column` is `NULL`. |
+| {meth}`~pyrigi.graphDB.service.GraphStoreService.info` | Dict with `total_graphs` and `columns` (`name`, `type`, `default`, `description`, `has_populator`). |
+| {meth}`~pyrigi.graphDB.service.GraphStoreService.list_columns` | {class}`~pyrigi.graphDB.models.column_def.ColumnDef` objects for all columns. |
+| {meth}`get_column(name) <pyrigi.graphDB.service.GraphStoreService.get_column>` | `ColumnDef` for one column, or `None`. |
 
 ## Displaying results
 
@@ -416,7 +420,7 @@ Print a result set as a formatted table:
 store.pretty_print_results(rows, show_index=True)
 ```
 
-`format_results` returns the ASCII table as a string; `pretty_print_results` prints it
+{meth}`~pyrigi.graphDB.service.GraphStoreService.format_results` returns the ASCII table as a string; {meth}`~pyrigi.graphDB.service.GraphStoreService.pretty_print_results` prints it
 and returns it. Both take the same keyword-only arguments:
 
 | Argument        | Default | Notes                                                          |
@@ -428,7 +432,7 @@ and returns it. Both take the same keyword-only arguments:
 
 `pretty_print_results` also takes `file` (default standard output). An empty result
 renders as `(no rows)`. The fluent builder exposes the same two helpers as
-`format_results` and `pretty_print`.
+`format_results` and {meth}`~pyrigi.graphDB.query.QueryBuilder.pretty_print`.
 
 ## Advanced: custom fetch strategies
 
@@ -436,13 +440,13 @@ A fetch strategy controls how a `QueryFilter` becomes SQL. Its signature is
 `(column, operator, value) -> (sql_fragment, params)`. Columns without one use a default
 pass-through that handles all operators. A custom strategy is needed when a column's
 storage encoding differs from how it is queried; the rigidity columns are the built-in
-example. Supply it through the `fetch_strategy` argument of `add_column`, or persistently
+example. Supply it through the `fetch_strategy` argument of {meth}`~pyrigi.graphDB.service.GraphStoreService.add_column`, or persistently
 through `fetch_ref`.
 
 ## Reference
 
-`IngestStats` (from `ingest`): `inserted`, `skipped`, `errors`, `files_processed`.
-`PopulateStats` (from `populate_column`): `column`, `processed`, `errors`.
+`IngestStats` (from {meth}`~pyrigi.graphDB.service.GraphStoreService.ingest`): `inserted`, `skipped`, `errors`, `files_processed`.
+`PopulateStats` (from {meth}`~pyrigi.graphDB.service.GraphStoreService.populate_column`): `column`, `processed`, `errors`.
 
 **See also**
 

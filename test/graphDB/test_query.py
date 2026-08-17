@@ -120,7 +120,9 @@ class TestQueryBuilder:
         assert "ORDER BY num_vertices ASC" in compiled.sql
 
     def test_order_by_desc(self, registry):
-        compiled = QueryBuilder(registry).order_by("num_edges", asc=False).compile()
+        compiled = (
+            QueryBuilder(registry).order_by("num_edges", ascending=False).compile()
+        )
         assert "ORDER BY num_edges DESC" in compiled.sql
 
     def test_limit(self, registry):

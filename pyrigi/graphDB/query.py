@@ -129,10 +129,10 @@ class QueryBuilder:
         self._filters.append(QueryFilter(column=column, operator=operator, value=value))
         return self
 
-    def order_by(self, column: str, asc: bool = True) -> "QueryBuilder":
+    def order_by(self, column: str, ascending: bool = True) -> "QueryBuilder":
         """Set ORDER BY clause."""
         self._order_col = column
-        self._order_asc = asc
+        self._order_asc = ascending
         return self
 
     def limit(self, n: int) -> "QueryBuilder":
@@ -178,7 +178,7 @@ class QueryBuilder:
     def compile_delete(self) -> CompiledQuery:
         """Assemble a ``DELETE FROM graphs`` statement from the current filters.
 
-        ORDER BY, LIMIT, and OFFSET are ignored — they are not valid in a
+        ORDER BY, LIMIT, and OFFSET are ignored because they are not valid in a
         DELETE statement.  If no filters are set, all rows are deleted.
 
         Returns
@@ -229,7 +229,7 @@ class QueryBuilder:
         if col_def is not None:
             return col_def.resolve_fetch_strategy()
 
-        # Unknown column — fall back to pass-through
+        # Unknown column, fall back to pass-through
         from pyrigi.graphDB.models.resolvers import _default_fetch_strategy
 
         return _default_fetch_strategy

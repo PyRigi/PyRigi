@@ -1,7 +1,7 @@
 """
 pyrigi.graphDB.ingestion.default_computer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-:class:`DefaultColumnComputer` — computes the always-populated default
+:class:`DefaultColumnComputer`: computes the always-populated default
 columns in a single pass over a decoded networkx Graph.
 """
 

@@ -1,7 +1,7 @@
 """
 pyrigi.graphDB.repositories
 ~~~~~~~~~~~~~~~~~~~~~
-Data-access layer — one class per repository.
+Data-access layer, one class per repository.
 
 Re-exports both repository classes for convenient imports::
 

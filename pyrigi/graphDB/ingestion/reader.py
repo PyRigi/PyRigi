@@ -1,7 +1,7 @@
 """
 pyrigi.graphDB.ingestion.reader
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-:class:`G6Reader` — iterates over graph6 strings from files or directories.
+:class:`G6Reader`: iterates over graph6 strings from files or directories.
 """
 
 from __future__ import annotations

@@ -29,9 +29,9 @@ Minimal-rigidity encoding
 --------------------------
 The stored value uses a three-way encoding:
 
-* ``-(n-1)``  — complete graph on n vertices (minimally d-rigid for all d ≥ n-1)
-* ``d``       — non-complete graph that is minimally d-rigid
-* ``0``       — not minimally rigid for any d
+* ``-(n-1)``: complete graph on n vertices (minimally d-rigid for all d ≥ n-1)
+* ``d``: non-complete graph that is minimally d-rigid
+* ``0``: not minimally rigid for any d
 
 A graph is minimally d-rigid iff ``stored = d`` OR
 ``(stored < 0 AND stored >= -d)``  (the complete-graph case).

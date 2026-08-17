@@ -225,11 +225,11 @@ class TestPopulateColumn:
         rows = store_with_data.fetch(select=["num_edges", "batch_test"])
         assert all(r["batch_test"] == r["num_edges"] for r in rows)
 
-    def test_populate_all_rows_has_access_to_all_fields(self, store_with_data):
+    def test_populate_recompute_all_has_access_to_all_fields(self, store_with_data):
         store_with_data.add_column("density", "REAL")
         stats = store_with_data.populate_column(
             "density",
-            all_rows=True,
+            recompute_all=True,
             populator=lambda row: row["num_edges"]
             / (row["num_vertices"] * (row["num_vertices"] - 1) / 2),
         )
@@ -279,12 +279,12 @@ class TestFetch:
 
     def test_fetch_with_offset(self, store_with_data):
         all_rows = store_with_data.fetch(
-            select=["num_edges"], order_by="num_edges", asc=True
+            select=["num_edges"], order_by="num_edges", ascending=True
         )
         offset_rows = store_with_data.fetch(
             select=["num_edges"],
             order_by="num_edges",
-            asc=True,
+            ascending=True,
             limit=10,
             offset=1,
         )
@@ -298,7 +298,7 @@ class TestFetch:
         rows = store_with_data.fetch(
             select=["num_edges"],
             order_by="num_edges",
-            asc=True,
+            ascending=True,
         )
         edges = [r["num_edges"] for r in rows]
         assert edges == sorted(edges)
@@ -307,7 +307,7 @@ class TestFetch:
         rows = store_with_data.fetch(
             select=["num_edges"],
             order_by="num_edges",
-            asc=False,
+            ascending=False,
         )
         edges = [r["num_edges"] for r in rows]
         assert edges == sorted(edges, reverse=True)
@@ -377,7 +377,9 @@ class TestFetch:
         assert all(isinstance(g, Graph) for g in graphs)
         assert sorted(g.number_of_edges() for g in graphs) == [4, 5, 10]
 
-    def test_graph_mapper_without_graph_column_raises_clear_error(self, store_with_data):
+    def test_graph_mapper_without_graph_column_raises_clear_error(
+        self, store_with_data
+    ):
         with pytest.raises(KeyError, match="no 'graph' column"):
             store_with_data.fetch(select=["num_edges"], mapper=to_networkx)
         with pytest.raises(KeyError, match="no 'graph' column"):

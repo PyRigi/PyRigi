@@ -389,7 +389,7 @@ class GraphStoreService:
         *,
         populator: Optional[Callable[[dict], Any]] = None,
         batch_size: Optional[int] = None,
-        all_rows: bool = False,
+        recompute_all: bool = False,
     ) -> PopulateStats:
         """Compute and store values for *column* across all matching rows.
 
@@ -401,7 +401,7 @@ class GraphStoreService:
             Override the registered populator for this call only.
         batch_size:
             How many rows to fetch per iteration (default: instance default).
-        all_rows:
+        recompute_all:
             If ``True``, re-populate every row (overwrite existing values).
             If ``False`` (default), only rows where *column* IS NULL are
             updated.
@@ -438,7 +438,9 @@ class GraphStoreService:
         bs = self._resolve_batch_size(batch_size)
         stats = PopulateStats(column=column)
         iterator = (
-            self._repo.iter_all() if all_rows else self._repo.iter_unpopulated(column)
+            self._repo.iter_all()
+            if recompute_all
+            else self._repo.iter_unpopulated(column)
         )
         pending: list[tuple[Any, int]] = []
 
@@ -550,7 +552,7 @@ class GraphStoreService:
         filters: Optional[list[QueryFilter]] = None,
         expr: Optional[QueryExpr] = None,
         order_by: Optional[str] = None,
-        asc: bool = True,
+        ascending: bool = True,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
         mapper: Optional[Callable[[dict], Any]] = None,
@@ -569,7 +571,7 @@ class GraphStoreService:
             Optional grouped boolean predicate expression.
         order_by:
             Column name to sort by.
-        asc:
+        ascending:
             Sort ascending if ``True`` (default), descending if ``False``.
         limit:
             Maximum number of rows to return.
@@ -590,7 +592,7 @@ class GraphStoreService:
                 filters=filters,
                 expr=expr,
                 order_by=order_by,
-                asc=asc,
+                ascending=ascending,
                 limit=limit,
                 offset=offset,
                 mapper=mapper,
@@ -603,7 +605,7 @@ class GraphStoreService:
         filters: Optional[list[QueryFilter]] = None,
         expr: Optional[QueryExpr] = None,
         order_by: Optional[str] = None,
-        asc: bool = True,
+        ascending: bool = True,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
         mapper: Optional[Callable[[dict], Any]] = None,
@@ -620,7 +622,7 @@ class GraphStoreService:
         if expr is not None:
             builder.where_expr(expr)
         if order_by:
-            builder.order_by(order_by, asc=asc)
+            builder.order_by(order_by, ascending=ascending)
         if limit is not None:
             builder.limit(limit)
         if offset is not None:

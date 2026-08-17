@@ -8,8 +8,9 @@ and provides a typed, composable query layer over them. The single entry point i
 {class}`~pyrigi.graphDB.models.column_def.ColumnDef`, and the statistics containers)
 support its query and reporting interface.
 
-For a step-by-step walkthrough with explanations, see the how-to guide
-{ref}`graph-database-interface`.
+PyRigi does not distribute a populated database. Build one yourself by opening a store and
+ingesting your own graph6 files; the how-to guide {ref}`graph-database-interface` walks
+through the full workflow.
 
 ## Examples
 
@@ -64,6 +65,13 @@ with GraphStoreService("outputs/graph_store.db") as store:
    :members:
 
 .. automodule:: pyrigi.graphDB.models.expressions
+   :members:
+```
+
+## Result mapping
+
+```{eval-rst}
+.. automodule:: pyrigi.graphDB.utils.mappers
    :members:
 ```
 

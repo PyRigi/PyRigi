@@ -14,7 +14,7 @@ def main() -> None:
     store.populate_column("rigidity")
     store.populate_column("global_rigidity")
 
-    # 3. Basic fetch — filters, ordering, pretty-print
+    # 3. Basic fetch: filters, ordering, pretty-print
     store.pretty_print_results(
         store.fetch(
             select=[
@@ -82,12 +82,12 @@ def main() -> None:
         .where_any(
             [QueryFilter("num_vertices", "=", 5), QueryFilter("num_vertices", "=", 7)]
         )
-        .order_by("density", asc=False)
+        .order_by("density", ascending=False)
         .limit(5)
         .pretty_print(show_index=True)
     )
 
-    # 6. Streaming with a mapper — yields networkx Graph objects
+    # 6. Streaming with a mapper: yields networkx Graph objects
     for g in store.iter_fetch(
         select=["graph"],
         filters=[QueryFilter("num_vertices", "=", 5)],
