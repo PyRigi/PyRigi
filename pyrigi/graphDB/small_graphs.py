@@ -1,5 +1,7 @@
 """
-This is a module for providing common types of graphs.
+Constructor functions for common and named graphs, returning
+:class:`~pyrigi.graph.graph.Graph` objects. They are available both from this submodule
+and from the package top level (``import pyrigi.graphDB as graphs; graphs.Complete(5)``).
 """
 
 import math
