@@ -105,13 +105,14 @@ Special Semester on Rigidity and Flexibility at [RICAM](https://www.oeaw.ac.at/r
 If you would like to cite PyRigi, please use the following reference:
 
 Matthias Adrian-Himmelmann, Matteo Gallet, Georg Grasegger, and Jan Legerský.
-*PyRigi – a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks*,
+*PyRigi – A General-Purpose Python Package for the Rigidity
+and Flexibility of Bar-and-Joint Frameworks*,
 ACM Transactions on Mathematical Software, 52(3):Article No. 14, 2026.
 [doi:10.1145/3815171](https://doi.org/10.1145/3815171).
 
 ```
 @article{pyrigi,
-      title = {{PyRigi -- a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks}},
+      title = {{PyRigi -- A General-Purpose Python Package for the Rigidity and Flexibility of Bar-and-Joint Frameworks}},
       author = {Matthias Adrian-Himmelmann and Matteo Gallet and Georg Grasegger and Jan Legerský},
       journal = {ACM Transactions on Mathematical Software},
       volume = {52},
