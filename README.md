@@ -19,7 +19,7 @@ since parentheses and backslashes are not allowed in a Markdown link. -->
 PyRigi is a Python package for research in rigidity and flexibility of bar-and-joint frameworks.
 We aim at providing a tool for investigating combinatorial and geometric questions
 such as infinitesimal, global, minimal, or generic rigidity. An article explaining the functionality
-and internal structure of PyRigi is freely available [here](https://doi.org/10.48550/arXiv.2505.22652).
+and internal structure of PyRigi is freely available [here](https://doi.org/10.1145/3815171).
 
 
 We use [NetworkX](https://networkx.org/) for graph theory, [SymPy](https://www.sympy.org/)
@@ -104,17 +104,21 @@ Special Semester on Rigidity and Flexibility at [RICAM](https://www.oeaw.ac.at/r
 
 If you would like to cite PyRigi, please use the following reference:
 
-Matthias Adrian-Himmelmann, Matteo Gallet, Georg Grasegger, and Jan Legerský. *PyRigi
-– a general-purpose Python package for the rigidity and flexibility of bar-and-joint
-frameworks*, 2026, ACM Transactions on Mathematical Software.
+Matthias Adrian-Himmelmann, Matteo Gallet, Georg Grasegger, and Jan Legerský.
+*PyRigi – A General-Purpose Python Package for the Rigidity
+and Flexibility of Bar-and-Joint Frameworks*,
+ACM Transactions on Mathematical Software, 52(3):Article No. 14, 2026.
 [doi:10.1145/3815171](https://doi.org/10.1145/3815171).
 
 ```
 @article{pyrigi,
-      title = {{PyRigi -- a general-purpose Python package for the rigidity and flexibility of bar-and-joint frameworks}},
+      title = {{PyRigi -- A General-Purpose Python Package for the Rigidity and Flexibility of Bar-and-Joint Frameworks}},
       author = {Matthias Adrian-Himmelmann and Matteo Gallet and Georg Grasegger and Jan Legerský},
+      journal = {ACM Transactions on Mathematical Software},
+      volume = {52},
+      number = {3},
+      pages = {Article No. 14},
       year = {2026},
       doi = {10.1145/3815171},
-      journal = {ACM Transactions on Mathematical Software},
 }
 ```
