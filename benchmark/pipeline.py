@@ -1,3 +1,24 @@
+"""
+Orchestration of a full benchmark run.
+
+run_benchmark_pipeline is the entry point; the private helpers around it each
+own one stage, in this order:
+
+  1. load the target function and hash its source
+  2. discover the dataset files and expand the parameter configurations
+  3. validate the configurations against the function signature
+  4. recover any checkpoint left by an interrupted run
+  5. filter out combinations that were already measured
+  6. generate the temporary test file and conftest
+  7. run pytest-benchmark, then merge, persist and clean up
+
+Config keys:
+  A configuration is identified by str(dict(sorted(config.items()))), and
+  per-size counters are keyed by f"{config_key}|{num_nodes}". The same
+  convention is reproduced in _utils/test_generator_mult.py and in the
+  generated conftest, so the three must stay in sync.
+"""
+
 import os
 import sys
 import json
@@ -22,9 +43,15 @@ def _validate_function_parameters(func, graph_param_name, configs):
     """
     Validate that the generated configurations match the target
     function's signature.
+
+    Exits with status 1 listing the offending names if any configuration uses a
+    parameter the function does not accept, so a typo in a config file fails
+    immediately rather than after a long run.
     """
     if not (configs and configs[0]):
         return
+    # Imported here rather than at module scope: signature inspection is needed
+    # only for this one validation step.
     import inspect
 
     sig = inspect.signature(func)
@@ -53,7 +80,29 @@ def _validate_function_parameters(func, graph_param_name, configs):
 def _filter_existing_benchmarks(
     output: str, force_rerun: bool, func_name: str, dataset_paths: list, configs: list
 ):
-    """Returns (existing_results, configs_to_run, explicit_tasks)"""
+    """
+    Work out what still needs measuring, given the results already on disk.
+
+    Under force_rerun the existing file is backed up and every configuration is
+    scheduled again. Otherwise the already-measured combinations are filtered
+    out and only the remainder is run.
+
+    Args:
+        output: Path to the results JSON file.
+        force_rerun: Re-measure everything for this function.
+        func_name: Name of the function being benchmarked.
+        dataset_paths: Absolute paths to the .g6 dataset files.
+        configs: Parameter configurations requested for this run.
+
+    Returns:
+        Tuple of (existing_results, configs_to_run, explicit_tasks), where
+        existing_results is the parsed results file, configs_to_run is the
+        configuration list handed to the generator, and explicit_tasks is
+        either None (generate the full Cartesian product) or the specific list
+        of (config, graph_info) pairs still missing.
+
+    Exits with status 0 if every requested benchmark already exists.
+    """
     existing_results = benchmark_merger.load_existing_results(output)
 
     if force_rerun:
@@ -86,6 +135,7 @@ def _filter_existing_benchmarks(
 
 
 def _exit_with_error(prefix: str, error: Exception) -> None:
+    """Print "prefix: error" and exit with status 1."""
     print(f"{prefix}: {error}")
     sys.exit(1)
 
@@ -102,6 +152,14 @@ def _load_early_stop_state(path: str) -> dict:
 
 
 def _load_function_and_hash(config: RunConfig):
+    """
+    Import the target function and hash its source.
+
+    Returns:
+        Tuple of (function, graph_param_name, source_hash).
+
+    Exits with status 1 if the function cannot be loaded.
+    """
     print(f"Loading function from {config.target}...")
     try:
         func, graph_param_name = function_loader.load_function_and_detect_param(
@@ -120,6 +178,12 @@ def _load_function_and_hash(config: RunConfig):
 
 
 def _load_dataset_paths(config: RunConfig) -> list:
+    """
+    Collect the .g6 files in the configured dataset directory.
+
+    Exits with status 1 if the directory is unreadable or holds no .g6 files,
+    since there would be nothing to measure.
+    """
     print(f"Loading dataset from {config.dataset}...")
     try:
         dataset_paths = dataset_loader.get_dataset_files(config.dataset)
@@ -135,6 +199,13 @@ def _load_dataset_paths(config: RunConfig) -> list:
 
 
 def _parse_configurations(config: RunConfig) -> list:
+    """
+    Resolve config.params into a list of parameter configurations.
+
+    A YAML config supplies them already expanded, as a list of dicts, and is
+    used as is. CLI strings such as "dim=1,2" are parsed and expanded into
+    their Cartesian product instead.
+    """
     print("Parsing parameters...")
 
     if (
@@ -159,6 +230,12 @@ def _parse_configurations(config: RunConfig) -> list:
 
 
 def _recover_checkpoint_if_present(checkpoint_file: str, output: str) -> None:
+    """
+    Merge a checkpoint left behind by an interrupted run into the results file.
+
+    A checkpoint that cannot be merged is discarded with a warning rather than
+    aborting, so a corrupt checkpoint never blocks a fresh run.
+    """
     if not checkpoint.exists(checkpoint_file):
         return
 
@@ -174,6 +251,14 @@ def _recover_checkpoint_if_present(checkpoint_file: str, output: str) -> None:
 def _prepare_run_scope(
     config: RunConfig, func_name: str, dataset_paths: list, configs: list
 ):
+    """
+    Decide the scope of this run, depending on whether results already exist.
+
+    Returns:
+        The same (existing_results, configs_to_run, explicit_tasks) triple as
+        _filter_existing_benchmarks. For a first run against a new output file
+        this is ({}, configs, None), meaning measure everything.
+    """
     if os.path.exists(config.output):
         print(f"Loading existing results from {config.output}...")
         return _filter_existing_benchmarks(
@@ -194,6 +279,15 @@ def _generate_test_file(
     test_file: str,
     source_hash: str,
 ):
+    """
+    Write the temporary pytest module for this run.
+
+    Returns:
+        Tuple of (test_file_path, nodes_total); see
+        test_generator_mult.generate_benchmark_test_file.
+
+    Exits with status 1 if generation fails.
+    """
     print("Generating temporary test file...")
     try:
         return test_generator_mult.generate_benchmark_test_file(
@@ -220,6 +314,15 @@ def _generate_conftest(
     initial_stopped: dict = None,
     early_stop_state_file: str = "",
 ) -> None:
+    """
+    Write the temporary conftest.py providing timeout and early-stop support.
+
+    Passing initial_stopped seeds the generated conftest with the stopped
+    configurations recorded by a previous run, so a resumed run does not
+    re-attempt sizes that already proved too slow.
+
+    Exits with status 1 if generation fails.
+    """
     print("Generating conftest.py (data-strip hook + timeout support)...")
     try:
         test_generator_mult.generate_conftest_file(
@@ -236,6 +339,7 @@ def _generate_conftest(
 
 
 def _cleanup_temp_files(*temp_paths: str) -> None:
+    """Delete the given temporary files, ignoring any that cannot be removed."""
     for tmp in temp_paths:
         if os.path.exists(tmp):
             try:
@@ -247,6 +351,13 @@ def _cleanup_temp_files(*temp_paths: str) -> None:
 def _enrich_results(
     temp_results_file: str, func_name: str, target: str, source_hash: str
 ) -> dict:
+    """
+    Annotate raw pytest-benchmark output with provenance.
+
+    Stamps every entry with the function name, module path, timestamp and
+    source hash, which is what later allows check_staleness.py to tell whether
+    a stored measurement still matches the current code.
+    """
     with open(temp_results_file, "r") as f:
         new_results = json.load(f)
 
@@ -263,6 +374,12 @@ def _enrich_results(
 def _merge_and_write_results(
     config: RunConfig, existing_results: dict, new_results: dict, func_name: str
 ) -> None:
+    """
+    Merge the new measurements into the results file and write it out.
+
+    The write goes to a .tmp file and is then moved into place with os.replace,
+    which is atomic on POSIX, so the results file is never left half-written.
+    """
     final_results = benchmark_merger.merge_results(
         existing_results, new_results, func_name, config.force_rerun
     )
@@ -287,6 +404,17 @@ def _run_and_persist_results(
     source_hash: str,
     early_stop_state_file: str = "",
 ) -> None:
+    """
+    Run the benchmarks, then persist, summarise and clean up after them.
+
+    On a clean completion the checkpoint is drained a second time with
+    only_timeouts, because timed-out cases are skipped by pytest and so never
+    appear in pytest-benchmark's own JSON output. The early-stop state file is
+    then removed, so the next run starts without inherited restrictions.
+
+    A failure here is reported rather than raised; the finally block always
+    removes the temporary files.
+    """
     print("Running benchmarks...")
     try:
         runner.run_pytest_benchmark(
@@ -326,7 +454,25 @@ def _run_and_persist_results(
 
 
 def run_benchmark_pipeline(config: RunConfig) -> None:
-    """Execute the full benchmarking pipeline based on the provided configuration."""
+    """
+    Execute the full benchmarking pipeline based on the provided configuration.
+
+    Runs the stages listed in the module docstring: load and hash the target,
+    resolve the dataset and configurations, validate them, recover any
+    checkpoint, filter out completed work, generate the temporary pytest files,
+    measure, then merge and clean up.
+
+    Args:
+        config: Fully resolved settings for this run, from cli.parse_and_resolve.
+
+    Side effects:
+        Merges measurements into config.output, may write timeout_results.json
+        beside it, creates and then deletes temp_benchmark_test.py, conftest.py
+        and their intermediate files in benchmark/, and maintains
+        benchmark_checkpoint.jsonl and early_stop_state.json across runs.
+        Exits the process if the target, dataset or configurations are invalid,
+        or if there is nothing left to measure.
+    """
     timeout_str = f"{config.timeout}s" if config.timeout else "none"
     print(
         f"Benchmark settings: min_rounds={config.min_rounds}, "

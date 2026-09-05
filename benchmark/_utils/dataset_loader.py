@@ -1,10 +1,31 @@
+"""
+Discovery and inspection of the graph6 datasets a benchmark runs against.
+
+get_dataset_files - list the .g6 files in a dataset directory.
+load_graph_infos  - read those files into per-graph metadata dicts.
+
+Only metadata is loaded here, not the graphs themselves; the generated test file
+re-reads each graph from disk at measurement time so that graph construction is
+never included in the timing.
+"""
+
 from pathlib import Path
 from typing import List, Optional
 
 
 def get_dataset_files(directory: str) -> List[str]:
     """
-    Returns list of absolute paths to .g6 files in the directory.
+    List the .g6 files in a dataset directory.
+
+    Args:
+        directory: Path to the dataset directory.
+
+    Returns:
+        Sorted list of absolute paths to the .g6 files found.
+
+    Raises:
+        FileNotFoundError: If the directory does not exist.
+        NotADirectoryError: If the path exists but is not a directory.
     """
     path = Path(directory)
     if not path.exists():
@@ -33,8 +54,10 @@ def load_graph_infos(
         limit_per_file: Max number of graphs to load per file. None loads all.
 
     Returns:
-        Flat list of graph_info dicts.
+        Flat list of graph_info dicts, sorted by vertex count ascending.
     """
+    # Imported here rather than at module scope: get_dataset_files is used
+    # during argument validation, which should not pay for the networkx import.
     import networkx as nx
 
     graph_infos = []

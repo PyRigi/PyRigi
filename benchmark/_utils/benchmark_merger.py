@@ -1,3 +1,20 @@
+"""
+Merging and deduplication of benchmark results.
+
+compute_benchmark_key       - build the identity of a single measurement.
+load_existing_results       - read a results JSON file, tolerating corruption.
+get_existing_keys           - collect the keys already present in a results file.
+filter_existing_combinations - work out which (config, graph) pairs still need running.
+create_backup               - snapshot a results file before a force-rerun.
+merge_results               - append new measurements without creating duplicates.
+
+Identity:
+  A measurement is identified by function, configuration, graph file and graph
+  index (see compute_benchmark_key). Re-running the same combination therefore
+  never appends a second entry, which is what makes accumulating results across
+  many sessions safe.
+"""
+
 import json
 import os
 import shutil
@@ -10,8 +27,20 @@ def compute_benchmark_key(
     func_name: str, config: Dict[str, Any], graph_filename: str, graph_idx: int
 ) -> str:
     """
-    Generate unique key for a benchmark run.
+    Generate the unique key identifying a single benchmark measurement.
+
     Key structure: function::config_hash::graph_file::graph_index
+    The config is hashed with its keys sorted, so two configurations that differ
+    only in key order produce the same key.
+
+    Args:
+        func_name: Name of the benchmarked function.
+        config: Parameter values the function was called with.
+        graph_filename: Stem of the .g6 file the graph came from.
+        graph_idx: Index of the graph within that file.
+
+    Returns:
+        The key string.
     """
     # Normalize config by sorting keys
     config_str = json.dumps(config, sort_keys=True)
@@ -21,7 +50,18 @@ def compute_benchmark_key(
 
 
 def load_existing_results(path: str) -> Dict[str, Any]:
-    """Load existing benchmark results from JSON file."""
+    """
+    Load existing benchmark results from a JSON file.
+
+    A missing or unparseable file is reported and treated as empty rather than
+    raising, so a corrupted results file cannot block a new run.
+
+    Args:
+        path: Path to the results JSON file.
+
+    Returns:
+        Parsed results, or an empty dict if the file is missing or invalid.
+    """
     if not os.path.exists(path):
         return {}
 
@@ -36,15 +76,19 @@ def load_existing_results(path: str) -> Dict[str, Any]:
 
 
 def get_existing_keys(results: Dict[str, Any]) -> Set[str]:
-    """Extract set of unique keys from existing results."""
+    """
+    Extract the set of benchmark keys already present in a results dict.
+
+    Args:
+        results: Parsed contents of a results JSON file.
+
+    Returns:
+        Set of keys as produced by compute_benchmark_key.
+    """
     keys = set()
     for b in results.get("benchmarks", []):
         # Extract metadata
         func = b.get("function", "unknown")
-
-        # Cases where function name might not be present
-        if func == "unknown" and "name" in b:
-            pass
 
         config = b.get("params", {}).get("config", {})
 
@@ -65,8 +109,18 @@ def filter_existing_combinations(
     target_function: str,
 ) -> Tuple[List[Tuple[Dict[str, Any], Dict[str, Any]]], int]:
     """
-    Filter out combinations that already exist in results.
-    Returns a list of (config, graph_info) tuples that need to be run.
+    Determine which (config, graph) combinations have not been measured yet.
+
+    Args:
+        configs: Parameter configurations to benchmark.
+        graph_infos: Graph metadata dicts from dataset_loader.load_graph_infos.
+        existing_results: Parsed contents of the results file.
+        target_function: Name of the function being benchmarked.
+
+    Returns:
+        Tuple of (missing_combinations, num_skipped), where missing_combinations
+        is a list of (config, graph_info) pairs still to run and num_skipped is
+        how many pairs were already present.
     """
     existing_keys = get_existing_keys(existing_results)
 
@@ -92,7 +146,15 @@ def filter_existing_combinations(
 
 
 def create_backup(path: str) -> str:
-    """Create timestamped backup of results file."""
+    """
+    Create a timestamped copy of a results file before it is overwritten.
+
+    Args:
+        path: Path to the results file to back up.
+
+    Returns:
+        Path to the backup, or an empty string if the source did not exist.
+    """
     if not os.path.exists(path):
         return ""
 
@@ -109,7 +171,20 @@ def merge_results(
     force_rerun: bool,
 ) -> Dict[str, Any]:
     """
-    Merge new results into existing results.
+    Merge newly measured benchmarks into the existing results.
+
+    Entries whose key is already present are dropped, so merging is idempotent.
+    Under force_rerun the previous entries for target_function are removed first,
+    which lets the fresh measurements take their place.
+
+    Args:
+        existing_results: Parsed contents of the results file.
+        new_results: Freshly measured results from pytest-benchmark.
+        target_function: Name of the function being benchmarked.
+        force_rerun: Drop existing entries for target_function before merging.
+
+    Returns:
+        The merged results dict, with metadata.last_updated refreshed.
     """
     merged = existing_results.copy()
 

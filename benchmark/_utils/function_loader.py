@@ -1,3 +1,14 @@
+"""
+Dynamic loading of the function under test, and change detection for it.
+
+load_function_and_detect_param - import a function by path and find its graph argument.
+get_function_hash              - hash a function's code, ignoring comments and docstrings.
+
+The hash is what makes stored results self-describing: each entry records the
+hash of the code that produced it, so check_staleness.py can later report which
+results no longer match the current implementation.
+"""
+
 import importlib.util
 import inspect
 import sys
@@ -9,11 +20,21 @@ def load_function_and_detect_param(target_str: str) -> Tuple[Callable, str]:
     """
     Load a function from a file path and detect the graph parameter name.
 
+    The graph argument is detected in three steps, stopping at the first hit:
+    a parameter annotated as networkx.Graph, then a parameter whose name
+    contains "graph", then the first parameter.
+
     Args:
         target_str: Format "path/to/file.py:function_name"
 
     Returns:
         Tuple of (function_object, graph_parameter_name)
+
+    Raises:
+        ValueError: If target_str is malformed, or the function takes no
+            arguments so no graph parameter can be detected.
+        ImportError: If the module cannot be loaded from the given path.
+        AttributeError: If the module has no function of that name.
     """
     try:
         file_path, func_name = target_str.split(":")
@@ -56,9 +77,20 @@ def load_function_and_detect_param(target_str: str) -> Tuple[Callable, str]:
 
 def get_function_hash(func: Callable) -> str:
     """
-    Compute SHA256 hash of the function's AST representation.
-    This ignores superficial changes like comments and docstrings.
-    This is used to detect staleness in benchmark results.
+    Compute a SHA256 hash of the function's AST representation.
+
+    Comments and docstrings are removed before hashing, so reformatting or
+    re-documenting a function does not invalidate results measured from it.
+    Only a change to the code itself changes the hash.
+
+    Args:
+        func: The function to hash.
+
+    Returns:
+        The first 16 hex characters of the digest, or the literal
+        "unknown_hash" if the source could not be read or parsed. This
+        degrades rather than raising so a benchmark run is never blocked by
+        a function whose source is unavailable.
     """
     import ast
     import inspect

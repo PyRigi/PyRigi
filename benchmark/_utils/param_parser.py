@@ -1,10 +1,34 @@
+"""
+Expansion of parameter specifications into concrete benchmark configurations.
+
+infer_type            - coerce a CLI string into int, float, literal or str.
+parse_cli_strings     - turn ["dim=1,2"] into {"dim": [1, 2]}.
+build_cartesian_product - expand a parameter dict into one config per combination.
+merge_config_sections - combine cartesian and explicit config sections.
+
+A "configuration" throughout the framework is a plain dict of keyword arguments
+passed to the benchmarked function, for example {"dim": 2, "algorithm": "sparsity"}.
+"""
+
 import ast
 import itertools
 from typing import Dict, List, Any
 
 
 def infer_type(value: str) -> Any:
-    """Infer type from string value."""
+    """
+    Coerce a string from the command line into a Python value.
+
+    Tried in order: int, then float (only when the text looks like a float),
+    then ast.literal_eval for values such as True or None. If none of these
+    apply the original string is returned, so this never raises.
+
+    Args:
+        value: The raw string to coerce.
+
+    Returns:
+        The coerced value, or the unchanged string.
+    """
     try:
         return int(value)
     except ValueError:
@@ -94,18 +118,17 @@ def merge_config_sections(
                          Example: [{"dim": 2, "algorithm": "sparsity"}]
 
     Returns:
-        Merged list of all configurations
+        Merged list of all configurations. A single empty config is returned
+        when both sections are empty, so the caller always has one run to make.
 
     Example:
-        >>> merge_config_sections(
-        ...     {"dim": [1], "algo": ["A", "B"]},
-        ...     [{"dim": 2, "algo": "C"}]
-        ... )
-        [
-            {"dim": 1, "algo": "A"},
-            {"dim": 1, "algo": "B"},
-            {"dim": 2, "algo": "C"}
-        ]
+        Input: {"dim": [1], "algo": ["A", "B"]} and [{"dim": 2, "algo": "C"}]
+        Output:
+            [
+                {"dim": 1, "algo": "A"},
+                {"dim": 1, "algo": "B"},
+                {"dim": 2, "algo": "C"}
+            ]
     """
     configs = []
 

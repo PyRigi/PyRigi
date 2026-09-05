@@ -1,3 +1,14 @@
+"""
+Command-line interface for the benchmark app.
+
+build_arg_parser  - define the command-line options.
+parse_and_resolve - fold CLI arguments and an optional YAML config into a RunConfig.
+
+Precedence: an explicit command-line value wins over the config file, which wins
+over the built-in default. Relative output paths are anchored to benchmark/ so
+that results land in a predictable place regardless of the working directory.
+"""
+
 import argparse
 import sys
 from pathlib import Path

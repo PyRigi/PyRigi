@@ -1,3 +1,15 @@
+"""
+Invocation of pytest-benchmark on the generated test file.
+
+run_pytest_benchmark builds the pytest command line and runs it in a subprocess.
+A subprocess is used so that the measured code runs in a clean interpreter,
+isolated from the pipeline's own imports and state.
+
+The timeout log and checkpoint paths are handed to the subprocess through the
+environment (BENCHMARK_TIMEOUT_LOG, BENCHMARK_CHECKPOINT_FILE), since the
+generated test file and conftest read them at runtime.
+"""
+
 import os
 import subprocess
 import sys

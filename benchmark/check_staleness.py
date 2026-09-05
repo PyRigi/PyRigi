@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+"""
+Report which stored benchmark results no longer match the current code.
+
+Each result records the hash of the function source that produced it. This
+script recomputes that hash from the working tree and reports any function
+whose code has changed since it was measured, so those results can be
+re-run rather than silently trusted.
+
+    python benchmark/check_staleness.py --results benchmark/benchmark_results.json
+
+Comments and docstrings are excluded from the hash, so reformatting or
+re-documenting a benchmarked function does not mark its results stale.
+"""
+
 import json
 import sys
 import os
@@ -12,6 +26,11 @@ from benchmark._utils import function_loader  # noqa: E402
 
 
 def load_results(path: str) -> dict:
+    """
+    Read a benchmark results JSON file.
+
+    Exits with status 1 if the file does not exist.
+    """
     if not os.path.exists(path):
         print(f"Error: Results file not found at {path}")
         sys.exit(1)
@@ -20,6 +39,16 @@ def load_results(path: str) -> dict:
 
 
 def check_staleness(results_path: str):
+    """
+    Compare stored source hashes against the current code and print a report.
+
+    Each function is loaded and hashed once, then that hash is reused for every
+    result entry referring to it. Functions that can no longer be loaded are
+    reported as "Load Failed" rather than stale, since their status is unknown.
+
+    Args:
+        results_path: Path to the results JSON file to check.
+    """
     print(f"Checking staleness for results in {results_path}...")
     try:
         data = load_results(results_path)
@@ -105,6 +134,7 @@ def check_staleness(results_path: str):
 
 
 def main():
+    """Parse the command line and run the staleness check."""
     parser = argparse.ArgumentParser(description="Check benchmark staleness.")
     parser.add_argument(
         "--results",

@@ -1,3 +1,15 @@
+"""
+Loading, validation and CLI merging of YAML benchmark configuration files.
+
+load_config    - read a YAML file and expand its parameter sections.
+validate_config - check that the required keys are present and well typed.
+merge_with_cli - overlay command-line arguments, which take precedence.
+
+A config may describe its parameter space as cartesian_params (expanded into
+every combination), as explicit_configs (used verbatim), or as both. Both are
+merged into a single "configurations" list that the pipeline consumes.
+"""
+
 import yaml
 from pathlib import Path
 from typing import Dict, Any, List
