@@ -5,6 +5,7 @@ Module for rigidity related graph properties.
 from __future__ import annotations
 
 import math
+import textwrap
 from itertools import combinations
 from typing import Collection, Iterable, Optional, Sequence
 
@@ -1135,11 +1136,11 @@ class Graph(nx.Graph):
         )
 
 
-Graph.__doc__ = Graph.__doc__.replace(
+Graph.__doc__ = textwrap.dedent(Graph.__doc__).replace(
     "METHODS",
     generate_category_tables(
         Graph,
-        1,
+        0,
         [
             "Attribute getters",
             "Class methods",
