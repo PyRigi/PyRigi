@@ -30,6 +30,7 @@ for some suggestions about what the maintainers would be happy to have in PyRigi
 :maxdepth: 2
 howto/style_guide
 howto/testing
+howto/benchmarking
 howto/git
 howto/dependencies
 howto/package_structure
