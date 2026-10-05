@@ -104,6 +104,7 @@ class TestStats:
     def test_ingest_stats_defaults(self):
         s = IngestStats()
         assert s.inserted == 0 and s.skipped == 0 and s.errors == 0
+        assert s.files_processed == 0 and s.files_failed == 0
 
     def test_populate_stats_defaults(self):
         s = PopulateStats(column="rigidity")

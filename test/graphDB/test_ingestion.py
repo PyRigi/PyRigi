@@ -69,15 +69,33 @@ class TestG6Reader:
         assert files == []
         assert "No .g6" in caplog.text
 
-    def test_unreadable_file_logs_error_and_yields_nothing(self, tmp_path, caplog):
-        import logging
+    def test_read_file_is_public(self, tmp_path):
+        f = tmp_path / "test.g6"
+        f.write_text("B?\nBw\n")
+        assert list(G6Reader.read_file(f)) == ["B?", "Bw"]
 
-        bad = tmp_path / "bad.g6"
-        bad.write_bytes(b"\xff\xfe")  # invalid ASCII — triggers decode error
-        with caplog.at_level(logging.ERROR, logger="pyrigi.graphDB.ingestion.reader"):
-            strings = list(G6Reader(bad).iter_strings())
-        assert strings == []
-        assert "Failed to read" in caplog.text
+    def test_non_ascii_line_does_not_drop_neighbours(self, tmp_path):
+        f = tmp_path / "mixed.g6"
+        f.write_bytes(b"B?\n\xff\xfe\nBw\n")
+        strings = list(G6Reader(f).iter_strings())
+        # the lines around the undecodable one are kept; the bad bytes are
+        # replaced so the parser can reject that line on its own
+        assert strings == ["B?", "��", "Bw"]
+
+    def test_corrupt_gzip_raises(self, tmp_path):
+        bad = tmp_path / "bad.g6.gz"
+        bad.write_bytes(b"this is not gzip data")
+        with pytest.raises(OSError):
+            list(G6Reader(bad).iter_strings())
+
+    def test_truncated_gzip_raises(self, tmp_path):
+        import gzip
+
+        full = gzip.compress(b"B?\nBw\n" * 1000)
+        cut = tmp_path / "cut.g6.gz"
+        cut.write_bytes(full[: len(full) // 2])
+        with pytest.raises(EOFError):
+            list(G6Reader(cut).iter_strings())
 
 
 # ---------------------------------------------------------------------------

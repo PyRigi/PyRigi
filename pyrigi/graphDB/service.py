@@ -34,6 +34,7 @@ Typical usage::
 from __future__ import annotations
 
 import logging
+import zlib
 from pathlib import Path
 from typing import Any, Callable, Iterator, Optional, TextIO, cast
 
@@ -130,6 +131,12 @@ class GraphStoreService:
         Ingestion is idempotent: graphs already in the database (matched
         by the unique ``graph`` column) are silently skipped.
 
+        Lines that cannot be decoded as graph6 are counted as errors and
+        skipped.  A file that cannot be read (for example a corrupt or
+        truncated ``.g6.gz``) is logged and counted in
+        ``IngestStats.files_failed``; rows already read from it are kept
+        and ingestion continues with the next file.
+
         Parameters
         ----------
         source:
@@ -141,7 +148,8 @@ class GraphStoreService:
         Returns
         -------
         IngestStats
-            Summary of inserted, skipped, and errored rows.
+            Summary of inserted, skipped, and errored rows, and of files
+            processed and failed.
         """
         self._require_init()
         reader = G6Reader(source)
@@ -153,22 +161,27 @@ class GraphStoreService:
         batch: list[dict] = []
 
         for path in reader.files():
+            try:
+                for g6 in reader.read_file(path):
+                    graph = parser.parse(g6)
+                    if graph is None:
+                        stats.errors += 1
+                        continue
+                    if graph.number_of_nodes() < 2:
+                        log.debug("Skipping graph with < 2 vertices: %r", g6[:20])
+                        stats.skipped += 1
+                        continue
+                    batch.append(computer.compute(g6, graph))
+                    if len(batch) >= bs:
+                        ins, sk = self._repo.insert_batch(batch)
+                        stats.inserted += ins
+                        stats.skipped += sk
+                        batch.clear()
+            except (OSError, EOFError, zlib.error) as exc:
+                stats.files_failed += 1
+                log.error("Failed to read %s: %s", path, exc)
+                continue
             stats.files_processed += 1
-            for g6 in G6Reader._read_file(path):
-                graph = parser.parse(g6)
-                if graph is None:
-                    stats.errors += 1
-                    continue
-                if graph.number_of_nodes() < 2:
-                    log.debug("Skipping graph with < 2 vertices: %r", g6[:20])
-                    stats.skipped += 1
-                    continue
-                batch.append(computer.compute(g6, graph))
-                if len(batch) >= bs:
-                    ins, sk = self._repo.insert_batch(batch)
-                    stats.inserted += ins
-                    stats.skipped += sk
-                    batch.clear()
 
         if batch:
             ins, sk = self._repo.insert_batch(batch)
@@ -176,8 +189,10 @@ class GraphStoreService:
             stats.skipped += sk
 
         log.info(
-            "Ingest complete: files=%d inserted=%d skipped=%d errors=%d",
+            "Ingest complete: files=%d failed_files=%d inserted=%d skipped=%d "
+            "errors=%d",
             stats.files_processed,
+            stats.files_failed,
             stats.inserted,
             stats.skipped,
             stats.errors,

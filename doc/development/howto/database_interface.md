@@ -67,7 +67,9 @@ The {meth}`ingest(source, batch_size=None) <pyrigi.graphDB.service.GraphStoreSer
 directory (all `*.g6` and `*.g6.gz` files, in sorted order). Within each file, blank lines and
 lines beginning with `>>` are ignored and gzip is handled transparently.
 
-- Undecodable lines are counted as errors and skipped.
+- Undecodable lines (including lines with non-ASCII bytes) are counted as errors and skipped.
+- A file that cannot be read, such as a corrupt or truncated `.gz`, is logged and counted in
+  `files_failed`; rows already read from it are kept and ingestion continues with the next file.
 - Graphs with fewer than two vertices are skipped.
 - Ingestion is **idempotent**: the `graph` column is unique, so graphs already present
   are skipped.
@@ -75,7 +77,7 @@ lines beginning with `>>` are ignored and gzip is handled transparently.
   left empty for on-demand population.
 
 `ingest` returns an {class}`~pyrigi.graphDB.models.stats.IngestStats` with fields
-`inserted`, `skipped`, `errors`, `files_processed`.
+`inserted`, `skipped`, `errors`, `files_processed`, `files_failed`.
 
 ## The default schema
 
@@ -445,7 +447,7 @@ through `fetch_ref`.
 
 ## Reference
 
-`IngestStats` (from {meth}`~pyrigi.graphDB.service.GraphStoreService.ingest`): `inserted`, `skipped`, `errors`, `files_processed`.
+`IngestStats` (from {meth}`~pyrigi.graphDB.service.GraphStoreService.ingest`): `inserted`, `skipped`, `errors`, `files_processed`, `files_failed`.
 `PopulateStats` (from {meth}`~pyrigi.graphDB.service.GraphStoreService.populate_column`): `column`, `processed`, `errors`.
 
 **See also**

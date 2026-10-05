@@ -24,15 +24,21 @@ class IngestStats:
         they were already present (duplicate ``graph`` value) or because
         they had fewer than two vertices.
     errors:
-        Number of lines that could not be decoded as graph6 strings.
+        Number of lines that could not be decoded as graph6 strings,
+        including lines containing non-ASCII bytes.
     files_processed:
-        Number of files read during the run.
+        Number of files read to the end.
+    files_failed:
+        Number of files that could not be read to the end (for example a
+        missing, unreadable, corrupt or truncated file).  Rows read from
+        such a file before the failure are still ingested.
     """
 
     inserted: int = 0
     skipped: int = 0
     errors: int = 0
     files_processed: int = 0
+    files_failed: int = 0
 
 
 @dataclass

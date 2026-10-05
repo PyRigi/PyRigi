@@ -96,6 +96,37 @@ class TestIngest:
         assert stats.errors == 1
         assert stats.inserted == 1
 
+    def test_ingest_counts_non_ascii_line_and_keeps_valid_lines(self, store, tmp_path):
+        g6_file = tmp_path / "mixed.g6"
+        good = [
+            nx.to_graph6_bytes(nx.complete_graph(n), header=False).strip()
+            for n in (3, 4, 5)
+        ]
+        g6_file.write_bytes(
+            good[0] + b"\n" + good[1] + b"\n\xc3\xa9\n" + good[2] + b"\n"
+        )
+        stats = store.ingest(str(g6_file))
+        assert stats.inserted == 3
+        assert stats.errors == 1
+        assert stats.files_processed == 1
+        assert stats.files_failed == 0
+
+    def test_ingest_corrupt_gzip_is_recorded_and_run_continues(
+        self, store, tmp_path, caplog
+    ):
+        import logging
+
+        (tmp_path / "bad.g6.gz").write_bytes(b"this is not gzip data")
+        good = nx.to_graph6_bytes(nx.complete_graph(4), header=False).strip()
+        (tmp_path / "good.g6").write_bytes(good + b"\n")
+        with caplog.at_level(logging.ERROR, logger="pyrigi.graphDB.service"):
+            stats = store.ingest(str(tmp_path))
+        # bad.g6.gz sorts first, so this also checks that the run continues
+        assert stats.files_failed == 1
+        assert stats.files_processed == 1
+        assert stats.inserted == 1
+        assert "bad.g6.gz" in caplog.text
+
     def test_ingest_mid_batch_flush(self, store, tmp_path):
         g6_file = tmp_path / "test.g6"
         lines = []
