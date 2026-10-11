@@ -688,7 +688,7 @@ class TestDropColumn:
     def test_drop_column_removes_from_schema(self, store):
         store.add_column("tmp_col", "INTEGER")
         store.drop_column("tmp_col")
-        cols = store._db._existing_columns()
+        cols = store._db.table_columns()
         assert "tmp_col" not in cols
 
     def test_drop_column_clears_caches(self, store):
@@ -778,3 +778,76 @@ class TestUpdateColumnFetchStrategy:
     def test_update_column_fetch_strategy_unknown_column_raises(self, store):
         with pytest.raises(KeyError):
             store.update_column_fetch_strategy("nonexistent_col")
+
+
+class TestColumnValidation:
+    def test_delete_where_with_malformed_column_raises_and_deletes_nothing(
+        self, store_with_data
+    ):
+        before = store_with_data.count()
+        with pytest.raises(ValueError, match="Invalid column name"):
+            store_with_data.delete_where(
+                filters=[QueryFilter("1=1 OR num_vertices", "=", 999)]
+            )
+        assert store_with_data.count() == before
+
+    def test_fetch_rejects_sql_expression_in_select(self, store_with_data):
+        with pytest.raises(ValueError, match="Invalid column name"):
+            store_with_data.fetch(select=["COUNT(*)"])
+
+    def test_fetch_rejects_typo_that_sqlite_would_alias(self, store_with_data):
+        # without validation this returned graph6 strings under "num_vertices"
+        with pytest.raises(ValueError, match="Invalid column name"):
+            store_with_data.fetch(select=["graph num_vertices"])
+
+    def test_fetch_rejects_unknown_column(self, store_with_data):
+        with pytest.raises(KeyError, match="nope"):
+            store_with_data.fetch(select=["nope"])
+        with pytest.raises(KeyError, match="nope"):
+            store_with_data.fetch(filters=[QueryFilter("nope", "=", 1)])
+
+    def test_fetch_rejects_order_by_expression(self, store_with_data):
+        with pytest.raises(ValueError, match="Invalid column name"):
+            store_with_data.fetch(order_by="num_edges DESC, graph")
+
+    def test_fetch_accepts_case_variants_and_id(self, store_with_data):
+        assert len(store_with_data.fetch(select=["NUM_VERTICES"])) == 3
+        assert len(store_with_data.fetch(select=["id"], order_by="id")) == 3
+
+    def test_custom_column_is_queryable(self, store_with_data):
+        store_with_data.add_column("score", "REAL")
+        assert len(store_with_data.fetch(select=["score"])) == 3
+
+
+class TestCount:
+    def test_count_without_arguments_is_total(self, store_with_data):
+        assert store_with_data.count() == 3
+
+    def test_count_with_filters(self, store_with_data):
+        assert store_with_data.count(filters=[QueryFilter("num_vertices", "=", 5)]) == 3
+        assert store_with_data.count(filters=[QueryFilter("num_edges", "=", 10)]) == 1
+
+    def test_count_with_expr(self, store_with_data):
+        expr = OrExpr(
+            [QueryFilter("num_edges", "=", 4), QueryFilter("num_edges", "=", 5)]
+        )
+        assert store_with_data.count(expr=expr) == 2
+
+    def test_count_with_empty_filters_counts_all(self, store_with_data):
+        assert store_with_data.count(filters=[]) == 3
+
+    def test_count_unpopulated_rigidity_via_is_null(self, store_with_data):
+        assert (
+            store_with_data.count(filters=[QueryFilter("rigidity", "IS NULL")])
+            == store_with_data.count()
+        )
+
+    def test_count_matches_len_of_fetch(self, store_with_data):
+        filters = [QueryFilter("num_edges", ">", 4)]
+        assert store_with_data.count(filters=filters) == len(
+            store_with_data.fetch(filters=filters)
+        )
+
+    def test_count_rejects_malformed_column(self, store_with_data):
+        with pytest.raises(ValueError, match="Invalid column name"):
+            store_with_data.count(filters=[QueryFilter("x; --", "=", 1)])

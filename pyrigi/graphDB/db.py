@@ -134,7 +134,7 @@ class DatabaseManager:
             SQLite type affinity, e.g. ``"REAL"``, ``"INTEGER"``, ``"TEXT"``.
         """
         self._validate_identifier(name)
-        existing = self._existing_columns()
+        existing = self.table_columns()
         if name in existing:
             return  # idempotent
         with self.connection:
@@ -149,7 +149,7 @@ class DatabaseManager:
             Column name (must be a valid SQLite identifier).
         """
         self._validate_identifier(name)
-        if name not in self._existing_columns():
+        if name not in self.table_columns():
             return  # idempotent
         with self.connection:
             self.connection.execute(f"ALTER TABLE graphs DROP COLUMN {name}")
@@ -159,8 +159,13 @@ class DatabaseManager:
         if not IDENTIFIER_RE.fullmatch(name):
             raise ValueError(f"Invalid SQL identifier: {name!r}")
 
-    def _existing_columns(self) -> set[str]:
-        """Return the set of column names currently on the ``graphs`` table."""
+    def table_columns(self) -> set[str]:
+        """Return the set of column names currently on the ``graphs`` table.
+
+        This is the physical schema (including the ``id`` primary key), read
+        from ``PRAGMA table_info``, and is the source of truth for which
+        column names are valid in a query.
+        """
         cur = self.connection.execute("PRAGMA table_info(graphs)")
         return {row["name"] for row in cur.fetchall()}
 

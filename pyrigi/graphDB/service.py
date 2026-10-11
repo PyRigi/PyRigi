@@ -559,6 +559,7 @@ class GraphStoreService:
             registry=self._registry,
             repo=self._repo,
             fetch_strategy_resolver=self._resolve_runtime_fetch_strategy,
+            table_columns=self._db.table_columns,
         )
 
     def fetch(
@@ -579,13 +580,14 @@ class GraphStoreService:
         Parameters
         ----------
         select:
-            Column names to return.  ``None`` means all columns (``*``).
+            Column names to return (plain names only, no SQL expressions).
+            ``None`` means all columns (``*``).
         filters:
             List of :class:`~pyrigi.graphDB.models.QueryFilter` predicates.
         expr:
             Optional grouped boolean predicate expression.
         order_by:
-            Column name to sort by.
+            A single column name to sort by.
         ascending:
             Sort ascending if ``True`` (default), descending if ``False``.
         limit:
@@ -600,6 +602,13 @@ class GraphStoreService:
         -------
         list[Any]
             Materialized query results.
+
+        Raises
+        ------
+        ValueError
+            If a column name in *select*, *order_by* or a filter is malformed.
+        KeyError
+            If such a column does not exist.
         """
         return list(
             self.iter_fetch(
@@ -648,10 +657,43 @@ class GraphStoreService:
     # Stats / info
     # ------------------------------------------------------------------
 
-    def count(self) -> int:
-        """Return the total number of graphs in the database."""
-        self._require_init()
-        return self._repo.count()
+    def count(
+        self,
+        filters: Optional[list[QueryFilter]] = None,
+        expr: Optional[QueryExpr] = None,
+    ) -> int:
+        """Return the number of graphs, optionally only those matching a query.
+
+        SQLite counts the matching rows itself (``SELECT COUNT(*)``), so no
+        rows are loaded into memory.  Without arguments the total number of
+        graphs is returned.
+
+        Parameters
+        ----------
+        filters:
+            List of :class:`~pyrigi.graphDB.models.QueryFilter` predicates
+            combined with AND.
+        expr:
+            Optional grouped boolean predicate expression.
+
+        Returns
+        -------
+        int
+            Number of matching graphs.
+
+        Raises
+        ------
+        ValueError
+            If a filter column name is malformed.
+        KeyError
+            If a filter column does not exist.
+        """
+        builder = self.query()
+        if filters:
+            builder.where(filters)
+        if expr is not None:
+            builder.where_expr(expr)
+        return self._repo.count_matching(builder.compile_count())
 
     def count_unpopulated(self, column: str) -> int:
         """Return the number of rows where *column* is NULL."""

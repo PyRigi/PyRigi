@@ -52,13 +52,13 @@ class TestDatabaseManager:
 
     def test_add_column(self, db):
         db.add_column("my_col", "REAL")
-        cols = db._existing_columns()
+        cols = db.table_columns()
         assert "my_col" in cols
 
     def test_add_column_idempotent(self, db):
         db.add_column("dup_col", "INTEGER")
         db.add_column("dup_col", "INTEGER")  # should not raise
-        cols = db._existing_columns()
+        cols = db.table_columns()
         assert "dup_col" in cols
 
     def test_add_column_invalid_identifier_raises(self, db):
@@ -67,9 +67,9 @@ class TestDatabaseManager:
 
     def test_drop_column_removes_from_schema(self, db):
         db.add_column("temp_col", "INTEGER")
-        assert "temp_col" in db._existing_columns()
+        assert "temp_col" in db.table_columns()
         db.drop_column("temp_col")
-        assert "temp_col" not in db._existing_columns()
+        assert "temp_col" not in db.table_columns()
 
     def test_drop_column_idempotent(self, db):
         db.drop_column("nonexistent_col")  # must not raise

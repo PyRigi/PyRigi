@@ -12,8 +12,9 @@ objects.  Raw SQL access to the database is delegated entirely to
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, TextIO
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, Optional, TextIO
 
+from pyrigi.graphDB.constants.identifiers import IDENTIFIER_RE
 from pyrigi.graphDB.models import AndExpr, NotExpr, OrExpr, QueryExpr, QueryFilter
 from pyrigi.graphDB.utils.pretty import format_result_table, pretty_print_table
 
@@ -70,6 +71,14 @@ class QueryBuilder:
         Used to resolve per-column fetch strategies.
     repo:
         Used only when :meth:`fetch` is called directly on the builder.
+    fetch_strategy_resolver:
+        Optional callable returning a runtime fetch strategy for a column,
+        or ``None`` to fall back to the registry.
+    table_columns:
+        Optional callable returning the column names of the ``graphs`` table.
+        When given, every column used in a query must exist in the table
+        (compared case-insensitively, as in SQLite); otherwise only the
+        syntax of column names is checked.
     """
 
     def __init__(
@@ -79,10 +88,12 @@ class QueryBuilder:
         fetch_strategy_resolver: Optional[
             Callable[[str], Optional[Callable[[str, str, Any], tuple[str, list]]]]
         ] = None,
+        table_columns: Optional[Callable[[], set[str]]] = None,
     ) -> None:
         self._registry = registry
         self._repo = repo
         self._fetch_strategy_resolver = fetch_strategy_resolver
+        self._table_columns = table_columns
         self._select: list[str] = ["*"]
         self._filters: list[QueryFilter] = []
         self._exprs: list[QueryExpr] = []
@@ -101,7 +112,8 @@ class QueryBuilder:
         Parameters
         ----------
         columns:
-            Column names.  Pass ``["*"]`` for all columns (default).
+            Column names only (no SQL expressions).  Pass ``["*"]`` for all
+            columns (default).  Names are validated when the query is compiled.
         """
         self._select = list(columns)
         return self
@@ -130,7 +142,15 @@ class QueryBuilder:
         return self
 
     def order_by(self, column: str, ascending: bool = True) -> "QueryBuilder":
-        """Set ORDER BY clause."""
+        """Set ORDER BY clause.
+
+        Parameters
+        ----------
+        column:
+            A single column name.  It is validated when the query is compiled.
+        ascending:
+            Sort ascending if ``True`` (default), descending if ``False``.
+        """
         self._order_col = column
         self._order_asc = ascending
         return self
@@ -156,7 +176,19 @@ class QueryBuilder:
         -------
         CompiledQuery
             Immutable (sql, params) pair ready for the repository.
+
+        Raises
+        ------
+        ValueError
+            If a selected, ordering or filter column name is malformed.
+        KeyError
+            If such a column does not exist in the ``graphs`` table.
         """
+        projection = [c for c in self._select if c != "*"]
+        if self._order_col:
+            projection.append(self._order_col)
+        self._validate_columns([*projection, *self._filter_columns()])
+
         col_list = ", ".join(self._select)
         sql_parts = [f"SELECT {col_list} FROM graphs"]
 
@@ -185,7 +217,15 @@ class QueryBuilder:
         -------
         CompiledQuery
             Immutable (sql, params) pair ready for the repository.
+
+        Raises
+        ------
+        ValueError
+            If a filter column name is malformed.
+        KeyError
+            If a filter column does not exist in the ``graphs`` table.
         """
+        self._validate_columns(self._filter_columns())
         sql_parts = ["DELETE FROM graphs"]
 
         where_sql, params = self._compile_where()
@@ -193,6 +233,79 @@ class QueryBuilder:
             sql_parts.append(where_sql)
 
         return CompiledQuery(sql=" ".join(sql_parts), params=params)
+
+    def compile_count(self) -> CompiledQuery:
+        """Assemble a ``SELECT COUNT(*)`` statement from the current filters.
+
+        SQLite counts the matching rows itself, so no rows are loaded into
+        memory.  The selected columns, ORDER BY, LIMIT, and OFFSET are
+        ignored.  If no filters are set, all rows are counted.
+
+        Returns
+        -------
+        CompiledQuery
+            Immutable (sql, params) pair ready for the repository.
+
+        Raises
+        ------
+        ValueError
+            If a filter column name is malformed.
+        KeyError
+            If a filter column does not exist in the ``graphs`` table.
+        """
+        self._validate_columns(self._filter_columns())
+        sql_parts = ["SELECT COUNT(*) FROM graphs"]
+
+        where_sql, params = self._compile_where()
+        if where_sql:
+            sql_parts.append(where_sql)
+
+        return CompiledQuery(sql=" ".join(sql_parts), params=params)
+
+    def _filter_columns(self) -> list[str]:
+        """Return the column names used by all filters and expressions."""
+        columns: list[str] = []
+
+        def walk(expr: QueryExpr) -> None:
+            if isinstance(expr, QueryFilter):
+                columns.append(expr.column)
+            elif isinstance(expr, (AndExpr, OrExpr)):
+                for child in expr.children:
+                    walk(child)
+            elif isinstance(expr, NotExpr):
+                walk(expr.child)
+
+        for expr in [*self._filters, *self._exprs]:
+            walk(expr)
+        return columns
+
+    def _validate_columns(self, columns: Iterable[str]) -> None:
+        """Check that every column name is well formed and, if known, exists.
+
+        Column names cannot be bound as SQL parameters, so they are checked
+        here before any of them is placed into the SQL string.
+
+        Raises
+        ------
+        ValueError
+            If a name is not a plain identifier.
+        KeyError
+            If ``table_columns`` was given and a name is not a column of the
+            ``graphs`` table (compared case-insensitively).
+        """
+        names = list(columns)
+        for name in names:
+            if not isinstance(name, str) or not IDENTIFIER_RE.fullmatch(name):
+                raise ValueError(
+                    f"Invalid column name {name!r}: only plain column names "
+                    "(letters, digits and underscores) are allowed."
+                )
+        if self._table_columns is None or not names:
+            return
+        known = {c.casefold() for c in self._table_columns()}
+        for name in names:
+            if name.casefold() not in known:
+                raise KeyError(f"Unknown column: {name!r}")
 
     def _compile_where(self) -> tuple[str, list[Any]]:
         """Compile the filters and expressions into a WHERE clause.

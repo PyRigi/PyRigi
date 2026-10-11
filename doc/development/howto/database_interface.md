@@ -162,6 +162,11 @@ An unknown operator raises `ValueError`. The form of `value`:
 | `IS NULL`, `IS NOT NULL` | ignored (omit it; defaults to `None`)       |
 | all others             | the scalar right-hand side                    |
 
+Column names in filters, `select` and `order_by` must be plain column names (`select` also
+accepts `"*"` for all columns); SQL expressions such as `"COUNT(*)"` are not allowed. Names are
+matched case-insensitively, as in SQLite. A malformed name raises `ValueError` and a name that is
+not a column of the store raises `KeyError`, both before any SQL is run.
+
 ### One-line queries with `fetch`
 
 The {meth}`~pyrigi.graphDB.service.GraphStoreService.fetch` method runs a whole query in a single call, taking the columns, filters,
@@ -408,7 +413,7 @@ references and are always available.
 
 | Method                       | Returns                                                              |
 |------------------------------|----------------------------------------------------------------------|
-| {meth}`~pyrigi.graphDB.service.GraphStoreService.count` | Total number of graphs. |
+| {meth}`count(filters=None, expr=None) <pyrigi.graphDB.service.GraphStoreService.count>` | Number of graphs, or of those matching `filters`/`expr`. SQLite does the counting, so no rows are loaded into memory. |
 | {meth}`count_unpopulated(column) <pyrigi.graphDB.service.GraphStoreService.count_unpopulated>` | Number of rows where `column` is `NULL`. |
 | {meth}`~pyrigi.graphDB.service.GraphStoreService.info` | Dict with `total_graphs` and `columns` (`name`, `type`, `default`, `description`, `has_populator`). |
 | {meth}`~pyrigi.graphDB.service.GraphStoreService.list_columns` | {class}`~pyrigi.graphDB.models.column_def.ColumnDef` objects for all columns. |

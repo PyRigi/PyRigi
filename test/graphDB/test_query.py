@@ -275,3 +275,129 @@ class TestQueryBuilder:
         assert "num_vertices = ?" in compiled.sql
         assert "num_edges > ?" in compiled.sql
         assert compiled.params == (5, 3)
+
+
+# ---------------------------------------------------------------------------
+# Column-name validation and compile_count
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def db():
+    db = DatabaseManager(":memory:")
+    db.connect()
+    db.bootstrap()
+    return db
+
+
+@pytest.fixture
+def checked_builder(db):
+    """Builder that also checks columns against the real ``graphs`` table."""
+
+    def make():
+        return QueryBuilder(ColumnRegistryRepo(db), table_columns=db.table_columns)
+
+    return make
+
+
+class TestColumnValidation:
+    @pytest.mark.parametrize(
+        "compile_method", ["compile", "compile_delete", "compile_count"]
+    )
+    def test_malformed_filter_column_raises(self, registry, compile_method):
+        qb = QueryBuilder(registry).filter("1=1 OR num_vertices", "=", 1)
+        with pytest.raises(ValueError, match="Invalid column name"):
+            getattr(qb, compile_method)()
+
+    @pytest.mark.parametrize("column", ["COUNT(*)", "graph num_vertices", "graph, id"])
+    def test_malformed_select_raises(self, registry, column):
+        qb = QueryBuilder(registry).select([column])
+        with pytest.raises(ValueError, match="Invalid column name"):
+            qb.compile()
+
+    def test_malformed_order_by_raises(self, registry):
+        qb = QueryBuilder(registry).order_by("num_edges DESC, graph")
+        with pytest.raises(ValueError, match="Invalid column name"):
+            qb.compile()
+
+    def test_malformed_column_nested_in_expression_raises(self, registry):
+        expr = AndExpr(
+            [
+                QueryFilter("num_vertices", "=", 5),
+                OrExpr(
+                    [
+                        QueryFilter("num_edges", "=", 4),
+                        NotExpr(QueryFilter("x; --", "=", 1)),
+                    ]
+                ),
+            ]
+        )
+        with pytest.raises(ValueError, match="Invalid column name"):
+            QueryBuilder(registry).where_expr(expr).compile()
+
+    def test_star_select_still_compiles(self, registry):
+        assert (
+            QueryBuilder(registry)
+            .select(["*"])
+            .compile()
+            .sql.startswith("SELECT * FROM graphs")
+        )
+
+    def test_unknown_column_raises_key_error_with_table_columns(self, checked_builder):
+        with pytest.raises(KeyError, match="nope"):
+            checked_builder().select(["nope"]).compile()
+        with pytest.raises(KeyError, match="nope"):
+            checked_builder().filter("nope", "=", 1).compile_delete()
+        with pytest.raises(KeyError, match="nope"):
+            checked_builder().order_by("nope").compile()
+
+    def test_existing_columns_pass_case_insensitively(self, checked_builder):
+        compiled = (
+            checked_builder()
+            .select(["NUM_VERTICES", "id"])
+            .filter("Num_Edges", ">", 3)
+            .order_by("ID")
+            .compile()
+        )
+        assert "NUM_VERTICES, id" in compiled.sql
+
+    def test_without_table_columns_only_syntax_is_checked(self, registry):
+        # unknown but well-formed names are not rejected by a bare builder
+        compiled = QueryBuilder(registry).select(["not_a_column"]).compile()
+        assert "not_a_column" in compiled.sql
+
+    def test_delete_and_count_ignore_stale_select_and_order_by(self, checked_builder):
+        # select/order_by are not part of DELETE or COUNT, so they are not checked
+        qb = checked_builder().select(["nope"]).order_by("nope")
+        assert qb.compile_delete().sql == "DELETE FROM graphs"
+        assert qb.compile_count().sql == "SELECT COUNT(*) FROM graphs"
+
+
+class TestCompileCount:
+    def test_count_without_filters(self, registry):
+        compiled = QueryBuilder(registry).compile_count()
+        assert compiled.sql == "SELECT COUNT(*) FROM graphs"
+        assert compiled.params == ()
+
+    def test_count_with_filter(self, registry):
+        compiled = QueryBuilder(registry).filter("num_vertices", "=", 6).compile_count()
+        assert compiled.sql == "SELECT COUNT(*) FROM graphs WHERE num_vertices = ?"
+        assert compiled.params == (6,)
+
+    def test_count_ignores_select_order_limit_offset(self, registry):
+        compiled = (
+            QueryBuilder(registry)
+            .select(["graph"])
+            .filter("num_edges", ">", 3)
+            .order_by("num_edges", ascending=False)
+            .limit(5)
+            .offset(2)
+            .compile_count()
+        )
+        assert compiled.sql == "SELECT COUNT(*) FROM graphs WHERE num_edges > ?"
+        assert compiled.params == (3,)
+
+    def test_count_uses_rigidity_fetch_strategy(self, registry):
+        compiled = QueryBuilder(registry).filter("rigidity", "=", 2).compile_count()
+        assert "rigidity >= ?" in compiled.sql
+        assert "rigidity = -1" in compiled.sql

@@ -190,6 +190,18 @@ class GraphRepository:
         cur = self._db.execute("SELECT COUNT(*) FROM graphs")
         return cur.fetchone()[0]
 
+    def count_matching(self, compiled: "CompiledQuery") -> int:
+        """Execute a compiled ``SELECT COUNT(*)`` statement and return the count.
+
+        Parameters
+        ----------
+        compiled:
+            A :class:`~pyrigi.graphDB.query.CompiledQuery` produced by
+            :meth:`~pyrigi.graphDB.query.QueryBuilder.compile_count`.
+        """
+        cur = self._db.execute(compiled.sql, compiled.params)
+        return cur.fetchone()[0]
+
     def count_where(self, column: str, is_null: bool = True) -> int:
         """Count rows where *column* IS NULL or IS NOT NULL."""
         self._assert_known_column(column)
@@ -204,5 +216,4 @@ class GraphRepository:
             raise KeyError(f"Unknown column: {name!r}")
 
     def _existing_columns(self) -> set[str]:
-        cur = self._db.execute("PRAGMA table_info(graphs)")
-        return {row["name"] for row in cur.fetchall()}
+        return self._db.table_columns()

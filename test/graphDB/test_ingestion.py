@@ -80,7 +80,7 @@ class TestG6Reader:
         strings = list(G6Reader(f).iter_strings())
         # the lines around the undecodable one are kept; the bad bytes are
         # replaced so the parser can reject that line on its own
-        assert strings == ["B?", "��", "Bw"]
+        assert strings == ["B?", "\ufffd\ufffd", "Bw"]
 
     def test_corrupt_gzip_raises(self, tmp_path):
         bad = tmp_path / "bad.g6.gz"
