@@ -1,7 +1,7 @@
 """
 pyrigi.graphDB.defaults.columns
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Declaration of the built-in :class:`~pyrigi.graphDB.models.ColumnDef`
+Declaration of the built-in :class:`~pyrigi.graphDB.models.column_def.ColumnDef`
 objects.
 
 Populator functions live in :mod:`pyrigi.graphDB.defaults.populators` so they

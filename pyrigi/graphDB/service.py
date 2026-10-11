@@ -147,7 +147,7 @@ class GraphStoreService:
 
         Returns
         -------
-        IngestStats
+        ~pyrigi.graphDB.models.stats.IngestStats
             Summary of inserted, skipped, and errored rows, and of files
             processed and failed.
         """
@@ -242,7 +242,7 @@ class GraphStoreService:
 
         Returns
         -------
-        ColumnDef
+        ~pyrigi.graphDB.models.column_def.ColumnDef
             The registered column definition.
 
         Raises
@@ -390,7 +390,10 @@ class GraphStoreService:
         return self._registry.list_all()
 
     def get_column(self, name: str) -> Optional[ColumnDef]:
-        """Return the :class:`ColumnDef` for *name*, or ``None``."""
+        """Return the :class:`~pyrigi.graphDB.models.column_def.ColumnDef` for *name*.
+
+        Returns ``None`` if no column with that name is registered.
+        """
         self._require_init()
         return self._registry.get(name)
 
@@ -423,7 +426,7 @@ class GraphStoreService:
 
         Returns
         -------
-        PopulateStats
+        ~pyrigi.graphDB.models.stats.PopulateStats
             Summary of processed rows and any errors.
 
         Raises
@@ -517,7 +520,7 @@ class GraphStoreService:
         Parameters
         ----------
         filters:
-            List of :class:`~pyrigi.graphDB.models.QueryFilter` predicates
+            List of :class:`~pyrigi.graphDB.models.filters.QueryFilter` predicates
             combined with AND.
         expr:
             Optional grouped boolean predicate expression.
@@ -583,7 +586,7 @@ class GraphStoreService:
             Column names to return (plain names only, no SQL expressions).
             ``None`` means all columns (``*``).
         filters:
-            List of :class:`~pyrigi.graphDB.models.QueryFilter` predicates.
+            List of :class:`~pyrigi.graphDB.models.filters.QueryFilter` predicates.
         expr:
             Optional grouped boolean predicate expression.
         order_by:
@@ -600,7 +603,7 @@ class GraphStoreService:
 
         Returns
         -------
-        list[Any]
+        list
             Materialized query results.
 
         Raises
@@ -671,7 +674,7 @@ class GraphStoreService:
         Parameters
         ----------
         filters:
-            List of :class:`~pyrigi.graphDB.models.QueryFilter` predicates
+            List of :class:`~pyrigi.graphDB.models.filters.QueryFilter` predicates
             combined with AND.
         expr:
             Optional grouped boolean predicate expression.

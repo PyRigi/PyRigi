@@ -4,7 +4,7 @@ pyrigi.graphDB.query
 Fluent ``QueryBuilder`` and the ``CompiledQuery`` it produces.
 
 The builder never touches the database itself; it only assembles SQL
-from user-provided column names and :class:`~pyrigi.graphDB.models.QueryFilter`
+from user-provided column names and :class:`~pyrigi.graphDB.models.filters.QueryFilter`
 objects.  Raw SQL access to the database is delegated entirely to
 :class:`~pyrigi.graphDB.repositories.graph_repo.GraphRepository`.
 """
@@ -395,7 +395,8 @@ class QueryBuilder:
         """Compile and execute the query, returning rows as dicts.
 
         Only available when the builder was created by
-        :meth:`GraphStoreService.query` (which injects the repository).
+        :meth:`~pyrigi.graphDB.service.GraphStoreService.query` (which injects
+        the repository).
         """
         if self._repo is None:
             raise RuntimeError(

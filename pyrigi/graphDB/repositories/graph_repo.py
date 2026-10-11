@@ -45,8 +45,9 @@ class GraphRepository:
 
         Returns
         -------
-        (inserted, skipped):
-            Counts of new rows and rows already present.
+        tuple
+            ``(inserted, skipped)``: counts of new rows and of rows already
+            present.
         """
         if not rows:
             return 0, 0

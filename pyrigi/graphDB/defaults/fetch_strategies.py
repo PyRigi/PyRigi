@@ -7,8 +7,9 @@ Each function has the signature::
 
     strategy(column: str, operator: str, value: Any) -> tuple[str, list]
 
-and is registered on the corresponding :class:`~pyrigi.graphDB.models.ColumnDef`
-via both ``fetch_strategy`` (runtime) and ``fetch_ref`` (persisted in the DB).
+and is registered on the corresponding
+:class:`~pyrigi.graphDB.models.column_def.ColumnDef` via both
+``fetch_strategy`` (runtime) and ``fetch_ref`` (persisted in the DB).
 
 Rigidity / global-rigidity encoding
 -------------------------------------

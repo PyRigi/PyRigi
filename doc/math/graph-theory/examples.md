@@ -13,7 +13,7 @@ the graph $B_{d,t}$ is defined by putting $B_{d,t}=(G_1\cup G_2)-e$
 where $G_i\cong K_{d+2}$, $G_1\cap G_2\cong K_{t}$ and $e\in E(G_1\cap G_2)$.
 Note that the graph $B_{3,2}$  is the well known flexible {prf:ref}`circuit <def-matroid>` in the {prf:ref}`rigidity matroid <def-rigidity-matroid>` $\mathcal{R}_3$, commonly referred to as the _double banana_.
 
-{{pyrigi_crossref}} {meth}`~pyrigi.graphDB.DoubleBanana`
+{{pyrigi_crossref}} {func}`~pyrigi.graphDB.small_graphs.DoubleBanana`
 :::
 
 The family  $\mathcal{B}_{d,d-1}^+$ consists of all graphs of the form
@@ -70,7 +70,7 @@ given by the rotation of the outer polygon while the inner polygon remains
 fixed. This infinitesimal flex does not extend to a 
 {prf:ref}`continuous flex <def-motion>`.
 
-{{pyrigi_crossref}} {func}`.graphDB.Frustum`
+{{pyrigi_crossref}} {func}`~pyrigi.graphDB.small_graphs.Frustum`
 {func}`.frameworkDB.Frustum`
 :::
 
@@ -122,7 +122,7 @@ $m$ which satisfies the system of equations
 \end{equation*}
 where $1\leq i\leq n$.
 
-{{pyrigi_crossref}} {func}`~pyrigi.graphDB.CnSymmetricFourRegular`
+{{pyrigi_crossref}} {func}`~pyrigi.graphDB.small_graphs.CnSymmetricFourRegular`
 {func}`~pyrigi.frameworkDB.CnSymmetricFourRegular`
 
 {{references}} {cite:p}`LaPortaSchulze2024`
@@ -155,7 +155,7 @@ from the previous example extends to a nontrivial infinitesimal
 motion of the new framework $(G_n,p)$ which rotates the two 
 $n/2$-gons clockwise and anti-clockwise, respectively.
 
-{{pyrigi_crossref}} {func}`~pyrigi.graphDB.CnSymmetricWithFixedVertex`
+{{pyrigi_crossref}} {func}`~pyrigi.graphDB.small_graphs.CnSymmetricWithFixedVertex`
 {func}`~pyrigi.frameworkDB.CnSymmetricWithFixedVertex`
 
 {{references}} {cite:p}`LaPortaSchulze2024`

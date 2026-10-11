@@ -1,7 +1,7 @@
 """
 pyrigi.graphDB.defaults
 ~~~~~~~~~~~~~~~~~
-Package exporting the list of default :class:`~pyrigi.graphDB.models.ColumnDef`
+Package exporting the list of default :class:`~pyrigi.graphDB.models.column_def.ColumnDef`
 objects and their populator functions.
 """
 

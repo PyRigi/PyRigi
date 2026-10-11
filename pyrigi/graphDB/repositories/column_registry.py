@@ -49,7 +49,10 @@ class ColumnRegistryRepo:
         return [self._row_to_def(row) for row in cur.fetchall()]
 
     def get(self, name: str) -> Optional[ColumnDef]:
-        """Return the :class:`ColumnDef` for *name*, or ``None`` if not found."""
+        """Return the :class:`~pyrigi.graphDB.models.column_def.ColumnDef` for *name*.
+
+        Returns ``None`` if no column with that name is registered.
+        """
         cur = self._db.execute("SELECT * FROM column_registry WHERE name = ?", (name,))
         row = cur.fetchone()
         return self._row_to_def(row) if row else None
@@ -67,7 +70,8 @@ class ColumnRegistryRepo:
     # ------------------------------------------------------------------
 
     def register(self, col: ColumnDef) -> None:
-        """Upsert a :class:`ColumnDef` into the registry.
+        """Upsert a :class:`~pyrigi.graphDB.models.column_def.ColumnDef`
+        into the registry.
 
         If a column with the same name already exists the record is
         updated; otherwise a new row is inserted.
@@ -110,8 +114,9 @@ class ColumnRegistryRepo:
         .. note::
             This removes only the registry row.  Dropping the corresponding
             SQL column from the ``graphs`` table is handled by the service
-            layer (:meth:`GraphStoreService.drop_column`), which calls
-            :meth:`DatabaseManager.drop_column` after this method.
+            layer (:meth:`~pyrigi.graphDB.service.GraphStoreService.drop_column`),
+            which calls :meth:`~pyrigi.graphDB.db.DatabaseManager.drop_column`
+            after this method.
         """
         with self._db.connection:
             self._db.execute(
