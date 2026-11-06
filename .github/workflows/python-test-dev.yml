@@ -59,11 +59,11 @@ jobs:
       run: |
         cd doc/userguide/tutorials/
         poetry run jupytext --to notebook  *.md
-        mkdir  --verbose ../../notebooks
-        cp --verbose *.ipynb ../../notebooks
+        mkdir  -v ../../notebooks
+        cp -v *.ipynb ../../notebooks
         cd ..
         poetry run jupytext --to notebook  getting_started.md
-        cp --verbose getting_started.ipynb ../notebooks
+        cp -v getting_started.ipynb ../notebooks
     - name: Test doc compilation
       shell: bash
       run: |
