@@ -59,8 +59,9 @@ jobs:
     - name: Test with pytest
       shell: bash
       run: |
-        poetry run pytest --doctest-modules ${PYTEST_MARKER:+-m "$PYTEST_MARKER"}
-        # --doctest-modules overrides the default --doctest-plus
+        poetry run pytest ${PYTEST_MARKER:+-m "$PYTEST_MARKER"}
+        # doctests are run by doctest-plus (enabled in pyproject.toml),
+        # which skips those whose __doctest_requires__ packages are missing
     - name: Convert notebooks from md to ipynb
       shell: bash
       run: |
