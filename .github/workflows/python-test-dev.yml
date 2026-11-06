@@ -73,6 +73,8 @@ jobs:
         poetry run jupytext --to notebook  getting_started.md
         cp -v getting_started.ipynb ../notebooks
     - name: Test doc compilation
+      # The tutorial on mesh generation needs extra meshing, not installed on Python 3.15
+      if: matrix.python-version != '3.15'
       shell: bash
       run: |
         cd doc
