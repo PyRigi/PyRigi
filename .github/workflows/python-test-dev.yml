@@ -1,4 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# This workflow will install Python dependencies, run tests and lint with the latest versions of Python from 3.11 till 3.15
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
 name: Pytest-dev
@@ -14,43 +14,80 @@ permissions:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      # Use the non-interactive Agg backend of matplotlib: plots are only created, never shown.
+      # Otherwise, on Windows the default TkAgg backend sometimes fails to find Tcl/Tk
+      # ("Can't find a usable init.tcl"), making plotting tests fail randomly.
+      MPLBACKEND: Agg
 
     steps:
     - uses: actions/checkout@v4
     - name: Install poetry
       run: pipx install poetry
-    - name: Set up Python 3.11
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: "3.11"
+        python-version: ${{ matrix.python-version }}
         cache: 'poetry'
+    - name: Set extras and pytest marker depending on OS
+      # Extra lnumber is only installed and tested on Linux!
+      # Extra meshing is not installed on Python 3.15 (no manifold3d wheels yet)
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ] && [ "${{ matrix.python-version }}" == "3.15" ]; then
+          echo "EXTRAS=--extras lnumber" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=not meshing and not slow_main and not long_local" >> "$GITHUB_ENV"
+        elif [ "$RUNNER_OS" == "Linux" ]; then
+          echo "EXTRAS=--all-extras" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=" >> "$GITHUB_ENV"
+        elif [ "${{ matrix.python-version }}" == "3.15" ]; then
+          echo "EXTRAS=" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=not lnumber and not meshing and not slow_main and not long_local" >> "$GITHUB_ENV"
+        else
+          echo "EXTRAS=--extras meshing" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=not lnumber and not slow_main and not long_local" >> "$GITHUB_ENV"
+        fi
     - name: Install dependencies
-      run: poetry install --all-extras
+      shell: bash
+      run: poetry install $EXTRAS
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         poetry run flake8 . --count --show-source --statistics
     - name: Test with pytest
+      shell: bash
       run: |
-        poetry run pytest --doctest-modules
-        # --doctest-modules overrides the default --doctest-plus
+        poetry run pytest ${PYTEST_MARKER:+-m "$PYTEST_MARKER"}
+        # doctests are run by doctest-plus (enabled in pyproject.toml),
+        # which skips those whose __doctest_requires__ packages are missing
     - name: Convert notebooks from md to ipynb
+      shell: bash
       run: |
         cd doc/userguide/tutorials/
         poetry run jupytext --to notebook  *.md
-        mkdir  --verbose ../../notebooks
-        cp --verbose *.ipynb ../../notebooks
+        mkdir  -v ../../notebooks
+        cp -v *.ipynb ../../notebooks
         cd ..
         poetry run jupytext --to notebook  getting_started.md
-        cp --verbose getting_started.ipynb ../notebooks
+        cp -v getting_started.ipynb ../notebooks
     - name: Test doc compilation
+      # The tutorial on mesh generation needs extra meshing, not installed on Python 3.15
+      if: matrix.python-version != '3.15'
+      shell: bash
       run: |
         cd doc
         poetry run make SPHINXOPTS=--fail-on-warning html
     - name: Test without lnumber
+      # Only needed on Linux: on MacOS or Windows lnumber is never installed,
+      # so the tests above already ran without it
+      if: runner.os == 'Linux'
       run: |
         poetry sync
         poetry run pytest -m "not lnumber"  test/graph/rigidity/test_realization_counting.py
