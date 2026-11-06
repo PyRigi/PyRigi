@@ -31,24 +31,28 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'poetry'
-    - name: Install dependencies macOS
-      # Extras lnumber is not tested!
-      if: runner.os == 'macOS'
-      run: poetry install --extras meshing
-    - name: Install dependencies Ubuntu
-      if: runner.os == 'Linux'
-      run: poetry install --all-extras
-    - name: Install dependencies Windows
-      #  Extras lnumber is not tested!
-      if: runner.os == 'Windows'
-      run: poetry install --extras meshing
+    - name: Set extras and pytest marker depending on OS
+      # Extra lnumber is only installed and tested on Linux!
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "EXTRAS=--all-extras" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=" >> "$GITHUB_ENV"
+        else
+          echo "EXTRAS=--extras meshing" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=not lnumber" >> "$GITHUB_ENV"
+        fi
+    - name: Install dependencies
+      shell: bash
+      run: poetry install $EXTRAS
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         poetry run flake8 . --count --show-source --statistics
     - name: Test with pytest
+      shell: bash
       run: |
-        poetry run pytest --doctest-modules
+        poetry run pytest --doctest-modules ${PYTEST_MARKER:+-m "$PYTEST_MARKER"}
         # --doctest-modules overrides the default --doctest-plus
     - name: Convert notebooks from md to ipynb
       run: |
