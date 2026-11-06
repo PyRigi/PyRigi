@@ -4,6 +4,7 @@ Base module for the functionality concerning frameworks.
 
 from __future__ import annotations
 
+import textwrap
 import warnings
 from collections.abc import Callable
 from copy import deepcopy
@@ -613,11 +614,11 @@ class FrameworkBase(object):
         return F
 
 
-FrameworkBase.__doc__ = FrameworkBase.__doc__.replace(
+FrameworkBase.__doc__ = textwrap.dedent(FrameworkBase.__doc__).replace(
     "METHODS",
     generate_category_tables(
         FrameworkBase,
-        1,
+        0,
         [
             "Attribute getters",
             "Framework properties",
