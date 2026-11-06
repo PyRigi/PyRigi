@@ -40,7 +40,7 @@ jobs:
           echo "PYTEST_MARKER=" >> "$GITHUB_ENV"
         else
           echo "EXTRAS=--extras meshing" >> "$GITHUB_ENV"
-          echo "PYTEST_MARKER=not lnumber" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=not lnumber and not slow_main and not long_local" >> "$GITHUB_ENV"
         fi
     - name: Install dependencies
       shell: bash
