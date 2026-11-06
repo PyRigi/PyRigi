@@ -33,11 +33,18 @@ jobs:
         cache: 'poetry'
     - name: Set extras and pytest marker depending on OS
       # Extra lnumber is only installed and tested on Linux!
+      # Extra meshing is not installed on Python 3.15 (no manifold3d wheels yet)
       shell: bash
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
+        if [ "$RUNNER_OS" == "Linux" ] && [ "${{ matrix.python-version }}" == "3.15" ]; then
+          echo "EXTRAS=--extras lnumber" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=not meshing and not slow_main and not long_local" >> "$GITHUB_ENV"
+        elif [ "$RUNNER_OS" == "Linux" ]; then
           echo "EXTRAS=--all-extras" >> "$GITHUB_ENV"
           echo "PYTEST_MARKER=" >> "$GITHUB_ENV"
+        elif [ "${{ matrix.python-version }}" == "3.15" ]; then
+          echo "EXTRAS=" >> "$GITHUB_ENV"
+          echo "PYTEST_MARKER=not lnumber and not meshing and not slow_main and not long_local" >> "$GITHUB_ENV"
         else
           echo "EXTRAS=--extras meshing" >> "$GITHUB_ENV"
           echo "PYTEST_MARKER=not lnumber and not slow_main and not long_local" >> "$GITHUB_ENV"
