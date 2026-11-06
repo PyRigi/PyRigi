@@ -85,6 +85,9 @@ jobs:
         cd doc
         poetry run make SPHINXOPTS=--fail-on-warning html
     - name: Test without lnumber
+      # Only needed on Linux: on MacOS or Windows lnumber is never installed,
+      # so the tests above already ran without it
+      if: runner.os == 'Linux'
       run: |
         poetry sync
         poetry run pytest -m "not lnumber"  test/graph/rigidity/test_realization_counting.py
