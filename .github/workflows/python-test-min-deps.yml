@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ "main", "dev", "epic-*" ]
   workflow_dispatch:
+  schedule:
+    # Every Sunday at 20:00 UTC (GitHub cron runs in UTC)
+    - cron: "0 20 * * 0"
 
 permissions:
   contents: read
