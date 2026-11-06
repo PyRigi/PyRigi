@@ -32,14 +32,14 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'poetry'
     - name: Install dependencies macOS
-#      Extras lnumber is not tested!
+      # Extras lnumber is not tested!
       if: runner.os == 'macOS'
       run: poetry install --extras meshing
     - name: Install dependencies Ubuntu
       if: runner.os == 'Linux'
       run: poetry install --all-extras
-    - name: Install dependencies macOS
-    - #      Extras lnumber is not tested!
+    - name: Install dependencies Windows
+      #  Extras lnumber is not tested!
       if: runner.os == 'Windows'
       run: poetry install --extras meshing
     - name: Lint with flake8
