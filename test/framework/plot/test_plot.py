@@ -1,6 +1,5 @@
 import os
 
-import matplotlib.pyplot as plt
 import pytest
 
 import pyrigi.frameworkDB as fws
@@ -26,8 +25,6 @@ def test_plot_error(realization):
     with pytest.raises(ValueError):
         framework_plot.plot(F)
 
-    plt.close()
-
 
 def test_plot():
     F = Framework(graphs.Complete(2), {0: [1, 0], 1: [0, 1]})
@@ -37,8 +34,6 @@ def test_plot():
     F = Framework(graphs.Complete(2), {0: [1, 0, 0], 1: [0, 1, 1]})
     F = _to_FrameworkBase(F)
     framework_plot.plot(F)
-
-    plt.close("all")
 
 
 def test_plot2D():
@@ -78,8 +73,6 @@ def test_plot2D():
     framework_plot.plot2D(F, stress=0)
     framework_plot.plot2D(F, stress=stress_rigidity.stresses(F)[0])
     framework_plot.plot2D(F, stress=stress_rigidity.stresses(F, numerical=True)[0])
-
-    plt.close("all")
 
 
 def test_plot3D():
@@ -125,8 +118,6 @@ def test_plot3D():
     framework_plot.plot3D(F, stress=0)
     framework_plot.plot3D(F, stress=stress_rigidity.stresses(F)[0])
     framework_plot.plot3D(F, stress=stress_rigidity.stresses(F, numerical=True)[0])
-
-    plt.close("all")
 
 
 def test_animate3D_rotation():

@@ -2,7 +2,6 @@ import math
 from itertools import product
 from random import randint
 
-import matplotlib.pyplot as plt
 import networkx as nx
 import pytest
 
@@ -346,7 +345,6 @@ def test_parameter_value_error(method, params):
 def test_plot():
     G = graphs.DoubleBanana()
     G.plot(layout="random")
-    plt.close("all")
 
 
 @pytest.mark.long_local
