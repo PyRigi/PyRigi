@@ -21,6 +21,11 @@ jobs:
         python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    env:
+      # Use the non-interactive Agg backend of matplotlib: plots are only created, never shown.
+      # Otherwise, on Windows the default TkAgg backend sometimes fails to find Tcl/Tk
+      # ("Can't find a usable init.tcl"), making plotting tests fail randomly.
+      MPLBACKEND: Agg
 
     steps:
     - uses: actions/checkout@v4
