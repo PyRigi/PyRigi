@@ -1,0 +1,51 @@
+# Tests the package with the lowest versions of its direct dependencies
+# allowed by pyproject.toml, to verify that the declared lower bounds are correct.
+
+name: Pytest-min-dependencies
+
+on:
+  push:
+    branches: [ "main", "dev", "epic-*" ]
+  pull_request:
+    branches: [ "main", "dev", "epic-*" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-min-deps:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install poetry
+      run: pipx install poetry
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - name: Pin direct dependencies to their lower bounds
+      run: |
+        # Poetry cannot resolve to the lowest versions, so we turn every
+        # "package>=X" requirement into "package==X" (this does not touch
+        # requires-python, since it has no package name in front of ">=").
+        # Transitive dependencies are still resolved to their latest versions.
+        sed -i -E 's/"([A-Za-z0-9_.-]+)>=/"\1==/g' pyproject.toml
+        git diff pyproject.toml
+        rm -f poetry.lock
+        poetry lock
+    - name: Install dependencies
+      run: poetry install --all-extras
+    - name: Show installed versions
+      run: poetry run pip list
+    - name: Test with pytest
+      run: |
+        poetry run pytest --doctest-modules
+        # --doctest-modules overrides the default --doctest-plus
+    - name: Test without optional dependencies
+      run: |
+        poetry sync
+        poetry run pytest -m "not lnumber" test/graph/rigidity/test_realization_counting.py
