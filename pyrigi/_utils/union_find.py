@@ -1,4 +1,4 @@
-from typing import Hashable, TypeVar
+from typing import Hashable, TypeVar, Iterator
 
 T = TypeVar("T", bound=Hashable)
 
@@ -26,6 +26,9 @@ class UnionFind:
 
     def __str__(self) -> str:
         return self._data.__str__()
+
+    def __iter__(self) -> Iterator[T]:
+        return iter(self._data)
 
     def same_set(self, a: T, b: T) -> bool:
         return self.find(a) == self.find(b)
