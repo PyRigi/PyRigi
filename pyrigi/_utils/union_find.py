@@ -39,15 +39,10 @@ class UnionFind:
             self._data[a] = a
             return a
 
-        # recursion end
-        val = self._data[a]
-        if val == a:
-            return a
-
-        res = self.find(val)
-        # used to collapse union find trees
-        self._data[a] = res
-        return res
+        while self._data[a] != a:
+            self._data[a] = self._data[self._data[a]]
+            a = self._data[a]
+        return a
 
     def join(self, a: T, b: T) -> bool:
         """
