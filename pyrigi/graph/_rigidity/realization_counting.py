@@ -590,15 +590,10 @@ def _contraction_mapping(edges: list, n: int) -> dict:
     """
     mapping = {i: i for i in range(n + 1)}
     union_find = UnionFind()
-    nodes = []
     for u, v in edges:
         union_find.join(v, u)
-        nodes.append(u)
-        nodes.append(v)
     labels = {}
-    # ordered set workaround
-    # https://stackoverflow.com/questions/1653970/does-python-have-an-ordered-set
-    for v in dict.fromkeys(nodes):
+    for v in union_find._data:
         mapping[v] = labels.setdefault(union_find.find(v), n + 1 + len(labels))
     return mapping
 
