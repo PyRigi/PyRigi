@@ -144,7 +144,6 @@ def number_of_realizations(  # noqa: C901
     # Check trivial cases for higher dimensions
     # currently just for internal use to resolve default in higher dimensions if possible
     if algorithm == "checktrivial":
-
         # reduce by deleting vertices of degree = dim
         # :prf:ref:`lem-realization-0-extension`
         G = deepcopy(graph)
@@ -563,9 +562,17 @@ def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
 
 def _find(parent: dict, v: int) -> int:
     """
-    Return the root of ``v`` in the union-find forest ``parent`` (path halving).
+    Return the root of a vertex in the union-find forest using path halving.
+    That is, the representative of the reachability equivalence class.
+
+    Parameters
+    ----------
+    parent:
+        Union-find parent mapping.
+    v:
+        Input vertex.
     """
-    while parent[v] != v:
+    while parent[v] != v:  # only root nodes satisfy this
         parent[v] = parent[parent[v]]
         v = parent[v]
     return v
@@ -575,9 +582,15 @@ def _union_find(edges: list) -> tuple[dict, int]:
     """
     Build a union-find forest of the graph given by a list of edges.
 
-    Return the parent dictionary (keys are the vertices in order of first
-    occurrence in ``edges``) and the number of vertices minus the number
-    of connected components, i.e., the number of edges of a spanning forest.
+    Return the parent mapping
+    and the rank (bigraph terminology),
+    meaning |V| - #{connected components},
+    i.e., the number of edges of a spanning forest.
+
+    Parameters
+    ----------
+    edges:
+        Graph represented as a list of its edges.
     """
     parent = {}
     rank = 0
@@ -594,12 +607,17 @@ def _union_find(edges: list) -> tuple[dict, int]:
 
 def _contraction_mapping(edges: list, n: int) -> dict:
     """
-    Map each vertex in ``0, ..., n`` to itself, except that the vertices of
-    the ``i``-th connected component of the graph given by ``edges``
-    are mapped to ``n + 1 + i``.
+    Given a contraction of edges on a graph with n vertices,
+    map each vertex to:
+        1. Itself if none of its edges is getting contracted.
+        2. j > n that it will be contracted into.
 
-    Components are numbered in the order of the first occurrence
-    of their vertices in ``edges``.
+    Parameters
+    ----------
+    edges
+        Edges to contract.
+    n
+        Number of nodes of the graph.
     """
     mapping = {i: i for i in range(n + 1)}
     parent, _ = _union_find(edges)
