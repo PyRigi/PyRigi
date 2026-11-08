@@ -15,6 +15,7 @@ import sympy as sp
 import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.global_ as global_rigidity
 from pyrigi._utils import _input_check
+from pyrigi._utils.union_find import UnionFind
 from pyrigi.data_type import Inf
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph._export import export
@@ -554,55 +555,18 @@ def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
     Check whether a bigraph given by a list of biedges is pseudo-Laman.
     """
     return (
-        _union_find([be[0] for be in bigraph])[1]
-        + _union_find([be[1] for be in bigraph])[1]
+        _rank([be[0] for be in bigraph]) + _rank([be[1] for be in bigraph])
         == len(bigraph) + 1
     )
 
 
-def _find(parent: dict, v: int) -> int:
-    """
-    Return the root of a vertex in the union-find forest using path halving.
-    That is, the representative of the reachability equivalence class.
-
-    Parameters
-    ----------
-    parent:
-        Union-find parent mapping.
-    v:
-        Input vertex.
-    """
-    while parent[v] != v:  # only root nodes satisfy this
-        parent[v] = parent[parent[v]]
-        v = parent[v]
-    return v
-
-
-def _union_find(edges: list) -> tuple[dict, int]:
-    """
-    Build a union-find forest of the graph given by a list of edges.
-
-    Return the parent mapping
-    and the rank (bigraph terminology),
-    meaning |V| - #{connected components},
-    i.e., the number of edges of a spanning forest.
-
-    Parameters
-    ----------
-    edges:
-        Graph represented as a list of its edges.
-    """
-    parent = {}
+def _rank(edges: list) -> int:
+    union_find = UnionFind()
     rank = 0
     for u, v in edges:
-        parent.setdefault(u, u)
-        parent.setdefault(v, v)
-        u = _find(parent, u)
-        v = _find(parent, v)
-        if u != v:
-            parent[u] = v
+        if union_find.join(u, v):
             rank += 1
-    return parent, rank
+    return rank
 
 
 def _contraction_mapping(edges: list, n: int) -> dict:
@@ -620,10 +584,17 @@ def _contraction_mapping(edges: list, n: int) -> dict:
         Number of nodes of the graph.
     """
     mapping = {i: i for i in range(n + 1)}
-    parent, _ = _union_find(edges)
+    union_find = UnionFind()
+    nodes = []
+    for u, v in edges:
+        union_find.join(v, u)
+        nodes.append(u)
+        nodes.append(v)
     labels = {}
-    for v in parent:
-        mapping[v] = labels.setdefault(_find(parent, v), n + 1 + len(labels))
+    # ordered set workaround
+    # https://stackoverflow.com/questions/1653970/does-python-have-an-ordered-set
+    for v in dict.fromkeys(nodes):
+        mapping[v] = labels.setdefault(union_find.find(v), n + 1 + len(labels))
     return mapping
 
 
