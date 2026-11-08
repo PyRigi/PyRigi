@@ -546,6 +546,88 @@ def test__bigraph_is_pseudo_laman(biedges, result):
     assert realization_counting._bigraph_is_pseudo_laman(biedges) == result
 
 
+@pytest.mark.parametrize(
+    "parent, vertex, root",
+    [
+        [{1: 1}, 1, 1],
+        [{1: 2, 2: 2}, 1, 2],
+        [{1: 2, 2: 2}, 2, 2],
+        [{1: 2, 2: 3, 3: 4, 4: 4}, 1, 4],
+        [{1: 2, 2: 2, 3: 4, 4: 4}, 3, 4],
+    ],
+)
+def test__find(parent, vertex, root):
+    assert realization_counting._find(parent, vertex) == root
+
+
+def test__find_path_halving():
+    parent = {1: 2, 2: 3, 3: 4, 4: 4}
+    realization_counting._find(parent, 1)
+    assert parent == {1: 3, 2: 3, 3: 4, 4: 4}
+
+
+def _union_find_components(parent: dict) -> set[frozenset]:
+    """
+    Return the vertex sets of the components of a union-find forest.
+    """
+    components = {}
+    for v in parent:
+        components.setdefault(realization_counting._find(parent, v), set()).add(v)
+    return {frozenset(c) for c in components.values()}
+
+
+@pytest.mark.parametrize(
+    "edges, components, rank",
+    [
+        [[], [], 0],
+        [[[1, 2]], [{1, 2}], 1],
+        [[[1, 1]], [{1}], 0],
+        [[[1, 2], [1, 2]], [{1, 2}], 1],
+        [[[1, 2], [2, 3]], [{1, 2, 3}], 2],
+        [[[1, 2], [2, 3], [3, 1]], [{1, 2, 3}], 2],
+        [[[1, 2], [3, 4]], [{1, 2}, {3, 4}], 2],
+        [[[1, 2], [3, 4], [2, 3]], [{1, 2, 3, 4}], 3],
+        [[[1, 2], [3, 3], [5, 4]], [{1, 2}, {3}, {4, 5}], 2],
+    ],
+)
+def test__union_find(edges, components, rank):
+    parent, result_rank = realization_counting._union_find(edges)
+    assert _union_find_components(parent) == {frozenset(c) for c in components}
+    assert result_rank == rank
+
+
+@pytest.mark.parametrize("seed", range(20))
+def test__union_find_matches_networkx(seed):
+    G = nx.gnm_random_graph(12, 10, seed=seed)
+    edges = [list(e) for e in G.edges]
+    # isolated vertices do not occur in the edge list
+    H = nx.Graph(edges)
+
+    parent, rank = realization_counting._union_find(edges)
+
+    assert _union_find_components(parent) == {
+        frozenset(c) for c in nx.connected_components(H)
+    }
+    assert rank == H.number_of_nodes() - nx.number_connected_components(H)
+
+
+@pytest.mark.parametrize(
+    "edges, n, mapping",
+    [
+        [[], 2, {0: 0, 1: 1, 2: 2}],
+        [[[1, 2]], 3, {0: 0, 1: 4, 2: 4, 3: 3}],
+        [[[2, 2]], 3, {0: 0, 1: 1, 2: 4, 3: 3}],
+        [[[1, 2], [2, 3]], 3, {0: 0, 1: 4, 2: 4, 3: 4}],
+        # components are numbered by the first occurrence of their vertices
+        [[[3, 4], [1, 2]], 4, {0: 0, 1: 6, 2: 6, 3: 5, 4: 5}],
+        # components merged by a later edge get a single label
+        [[[1, 2], [3, 4], [2, 3]], 5, {0: 0, 1: 6, 2: 6, 3: 6, 4: 6, 5: 5}],
+    ],
+)
+def test__contraction_mapping(edges, n, mapping):
+    assert realization_counting._contraction_mapping(edges, n) == mapping
+
+
 def _run_realization_test_on_graph(G: nx.Graph, dim: int, check_lnumber: bool) -> None:
     """
     Run a set of realization counting tests on a given graph
