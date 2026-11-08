@@ -144,7 +144,6 @@ def number_of_realizations(  # noqa: C901
     # Check trivial cases for higher dimensions
     # currently just for internal use to resolve default in higher dimensions if possible
     if algorithm == "checktrivial":
-
         # reduce by deleting vertices of degree = dim
         # :prf:ref:`lem-realization-0-extension`
         G = deepcopy(graph)
@@ -554,15 +553,78 @@ def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
     """
     Check whether a bigraph given by a list of biedges is pseudo-Laman.
     """
-    graph1 = nx.Graph([be[0] for be in bigraph])
-    graph2 = nx.Graph([be[1] for be in bigraph])
     return (
-        graph1.number_of_nodes()
-        - nx.number_connected_components(graph1)
-        + graph2.number_of_nodes()
-        - nx.number_connected_components(graph2)
+        _union_find([be[0] for be in bigraph])[1]
+        + _union_find([be[1] for be in bigraph])[1]
         == len(bigraph) + 1
     )
+
+
+def _find(parent: dict, v: int) -> int:
+    """
+    Return the root of a vertex in the union-find forest using path halving.
+    That is, the representative of the reachability equivalence class.
+
+    Parameters
+    ----------
+    parent:
+        Union-find parent mapping.
+    v:
+        Input vertex.
+    """
+    while parent[v] != v:  # only root nodes satisfy this
+        parent[v] = parent[parent[v]]
+        v = parent[v]
+    return v
+
+
+def _union_find(edges: list) -> tuple[dict, int]:
+    """
+    Build a union-find forest of the graph given by a list of edges.
+
+    Return the parent mapping
+    and the rank (bigraph terminology),
+    meaning |V| - #{connected components},
+    i.e., the number of edges of a spanning forest.
+
+    Parameters
+    ----------
+    edges:
+        Graph represented as a list of its edges.
+    """
+    parent = {}
+    rank = 0
+    for u, v in edges:
+        parent.setdefault(u, u)
+        parent.setdefault(v, v)
+        u = _find(parent, u)
+        v = _find(parent, v)
+        if u != v:
+            parent[u] = v
+            rank += 1
+    return parent, rank
+
+
+def _contraction_mapping(edges: list, n: int) -> dict:
+    """
+    Given a contraction of edges on a graph with n vertices,
+    map each vertex to:
+        1. Itself if none of its edges is getting contracted.
+        2. j > n that it will be contracted into.
+
+    Parameters
+    ----------
+    edges
+        Edges to contract.
+    n
+        Number of nodes of the graph.
+    """
+    mapping = {i: i for i in range(n + 1)}
+    parent, _ = _union_find(edges)
+    labels = {}
+    for v in parent:
+        mapping[v] = labels.setdefault(_find(parent, v), n + 1 + len(labels))
+    return mapping
 
 
 def _biedges_have_loop(biedges: list) -> bool:
@@ -608,12 +670,7 @@ def _bigraph_contract_delete(biedges: list, select: list) -> list:
     for be in select:
         new_biedges.remove(be)
     n = max([max(*be[0], *be[1]) for be in biedges])
-    mapping = {i: i for i in range(n + 1)}
-    contract_graph = nx.Graph([be[0] for be in select])
-    contract_sets = list(nx.connected_components(contract_graph))
-    for i, c_set in enumerate(contract_sets):
-        for v in c_set:
-            mapping[v] = n + 1 + i
+    mapping = _contraction_mapping([be[0] for be in select], n)
     new_biedges2 = [
         [
             [mapping[be[0][0]], mapping[be[0][1]]],
@@ -633,12 +690,7 @@ def _bigraph_delete_contract(biedges: list, select: list) -> list:
     for be in select:
         new_biedges.remove(be)
     n = max([max(*be[0], *be[1]) for be in biedges])
-    mapping = {i: i for i in range(n + 1)}
-    contract_graph = nx.Graph([be[1] for be in select])
-    contract_sets = list(nx.connected_components(contract_graph))
-    for i, c_set in enumerate(contract_sets):
-        for v in c_set:
-            mapping[v] = n + 1 + i
+    mapping = _contraction_mapping([be[1] for be in select], n)
     new_biedges2 = [
         [
             be[0],
