@@ -1,4 +1,6 @@
-# This workflow will install Python dependencies, run tests and lint with the latest versions of Python from 3.11 till 3.15
+# This workflow will install Python dependencies, lint and
+# run tests without any extras with the latest versions of Python from 3.11 till 3.15
+# on Linux, Windows and MacOS
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
 name: Regular-core

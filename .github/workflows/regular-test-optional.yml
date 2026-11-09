@@ -1,7 +1,8 @@
-# This workflow will install Python dependencies, run tests and lint with the latest versions of Python from 3.11 till 3.15
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# This workflow will install Python dependencies and
+# run tests with all extras installed with the latest versions of Python from 3.11 till 3.15
+# on Linux, Windows and MacOS
 
-name: Pytest-dev
+name: Regular-optional
 
 on:
   push:
@@ -21,6 +22,11 @@ jobs:
         python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    env:
+      # Use the non-interactive Agg backend of matplotlib: plots are only created, never shown.
+      # Otherwise, on Windows the default TkAgg backend sometimes fails to find Tcl/Tk
+      # ("Can't find a usable init.tcl"), making plotting tests fail randomly.
+      MPLBACKEND: Agg
 
     steps:
     - uses: actions/checkout@v4
