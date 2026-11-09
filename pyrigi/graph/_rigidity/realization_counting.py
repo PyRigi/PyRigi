@@ -615,7 +615,7 @@ def _bigraph_contract_delete(biedges: list, select: list) -> list:
     """
     rest = _remove_biedges(biedges, select)
     left = _contract([be[0] for be in rest], [be[0] for be in select])
-    return [[l, be[1]] for l, be in zip(left, rest, strict=True)]
+    return [[ell, be[1]] for ell, be in zip(left, rest, strict=True)]
 
 
 def _bigraph_delete_contract(biedges: list, select: list) -> list:
