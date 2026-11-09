@@ -9,6 +9,15 @@ on:
     branches: [ "dev", "epic-*" ]
   pull_request:
     branches: [ "dev", "epic-*" ]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to test (scheduled runs always test dev)
+        type: string
+        default: dev
+  schedule:
+    # Every Wednesday at 03:00 UTC
+    - cron: '0 3 * * 3'
 
 permissions:
   contents: read
@@ -25,3 +34,4 @@ jobs:
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
+      ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.branch }}

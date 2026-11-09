@@ -13,6 +13,11 @@ on:
       python-version:
         required: true
         type: string
+      ref:
+        description: Git ref to check out (empty means the triggering ref)
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -29,6 +34,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
     - name: Install poetry
       run: pipx install poetry
     - name: Set up Python ${{ inputs.python-version }}
@@ -56,6 +63,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
     - name: Install poetry
       run: pipx install poetry
     - name: Set up Python ${{ inputs.python-version }}
