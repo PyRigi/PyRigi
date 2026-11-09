@@ -588,7 +588,7 @@ def _contraction_mapping(edges: list, n: int) -> dict:
     n
         Number of nodes of the graph.
     """
-    mapping = {i: i for i in range(n + 1)}
+    mapping = {i: i for i in range(1, n + 1)}
     union_find = UnionFind()
     for u, v in edges:
         union_find.join(u, v)
