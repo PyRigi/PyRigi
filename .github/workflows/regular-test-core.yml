@@ -3,7 +3,7 @@
 # on Linux, Windows and MacOS
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Regular-core
+name: Regular-core-dev
 
 on:
   push:
@@ -21,6 +21,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
+        min-dependencies: [true, false]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     env:
@@ -40,7 +41,20 @@ jobs:
         cache: 'poetry'
     - name: Install dependencies
       shell: bash
-      run: poetry install
+      run: |
+        if [ "${{ matrix.min-dependencies }}" ]; then
+          # Poetry cannot resolve to the lowest versions, so we turn every
+          # "package>=X" requirement into "package==X" (this does not touch
+          # requires-python, since it has no package name in front of ">=").
+          # Transitive dependencies are still resolved to their latest versions.
+          sed -i -E 's/"([A-Za-z0-9_.-]+)>=/"\1==/g' pyproject.toml
+          git diff pyproject.toml
+          rm -f poetry.lock
+          poetry lock
+        fi
+        poetry install
+    - name: Show installed versions
+      run: poetry run pip list
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
