@@ -54,6 +54,11 @@ jobs:
           echo "EXTRAS=--extras meshing" >> "$GITHUB_ENV"
           echo "PYTEST_MARKER=not lnumber and not slow_main and not long_local" >> "$GITHUB_ENV"
         fi
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "PYTEST_DOC_TEST=--doctest-modules" >> "$GITHUB_ENV"
+        else
+          echo "PYTEST_DOC_TEST=" >> "$GITHUB_ENV"
+        fi
     - name: Install dependencies
       shell: bash
       run: poetry install $EXTRAS
@@ -64,8 +69,10 @@ jobs:
     - name: Test with pytest
       shell: bash
       run: |
-        poetry run pytest ${PYTEST_MARKER:+-m "$PYTEST_MARKER"}
-        # doctests are run by doctest-plus (enabled in pyproject.toml),
+        poetry run pytest ${PYTEST_DOC_TEST:+-m "PYTEST_DOC_TEST"} ${PYTEST_MARKER:+-m "$PYTEST_MARKER"}
+        # on Linux, --doctest-modules overrides the default --doctest-plus
+        # hence, all doc tests are tested
+        # otherwise, doctests are run by doctest-plus (enabled in pyproject.toml),
         # which skips those whose __doctest_requires__ packages are missing
     - name: Convert notebooks from md to ipynb
       shell: bash
