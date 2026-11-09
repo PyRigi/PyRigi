@@ -563,13 +563,14 @@ def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
 def _rank(edges: list) -> int:
     """
     Calculate the rank of a graph.
-    That is, |V| - #{connected components}.
-    Which is equivalent to the number of edges of a spanning tree.
+
+    The rank of a graph is defined as |V| - |{connected components}|,
+    which is equivalent to the number of edges of a spanning forest.
     """
     union_find = UnionFind()
     rank = 0
     for u, v in edges:
-        if union_find.join(u, v):  # true if the spanning tree has been extended
+        if union_find.join(u, v):  # true if the spanning forest has been extended
             rank += 1
     return rank
 
