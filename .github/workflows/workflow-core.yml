@@ -1,0 +1,68 @@
+# Reusable workflow for one combination of OS and Python version:
+# lints and runs the tests without any extras.
+
+name: Workflow-core
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      python-version:
+        required: true
+        type: string
+      ref:
+        description: Git ref to check out (empty means the triggering ref)
+        required: false
+        type: string
+        default: ''
+      dependencies:
+        description: locked, latest, minimal or pip (see .github/actions/setup)
+        required: false
+        type: string
+        default: locked
+      pytest-options:
+        description: Options of pytest, in particular the marker expression
+        required: false
+        type: string
+        default: '-m "not lnumber and not meshing and not slow_main and not long_local"'
+      timeout-minutes:
+        description: Timeout of the job
+        required: false
+        type: number
+        default: 15
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test core
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    env:
+      # Use the non-interactive Agg backend of matplotlib: plots are only created, never shown.
+      # Otherwise, on Windows the default TkAgg backend sometimes fails to find Tcl/Tk
+      # ("Can't find a usable init.tcl"), making plotting tests fail randomly.
+      MPLBACKEND: Agg
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.ref }}
+    - uses: ./.github/actions/setup
+      with:
+        python-version: ${{ inputs.python-version }}
+        dependencies: ${{ inputs.dependencies }}
+    - name: Lint with flake8
+      shell: bash
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        poetry run flake8 . --count --show-source --statistics
+    - name: Test core functionality (no extras) with pytest
+      shell: bash
+      run: |
+        poetry run pytest ${{ inputs.pytest-options }}
+        # doctests are run by doctest-plus (enabled in pyproject.toml),
+        # which skips those whose __doctest_requires__ packages are missing

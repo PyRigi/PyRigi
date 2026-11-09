@@ -130,6 +130,27 @@ To run the standard tests and those marked `slow_main`, run
 pytest -m 'not long_local'
 ```
 
+## Regular tests on GitHub
+
+Besides the tests run on Linux with Python 3.12 for each pull request,
+we regularly test PyRigi on Linux, Windows and macOS with Python 3.12 to 3.15.
+This is done by the GitHub workflows `regular-test-*.yml` according to the following table:
+
+| workflow          | tests                                                          | dependencies                      | scheduled (UTC) |
+| ----------------- | -------------------------------------------------------------- | --------------------------------- | --------------- |
+| `core-dev`        | flake8 and standard tests without optional packages            | from `poetry.lock` and the lowest | Monday 02:17    |
+| `core-main`       | as above, also `slow_main` and `--graph-class=both`            | the latest, installed by `pip`    | Monday 05:17    |
+| `extras-doc-dev`  | tests of each optional package, doctests, documentation        | from `poetry.lock`                | Thursday 02:17  |
+| `extras-doc-main` | as above, also `slow_main`, `--graph-class=both` and notebooks | the latest, installed by `pip`    | Thursday 05:17  |
+
+The lowest dependencies are the lower bounds in `pyproject.toml`.
+On `main`, PyRigi is installed by `pip` (only the development tools by Poetry)
+so that the dependencies are resolved as for users.
+The doctests and the documentation are tested only if the tests of all [optional packages](#optional-packages)
+pass for the same operating system and Python version.
+The `dev` workflows run also on each push and pull request to `dev`.
+All workflows can be run on demand on any branch in the Actions tab on GitHub.
+
 ## Coverage
 
 To check the coverage by the unit tests, run
