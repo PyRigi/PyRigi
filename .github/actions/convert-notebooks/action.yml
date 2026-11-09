@@ -1,0 +1,31 @@
+# This action converts tutorials from md to ipynb and copies them to doc/notebooks.
+# Poetry and the dependencies (jupytext) must be installed before this action is used.
+
+name: Convert notebooks from md to ipynb
+description: Convert the tutorials and getting_started with jupytext and copy the notebooks to doc/notebooks
+
+inputs:
+  remove-skip-execution:
+    description: >
+      "true" to remove the skip-execution cell magic first
+      (doc/remove_skip_execution_magic.py), so that the notebooks are executed in the doc build
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+  - name: Remove skip-execution cell magic
+    if: inputs.remove-skip-execution == 'true'
+    shell: bash
+    run: poetry run python doc/remove_skip_execution_magic.py
+  - name: Convert notebooks from md to ipynb
+    shell: bash
+    run: |
+      cd doc/userguide/tutorials/
+      poetry run jupytext --to notebook  *.md
+      mkdir  -v ../../notebooks
+      cp -v *.ipynb ../../notebooks
+      cd ..
+      poetry run jupytext --to notebook  getting_started.md
+      cp -v getting_started.ipynb ../notebooks

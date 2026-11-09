@@ -1,0 +1,88 @@
+# This action sets up poetry and Python and installs the dependencies.
+# The repository must be checked out before this action is used.
+
+name: Set up poetry, Python and dependencies
+description: Install poetry and Python, optionally resolve the latest or the minimal versions of the dependencies, and run poetry sync
+
+inputs:
+  python-version:
+    description: Python version
+    required: true
+  dependencies:
+    description: >
+      locked (versions from poetry.lock),
+      latest (ignore poetry.lock, use the latest versions allowed by pyproject.toml, resolved by poetry),
+      minimal (the lowest versions of the direct dependencies allowed by pyproject.toml), or
+      pip (the dev and doc tools by poetry, PyRigi with its dependencies by pip as users do)
+    required: false
+    default: locked
+  install-args:
+    description: Arguments of poetry sync (not used for pip), e.g. "--all-extras" or "--extras lnumber"
+    required: false
+    default: ''
+  pip-extras:
+    description: Extras of PyRigi installed by pip (only used for pip), e.g. "lnumber" or "lnumber,meshing"
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+  - name: Install poetry
+    shell: bash
+    run: pipx install poetry
+  - name: Set up Python ${{ inputs.python-version }}
+    uses: actions/setup-python@v5
+    with:
+      python-version: ${{ inputs.python-version }}
+      # The poetry cache is keyed by the hash of poetry.lock, and setup-python fails
+      # if that file is missing (it is not committed to main). It is also useless
+      # when poetry.lock is regenerated below, so we cache only locked dependencies.
+      cache: ${{ inputs.dependencies == 'locked' && hashFiles('poetry.lock') != '' && 'poetry' || '' }}
+  - name: Resolve ${{ inputs.dependencies }} dependencies
+    if: inputs.dependencies != 'locked' && inputs.dependencies != 'pip'
+    shell: bash
+    env:
+      DEPENDENCIES: ${{ inputs.dependencies }}
+    run: |
+      if [ "$DEPENDENCIES" == "minimal" ]; then
+        # Poetry cannot resolve to the lowest versions, so we turn every
+        # "package>=X" requirement into "package==X" (this does not touch
+        # requires-python, since it has no package name in front of ">=").
+        # Transitive dependencies are still resolved to their latest versions.
+        # (-i.bak works on both GNU and BSD/macOS sed)
+        sed -i.bak -E 's/"([A-Za-z0-9_.-]+)>=/"\1==/g' pyproject.toml
+        rm -f pyproject.toml.bak
+        git diff pyproject.toml
+      elif [ "$DEPENDENCIES" != "latest" ]; then
+        echo "Unknown value of dependencies: $DEPENDENCIES" >&2
+        exit 1
+      fi
+      # ignore poetry.lock so that the dependencies are resolved from pyproject.toml
+      rm -f poetry.lock
+      poetry lock
+  - name: Install dependencies
+    if: inputs.dependencies != 'pip'
+    shell: bash
+    env:
+      INSTALL_ARGS: ${{ inputs.install-args }}
+    # sync (unlike install) also removes packages that are not required,
+    # e.g. extras or packages left in a virtualenv restored from the cache
+    run: poetry sync $INSTALL_ARGS
+  - name: Install tools with poetry and PyRigi with pip
+    if: inputs.dependencies == 'pip'
+    shell: bash
+    env:
+      EXTRAS: ${{ inputs.pip-extras }}
+    run: |
+      # only the poetry groups (dev and doc tools), without PyRigi and its dependencies
+      poetry install --only dev,doc --no-root
+      # PyRigi from a built wheel with the latest versions of its dependencies allowed
+      # by the package metadata, resolved by pip as for users; eager upgrade is needed
+      # since some of them are already installed as dependencies of the tools
+      poetry run pip install --upgrade --upgrade-strategy eager ".${EXTRAS:+[$EXTRAS]}"
+      # fail if pip broke a requirement of the tools
+      poetry run pip check
+  - name: Show installed versions
+    shell: bash
+    run: poetry run pip list
