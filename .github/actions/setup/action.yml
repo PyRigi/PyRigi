@@ -30,7 +30,10 @@ runs:
     uses: actions/setup-python@v5
     with:
       python-version: ${{ inputs.python-version }}
-      cache: 'poetry'
+      # The poetry cache is keyed by the hash of poetry.lock, and setup-python fails
+      # if that file is missing (it is not committed to main). It is also useless
+      # when poetry.lock is regenerated below, so we cache only locked dependencies.
+      cache: ${{ inputs.dependencies == 'locked' && hashFiles('poetry.lock') != '' && 'poetry' || '' }}
   - name: Resolve ${{ inputs.dependencies }} dependencies
     if: inputs.dependencies != 'locked'
     shell: bash

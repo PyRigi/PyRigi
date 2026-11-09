@@ -1,7 +1,8 @@
 # This workflow lints and runs tests without any extras with the latest versions of Python
 # from 3.12 till 3.15 on Linux, Windows and MacOS, with locked and with minimal dependencies
 # (see workflow-core.yml).
-# It runs on pushes and pull requests to dev, every Monday on dev, and on demand on any branch.
+# It runs on pushes and pull requests to dev and epic-*, every Monday on dev,
+# and on demand on any branch.
 
 name: Regular-core-dev
 

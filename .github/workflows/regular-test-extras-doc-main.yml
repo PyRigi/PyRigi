@@ -5,7 +5,7 @@
 # analogously to python-test-main.yml (see workflow-extras-and-doc.yml).
 # It runs every Thursday on main and on demand on any branch.
 
-name: Regular-other-main
+name: Regular-extras-doc-main
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.12", "3.13", "3.14", "3.15"]
-    name: ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    name: Test extras-doc-main on ${{ matrix.os }}, Python ${{ matrix.python-version }} with latest dependencies
     uses: ./.github/workflows/workflow-extras-and-doc.yml
     with:
       os: ${{ matrix.os }}
@@ -37,5 +37,5 @@ jobs:
       ref: ${{ inputs.branch }}
       dependencies: latest
       pytest-options: "-m 'not long_local' --graph-class=both"
-      execute-notebooks: true
+      remove-skip-execution: true
       timeout-minutes: 60

@@ -1,8 +1,10 @@
 # This workflow runs, for each combination of OS and Python version from 3.12 till 3.15,
 # the tests of optional extras and, only if they pass for that same combination,
 # the doctests and the documentation compilation (see workflow-extras-and-doc.yml).
+# It runs on pushes and pull requests to dev and epic-*, every Thursday on dev,
+# and on demand on any branch.
 
-name: Regular-other
+name: Regular-extras-doc-dev
 
 on:
   push:
@@ -29,9 +31,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.12", "3.13", "3.14", "3.15"]
-    name: ${{ matrix.os }}, Python ${{ matrix.python-version }}
+    name: Test extras-doc-dev on ${{ matrix.os }}, Python ${{ matrix.python-version }}
     uses: ./.github/workflows/workflow-extras-and-doc.yml
     with:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
+      # scheduled runs test dev (the default branch is main),
+      # manual runs test the chosen branch, other triggers the triggering ref
       ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.branch }}

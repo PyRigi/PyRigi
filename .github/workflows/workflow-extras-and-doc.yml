@@ -24,11 +24,11 @@ on:
         type: string
         default: locked
       pytest-options:
-        description: Additional options for all pytest calls
+        description: Additional options for pytest calls
         required: false
         type: string
         default: ''
-      execute-notebooks:
+      remove-skip-execution:
         description: Remove the skip-execution cell magic so that the notebooks are executed in the doc build
         required: false
         type: boolean
@@ -88,12 +88,12 @@ jobs:
     - name: Test all doctests with pytest
       shell: bash
       run: |
-        poetry run pytest --doctest-modules ${{ inputs.pytest-options }}
-        # --doctest-modules overrides the default --doctest-plus
-        # hence, all doc tests are tested
+        poetry run pytest --doctest-modules pyrigi
+        # --doctest-modules overrides the default --doctest-plus,
+        # hence, all doctests are tested (also those requiring extras).
     - uses: ./.github/actions/convert-notebooks
       with:
-        remove-skip-execution: ${{ inputs.execute-notebooks }}
+        remove-skip-execution: ${{ inputs.remove-skip-execution }}
     - name: Test doc compilation
       shell: bash
       run: |
