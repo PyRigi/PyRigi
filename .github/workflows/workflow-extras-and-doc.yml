@@ -1,0 +1,89 @@
+# Reusable workflow for one combination of OS and Python version:
+# first, tests requiring optional extras are run (one job per extra);
+# only if both pass, doctests and the documentation compilation are run.
+
+name: Workflow-extras-and-doc
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      python-version:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  extras:
+    name: extras (${{ matrix.extras }})
+    strategy:
+      fail-fast: false
+      matrix:
+        extras: ["lnumber", "meshing"]
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install poetry
+      run: pipx install poetry
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: 'poetry'
+    - name: Install dependencies
+      shell: bash
+      run: poetry install --extras ${{ matrix.extras }}
+    - name: Test functions requiring extra ${{ matrix.extras }}
+      shell: bash
+      run: |
+        if [ "${{ matrix.extras }}" == "lnumber" ]; then
+          poetry run pytest test/graph/rigidity/test_realization_counting.py
+        elif [ "${{ matrix.extras }}" == "meshing" ]; then
+          poetry run pytest test/framework/export/test_export.py
+        fi
+
+  doc:
+    name: doctests and documentation
+    needs: extras
+    runs-on: ${{ inputs.os }}
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install poetry
+      run: pipx install poetry
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: 'poetry'
+    - name: Install dependencies
+      shell: bash
+      run: poetry install --all-extras
+    - name: Test all doctests with pytest
+      shell: bash
+      run: |
+        poetry run pytest --doctest-modules
+        # --doctest-modules overrides the default --doctest-plus
+        # hence, all doc tests are tested
+    - name: Convert notebooks from md to ipynb
+      shell: bash
+      run: |
+        cd doc/userguide/tutorials/
+        poetry run jupytext --to notebook  *.md
+        mkdir  -v ../../notebooks
+        cp -v *.ipynb ../../notebooks
+        cd ..
+        poetry run jupytext --to notebook  getting_started.md
+        cp -v getting_started.ipynb ../notebooks
+    - name: Test doc compilation
+      shell: bash
+      run: |
+        cd doc
+        poetry run make SPHINXOPTS=--fail-on-warning html
