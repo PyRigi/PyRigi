@@ -42,7 +42,9 @@ To install `PyRigi` including `trimesh` and `manifold3d`, run
 ```
 pip install pyrigi[meshing]
 ```
-This is likely to fail with Python 3.15.
+Since currently (Nov 2026) the package [`manifold3d`](https://github.com/elalish/manifold)
+does not ship wheels for Python 3.15,
+this is likely to fail if you use Python 3.15.
 
 (OS-instructions)=
 ## Operating systems
