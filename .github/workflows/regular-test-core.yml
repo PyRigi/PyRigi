@@ -48,7 +48,8 @@ jobs:
           # "package>=X" requirement into "package==X" (this does not touch
           # requires-python, since it has no package name in front of ">=").
           # Transitive dependencies are still resolved to their latest versions.
-          sed -i -E 's/"([A-Za-z0-9_.-]+)>=/"\1==/g' pyproject.toml
+          sed -i.bak -E 's/"([A-Za-z0-9_.-]+)>=/"\1==/g' pyproject.toml
+          rm -f pyproject.toml.bak
           git diff pyproject.toml
           rm -f poetry.lock
           poetry lock
