@@ -78,6 +78,24 @@ def test_union_find_root_cnt_after_joins():
     assert uf.root_cnt(0) == -5
 
 
+def test_union_find_iter_empty():
+    uf = UnionFind()
+    assert list(iter(uf)) == []
+
+
+def test_union_find_iter_preserves_find_insertion_order():
+    uf = UnionFind()
+    uf.find("apple")
+    uf.find("banana")
+    assert list(iter(uf)) == ["apple", "banana"]
+
+
+def test_union_find_iter_preserves_join_insertion_order():
+    uf = UnionFind()
+    uf.join("apple", "banana")
+    assert list(iter(uf)) == ["apple", "banana"]
+
+
 def test_union_find_complex_scenario():
     uf = UnionFind()
     uf.join("a", "b")
