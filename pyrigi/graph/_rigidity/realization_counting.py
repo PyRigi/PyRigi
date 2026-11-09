@@ -574,32 +574,58 @@ def _rank(edges: list) -> int:
     return rank
 
 
-def _contraction_mapping(edges: list, n: int) -> dict:
+def _contract(edges: list, select: list) -> list:
     """
-    Map former nodes to nodes after contracting given edges.
-
-    Nodes are expected to be represented as integers from {1..n}.
-
-    Contracting an edge {u, v} merges u and v into a single node.
-    In fact, all nodes connected via contracted edges are merged into a single node.
-    For each such connected component, a new node is created.
-    If no edges of a node are being contracted, the mapping is an identity.
+    Contract edges of a graph.
 
     Parameters
     ----------
     edges
-        Edges to contract.
-    n
-        Number of nodes of the graph.
+        A list of edges. Selected edges are expected to be removed.
+    select
+        Edges to be contracted.
     """
-    mapping = {i: i for i in range(1, n + 1)}
     union_find = UnionFind()
-    for u, v in edges:
+    for u, v in select:
         union_find.join(u, v)
-    labels = {}
-    for v in union_find:
-        mapping[v] = labels.setdefault(union_find.find(v), n + 1 + len(labels))
-    return mapping
+    return [[union_find.find(u), union_find.find(v)] for u, v in edges]
+
+
+def _remove_biedges(biedges: list, select: list) -> list:
+    """
+    Remove selected biedges of a bigraph.
+
+    Parameters
+    ----------
+    biedges
+        A set of biedges.
+    select
+        Subset of biedges to be removed.
+    """
+    rest = copy(biedges)
+    for be in select:
+        rest.remove(be)
+    return rest
+
+
+def _bigraph_contract_delete(biedges: list, select: list) -> list:
+    """
+    Contract edges of a bigraph on the left
+    and delete on the right.
+    """
+    rest = _remove_biedges(biedges, select)
+    left = _contract([be[0] for be in rest], [be[0] for be in select])
+    return [[l, be[1]] for l, be in zip(left, rest, strict=True)]
+
+
+def _bigraph_delete_contract(biedges: list, select: list) -> list:
+    """
+    Contract edges of a bigraph on the right
+    and delete on the left.
+    """
+    rest = _remove_biedges(biedges, select)
+    right = _contract([be[1] for be in rest], [be[1] for be in select])
+    return [[be[0], r] for be, r in zip(rest, right, strict=True)]
 
 
 def _biedges_have_loop(biedges: list) -> bool:
@@ -634,43 +660,3 @@ def _graph_to_bigraph(graph: nx.Graph) -> list:
         for edge in graph.edges
     ]
     return biedges
-
-
-def _bigraph_contract_delete(biedges: list, select: list) -> list:
-    """
-    Contract edges of a bigraph on the left
-    and delete on the right.
-    """
-    new_biedges = copy(biedges)
-    for be in select:
-        new_biedges.remove(be)
-    n = max([max(*be[0], *be[1]) for be in biedges])
-    mapping = _contraction_mapping([be[0] for be in select], n)
-    new_biedges2 = [
-        [
-            [mapping[be[0][0]], mapping[be[0][1]]],
-            be[1],
-        ]
-        for be in new_biedges
-    ]
-    return new_biedges2
-
-
-def _bigraph_delete_contract(biedges: list, select: list) -> list:
-    """
-    Contract edges of a bigraph on the right
-    and delete on the left.
-    """
-    new_biedges = copy(biedges)
-    for be in select:
-        new_biedges.remove(be)
-    n = max([max(*be[0], *be[1]) for be in biedges])
-    mapping = _contraction_mapping([be[1] for be in select], n)
-    new_biedges2 = [
-        [
-            be[0],
-            [mapping[be[1][0]], mapping[be[1][1]]],
-        ]
-        for be in new_biedges
-    ]
-    return new_biedges2
