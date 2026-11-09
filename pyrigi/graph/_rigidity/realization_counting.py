@@ -576,10 +576,14 @@ def _rank(edges: list) -> int:
 
 def _contraction_mapping(edges: list, n: int) -> dict:
     """
-    Given a contraction of edges on a graph with n vertices,
-    map each vertex to:
-        1. Itself if none of its edges is getting contracted.
-        2. j > n that it will be contracted into.
+    Map former nodes to nodes after contracting given edges.
+
+    Nodes are expected to be represented as integers from {1..n}.
+
+    Contracting an edge {u, v} merges u and v into a single node.
+    In fact, all nodes connected via contracted edges are merged into a single node.
+    For each such connected component, a new node is created.
+    If no edges of a node are being contracted, the mapping is an identity.
 
     Parameters
     ----------
