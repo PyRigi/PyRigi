@@ -36,9 +36,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'poetry'
-    - name: Set extras and pytest marker depending on OS
+    - name: Set extras and pytest depending on OS
       # Extra lnumber is only installed and tested on Linux!
       # Extra meshing is not installed on Python 3.15 (no manifold3d wheels yet)
+      # Testing of all doctests is required on Linux,
+      # while doctests requiring uninstalled optional packages are skipped for other OS
       shell: bash
       run: |
         if [ "$RUNNER_OS" == "Linux" ] && [ "${{ matrix.python-version }}" == "3.15" ]; then
@@ -54,6 +56,7 @@ jobs:
           echo "EXTRAS=--extras meshing" >> "$GITHUB_ENV"
           echo "PYTEST_MARKER=not lnumber and not slow_main and not long_local" >> "$GITHUB_ENV"
         fi
+        # setup testing docstrings
         if [ "$RUNNER_OS" == "Linux" ]; then
           echo "PYTEST_DOC_TEST=--doctest-modules" >> "$GITHUB_ENV"
         else
@@ -69,7 +72,7 @@ jobs:
     - name: Test with pytest
       shell: bash
       run: |
-        poetry run pytest ${PYTEST_DOC_TEST:+-m "PYTEST_DOC_TEST"} ${PYTEST_MARKER:+-m "$PYTEST_MARKER"}
+        poetry run pytest ${PYTEST_DOC_TEST:+"$PYTEST_DOC_TEST"} ${PYTEST_MARKER:+-m "$PYTEST_MARKER"}
         # on Linux, --doctest-modules overrides the default --doctest-plus
         # hence, all doc tests are tested
         # otherwise, doctests are run by doctest-plus (enabled in pyproject.toml),
