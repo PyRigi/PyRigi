@@ -1,0 +1,39 @@
+# This workflow lints and runs tests without any extras with the latest versions of Python
+# from 3.12 till 3.15 on Linux, Windows and MacOS, with the latest possible versions of
+# the dependencies (poetry.lock is ignored), analogously to python-test-main.yml:
+# slow_main tests are included and both graph classes are tested (see workflow-core.yml).
+# It runs every Monday on main and on demand on any branch.
+
+name: Regular-core-main
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to test (scheduled runs always test the default branch, main)
+        type: string
+        default: main
+  schedule:
+    # Every Monday at 05:17 UTC
+    - cron: '17 5 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.12", "3.13", "3.14", "3.15"]
+    name: Test core-main on ${{ matrix.os }}, Python ${{ matrix.python-version }} with latest dependencies
+    uses: ./.github/workflows/workflow-core.yml
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      # empty (scheduled runs) means the default branch, main
+      ref: ${{ inputs.branch }}
+      dependencies: latest
+      pytest-options: '-m "not lnumber and not meshing and not long_local" --graph-class=both'
+      timeout-minutes: 60

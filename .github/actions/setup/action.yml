@@ -1,0 +1,63 @@
+# Sets up poetry and Python and installs the dependencies.
+# The repository must be checked out before this action is used.
+
+name: Set up poetry, Python and dependencies
+description: Install poetry and Python, optionally resolve the latest or the minimal versions of the dependencies, and run poetry install
+
+inputs:
+  python-version:
+    description: Python version
+    required: true
+  dependencies:
+    description: >
+      locked (versions from poetry.lock),
+      latest (ignore poetry.lock, use the latest versions allowed by pyproject.toml), or
+      minimal (the lowest versions of the direct dependencies allowed by pyproject.toml)
+    required: false
+    default: locked
+  install-args:
+    description: Arguments of poetry install, e.g. "--all-extras" or "--extras lnumber"
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+  - name: Install poetry
+    shell: bash
+    run: pipx install poetry
+  - name: Set up Python ${{ inputs.python-version }}
+    uses: actions/setup-python@v5
+    with:
+      python-version: ${{ inputs.python-version }}
+      cache: 'poetry'
+  - name: Resolve ${{ inputs.dependencies }} dependencies
+    if: inputs.dependencies != 'locked'
+    shell: bash
+    env:
+      DEPENDENCIES: ${{ inputs.dependencies }}
+    run: |
+      if [ "$DEPENDENCIES" == "minimal" ]; then
+        # Poetry cannot resolve to the lowest versions, so we turn every
+        # "package>=X" requirement into "package==X" (this does not touch
+        # requires-python, since it has no package name in front of ">=").
+        # Transitive dependencies are still resolved to their latest versions.
+        # (-i.bak works on both GNU and BSD/macOS sed)
+        sed -i.bak -E 's/"([A-Za-z0-9_.-]+)>=/"\1==/g' pyproject.toml
+        rm -f pyproject.toml.bak
+        git diff pyproject.toml
+      elif [ "$DEPENDENCIES" != "latest" ]; then
+        echo "Unknown value of dependencies: $DEPENDENCIES" >&2
+        exit 1
+      fi
+      # ignore poetry.lock so that the dependencies are resolved from pyproject.toml
+      rm -f poetry.lock
+      poetry lock
+  - name: Install dependencies
+    shell: bash
+    env:
+      INSTALL_ARGS: ${{ inputs.install-args }}
+    run: poetry install $INSTALL_ARGS
+  - name: Show installed versions
+    shell: bash
+    run: poetry run pip list

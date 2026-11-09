@@ -1,7 +1,7 @@
-# This workflow will install Python dependencies, lint and
-# run tests without any extras with the latest versions of Python from 3.12 till 3.15
-# on Linux, Windows and MacOS
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# This workflow lints and runs tests without any extras with the latest versions of Python
+# from 3.12 till 3.15 on Linux, Windows and MacOS, with locked and with minimal dependencies
+# (see workflow-core.yml).
+# It runs on pushes and pull requests to dev, every Monday on dev, and on demand on any branch.
 
 name: Regular-core-dev
 
@@ -17,64 +17,26 @@ on:
         type: string
         default: dev
   schedule:
-    # Every Sunday at 03:00 UTC
-    - cron: '0 3 * * 0'
+    # Every Monday at 02:17 UTC
+    - cron: '17 2 * * 1'
 
 permissions:
   contents: read
 
 jobs:
   test:
-    name: Test core-dev on ${{ matrix.os }}, Python ${{ matrix.python-version }} with ${{ matrix.min-dependencies && 'minimal' || 'locked' }} dependencies
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.12", "3.13", "3.14", "3.15"]
-        min-dependencies: [true, false]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
-    env:
-      # Use the non-interactive Agg backend of matplotlib: plots are only created, never shown.
-      # Otherwise, on Windows the default TkAgg backend sometimes fails to find Tcl/Tk
-      # ("Can't find a usable init.tcl"), making plotting tests fail randomly.
-      MPLBACKEND: Agg
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        # scheduled runs test dev (the default branch is main),
-        # manual runs test the chosen branch, other triggers the triggering ref
-        ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.branch }}
-    - name: Install poetry
-      run: pipx install poetry
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'poetry'
-    - name: Install dependencies
-      shell: bash
-      run: |
-        if [ "${{ matrix.min-dependencies }}" == "true" ]; then
-          # Poetry cannot resolve to the lowest versions, so we turn every
-          # "package>=X" requirement into "package==X" (this does not touch
-          # requires-python, since it has no package name in front of ">=").
-          # Transitive dependencies are still resolved to their latest versions.
-          sed -i.bak -E 's/"([A-Za-z0-9_.-]+)>=/"\1==/g' pyproject.toml
-          rm -f pyproject.toml.bak
-          git diff pyproject.toml
-          rm -f poetry.lock
-          poetry lock
-        fi
-        poetry install
-    - name: Show installed versions
-      run: poetry run pip list
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        poetry run flake8 . --count --show-source --statistics
-    - name: Test core functionality (no extras) with pytest
-      run: poetry run pytest -m "not lnumber and not meshing and not slow_main and not long_local"
-        # doctests are run by doctest-plus (enabled in pyproject.toml),
-        # which skips those whose __doctest_requires__ packages are missing
+        dependencies: [locked, minimal]
+    name: Test core-dev on ${{ matrix.os }}, Python ${{ matrix.python-version }} with ${{ matrix.dependencies }} dependencies
+    uses: ./.github/workflows/workflow-core.yml
+    with:
+      os: ${{ matrix.os }}
+      python-version: ${{ matrix.python-version }}
+      # scheduled runs test dev (the default branch is main),
+      # manual runs test the chosen branch, other triggers the triggering ref
+      ref: ${{ github.event_name == 'schedule' && 'dev' || inputs.branch }}
+      dependencies: ${{ matrix.dependencies }}

@@ -16,8 +16,8 @@ on:
         type: string
         default: dev
   schedule:
-    # Every Wednesday at 03:00 UTC
-    - cron: '0 3 * * 3'
+    # Every Thursday at 02:17 UTC
+    - cron: '17 2 * * 4'
 
 permissions:
   contents: read
