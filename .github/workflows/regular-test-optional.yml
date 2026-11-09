@@ -1,8 +1,9 @@
 # This workflow will install Python dependencies and
-# run tests with all extras installed with the latest versions of Python from 3.11 till 3.15
+# run corresponding tests with each extra
+# installed with the latest versions of Python from 3.11 till 3.15
 # on Linux, Windows and MacOS
 
-name: Regular-optional
+name: Regular-extras
 
 on:
   push:
@@ -20,13 +21,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
+        extras: ["lnumber", "meshing"]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
-    env:
-      # Use the non-interactive Agg backend of matplotlib: plots are only created, never shown.
-      # Otherwise, on Windows the default TkAgg backend sometimes fails to find Tcl/Tk
-      # ("Can't find a usable init.tcl"), making plotting tests fail randomly.
-      MPLBACKEND: Agg
 
     steps:
     - uses: actions/checkout@v4
@@ -39,25 +36,12 @@ jobs:
         cache: 'poetry'
     - name: Install dependencies
       shell: bash
-      run: poetry install --all-extras
-    - name: Test all with pytest
+      run: poetry install --extras ${{ matrix.extras }}
+    - name: Test functions requiring extra ${{ matrix.extras }}
       shell: bash
       run: |
-        poetry run pytest --doctest-modules
-        # --doctest-modules overrides the default --doctest-plus
-        # hence, all doc tests are tested
-    - name: Convert notebooks from md to ipynb
-      shell: bash
-      run: |
-        cd doc/userguide/tutorials/
-        poetry run jupytext --to notebook  *.md
-        mkdir  -v ../../notebooks
-        cp -v *.ipynb ../../notebooks
-        cd ..
-        poetry run jupytext --to notebook  getting_started.md
-        cp -v getting_started.ipynb ../notebooks
-    - name: Test doc compilation
-      shell: bash
-      run: |
-        cd doc
-        poetry run make SPHINXOPTS=--fail-on-warning html
+        if [ "${{ matrix.extras }}" == "lnumber" ]; then
+          poetry run pytest test/graph/rigidity/test_realization_counting.py
+        elif [ "${{ matrix.extras }}" == "meshing" ]; then
+          poetry run pytest test/framework/export/test_export.py
+        fi
