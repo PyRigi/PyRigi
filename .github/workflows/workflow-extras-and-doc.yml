@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   extras:
-    name: extras (${{ matrix.extras }})
+    name: Test extra ${{ matrix.extras }}
     strategy:
       fail-fast: false
       matrix:
@@ -49,7 +49,7 @@ jobs:
         fi
 
   doc:
-    name: doctests and documentation
+    name: Test doctests and documentation
     needs: extras
     runs-on: ${{ inputs.os }}
     timeout-minutes: 15

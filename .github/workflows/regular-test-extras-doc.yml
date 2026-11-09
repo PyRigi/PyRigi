@@ -2,7 +2,7 @@
 # the tests of optional extras and, only if they pass for that same combination,
 # the doctests and the documentation compilation (see workflow-extras-and-doc.yml).
 
-name: Regular-extras-and-doc
+name: Regular-other
 
 on:
   push:
