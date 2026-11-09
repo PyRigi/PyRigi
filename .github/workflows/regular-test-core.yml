@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   test:
+    name: Test core on ${{ matrix.os }}, Python ${{ matrix.python-version }} with ${{ matrix.min-dependencies && 'minimal' || 'locked' }} dependencies
     strategy:
       fail-fast: false
       matrix:
@@ -42,7 +43,7 @@ jobs:
     - name: Install dependencies
       shell: bash
       run: |
-        if [ "${{ matrix.min-dependencies }}" ]; then
+        if [ "${{ matrix.min-dependencies }}" == "true" ]; then
           # Poetry cannot resolve to the lowest versions, so we turn every
           # "package>=X" requirement into "package==X" (this does not touch
           # requires-python, since it has no package name in front of ">=").
@@ -59,7 +60,7 @@ jobs:
       run: |
         # stop the build if there are Python syntax errors or undefined names
         poetry run flake8 . --count --show-source --statistics
-    - name: Test core with pytest
+    - name: Test core functionality (no extras) with pytest
       run: poetry run pytest -m "not lnumber and not meshing and not slow_main and not long_local"
         # doctests are run by doctest-plus (enabled in pyproject.toml),
         # which skips those whose __doctest_requires__ packages are missing
