@@ -42,6 +42,7 @@ To install `PyRigi` including `trimesh` and `manifold3d`, run
 ```
 pip install pyrigi[meshing]
 ```
+This is likely to fail with Python 3.15.
 
 (OS-instructions)=
 ## Operating systems
