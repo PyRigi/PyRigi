@@ -4,6 +4,7 @@ Module for the functionality concerning frameworks.
 
 from __future__ import annotations
 
+import textwrap
 from random import randrange
 from typing import Any
 
@@ -892,11 +893,11 @@ class Framework(FrameworkBase):
         return infinitesimal_rigidity.is_trivial_flex(self, inf_flex=inf_flex, **kwargs)
 
 
-Framework.__doc__ = Framework.__doc__.replace(
+Framework.__doc__ = textwrap.dedent(Framework.__doc__).replace(
     "METHODS",
     generate_category_tables(
         Framework,
-        1,
+        0,
         [
             "Attribute getters",
             "Framework properties",
