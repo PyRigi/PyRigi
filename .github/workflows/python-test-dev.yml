@@ -32,15 +32,7 @@ jobs:
       run: |
         poetry run pytest --doctest-modules
         # --doctest-modules overrides the default --doctest-plus
-    - name: Convert notebooks from md to ipynb
-      run: |
-        cd doc/userguide/tutorials/
-        poetry run jupytext --to notebook  *.md
-        mkdir  -v ../../notebooks
-        cp -v *.ipynb ../../notebooks
-        cd ..
-        poetry run jupytext --to notebook  getting_started.md
-        cp -v getting_started.ipynb ../notebooks
+    - uses: ./.github/actions/convert-notebooks
     - name: Test doc compilation
       run: |
         cd doc

@@ -91,20 +91,9 @@ jobs:
         poetry run pytest --doctest-modules ${{ inputs.pytest-options }}
         # --doctest-modules overrides the default --doctest-plus
         # hence, all doc tests are tested
-    - name: Remove skip-execution cell magic
-      if: inputs.execute-notebooks
-      shell: bash
-      run: poetry run python doc/remove_skip_execution_magic.py
-    - name: Convert notebooks from md to ipynb
-      shell: bash
-      run: |
-        cd doc/userguide/tutorials/
-        poetry run jupytext --to notebook  *.md
-        mkdir  -v ../../notebooks
-        cp -v *.ipynb ../../notebooks
-        cd ..
-        poetry run jupytext --to notebook  getting_started.md
-        cp -v getting_started.ipynb ../notebooks
+    - uses: ./.github/actions/convert-notebooks
+      with:
+        remove-skip-execution: ${{ inputs.execute-notebooks }}
     - name: Test doc compilation
       shell: bash
       run: |
