@@ -591,7 +591,7 @@ def _contraction_mapping(edges: list, n: int) -> dict:
     mapping = {i: i for i in range(n + 1)}
     union_find = UnionFind()
     for u, v in edges:
-        union_find.join(v, u)
+        union_find.join(u, v)
     labels = {}
     for v in union_find:
         mapping[v] = labels.setdefault(union_find.find(v), n + 1 + len(labels))
