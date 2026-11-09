@@ -1,4 +1,5 @@
-from typing import Hashable, TypeVar, Iterator
+from collections.abc import Hashable, Iterator
+from typing import TypeVar
 
 T = TypeVar("T", bound=Hashable)
 
