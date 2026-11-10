@@ -230,6 +230,12 @@ _critically $k$-vertex apex graph_ or _critically $k$-edge apex graph_, respecti
 {meth}`~.Graph.is_critically_k_edge_apex`
 :::
 
+## Gain Graphs
+
+:::{prf:definition} $\mathbb{Z}^d$-gain graphs
+:label: def-gain-graph
+Consider a finite set $V$. Let $E^+\subset V\times V \times \mathbb{Z}^d$ be a finite set, so that for any $e=(u,v,\gamma)\in E^+$ it holds that $\gamma\neq 0$ if $u=v$ and $(v,u,\gamma)\in E^+$. We define the set of edges of the graph $G$ as $E=E^+/\sim$ with $(u,v,\gamma)\sim (u',v',\gamma')$ if either $u=u'$, $v=v'$ and $\gamma=\gamma'$ or $u=v'$, $v=u'$ and $\gamma=-\gamma'$. Then, $G=(V,E)$ is called a $\mathbb{Z}^d$-gain graph.
+:::
 
 :::{toctree}
 :maxdepth: 2
