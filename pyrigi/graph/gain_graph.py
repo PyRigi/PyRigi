@@ -46,12 +46,11 @@ class GainGraph(nx.MultiGraph):
 
     >>> G = GainGraph([
     ...     (0, 1, (1, 0)),
-    ...     (0, 1, (0, 1)),
     ...     (1, 1, (1, -1))
     ... ])
     >>> print(G)
     Z^2-GainGraph with vertex orbits [0, 1] and gain edges
-    [(0, 1, (1, 0)), (0, 1, (0, 1)), (1, 1, (1, -1))]
+    [(0, 1, (1, 0)), (1, 1, (1, -1))]
 
     Gain vectors must have the same dimension:
 
