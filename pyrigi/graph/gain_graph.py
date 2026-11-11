@@ -59,7 +59,7 @@ class GainGraph(nx.MultiGraph):
 
     The reverse orientation has the opposite gain:
 
-    >>> G.edge_gains(1, 0)
+    >>> G.gains_between(1, 0)
     [(-1, 0)]
 
     This class inherits :class:`networkx.MultiGraph`.
