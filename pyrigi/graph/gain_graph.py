@@ -50,7 +50,8 @@ class GainGraph(nx.MultiGraph):
     ...     (1, 1, (1, -1))
     ... ])
     >>> print(G)
-    Z^2-GainGraph, vertex orbits [0, 1] and gain edges [(0, 1, (1, 0)), (0, 1, (0, 1)), (1, 1, (1, -1))] # noqa: E501
+    Z^2-GainGraph with vertex orbits [0, 1] and gain edges
+    [(0, 1, (1, 0)), (0, 1, (0, 1)), (1, 1, (1, -1))]
 
     Gain vectors must have the same dimension:
 
@@ -437,8 +438,8 @@ class GainGraph(nx.MultiGraph):
 
     def __str__(self) -> str:
         return (
-            f"GainGraph with dimension {self.dim}, "
-            f"vertices {self.vertex_list()} "
+            f"Z^{self.dim}-GainGraph with vertex orbits "
+            f"{self.vertex_list()} "
             f"and gain edges {self.edge_list()}"
         )
 
