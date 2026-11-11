@@ -314,7 +314,7 @@ def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
     >>> G = nx.DiGraph([(0, 1), (1, 2), (0, 2)])
     >>> F = {(0, 1): None, (1, 2): None, (0, 2): None}
     >>> tau = {0: 0, 1: 0, 2: 0}
-    >>> k_forest_packing(G, F, 2, tau)
+    >>> _k_forest_packing(G, F, 2, tau)
     {(0, 1): 0, (1, 2): 1, (0, 2): 0}
     """
     if k > 1:
@@ -540,9 +540,9 @@ def _eta_rooted_term_connectivity(D: nx.DiGraph, eta: int, s, Z: set):
     --------
     >>> import networkx as nx
     >>> D = nx.DiGraph([(0, 1), (1, 2), (0, 2)])
-    >>> eta_rooted_term_connectivity(D, 2, 0, {1, 2})
+    >>> _eta_rooted_term_connectivity(D, 2, 0, {1, 2})
     {1}
-    >>> eta_rooted_term_connectivity(D, 1, 0, {1, 2}) is None
+    >>> _eta_rooted_term_connectivity(D, 1, 0, {1, 2}) is None
     True
     """
     Z = set(Z) - {s}
@@ -657,9 +657,9 @@ def _eta_rooted_arc_connectivity(D: nx.DiGraph, eta: int, s):
     --------
     >>> import networkx as nx
     >>> D = nx.DiGraph([(0, 1), (1, 2), (2, 1)])
-    >>> eta_rooted_arc_connectivity(D, 2, 0)
+    >>> _eta_rooted_arc_connectivity(D, 2, 0)
     {1, 2}
-    >>> eta_rooted_arc_connectivity(D, 1, 0) is None
+    >>> _eta_rooted_arc_connectivity(D, 1, 0) is None
     True
     """
     if eta <= 3:
@@ -833,9 +833,9 @@ def _centroid(T: nx.Graph) -> Hashable:
     Examples
     --------
     >>> import networkx as nx
-    >>> centroid(nx.path_graph(5))
+    >>> _centroid(nx.path_graph(5))
     2
-    >>> centroid(nx.star_graph(4))
+    >>> _centroid(nx.star_graph(4))
     0
     """
     n = T.number_of_nodes()
