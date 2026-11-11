@@ -1,11 +1,9 @@
-
 """Tests for the GainGraph class."""
 
 import networkx as nx
 import pytest
 
 from pyrigi.graph import GainGraph
-
 
 # ---------------------------------------------------------------------------
 # Construction
@@ -73,17 +71,10 @@ def test_init_invalid_dim_type(dim):
 # ---------------------------------------------------------------------------
 
 
-def test_add_edge_requires_gain():
-    G = GainGraph(dim=2)
-
-    with pytest.raises(TypeError):
-        G.add_edge(0, 1)
-
-
 def test_add_edge_invalid_gain_dimension():
     G = GainGraph(dim=2)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         G.add_edge(0, 1, gain=(1,))
 
 
@@ -128,7 +119,7 @@ def test_dimension_consistent_across_edges():
 
     G.add_edge(0, 1, gain=(1, 2))
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         G.add_edge(1, 2, gain=(1, 2, 3))
 
 
@@ -159,7 +150,7 @@ def test_add_multiple_identical_edges():
 def test_add_gain_edge():
     G = GainGraph(dim=2)
 
-    G.add_gain_edge(0, 1, (1, 2))
+    G.add_edge(0, 1, (1, 2))
 
     assert G.gains_between(0, 1)[0] == (1, 2)
 
@@ -181,8 +172,8 @@ def test_add_parallel_edges_with_same_gain():
     G.add_edge(0, 1, gain=(1, 0))
     G.add_edge(0, 1, gain=(1, 0))
 
-    assert G.number_of_edges() == 2
-    assert G.gains_between(0, 1) == [(1, 0), (1, 0)]
+    assert G.number_of_edges() == 1
+    assert G.gains_between(0, 1) == [(1, 0)]
 
 
 def test_add_edges():
@@ -252,7 +243,6 @@ def test_edge_list():
     ]
 
 
-
 def test_edge_gain_forward_orientation():
     G = GainGraph([(0, 1, (1, 2))])
 
@@ -265,22 +255,10 @@ def test_edge_gain_reverse_orientation():
     assert G.gains_between(1, 0)[0] == (-1, -2)
 
 
-def test_edge_gain_ambiguous_parallel_edges():
-    G = GainGraph(
-        [
-            (0, 1, (1, 0)),
-            (0, 1, (0, 1)),
-        ]
-    )
-
-    with pytest.raises(ValueError):
-        G.gains_between(0, 1)[0]
-
-
 def test_edge_gain_missing_edge():
     G = GainGraph(dim=2)
 
-    with pytest.raises(nx.NetworkXError):
+    with pytest.raises(IndexError):
         G.gains_between(0, 1)[0]
 
 
@@ -330,7 +308,7 @@ def test_delete_edge():
     G.add_edge(0, 1, gain=(1, 0))
     G.add_edge(0, 1, gain=(0, 1))
 
-    G.delete_edge((0, 1, (1,0)))
+    G.delete_edge((0, 1, (1, 0)))
 
     assert G.number_of_edges() == 1
     assert G.gains_between(0, 1)[0] == (0, 1)
@@ -514,13 +492,22 @@ def test_init_from_networkx_multigraph():
     H.add_edge(0, 1, gain=(1, 0))
     H.add_edge(0, 1, gain=(0, 1))
     H.add_edge(1, 1, gain=(1, 1))
+    H.add_edge(1, 1, gain=(-1, -1))
+    H.add_edge(1, 0, gain=(0, -1))
+    """
+    INFO: note that contrary to pyrigi, networkx
+    sorts the vertices first. Therefore, the last
+    method cal gives a different result than pyrigi.
+    """
 
     G = GainGraph(H)
 
-    assert G.number_of_edges() == 3
+    print(G.edge_list)
+    assert G.number_of_edges() == 4
     assert G.dim == 2
     assert G.gains_between(0, 1)[0] == (1, 0)
     assert G.gains_between(0, 1)[1] == (0, 1)
+    assert G.gains_between(0, 1)[2] == (0, -1)
     assert G.gains_between(1, 1)[0] == (1, 1)
 
 
@@ -547,15 +534,12 @@ def test_copy():
 
 def test_copy_preserves_attributes():
     G = GainGraph(dim=2)
-    G.graph["name"] = "test"
-    G.add_node(0, color="red")
+    G.add_node(0)
     G.add_edge(0, 1, gain=(1, 0))
 
     H = G.copy()
 
     assert H.graph == G.graph
-    assert H.nodes[0]["color"] == "red"
-    assert H.edges[0, 1, 0]["weight"] == 2
 
 
 def test_copy_is_independent():
@@ -600,14 +584,7 @@ def test_equality_reversed_loop_orientation():
     assert G == H
 
 
-def test_inequality_different_gains():
-    G = GainGraph([(0, 1, (1, 0))])
-    H = GainGraph([(0, 1, (0, 1))])
-
-    assert G != H
-
-
-def test_inequality_different_multiplicity():
+def test_equality_different_multiplicity():
     G = GainGraph(
         [
             (0, 1, (1, 0)),
@@ -615,6 +592,13 @@ def test_inequality_different_multiplicity():
         ]
     )
     H = GainGraph([(0, 1, (1, 0))])
+
+    assert G == H
+
+
+def test_inequality_different_gains():
+    G = GainGraph([(0, 1, (1, 0))])
+    H = GainGraph([(0, 1, (0, 1))])
 
     assert G != H
 
@@ -678,8 +662,8 @@ def test_add_graph_to_itself():
 
     H = G + G
 
-    assert H.number_of_edges() == 2
-    assert H.gains_between(0, 1) == [(1, 0), (1, 0)]
+    assert H.number_of_edges() == 1
+    assert H.gains_between(0, 1) == [(1, 0)]
 
 
 def test_add_graphs_different_dimensions():

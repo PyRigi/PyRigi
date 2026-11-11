@@ -1,4 +1,3 @@
-
 """
 Module for gain graphs with gains in Z^d.
 """
@@ -6,15 +5,14 @@ Module for gain graphs with gains in Z^d.
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Sequence
 from operator import index
-from typing import Hashable, TypeAlias
+from typing import TypeAlias
 
 import networkx as nx
 
 from pyrigi._utils._doc import doc_category
 from pyrigi.data_type import Vertex
-
 
 Gain: TypeAlias = tuple[int, ...]
 GainEdge: TypeAlias = tuple[Vertex, Vertex, Gain]
@@ -52,7 +50,7 @@ class GainGraph(nx.MultiGraph):
     ...     (1, 1, (1, -1))
     ... ])
     >>> print(G)
-    Z^2-GainGraph, vertex orbits [0, 1] and gain edges [(0, 1, (1, 0)), (0, 1, (0, 1)), (1, 1, (1, -1))]
+    Z^2-GainGraph, vertex orbits [0, 1] and gain edges [(0, 1, (1, 0)), (0, 1, (0, 1)), (1, 1, (1, -1))] # noqa: E501
 
     Gain vectors must have the same dimension:
 
@@ -70,7 +68,7 @@ class GainGraph(nx.MultiGraph):
     def __init__(
         self,
         incoming_graph_data: Iterable[GainEdge] | nx.Graph | None = None,
-        dim: int | None = None    
+        dim: int | None = None,
     ) -> None:
         super().__init__()
 
@@ -87,9 +85,14 @@ class GainGraph(nx.MultiGraph):
 
             self.graph.update(incoming_graph_data.graph)
             self.add_nodes_from(incoming_graph_data.nodes(data=True))
-
-            for u, v in incoming_graph_data.edge_list():
-                self.add_edge(u, v)
+            for u, v, data in incoming_graph_data.edges(data=True):
+                if (not isinstance(data, dict)) or ("gain" not in data):
+                    raise TypeError(
+                        "The incoming networkx edge data is not in the correct format. " +
+                        "It is required to be a `dict` and every edge needs to contain " +
+                        "the label 'gain'."
+                    )
+                self.add_edge(u, v, data["gain"])
         else:
             self.add_edges(incoming_graph_data)
 
@@ -105,9 +108,7 @@ class GainGraph(nx.MultiGraph):
         try:
             dim = index(dim)
         except TypeError as error:
-            raise TypeError(
-                "The dimension must be a positive integer."
-            ) from error
+            raise TypeError("The dimension must be a positive integer.") from error
 
         if dim <= 0:
             raise ValueError("The dimension must be positive.")
@@ -127,9 +128,7 @@ class GainGraph(nx.MultiGraph):
         try:
             raw_gain = tuple(gain)
         except TypeError as error:
-            raise TypeError(
-                "A gain must be a sequence of integers."
-            ) from error
+            raise TypeError("A gain must be a sequence of integers.") from error
 
         if not raw_gain:
             raise ValueError("A gain vector must have positive length.")
@@ -139,9 +138,7 @@ class GainGraph(nx.MultiGraph):
                 raise TypeError
             normalized_gain = tuple(index(x) for x in raw_gain)
         except TypeError as error:
-            raise TypeError(
-                "Every gain coordinate must be an integer."
-            ) from error
+            raise TypeError("Every gain coordinate must be an integer.") from error
 
         if self._dim is None:
             self._dim = len(normalized_gain)
@@ -159,10 +156,7 @@ class GainGraph(nx.MultiGraph):
     # ------------------------------------------------------------------
 
     def add_edge(
-        self,
-        u_for_edge: Vertex,
-        v_for_edge: Vertex,
-        gain: Sequence[int] = None 
+        self, u_for_edge: Vertex, v_for_edge: Vertex, gain: Sequence[int] = None
     ):
         r"""
         Add an edge with a specified gain.
@@ -185,25 +179,29 @@ class GainGraph(nx.MultiGraph):
         2
         """
         if gain is None and self.dim is None:
-            raise AttributeError("The gain and the dimension cannot simultaneously be None.")
+            raise AttributeError(
+                "The gain and the dimension cannot simultaneously be None."
+            )
         if gain is None:
             gain = [0 for _ in range(self.dim)]
-        if not self.dim is None and len(gain) != self.dim:
+        elif self.dim is not None and len(gain) != self.dim:
             raise TypeError("Every edge must have a gain of the correct length.")
 
         gain = self._validate_gain(gain)
         if self.dim is None:
             self.dim = len(gain)
-        
-        if (u_for_edge, v_for_edge, gain) in self.edge_list() or (v_for_edge, u_for_edge, _negate_gain(gain)) in self.edge_list():
+
+        if (u_for_edge, v_for_edge, gain) in self.edge_list() or (
+            v_for_edge,
+            u_for_edge,
+            _negate_gain(gain),
+        ) in self.edge_list():
             return
 
         edge_data = dict()
         edge_data.update(gain=gain, tail=u_for_edge, head=v_for_edge)
 
-        super().add_edge(
-            u_for_edge, v_for_edge, **edge_data
-        )
+        super().add_edge(u_for_edge, v_for_edge, **edge_data)
 
     @doc_category("Graph manipulation")
     def add_edges(self, edges: Iterable[GainEdge]) -> None:
@@ -220,9 +218,7 @@ class GainGraph(nx.MultiGraph):
         """
         for edge in edges:
             if not isinstance(edge, (tuple, list)):
-                raise nx.NetworkXError(
-                    f"Edge {edge!r} must be a tuple or list."
-                )
+                raise nx.NetworkXError(f"Edge {edge!r} must be a tuple or list.")
 
             if len(edge) == 2:
                 u, v = edge
@@ -232,9 +228,7 @@ class GainGraph(nx.MultiGraph):
                 u, v, gain = edge
 
             else:
-                raise nx.NetworkXError(
-                    f"Edge {edge!r} must have 2 or 3 elements."
-                )
+                raise nx.NetworkXError(f"Edge {edge!r} must have 2 or 3 elements.")
 
             self.add_edge(u, v, gain)
 
@@ -265,16 +259,12 @@ class GainGraph(nx.MultiGraph):
 
         for edge in edges:
             if not isinstance(edge, (tuple, list)) or len(edge) != 3:
-                raise TypeError(
-                    "Each gain edge must be a triple (u, v, gain)."
-                )
+                raise TypeError("Each gain edge must be a triple (u, v, gain).")
 
             u, v, gain = edge
 
             if not graph.has_node(u) or not graph.has_node(v):
-                raise ValueError(
-                    f"Both endpoints of edge {edge!r} must be vertices."
-                )
+                raise ValueError(f"Both endpoints of edge {edge!r} must be vertices.")
 
             graph.add_edge(u, v, gain=gain)
 
@@ -289,7 +279,7 @@ class GainGraph(nx.MultiGraph):
     ) -> GainGraph:
         """
         Create a gain graph with no edges.
-        
+
         Parameters
         ----------
         vertices:
@@ -409,7 +399,7 @@ class GainGraph(nx.MultiGraph):
     def gains_between(self, u: Vertex, v: Vertex) -> list[Gain]:
         """
         Return all gains of edges oriented from ``u`` to ``v``.
-        
+
         If the orientation in the GainGraph is reversed, return the
         negated gain instead.
         """
@@ -438,9 +428,7 @@ class GainGraph(nx.MultiGraph):
         graph = self.__class__(dim=self.dim)
         graph.graph.update(self.graph)
 
-        graph.add_nodes_from(
-            (v, dict(data)) for v, data in self.nodes(data=True)
-        )
+        graph.add_nodes_from((v, dict(data)) for v, data in self.nodes(data=True))
 
         for u, v, gain in self.edge_list():
             graph.add_edge(u, v, gain)
@@ -474,9 +462,7 @@ class GainGraph(nx.MultiGraph):
         if self.dim != other.dim or set(self.nodes) != set(other.nodes):
             return False
 
-        vertex_order = {
-            vertex: i for i, vertex in enumerate(self.vertex_list())
-        }
+        vertex_order = {vertex: i for i, vertex in enumerate(self.vertex_list())}
 
         def edge_multiset(graph: GainGraph) -> Counter:
             result = Counter()
@@ -500,11 +486,7 @@ class GainGraph(nx.MultiGraph):
         if not isinstance(other, GainGraph):
             return NotImplemented
 
-        if (
-            self.dim is not None
-            and other.dim is not None
-            and self.dim != other.dim
-        ):
+        if self.dim is not None and other.dim is not None and self.dim != other.dim:
             raise ValueError("Gain graphs must have the same dimension.")
 
         graph = GainGraph(dim=self.dim or other.dim)
