@@ -1,16 +1,10 @@
-from typing import Iterable, Iterator, TypeVar
-
-T = TypeVar("T")
+from typing import Iterable, Iterator
 
 
-class RepeatableIterator:
+class RepeatableIterator[T]:
     """
     Wrapper for an iterator that caches all the items yielded
     by the iterator for future iterations.
-
-    Suggested Improvements
-    ---------------------
-    Use class generics in Python 3.12.
     """
 
     __slots__ = ("_source", "_cache")
