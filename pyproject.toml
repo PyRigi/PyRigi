@@ -69,7 +69,7 @@ sphinx-design = "^0.7.0"
 sphinx-math-dollar = "^1.2.1"
 sphinx-proof = "^0.4.0"
 sphinx-tippy = "^0.4.3"
-sphinx-autodoc-typehints = "^3.13.0"
+sphinx-autodoc-typehints = "^3.17.5"
 sphinxcontrib-bibtex = "^2.7.0"
 jupytext = "^1.19.5"
 
