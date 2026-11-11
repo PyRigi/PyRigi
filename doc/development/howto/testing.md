@@ -45,6 +45,10 @@ but can be set manually:
 ```
 pytest -n 2
 ```
+To run tests without `xdist` use
+```
+pytest -n 0
+```
 A random seed has to be fixed to guarantee that the tests are collected in the same order
 by all workers.
 This is achieved by [pytest-randomly](https://github.com/pytest-dev/pytest-randomly).
