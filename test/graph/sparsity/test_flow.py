@@ -22,8 +22,7 @@ from pyrigi.graph._sparsity._flow import (
     _check_sparsity_for_l_less_than_k,
     _check_sparsity_for_l_between_k_and_2k,
     _check_sparsity_for_l_equal_2k,
-    _check_sparsity_for_l_between_2k_and_3k
-
+    _check_sparsity_for_l_between_2k_and_3k,
 )
 
 
@@ -321,10 +320,7 @@ def test_check_sparsity_for_l_less_than_k_false(G, K, L):
 
 @pytest.mark.parametrize(
     "G, K, L",
-    [
-        (nx.complete_graph(4), 2, 1),
-        (nx.path_graph(5), 2, 1)
-    ],
+    [(nx.complete_graph(4), 2, 1), (nx.path_graph(5), 2, 1)],
 )
 def test_check_sparsity_for_l_less_than_k_true(G, K, L):
     X = _check_sparsity_for_l_less_than_k(G, K, L)
@@ -348,8 +344,7 @@ def test_check_sparsity_for_l_between_k_and_2k_false(G, K, L):
     [
         # Diamond graph: V=4, E=5.
         (nx.diamond_graph(), 2, 3),
-
-        (nx.path_graph(5), 2, 3)
+        (nx.path_graph(5), 2, 3),
     ],
 )
 def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
@@ -371,10 +366,7 @@ def test_check_sparsity_for_l_equal_2k_false(G, K, L):
 
 @pytest.mark.parametrize(
     "G, K, L",
-    [
-        (nx.cycle_graph(4), 2, 4),
-        (nx.cycle_graph(5), 2, 4)
-    ],
+    [(nx.cycle_graph(4), 2, 4), (nx.cycle_graph(5), 2, 4)],
 )
 def test_check_sparsity_for_l_equal_2k_true(G, K, L):
     X = _check_sparsity_for_l_equal_2k(G, K, L)
@@ -390,7 +382,7 @@ C5_with_chord.add_edge(0, 2)
     [
         (C5_with_chord.copy(), 2, 5),
         (nx.Graph(list(C5_with_chord.edges) + [(4, 5)]), 2, 5),
-    ]
+    ],
 )
 def test_check_sparsity_for_l_between_2k_and_3k_false(G, K, L):
     X = _check_sparsity_for_l_between_2k_and_3k(G, K, L)
@@ -399,10 +391,7 @@ def test_check_sparsity_for_l_between_2k_and_3k_false(G, K, L):
 
 @pytest.mark.parametrize(
     "G, K, L",
-    [
-        (nx.cycle_graph(5), 2, 5),
-        (nx.path_graph(6), 2, 5)
-    ],
+    [(nx.cycle_graph(5), 2, 5), (nx.path_graph(6), 2, 5)],
 )
 def test_check_sparsity_for_l_between_2k_and_3k_true(G, K, L):
     X = _check_sparsity_for_l_between_2k_and_3k(G, K, L)

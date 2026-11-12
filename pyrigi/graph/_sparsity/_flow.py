@@ -390,7 +390,7 @@ def _k_forest_decomposition(G: nx.Graph, k: int) -> tuple[set, list]:
     k:
         The number of forests to decompose the graph into.
     """
-    (X, D) = _k_indegree_bounded_orientation(G, k)
+    X, D = _k_indegree_bounded_orientation(G, k)
 
     if D is None:
         return (X, *[set() for _ in range(k)])
@@ -759,7 +759,9 @@ def _check_superset_sparsity(D: nx.DiGraph, U: set, k: int, ell: int) -> set:
     """
     U = set() if U is None else set(U)
     if not (k * len(U) <= ell <= k * (len(U) + 1)):
-        raise ValueError("The parameters k and l do not satisfy the required inequality.")
+        raise ValueError(
+            "The parameters k and l do not satisfy the required inequality."
+        )
 
     D_prime, s = _build_rooted_digraph(D, U, k)
 
@@ -1102,7 +1104,7 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set:
     L:
         Second Parameter in the sparsity condition.
     """
-    assert L == 2*K
+    assert L == 2 * K
     X, *F = _k_forest_decomposition(G, K)
     if X is not None:
         return X
