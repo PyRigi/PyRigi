@@ -875,7 +875,7 @@ def _centroid(T: nx.Graph) -> Hashable:
         c = heavy
 
 
-def _check_sparsity_for_l_less_than_k(G: nx.Graph, k: int, ell: int) -> set:
+def _check_sparsity_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> set:
     """
     Returns a vertex set that violates the (k,l)-sparsity of G if it exists,
     otherwise returns None.
@@ -887,11 +887,11 @@ def _check_sparsity_for_l_less_than_k(G: nx.Graph, k: int, ell: int) -> set:
         First parameter of the sparsity condition.
     l:
         Second paramater of the sparsity condition."""
-    X, D = _k_indegree_bounded_orientation(G, k)
+    X, D = _k_indegree_bounded_orientation(G, K)
     if X is not None:
         # X violates (k,0)-sparsity
         return X
-    return _check_superset_sparsity(D, set(), k, ell)
+    return _check_superset_sparsity(D, set(), K, L)
 
 
 def _saturated_violation(D: nx.DiGraph, T: nx.Graph, k: int, ell: int) -> set:
@@ -942,7 +942,7 @@ def _saturated_violation(D: nx.DiGraph, T: nx.Graph, k: int, ell: int) -> set:
     return None
 
 
-def _check_sparsity_for_l_between_k_and_2k(G: nx.Graph, k: int, ell: int) -> set:
+def _check_sparsity_for_l_between_k_and_2k(G: nx.Graph, K: int, L: int) -> set:
     """
     Check the (k,l)-sparsity of ``G`` for k < l < 2k.
 
@@ -957,13 +957,13 @@ def _check_sparsity_for_l_between_k_and_2k(G: nx.Graph, k: int, ell: int) -> set
     l:
         Second Parameter in the sparsity condition.
     """
-    X, *F = _k_forest_decomposition(G, k)
+    X, *F = _k_forest_decomposition(G, K)
     if X is not None:
         return X
-    return _check_sparsity_with_decomp(G, F, k, ell)
+    return _check_sparsity_with_decomp(G, F, K, L)
 
 
-def _check_sparsity_with_decomp(G: nx.Graph, F: list, k: int, ell: int) -> set:
+def _check_sparsity_with_decomp(G: nx.Graph, F: list, K: int, L: int) -> set:
     """
     Return a vertex set that violates the (k, l)-sparsity of G if it exists,
     None otherwise.
@@ -979,8 +979,8 @@ def _check_sparsity_with_decomp(G: nx.Graph, F: list, k: int, ell: int) -> set:
     l:
         Second Parameter in the sparsity condition.
     """
-    _, D = _k_indegree_bounded_orientation(G, k)
-    for i in range(ell - k):
+    _, D = _k_indegree_bounded_orientation(G, K)
+    for i in range(L - K):
         forest = nx.Graph()
         forest.add_nodes_from(G.nodes())
         forest.add_edges_from(F[i])
@@ -988,7 +988,7 @@ def _check_sparsity_with_decomp(G: nx.Graph, F: list, k: int, ell: int) -> set:
             if len(component) < 2:
                 continue
             X = _saturated_violation(
-                D.subgraph(component).copy(), forest.subgraph(component).copy(), k, ell
+                D.subgraph(component).copy(), forest.subgraph(component).copy(), K, L
             )
             if X is not None:
                 return X
@@ -996,7 +996,7 @@ def _check_sparsity_with_decomp(G: nx.Graph, F: list, k: int, ell: int) -> set:
     return None
 
 
-def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, k: int) -> set:
+def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, K: int) -> set:
     """
     Returns a violating set of the underlying graph of D sucht that c in X,
     X intersection Z is not None and X different from {c}.
@@ -1013,15 +1013,15 @@ def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, k: int) -> 
     k:
     """
 
-    D_prime, s = _build_rooted_digraph(D, {c}, k)
+    D_prime, s = _build_rooted_digraph(D, {c}, K)
 
     for v in D.nodes():
         if v != c:
-            for i in range(k - D.in_degree(v)):
+            for i in range(K - D.in_degree(v)):
                 D_prime.add_edge(s, v)
         continue
 
-    X = _eta_rooted_term_connectivity(D_prime, k, s, Z)
+    X = _eta_rooted_term_connectivity(D_prime, K, s, Z)
 
     if not X:
         return None
@@ -1029,7 +1029,7 @@ def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, k: int) -> 
         return X | {c}
 
 
-def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, k: int) -> set:
+def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, K: int) -> set:
     """
     Returns a set violating (k,2k)-sparsity if it exists, None otherwise.
 
@@ -1048,31 +1048,31 @@ def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, k: int) -> set
 
     G = D.to_undirected()
     c = _centroid(T)
-    X, D0 = _reorient(D, {c}, k)
+    X, D0 = _reorient(D, {c}, K)
     if X is not None:
         # X violates (k,k)-sparsity
         return X
     neighbors_c = set(G.neighbors(c))
     Z = set(G.nodes()) - {c} - neighbors_c
-    X = _check_terminal_superset_sparsity(D0, c, Z, k)
+    X = _check_terminal_superset_sparsity(D0, c, Z, K)
     if X is not None:
         # X violates (k,2k)-sparsity
         return X
-    if k == 1 and len(neighbors_c) > 1:
+    if K == 1 and len(neighbors_c) > 1:
         return neighbors_c | {c}
 
     induced_graph = G.subgraph(neighbors_c)
     num_induced_edges = induced_graph.number_of_edges()
-    if k == 2 and num_induced_edges > 0:
+    if K == 2 and num_induced_edges > 0:
         u, v = next(iter(induced_graph.edges()))
         return {u, v, c}
 
     D0 = induced_graph.to_directed()
-    if k > 2:
-        X, *F = _k_bounded_forest_decomposition(D0, k)
+    if K > 2:
+        X, *F = _k_bounded_forest_decomposition(D0, K)
         if X is not None:
             return X | {c}
-        X = _check_sparsity_with_decomp(induced_graph, F, k - 1, k)
+        X = _check_sparsity_with_decomp(induced_graph, F, K - 1, K)
         if X is not None:
             return X | {c}
 
@@ -1080,7 +1080,7 @@ def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, k: int) -> set
     T_without_c.remove_node(c)
     for component in nx.connected_components(T_without_c):
         X = _saturated_violation_ell_equal_2k(
-            D.subgraph(component), T.subgraph(component), k
+            D.subgraph(component), T.subgraph(component), K
         )
         if X is not None:
             return X
@@ -1088,7 +1088,7 @@ def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, k: int) -> set
     return None
 
 
-def _check_sparsity_for_l_equal_2k(G: nx.Graph, k: int) -> set:
+def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set:
     """
     Returns a vertex set that violates the (k, 2k)-sparsity of G if it exists,
     None otherwise.
@@ -1099,18 +1099,21 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, k: int) -> set:
         A graph.
     k:
         First parameter in the sparsity condition.
+    L:
+        Second Parameter in the sparsity condition.
     """
-    X, *F = _k_forest_decomposition(G, k)
+    assert L == 2*K
+    X, *F = _k_forest_decomposition(G, K)
     if X is not None:
         return X
-    _, D = _k_indegree_bounded_orientation(G, k)
-    for i in range(k):
+    _, D = _k_indegree_bounded_orientation(G, K)
+    for i in range(K):
         forest = nx.Graph()
         forest.add_nodes_from(G.nodes())
         forest.add_edges_from(F[i])
         for component in nx.connected_components(forest):
             X = _saturated_violation_ell_equal_2k(
-                D.subgraph(component), forest.subgraph(component), k
+                D.subgraph(component), forest.subgraph(component), K
             )
             if X is not None:
                 return X
@@ -1118,7 +1121,7 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, k: int) -> set:
     return None
 
 
-def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, k: int, ell: int) -> set:
+def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, K: int, L: int) -> set:
     """
     Return a vertex set that violates the (k,l)-sparsity of G if it exists;
     None otherwise.
@@ -1139,8 +1142,8 @@ def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, k: int, ell: int) -> se
     D.add_nodes_from(G.nodes())
 
     for u, v in G.edges():
-        X, D = _reorient(D, {u, v}, k)
-        X = _check_superset_sparsity(D, {u, v}, k, ell)
+        X, D = _reorient(D, {u, v}, K)
+        X = _check_superset_sparsity(D, {u, v}, K, L)
         if X is not None:
             return X
 
@@ -1165,7 +1168,7 @@ def _is_sparse_for_l_between_k_and_2k(G, K, L):
 
 
 def _is_sparse_for_l_equal_2k(G, K, L):
-    X = _check_sparsity_for_l_equal_2k(G, K)
+    X = _check_sparsity_for_l_equal_2k(G, K, L)
     if X is None:
         return True
     return False

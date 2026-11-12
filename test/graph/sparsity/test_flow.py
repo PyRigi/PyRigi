@@ -358,26 +358,26 @@ def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
 
 
 @pytest.mark.parametrize(
-    "G, K",
+    "G, K, L",
     [
-        (nx.diamond_graph(), 2),
-        (nx.Graph(list(nx.diamond_graph().edges) + [(3, 4)]), 2),
+        (nx.diamond_graph(), 2, 4),
+        (nx.Graph(list(nx.diamond_graph().edges) + [(3, 4)]), 2, 4),
     ],
 )
-def test_check_sparsity_for_l_equal_2k_false(G, K):
-    X = _check_sparsity_for_l_equal_2k(G, K)
+def test_check_sparsity_for_l_equal_2k_false(G, K, L):
+    X = _check_sparsity_for_l_equal_2k(G, K, L)
     assert X
 
 
 @pytest.mark.parametrize(
-    "G, K",
+    "G, K, L",
     [
-        (nx.cycle_graph(4), 2),
-        (nx.cycle_graph(5), 2)
+        (nx.cycle_graph(4), 2, 4),
+        (nx.cycle_graph(5), 2, 4)
     ],
 )
-def test_check_sparsity_for_l_equal_2k_true(G, K):
-    X = _check_sparsity_for_l_equal_2k(G, K)
+def test_check_sparsity_for_l_equal_2k_true(G, K, L):
+    X = _check_sparsity_for_l_equal_2k(G, K, L)
     assert X is None
 
 
