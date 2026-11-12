@@ -19,6 +19,11 @@ from pyrigi.graph._sparsity._flow import (
     _eta_rooted_term_connectivity,
     _eta_rooted_arc_connectivity,
     _build_rooted_digraph,
+    _check_sparsity_for_l_less_than_k,
+    _check_sparsity_for_l_between_k_and_2k,
+    _check_sparsity_for_l_equal_2k,
+    _check_sparsity_for_l_between_2k_and_3k
+
 )
 
 
@@ -299,3 +304,106 @@ def test_build_rooted_digraph_invalid():
         _build_rooted_digraph(nx.DiGraph([(0, 1)]), {1}, 1)
     with pytest.raises(ValueError):
         _build_rooted_digraph(nx.DiGraph([(0, 2), (1, 2)]), set(), 1)
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        (nx.complete_graph(5), 2, 1),
+        #  5 complete graph with pendant
+        (nx.Graph(list(nx.complete_graph(5).edges) + [(5, 6)]), 2, 1),
+    ],
+)
+def test_check_sparsity_for_l_less_than_k_false(G, K, L):
+    X = _check_sparsity_for_l_less_than_k(G, K, L)
+    assert X
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        (nx.complete_graph(4), 2, 1),
+        (nx.path_graph(5), 2, 1)
+    ],
+)
+def test_check_sparsity_for_l_less_than_k_true(G, K, L):
+    X = _check_sparsity_for_l_less_than_k(G, K, L)
+    assert X is None
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        (nx.complete_graph(4), 2, 3),
+        (nx.Graph(list(nx.complete_graph(4).edges) + [(4, 5)]), 2, 3),
+    ],
+)
+def test_check_sparsity_for_l_between_k_and_2k_false(G, K, L):
+    X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
+    assert X
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        # Diamond graph: V=4, E=5.
+        (nx.diamond_graph(), 2, 3),
+
+        (nx.path_graph(5), 2, 3)
+    ],
+)
+def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
+    X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
+    assert X is None
+
+
+@pytest.mark.parametrize(
+    "G, K",
+    [
+        (nx.diamond_graph(), 2),
+        (nx.Graph(list(nx.diamond_graph().edges) + [(3, 4)]), 2),
+    ],
+)
+def test_check_sparsity_for_l_equal_2k_false(G, K):
+    X = _check_sparsity_for_l_equal_2k(G, K)
+    assert X
+
+
+@pytest.mark.parametrize(
+    "G, K",
+    [
+        (nx.cycle_graph(4), 2),
+        (nx.cycle_graph(5), 2)
+    ],
+)
+def test_check_sparsity_for_l_equal_2k_true(G, K):
+    X = _check_sparsity_for_l_equal_2k(G, K)
+    assert X is None
+
+
+C5_with_chord = nx.cycle_graph(5)
+C5_with_chord.add_edge(0, 2)
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        (C5_with_chord.copy(), 2, 5),
+        (nx.Graph(list(C5_with_chord.edges) + [(4, 5)]), 2, 5),
+    ]
+)
+def test_check_sparsity_for_l_between_2k_and_3k_false(G, K, L):
+    X = _check_sparsity_for_l_between_2k_and_3k(G, K, L)
+    assert X
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        (nx.cycle_graph(5), 2, 5),
+        (nx.path_graph(6), 2, 5)
+    ],
+)
+def test_check_sparsity_for_l_between_2k_and_3k_true(G, K, L):
+    X = _check_sparsity_for_l_between_2k_and_3k(G, K, L)
+    assert X is None
