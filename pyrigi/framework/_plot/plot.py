@@ -6,12 +6,17 @@ from __future__ import annotations
 
 import functools
 from typing import Any
+from itertools import product
+from operator import index
 
 import distinctipy
 import networkx as nx
 import numpy as np
+from matplotlib import colormaps
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
+from matplotlib.patches import Polygon
+from matplotlib.collections import LineCollection
 from sympy import Matrix
 
 import pyrigi._utils._input_check as _input_check
@@ -769,7 +774,7 @@ def _resolve_edge_colors(
     if isinstance(edge_colors_custom, Sequence):
         edges_partition = edge_colors_custom
         colors = distinctipy.get_colors(
-            len(edges_partition), colorblind_type="Deuteranomaly", pastel_factor=0.2
+            len(edges_partition), colorblind_type="Deuteranomaly", pastel_factor=0.5
         )
         for i, part in enumerate(edges_partition):
             for e in part:
@@ -1024,10 +1029,12 @@ def plot2D(
     plot_style.update(**kwargs)
 
     fig, ax = plt.subplots()
-    ax.set_adjustable("datalim")
+    ax.set_aspect(
+        plot_style.aspect_ratio,
+        adjustable="box",
+    )
     fig.set_figwidth(plot_style.canvas_width)
     fig.set_figheight(plot_style.canvas_height)
-    ax.set_aspect(plot_style.aspect_ratio)
 
     if framework.dim == 1:
         placement = {
@@ -1088,6 +1095,344 @@ def plot2D(
         if not filename.endswith(".png"):
             filename = filename + ".png"
         plt.savefig(f"{filename}", dpi=dpi)
+
+
+def plot2D_periodic(  # noqa: C901
+    framework: FrameworkBase,
+    adjacent_cells: int = 1,
+    plot_style: PlotStyle = None,
+    projection_matrix: Matrix = None,
+    custom_vertex_orbit_colors=True,
+    custom_edge_orbit_colors=False,
+    random_seed: int = None,
+    coordinates: Sequence[int] = None,
+    filename: str = None,
+    dpi: int = 300,
+    **kwargs,
+) -> None:
+    r"""
+    Plot a two-periodic framework in 2D.
+
+    The parameter ``adjacent_cells`` determines how many layers of
+    neighboring unit cells around the fundamental unit cell are plotted.
+
+    The number of displayed unit cells is ``(2 * adjacent_cells + 1)**2``.
+    Thus, 0 displays one cell, 1 displays nine cells, 2 displays 25 cells,
+    and so on.
+
+    Every vertex orbit and edge orbit receives its own color. Translated
+    copies of the same orbit retain the same color.
+
+    The fundamental unit cell is highlighted.
+
+    Parameters
+    ----------
+    framework:
+        The periodic framework to plot.
+    adjacent_cells:
+        Number of adjacent cells in each lattice direction.
+    plot_style:
+        An instance of ``PlotStyle`` defining the visual style.
+    custom_vertex_orbit_colors:
+        A boolean indicating whether each vertex orbit is supposed to be
+        colored in a unique way. If true, a Deuteranomaly-friendly
+        color scheme is used. Else, the standard vertex color in
+        `plot_style` is used. Default value: `True`.
+    custom_edge_orbit_colors:
+        A boolean indicating whether each vertex orbit is supposed to be
+        colored in a unique way. If true, a grayscale color scheme
+        is used. Else, the standard edge color in
+        `plot_style` is used. Default value: `False`.
+    projection_matrix:
+        Optional projection matrix for frameworks in dimensions greater
+        than two.
+    random_seed:
+        Random seed used for generating a projection matrix.
+    coordinates:
+        Optional pair of coordinates to which the framework is projected.
+    filename:
+        Filename under which the figure is saved.
+    dpi:
+        Resolution of the saved figure.
+    **kwargs:
+        Additional keyword arguments passed to ``PlotStyle2D.update``.
+
+    Notes
+    -----
+    Each gain edge is translated into every displayed unit cell.
+    Consequently, edges connecting vertices in different unit cells are
+    drawn as well. An edge may extend beyond the outermost displayed cell.
+
+    Vertex labels are displayed only for the representatives in the
+    fundamental unit cell.
+
+    Examples
+    --------
+    >>> from pyrigi import GainGraph, PeriodicFramework
+    >>> G = GainGraph([(0, 0, (1, 0)), (0, 0, (0, 1))])
+    >>> F = PeriodicFramework(
+    ...     G, {0: (0.5, 0.5)}, [(1, 0), (0, 1)]
+    ... )
+    >>> F.plot2D_periodic(adjacent_cells=1)
+
+    The following is just to close all figures after running the example:
+    >>> import matplotlib.pyplot
+    >>> matplotlib.pyplot.close("all")
+    """
+    # Validate the number of adjacent cells.
+    try:
+        if isinstance(adjacent_cells, bool):
+            raise TypeError
+        adjacent_cells = index(adjacent_cells)
+    except TypeError as error:
+        raise TypeError("`adjacent_cells` must be a nonnegative integer.") from error
+
+    if adjacent_cells < 0:
+        raise ValueError("`adjacent_cells` must be nonnegative.")
+
+    if framework.lattice_dim != 2:
+        raise ValueError("`plot2D_periodic` requires a two-periodic framework.")
+
+    if framework.dim < 2:
+        raise ValueError("The framework must have ambient dimension at least two.")
+
+    # Obtain a numerical realization and project it if necessary.
+    if framework.dim == 2:
+        realization = framework.realization(as_points=True, numerical=True)
+        projected_lattice = np.asarray(framework.lattice_basis, dtype=float)
+    else:
+        realization, projection_matrix = transformations.projected_realization(
+            framework,
+            projection_matrix=projection_matrix,
+            random_seed=random_seed,
+            coordinates=coordinates,
+            proj_dim=2,
+        )
+        projected_lattice = np.asarray(projection_matrix, dtype=float) @ np.asarray(
+            framework.lattice_basis, dtype=float
+        )
+
+    if np.linalg.matrix_rank(projected_lattice) != 2:
+        raise ValueError(
+            "The projected lattice basis is rank deficient. "
+            "Choose a different projection."
+        )
+
+    realization = {
+        vertex: np.asarray(position, dtype=float)
+        for vertex, position in realization.items()
+    }
+
+    if plot_style is None:
+        plot_style = PlotStyle2D()
+    else:
+        plot_style = PlotStyle2D.from_plot_style(plot_style)
+
+    # Update the plot_style instance with any passed keyword arguments
+    plot_style.update(**kwargs)
+
+    # Obtain the vertex and edge orbits.
+    graph = framework.graph
+    vertices = graph.vertex_list()
+    edges = graph.edge_list()
+
+    # Generate distinct colors for the different orbits.
+    vertex_colors = (
+        (
+            distinctipy.get_colors(
+                len(vertices),
+                colorblind_type="Deuteranomaly",
+                pastel_factor=0.2,
+            )
+            if vertices
+            else []
+        )
+        if custom_vertex_orbit_colors
+        else [plot_style.vertex_color for _ in range(len(vertices))]
+    )
+
+    edge_colors = (
+        (colormaps["Greys"](np.linspace(0.35, 0.85, len(edges))) if edges else [])
+        if custom_edge_orbit_colors
+        else [plot_style.edge_color for _ in range(len(edges))]
+    )
+
+    # Generate the indices of the displayed unit cells.
+    cell_range = range(-adjacent_cells, adjacent_cells + 1)
+    cells = list(product(cell_range, repeat=2))
+
+    # Translation vectors for the unit cells.
+    cell_translations = {
+        cell: projected_lattice @ np.asarray(cell, dtype=float) for cell in cells
+    }
+
+    # The two lattice basis vectors.
+    b1 = projected_lattice[:, 0]
+    b2 = projected_lattice[:, 1]
+
+    # Vertices of the fundamental parallelogram.
+    fundamental_cell = np.array(
+        [
+            [0.0, 0.0],
+            b1,
+            b1 + b2,
+            b2,
+        ]
+    )
+
+    # Parallelogram enclosing all displayed unit cells.
+    outer_cell = np.array(
+        [
+            -adjacent_cells * b1 - adjacent_cells * b2,
+            (adjacent_cells + 1) * b1 - adjacent_cells * b2,
+            (adjacent_cells + 1) * b1 + (adjacent_cells + 1) * b2,
+            -adjacent_cells * b1 + (adjacent_cells + 1) * b2,
+        ]
+    )
+
+    # Initialize the figure.
+    if plot_style is None:
+        plot_style = PlotStyle2D()
+    else:
+        plot_style = PlotStyle2D.from_plot_style(plot_style)
+
+    plot_style.update(**kwargs)
+
+    fig, ax = plt.subplots()
+    fig.set_figwidth(plot_style.canvas_width)
+    fig.set_figheight(plot_style.canvas_height)
+
+    # Clipping path for edges.
+    clip_patch = Polygon(
+        outer_cell,
+        closed=True,
+        transform=ax.transData,
+    )
+
+    # Highlight the fundamental unit cell.
+    ax.add_patch(
+        Polygon(
+            fundamental_cell,
+            closed=True,
+            facecolor="gold",
+            edgecolor="none",
+            alpha=0.12,
+            zorder=0,
+        )
+    )
+
+    # Draw the boundaries of all displayed unit cells.
+    for i in range(-adjacent_cells, adjacent_cells + 2):
+        start = i * b1 - adjacent_cells * b2
+        end = i * b1 + (adjacent_cells + 1) * b2
+
+        ax.plot(
+            [start[0], end[0]],
+            [start[1], end[1]],
+            color="0.8",
+            linewidth=0.7,
+            zorder=0,
+        )
+
+    for j in range(-adjacent_cells, adjacent_cells + 2):
+        start = -adjacent_cells * b1 + j * b2
+        end = (adjacent_cells + 1) * b1 + j * b2
+
+        ax.plot(
+            [start[0], end[0]],
+            [start[1], end[1]],
+            color="0.8",
+            linewidth=0.7,
+            zorder=0,
+        )
+
+    # Draw the fundamental cell boundary on top of that.
+    ax.add_patch(
+        Polygon(
+            fundamental_cell,
+            closed=True,
+            fill=False,
+            edgecolor="black",
+            linewidth=max(3.0, plot_style.edge_width),
+        )
+    )
+
+    # Draw all translated edge orbits.
+    # Different line styles help distinguish overlapping edge orbits.
+    for i, ((u, v, gain), color) in enumerate(zip(edges, edge_colors)):
+        gain = np.asarray(gain, dtype=int)
+        # Collect all translated copies of this edge orbit.
+        segments = []
+
+        for cell in cells:
+            start = realization[u] + cell_translations[cell]
+
+            end_cell = np.asarray(cell, dtype=int) + gain
+            end = realization[v] + projected_lattice @ end_cell
+
+            segments.append([start, end])
+
+        # One collection per edge orbit.
+        collection = LineCollection(
+            segments,
+            colors=color,
+            linewidths=plot_style.edge_width,
+            zorder=1 + i * 0.01,
+        )
+
+        collection.set_clip_path(clip_patch)
+        ax.add_collection(collection)
+
+    # Draw all translated vertex orbits.
+    for vertex, color in zip(vertices, vertex_colors):
+        positions = np.array(
+            [realization[vertex] + cell_translations[cell] for cell in cells]
+        )
+
+        ax.scatter(
+            positions[:, 0],
+            positions[:, 1],
+            s=plot_style.vertex_size,
+            marker=plot_style.vertex_shape,
+            color=[color],
+            zorder=2,
+        )
+
+        # Only label the vertex representative in the fundamental cell.
+        if plot_style.vertex_labels:
+            position = realization[vertex]
+            ax.text(
+                position[0],
+                position[1],
+                str(vertex),
+                color=plot_style.font_color,
+                fontsize=plot_style.font_size,
+                ha="center",
+                va="center",
+                zorder=3,
+            )
+
+    ax.set_axis_off()
+
+    # Set limits using the outer plotting boundary.
+    xmin, ymin = outer_cell.min(axis=0)
+    xmax, ymax = outer_cell.max(axis=0)
+
+    # Small padding to avoid clipping vertex markers at the boundary.
+    padding = 0.04 * max(xmax - xmin, ymax - ymin)
+
+    ax.set_xlim(xmin - padding, xmax + padding)
+    ax.set_ylim(ymin - padding, ymax + padding)
+
+    ax.set_aspect(
+        plot_style.aspect_ratio,
+        adjustable="box",
+    )
+
+    if filename is not None:
+        if not filename.endswith(".png"):
+            filename += ".png"
+        fig.savefig(filename, dpi=dpi)
 
 
 def animate3D_rotation(

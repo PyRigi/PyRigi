@@ -14,11 +14,13 @@ import sympy as sp
 from sympy import Matrix
 from sympy.matrices.matrixbase import MatrixBase
 
-from pyrigi._utils._doc import doc_category
+from pyrigi._utils._doc import copy_doc, doc_category
 from pyrigi.data_type import Number, Point, Vertex
 from pyrigi.framework.base import FrameworkBase
 from pyrigi.graph import GainGraph
 from pyrigi.warning import OutsideFundamentalCellWarning
+from pyrigi.plot_style import PlotStyle
+from ._plot import plot
 
 
 class PeriodicFramework(FrameworkBase):
@@ -598,6 +600,40 @@ class PeriodicFramework(FrameworkBase):
                 squared_length = sum(coordinate**2 for coordinate in vector)
                 lengths[edge] = sp.sqrt(sp.simplify(squared_length))
         return lengths
+
+    @doc_category("Plotting")
+    def plot2D(self, **kwargs) -> None:
+        """
+        Alias for :func:`~.plot2D_periodic`.
+        """
+        return self.plot2D_periodic(
+            **kwargs,
+        )
+
+    @doc_category("Plotting")
+    @copy_doc(plot.plot2D_periodic)
+    def plot2D_periodic(
+        self,
+        adjacent_cells: int = 1,
+        plot_style: PlotStyle = None,
+        projection_matrix: Matrix = None,
+        random_seed: int = None,
+        coordinates: Sequence[int] = None,
+        filename: str = None,
+        dpi: int = 300,
+        **kwargs,
+    ) -> None:
+        return plot.plot2D_periodic(
+            self,
+            adjacent_cells=adjacent_cells,
+            plot_style=plot_style,
+            projection_matrix=projection_matrix,
+            random_seed=random_seed,
+            coordinates=coordinates,
+            filename=filename,
+            dpi=dpi,
+            **kwargs,
+        )
 
     def _warn_outside_fundamental_cell(
         self, points: dict[Vertex, Point], method: Callable
