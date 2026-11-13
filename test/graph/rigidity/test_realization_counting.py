@@ -455,24 +455,32 @@ def test_number_of_realizations_lnumber_error(spherical):
 
 
 @pytest.mark.parametrize(
-    "biedges, select, result",
+    "biedges, select, possible_results",
     [
         [
             [[[1, 2], [2, 3]], [[1, 2], [1, 2]], [[1, 3], [1, 2]]],
             [[[1, 2], [2, 3]]],
-            [[[4, 4], [1, 2]], [[4, 3], [1, 2]]],
+            [[[[x, x], [1, 2]], [[x, 3], [1, 2]]] for x in [1, 2]],
         ],
-        [[[[1, 2], [1, 2]], [[1, 2], [1, 2]]], [[[1, 2], [1, 2]]], [[[3, 3], [1, 2]]]],
-        [[[[1, 2], [1, 2]], [[2, 3], [2, 3]]], [[[1, 2], [1, 2]]], [[[4, 3], [2, 3]]]],
+        [
+            [[[1, 2], [1, 2]], [[1, 2], [1, 2]]],
+            [[[1, 2], [1, 2]]],
+            [[[[x, x], [1, 2]]] for x in [1, 2]],
+        ],
+        [
+            [[[1, 2], [1, 2]], [[2, 3], [2, 3]]],
+            [[[1, 2], [1, 2]]],
+            [[[[x, 3], [2, 3]]] for x in [1, 2]],
+        ],
         [
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 3], [1, 3]]],
             [[[1, 2], [1, 2]]],
-            [[[4, 3], [2, 3]], [[4, 3], [1, 3]]],
+            [[[[1, 3], [2, 3]], [[1, 3], [1, 3]]] for x in [1, 2]],
         ],
         [
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 3], [1, 3]]],
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]]],
-            [[[4, 4], [1, 3]]],
+            [[[[x, x], [1, 3]]] for x in [1, 2, 3]],
         ],
         [
             [
@@ -484,7 +492,10 @@ def test_number_of_realizations_lnumber_error(spherical):
                 [[5, 6], [3, 4]],
             ],
             [[[3, 4], [1, 3]], [[4, 1], [2, 3]]],
-            [[[7, 2], [1, 2]], [[2, 7], [1, 2]], [[7, 7], [3, 4]], [[5, 6], [3, 4]]],
+            [
+                [[[x, 2], [1, 2]], [[2, x], [1, 2]], [[x, x], [3, 4]], [[5, 6], [3, 4]]]
+                for x in [1, 3, 4]
+            ],
         ],
         [
             [
@@ -495,38 +506,56 @@ def test_number_of_realizations_lnumber_error(spherical):
                 [[4, 6], [10, 8]],
             ],
             [[[4, 7], [10, 5]], [[9, 6], [10, 8]]],
-            [[[12, 11], [3, 5]], [[12, 12], [3, 8]], [[11, 12], [10, 8]]],
+            [
+                [[[y, x], [3, 5]], [[y, y], [3, 8]], [[x, y], [10, 8]]]
+                for x in [4, 7]
+                for y in [6, 9]
+            ],
         ],
     ],
 )
-def test__bigraph_contract_delete(biedges, select, result):
-    assert realization_counting._bigraph_contract_delete(biedges, select) == result
+def test__bigraph_contract_delete(biedges, select, possible_results):
+    assert (
+        realization_counting._bigraph_contract_delete(biedges, select)
+        in possible_results
+    )
 
 
 @pytest.mark.parametrize(
-    "biedges, select, result",
+    "biedges, select, possible_results",
     [
         [
             [[[1, 2], [2, 3]], [[1, 2], [1, 2]], [[1, 3], [1, 2]]],
             [[[1, 2], [2, 3]]],
-            [[[1, 2], [1, 4]], [[1, 3], [1, 4]]],
+            [[[[1, 2], [1, x]], [[1, 3], [1, x]]] for x in [2, 3]],
         ],
-        [[[[1, 2], [1, 2]], [[1, 2], [1, 2]]], [[[1, 2], [1, 2]]], [[[1, 2], [3, 3]]]],
-        [[[[1, 2], [1, 2]], [[2, 3], [2, 3]]], [[[1, 2], [1, 2]]], [[[2, 3], [4, 3]]]],
+        [
+            [[[1, 2], [1, 2]], [[1, 2], [1, 2]]],
+            [[[1, 2], [1, 2]]],
+            [[[[1, 2], [x, x]]] for x in [1, 2]],
+        ],
+        [
+            [[[1, 2], [1, 2]], [[2, 3], [2, 3]]],
+            [[[1, 2], [1, 2]]],
+            [[[[2, 3], [x, 3]]] for x in [1, 2]],
+        ],
         [
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 3], [1, 3]]],
             [[[1, 2], [1, 2]]],
-            [[[2, 3], [4, 3]], [[1, 3], [4, 3]]],
+            [[[[2, 3], [x, 3]], [[1, 3], [x, 3]]] for x in [1, 2]],
         ],
         [
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 3], [1, 3]]],
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]]],
-            [[[1, 3], [4, 4]]],
+            [[[[1, 3], [x, x]]] for x in [1, 2, 3]],
         ],
     ],
 )
-def test__bigraph_delete_contract(biedges, select, result):
-    assert realization_counting._bigraph_delete_contract(biedges, select) == result
+def test__bigraph_delete_contract(biedges, select, possible_results):
+    assert (
+        realization_counting._bigraph_delete_contract(biedges, select)
+        in possible_results
+    )
 
 
 @pytest.mark.parametrize(
@@ -544,6 +573,124 @@ def test__bigraph_delete_contract(biedges, select, result):
 )
 def test__bigraph_is_pseudo_laman(biedges, result):
     assert realization_counting._bigraph_is_pseudo_laman(biedges) == result
+
+
+@pytest.mark.parametrize(
+    "edges, rank",
+    [
+        [[], 0],
+        [[[1, 2]], 1],
+        [[[1, 1]], 0],
+        [[[1, 1], [1, 2]], 1],
+        [[[1, 2], [1, 2]], 1],
+        [[[1, 2], [2, 1]], 1],
+        [[[1, 2], [2, 3]], 2],
+        [[[1, 2], [2, 3], [3, 1]], 2],
+        [[[1, 2], [2, 3], [3, 4], [4, 1]], 3],
+        [[[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]], 3],
+        [[[1, 2], [3, 4]], 2],
+        [[[1, 2], [2, 3], [3, 1], [4, 5]], 3],
+        [[[1, 2], [3, 4], [2, 3]], 3],
+        [[[1, 2], [3, 4], [2, 3], [1, 4]], 3],
+        [[[10, 20], [30, 7]], 2],
+    ],
+)
+def test__rank(edges, rank):
+    assert realization_counting._rank(edges) == rank
+
+
+@pytest.mark.parametrize(
+    "edges, select, possible_results",
+    [
+        [[], [], [[]]],
+        [[], [[1, 2]], [[]]],
+        [[[1, 2], [2, 3]], [], [[[1, 2], [2, 3]]]],
+        [[[3, 4]], [[1, 2]], [[[3, 4]]]],
+        [[[1, 2]], [[1, 2]], [[[x, x]] for x in [1, 2]]],
+        [[[2, 1]], [[1, 2]], [[[x, x]] for x in [1, 2]]],
+        [
+            [[1, 4], [3, 4]],
+            [[1, 2], [2, 3]],
+            [[[x, 4], [x, 4]] for x in [1, 2, 3]],
+        ],
+        [[[2, 3]], [[2, 2]], [[[2, 3]]]],
+        [[[3, 5]], [[1, 2], [2, 3], [3, 1]], [[[x, 5]] for x in [1, 2, 3]]],
+        [[[4, 5]], [[1, 2], [3, 4], [2, 3]], [[[x, 5]] for x in [1, 2, 3, 4]]],
+    ],
+)
+def test__contract(edges, select, possible_results):
+    assert realization_counting._contract(edges, select) in possible_results
+
+
+@pytest.mark.parametrize(
+    "edges, select, possible_results",
+    [
+        [[[2, 3], [1, 4]], [[1, 2]], [[[x, 3], [x, 4]] for x in [1, 2]]],
+        [
+            [[2, 3], [4, 5]],
+            [[1, 2], [3, 4]],
+            [[[x, y], [y, 5]] for x in [1, 2] for y in [3, 4]],
+        ],
+    ],
+)
+def test__contract_preserves_order(edges, select, possible_results):
+    assert realization_counting._contract(edges, select) in possible_results
+
+
+def test__contract_keeps_input_unchanged():
+    edges = [[1, 2], [2, 3]]
+    select = [[1, 3]]
+    result = realization_counting._contract(edges, select)
+    assert result != edges
+    assert edges == [[1, 2], [2, 3]]
+
+
+@pytest.mark.parametrize(
+    "biedges, select, result",
+    [
+        [[], [], []],
+        [[[[1, 2], [1, 2]]], [], [[[1, 2], [1, 2]]]],
+        [[[[1, 2], [1, 2]]], [[[1, 2], [1, 2]]], []],
+        [
+            [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[3, 4], [3, 4]], [[4, 5], [4, 5]]],
+            [[[3, 4], [3, 4]], [[1, 2], [1, 2]]],
+            [[[2, 3], [2, 3]], [[4, 5], [4, 5]]],
+        ],
+        [[[[1, 2], [1, 2]], [[1, 2], [1, 2]]], [[[1, 2], [1, 2]]], [[[1, 2], [1, 2]]]],
+        [
+            [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 2], [1, 2]]],
+            [[[1, 2], [1, 2]]],
+            [[[2, 3], [2, 3]], [[1, 2], [1, 2]]],
+        ],
+        [
+            [[[1, 2], [1, 2]], [[1, 2], [3, 4]], [[5, 6], [3, 4]]],
+            [[[1, 2], [3, 4]]],
+            [[[1, 2], [1, 2]], [[5, 6], [3, 4]]],
+        ],
+    ],
+)
+def test__remove_biedges(biedges, select, result):
+    assert realization_counting._remove_biedges(biedges, select) == result
+
+
+def test__remove_biedges_keeps_input_unchanged():
+    biedges = [[[1, 2], [1, 2]], [[2, 3], [2, 3]]]
+    realization_counting._remove_biedges(biedges, [[[1, 2], [1, 2]]])
+    assert biedges == [[[1, 2], [1, 2]], [[2, 3], [2, 3]]]
+
+
+def test__remove_biedges_removes_first_occurence_only():
+    biedges = [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 2], [1, 2]]]
+    assert realization_counting._remove_biedges(biedges, [[[1, 2], [1, 2]]]) == [
+        [[2, 3], [2, 3]],
+        [[1, 2], [1, 2]],
+    ]
+
+
+def test__remove_biedges_error():
+    biedges = [[[1, 2], [1, 2]], [[2, 3], [2, 3]]]
+    with pytest.raises(ValueError):
+        realization_counting._remove_biedges(biedges, [[[1, 2], [2, 3]]])
 
 
 def _run_realization_test_on_graph(G: nx.Graph, dim: int, check_lnumber: bool) -> None:

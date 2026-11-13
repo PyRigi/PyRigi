@@ -15,6 +15,7 @@ import sympy as sp
 import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.global_ as global_rigidity
 from pyrigi._utils import _input_check
+from pyrigi._utils.union_find import UnionFind
 from pyrigi.data_type import Inf
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph._export import export
@@ -144,7 +145,6 @@ def number_of_realizations(  # noqa: C901
     # Check trivial cases for higher dimensions
     # currently just for internal use to resolve default in higher dimensions if possible
     if algorithm == "checktrivial":
-
         # reduce by deleting vertices of degree = dim
         # :prf:ref:`lem-realization-0-extension`
         G = deepcopy(graph)
@@ -554,15 +554,91 @@ def _bigraph_is_pseudo_laman(bigraph: list) -> bool:
     """
     Check whether a bigraph given by a list of biedges is pseudo-Laman.
     """
-    graph1 = nx.Graph([be[0] for be in bigraph])
-    graph2 = nx.Graph([be[1] for be in bigraph])
     return (
-        graph1.number_of_nodes()
-        - nx.number_connected_components(graph1)
-        + graph2.number_of_nodes()
-        - nx.number_connected_components(graph2)
+        _rank([be[0] for be in bigraph]) + _rank([be[1] for be in bigraph])
         == len(bigraph) + 1
     )
+
+
+def _rank(edges: list) -> int:
+    """
+    Calculate the rank of a graph.
+
+    The rank of a graph is defined as |V| - |{connected components}|,
+    which is equivalent to the number of edges of a spanning forest.
+    """
+    union_find = UnionFind()
+    rank = 0
+    for u, v in edges:
+        if union_find.join(u, v):  # true if the spanning forest has been extended
+            rank += 1
+    return rank
+
+
+def _contract(edges: list, select: list) -> list:
+    """
+    Contract edges of a graph.
+
+    Contraction removes selected edges from a graph
+    and merges nodes reachable by such edges together.
+
+    Because contraction is used alongside edge deletion,
+    the contracted edges are expected to be removed from the edgelist beforehand.
+
+    Returns a new list and preserves the order of edges.
+
+    Parameters
+    ----------
+    edges
+        A list of edges.
+    select
+        Edges to be contracted.
+    """
+    union_find = UnionFind()
+    for u, v in select:
+        union_find.join(u, v)
+    return [[union_find.find(u), union_find.find(v)] for u, v in edges]
+
+
+def _remove_biedges(biedges: list, select: list) -> list:
+    """
+    Remove selected biedges of a bigraph.
+
+    Returns a copy with the first occurence of each selected biedge removed.
+
+    Raises ValueError if a selected biedge is not present in bigraph.
+
+    Parameters
+    ----------
+    biedges
+        A set of biedges.
+    select
+        Subset of biedges to be removed.
+    """
+    rest = copy(biedges)
+    for be in select:
+        rest.remove(be)
+    return rest
+
+
+def _bigraph_contract_delete(biedges: list, select: list) -> list:
+    """
+    Contract edges of a bigraph on the left
+    and delete on the right.
+    """
+    rest = _remove_biedges(biedges, select)
+    left = _contract([be[0] for be in rest], [be[0] for be in select])
+    return [[ell, be[1]] for ell, be in zip(left, rest, strict=True)]
+
+
+def _bigraph_delete_contract(biedges: list, select: list) -> list:
+    """
+    Contract edges of a bigraph on the right
+    and delete on the left.
+    """
+    rest = _remove_biedges(biedges, select)
+    right = _contract([be[1] for be in rest], [be[1] for be in select])
+    return [[be[0], r] for be, r in zip(rest, right, strict=True)]
 
 
 def _biedges_have_loop(biedges: list) -> bool:
@@ -597,53 +673,3 @@ def _graph_to_bigraph(graph: nx.Graph) -> list:
         for edge in graph.edges
     ]
     return biedges
-
-
-def _bigraph_contract_delete(biedges: list, select: list) -> list:
-    """
-    Contract edges of a bigraph on the left
-    and delete on the right.
-    """
-    new_biedges = copy(biedges)
-    for be in select:
-        new_biedges.remove(be)
-    n = max([max(*be[0], *be[1]) for be in biedges])
-    mapping = {i: i for i in range(n + 1)}
-    contract_graph = nx.Graph([be[0] for be in select])
-    contract_sets = list(nx.connected_components(contract_graph))
-    for i, c_set in enumerate(contract_sets):
-        for v in c_set:
-            mapping[v] = n + 1 + i
-    new_biedges2 = [
-        [
-            [mapping[be[0][0]], mapping[be[0][1]]],
-            be[1],
-        ]
-        for be in new_biedges
-    ]
-    return new_biedges2
-
-
-def _bigraph_delete_contract(biedges: list, select: list) -> list:
-    """
-    Contract edges of a bigraph on the right
-    and delete on the left.
-    """
-    new_biedges = copy(biedges)
-    for be in select:
-        new_biedges.remove(be)
-    n = max([max(*be[0], *be[1]) for be in biedges])
-    mapping = {i: i for i in range(n + 1)}
-    contract_graph = nx.Graph([be[1] for be in select])
-    contract_sets = list(nx.connected_components(contract_graph))
-    for i, c_set in enumerate(contract_sets):
-        for v in c_set:
-            mapping[v] = n + 1 + i
-    new_biedges2 = [
-        [
-            be[0],
-            [mapping[be[1][0]], mapping[be[1][1]]],
-        ]
-        for be in new_biedges
-    ]
-    return new_biedges2
