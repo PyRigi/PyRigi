@@ -18,6 +18,8 @@ Installation for development is done via [Poetry](#dependencies-poetry).
 
 Some packages are not installed by default.
 Here we list the groups of optional packages that may be used to increase the functionalities of PyRigi.
+We cannot guarantee that all extras work on all operating systems and Python versions,
+see the [regular tests](#regular-tests) for the current status.
 
 ### Realization counting
 
