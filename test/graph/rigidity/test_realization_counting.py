@@ -387,9 +387,6 @@ def test_number_of_realizations_rigid_higher_dim(
     )
 
 
-9
-
-
 @pytest.mark.parametrize(
     "graph, dim",
     [
