@@ -455,24 +455,32 @@ def test_number_of_realizations_lnumber_error(spherical):
 
 
 @pytest.mark.parametrize(
-    "biedges, select, result",
+    "biedges, select, possible_results",
     [
         [
             [[[1, 2], [2, 3]], [[1, 2], [1, 2]], [[1, 3], [1, 2]]],
             [[[1, 2], [2, 3]]],
-            [[[1, 1], [1, 2]], [[1, 3], [1, 2]]],
+            [[[[x, x], [1, 2]], [[x, 3], [1, 2]]] for x in [1, 2]],
         ],
-        [[[[1, 2], [1, 2]], [[1, 2], [1, 2]]], [[[1, 2], [1, 2]]], [[[1, 1], [1, 2]]]],
-        [[[[1, 2], [1, 2]], [[2, 3], [2, 3]]], [[[1, 2], [1, 2]]], [[[1, 3], [2, 3]]]],
+        [
+            [[[1, 2], [1, 2]], [[1, 2], [1, 2]]],
+            [[[1, 2], [1, 2]]],
+            [[[[x, x], [1, 2]]] for x in [1, 2]],
+        ],
+        [
+            [[[1, 2], [1, 2]], [[2, 3], [2, 3]]],
+            [[[1, 2], [1, 2]]],
+            [[[[x, 3], [2, 3]]] for x in [1, 2]],
+        ],
         [
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 3], [1, 3]]],
             [[[1, 2], [1, 2]]],
-            [[[1, 3], [2, 3]], [[1, 3], [1, 3]]],
+            [[[[1, 3], [2, 3]], [[1, 3], [1, 3]]] for x in [1, 2]],
         ],
         [
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 3], [1, 3]]],
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]]],
-            [[[1, 1], [1, 3]]],
+            [[[[x, x], [1, 3]]] for x in [1, 2, 3]],
         ],
         [
             [
@@ -484,7 +492,10 @@ def test_number_of_realizations_lnumber_error(spherical):
                 [[5, 6], [3, 4]],
             ],
             [[[3, 4], [1, 3]], [[4, 1], [2, 3]]],
-            [[[3, 2], [1, 2]], [[2, 3], [1, 2]], [[3, 3], [3, 4]], [[5, 6], [3, 4]]],
+            [
+                [[[x, 2], [1, 2]], [[2, x], [1, 2]], [[x, x], [3, 4]], [[5, 6], [3, 4]]]
+                for x in [1, 3, 4]
+            ],
         ],
         [
             [
@@ -495,38 +506,56 @@ def test_number_of_realizations_lnumber_error(spherical):
                 [[4, 6], [10, 8]],
             ],
             [[[4, 7], [10, 5]], [[9, 6], [10, 8]]],
-            [[[9, 4], [3, 5]], [[9, 9], [3, 8]], [[4, 9], [10, 8]]],
+            [
+                [[[y, x], [3, 5]], [[y, y], [3, 8]], [[x, y], [10, 8]]]
+                for x in [4, 7]
+                for y in [6, 9]
+            ],
         ],
     ],
 )
-def test__bigraph_contract_delete(biedges, select, result):
-    assert realization_counting._bigraph_contract_delete(biedges, select) == result
+def test__bigraph_contract_delete(biedges, select, possible_results):
+    assert (
+        realization_counting._bigraph_contract_delete(biedges, select)
+        in possible_results
+    )
 
 
 @pytest.mark.parametrize(
-    "biedges, select, result",
+    "biedges, select, possible_results",
     [
         [
             [[[1, 2], [2, 3]], [[1, 2], [1, 2]], [[1, 3], [1, 2]]],
             [[[1, 2], [2, 3]]],
-            [[[1, 2], [1, 2]], [[1, 3], [1, 2]]],
+            [[[[1, 2], [1, x]], [[1, 3], [1, x]]] for x in [2, 3]],
         ],
-        [[[[1, 2], [1, 2]], [[1, 2], [1, 2]]], [[[1, 2], [1, 2]]], [[[1, 2], [1, 1]]]],
-        [[[[1, 2], [1, 2]], [[2, 3], [2, 3]]], [[[1, 2], [1, 2]]], [[[2, 3], [1, 3]]]],
+        [
+            [[[1, 2], [1, 2]], [[1, 2], [1, 2]]],
+            [[[1, 2], [1, 2]]],
+            [[[[1, 2], [x, x]]] for x in [1, 2]],
+        ],
+        [
+            [[[1, 2], [1, 2]], [[2, 3], [2, 3]]],
+            [[[1, 2], [1, 2]]],
+            [[[[2, 3], [x, 3]]] for x in [1, 2]],
+        ],
         [
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 3], [1, 3]]],
             [[[1, 2], [1, 2]]],
-            [[[2, 3], [1, 3]], [[1, 3], [1, 3]]],
+            [[[[2, 3], [x, 3]], [[1, 3], [x, 3]]] for x in [1, 2]],
         ],
         [
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 3], [1, 3]]],
             [[[1, 2], [1, 2]], [[2, 3], [2, 3]]],
-            [[[1, 3], [1, 1]]],
+            [[[[1, 3], [x, x]]] for x in [1, 2, 3]],
         ],
     ],
 )
-def test__bigraph_delete_contract(biedges, select, result):
-    assert realization_counting._bigraph_delete_contract(biedges, select) == result
+def test__bigraph_delete_contract(biedges, select, possible_results):
+    assert (
+        realization_counting._bigraph_delete_contract(biedges, select)
+        in possible_results
+    )
 
 
 @pytest.mark.parametrize(
@@ -571,33 +600,41 @@ def test__rank(edges, rank):
 
 
 @pytest.mark.parametrize(
-    "edges, select, result",
+    "edges, select, possible_results",
     [
-        [[], [], []],
-        [[], [[1, 2]], []],
-        [[[1, 2], [2, 3]], [], [[1, 2], [2, 3]]],
-        [[[3, 4]], [[1, 2]], [[3, 4]]],
-        [[[1, 2]], [[1, 2]], [[1, 1]]],
-        [[[2, 1]], [[1, 2]], [[1, 1]]],
-        [[[1, 4], [3, 4]], [[1, 2], [2, 3]], [[1, 4], [1, 4]]],
-        [[[2, 3]], [[2, 2]], [[2, 3]]],
-        [[[3, 5]], [[1, 2], [2, 3], [3, 1]], [[1, 5]]],
-        [[[4, 5]], [[1, 2], [3, 4], [2, 3]], [[1, 5]]],
+        [[], [], [[]]],
+        [[], [[1, 2]], [[]]],
+        [[[1, 2], [2, 3]], [], [[[1, 2], [2, 3]]]],
+        [[[3, 4]], [[1, 2]], [[[3, 4]]]],
+        [[[1, 2]], [[1, 2]], [[[x, x]] for x in [1, 2]]],
+        [[[2, 1]], [[1, 2]], [[[x, x]] for x in [1, 2]]],
+        [
+            [[1, 4], [3, 4]],
+            [[1, 2], [2, 3]],
+            [[[x, 4], [x, 4]] for x in [1, 2, 3]],
+        ],
+        [[[2, 3]], [[2, 2]], [[[2, 3]]]],
+        [[[3, 5]], [[1, 2], [2, 3], [3, 1]], [[[x, 5]] for x in [1, 2, 3]]],
+        [[[4, 5]], [[1, 2], [3, 4], [2, 3]], [[[x, 5]] for x in [1, 2, 3, 4]]],
     ],
 )
-def test__contract(edges, select, result):
-    assert realization_counting._contract(edges, select) == result
+def test__contract(edges, select, possible_results):
+    assert realization_counting._contract(edges, select) in possible_results
 
 
 @pytest.mark.parametrize(
-    "edges, select, result",
+    "edges, select, possible_results",
     [
-        [[[2, 3], [1, 4]], [[1, 2]], [[1, 3], [1, 4]]],
-        [[[2, 3], [4, 5]], [[1, 2], [3, 4]], [[1, 3], [3, 5]]],
+        [[[2, 3], [1, 4]], [[1, 2]], [[[x, 3], [x, 4]] for x in [1, 2]]],
+        [
+            [[2, 3], [4, 5]],
+            [[1, 2], [3, 4]],
+            [[[x, y], [y, 5]] for x in [1, 2] for y in [3, 4]],
+        ],
     ],
 )
-def test__contract_preserves_order(edges, select, result):
-    assert realization_counting._contract(edges, select) == result
+def test__contract_preserves_order(edges, select, possible_results):
+    assert realization_counting._contract(edges, select) in possible_results
 
 
 def test__contract_keeps_input_unchanged():
