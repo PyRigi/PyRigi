@@ -168,7 +168,16 @@ class PeriodicFramework(FrameworkBase):
 
     @staticmethod
     def _normalize_gain(gain: Sequence[int], lattice_dim: int) -> tuple[int, ...]:
-        """Validate and normalize a gain vector."""
+        """
+        Validate and normalize a gain vector according to the given `lattice_dim`.
+
+        Parameters
+        ----------
+        gain:
+            A Z^d-gain vector given as a sequence of integers.
+        lattice_dim:
+            Rank of the underlying lattice.
+        """
         if isinstance(gain, (str, bytes)):
             raise TypeError("A gain must be a sequence of integers.")
         try:
@@ -195,6 +204,7 @@ class PeriodicFramework(FrameworkBase):
     # ------------------------------------------------------------------
 
     def __str__(self) -> str:
+        """Return the string representation."""
         realization = ", ".join(
             f"{vertex}:{tuple(self._realization[vertex])}"
             for vertex in self._graph.nodes
@@ -207,6 +217,7 @@ class PeriodicFramework(FrameworkBase):
         )
 
     def __repr__(self) -> str:
+        """Return a representation of the periodic framework."""
         realization = {
             vertex: [str(coordinate) for coordinate in point]
             for vertex, point in self.realization(as_points=True).items()
@@ -252,6 +263,11 @@ class PeriodicFramework(FrameworkBase):
 
         The new basis must have the same shape as the existing basis and its
         columns must be linearly independent.
+
+        Parameters
+        ----------
+        lattice_basis:
+            Basis of the new lattice.
         """
         basis = self._lattice_basis_to_matrix(lattice_basis)
         expected_shape = (self.dim, self.lattice_dim)
@@ -267,7 +283,7 @@ class PeriodicFramework(FrameworkBase):
     @classmethod
     @doc_category("Class methods")
     def Empty(cls, lattice_basis: Sequence[Point] | MatrixBase) -> PeriodicFramework:
-        """Generate an empty periodic framework with the given lattice."""
+        """Generate an empty periodic framework with a given lattice."""
         basis = cls._lattice_basis_to_matrix(lattice_basis)
         graph = GainGraph(dim=basis.cols)
         return cls(graph, {}, basis)
@@ -292,6 +308,11 @@ class PeriodicFramework(FrameworkBase):
         stored. The realization must contain exactly the vertices of the
         underlying gain graph, and all points must have the correct
         ambient dimension.
+
+        Parameters
+        ----------
+        realization:
+            New realization for the periodic framework.
         """
         if not isinstance(realization, dict):
             raise TypeError("The realization has to be a dictionary.")
@@ -349,6 +370,13 @@ class PeriodicFramework(FrameworkBase):
         The point is normalized modulo the period lattice before it is
         stored, using the half-open fundamental parallelepiped determined
         by ``lattice_basis``.
+
+        Parameters
+        ----------
+        vertex:
+            The label of the vertex whose position is modified.
+        point:
+            The new position of this vertex.
         """
         self._input_check_vertex_key(vertex)
         self._input_check_point_dimension(point)
@@ -369,6 +397,12 @@ class PeriodicFramework(FrameworkBase):
         Subtracting ``B * floor(c)`` places the lattice coordinates
         in ``[0, 1)``. The component orthogonal to the lattice span
         remains unchanged.
+
+        Parameters
+        ----------
+        point:
+            Position of the vertex which is translated to the
+            unit cell via the underlying lattice.
         """
         lattice_basis = sp.Matrix(self._lattice_basis)
 
@@ -397,6 +431,11 @@ class PeriodicFramework(FrameworkBase):
         the half-open interval [0, 1).
 
         The lattice basis may be a SymPy Matrix, NumPy array, list, or tuple.
+
+        Parameters
+        ----------
+        point:
+            Point for which the containment in the periodic unit cell is checked.
         """
         lattice_basis = sp.Matrix(self._lattice_basis)
         point_vector = sp.Matrix(point)
@@ -436,9 +475,12 @@ class PeriodicFramework(FrameworkBase):
     def add_edge(self, edge: tuple) -> None:
         r"""Add a gain edge to the framework.
 
-        ``edge`` can be an endpoint pair ``(u, v)`` (zero gain) or a gain
-        edge triple ``(u, v, gain)`` with a gain in $Z^d$. The endpoints
-        must already be vertices of the gain graph.
+        Parameters
+        ----------
+        edge:
+            New edge. Can be an endpoint pair ``(u, v)`` (zero gain) or a gain
+            edge triple ``(u, v, gain)`` with a gain in $Z^d$. The endpoints
+            must already be vertices of the gain graph.
         """
         if not isinstance(edge, (tuple, list)) or len(edge) not in (2, 3):
             raise TypeError("An edge must be an endpoint pair or a gain-edge triple.")
@@ -468,6 +510,14 @@ class PeriodicFramework(FrameworkBase):
         r"""Return the Euclidean lattice translation represented by ``gain``.
 
         The returned vector is ``lattice_basis * gain``.
+
+        Parameters
+        ----------
+        gain:
+            Z^d-linear combination of the lattice basis.
+        numerical:
+            A boolean determining whether the output is
+            converted to a floating point number or not.
         """
         normalized_gain = self._normalize_gain(gain, self.lattice_dim)
         vector = self._lattice_basis * Matrix(normalized_gain)
@@ -479,9 +529,15 @@ class PeriodicFramework(FrameworkBase):
     ) -> Matrix:
         r"""Return the oriented bar vector of a gain edge.
 
-        For an oriented gain edge ``(u, v, gain)``, this is
-        ``p(v) + lattice_basis * gain - p(u)``. The reverse orientation gives
-        the negative vector.
+        Parameters
+        ----------
+        edge:
+            For an oriented gain edge ``(u, v, gain)``, this is
+            ``p(v) + lattice_basis * gain - p(u)``. The reverse orientation gives
+            the negative vector.
+        numerical:
+            A boolean determining whether the output is
+            converted to a floating point number or not.
         """
         if not isinstance(edge, (tuple, list)) or len(edge) != 3:
             raise TypeError("An edge vector requires a gain-edge triple (u, v, gain).")
@@ -505,7 +561,15 @@ class PeriodicFramework(FrameworkBase):
 
     @doc_category("Other")
     def edge_vectors(self, numerical: bool = False) -> dict[tuple, Matrix]:
-        """Return the oriented bar vectors of all gain edges."""
+        """
+        Return the oriented bar vectors of all gain edges.
+
+        Parameters
+        ----------
+        numerical:
+            A boolean determining whether the output is
+            converted to a floating point number or not.
+        """
         return {
             edge: self.edge_vector(edge, numerical=numerical)
             for edge in self._graph.edge_list()
@@ -517,6 +581,12 @@ class PeriodicFramework(FrameworkBase):
 
         Parallel edges with different gains are distinct bars, so the keys of
         the returned dictionary are triples ``(u, v, gain)``.
+
+        Parameters
+        ----------
+        numerical:
+            A boolean determining whether the output is
+            converted to a floating point number or not.
         """
         lengths = {}
         for edge, vector in self.edge_vectors(numerical=numerical).items():
@@ -538,17 +608,18 @@ class PeriodicFramework(FrameworkBase):
 
         Parameters
         ----------
+        points:
+            A new realization for which the containment in the fundamental
+            cell is checked.
         method:
-            Reference to the method that is called.
+            Reference to the method from which this warning is called.
         """
         cls = type(self)
         if not cls.silence_fundamental_cell_warns:
             affected_points = {}
             normalized_points = {}
             for v, pos in points.items():
-                print(pos)
                 if self._is_point_outside_lattice(pos):
-                    print(True)
                     affected_points |= {v: pos}
                     normalized_points = {v: self._normalize_point_mod_lattice(pos)}
             if not len(affected_points.values()) == 0:
