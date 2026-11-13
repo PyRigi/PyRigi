@@ -1000,7 +1000,7 @@ def _check_sparsity_with_decomp(G: nx.Graph, F: list, K: int, L: int) -> set:
 
 def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, K: int) -> set:
     """
-    Returns a violating set of the underlying graph of D sucht that c in X,
+    Returns a violating set of the underlying graph of D such that in X,
     X intersection Z is not None and X different from {c}.
     If such set doesn't exist returns None.
 
@@ -1016,12 +1016,6 @@ def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, K: int) -> 
     """
 
     D_prime, s = _build_rooted_digraph(D, {c}, K)
-
-    for v in D.nodes():
-        if v != c:
-            for i in range(K - D.in_degree(v)):
-                D_prime.add_edge(s, v)
-        continue
 
     X = _eta_rooted_term_connectivity(D_prime, K, s, Z)
 

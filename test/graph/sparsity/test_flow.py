@@ -19,6 +19,7 @@ from pyrigi.graph._sparsity._flow import (
     _eta_rooted_term_connectivity,
     _eta_rooted_arc_connectivity,
     _build_rooted_digraph,
+    _check_terminal_superset_sparsity,
     _check_sparsity_for_l_less_than_k,
     _check_sparsity_for_l_between_k_and_2k,
     _check_sparsity_for_l_equal_2k,
@@ -303,6 +304,111 @@ def test_build_rooted_digraph_invalid():
         _build_rooted_digraph(nx.DiGraph([(0, 1)]), {1}, 1)
     with pytest.raises(ValueError):
         _build_rooted_digraph(nx.DiGraph([(0, 2), (1, 2)]), set(), 1)
+
+
+def test_build_rooted_digraph_structure():
+    D0 = nx.DiGraph([(0, 1), (0, 2), (1, 2), (2, 3)])
+    D, s = _build_rooted_digraph(D0, {0}, 3)
+    assert isinstance(D, nx.MultiDiGraph)
+    assert set(D.nodes()) == {1, 2, 3, s}
+    # arcs leaving U0 are dropped, the others are kept
+    assert D.number_of_edges(1, 2) == 1
+    assert D.number_of_edges(2, 3) == 1
+    assert D.number_of_edges() == 2 + (3 - 1) + (3 - 2) + (3 - 1)
+    # parallel arcs from the root: k - indegree in D0
+    assert D.number_of_edges(s, 1) == 2
+    assert D.number_of_edges(s, 2) == 1
+    assert D.number_of_edges(s, 3) == 2
+    assert D.in_degree(s) == 0
+
+
+def test_build_rooted_digraph_indegree_is_k():
+    # several vertices in U0; arcs from the root fill indegrees up to k
+    D0 = nx.DiGraph([(0, 1), (1, 2), (2, 1), (3, 2)])
+    D, s = _build_rooted_digraph(D0, {0, 3}, 2)
+    assert set(D.nodes()) == {1, 2, s}
+    assert D.number_of_edges(s, 1) == 0
+    assert D.number_of_edges(s, 2) == 0
+    assert D.number_of_edges(1, 2) == 1
+    assert D.number_of_edges(2, 1) == 1
+
+
+def test_build_rooted_digraph_does_not_modify_input():
+    D0 = nx.DiGraph([(0, 1), (0, 2), (1, 2)])
+    edges = set(D0.edges())
+    _build_rooted_digraph(D0, {0}, 2)
+    assert set(D0.nodes()) == {0, 1, 2}
+    assert set(D0.edges()) == edges
+
+
+def test_build_rooted_digraph_saturated():
+    # k-regular indegree: no arcs from the root
+    D0 = nx.DiGraph([(1, 2), (2, 1)])
+    D0.add_node(0)
+    D, s = _build_rooted_digraph(D0, {0}, 1)
+    assert D.out_degree(s) == 0
+
+
+def _edges_inside(D, Y):
+    return sum(1 for u, v in D.edges() if u in Y and v in Y)
+
+
+def _terminal_violation_exists(D, c, Z, K):
+    others = [v for v in D.nodes if v != c]
+    for r in range(1, len(others) + 1):
+        for X in itertools.combinations(others, r):
+            Y = set(X) | {c}
+            if set(X) & Z and _edges_inside(D, Y) > K * len(Y) - 2 * K:
+                return True
+    return False
+
+
+def test_check_terminal_superset_sparsity_none():
+    # c isolated, a path on the others: no set containing c violates (1,2)-sparsity
+    D = nx.DiGraph([(1, 2), (2, 3)])
+    D.add_node(0)
+    assert _check_terminal_superset_sparsity(D, 0, {1, 2, 3}, 1) is None
+
+
+def test_check_terminal_superset_sparsity_violation():
+    # triangle 0-1-2 with c = 0 a source: 3 edges > 2*3 - 2*2 for K = 2
+    D = nx.DiGraph([(0, 1), (0, 2), (1, 2)])
+    X = _check_terminal_superset_sparsity(D, 0, {1, 2}, 2)
+    assert X is not None and 0 in X and X != {0} and X & {1, 2}
+    assert _edges_inside(D, X) > 2 * len(X) - 4
+
+
+def test_check_terminal_superset_sparsity_terminals_matter():
+    # K = 2: {0,1,2} is violating, but 3 is the only terminal, so a violating
+    # set must contain 3; {0,1,2,3} has 5 edges > 2*4 - 4
+    D = nx.DiGraph([(0, 1), (0, 2), (1, 2), (2, 3), (1, 3)])
+    X = _check_terminal_superset_sparsity(D, 0, {3}, 2)
+    assert X is not None and 0 in X and 3 in X
+    # without the extra edge only {0,1,2} violates, which misses the terminal
+    D.remove_edge(1, 3)
+    assert _check_terminal_superset_sparsity(D, 0, {3}, 2) is None
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_check_terminal_superset_sparsity_random(seed):
+    rng = random.Random(seed)
+    for _ in range(100):
+        K = rng.randint(1, 3)
+        n = rng.randint(2, 6)
+        D = nx.DiGraph()
+        D.add_nodes_from(range(n))
+        # c = 0 is a source; indegrees bounded by K
+        for v in range(1, n):
+            for u in rng.sample(range(n), rng.randint(0, min(K, n - 1))):
+                if u != v:
+                    D.add_edge(u, v)
+        Z = set(rng.sample(range(1, n), rng.randint(0, n - 1)))
+        X = _check_terminal_superset_sparsity(D, 0, Z, K)
+        if X is None:
+            assert not _terminal_violation_exists(D, 0, Z, K)
+        else:
+            assert 0 in X and X != {0} and X & Z
+            assert _edges_inside(D, X) > K * len(X) - 2 * K
 
 
 @pytest.mark.parametrize(
