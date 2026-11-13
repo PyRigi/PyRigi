@@ -7,6 +7,8 @@ Module for defining warnings.
 import warnings
 from collections.abc import Callable
 
+from sympy import Matrix
+
 import networkx as nx
 
 from pyrigi.data_type import (
@@ -152,4 +154,49 @@ class NumericalCoordinateWarning(UserWarning):
             super().__init__(msg_str, *args)
 
 
+class OutsideFundamentalCellWarning(UserWarning):
+    """
+    Warning raised when the realization of a `PeriodicFramework` lies
+    outside the fundamental Cell and is normalized to it.
+    """
+
+    def __init__(
+        self,
+        affected_points: dict[Vertex, Sequence[Number]],
+        normalized_points: dict[Vertex, Sequence[Number]],
+        lattice: Matrix,
+        method: Callable,
+        msg: str = None,
+        class_off: object = None,
+        *args,
+    ):
+        if msg is not None:
+            super().__init__(msg, *args)
+        else:
+            affected_as_list = {
+                key: list(value) for key, value in affected_points.items()
+            }
+            normalized_as_list = {
+                key: list(value) for key, value in normalized_points.items()
+            }
+            msg_str = (
+                f"\nIn the method {method.__qualname__} some vertex positions "
+                + "lie outside the fundamental cell given by the lattice "
+                + f"{lattice} and were translated back to it. "
+                + "\nThe affected points are: \t"
+                + f"{affected_as_list}"
+                + ". \nThe new positions are: \t\t"
+                + f"{normalized_as_list}.\n"
+            )
+            if class_off is not None:
+                msg_str += (
+                    "\nTo switch off all OutsideFundamentalCellWarning"
+                    + f" for the class {class_off.__name__},"
+                    + f" use `{class_off.__name__}.silence_fundamental_cell_warns=True`."
+                )
+            msg_str += "\n"
+            super().__init__(msg_str, *args)
+
+
 warnings.filterwarnings("always", category=NumericalCoordinateWarning)
+warnings.filterwarnings("always", category=OutsideFundamentalCellWarning)

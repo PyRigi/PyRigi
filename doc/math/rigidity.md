@@ -93,4 +93,5 @@ rigidity/redundant
 rigidity/second-order
 rigidity/realizations
 rigidity/nac-colorings
+rigidity/periodic
 :::

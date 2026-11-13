@@ -107,6 +107,7 @@ filterwarnings = [
     "ignore::pyrigi.warning.RandomizedAlgorithmWarning",
     "ignore::pyrigi.warning.NumericalAlgorithmWarning",
     "ignore::pyrigi.warning.NumericalCoordinateWarning",
+    "ignore::pyrigi.warning.OutsideFundamentalCellWarning",
     "ignore:FigureCanvasAgg is non-interactive, and thus cannot be shown:UserWarning"
 ]
 
