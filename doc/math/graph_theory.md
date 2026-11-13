@@ -83,6 +83,23 @@ The graph $G'$ after running the {prf:ref}`pebble game algorithm <alg-pebble-gam
 
 :::
 
+:::{prf:definition} Maximum flow and minimum cut
+:label: def-max-flow
+
+Let $D = (V, A)$ be a directed graph with a source $s \in V$, a sink $t \in V \setminus \{s\}$
+and a capacity function $g \colon A \to \NN$.
+A _flow_ is a function $x \colon A \to \NN$ such that $x(a) \leq g(a)$ for every arc $a \in A$
+and the flow entering $v$ equals the flow leaving $v$ for every vertex $v \in V \setminus \{s, t\}$.
+The _value_ of $x$ is the net flow leaving $s$.
+A _maximum flow_ is a flow of maximum value.
+
+An _$s$-$t$ cut_ is a set $S \subseteq V$ with $s \in S$ and $t \notin S$.
+Its capacity is the sum of $g(a)$ over all arcs $a$ leaving $S$.
+A _minimum $s$-$t$ cut_ is an $s$-$t$ cut of minimum capacity.
+By the max-flow min-cut theorem, the value of a maximum flow equals
+the capacity of a minimum $s$-$t$ cut.
+:::
+
 ## Graph extensions
 
 :::{prf:definition} k-extension
@@ -168,7 +185,7 @@ $G-U$ is not {prf:ref}`connected <def-connected>`.
 In particular, if $|U| = 2$ then U is called a _separating pair_.
 
 We say that $U$ _separates_ the vertices $u$ and $v$, or that $U$ is a _$(u,v)$-separating set_,
-if $u$ and $v$ are in different connected components of $G-U$. 
+if $u$ and $v$ are in different connected components of $G-U$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_separating_set`
 {meth}`~.Graph.is_uv_separating_set`
