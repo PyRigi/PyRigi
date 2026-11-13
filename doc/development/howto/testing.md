@@ -148,7 +148,6 @@ On `main`, PyRigi is installed by `pip` (only the development tools by Poetry)
 so that the dependencies are resolved as for users.
 The doctests and the documentation are tested only if the tests of all [optional packages](#optional-packages)
 pass for the same operating system and Python version.
-The `dev` workflows run also on each push and pull request to `dev`.
 All workflows can be run on demand on any branch in the Actions tab on GitHub.
 
 ## Coverage
