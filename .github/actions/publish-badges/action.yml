@@ -1,0 +1,41 @@
+# This action publishes the results of the jobs of the current run of a regular-test-extras-doc workflow
+# as JSON files for shields.io endpoint badges on the branch badges (see doc/development/howto/testing.md).
+# The job using it needs the permissions actions: read and contents: write.
+
+name: Publish job results as badges
+description: Write one shields.io endpoint JSON file per job, OS and Python version of the current run and push them to the branch badges
+
+inputs:
+  folder:
+    description: Folder on the branch badges for the JSON files, e.g. extras-doc-dev
+    required: true
+
+runs:
+  using: composite
+  steps:
+  - name: Write and push badge files
+    shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      FOLDER: ${{ inputs.folder }}
+    run: |
+      git init -q "$RUNNER_TEMP/badges"
+      cd "$RUNNER_TEMP/badges"
+      git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+      # continue the branch badges, or create it if it does not exist yet
+      if git fetch -q --depth 1 origin badges; then
+        git checkout -q -b badges FETCH_HEAD
+      else
+        git checkout -q --orphan badges
+      fi
+      gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs?per_page=100" \
+        | python3 "$GITHUB_ACTION_PATH/badges.py" "$FOLDER"
+      git add -A
+      if git diff --cached --quiet; then
+        echo "No change of the badges"
+        exit 0
+      fi
+      git -c user.name="github-actions[bot]" \
+          -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+          commit -q -m "Badges of $FOLDER from run $GITHUB_RUN_ID"
+      git push -q origin badges

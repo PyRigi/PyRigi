@@ -39,3 +39,23 @@ jobs:
       pytest-options: "-m 'not long_local' --graph-class=both"
       remove-skip-execution: true
       timeout-minutes: 60
+
+  badges:
+    name: Publish badges
+    needs: regular
+    # only for runs testing main: scheduled runs and manual runs with the default branch
+    # (the badges are shown in doc/development/howto/testing.md)
+    if: ${{ !cancelled() && (github.event_name == 'schedule' || inputs.branch == 'main') }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    # the dev and main workflows push to the same branch badges, one at a time
+    concurrency: badges
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github/actions
+    - uses: ./.github/actions/publish-badges
+      with:
+        folder: extras-doc-main
