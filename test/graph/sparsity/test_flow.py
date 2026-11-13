@@ -382,6 +382,8 @@ C5_with_chord.add_edge(0, 2)
     [
         (C5_with_chord.copy(), 2, 5),
         (nx.Graph(list(C5_with_chord.edges) + [(4, 5)]), 2, 5),
+        (nx.cycle_graph(5), 2, 5),
+        (nx.path_graph(6), 2, 5),
     ],
 )
 def test_check_sparsity_for_l_between_2k_and_3k_false(G, K, L):
@@ -391,7 +393,11 @@ def test_check_sparsity_for_l_between_2k_and_3k_false(G, K, L):
 
 @pytest.mark.parametrize(
     "G, K, L",
-    [(nx.cycle_graph(5), 2, 5), (nx.path_graph(6), 2, 5)],
+    [
+        (nx.empty_graph(5), 2, 5),
+        (nx.Graph([(0, 1), (2, 3), (4, 5)]), 2, 5),
+        (nx.path_graph(3), 2, 4),
+    ],
 )
 def test_check_sparsity_for_l_between_2k_and_3k_true(G, K, L):
     X = _check_sparsity_for_l_between_2k_and_3k(G, K, L)

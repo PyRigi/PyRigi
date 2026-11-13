@@ -1145,7 +1145,7 @@ def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, K: int, L: int) -> set:
 
     for u, v in G.edges():
         X, D = _reorient(D, {u, v}, K)
-        X = _check_superset_sparsity(D, {u, v}, K, L)
+        X = _check_superset_sparsity(D, {u, v}, K, L + 1)
         if X is not None:
             return X
 
