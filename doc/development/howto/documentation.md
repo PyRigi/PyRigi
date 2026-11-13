@@ -25,6 +25,8 @@ The following extensions are used:
  - [`sphinx-tippy`](https://sphinx-tippy.readthedocs.io/en/latest/) - previews of definitions and methods.
 
 These are already installed if you used `poetry install`.
+Since some tutorials use also optional packages, install them
+with `poetry install --all-extras`.  
 
 To compile, run Sphinx in the folder `doc` (with Poetry environment activated) by:
 ```

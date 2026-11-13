@@ -1,10 +1,7 @@
 from collections.abc import Hashable, Iterator
-from typing import TypeVar
-
-T = TypeVar("T", bound=Hashable)
 
 
-class UnionFind:
+class UnionFind[T: Hashable]:
     """
     Union find data structure implementation
 
@@ -12,10 +9,6 @@ class UnionFind:
     ----
     For integers, this can be implemented more efficiently with lists and indexing.
     Uses tree collapsing internally to improve performance.
-
-    Suggested Improvements
-    ----------------------
-    Use class generics in Python 3.12.
     """
 
     def __init__(self):
