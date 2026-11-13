@@ -579,10 +579,18 @@ def _contract(edges: list, select: list) -> list:
     """
     Contract edges of a graph.
 
+    Contraction removes selected edges from a graph
+    and merges nodes reachable by such edges together.
+
+    Because contraction is used alongside edge deletion,
+    the contracted edges are expected to be removed from the edgelist beforehand.
+
+    Returns a new list and preserves the order of edges.
+
     Parameters
     ----------
     edges
-        A list of edges. Selected edges are expected to be removed.
+        A list of edges.
     select
         Edges to be contracted.
     """
@@ -595,6 +603,10 @@ def _contract(edges: list, select: list) -> list:
 def _remove_biedges(biedges: list, select: list) -> list:
     """
     Remove selected biedges of a bigraph.
+
+    Returns a copy with the first occurence of each selected biedge removed.
+
+    Raises ValueError if a selected biedge is not present in bigraph.
 
     Parameters
     ----------

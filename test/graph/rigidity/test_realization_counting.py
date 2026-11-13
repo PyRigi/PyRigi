@@ -577,18 +577,35 @@ def test__rank(edges, rank):
         [[], [[1, 2]], []],
         [[[1, 2], [2, 3]], [], [[1, 2], [2, 3]]],
         [[[3, 4]], [[1, 2]], [[3, 4]]],
-        [[[2, 3], [1, 4]], [[1, 2]], [[1, 3], [1, 4]]],
         [[[1, 2]], [[1, 2]], [[1, 1]]],
         [[[2, 1]], [[1, 2]], [[1, 1]]],
         [[[1, 4], [3, 4]], [[1, 2], [2, 3]], [[1, 4], [1, 4]]],
         [[[2, 3]], [[2, 2]], [[2, 3]]],
         [[[3, 5]], [[1, 2], [2, 3], [3, 1]], [[1, 5]]],
-        [[[2, 3], [4, 5]], [[1, 2], [3, 4]], [[1, 3], [3, 5]]],
         [[[4, 5]], [[1, 2], [3, 4], [2, 3]], [[1, 5]]],
     ],
 )
 def test__contract(edges, select, result):
     assert realization_counting._contract(edges, select) == result
+
+
+@pytest.mark.parametrize(
+    "edges, select, result",
+    [
+        [[[2, 3], [1, 4]], [[1, 2]], [[1, 3], [1, 4]]],
+        [[[2, 3], [4, 5]], [[1, 2], [3, 4]], [[1, 3], [3, 5]]],
+    ],
+)
+def test__contract_preserves_order(edges, select, result):
+    assert realization_counting._contract(edges, select) == result
+
+
+def test__contract_keeps_input_unchanged():
+    edges = [[1, 2], [2, 3]]
+    select = [[1, 3]]
+    result = realization_counting._contract(edges, select)
+    assert result != edges
+    assert edges == [[1, 2], [2, 3]]
 
 
 @pytest.mark.parametrize(
@@ -623,6 +640,20 @@ def test__remove_biedges_keeps_input_unchanged():
     biedges = [[[1, 2], [1, 2]], [[2, 3], [2, 3]]]
     realization_counting._remove_biedges(biedges, [[[1, 2], [1, 2]]])
     assert biedges == [[[1, 2], [1, 2]], [[2, 3], [2, 3]]]
+
+
+def test__remove_biedges_removes_first_occurence_only():
+    biedges = [[[1, 2], [1, 2]], [[2, 3], [2, 3]], [[1, 2], [1, 2]]]
+    assert realization_counting._remove_biedges(biedges, [[[1, 2], [1, 2]]]) == [
+        [[2, 3], [2, 3]],
+        [[1, 2], [1, 2]],
+    ]
+
+
+def test__remove_biedges_error():
+    biedges = [[[1, 2], [1, 2]], [[2, 3], [2, 3]]]
+    with pytest.raises(ValueError):
+        realization_counting._remove_biedges(biedges, [[[1, 2], [2, 3]]])
 
 
 def _run_realization_test_on_graph(G: nx.Graph, dim: int, check_lnumber: bool) -> None:
