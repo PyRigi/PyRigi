@@ -88,9 +88,9 @@ class GainGraph(nx.MultiGraph):
             for u, v, data in incoming_graph_data.edges(data=True):
                 if (not isinstance(data, dict)) or ("gain" not in data):
                     raise TypeError(
-                        "The incoming networkx edge data is not in the correct format. " +
-                        "It is required to be a `dict` and every edge needs to contain " +
-                        "the label 'gain'."
+                        "The incoming networkx edge data is not in the correct format. "
+                        + "It is required to be a `dict` and every edge needs to contain "
+                        + "the label 'gain'."
                     )
                 self.add_edge(u, v, data["gain"])
         else:
