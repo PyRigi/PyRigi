@@ -18,6 +18,28 @@ Gain: TypeAlias = tuple[int, ...]
 GainEdge: TypeAlias = tuple[Vertex, Vertex, Gain]
 
 
+def _is_Zd_gain_graph_data(
+    incoming_graph_data: Iterable[GainEdge] | nx.Graph | None,
+) -> bool:
+    """Return whether the input has the structure of gain-graph data."""
+    if incoming_graph_data is None:
+        return True
+
+    if isinstance(incoming_graph_data, nx.Graph):
+        edges = list(incoming_graph_data.edges(data=True))
+        return (
+            all("gain" in data for _, _, data in edges)
+            if edges
+            else hasattr(incoming_graph_data, "dim")
+        )
+
+    return all(
+        isinstance(edge, (tuple, list))
+        and ((len(edge) == 3 and isinstance(edge[2], (tuple, list))) or len(edge) == 2)
+        for edge in incoming_graph_data
+    )
+
+
 def _negate_gain(gain: Gain) -> Gain:
     """Return the inverse of a gain."""
     if isinstance(gain, tuple):
@@ -41,17 +63,28 @@ class GainGraph(nx.MultiGraph):
 
     def __new__(
         cls,
-        incoming_graph_data: Iterable[GainEdge] | nx.Graph | None = None, # noqa: U100
-    ) -> GainGraph:
-        if cls is GainGraph:
-            return object.__new__(GainGraphZd)
-        return object.__new__(cls)
+        incoming_graph_data: Iterable[GainEdge] | nx.Graph | None = None,
+        **kwargs,  # noqa: U100
+    ):
+        if issubclass(cls, GainGraph) and _is_Zd_gain_graph_data(incoming_graph_data):
+            return super().__new__(GainGraphZd)
+        else:
+            raise TypeError(
+                "The incoming graph data is not in the correct format. "
+                + "Currently, only Z^d-gain graphs are supported."
+            )
 
     def __init__(
-        self,
-        incoming_graph_data: Iterable[GainEdge] | nx.Graph | None = None,
+        self, incoming_graph_data: Iterable[GainEdge] | nx.Graph | None = None
     ) -> None:
-        super().__init__()
+        """
+        Initialize a generic gain graph.
+        """
+        nx.MultiGraph.__init__(self)
+
+        # Initialize common graph data.
+        if incoming_graph_data is not None:
+            self.add_edges(incoming_graph_data)
 
     @classmethod
     @doc_category("Class methods")
@@ -69,6 +102,41 @@ class GainGraph(nx.MultiGraph):
         """
         graph = cls()
         graph.add_vertices(vertices)
+        return graph
+
+    @classmethod
+    @doc_category("Class methods")
+    def from_vertices_and_edges(
+        cls,
+        vertices: Sequence[Vertex],
+        edges: Iterable[GainEdge],
+    ) -> GainGraph:
+        """
+        Create a gain graph from a list of vertices and gain edges.
+
+        All endpoints must belong to the specified vertex set.
+
+        Parameters
+        ----------
+        vertices:
+            A sequence of vertices.
+        edges:
+            An iterable of gain edges.
+        """
+        graph = cls()
+        graph.add_vertices(vertices)
+
+        for edge in edges:
+            if not isinstance(edge, (tuple, list)) or len(edge) != 3:
+                raise TypeError("Each gain edge must be a triple (u, v, gain).")
+
+            u, v, gain = edge
+
+            if not graph.has_node(u) or not graph.has_node(v):
+                raise ValueError(f"Both endpoints of edge {edge!r} must be vertices.")
+
+            graph.add_edge(u, v, gain=gain)
+
         return graph
 
     @doc_category("Graph manipulation")
@@ -118,7 +186,7 @@ class GainGraph(nx.MultiGraph):
             raise TypeError("An edge must be a pair or a gain-edge triple.")
 
         u, v, gain = edge
-        target_gain = self._validate_gain(gain)
+        target_gain = gain
         edge_data = self.get_edge_data(u, v, default={})
 
         for edge_key, data in edge_data.items():
@@ -247,6 +315,20 @@ class GainGraph(nx.MultiGraph):
 
             self.add_edge(u, v, gain)
 
+    def __str__(self) -> str:
+        return (
+            f"GainGraph with vertex orbits "
+            f"{self.vertex_list()} "
+            f"and gain edges {self.edge_list()}"
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"GainGraph.from_vertices_and_edges("
+            f"{self.vertex_list()!r}, {self.edge_list()!r}"
+            f")"
+        )
+
 
 class GainGraphZd(GainGraph):
     r"""
@@ -257,7 +339,8 @@ class GainGraphZd(GainGraph):
     changes the sign of the gain.
 
     The dimension can be specified explicitly using ``dim`` or inferred
-    from the first edge that is added.
+    from the first edge that is added. If there are no edges and the
+    ``dim`` is ``None``, the dimension defaults to 2.
 
     Definitions
     -----------
@@ -293,12 +376,9 @@ class GainGraphZd(GainGraph):
         incoming_graph_data: Iterable[GainEdge] | nx.Graph | None = None,
         dim: int | None = None,
     ) -> None:
-        super().__init__()
+        nx.MultiGraph.__init__(self)
 
         self._dim = self._validate_dim(dim)
-
-        if incoming_graph_data is None:
-            return
 
         if isinstance(incoming_graph_data, nx.Graph):
             if self._dim is None:
@@ -317,11 +397,12 @@ class GainGraphZd(GainGraph):
                     )
                 self.add_edge(u, v, data["gain"])
         else:
-            self.add_edges(incoming_graph_data)
+            if incoming_graph_data is not None:
+                self.add_edges(incoming_graph_data)
 
     @staticmethod
     def _validate_dim(dim: int | None) -> int | None:
-        """Validate the dimension."""
+        """Validate the dimension. The default value is 2."""
         if dim is None:
             return None
 
@@ -342,6 +423,25 @@ class GainGraphZd(GainGraph):
     def dim(self) -> int | None:
         """Return the dimension of the gain vectors."""
         return self._dim
+
+    def set_dim(self, dim: int) -> None:
+        """
+        Set the dimension of the gain graph.
+
+        If the gain edges don't have the correct dimension,
+        they are padded with zeros."""
+        self._dim = self._validate_dim(dim)
+        for edge in self.edge_list():
+            if len(edge[2]) != self._dim:
+                _edge = tuple(
+                    [
+                        edge[0],
+                        edge[1],
+                        tuple(list(edge[2]) + [0] * (self._dim - len(edge[2]))),
+                    ]
+                )
+                self.delete_edge(edge)
+                self.add_edge(*_edge)
 
     def _validate_gain(self, gain: Sequence[int]) -> Gain:
         """Validate and normalize a gain vector."""
@@ -406,7 +506,7 @@ class GainGraphZd(GainGraph):
                 "The gain and the dimension cannot simultaneously be None."
             )
         if gain is None:
-            gain = [0 for _ in range(self.dim)]
+            gain = [0 for _ in range(self.dim)] if self.dim else [0 for _ in range(2)]
         elif self.dim is not None and len(gain) != self.dim:
             raise TypeError("Every edge must have a gain of the correct length.")
 
@@ -435,7 +535,9 @@ class GainGraphZd(GainGraph):
 
             if len(edge) == 2:
                 u, v = edge
-                gain = [0 for _ in range(self.dim)]
+                gain = (
+                    [0 for _ in range(self.dim)] if self.dim else [0 for _ in range(2)]
+                )
 
             elif len(edge) == 3:
                 u, v, gain = edge
@@ -454,7 +556,7 @@ class GainGraphZd(GainGraph):
         dim: int | None = None,
     ) -> GainGraphZd:
         """
-        Create a gain graph from a list of vertices and gain edges.
+        Create a Z^d-gain graph from a list of vertices and gain edges.
 
         All endpoints must belong to the specified vertex set.
 
@@ -509,8 +611,9 @@ class GainGraphZd(GainGraph):
     # ------------------------------------------------------------------
 
     def __str__(self) -> str:
+        d = self.dim if self.dim is not None else "d"
         return (
-            f"Z^{self.dim}-GainGraph with vertex orbits "
+            f"Z^{d}-GainGraph with vertex orbits "
             f"{self.vertex_list()} "
             f"and gain edges {self.edge_list()}"
         )
@@ -577,14 +680,14 @@ class GainGraphZd(GainGraph):
 
         return graph
 
-    def copy(self, as_view: bool = False) -> GainGraph:
+    def copy(self, as_view: bool = False) -> GainGraphZd:
         """
-        Create a copy of the gain graph.
+        Create a copy of the Z^dgain graph.
         """
         if as_view:
             return nx.graphviews.generic_graph_view(self)
 
-        graph = self.__class__(dim=self.dim)
+        graph = GainGraphZd(None, dim=self.dim)
         graph.graph.update(self.graph)
 
         graph.add_nodes_from((v, dict(data)) for v, data in self.nodes(data=True))
