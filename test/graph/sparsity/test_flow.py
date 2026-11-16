@@ -403,22 +403,39 @@ def test_reorient_impossible():
     assert X == {0, 1, 2}
 
 
+def _violates(G, X, K, L):
+    """Return whether X violates (K, L)-sparsity of G."""
+    return G.subgraph(X).number_of_edges() > K * len(X) - L
+
+
 @pytest.mark.parametrize(
     "G, K, L",
     [
-        (nx.complete_graph(5), 2, 1),
-        #  5 complete graph with pendant
+        (nx.complete_graph(5), 2, 1),  # 10 edges > 2*5 - 1
         (nx.Graph(list(nx.complete_graph(5).edges) + [(5, 6)]), 2, 1),
+        # K5 with pendant
+        (nx.complete_graph(7), 3, 1),  # 21 edges > 3*7 - 1
+        (nx.complete_graph(7), 3, 3),  # 21 edges > 3*7 - 3
+        (nx.complete_graph(9), 4, 1),  # 36 edges > 4*9 - 1
+        (nx.complete_graph(9), 4, 4),  # 36 edges > 4*9 - 4
     ],
 )
 def test_check_sparsity_for_l_less_than_k_false(G, K, L):
     X = _check_sparsity_for_l_less_than_k(G, K, L)
     assert X
+    assert _violates(G, X, K, L)
 
 
 @pytest.mark.parametrize(
     "G, K, L",
-    [(nx.complete_graph(4), 2, 1), (nx.path_graph(5), 2, 1)],
+    [
+        (nx.complete_graph(4), 2, 1),  # 6 edges <= 2*4 -1
+        (nx.path_graph(5), 2, 1),  # 4 edges <= 2*5 - 1
+        (nx.complete_graph(7), 3, 0),  # 21 edges <= 3*7 - 0
+        (nx.complete_graph(6), 3, 3),  # 15 edges <= 3*6 - 3
+        (nx.complete_graph(9), 4, 0),  # 36 edges <= 4*9 - 0
+        (nx.complete_graph(8), 4, 4),  # 28 edges <= 4*8 - 4
+    ],
 )
 def test_check_sparsity_for_l_less_than_k_true(G, K, L):
     X = _check_sparsity_for_l_less_than_k(G, K, L)
@@ -436,21 +453,31 @@ def test_saturated_violation_K4():
 @pytest.mark.parametrize(
     "G, K, L",
     [
-        (nx.complete_graph(4), 2, 3),
+        (nx.complete_graph(4), 2, 3),  # 6 edges > 2*4 - 3
         (nx.Graph(list(nx.complete_graph(4).edges) + [(4, 5)]), 2, 3),
+        # K4 with pendant
+        (nx.complete_graph(6), 3, 4),  # 15 edges > 3*6 - 4
+        (nx.complete_graph(6), 3, 5),  # 15 edges > 3*6 - 5
+        (nx.complete_graph(8), 4, 5),  # 28 edges > 4*8 - 5
+        (nx.Graph(list(nx.complete_graph(6).edges) + [(5, 6)]), 3, 5),
+        # K6 with pendant
     ],
 )
 def test_check_sparsity_for_l_between_k_and_2k_false(G, K, L):
     X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
     assert X
+    assert _violates(G, X, K, L)
 
 
 @pytest.mark.parametrize(
     "G, K, L",
     [
-        # Diamond graph: V=4, E=5.
-        (nx.diamond_graph(), 2, 3),
-        (nx.path_graph(5), 2, 3),
+        (nx.diamond_graph(), 2, 3),  # 5 edges <= 2*4 - 3
+        (nx.path_graph(5), 2, 3),  # 4 edges <= 2*5 - 3
+        (nx.complete_graph(5), 3, 4),  # 10 edges <= 3*5 - 4
+        (nx.complete_graph(5), 3, 5),  # 10 edges <= 3*5 - 5
+        (nx.complete_graph(7), 4, 7),  # 21 edges <= 4*7 - 7
+        (nx.complete_graph(6), 4, 7),  # 15 edges <= 4*6 - 7
     ],
 )
 def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
@@ -462,6 +489,13 @@ def test_check_sparsity_with_decomp_K4():
     G = nx.complete_graph(4)
     F = [{(0, 1), (1, 2), (2, 3)}, {(0, 2), (0, 3), (1, 3)}]
     assert _check_sparsity_with_decomp(G, F, 2, 3) == {0, 1, 2, 3}
+
+
+def test_check_sparsity_with_decomp_diamond():
+    # the diamond graph is (2, 3)-sparse: 5 edges <= 2 * 4 - 3
+    G = nx.diamond_graph()
+    F = [{(0, 1), (1, 2), (2, 3)}, {(0, 2), (1, 3)}]
+    assert _check_sparsity_with_decomp(G, F, 2, 3) is None
 
 
 def test_check_terminal_superset_sparsity_none():
@@ -501,18 +535,31 @@ def test_saturated_violation_for_l_equal_2k():
 @pytest.mark.parametrize(
     "G, K, L",
     [
-        (nx.diamond_graph(), 2, 4),
+        (nx.diamond_graph(), 2, 4),  # 5 edges > 2*4 -4
         (nx.Graph(list(nx.diamond_graph().edges) + [(3, 4)]), 2, 4),
+        # K4 with pendant
+        (nx.complete_graph(5), 3, 6),  # 10 edges > 3*5 - 6
+        (nx.Graph(list(nx.complete_graph(5).edges) + [(4, 5)]), 3, 6),
+        # K5 with pendant
+        (nx.complete_graph(7), 4, 8),  # 21 edges > 4*7 - 8
     ],
 )
 def test_check_sparsity_for_l_equal_2k_false(G, K, L):
     X = _check_sparsity_for_l_equal_2k(G, K, L)
     assert X
+    assert _violates(G, X, K, L)
 
 
 @pytest.mark.parametrize(
     "G, K, L",
-    [(nx.cycle_graph(4), 2, 4), (nx.cycle_graph(5), 2, 4)],
+    [
+        (nx.cycle_graph(4), 2, 4),  # 4 edges <= 2*4 - 4
+        (nx.cycle_graph(5), 2, 4),  # 5 edges <= 3*4 - 6
+        (nx.complete_graph(4), 3, 6),  # 6 edges <= 3*4 - 6
+        (nx.cycle_graph(6), 3, 6),  # 6 edges <= 3*6 - 6
+        (nx.complete_graph(6), 4, 8),  # 15 edges <= 4*6 - 8
+        (nx.complete_graph(5), 4, 8),  # 10 edges <= 4*5 - 8
+    ],
 )
 def test_check_sparsity_for_l_equal_2k_true(G, K, L):
     X = _check_sparsity_for_l_equal_2k(G, K, L)
@@ -528,21 +575,29 @@ C5_with_chord.add_edge(0, 2)
     [
         (C5_with_chord.copy(), 2, 5),
         (nx.Graph(list(C5_with_chord.edges) + [(4, 5)]), 2, 5),
-        (nx.cycle_graph(5), 2, 5),
-        (nx.path_graph(6), 2, 5),
+        (nx.cycle_graph(5), 2, 5),  # contains a 3-path
+        (nx.path_graph(6), 2, 5),  # contains a 3-path
+        (nx.complete_graph(3), 3, 7),  # 3 edges > 3*3 - 7
+        (nx.complete_graph(4), 3, 7),  # 6 edges > 3*4 - 7
+        (nx.path_graph(3), 3, 8),  # 2 edges > 3*3 - 8
+        (nx.complete_graph(7), 4, 9),  # 21 edges > 4*7 - 9
     ],
 )
 def test_check_sparsity_for_l_between_2k_and_3k_false(G, K, L):
     X = _check_sparsity_for_l_between_2k_and_3k(G, K, L)
     assert X
+    assert _violates(G, X, K, L)
 
 
 @pytest.mark.parametrize(
     "G, K, L",
     [
         (nx.empty_graph(5), 2, 5),
-        (nx.Graph([(0, 1), (2, 3), (4, 5)]), 2, 5),
-        (nx.path_graph(3), 2, 4),
+        (nx.Graph([(0, 1), (2, 3), (4, 5)]), 2, 5),  # 3 edges <= 2*6 - 5
+        (nx.cycle_graph(4), 3, 7),  # 4 edges <= 3*4 - 7
+        (nx.cycle_graph(6), 3, 7),  # 6 edges <= 3*6 - 7
+        (nx.Graph([(0, 1), (2, 3), (4, 5)]), 3, 8),  # 3 edges <= 3*6 - 8
+        (nx.complete_graph(6), 4, 9),  # 15 edges <= 4*6 - 9
     ],
 )
 def test_check_sparsity_for_l_between_2k_and_3k_true(G, K, L):
