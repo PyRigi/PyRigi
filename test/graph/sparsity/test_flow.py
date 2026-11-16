@@ -104,7 +104,7 @@ def test_is_arc_joining_F():
     assert _is_arc_joining_F((0, 2), F, 1)
 
 
-def test_build_auxiliary_graph_nodes():
+def test_build_auxiliary_graph_1():
     G = nx.DiGraph([(0, 1), (1, 2)])
     F = {(0, 1): None, (1, 2): None}
     D = _build_auxiliary_graph(G, F, {}, 1)
@@ -113,6 +113,20 @@ def test_build_auxiliary_graph_nodes():
     assert D.has_edge((1, 2), "t")
     assert D.has_edge(1, (0, 1))
     assert D.has_edge(2, (1, 2))
+
+
+def test_build_auxiliary_graph_swap_arcs_2():
+    G = nx.DiGraph([(0, 1), (1, 2), (2, 3), (0, 2)])
+    F = {(0, 1): 0, (1, 2): 0, (2, 3): 0, (0, 2): 1}
+    D = _build_auxiliary_graph(G, F, {}, 2)
+
+    assert D.has_edge((0, 2), (0, 1))
+    assert D.has_edge((0, 2), (1, 2))
+    assert not D.has_edge((0, 2), (2, 3))
+    assert D.has_edge((0, 1), (0, 2))
+    assert D.has_edge((2, 3), (0, 2))
+    assert not D.has_edge((0, 1), (1, 2))
+    assert not D.has_edge((2, 3), (0, 1))
 
 
 def test_augment_F_shifts_labels_along_path():

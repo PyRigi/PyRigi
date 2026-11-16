@@ -151,7 +151,7 @@ def _is_arc_joining_F(e: tuple, F: dict, index: int):
     return True
 
 
-def _build_auxiliary_graph(G: nx.DiGraph, F: dict, tau: dict, k: int):
+def _build_auxiliary_graph(G: nx.DiGraph, F: dict, tau: dict, K: int):
     """
     Return the auxiliary graph ``D(F)`` for the forest decomposition problem.
 
@@ -163,7 +163,7 @@ def _build_auxiliary_graph(G: nx.DiGraph, F: dict, tau: dict, k: int):
         A dictionary mapping edges to their forest index or ``None``.
     tau:
         A dictionary mapping vertices to their indegree bounds.
-    k:
+    K:
         The number of forests.
     """
     D = nx.DiGraph()
@@ -171,8 +171,8 @@ def _build_auxiliary_graph(G: nx.DiGraph, F: dict, tau: dict, k: int):
     D.add_nodes_from(G.edges())
     D.add_node("t")
 
-    _add_vertex_to_edge_arcs(D, G, F, tau, k)
-    _add_edge_to_sink_arcs(D, G, F, k)
+    _add_vertex_to_edge_arcs(D, G, F, tau, K)
+    _add_edge_to_sink_arcs(D, G, F, K)
     _add_edge_to_edge_arcs_same_head(D, G, F)
     _add_edge_to_edge_arcs_swap(D, G, F)
 
@@ -207,20 +207,18 @@ def _add_edge_to_edge_arcs_same_head(D: nx.DiGraph, G: nx.DiGraph, F: dict):
 
 
 def _add_edge_to_edge_arcs_swap(D: nx.DiGraph, G: nx.DiGraph, F: dict):
-    """Add arcs (f, e) with f unlabelled and joining F[i] once e is removed."""
+    """Condition 4: arcs (f, e) with e in F_i, f not in F_i and F_i - e + f a forest."""
     for f in G.edges():
-        if F[f] is not None:
-            continue
         for e in G.edges():
             i = F[e]
-            if i is None:
+            if i is None or F[f] == i:
                 continue
             F_temp = {**F, e: None}
             if _is_arc_joining_F(f, F_temp, i):
                 D.add_edge(f, e)
 
 
-def _augment_F(P: list, F: dict, k: int):
+def _augment_F(P: list, F: dict, K: int):
     """
     Update the labelling ``F`` along the augmenting path ``P`` and return it.
 
@@ -230,13 +228,13 @@ def _augment_F(P: list, F: dict, k: int):
         A path in the auxiliary graph, from a vertex to the sink ``"t"``.
     F:
         A dictionary mapping edges to their forest index or ``None``.
-    k:
+    K:
         The number of forests.
     """
     edges_path = P[1:-1]
     e_r = edges_path[-1]
 
-    p = min(j for j in range(k) if _is_arc_joining_F(e_r, F, j))
+    p = min(j for j in range(K) if _is_arc_joining_F(e_r, F, j))
 
     labels = [F[e] for e in edges_path]
     new_labels = labels[1:] + [p]
