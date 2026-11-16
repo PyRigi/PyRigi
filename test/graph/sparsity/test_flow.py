@@ -377,6 +377,15 @@ def test_check_superset_sparsity_one_vertex_violation():
     assert X is not None and {0} < X
 
 
+def test_check_superset_sparsity_wrong_parameters():
+    # t = 1, k = 2 requires 2 <= L <= 4
+    D = nx.DiGraph([(0, 1)])
+    with pytest.raises(ValueError):
+        _check_superset_sparsity(D, {0}, 2, 5)
+    with pytest.raises(ValueError):
+        _check_superset_sparsity(D, {0}, 2, 1)
+
+
 def test_reorient_already_source():
     # 0 has already indegree 0
     D = nx.DiGraph([(0, 1), (1, 2)])
@@ -448,6 +457,13 @@ def test_saturated_violation_K4():
     D = nx.DiGraph(K4_oriented)
     T = nx.path_graph(4)
     assert _saturated_violation(D, T, 2, 3) == {0, 1, 2, 3}
+
+
+def test_saturated_violation_triangle():
+    # a triangle is (2, 3)-sparse
+    D = nx.DiGraph([(0, 1), (1, 2), (2, 0)])
+    T = nx.path_graph(3)
+    assert _saturated_violation(D, T, 2, 3) is None
 
 
 @pytest.mark.parametrize(
