@@ -896,7 +896,7 @@ def _check_sparsity_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> set:
     return _check_superset_sparsity(D, set(), K, L)
 
 
-def _saturated_violation(D: nx.DiGraph, T: nx.Graph, k: int, ell: int) -> set:
+def _saturated_violation(D: nx.DiGraph, T: nx.Graph, K: int, L: int) -> set:
     """
     Return either None or a set violating (k, l)-sparsity in the underlying graph of D.
 
@@ -924,11 +924,11 @@ def _saturated_violation(D: nx.DiGraph, T: nx.Graph, k: int, ell: int) -> set:
 
     c = _centroid(T)
 
-    X, D0 = _reorient(D, {c}, k)
+    X, D0 = _reorient(D, {c}, K)
     if X is not None:
         return X
 
-    X = _check_superset_sparsity(D0, {c}, k, ell)
+    X = _check_superset_sparsity(D0, {c}, K, L)
     if X is not None:
         return X
 
@@ -936,7 +936,7 @@ def _saturated_violation(D: nx.DiGraph, T: nx.Graph, k: int, ell: int) -> set:
     T_without_c.remove_node(c)
     for component in nx.connected_components(T_without_c):
         X = _saturated_violation(
-            D.subgraph(component).copy(), T.subgraph(component).copy(), k, ell
+            D.subgraph(component).copy(), T.subgraph(component).copy(), K, L
         )
         if X is not None:
             return X
@@ -1025,7 +1025,9 @@ def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, K: int) -> 
         return X | {c}
 
 
-def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, K: int) -> set:
+def _saturated_violation_for_l_equal_2k(
+    D: nx.DiGraph, T: nx.Graph, K: int, L: int
+) -> set:
     """
     Returns a set violating (k,2k)-sparsity if it exists, None otherwise.
 
@@ -1035,12 +1037,16 @@ def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, K: int) -> set
     Parameters
     ----------
     D:
-        a k-indegree-bounded digraph.
+        A k-indegree-bounded digraph.
     T:
-        a spanning tree of the underlying graph of D.
-    k:
-        first paramater of sparsity condition.
+        A spanning tree of the underlying graph of D.
+    K:
+        First paramater of sparsity condition.
+    L:
+        Second Parameter of sparsity condition.
     """
+
+    assert L == 2 * K
 
     G = D.to_undirected()
     c = _centroid(T)
@@ -1063,9 +1069,9 @@ def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, K: int) -> set
         u, v = next(iter(induced_graph.edges()))
         return {u, v, c}
 
-    D0 = induced_graph.to_directed()
     if K > 2:
-        X, *F = _k_bounded_forest_decomposition(D0, K)
+        D0_N = D0.subgraph(neighbors_c).copy()
+        X, *F = _k_bounded_forest_decomposition(D0_N, K - 1)
         if X is not None:
             return X | {c}
         X = _check_sparsity_with_decomp(induced_graph, F, K - 1, K)
@@ -1075,8 +1081,8 @@ def _saturated_violation_ell_equal_2k(D: nx.DiGraph, T: nx.Graph, K: int) -> set
     T_without_c = T.copy()
     T_without_c.remove_node(c)
     for component in nx.connected_components(T_without_c):
-        X = _saturated_violation_ell_equal_2k(
-            D.subgraph(component), T.subgraph(component), K
+        X = _saturated_violation_for_l_equal_2k(
+            D.subgraph(component), T.subgraph(component), K, L
         )
         if X is not None:
             return X
@@ -1108,8 +1114,8 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set:
         forest.add_nodes_from(G.nodes())
         forest.add_edges_from(F[i])
         for component in nx.connected_components(forest):
-            X = _saturated_violation_ell_equal_2k(
-                D.subgraph(component), forest.subgraph(component), K
+            X = _saturated_violation_for_l_equal_2k(
+                D.subgraph(component), forest.subgraph(component), K, L
             )
             if X is not None:
                 return X
