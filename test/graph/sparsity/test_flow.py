@@ -115,7 +115,7 @@ def test_build_auxiliary_graph_1():
     assert D.has_edge(2, (1, 2))
 
 
-def test_build_auxiliary_graph_swap_arcs_2():
+def test_build_auxiliary_graph_2():
     G = nx.DiGraph([(0, 1), (1, 2), (2, 3), (0, 2)])
     F = {(0, 1): 0, (1, 2): 0, (2, 3): 0, (0, 2): 1}
     D = _build_auxiliary_graph(G, F, {}, 2)

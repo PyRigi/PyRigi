@@ -180,7 +180,10 @@ def _build_auxiliary_graph(G: nx.DiGraph, F: dict, tau: dict, K: int):
 
 
 def _add_vertex_to_edge_arcs(D: nx.DiGraph, G: nx.DiGraph, F: dict, tau: dict, k: int):
-    """Add arcs (v, e) for unlabelled edges e with head v and spare indegree."""
+    """
+    Add arcs ``(v, e)`` for every unlabelled edge ``e`` whose head ``v``
+    has fewer than ``k - tau(v)`` labelled incoming edges.
+    """
     D.add_edges_from(
         (e[1], e)
         for e in G.edges()
@@ -189,14 +192,19 @@ def _add_vertex_to_edge_arcs(D: nx.DiGraph, G: nx.DiGraph, F: dict, tau: dict, k
 
 
 def _add_edge_to_sink_arcs(D: nx.DiGraph, G: nx.DiGraph, F: dict, k: int):
-    """Condition 2: arcs (e, t) for edges e joining some tree F[i]."""
+    """
+    Add arcs ``(e, "t")`` for every edge ``e`` joining two components of some forest.
+    """
     D.add_edges_from(
         (e, "t") for e in G.edges() if any(_is_arc_joining_F(e, F, i) for i in range(k))
     )
 
 
 def _add_edge_to_edge_arcs_same_head(D: nx.DiGraph, G: nx.DiGraph, F: dict):
-    """Condition 3: arcs (e, f) with e labelled, f unlabelled and the same head."""
+    """
+    Add arcs ``(e, f)`` for every labelled edge ``e`` and unlabelled edge ``f``
+    that have the same head.
+    """
     D.add_edges_from(
         (e, f)
         for e in G.edges()
@@ -207,15 +215,18 @@ def _add_edge_to_edge_arcs_same_head(D: nx.DiGraph, G: nx.DiGraph, F: dict):
 
 
 def _add_edge_to_edge_arcs_swap(D: nx.DiGraph, G: nx.DiGraph, F: dict):
-    """Condition 4: arcs (f, e) with e in F_i, f not in F_i and F_i - e + f a forest."""
-    for f in G.edges():
-        for e in G.edges():
-            i = F[e]
-            if i is None or F[f] == i:
-                continue
-            F_temp = {**F, e: None}
-            if _is_arc_joining_F(f, F_temp, i):
-                D.add_edge(f, e)
+    """
+    Add arcs ``(f, e)`` for every edge ``e`` in a forest ``F_i`` and edge ``f``
+    not in ``F_i`` such that replacing ``e`` by ``f`` in ``F_i`` gives a forest.
+    """
+    D.add_edges_from(
+        (f, e)
+        for f in G.edges()
+        for e in G.edges()
+        if F[e] is not None
+        and F[f] != F[e]
+        and _is_arc_joining_F(f, {**F, e: None}, F[e])
+    )
 
 
 def _augment_F(P: list, F: dict, K: int):
@@ -322,7 +333,7 @@ def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
 
     while sum(deficits.values()) > 0:
         progress = False
-        F_k_edges = [e for e, label in F.items() if F[e] == k - 1]
+        F_k_edges = [e for e, label in F.items() if label == k - 1]
         H_k = nx.Graph()
         H_k.add_nodes_from(G.nodes())
         H_k.add_edges_from(F_k_edges)
@@ -347,15 +358,14 @@ def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
             H_k.add_nodes_from(G.nodes())
             H_k.add_edges_from(F_k_edges)
 
-            current_components = list(nx.connected_components(H_k))
-            target_C = None
-            for comp in current_components:
-                if (
-                    any(v in C for v in comp)
-                    and sum(deficits.get(v, 0) for v in comp) > 0
-                ):
-                    target_C = comp
-                    break
+            target_C = next(
+                (
+                    comp
+                    for comp in nx.connected_components(H_k)
+                    if comp & C and sum(deficits.get(v, 0) for v in comp) > 0
+                ),
+                None,
+            )
 
             if target_C is None:
                 continue
@@ -728,10 +738,9 @@ def _build_rooted_digraph(D0: nx.DiGraph, U0: set, k: int):
     D_prime.add_nodes_from(v for v in D0.nodes() if v not in U0)
     D_prime.add_node(s)
     D_prime.add_edges_from((u, v) for u, v in D0.edges() if u not in U0)
-
-    for v in D0.nodes():
-        if v not in U0:
-            D_prime.add_edges_from((s, v) for _ in range(k - D0.in_degree(v)))
+    D_prime.add_edges_from(
+        (s, v) for v in D0.nodes() if v not in U0 for _ in range(k - D0.in_degree(v))
+    )
 
     return D_prime, s
 
@@ -792,19 +801,11 @@ def _reorient(D: nx.DiGraph, U: set, k: int) -> tuple[set, nx.DiGraph]:
     while any(D.in_degree(u) > 0 for u in U):
         # vertices outside U with spare indegree
         S = {v for v in D.nodes() if v not in U and D.in_degree(v) < k}
-        P = None
-
-        if S:
-            paths = nx.multi_source_dijkstra_path(D, S)
-            for target, path in paths.items():
-                if target in U:
-                    P = path
-                    break
+        paths = nx.multi_source_dijkstra_path(D, S) if S else {}
+        P = next((path for target, path in paths.items() if target in U), None)
 
         if P is None:
-            T = set(U)
-            for u in U:
-                T.update(nx.ancestors(D, u))
+            T = set(U).union(*(nx.ancestors(D, u) for u in U))
             return (T, None)
 
         for u, v in zip(P[:-1], P[1:]):
@@ -1155,27 +1156,19 @@ def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, K: int, L: int) -> set:
 
 def _is_sparse_for_l_less_than_k(G, K, L):
     X = _check_sparsity_for_l_less_than_k(G, K, L)
-    if X is None:
-        return True
-    return False
+    return X is None
 
 
 def _is_sparse_for_l_between_k_and_2k(G, K, L):
     X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
-    if X is None:
-        return True
-    return False
+    return X is None
 
 
 def _is_sparse_for_l_equal_2k(G, K, L):
     X = _check_sparsity_for_l_equal_2k(G, K, L)
-    if X is None:
-        return True
-    return False
+    return X is None
 
 
 def _is_sparse_for_l_between_2k_and_3k(G, K, L):
     X = _check_sparsity_for_l_between_2k_and_3k(G, K, L)
-    if X is None:
-        return True
-    return False
+    return X is None
