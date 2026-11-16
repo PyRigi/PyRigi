@@ -6,8 +6,8 @@ import pytest
 
 from pyrigi.graph._sparsity._flow import (
     _max_flow,
-    _k_indegree_bounded_orientation,
     _build_flow_network,
+    _k_indegree_bounded_orientation,
     _indegree_F,
     _is_arc_joining_F,
     _build_auxiliary_graph,
@@ -19,10 +19,14 @@ from pyrigi.graph._sparsity._flow import (
     _eta_rooted_term_connectivity,
     _eta_rooted_arc_connectivity,
     _build_rooted_digraph,
-    _saturated_violation_for_l_equal_2k,
-    _check_terminal_superset_sparsity,
+    _check_superset_sparsity,
+    _reorient,
     _check_sparsity_for_l_less_than_k,
+    _saturated_violation,
     _check_sparsity_for_l_between_k_and_2k,
+    _check_sparsity_with_decomp,
+    _check_terminal_superset_sparsity,
+    _saturated_violation_for_l_equal_2k,
     _check_sparsity_for_l_equal_2k,
     _check_sparsity_for_l_between_2k_and_3k,
 )
@@ -348,6 +352,118 @@ def test_build_rooted_digraph_saturated():
     assert D.out_degree(s) == 0
 
 
+def test_check_superset_sparsity_empty_set_violation():
+    # triangle with (1, 1): 3 edges > 1 * 3 - 1
+    D = nx.DiGraph([(0, 1), (1, 2), (2, 0)])
+    assert _check_superset_sparsity(D, set(), 1, 1) == {0, 1, 2}
+
+
+def test_check_superset_sparsity_empty_set_no_violation():
+    # a path is (1, 1)-sparse
+    D = nx.DiGraph([(0, 1), (1, 2)])
+    assert _check_superset_sparsity(D, set(), 1, 1) is None
+
+
+def test_check_superset_sparsity_one_vertex_no_violation():
+    # triangle with source 0 is (2, 3)-sparse
+    D = nx.DiGraph([(0, 1), (0, 2), (1, 2)])
+    assert _check_superset_sparsity(D, {0}, 2, 3) is None
+
+
+def test_check_superset_sparsity_one_vertex_violation():
+    # the same triangle is not (2, 4)-sparse
+    D = nx.DiGraph([(0, 1), (0, 2), (1, 2)])
+    X = _check_superset_sparsity(D, {0}, 2, 4)
+    assert X is not None and {0} < X
+
+
+def test_reorient_already_source():
+    # 0 has already indegree 0
+    D = nx.DiGraph([(0, 1), (1, 2)])
+    X, D0 = _reorient(D, {0}, 1)
+    assert X is None
+    assert set(D0.edges()) == {(0, 1), (1, 2)}
+
+
+def test_reorient_reverses_one_arc():
+    # the arc 1 -> 0 must be reversed
+    D = nx.DiGraph([(1, 0), (1, 2)])
+    X, D0 = _reorient(D, {0}, 1)
+    assert X is None
+    assert D0.in_degree(0) == 0
+    assert all(D0.in_degree(v) <= 1 for v in D0.nodes())
+    assert set(D0.edges()) == {(0, 1), (1, 2)}
+
+
+def test_reorient_impossible():
+    # oriented triangle with k = 1
+    D = nx.DiGraph([(0, 1), (1, 2), (2, 0)])
+    X, D0 = _reorient(D, {0}, 1)
+    assert D0 is None
+    assert X == {0, 1, 2}
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        (nx.complete_graph(5), 2, 1),
+        #  5 complete graph with pendant
+        (nx.Graph(list(nx.complete_graph(5).edges) + [(5, 6)]), 2, 1),
+    ],
+)
+def test_check_sparsity_for_l_less_than_k_false(G, K, L):
+    X = _check_sparsity_for_l_less_than_k(G, K, L)
+    assert X
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [(nx.complete_graph(4), 2, 1), (nx.path_graph(5), 2, 1)],
+)
+def test_check_sparsity_for_l_less_than_k_true(G, K, L):
+    X = _check_sparsity_for_l_less_than_k(G, K, L)
+    assert X is None
+
+
+def test_saturated_violation_K4():
+    K4_oriented = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (1, 3)]
+    # K4 is not (2,3)-sparse and T saturates the graph
+    D = nx.DiGraph(K4_oriented)
+    T = nx.path_graph(4)
+    assert _saturated_violation(D, T, 2, 3) == {0, 1, 2, 3}
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        (nx.complete_graph(4), 2, 3),
+        (nx.Graph(list(nx.complete_graph(4).edges) + [(4, 5)]), 2, 3),
+    ],
+)
+def test_check_sparsity_for_l_between_k_and_2k_false(G, K, L):
+    X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
+    assert X
+
+
+@pytest.mark.parametrize(
+    "G, K, L",
+    [
+        # Diamond graph: V=4, E=5.
+        (nx.diamond_graph(), 2, 3),
+        (nx.path_graph(5), 2, 3),
+    ],
+)
+def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
+    X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
+    assert X is None
+
+
+def test_check_sparsity_with_decomp_K4():
+    G = nx.complete_graph(4)
+    F = [{(0, 1), (1, 2), (2, 3)}, {(0, 2), (0, 3), (1, 3)}]
+    assert _check_sparsity_with_decomp(G, F, 2, 3) == {0, 1, 2, 3}
+
+
 def test_check_terminal_superset_sparsity_none():
     # c isolated, a path on the others: no set containing c violates (1,2)-sparsity
     D = nx.DiGraph([(1, 2), (2, 3)])
@@ -380,53 +496,6 @@ def test_saturated_violation_for_l_equal_2k():
     T_ok = nx.Graph([(0, 1), (1, 2)])
     res_ok = _saturated_violation_for_l_equal_2k(D_ok, T_ok, K=2, L=4)
     assert res_ok is None
-
-
-@pytest.mark.parametrize(
-    "G, K, L",
-    [
-        (nx.complete_graph(5), 2, 1),
-        #  5 complete graph with pendant
-        (nx.Graph(list(nx.complete_graph(5).edges) + [(5, 6)]), 2, 1),
-    ],
-)
-def test_check_sparsity_for_l_less_than_k_false(G, K, L):
-    X = _check_sparsity_for_l_less_than_k(G, K, L)
-    assert X
-
-
-@pytest.mark.parametrize(
-    "G, K, L",
-    [(nx.complete_graph(4), 2, 1), (nx.path_graph(5), 2, 1)],
-)
-def test_check_sparsity_for_l_less_than_k_true(G, K, L):
-    X = _check_sparsity_for_l_less_than_k(G, K, L)
-    assert X is None
-
-
-@pytest.mark.parametrize(
-    "G, K, L",
-    [
-        (nx.complete_graph(4), 2, 3),
-        (nx.Graph(list(nx.complete_graph(4).edges) + [(4, 5)]), 2, 3),
-    ],
-)
-def test_check_sparsity_for_l_between_k_and_2k_false(G, K, L):
-    X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
-    assert X
-
-
-@pytest.mark.parametrize(
-    "G, K, L",
-    [
-        # Diamond graph: V=4, E=5.
-        (nx.diamond_graph(), 2, 3),
-        (nx.path_graph(5), 2, 3),
-    ],
-)
-def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
-    X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
-    assert X is None
 
 
 @pytest.mark.parametrize(
