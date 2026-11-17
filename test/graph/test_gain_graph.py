@@ -573,6 +573,15 @@ def test_add_vertex():
     assert G.vertex_list() == [0]
 
 
+def test_add_vertex_duplicate():
+    G = GainGraph(dim=2)
+
+    G.add_vertex(0)
+    G.add_vertex(0)
+
+    assert G.vertex_list() == [0]
+
+
 def test_delete_vertex():
     G = GainGraph(
         [
