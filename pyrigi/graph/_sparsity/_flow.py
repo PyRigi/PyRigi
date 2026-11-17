@@ -886,7 +886,10 @@ def _check_sparsity_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> set:
     Returns a vertex set that violates the (k,l)-sparsity of G if it exists,
     otherwise returns None.
 
+    Based on :prf:ref:`Check sparsity for K < L < 2K <alg-check-sparsity-k-l-2k>`
+
     Parameters:
+    ----------
     G:
         An undirected Graph
     K:

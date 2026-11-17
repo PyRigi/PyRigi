@@ -100,6 +100,35 @@ By the max-flow min-cut theorem, the value of a maximum flow equals
 the capacity of a minimum $s$-$t$ cut.
 :::
 
+:::{prf:definition} Bounded-indegree orientation
+:label: def-bounded-indegree-orientation
+
+Let $G=(V,E)$ be a graph and $\kappa \in \NN$.
+An orientation $D$ of $G$ is _$\kappa$-indegree-bounded_ if $\varrho_D(v) \leq \kappa$ for every $v \in V$.
+
+:::{prf:definition} U_0-source orientation
+:label: def-U_0-source
+Given an independent set $U_0 \subseteq V$, the orientation $D$ is _$U_0$-source_
+if $\varrho_D(v) = 0$ for every $v \in U_0$.
+
+:::{prf:algorithm} Check Sparsity for $k < \ell < 2k$
+:label: alg-check-sparsity-k-l-2k
+
+**Input:** A loopless graph $G=(V,E)$, integers $k < \ell < 2k$
+
+**Output:** A vertex set violating $(k,\ell)$-sparsity of $G$ if it exists; otherwise $\emptyset$
+
+1. Compute \mathrm{ForestDecomp}_k(G)$.
+   If it returns a vertex set $X$, return $X$ (it violates $(k,k)$-sparsity).
+   Otherwise let $F_1,\dots,F_k$ be the forest decomposition.
+2. Obtain a $k$-indegree-bounded orientation $D$ of $G$ by rooting each tree of each $F_i$
+   and orienting its edges from parent to child.
+3. For $i = 1, \dots, \ell - k$ and for each connected component $T$ of $F_i$:
+    * Run Saturated Violation on $(D[V(T)], T)$;
+      if it returns a nonempty set, return it.
+4. Return $\emptyset$.
+Steps 2--4 are referred to as $\mathrm{CheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
+
 ## Graph extensions
 
 :::{prf:definition} k-extension
