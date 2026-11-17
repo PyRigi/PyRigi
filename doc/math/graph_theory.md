@@ -132,6 +132,17 @@ if $\varrho_D(v) = 0$ for every $v \in U_0$.
 Steps 2--4 are referred to as $\mathrm{CheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
 :::
 
+:::{prf:remark}
+
+In the range $2k \leq \ell < 3k$ we adopt an extended notion of sparsity:
+a simple graph $G=(V,E)$ is $(k,\ell)$-sparse if every set $X \subseteq V$ with $|X| \geq 3$
+satisfies $i_G(X) \leq k|X| - \ell$.
+The restriction to sets of size at least three is necessary, since for $|X| = 2$
+the bound $k|X| - \ell \leq 0$ would be violated by any edge.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
 :::{prf:algorithm} Saturated Violation for $\ell = 2k$
 :label: alg-saturated-violation-2k
 
