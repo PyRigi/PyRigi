@@ -883,10 +883,10 @@ def _centroid(T: nx.Graph) -> Hashable:
 
 def _check_sparsity_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> set:
     """
+    Check the (k,l)-sparsity of ``G`` for l <= k.
+
     Returns a vertex set that violates the (k,l)-sparsity of G if it exists,
     otherwise returns None.
-
-    Based on :prf:ref:`Check sparsity for K < L < 2K <alg-check-sparsity-k-l-2k>`
 
     Parameters:
     ----------
@@ -956,6 +956,8 @@ def _check_sparsity_for_l_between_k_and_2k(G: nx.Graph, K: int, L: int) -> set:
     Check the (k,l)-sparsity of ``G`` for k < l < 2k.
 
     Return a violating vertex set if it exists, otherwise None.
+    Based on the algorithm
+    :prf:ref:`Check sparsity for k < l < 2k <alg-check-sparsity-k-l-2k>`
 
     Parameters
     ----------
@@ -969,13 +971,17 @@ def _check_sparsity_for_l_between_k_and_2k(G: nx.Graph, K: int, L: int) -> set:
     X, *F = _k_forest_decomposition(G, K)
     if X is not None:
         return X
-    return _check_sparsity_with_decomp(G, F, K, L)
+    return _check_sparsity_for_l_between_k_and_2k_with_decomp(G, F, K, L)
 
 
-def _check_sparsity_with_decomp(G: nx.Graph, F: list, K: int, L: int) -> set:
+def _check_sparsity_for_l_between_k_and_2k_with_decomp(G: nx.Graph, F: list,
+                                                       K: int, L: int) -> set:
     """
     Return a vertex set that violates the (k, l)-sparsity of G if it exists,
     None otherwise.
+
+    It is part of the algorithm
+    :prf:ref:`Check sparsity for k < l < 2k <alg-check-sparsity-k-l-2k>`
 
     Parameters
     ----------
@@ -983,9 +989,9 @@ def _check_sparsity_with_decomp(G: nx.Graph, F: list, K: int, L: int) -> set:
         An undirected Graph.
     F:
         A list of k sets of edges representing a forest decomposition of G.
-    k:
+    K:
         First Parameter in the sparsity condition.
-    l:
+    L:
         Second Parameter in the sparsity condition.
     """
     _, D = _k_indegree_bounded_orientation(G, K)
@@ -1081,7 +1087,7 @@ def _saturated_violation_for_l_equal_2k(
         X, *F = _k_bounded_forest_decomposition(D0_N, K - 1)
         if X is not None:
             return X | {c}
-        X = _check_sparsity_with_decomp(induced_graph, F, K - 1, K)
+        X = _check_sparsity_for_l_between_k_and_2k_with_decomp(induced_graph, F, K - 1, K)
         if X is not None:
             return X | {c}
 
@@ -1099,14 +1105,17 @@ def _saturated_violation_for_l_equal_2k(
 
 def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set:
     """
-    Returns a vertex set that violates the (k, 2k)-sparsity of G if it exists,
-    None otherwise.
+    Check the (k,l)-sparsity of ``G`` for l = 2k.
+
+    Return a violating vertex set if it exists, otherwise None.
+    Based on the algorithm
+    :prf:ref:`Check sparsity for l = 2k <alg-check-sparsity-2k>`.
 
     Parameters
     ----------
     G:
         A graph.
-    k:
+    K:
         First parameter in the sparsity condition.
     L:
         Second Parameter in the sparsity condition.

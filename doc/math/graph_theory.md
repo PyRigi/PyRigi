@@ -105,16 +105,18 @@ the capacity of a minimum $s$-$t$ cut.
 
 Let $G=(V,E)$ be a graph and $\kappa \in \NN$.
 An orientation $D$ of $G$ is _$\kappa$-indegree-bounded_ if $\varrho_D(v) \leq \kappa$ for every $v \in V$.
+:::
 
 :::{prf:definition} U_0-source orientation
 :label: def-U_0-source
 Given an independent set $U_0 \subseteq V$, the orientation $D$ is _$U_0$-source_
 if $\varrho_D(v) = 0$ for every $v \in U_0$.
+:::
 
 :::{prf:algorithm} Check Sparsity for $k < \ell < 2k$
 :label: alg-check-sparsity-k-l-2k
 
-**Input:** A loopless graph $G=(V,E)$, integers $k < \ell < 2k$
+**Input:** An undirected graph $G=(V,E)$, integers $k < \ell < 2k$
 
 **Output:** A vertex set violating $(k,\ell)$-sparsity of $G$ if it exists; otherwise $\emptyset$
 
@@ -128,6 +130,24 @@ if $\varrho_D(v) = 0$ for every $v \in U_0$.
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
 Steps 2--4 are referred to as $\mathrm{CheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
+:::
+
+:::{prf:algorithm} Check Sparsity for $\ell = 2k$
+:label: alg-check-sparsity-2k
+
+**Input:** A simple graph $G=(V,E)$, an integer $k > 0$
+
+**Output:** A vertex set violating $(k,2k)$-sparsity of $G$ if it exists; otherwise $\emptyset$
+
+1. Compute $\mathrm{ForestDecomp}_k(G)$.
+   If it returns a vertex set $X$, return $X$.
+   Otherwise let $F_1,\dots,F_k$ be the forest decomposition.
+2. Obtain a $k$-indegree-bounded orientation $D$ of $G$ from $F_1,\dots,F_k$.
+3. For $i = 1, \dots, k$ and for each connected component $T$ of $F_i$:
+    * Run {prf:ref}`Saturated Violation for ℓ = 2k <alg-saturated-violation-2k>` on $(D[V(T)], T)$;
+      if it returns a nonempty set, return it.
+4. Return $\emptyset$.
+:::
 
 ## Graph extensions
 

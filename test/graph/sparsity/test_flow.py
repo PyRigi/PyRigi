@@ -24,7 +24,7 @@ from pyrigi.graph._sparsity._flow import (
     _check_sparsity_for_l_less_than_k,
     _saturated_violation,
     _check_sparsity_for_l_between_k_and_2k,
-    _check_sparsity_with_decomp,
+    _check_sparsity_for_l_between_k_and_2k_with_decomp,
     _check_terminal_superset_sparsity,
     _saturated_violation_for_l_equal_2k,
     _check_sparsity_for_l_equal_2k,
@@ -504,14 +504,14 @@ def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
 def test_check_sparsity_with_decomp_K4():
     G = nx.complete_graph(4)
     F = [{(0, 1), (1, 2), (2, 3)}, {(0, 2), (0, 3), (1, 3)}]
-    assert _check_sparsity_with_decomp(G, F, 2, 3) == {0, 1, 2, 3}
+    assert _check_sparsity_for_l_between_k_and_2k_with_decomp(G, F, 2, 3) == {0, 1, 2, 3}
 
 
 def test_check_sparsity_with_decomp_diamond():
     # the diamond graph is (2, 3)-sparse: 5 edges <= 2 * 4 - 3
     G = nx.diamond_graph()
     F = [{(0, 1), (1, 2), (2, 3)}, {(0, 2), (1, 3)}]
-    assert _check_sparsity_with_decomp(G, F, 2, 3) is None
+    assert _check_sparsity_for_l_between_k_and_2k_with_decomp(G, F, 2, 3) is None
 
 
 def test_check_terminal_superset_sparsity_none():
