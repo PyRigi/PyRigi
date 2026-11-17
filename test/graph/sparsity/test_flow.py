@@ -504,7 +504,12 @@ def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
 def test_check_sparsity_with_decomp_K4():
     G = nx.complete_graph(4)
     F = [{(0, 1), (1, 2), (2, 3)}, {(0, 2), (0, 3), (1, 3)}]
-    assert _check_sparsity_for_l_between_k_and_2k_with_decomp(G, F, 2, 3) == {0, 1, 2, 3}
+    assert _check_sparsity_for_l_between_k_and_2k_with_decomp(G, F, 2, 3) == {
+        0,
+        1,
+        2,
+        3,
+    }
 
 
 def test_check_sparsity_with_decomp_diamond():

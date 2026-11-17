@@ -132,6 +132,33 @@ if $\varrho_D(v) = 0$ for every $v \in U_0$.
 Steps 2--4 are referred to as $\mathrm{CheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
 :::
 
+:::{prf:algorithm} Saturated Violation for $\ell = 2k$
+:label: alg-saturated-violation-2k
+
+**Input:** A $k$-indegree-bounded digraph $D=(V,A)$ with simple underlying graph $G$ and a spanning tree $T$ of $G$
+
+**Output:** A vertex set violating $(k,2k)$-sparsity of $G$, or $\emptyset$.
+A violating set is returned whenever one saturated by $T$ exists.
+
+1. Let $c$ be the centroid of $T$.
+2. Run Reorient on $(D, \{c\})$.
+   If it returns a set $X$, return $X$.
+   Otherwise let $D_0$ be the obtained orientation.
+3. Run Check Terminal Superset Sparsity
+   on $(D_0, c, V \setminus (N_G(c) \cup \{c\}))$.
+   If it returns a nonempty set $X$, return $X$.
+4. Check the violating sets contained in $N_G(c) \cup \{c\}$:
+    * If $k = 1$ and $|N_G(c)| \geq 2$, return $N_G(c) \cup \{c\}$.
+    * If $k = 2$ and $G[N_G(c)]$ has an edge $uv$, return $\{u,v,c\}$.
+    * If $k \geq 3$, compute $\mathrm{BoundedForestDecomp}_{k-1}(D_0[N_G(c)])$.
+      If it returns a set $X$, return $X \cup \{c\}$.
+      Otherwise, run $\mathrm{CheckSparsityWithDecomp}_{k-1,k}$ on $G[N_G(c)]$ with the obtained forests.
+5. For each connected component $T_i$ of $T \setminus \{c\}$:
+    * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
+6. Return $\emptyset$.
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
 :::{prf:algorithm} Check Sparsity for $\ell = 2k$
 :label: alg-check-sparsity-2k
 

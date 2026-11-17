@@ -974,8 +974,9 @@ def _check_sparsity_for_l_between_k_and_2k(G: nx.Graph, K: int, L: int) -> set:
     return _check_sparsity_for_l_between_k_and_2k_with_decomp(G, F, K, L)
 
 
-def _check_sparsity_for_l_between_k_and_2k_with_decomp(G: nx.Graph, F: list,
-                                                       K: int, L: int) -> set:
+def _check_sparsity_for_l_between_k_and_2k_with_decomp(
+    G: nx.Graph, F: list, K: int, L: int
+) -> set:
     """
     Return a vertex set that violates the (k, l)-sparsity of G if it exists,
     None otherwise.
@@ -1046,6 +1047,8 @@ def _saturated_violation_for_l_equal_2k(
 
     The procedure returns a violating set whenever the underlying graph of D contains one
     that is saturated by T.
+    Based on the algorithm
+    :prf:ref:`Saturated Violation for l = 2k <alg-saturated-violation-2k>`.
 
     Parameters
     ----------
@@ -1087,7 +1090,9 @@ def _saturated_violation_for_l_equal_2k(
         X, *F = _k_bounded_forest_decomposition(D0_N, K - 1)
         if X is not None:
             return X | {c}
-        X = _check_sparsity_for_l_between_k_and_2k_with_decomp(induced_graph, F, K - 1, K)
+        X = _check_sparsity_for_l_between_k_and_2k_with_decomp(
+            induced_graph, F, K - 1, K
+        )
         if X is not None:
             return X | {c}
 
