@@ -422,7 +422,7 @@ def _violates(G, X, K, L):
     [
         (nx.complete_graph(5), 2, 1),  # 10 edges > 2*5 - 1
         (nx.Graph(list(nx.complete_graph(5).edges) + [(5, 6)]), 2, 1),
-        # K5 with pendant
+        # K5 plus a disjoint edge
         (nx.complete_graph(7), 3, 1),  # 21 edges > 3*7 - 1
         (nx.complete_graph(7), 3, 3),  # 21 edges > 3*7 - 3
         (nx.complete_graph(9), 4, 1),  # 36 edges > 4*9 - 1
@@ -471,7 +471,7 @@ def test_saturated_violation_triangle():
     [
         (nx.complete_graph(4), 2, 3),  # 6 edges > 2*4 - 3
         (nx.Graph(list(nx.complete_graph(4).edges) + [(4, 5)]), 2, 3),
-        # K4 with pendant
+        # K4 plus a disjoint edge
         (nx.complete_graph(6), 3, 4),  # 15 edges > 3*6 - 4
         (nx.complete_graph(6), 3, 5),  # 15 edges > 3*6 - 5
         (nx.complete_graph(8), 4, 5),  # 28 edges > 4*8 - 5
@@ -553,7 +553,7 @@ def test_saturated_violation_for_l_equal_2k():
     [
         (nx.diamond_graph(), 2, 4),  # 5 edges > 2*4 -4
         (nx.Graph(list(nx.diamond_graph().edges) + [(3, 4)]), 2, 4),
-        # K4 with pendant
+        # diamond with pendant
         (nx.complete_graph(5), 3, 6),  # 10 edges > 3*5 - 6
         (nx.Graph(list(nx.complete_graph(5).edges) + [(4, 5)]), 3, 6),
         # K5 with pendant
@@ -570,7 +570,7 @@ def test_check_sparsity_for_l_equal_2k_false(G, K, L):
     "G, K, L",
     [
         (nx.cycle_graph(4), 2, 4),  # 4 edges <= 2*4 - 4
-        (nx.cycle_graph(5), 2, 4),  # 5 edges <= 3*4 - 6
+        (nx.cycle_graph(5), 2, 4),  # 5 edges <= 2*5 - 4
         (nx.complete_graph(4), 3, 6),  # 6 edges <= 3*4 - 6
         (nx.cycle_graph(6), 3, 6),  # 6 edges <= 3*6 - 6
         (nx.complete_graph(6), 4, 8),  # 15 edges <= 4*6 - 8

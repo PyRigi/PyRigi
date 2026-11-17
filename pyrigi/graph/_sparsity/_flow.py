@@ -81,6 +81,10 @@ def _k_indegree_bounded_orientation(G: nx.Graph, k: int) -> tuple[set, nx.DiGrap
     If no such orientation exists, ``X`` is the violating set of vertices
     and ``D`` is ``None``.
 
+    Definitions
+    -----------
+    :prf:ref:`Bounded-indegree orientation <def-bounded-indegree-orientation>`
+
     Parameters
     ----------
     G:
@@ -745,13 +749,14 @@ def _build_rooted_digraph(D0: nx.DiGraph, U0: set, k: int):
     return D_prime, s
 
 
-def _check_superset_sparsity(D: nx.DiGraph, U: set, k: int, ell: int) -> set:
+def _check_superset_sparsity(D: nx.DiGraph, U_0: set, K: int, L: int) -> set:
     """
     Return a vertex set that violates (k, l)-sparsity of the graph.
 
     The violating set strictly contains the given set U,
     if such a set exists. Otherwise, return None.
-    It is required the inequality tk <= l <= (t+1)k and that D is U-source.
+    It is required the inequality tk <= l <= (t+1)k and
+    that D is :prf:ref:`U_0-source <def-U_0-source>`.
 
     Parameters
     ----------
@@ -764,23 +769,23 @@ def _check_superset_sparsity(D: nx.DiGraph, U: set, k: int, ell: int) -> set:
     l:
         Second parameter of the (k,l)-sparsity condition.
     """
-    U = set() if U is None else set(U)
-    if not (k * len(U) <= ell <= k * (len(U) + 1)):
+    U_0 = set() if U_0 is None else set(U_0)
+    if not (K * len(U_0) <= L <= K * (len(U_0) + 1)):
         raise ValueError(
             "The parameters k and l do not satisfy the required inequality."
         )
 
-    D_prime, s = _build_rooted_digraph(D, U, k)
+    D_prime, s = _build_rooted_digraph(D, U_0, K)
 
-    X = _eta_rooted_arc_connectivity(D_prime, ell - k * len(U), s)
+    X = _eta_rooted_arc_connectivity(D_prime, L - K * len(U_0), s)
     if X is None:
         return None
-    return X | U
+    return X | U_0
 
 
-def _reorient(D: nx.DiGraph, U: set, k: int) -> tuple[set, nx.DiGraph]:
+def _reorient(D: nx.DiGraph, U: set, K: int) -> tuple[set, nx.DiGraph]:
     """
-    Return a k-indegree bounded U-source reorientation of D,
+    Return a k-indegree bounded :prf:ref:`U_0-source <def-U_0-source>` reorientation of D,
     or a vertex set violating (k,k)-sparsity if no such reorientation exists.
 
     Parameters
@@ -789,18 +794,18 @@ def _reorient(D: nx.DiGraph, U: set, k: int) -> tuple[set, nx.DiGraph]:
         A k-indegree bounded digraph.
     U:
         An independent vertex set with t elements.
-    k:
+    K:
         The maximum allowed indegree for each vertex.
     """
     D = D.copy()
     U = set(U)
 
-    if any(D.in_degree(v) > k for v in D.nodes()):
+    if any(D.in_degree(v) > K for v in D.nodes()):
         raise ValueError("D must be k-indegree bounded.")
 
     while any(D.in_degree(u) > 0 for u in U):
         # vertices outside U with spare indegree
-        S = {v for v in D.nodes() if v not in U and D.in_degree(v) < k}
+        S = {v for v in D.nodes() if v not in U and D.in_degree(v) < K}
         paths = nx.multi_source_dijkstra_path(D, S) if S else {}
         P = next((path for target, path in paths.items() if target in U), None)
 
@@ -884,9 +889,9 @@ def _check_sparsity_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> set:
     Parameters:
     G:
         An undirected Graph
-    k:
+    K:
         First parameter of the sparsity condition.
-    l:
+    L:
         Second paramater of the sparsity condition."""
     X, D = _k_indegree_bounded_orientation(G, K)
     if X is not None:
