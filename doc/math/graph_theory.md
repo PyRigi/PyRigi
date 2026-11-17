@@ -130,6 +130,8 @@ if $\varrho_D(v) = 0$ for every $v \in U_0$.
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
 Steps 2--4 are referred to as $\mathrm{CheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
 :::
 
 :::{prf:remark}
@@ -185,6 +187,27 @@ A violating set is returned whenever one saturated by $T$ exists.
     * Run {prf:ref}`Saturated Violation for ℓ = 2k <alg-saturated-violation-2k>` on $(D[V(T)], T)$;
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:algorithm} Check Sparsity for $2k \leq \ell < 3k$
+:label: alg-check-sparsity-2k-3k
+
+**Input:** A simple graph $G=(V,E)$, integers $k > 0$ and $2k \leq \ell < 3k$
+
+**Output:** A vertex set violating $(k,\ell)$-sparsity of $G$ if it exists; otherwise $\emptyset$
+
+1. Initialize the sparse  subgraph $H = (V, \emptyset)$ and its k-indegree-bounded orientation $D = (V, \emptyset)$.
+2. Loop over all edges of $G$. For an edge $uv$:
+    * Run Reorient on $(D, \{u,v\})$ and replace $D$ with the obtained orientation
+       (this always succeeds, since $H$ is $(k,2k)$-sparse).
+    * Run Check Superset Sparsity with parameters $(k, \ell+1)$ on $(D, \{u,v\})$.
+       If it returns a nonempty set $X$, return $X$.
+    * Add $uv$ to $H$ and the arc $(u,v)$ to $D$.
+3. Return $\emptyset$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
 :::
 
 ## Graph extensions
