@@ -883,10 +883,11 @@ def _centroid(T: nx.Graph) -> Hashable:
 
 def _check_sparsity_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> set:
     """
-    Check the (k,l)-sparsity of ``G`` for l <= k.
+    Check the (k,l)-sparsity of ``G`` for 0 <= l <= k.
 
-    Returns a vertex set that violates the (k,l)-sparsity of G if it exists,
-    otherwise returns None.
+    Return a violating vertex set if it exists, otherwise None.
+    Based on the algorithm
+    :prf:ref:`Check sparsity for 0 <= l <= k <alg-check-sparsity-l-k>`
 
     Parameters:
     ----------
@@ -1146,11 +1147,11 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set:
 
 def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, K: int, L: int) -> set:
     """
-        Check the (k,l)-sparsity of ``G`` for 2k < l < 3k.
+    Check the (k,l)-sparsity of ``G`` for 2k < l < 3k.
 
-        Return a violating vertex set if it exists, otherwise None.
-        Based on the algorithm
-        :prf:ref:`Check sparsity for 2k <= l < 3k <alg-check-sparsity-2k-3k>`.
+    Return a violating vertex set if it exists, otherwise None.
+    Based on the algorithm
+    :prf:ref:`Check sparsity for 2k <= l < 3k <alg-check-sparsity-2k-3k>`.
 
 
     Parameters

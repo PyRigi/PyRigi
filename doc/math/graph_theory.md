@@ -83,6 +83,8 @@ The graph $G'$ after running the {prf:ref}`pebble game algorithm <alg-pebble-gam
 
 :::
 
+### Sparsity via flow
+
 :::{prf:definition} Maximum flow and minimum cut
 :label: def-max-flow
 
@@ -113,6 +115,21 @@ Given an independent set $U_0 \subseteq V$, the orientation $D$ is _$U_0$-source
 if $\varrho_D(v) = 0$ for every $v \in U_0$.
 :::
 
+:::{prf:algorithm} Check Sparsity for $0 \leq \ell \leq k$
+:label: alg-check-sparsity-l-k
+
+**Input:** An undirected graph $G=(V,E)$, integers $k > 0$ and $0 \leq \ell \leq k$
+
+**Output:** A vertex set violating $(k,\ell)$-sparsity of $G$ if it exists; otherwise $\emptyset$
+
+1. Obtain a $\k$-indegree-bounded orientation of G.
+   If it returns a vertex set $X$, return $X$ (it violates $(k,0)$-sparsity).
+   Otherwise let $D$ be the obtained $\k$-indegree-bounded orientation.
+2. Run Check Superset Sparsity on $(D, \emptyset)$ and return its output.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
 :::{prf:algorithm} Check Sparsity for $k < \ell < 2k$
 :label: alg-check-sparsity-k-l-2k
 
@@ -120,7 +137,7 @@ if $\varrho_D(v) = 0$ for every $v \in U_0$.
 
 **Output:** A vertex set violating $(k,\ell)$-sparsity of $G$ if it exists; otherwise $\emptyset$
 
-1. Compute \mathrm{ForestDecomp}_k(G)$.
+1. Compute a $k$-Forest Decomposition of G.
    If it returns a vertex set $X$, return $X$ (it violates $(k,k)$-sparsity).
    Otherwise let $F_1,\dots,F_k$ be the forest decomposition.
 2. Obtain a $k$-indegree-bounded orientation $D$ of $G$ by rooting each tree of each $F_i$
@@ -129,7 +146,7 @@ if $\varrho_D(v) = 0$ for every $v \in U_0$.
     * Run Saturated Violation on $(D[V(T)], T)$;
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
-Steps 2--4 are referred to as $\mathrm{CheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
+Steps 2--4 are referred to as $\mathrm{SCheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
 
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
@@ -173,7 +190,7 @@ A violating set is returned whenever one saturated by $T$ exists.
 :::
 
 :::{prf:algorithm} Check Sparsity for $\ell = 2k$
-:label: alg-check-sparsity-2k
+:label: alg-sparsity-2k
 
 **Input:** A simple graph $G=(V,E)$, an integer $k > 0$
 
