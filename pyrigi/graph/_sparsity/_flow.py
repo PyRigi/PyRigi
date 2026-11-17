@@ -1146,16 +1146,20 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set:
 
 def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, K: int, L: int) -> set:
     """
-    Return a vertex set that violates the (k,l)-sparsity of G if it exists;
-    None otherwise.
+        Check the (k,l)-sparsity of ``G`` for 2k < l < 3k.
+
+        Return a violating vertex set if it exists, otherwise None.
+        Based on the algorithm
+        :prf:ref:`Check sparsity for 2k <= l < 3k <alg-check-sparsity-2k-3k>`.
+
 
     Parameters
     ----------
     G:
         A graph.
-    k:
+    K:
         First Parameter in the sparsity condition.
-    ell:
+    L:
         Second Parameter in the sparsity condition.
     """
     H = nx.Graph()
