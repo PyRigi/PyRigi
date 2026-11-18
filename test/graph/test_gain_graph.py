@@ -530,13 +530,7 @@ def test_delete_edges():
 
 
 def test_delete_loops():
-    G = GainGraph(
-        [
-            (0, 0, (1, 0)),
-            (1, 1, (0, 1)),
-            (0, 1, (1, 1)),
-        ]
-    )
+    G = GainGraph([(0, 0, (1, 0)), (1, 1, (0, 1)), (0, 1, (1, 1)), (1, 1, (1, 1))])
 
     G.delete_loops()
 
