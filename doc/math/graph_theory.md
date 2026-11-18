@@ -230,6 +230,29 @@ _critically $k$-vertex apex graph_ or _critically $k$-edge apex graph_, respecti
 {meth}`~.Graph.is_critically_k_edge_apex`
 :::
 
+## Gain Graphs
+
+:::{prf:definition} Gain graphs
+:label: def-gain-graph
+A gain graph is a triple $\mathcal{G}=(G,\Gamma,\psi)$, where
+$G=(V,E)$ is an undirected multigraph, $\Gamma$ is a group, and
+$\psi:\vec{E}\to\Gamma$ is a gain function assigning a group
+element to each directed multiedge from $\vec{E}$, such that
+\[
+\psi(\overline{e})=\psi(e)^{-1}
+\]
+for every oriented edge $e\in\vec{E}$, where
+$\overline{e}$ denotes the reverse orientation of $e$.
+
+{{pyrigi_crossref}} {class}`~.GainGraph`
+:::
+
+:::{prf:definition} $\mathbb{Z}^d$-gain graphs
+:label: def-Zd-gain-graph
+Consider a finite set $V$, which we call _vertices_. Let $E^+\subset V\times V \times \mathbb{Z}^d$ be a finite set, so that for any $e=(u,v,\gamma)\in E^+$ it holds that $\gamma\neq 0$ if $u=v$ and $(v,u,\gamma)\in E^+$. We define the set of _edges_ as $E=E^+/\sim$ with $(u,v,\gamma)\sim (u',v',\gamma')$ if either $u=u'$, $v=v'$ and $\gamma=\gamma'$ or $u=v'$, $v=u'$ and $\gamma=-\gamma'$. Then, $G=(V,E)$ is called a _$\mathbb{Z}^d$-gain graph_.
+
+{{pyrigi_crossref}} {class}`~.GainGraphZd`
+:::
 
 :::{toctree}
 :maxdepth: 2
