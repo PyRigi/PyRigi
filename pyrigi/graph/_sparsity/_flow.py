@@ -788,6 +788,11 @@ def _reorient(D: nx.DiGraph, U: set, K: int) -> tuple[set, nx.DiGraph]:
     Return a k-indegree bounded :prf:ref:`U_0-source <def-U_0-source>` reorientation of D,
     or a vertex set violating (k,k)-sparsity if no such reorientation exists.
 
+    Definitions
+    -----------
+    :prf:ref:`k-indegree bounded orientation <def-bounded-indegree-orientation>`
+    :prf:ref:`U_0-source orientation <def-U_0-source>`
+
     Parameters
     ----------
     D:
