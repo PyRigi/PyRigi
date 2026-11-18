@@ -68,13 +68,15 @@ def rigidity_matrix(
 
     # fill only the needed non-zero entries
     position_vertices = {v: i for i, v in enumerate(vertex_order)}
+    coords = {v: list(p) for v, p in framework._realization.items()}
     for i, (v, w) in enumerate(edge_order):
-        vect = framework[v] - framework[w]
+        pv, pw = coords[v], coords[w]
         h = position_vertices[v]
         k = position_vertices[w]
         for j in range(d):
-            matrix[i, d * h + j] = vect[j]
-            matrix[i, d * k + j] = -vect[j]
+            x = pv[j] - pw[j]
+            matrix[i, d * h + j] = x
+            matrix[i, d * k + j] = -x
 
     return matrix
 
