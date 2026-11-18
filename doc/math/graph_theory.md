@@ -111,7 +111,7 @@ An orientation $D$ of $G$ is _$\kappa$-indegree-bounded_ if $\varrho_D(v) \leq \
 
 :::{prf:definition} U_0-source orientation
 :label: def-U_0-source
-Given an independent set $U_0 \subseteq V$, the orientation $D$ is _$U_0$-source_
+Given a set of vertices $U_0 \subseteq V$, such that no vertex of $U_0$ is connected to another one by an edge, the orientation $D$ is said _$U_0$-source_
 if $\varrho_D(v) = 0$ for every $v \in U_0$.
 :::
 
