@@ -797,8 +797,13 @@ def test_parametrized_graph_addition(left_edges, right_edges):
     G_before = G.copy()
     H_before = H.copy()
 
+    print(G_before)
+    print(H_before)
+
     K = G + H
     L = H + G
+    print(K)
+    print(L)
 
     # Addition should be commutative.
     assert K == L

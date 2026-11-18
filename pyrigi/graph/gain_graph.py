@@ -1,5 +1,5 @@
 """
-Module for gain graphs with gains in Z^d.
+Module for gain graphs.
 """
 
 from __future__ import annotations
@@ -7,55 +7,13 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from operator import index
-from typing import TypeAlias
 
 import networkx as nx
 
+from pyrigi._utils._doc import copy_doc
 from pyrigi._utils._doc import doc_category
-from pyrigi.data_type import Vertex
-
-Gain: TypeAlias = tuple[int, ...]
-GainEdge: TypeAlias = tuple[Vertex, Vertex, Gain]
-
-
-def _is_Zd_gain_graph_data(
-    incoming_graph_data: Iterable[GainEdge] | nx.Graph | None,
-) -> bool:
-    """
-    Return whether the input has the structure of gain-graph data.
-
-    Parameters
-    ----------
-    incoming_graph_data:
-        The input data to be checked. This can either be a list of
-        gain edges, a networkx graph, or ``None``.
-    """
-    if incoming_graph_data is None:
-        return True
-
-    if isinstance(incoming_graph_data, nx.Graph):
-        edges = list(incoming_graph_data.edges(data=True))
-        return (
-            all("gain" in data for _, _, data in edges)
-            if edges
-            else hasattr(incoming_graph_data, "dim")
-        )
-
-    return all(
-        isinstance(edge, (tuple, list))
-        and ((len(edge) == 3 and isinstance(edge[2], (tuple, list))) or len(edge) == 2)
-        for edge in incoming_graph_data
-    )
-
-
-def _negate_gain(gain: Gain) -> Gain:
-    """
-    Return the inverse of a gain.
-    """
-    if isinstance(gain, tuple):
-        return tuple(-x for x in gain)
-    else:
-        raise TypeError("A gain must be a tuple of integers.")
+from pyrigi.data_type import Vertex, Gain, GainEdge
+from ._gain_graph import general, manipulation
 
 
 class GainGraph(nx.MultiGraph):
@@ -80,7 +38,9 @@ class GainGraph(nx.MultiGraph):
         A distributor method that returns a GainGraphZd if the incoming graph
         data has the appropriate format.
         """
-        if issubclass(cls, GainGraph) and _is_Zd_gain_graph_data(incoming_graph_data):
+        if issubclass(cls, GainGraph) and general._is_Zd_gain_graph_data(
+            incoming_graph_data
+        ):
             return super().__new__(GainGraphZd)
         else:
             raise TypeError(
@@ -154,233 +114,72 @@ class GainGraph(nx.MultiGraph):
         return graph
 
     @doc_category("Graph manipulation")
+    @copy_doc(manipulation.add_vertex)
     def add_vertex(self, vertex: Vertex) -> None:
-        """
-        Add a single vertex to the gain graph.
-
-        Parameters
-        ----------
-        vertex:
-            The vertex to be added.
-        """
-        self.add_node(vertex)
+        manipulation.add_vertex(self, vertex)
 
     @doc_category("Graph manipulation")
+    @copy_doc(manipulation.add_vertices)
     def add_vertices(self, vertices: Sequence[Vertex]) -> None:
-        """
-        Add multiple vertices to the gain graph.
-
-        Parameters
-        ----------
-        vertices:
-            A sequence of vertices to be added.
-        """
-        self.add_nodes_from(vertices)
+        manipulation.add_vertices(self, vertices)
 
     @doc_category("Graph manipulation")
+    @copy_doc(manipulation.delete_vertex)
     def delete_vertex(self, vertex: Vertex) -> None:
-        """
-        Delete a single vertex from the gain graph.
-
-        Parameters
-        ----------
-        vertex:
-            The vertex to be removed.
-        """
-        self.remove_node(vertex)
+        manipulation.delete_vertex(self, vertex)
 
     @doc_category("Graph manipulation")
+    @copy_doc(manipulation.delete_vertices)
     def delete_vertices(self, vertices: Sequence[Vertex]) -> None:
-        """
-        Delete multiple vertices from the gain graph.
-
-        Parameters
-        ----------
-        vertices:
-            A sequence of vertices to be removed.
-        """
-        self.remove_nodes_from(vertices)
+        manipulation.delete_vertices(self, vertices)
 
     @doc_category("Attribute getters")
+    @copy_doc(general.vertex_list)
     def vertex_list(self) -> list[Vertex]:
-        """
-        Return the list of vertices in the gain graph.
-        """
-        try:
-            return sorted(self.nodes)
-        except BaseException:
-            return list(self.nodes)
+        return general.vertex_list(self)
 
     @doc_category("Graph manipulation")
+    @copy_doc(manipulation.delete_edge)
     def delete_edge(self, edge: tuple) -> None:
-        """
-        Delete an edge.
-
-        Parameter
-        ---------
-        edge:
-            This can be either an endpoint pair ``(u, v)`` or a gain
-            edge ``(u, v, gain)``. For a pair, one such edge is deleted.
-            For a triple, the first matching gain edge is removed unless
-            a key is specified.
-        """
-        if not isinstance(edge, (tuple, list)):
-            raise TypeError("An edge must be a pair or a gain-edge triple.")
-
-        if len(edge) == 2:
-            self.remove_edge(edge[0], edge[1])
-            return
-
-        if len(edge) != 3:
-            raise TypeError("An edge must be a pair or a gain-edge triple.")
-
-        u, v, gain = edge
-        target_gain = gain
-        edge_data = self.get_edge_data(u, v, default={})
-
-        for edge_key, data in edge_data.items():
-            if data["tail"] == u and data["head"] == v:
-                candidate_gain = data["gain"]
-            else:
-                candidate_gain = _negate_gain(data["gain"])
-
-            if u == v:
-                matches = min(candidate_gain, _negate_gain(candidate_gain)) == min(
-                    target_gain, _negate_gain(target_gain)
-                )
-            else:
-                matches = candidate_gain == target_gain
-
-            if matches:
-                self.remove_edge(u, v, key=edge_key)
-                return
-
-        raise ValueError(f"Gain edge {edge!r} is not contained in the graph.")
+        manipulation.delete_edge(self, edge)
 
     @doc_category("Graph manipulation")
+    @copy_doc(manipulation.delete_edges)
     def delete_edges(self, edges: Iterable[tuple]) -> None:
-        """
-        Delete multiple gain edges.
-        """
-        for edge in edges:
-            self.delete_edge(edge)
+        manipulation.delete_edges(self, edges)
 
     @doc_category("Graph manipulation")
+    @copy_doc(manipulation.delete_loops)
     def delete_loops(self) -> None:
-        """
-        Remove all loops.
-        """
-        for u, v in list(self.edges()):
-            if u == v:
-                self.remove_edge(u, v)
+        return manipulation.delete_loops(self)
 
     @doc_category("Attribute getters")
-    def edge_list(self) -> list[tuple]:
-        """
-        Return the list of gain edges.
-
-        Each edge is returned as ``(u, v, gain)``.
-        """
-        edges = []
-
-        for _, _, data in self.edges(data=True):
-            edge = (data["tail"], data["head"], data["gain"])
-            edges.append(edge)
-
-        try:
-            return sorted(edges)
-        except TypeError:
-            return edges
+    @copy_doc(general.edge_list)
+    def edge_list(self, as_tuples: bool = True) -> list[tuple]:
+        return general.edge_list(self, as_tuples=as_tuples)
 
     @doc_category("Attribute getters")
+    @copy_doc(general.gains_between)
     def gains_between(self, u: Vertex, v: Vertex) -> list[Gain]:
-        """
-        Return all gains of edges oriented from ``u`` to ``v``.
+        return general.gains_between(self, u, v)
 
-        If the orientation in the GainGraph is reversed, return the
-        negated gain instead.
-        """
-        edge_data = self.get_edge_data(u, v, default={})
-        result = []
-
-        for data in edge_data.values():
-            if data["tail"] == u and data["head"] == v:
-                result.append(data["gain"])
-            else:
-                result.append(_negate_gain(data["gain"]))
-
-        return result
-
+    @copy_doc(general._is_gain_edge)
     def _is_gain_edge(self, gain: Gain) -> bool:
-        """
-        Return whether a gain is a gain edge of the correct format.
+        return general._is_gain_edge(self, gain)
 
-        Notes
-        -----
-        This currently only checks whether the gain is a tuple of integers.
-        It does not check whether the gain has the correct dimension. #
-        This is done in :meth:`GainGraphZd._validate_gain`.
-        """
-        return not isinstance(gain, tuple) or not all(isinstance(x, int) for x in gain)
-
+    @copy_doc(general._validate_gain)
     def _validate_gain(self, gain: Gain) -> Gain:
-        """
-        Validate a gain.
-        """
-        if self._is_gain_edge(gain):
-            raise TypeError(f"Gain {gain!r} is not of type {Gain!r}.")
-        return gain
-
-    def add_edge(self, u_for_edge: Vertex, v_for_edge: Vertex, gain: Gain = None):
-        r"""
-        Add an edge with a specified gain.
-
-        If the edge is already contained in the GainGraph, nothing happens.
-
-        Parameters
-        ----------
-        u_for_edge, v_for_edge:
-            The endpoints, in the chosen orientation.
-        gain:
-            The gain vector in :math:`\mathbb{Z}^d`.
-        """
-        gain = self._validate_gain(gain)
-        edge_data = self.get_edge_data(u_for_edge, v_for_edge, default={})
-
-        if (u_for_edge, v_for_edge, gain) in self.edge_list() or (
-            v_for_edge,
-            u_for_edge,
-            _negate_gain(gain),
-        ) in self.edge_list():
-            return
-
-        edge_data = dict()
-        edge_data.update(gain=gain, tail=u_for_edge, head=v_for_edge)
-
-        super().add_edge(u_for_edge, v_for_edge, **edge_data)
+        return general._validate_gain(self, gain)
 
     @doc_category("Graph manipulation")
+    @copy_doc(manipulation.add_edge)
+    def add_edge(self, u_for_edge: Vertex, v_for_edge: Vertex, gain: Gain = None):
+        manipulation.add_edge(self, u_for_edge, v_for_edge, gain)
+
+    @doc_category("Graph manipulation")
+    @copy_doc(manipulation.add_edges)
     def add_edges(self, edges: Iterable[GainEdge]) -> None:
-        """
-        Add multiple edges.
-
-        Accepts edges triples ``(u, v, gain)``.
-
-        Parameters
-        ----------
-        edges:
-            An iterable of gain edges.
-        """
-        for edge in edges:
-            if not isinstance(edge, (tuple, list)):
-                raise nx.NetworkXError(f"Edge {edge!r} must be a tuple or list.")
-
-            if len(edge) == 3:
-                u, v, gain = edge
-            else:
-                raise nx.NetworkXError(f"Edge {edge!r} must have 3 elements.")
-
-            self.add_edge(u, v, gain)
+        manipulation.add_edges(self, edges)
 
     def __str__(self) -> str:
         return (
@@ -413,11 +212,11 @@ class GainGraph(nx.MultiGraph):
 
             for tail, head, gain in graph.edge_list():
                 if tail == head:
-                    normalized_gain = min(gain, _negate_gain(gain))
+                    normalized_gain = min(gain, general._negate_gain(gain))
                 elif vertex_order[tail] < vertex_order[head]:
                     normalized_gain = gain
                 else:
-                    normalized_gain = _negate_gain(gain)
+                    normalized_gain = general._negate_gain(gain)
 
                 result[(frozenset((tail, head)), normalized_gain)] += 1
 
@@ -560,12 +359,14 @@ class GainGraphZd(GainGraph):
         return dim
 
     @property
+    @doc_category("Attribute getters")
     def dim(self) -> int | None:
         """
         Return the dimension of the gain vectors.
         """
         return self._dim
 
+    @doc_category("Attribute setters")
     def set_dim(self, dim: int | None) -> None:
         """
         Set the dimension of the gain graph.
@@ -625,13 +426,9 @@ class GainGraphZd(GainGraph):
                 f"{len(normalized_gain)}, but the graph has "
                 f"dimension {self._dim}."
             )
-
         return super()._validate_gain(normalized_gain)
 
-    # ------------------------------------------------------------------
-    # Graph construction and manipulation
-    # ------------------------------------------------------------------
-
+    @doc_category("Graph manipulation")
     def add_edge(
         self, u_for_edge: Vertex, v_for_edge: Vertex, gain: Sequence[int] = None
     ):
@@ -671,7 +468,6 @@ class GainGraphZd(GainGraph):
         gain = self._validate_gain(gain)
         if self.dim is None:
             self.dim = len(gain)
-
         super().add_edge(u_for_edge, v_for_edge, gain)
 
     @doc_category("Graph manipulation")
@@ -759,10 +555,6 @@ class GainGraphZd(GainGraph):
         graph = super().from_vertices(vertices)
         graph.set_dim(dim)
         return graph
-
-    # ------------------------------------------------------------------
-    # General functionality
-    # ------------------------------------------------------------------
 
     def __str__(self) -> str:
         d = self.dim if self.dim is not None else "d"

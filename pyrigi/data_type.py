@@ -58,3 +58,15 @@ Inf: TypeAlias = sp.core.numbers.Infinity
 """
 Provides a data type that can become infinite.
 """
+
+Gain: TypeAlias = tuple[int, ...]
+"""
+Data type for the gain on the edges of a gain graph.
+The only possible gain is currently given by a tuple of integers.
+"""
+
+GainEdge: TypeAlias = tuple[Vertex, Vertex, Gain]
+"""
+Data type for the gain edges of a gain graph.
+Each gain edge is a tuple of two vertices and a gain.
+"""
