@@ -195,3 +195,16 @@ def pebble_values(K: int, L: int) -> None:
 
     # Check the conditions on relation
     greater(2 * K, L, "value 2*K", "L")
+
+
+def flow_values(K: int, L: int) -> None:
+    """
+    Check if ``K`` and ``L`` satisfy the conditions ``K > 0`` and ``0 <= L < 3K``
+    and raise an error otherwise.
+    """
+    # Check that K and L are integers and range
+    integrality_and_range(K, "K", min_val=1)
+    integrality_and_range(L, "L", min_val=0)
+
+    # Check the conditions on relation
+    greater(3 * K, L, "value 3*K", "L")
