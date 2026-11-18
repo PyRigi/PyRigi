@@ -343,10 +343,10 @@ def _k_forest_packing(
         The directed graph whose edges are decomposed.
     F:
         A dictionary mapping edges to their forest index (0 to k-1) or ``None``.
-    K:
-        The number of forests.
     tau:
         A dictionary mapping vertices to their indegree bounds.
+    K:
+        The number of forests.
 
     Examples
     --------
@@ -354,11 +354,11 @@ def _k_forest_packing(
     >>> G = nx.DiGraph([(0, 1), (1, 2), (0, 2)])
     >>> F = {(0, 1): None, (1, 2): None, (0, 2): None}
     >>> tau = {0: 0, 1: 0, 2: 0}
-    >>> _k_forest_packing(G, F, 2, tau)
+    >>> _k_forest_packing(G, F, tau, 2)
     {(0, 1): 0, (1, 2): 1, (0, 2): 0}
     """
     if K > 1:
-        _k_forest_packing(G, F, K - 1, tau)
+        _k_forest_packing(G, F, tau, K - 1)
 
     deficits = {v: K - tau[v] - _indegree_F(v, F) for v in G.nodes}
 
@@ -487,7 +487,7 @@ def _k_bounded_forest_decomposition(D: nx.DiGraph, K: int) -> tuple:
         The number of forests to decompose ``D`` into.
     """
     F = {e: None for e in D.edges()}
-    _k_forest_packing(D, F, K, {v: 0 for v in D.nodes()})
+    _k_forest_packing(D, F, {v: 0 for v in D.nodes()}, K)
 
     unlabelled = next((e for e, label in F.items() if label is None), None)
     if unlabelled is not None:

@@ -167,7 +167,7 @@ def test_k_forest_packing():
     G = nx.DiGraph([(0, 1), (1, 2), (0, 2)])
     F = {(0, 1): None, (1, 2): None, (0, 2): None}
     tau = {0: 0, 1: 0, 2: 0}
-    result = _k_forest_packing(G, F, 2, tau)
+    result = _k_forest_packing(G, F, tau, 2)
 
     # every edge is labelled and each label class is a forest
     assert set(result) == set(G.edges())
@@ -181,8 +181,8 @@ def test_k_forest_packing_2():
     G = nx.DiGraph([(0, 3), (1, 3), (2, 3)])
     F = {(0, 3): None, (1, 3): None, (2, 3): None}
     tau = {0: 0, 1: 0, 2: 0, 3: 0}
-    k = 2
-    result = _k_forest_packing(G, F, k, tau)
+    K = 2
+    result = _k_forest_packing(G, F, tau, K)
     assigned_edges = {e: label for e, label in result.items() if label is not None}
 
     # not all edges are assigned, because the graph is not 2-forest-decomposable
@@ -501,7 +501,7 @@ def test_check_sparsity_for_l_between_k_and_2k_true(G, K, L):
     assert X is None
 
 
-def test_check_sparsity_with_decomp_K4():
+def test_check_sparsity_for_l_between_k_and_2k_with_decomp_K4():
     G = nx.complete_graph(4)
     F = [{(0, 1), (1, 2), (2, 3)}, {(0, 2), (0, 3), (1, 3)}]
     assert _check_sparsity_for_l_between_k_and_2k_with_decomp(G, F, 2, 3) == {
