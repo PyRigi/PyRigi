@@ -94,6 +94,36 @@ def edge_list(graph: nx.MultiGraph, as_tuples: bool = True) -> list[tuple]:
             return [list(e) for e in edges]
 
 
+def loop_list(graph: nx.MultiGraph, as_tuples: bool = True) -> list[tuple]:
+    """
+    Return the list of gain loops.
+
+    Each loop is returned as ``(v, v, gain)``.
+
+    Parameters
+    ----------
+    graph:
+    as_tuples:
+        If ``True``, all loops are returned as tuples instead of lists.
+    """
+    loops = []
+
+    for _, _, data in nx.selfloop_edges(graph, data=True):
+        loop = (data["tail"], data["head"], data["gain"])
+        loops.append(loop)
+
+    try:
+        if as_tuples:
+            return sorted([tuple(e) for e in loops])
+        else:
+            return sorted([list(e) for e in loops])
+    except BaseException:
+        if as_tuples:
+            return [tuple(e) for e in loops]
+        else:
+            return [list(e) for e in loops]
+
+
 def gains_between(graph: nx.MultiGraph, u: Vertex, v: Vertex) -> list[Gain]:
     """
     Return all gains of edges oriented from ``u`` to ``v``.
@@ -141,7 +171,7 @@ def _is_gain_edge(graph: nx.MultiGraph, gain: Gain) -> bool:
         and all(isinstance(x, int) for x in list(gain))
         and all(
             isinstance(edge[2], tuple | list) and len(edge[2]) >= len(gain)
-            for edge in graph.edge_list(graph)
+            for edge in edge_list(graph)
         )
     )
 

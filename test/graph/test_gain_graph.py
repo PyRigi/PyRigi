@@ -5,6 +5,7 @@ import pytest
 
 from pyrigi.graph import GainGraph
 from pyrigi.graph.gain_graph import GainGraphZd
+from pyrigi.graph._gain_graph.manipulation import add_vertex, add_edge
 
 # ---------------------------------------------------------------------------
 # Construction
@@ -346,6 +347,13 @@ def test_add_loop():
     assert G.gains_between(0, 0)[0] == (1, 2)
 
 
+def test_add_loop_zero_gain():
+    G = GainGraph(dim=2)
+    G.add_vertex(0)
+    with pytest.raises(AttributeError):
+        G.add_edge(0, 0, gain=(0, 0))
+
+
 def test_add_multiple_loops():
     G = GainGraph(dim=2)
 
@@ -381,6 +389,21 @@ def test_edge_list():
         (0, 1, (1, 0)),
         (1, 2, (1, 1)),
     ]
+
+
+def test_loop_list():
+    G = GainGraph(
+        [
+            (0, 1, (1, 0)),
+            (0, 1, (0, 1)),
+            (1, 1, (0, 1)),
+            (1, 2, (1, 1)),
+            (0, 0, (1, 2)),
+            (2, 2, (1, 1)),
+        ]
+    )
+
+    assert G.loop_list() == [(0, 0, (1, 2)), (1, 1, (0, 1)), (2, 2, (1, 1))]
 
 
 def test_edge_gain_forward_orientation():
@@ -651,7 +674,6 @@ def test_init_from_networkx_multigraph():
 
     G = GainGraph(H)
 
-    print(G.edge_list)
     assert G.number_of_edges() == 4
     assert G.dim == 2
     assert G.gains_between(0, 1)[0] == (1, 0)
@@ -1073,3 +1095,23 @@ def test_edge_list_with_incomparable_vertices():
         (1, 2, (1,)),
         ("a", "b", (2,)),
     ]
+
+
+"""
+Test that functions are correctly propagated down to `GainGraphZd`.
+"""
+
+
+def test_add_vertex_function():
+    G = GainGraphZd([(0, 1, (1, 1)), (1, 1, (1, 0))])
+    add_vertex(G, 2)
+    assert isinstance(G, GainGraphZd)
+    assert G.vertex_list() == [0, 1, 2]
+
+
+def test_add_edge_function():
+    G = GainGraphZd([(0, 1, (1, 1)), (1, 1, (1, 0))])
+    add_edge(G, 1, 2, (0, 1))
+    assert isinstance(G, GainGraphZd)
+    assert len(G.vertex_list()) == 3
+    assert G.edge_list() == [(0, 1, (1, 1)), (1, 1, (1, 0)), (1, 2, (0, 1))]

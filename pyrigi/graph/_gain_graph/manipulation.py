@@ -138,9 +138,13 @@ def delete_loops(graph: nx.MultiGraph) -> None:
     ----------
     graph:
     """
-    for u, v in list(graph.edges()):
+    edges = []
+    for u, v, key in graph.edges(keys=True):
         if u == v:
-            graph.remove_edge(u, v)
+            edges.append((u, v, key))
+
+    for u, v, key in edges:
+        graph.remove_edge(u, v, key=key)
 
 
 def add_edge(
@@ -157,7 +161,7 @@ def add_edge(
     u_for_edge, v_for_edge:
         The endpoints, in the chosen orientation.
     gain:
-        The gain vector in :math:`\mathbb{Z}^d`.
+        The gain
     """
     gain = _validate_gain(graph, gain)
     edge_data = graph.get_edge_data(u_for_edge, v_for_edge, default={})
@@ -168,6 +172,12 @@ def add_edge(
         _negate_gain(gain),
     ) in edge_list(graph):
         return
+
+    if u_for_edge == v_for_edge and (
+        (isinstance(gain, int) and gain == 0)
+        or (isinstance(gain, tuple | list) and all(x == 0 for x in gain))
+    ):
+        raise AttributeError("For a loop, the gain must be non-zero.")
 
     edge_data = dict()
     edge_data.update(key=tuple(gain), gain=gain, tail=u_for_edge, head=v_for_edge)

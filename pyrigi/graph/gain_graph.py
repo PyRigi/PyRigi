@@ -159,6 +159,11 @@ class GainGraph(nx.MultiGraph):
         return general.edge_list(self, as_tuples=as_tuples)
 
     @doc_category("Attribute getters")
+    @copy_doc(general.loop_list)
+    def loop_list(self, as_tuples: bool = True) -> list[tuple]:
+        return general.loop_list(self, as_tuples=as_tuples)
+
+    @doc_category("Attribute getters")
     @copy_doc(general.gains_between)
     def gains_between(self, u: Vertex, v: Vertex) -> list[Gain]:
         return general.gains_between(self, u, v)
