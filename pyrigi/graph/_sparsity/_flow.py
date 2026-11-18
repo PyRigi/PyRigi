@@ -3,13 +3,13 @@ from networkx import maximum_flow, maximum_flow_value
 
 
 from pyrigi.graph._sparsity._pebble_digraph import PebbleDiGraph
+from pyrigi.data_type import Vertex, DirectedEdge
 
-from typing import Hashable
 
 # SUBROUTINE 1: MAX-FLOW
 
 
-def _max_flow(D: nx.DiGraph, s: str, t: str, g: str):
+def _max_flow(D: nx.DiGraph, s: Vertex, t: Vertex, g: str) -> tuple[dict, set[Vertex]]:
     """
     Return the maximum flow and the source side of a minimum s-t cut.
 
@@ -38,7 +38,7 @@ def _max_flow(D: nx.DiGraph, s: str, t: str, g: str):
 # SUBROUTINE 2: INDEGREE BOUNDED ORIENTATIONS
 
 
-def _build_flow_network(G: nx.Graph, k: int) -> nx.DiGraph:
+def _build_flow_network(G: nx.Graph, K: int) -> nx.DiGraph:
     """
     Return the flow network for the ``k``-indegree bounded orientation of ``G``.
 
@@ -46,7 +46,7 @@ def _build_flow_network(G: nx.Graph, k: int) -> nx.DiGraph:
     ----------
     G:
         An undirected graph.
-    k:
+    K:
         The maximum allowed indegree for each vertex.
     """
     flow_network = nx.DiGraph()
@@ -64,12 +64,14 @@ def _build_flow_network(G: nx.Graph, k: int) -> nx.DiGraph:
         flow_network.add_edge(f"z_{e}", e[1], capacity=1)
 
     for v in G.nodes():
-        flow_network.add_edge(v, sink, capacity=k)
+        flow_network.add_edge(v, sink, capacity=K)
 
     return flow_network
 
 
-def _k_indegree_bounded_orientation(G: nx.Graph, k: int) -> tuple[set, nx.DiGraph]:
+def _k_indegree_bounded_orientation(
+    G: nx.Graph, K: int
+) -> tuple[set[Vertex] | None, nx.DiGraph | None]:
     """
     Return an orientation of ``G`` with indegree at most ``k`` at every vertex.
 
@@ -89,13 +91,13 @@ def _k_indegree_bounded_orientation(G: nx.Graph, k: int) -> tuple[set, nx.DiGrap
     ----------
     G:
         An undirected graph to be oriented.
-    k:
+    K:
         The maximum allowed indegree for each vertex.
     """
-    if len(G.edges()) > k * len(G.nodes()):
+    if len(G.edges()) > K * len(G.nodes()):
         return (set(G.nodes()), None)
 
-    flow_network = _build_flow_network(G, k)
+    flow_network = _build_flow_network(G, K)
     f, S = _max_flow(flow_network, "s", "t", "capacity")
     x = maximum_flow_value(flow_network, "s", "t", "capacity")
 
@@ -117,7 +119,7 @@ def _k_indegree_bounded_orientation(G: nx.Graph, k: int) -> tuple[set, nx.DiGrap
 # where the keys are the indices of the trees in the forest.
 
 
-def _indegree_F(v: int, F: dict):
+def _indegree_F(v: Vertex, F: dict[DirectedEdge, int | None]) -> int:
     """
     Return the indegree of the vertex ``v`` in the labelled edges of ``F``.
 
@@ -132,7 +134,9 @@ def _indegree_F(v: int, F: dict):
     return sum(1 for e, label in F.items() if label is not None and e[1] == v)
 
 
-def _is_arc_joining_F(e: tuple, F: dict, index: int):
+def _is_arc_joining_F(
+    e: DirectedEdge, F: dict[DirectedEdge, int | None], index: int
+) -> bool:
     """
     Return whether the edge ``e`` joins two components of the forest ``F[index]``.
 
@@ -155,7 +159,9 @@ def _is_arc_joining_F(e: tuple, F: dict, index: int):
     return True
 
 
-def _build_auxiliary_graph(G: nx.DiGraph, F: dict, tau: dict, K: int):
+def _build_auxiliary_graph(
+    G: nx.DiGraph, F: dict[DirectedEdge, int | None], tau: dict[Vertex, int], K: int
+) -> nx.DiGraph:
     """
     Return the auxiliary graph ``D(F)`` for the forest decomposition problem.
 
@@ -183,7 +189,13 @@ def _build_auxiliary_graph(G: nx.DiGraph, F: dict, tau: dict, K: int):
     return D
 
 
-def _add_vertex_to_edge_arcs(D: nx.DiGraph, G: nx.DiGraph, F: dict, tau: dict, k: int):
+def _add_vertex_to_edge_arcs(
+    D: nx.DiGraph,
+    G: nx.DiGraph,
+    F: dict[DirectedEdge, int | None],
+    tau: dict[Vertex, int],
+    K: int,
+):
     """
     Add arcs ``(v, e)`` for every unlabelled edge ``e`` whose head ``v``
     has fewer than ``k - tau(v)`` labelled incoming edges.
@@ -191,20 +203,24 @@ def _add_vertex_to_edge_arcs(D: nx.DiGraph, G: nx.DiGraph, F: dict, tau: dict, k
     D.add_edges_from(
         (e[1], e)
         for e in G.edges()
-        if F[e] is None and _indegree_F(e[1], F) < k - tau.get(e[1], 0)
+        if F[e] is None and _indegree_F(e[1], F) < K - tau.get(e[1], 0)
     )
 
 
-def _add_edge_to_sink_arcs(D: nx.DiGraph, G: nx.DiGraph, F: dict, k: int):
+def _add_edge_to_sink_arcs(
+    D: nx.DiGraph, G: nx.DiGraph, F: dict[DirectedEdge, int | None], K: int
+):
     """
     Add arcs ``(e, "t")`` for every edge ``e`` joining two components of some forest.
     """
     D.add_edges_from(
-        (e, "t") for e in G.edges() if any(_is_arc_joining_F(e, F, i) for i in range(k))
+        (e, "t") for e in G.edges() if any(_is_arc_joining_F(e, F, i) for i in range(K))
     )
 
 
-def _add_edge_to_edge_arcs_same_head(D: nx.DiGraph, G: nx.DiGraph, F: dict):
+def _add_edge_to_edge_arcs_same_head(
+    D: nx.DiGraph, G: nx.DiGraph, F: dict[DirectedEdge, int | None]
+):
     """
     Add arcs ``(e, f)`` for every labelled edge ``e`` and unlabelled edge ``f``
     that have the same head.
@@ -218,7 +234,9 @@ def _add_edge_to_edge_arcs_same_head(D: nx.DiGraph, G: nx.DiGraph, F: dict):
     )
 
 
-def _add_edge_to_edge_arcs_swap(D: nx.DiGraph, G: nx.DiGraph, F: dict):
+def _add_edge_to_edge_arcs_swap(
+    D: nx.DiGraph, G: nx.DiGraph, F: dict[DirectedEdge, int | None]
+):
     """
     Add arcs ``(f, e)`` for every edge ``e`` in a forest ``F_i`` and edge ``f``
     not in ``F_i`` such that replacing ``e`` by ``f`` in ``F_i`` gives a forest.
@@ -233,7 +251,9 @@ def _add_edge_to_edge_arcs_swap(D: nx.DiGraph, G: nx.DiGraph, F: dict):
     )
 
 
-def _augment_F(P: list, F: dict, K: int):
+def _augment_F(
+    P: list[Vertex | DirectedEdge], F: dict[DirectedEdge, int | None], K: int
+) -> dict[DirectedEdge, int | None]:
     """
     Update the labelling ``F`` along the augmenting path ``P`` and return it.
 
@@ -261,7 +281,12 @@ def _augment_F(P: list, F: dict, K: int):
 
 
 def _search_augmenting_path(
-    C: set, G: nx.DiGraph, F: dict, tau: dict, k: int, deficits: dict
+    C: set[Vertex],
+    G: nx.DiGraph,
+    F: dict[DirectedEdge, int | None],
+    tau: dict[Vertex, int],
+    k: int,
+    deficits: dict[Vertex, int],
 ) -> bool:
     """
     Search for an augmenting path starting from a deficient vertex in ``C``.
@@ -279,7 +304,7 @@ def _search_augmenting_path(
         A dictionary mapping edges to their forest index (0 to k-1) or ``None``.
     tau:
         A dictionary mapping vertices to their indegree bounds.
-    k:
+    K:
         The number of forests.
     deficits:
         A dictionary mapping vertices to their current deficit values.
@@ -302,7 +327,9 @@ def _search_augmenting_path(
         return False
 
 
-def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
+def _k_forest_packing(
+    G: nx.DiGraph, F: dict[DirectedEdge, int | None], tau: dict[Vertex, int], K: int
+) -> dict[DirectedEdge, int | None]:
     """
     Extend the labelling ``F`` of the edges of ``G`` to a packing of ``k`` forests.
 
@@ -316,7 +343,7 @@ def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
         The directed graph whose edges are decomposed.
     F:
         A dictionary mapping edges to their forest index (0 to k-1) or ``None``.
-    k:
+    K:
         The number of forests.
     tau:
         A dictionary mapping vertices to their indegree bounds.
@@ -330,14 +357,14 @@ def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
     >>> _k_forest_packing(G, F, 2, tau)
     {(0, 1): 0, (1, 2): 1, (0, 2): 0}
     """
-    if k > 1:
-        _k_forest_packing(G, F, k - 1, tau)
+    if K > 1:
+        _k_forest_packing(G, F, K - 1, tau)
 
-    deficits = {v: k - tau[v] - _indegree_F(v, F) for v in G.nodes}
+    deficits = {v: K - tau[v] - _indegree_F(v, F) for v in G.nodes}
 
     while sum(deficits.values()) > 0:
         progress = False
-        F_k_edges = [e for e, label in F.items() if label == k - 1]
+        F_k_edges = [e for e, label in F.items() if label == K - 1]
         H_k = nx.Graph()
         H_k.add_nodes_from(G.nodes())
         H_k.add_edges_from(F_k_edges)
@@ -357,7 +384,7 @@ def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
             break
 
         for C in active_components:
-            F_k_edges = [e for e, label in F.items() if F[e] == k - 1]
+            F_k_edges = [e for e, label in F.items() if F[e] == K - 1]
             H_k = nx.Graph()
             H_k.add_nodes_from(G.nodes())
             H_k.add_edges_from(F_k_edges)
@@ -374,7 +401,7 @@ def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
             if target_C is None:
                 continue
 
-            success = _search_augmenting_path(target_C, G, F, tau, k, deficits)
+            success = _search_augmenting_path(target_C, G, F, tau, K, deficits)
             if success:
                 progress = True
 
@@ -384,7 +411,7 @@ def _k_forest_packing(G: nx.DiGraph, F: dict, k: int, tau: dict):
     return F
 
 
-def _k_forest_decomposition(G: nx.Graph, k: int) -> tuple[set, list]:
+def _k_forest_decomposition(G: nx.Graph, K: int) -> tuple:
     """
     Return a decomposition of ``G`` into ``k`` edge-disjoint forests.
 
@@ -399,17 +426,19 @@ def _k_forest_decomposition(G: nx.Graph, k: int) -> tuple[set, list]:
     ----------
     G:
         An undirected graph to be decomposed.
-    k:
+    K:
         The number of forests to decompose the graph into.
     """
-    X, D = _k_indegree_bounded_orientation(G, k)
+    X, D = _k_indegree_bounded_orientation(G, K)
 
     if D is None:
-        return (X, *[set() for _ in range(k)])
-    return _k_bounded_forest_decomposition(D, k)
+        return (X, *[set() for _ in range(K)])
+    return _k_bounded_forest_decomposition(D, K)
 
 
-def _violating_set_of_unlabelled_edge(D: nx.DiGraph, F: dict, e: tuple, k: int):
+def _violating_set_of_unlabelled_edge(
+    D: nx.DiGraph, F: dict[DirectedEdge, int | None], e: DirectedEdge, K: int
+) -> set[Vertex]:
     """
     Return a vertex set violating (``k``, ``k``)-sparsity once ``e`` is added.
 
@@ -426,10 +455,10 @@ def _violating_set_of_unlabelled_edge(D: nx.DiGraph, F: dict, e: tuple, k: int):
         (``None`` if unlabelled).
     e:
         An unlabelled edge of ``D``.
-    k:
+    K:
         The sparsity parameter.
     """
-    P = PebbleDiGraph(k, k)
+    P = PebbleDiGraph(K, K)
     P.add_nodes_from(D.nodes())
     P.add_edges_from((b, a) for (a, b), label in F.items() if label is not None)
 
@@ -439,7 +468,7 @@ def _violating_set_of_unlabelled_edge(D: nx.DiGraph, F: dict, e: tuple, k: int):
     return set(circuit)
 
 
-def _k_bounded_forest_decomposition(D: nx.DiGraph, k: int):
+def _k_bounded_forest_decomposition(D: nx.DiGraph, K: int) -> tuple:
     """
     Return a decomposition of the ``k``-indegree bounded digraph ``D`` into forests.
 
@@ -454,18 +483,18 @@ def _k_bounded_forest_decomposition(D: nx.DiGraph, k: int):
     ----------
     D:
         A ``k``-indegree bounded digraph.
-    k:
+    K:
         The number of forests to decompose ``D`` into.
     """
     F = {e: None for e in D.edges()}
-    _k_forest_packing(D, F, k, {v: 0 for v in D.nodes()})
+    _k_forest_packing(D, F, K, {v: 0 for v in D.nodes()})
 
     unlabelled = next((e for e, label in F.items() if label is None), None)
     if unlabelled is not None:
-        X = _violating_set_of_unlabelled_edge(D, F, unlabelled, k)
-        return (X, *[set() for _ in range(k)])
+        X = _violating_set_of_unlabelled_edge(D, F, unlabelled, K)
+        return (X, *[set() for _ in range(K)])
 
-    return (None, *[{e for e, label in F.items() if label == i} for i in range(k)])
+    return (None, *[{e for e, label in F.items() if label == i} for i in range(K)])
 
 
 def _unit_capacity_digraph(D: nx.DiGraph) -> nx.DiGraph:
@@ -482,7 +511,9 @@ def _unit_capacity_digraph(D: nx.DiGraph) -> nx.DiGraph:
     return H
 
 
-def _bridge_separating_terminal(D: nx.DiGraph, s, Z: set):
+def _bridge_separating_terminal(
+    D: nx.DiGraph, s: Vertex, Z: set[Vertex]
+) -> set[Vertex | None]:
     """
     Return the vertices cut off from ``s`` by a single arc, if one contains a terminal.
 
@@ -527,7 +558,9 @@ def _bridge_separating_terminal(D: nx.DiGraph, s, Z: set):
     return None
 
 
-def _eta_rooted_term_connectivity(D: nx.DiGraph, eta: int, s, Z: set):
+def _eta_rooted_term_connectivity(
+    D: nx.DiGraph, eta: int, s: Vertex, Z: set[Vertex]
+) -> set[Vertex] | None:
     """
     Return a vertex set containing a terminal with fewer than ``eta`` entering arcs.
 
@@ -592,7 +625,9 @@ def _eta_rooted_term_connectivity(D: nx.DiGraph, eta: int, s, Z: set):
     return None
 
 
-def _flow_value_and_sink_side(H: nx.DiGraph, s, t):
+def _flow_value_and_sink_side(
+    H: nx.DiGraph, s: Vertex, t: Vertex
+) -> tuple[int, set[Vertex]]:
     """
     Return the value of a maximum ``s``-``t`` flow and the sink side of a minimum cut.
 
@@ -612,7 +647,7 @@ def _flow_value_and_sink_side(H: nx.DiGraph, s, t):
     return value, set(H.nodes()) - S - {s}
 
 
-def _three_edge_connected_component(H: nx.DiGraph, s) -> set:
+def _three_edge_connected_component(H: nx.DiGraph, s: Vertex) -> set[Vertex]:
     """
     Return the vertices that are 3-arc-connected to ``s`` in both directions.
 
@@ -639,7 +674,9 @@ def _three_edge_connected_component(H: nx.DiGraph, s) -> set:
 # SUBROUTINE 6: ROOTED ARC-CONNECTIVITY
 
 
-def _eta_rooted_arc_connectivity(D: nx.DiGraph, eta: int, s):
+def _eta_rooted_arc_connectivity(
+    D: nx.DiGraph, eta: int, s: Vertex
+) -> set[Vertex] | None:
     """
     Return a vertex set not containing ``s`` with fewer than ``eta`` entering arcs.
 
@@ -698,7 +735,9 @@ def _eta_rooted_arc_connectivity(D: nx.DiGraph, eta: int, s):
     return None
 
 
-def _build_rooted_digraph(D0: nx.DiGraph, U0: set, k: int):
+def _build_rooted_digraph(
+    D0: nx.DiGraph, U0: set[Vertex], K: int
+) -> tuple[nx.MultiDiGraph, Vertex]:
     """
     Return an auxiliary digraph for check_superset_sparsity.
 
@@ -718,7 +757,7 @@ def _build_rooted_digraph(D0: nx.DiGraph, U0: set, k: int):
         A ``k``-indegree bounded digraph that is ``U0``-source.
     U0:
         An independent vertex set.
-    k:
+    K:
         The maximum allowed indegree.
 
     Examples
@@ -734,7 +773,7 @@ def _build_rooted_digraph(D0: nx.DiGraph, U0: set, k: int):
     U0 = set(U0)
     if any(D0.in_degree(u) > 0 for u in U0):
         raise ValueError("D0 must be U0-source.")
-    if any(D0.in_degree(v) > k for v in D0.nodes()):
+    if any(D0.in_degree(v) > K for v in D0.nodes()):
         raise ValueError("D0 must be k-indegree bounded.")
 
     s = object()
@@ -743,13 +782,15 @@ def _build_rooted_digraph(D0: nx.DiGraph, U0: set, k: int):
     D_prime.add_node(s)
     D_prime.add_edges_from((u, v) for u, v in D0.edges() if u not in U0)
     D_prime.add_edges_from(
-        (s, v) for v in D0.nodes() if v not in U0 for _ in range(k - D0.in_degree(v))
+        (s, v) for v in D0.nodes() if v not in U0 for _ in range(K - D0.in_degree(v))
     )
 
     return D_prime, s
 
 
-def _check_superset_sparsity(D: nx.DiGraph, U_0: set, K: int, L: int) -> set:
+def _check_superset_sparsity(
+    D: nx.DiGraph, U0: set[Vertex], K: int, L: int
+) -> set[Vertex] | None:
     """
     Return a vertex set that violates (k, l)-sparsity of the graph.
 
@@ -769,21 +810,23 @@ def _check_superset_sparsity(D: nx.DiGraph, U_0: set, K: int, L: int) -> set:
     l:
         Second parameter of the (k,l)-sparsity condition.
     """
-    U_0 = set() if U_0 is None else set(U_0)
-    if not (K * len(U_0) <= L <= K * (len(U_0) + 1)):
+    U0 = set() if U0 is None else set(U0)
+    if not (K * len(U0) <= L <= K * (len(U0) + 1)):
         raise ValueError(
             "The parameters k and l do not satisfy the required inequality."
         )
 
-    D_prime, s = _build_rooted_digraph(D, U_0, K)
+    D_prime, s = _build_rooted_digraph(D, U0, K)
 
-    X = _eta_rooted_arc_connectivity(D_prime, L - K * len(U_0), s)
+    X = _eta_rooted_arc_connectivity(D_prime, L - K * len(U0), s)
     if X is None:
         return None
-    return X | U_0
+    return X | U0
 
 
-def _reorient(D: nx.DiGraph, U: set, K: int) -> tuple[set, nx.DiGraph]:
+def _reorient(
+    D: nx.DiGraph, U: set[Vertex], K: int
+) -> tuple[set[Vertex] | None, nx.DiGraph | None]:
     """
     Return a k-indegree bounded :prf:ref:`U_0-source <def-U_0-source>` reorientation of D,
     or a vertex set violating (k,k)-sparsity if no such reorientation exists.
@@ -825,7 +868,7 @@ def _reorient(D: nx.DiGraph, U: set, K: int) -> tuple[set, nx.DiGraph]:
     return (None, D)
 
 
-def _centroid(T: nx.Graph) -> Hashable:
+def _centroid(T: nx.Graph) -> Vertex:
     """
     Return a centroid of the tree ``T``.
 
@@ -886,7 +929,9 @@ def _centroid(T: nx.Graph) -> Hashable:
         c = heavy
 
 
-def _check_sparsity_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> set:
+def _check_sparsity_for_l_less_than_k(
+    G: nx.Graph, K: int, L: int
+) -> set[Vertex] | None:
     """
     Check the (k,l)-sparsity of ``G`` for 0 <= l <= k.
 
@@ -909,7 +954,9 @@ def _check_sparsity_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> set:
     return _check_superset_sparsity(D, set(), K, L)
 
 
-def _saturated_violation(D: nx.DiGraph, T: nx.Graph, K: int, L: int) -> set:
+def _saturated_violation(
+    D: nx.DiGraph, T: nx.Graph, K: int, L: int
+) -> set[Vertex] | None:
     """
     Return either None or a set violating (k, l)-sparsity in the underlying graph of D.
 
@@ -957,7 +1004,9 @@ def _saturated_violation(D: nx.DiGraph, T: nx.Graph, K: int, L: int) -> set:
     return None
 
 
-def _check_sparsity_for_l_between_k_and_2k(G: nx.Graph, K: int, L: int) -> set:
+def _check_sparsity_for_l_between_k_and_2k(
+    G: nx.Graph, K: int, L: int
+) -> set[Vertex] | None:
     """
     Check the (k,l)-sparsity of ``G`` for k < l < 2k.
 
@@ -982,7 +1031,7 @@ def _check_sparsity_for_l_between_k_and_2k(G: nx.Graph, K: int, L: int) -> set:
 
 def _check_sparsity_for_l_between_k_and_2k_with_decomp(
     G: nx.Graph, F: list, K: int, L: int
-) -> set:
+) -> set[Vertex] | None:
     """
     Return a vertex set that violates the (k, l)-sparsity of G if it exists,
     None otherwise.
@@ -1018,7 +1067,9 @@ def _check_sparsity_for_l_between_k_and_2k_with_decomp(
     return None
 
 
-def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, K: int) -> set:
+def _check_terminal_superset_sparsity(
+    D: nx.DiGraph, c: Vertex, Z: set[Vertex], K: int
+) -> set[Vertex] | None:
     """
     Returns a violating set of the underlying graph of D such that in X,
     X intersection Z is not None and X different from {c}.
@@ -1047,7 +1098,7 @@ def _check_terminal_superset_sparsity(D: nx.DiGraph, c: str, Z: set, K: int) -> 
 
 def _saturated_violation_for_l_equal_2k(
     D: nx.DiGraph, T: nx.Graph, K: int, L: int
-) -> set:
+) -> set[Vertex] | None:
     """
     Returns a set violating (k,2k)-sparsity if it exists, None otherwise.
 
@@ -1114,7 +1165,7 @@ def _saturated_violation_for_l_equal_2k(
     return None
 
 
-def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set:
+def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] | None:
     """
     Check the (k,l)-sparsity of ``G`` for l = 2k.
 
@@ -1150,7 +1201,9 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set:
     return None
 
 
-def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, K: int, L: int) -> set:
+def _check_sparsity_for_l_between_2k_and_3k(
+    G: nx.Graph, K: int, L: int
+) -> set[Vertex] | None:
     """
     Check the (k,l)-sparsity of ``G`` for 2k < l < 3k.
 
@@ -1186,21 +1239,21 @@ def _check_sparsity_for_l_between_2k_and_3k(G: nx.Graph, K: int, L: int) -> set:
     return None
 
 
-def _is_sparse_for_l_less_than_k(G, K, L):
+def _is_sparse_for_l_less_than_k(G: nx.Graph, K: int, L: int) -> bool:
     X = _check_sparsity_for_l_less_than_k(G, K, L)
     return X is None
 
 
-def _is_sparse_for_l_between_k_and_2k(G, K, L):
+def _is_sparse_for_l_between_k_and_2k(G: nx.Graph, K: int, L: int) -> bool:
     X = _check_sparsity_for_l_between_k_and_2k(G, K, L)
     return X is None
 
 
-def _is_sparse_for_l_equal_2k(G, K, L):
+def _is_sparse_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> bool:
     X = _check_sparsity_for_l_equal_2k(G, K, L)
     return X is None
 
 
-def _is_sparse_for_l_between_2k_and_3k(G, K, L):
+def _is_sparse_for_l_between_2k_and_3k(G: nx.Graph, K: int, L: int) -> bool:
     X = _check_sparsity_for_l_between_2k_and_3k(G, K, L)
     return X is None
