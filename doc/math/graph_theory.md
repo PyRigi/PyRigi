@@ -106,6 +106,8 @@ the capacity of a minimum $s$-$t$ cut.
 :label: def-bounded-indegree-orientation
 
 Let $G=(V,E)$ be a graph and $\kappa \in \NN$.
+An orientation $D$ of $G$ is a directed graph obtained by assigning a specific direction to each edge of G.
+We denote by $\varrho_D(v)$ the number of arcs in D entering the vertex $v$.
 An orientation $D$ of $G$ is _$\kappa$-indegree-bounded_ if $\varrho_D(v) \leq \kappa$ for every $v \in V$.
 :::
 
