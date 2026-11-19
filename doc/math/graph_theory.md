@@ -117,6 +117,39 @@ Given a set of vertices $U_0 \subseteq V$, such that no vertex of $U_0$ is conne
 if $\varrho_D(v) = 0$ for every $v \in U_0$.
 :::
 
+:::{prf:definition} Indegree with respect to a set of forests
+:label: def-indegree-forest
+
+Let $D=(V,A)$ be a directed graph.
+A set of arcs $F \subseteq A$ is a _forest_ if the undirected underlying graph is acyclic.
+For $F \subseteq A$ and $v \in V$, the _indegree of $v$ in $F$_, denoted $\mathrm{indeg}_F(v)$,
+is the indegree of $v$ in the digraph $(V, F)$.
+If $F_1, \dots, F_k \subseteq A$ are edge-disjoint forests and $F = F_1 \cup \dots \cup F_k$,
+then $\mathrm{indeg}_F(v) = \sum_{i=1}^k \mathrm{indeg}_{F_i}(v)$.
+
+{{references}} {cite:p}`ArkhipovKolmogorov2024`
+:::
+
+:::{prf:definition} $k$-forest packing and $k$-forest decomposition
+:label: def-k-forest-decomposition
+
+Let $G=(V,E)$ be a graph and $k \in \NN$ with $k \geq 1$.
+A _$k$-forest packing_ of $G$ is a collection of $k$ edge-disjoint forests $F_1, \dots, F_k \subseteq E$.
+It is _maximum_ if $|F_1 \cup \dots \cup F_k|$ is maximum among all $k$-forest packings of $G$.
+If $E = F_1 \cup \dots \cup F_k$, i.e., the forests partition $E$,
+the packing is called a _$k$-forest decomposition_ of $G$.
+
+By a theorem of Nash-Williams, $G$ admits a $k$-forest decomposition if and only if
+$G$ is $(k,k)$-{prf:ref}`sparse <def-kl-sparse-tight>`.
+In this case, every maximum $k$-forest packing is a $k$-forest decomposition.
+
+If $G$ is a directed graph, a $k$-forest packing $F = F_1 \cup \dots \cup F_k$ is _$k$-indegree-bounded_
+if $\mathrm{indeg}_F(v) \leq k$ for every $v \in V$
+(see {prf:ref}`def-indegree-forest`).
+
+{{references}} {cite:p}`ArkhipovKolmogorov2024`, {cite:p}`DeakMadarasi2026`
+:::
+
 :::{prf:algorithm} Check Sparsity for $0 \leq \ell \leq k$
 :label: alg-check-sparsity-l-k
 
@@ -128,6 +161,30 @@ if $\varrho_D(v) = 0$ for every $v \in U_0$.
    If it returns a vertex set $X$, return $X$ (it violates $(k,0)$-sparsity).
    Otherwise let $D$ be the obtained $\k$-indegree-bounded orientation.
 2. Run Check Superset Sparsity on $(D, \emptyset)$ and return its output.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:algorithm} Saturated Violation
+:label: alg-saturated-violation
+
+**Input:** Integers $k < \ell < 2k$, a $k$-indegree-bounded digraph $D=(V,A)$
+and a spanning tree $T$ of the underlying graph $G$ of $D$
+
+**Output:** A vertex set violating $(k,\ell)$-sparsity of $G$, or $\emptyset$.
+A violating set is returned whenever $G$ has one saturated by $T$.
+
+1. Let $c$ be a centroid of $T$.
+2. Run Reorient on $(D, \{c\})$.
+   If it returns a set $X$, return $X$ (it violates $(k,k)$-sparsity).
+   Otherwise let $D_0$ be the obtained orientation, in which $c$ is a source.
+3. Run Check Superset Sparsity on $(D_0, \{c\})$.
+   If it returns a nonempty set $X$, return $X$ (it violates $(k,\ell)$-sparsity and contains $c$).
+4. Every remaining violating set saturated by $T$ avoids $c$, so it is contained in a component of $T - c$
+   and saturated by it. For each connected component $T_i$ of $T - c$:
+    * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
+5. Return $\emptyset$.
+Since $c$ is a centroid, the recursion depth is $O(\log n)$.
 
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
