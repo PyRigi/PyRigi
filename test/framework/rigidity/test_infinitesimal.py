@@ -481,6 +481,13 @@ def test_rigidity_matrix_parametric(framework, rigidity_matrix):
     )
 
 
+def test_rigidity_matrix_no_edges():
+    F = Framework(Graph.from_vertices([0, 1]), {0: [0, 0], 1: [1, 2]})
+    F = _to_FrameworkBase(F)
+    assert infinitesimal_rigidity.rigidity_matrix(F).shape == (0, 4)
+    assert len(infinitesimal_rigidity.inf_flexes(F, include_trivial=True)) == 4
+
+
 def test_rigidity_matrix():
     F = fws.Complete(4, dim=3)
     F = _to_FrameworkBase(F)

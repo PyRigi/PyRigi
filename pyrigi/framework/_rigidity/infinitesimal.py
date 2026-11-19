@@ -9,7 +9,7 @@ from copy import deepcopy
 
 import numpy as np
 import sympy as sp
-from sympy import Matrix, binomial, flatten
+from sympy import Matrix, binomial
 
 import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi._utils._conversion import sympy_expr_to_float
@@ -62,27 +62,23 @@ def rigidity_matrix(
     vertex_order = _graph_input_check.is_vertex_order(framework._graph, vertex_order)
     edge_order = _graph_input_check.is_edge_order(framework._graph, edge_order)
 
-    # ``delta`` is responsible for distinguishing the edges (i,j) and (j,i)
-    def delta(e, w):
-        # the parameter e represents an edge
-        # the parameter w represents a vertex
-        if w == e[0]:
-            return 1
-        if w == e[1]:
-            return -1
-        return 0
+    # initialize a dense matrix filled with zeros
+    d = framework.dim
+    matrix = sp.zeros(len(edge_order), d * len(vertex_order))
 
-    return Matrix(
-        [
-            flatten(
-                [
-                    delta(e, w) * (framework[e[0]] - framework[e[1]])
-                    for w in vertex_order
-                ]
-            )
-            for e in edge_order
-        ]
-    )
+    # fill only the needed non-zero entries
+    position_vertices = {v: i for i, v in enumerate(vertex_order)}
+    coords = framework.realization(as_points=True)
+    for i, (v, w) in enumerate(edge_order):
+        pv, pw = coords[v], coords[w]
+        h = position_vertices[v]
+        k = position_vertices[w]
+        for j in range(d):
+            x = pv[j] - pw[j]
+            matrix[i, d * h + j] = x
+            matrix[i, d * k + j] = -x
+
+    return matrix
 
 
 def rigidity_matrix_rank(
