@@ -16,6 +16,7 @@ import pyrigi.graph._rigidity.generic as generic_rigidity
 import pyrigi.graph._rigidity.redundant as redundant_rigidity
 import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graph._utils._input_check as _graph_input_check
+from pyrigi._utils.linear_algebra import _rank
 from pyrigi.data_type import Vertex
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.warning import _warn_randomized_alg as warn_randomized_alg
@@ -118,11 +119,11 @@ def is_globally_rigid(
         F = Framework.Random(graph, dim=dim, rand_range=[1, N])
         stresses = F.stresses()
         if m == t:
-            omega = zeros(F.rigidity_matrix().rows, 1)
-            return F.stress_matrix(omega).rank() == n - dim - 1
+            omega = zeros(m, 1)
+            return _rank(F.stress_matrix(omega)) == n - dim - 1
         elif stresses:
             omega = sum([randint(1, N) * stress for stress in stresses], stresses[0])
-            return F.stress_matrix(omega).rank() == n - dim - 1
+            return _rank(F.stress_matrix(omega)) == n - dim - 1
         else:
             raise RuntimeError("There must be at least one stress but none was found!")
     raise NotSupportedValueError(algorithm, "algorithm", is_globally_rigid)
