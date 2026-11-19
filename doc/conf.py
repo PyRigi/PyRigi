@@ -422,6 +422,7 @@ comments = {
         "_input_check.py": "functions for input checks",
         "_zero_check.py": "functions for checking symbolic zeros",
         "linear_algebra.py": "functions for linear algebra",
+        "rational_console.py": "console with exact division of integers",
         ".py": "",
     },
 }
