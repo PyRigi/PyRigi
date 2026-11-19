@@ -40,7 +40,7 @@ def _max_flow(D: nx.DiGraph, s: Vertex, t: Vertex, g: str) -> tuple[dict, set[Ve
 
 def _build_flow_network(G: nx.Graph, K: int) -> nx.DiGraph:
     """
-    Return the flow network for the ``k``-indegree bounded orientation of ``G``.
+    Return the flow network for the ``K``-indegree bounded orientation of ``G``.
 
     Parameters
     ----------
@@ -73,13 +73,13 @@ def _k_indegree_bounded_orientation(
     G: nx.Graph, K: int
 ) -> tuple[set[Vertex] | None, nx.DiGraph | None]:
     """
-    Return an orientation of ``G`` with indegree at most ``k`` at every vertex.
+    Return an orientation of ``G`` with indegree at most ``K`` at every vertex.
 
     A flow network is constructed to determine whether the edges of the undirected
-    graph can be oriented without exceeding the maximum indegree ``k`` at any vertex.
+    graph can be oriented without exceeding the maximum indegree ``K`` at any vertex.
     A pair ``(X, D)`` is returned.
     If a valid orientation exists, ``X`` is ``None`` and ``D`` is the
-    ``k``-indegree bounded orientation of the graph.
+    ``K``-indegree bounded orientation of the graph.
     If no such orientation exists, ``X`` is the violating set of vertices
     and ``D`` is ``None``.
 
@@ -198,7 +198,7 @@ def _add_vertex_to_edge_arcs(
 ):
     """
     Add arcs ``(v, e)`` for every unlabelled edge ``e`` whose head ``v``
-    has fewer than ``k - tau(v)`` labelled incoming edges.
+    has fewer than ``K - tau(v)`` labelled incoming edges.
     """
     D.add_edges_from(
         (e[1], e)
@@ -285,7 +285,7 @@ def _search_augmenting_path(
     G: nx.DiGraph,
     F: dict[DirectedEdge, int | None],
     tau: dict[Vertex, int],
-    k: int,
+    K: int,
     deficits: dict[Vertex, int],
 ) -> bool:
     """
@@ -314,11 +314,11 @@ def _search_augmenting_path(
     if v is None:
         return False
 
-    aux_graph = _build_auxiliary_graph(G, F, tau, k)
+    aux_graph = _build_auxiliary_graph(G, F, tau, K)
 
     try:
         P = nx.shortest_path(aux_graph, source=v, target="t")
-        _augment_F(P, F, k)
+        _augment_F(P, F, K)
         deficits[v] -= 1
         return True
 
@@ -331,11 +331,11 @@ def _k_forest_packing(
     G: nx.DiGraph, F: dict[DirectedEdge, int | None], tau: dict[Vertex, int], K: int
 ) -> dict[DirectedEdge, int | None]:
     """
-    Extend the labelling ``F`` of the edges of ``G`` to a packing of ``k`` forests.
+    Extend the labelling ``F`` of the edges of ``G`` to a packing of ``K`` forests.
 
     The labelling is modified in place and returned.
     The result is a packing, not necessarily a decomposition:
-    edges that cannot be added to any of the ``k`` forests keep the label ``None``.
+    edges that cannot be added to any of the ``K`` forests keep the label ``None``.
 
     Parameters
     ----------
@@ -413,14 +413,14 @@ def _k_forest_packing(
 
 def _k_forest_decomposition(G: nx.Graph, K: int) -> tuple:
     """
-    Return a decomposition of ``G`` into ``k`` edge-disjoint forests.
+    Return a decomposition of ``G`` into ``K`` edge-disjoint forests.
 
-    A tuple ``(X, F_1, ..., F_k)`` is returned.
-    If the edges of ``G`` can be partitioned into ``k`` forests,
-    ``X`` is ``None`` and ``F_1, ..., F_k`` are these forests, each given as a set
+    A tuple ``(X, F_1, ..., F_K)`` is returned.
+    If the edges of ``G`` can be partitioned into ``K`` forests,
+    ``X`` is ``None`` and ``F_1, ..., F_K`` are these forests, each given as a set
     of edges.
-    Otherwise, ``X`` is a vertex set violating (``k``, ``k``)-sparsity
-    and ``F_1, ..., F_k`` are empty.
+    Otherwise, ``X`` is a vertex set violating (``K``, ``K``)-sparsity
+    and ``F_1, ..., F_K`` are empty.
 
     Parameters
     ----------
@@ -440,7 +440,7 @@ def _violating_set_of_unlabelled_edge(
     D: nx.DiGraph, F: dict[DirectedEdge, int | None], e: DirectedEdge, K: int
 ) -> set[Vertex]:
     """
-    Return a vertex set violating (``k``, ``k``)-sparsity once ``e`` is added.
+    Return a vertex set violating (``K``, ``K``)-sparsity once ``e`` is added.
 
     The labelled edges of ``F`` are put into a :class:`.PebbleDiGraph`
     (with reversed orientation, since the pebble game bounds outdegrees)
@@ -470,14 +470,14 @@ def _violating_set_of_unlabelled_edge(
 
 def _k_bounded_forest_decomposition(D: nx.DiGraph, K: int) -> tuple:
     """
-    Return a decomposition of the ``k``-indegree bounded digraph ``D`` into forests.
+    Return a decomposition of the ``K``-indegree bounded digraph ``D`` into forests.
 
-    A tuple ``(X, F_1, ..., F_k)`` is returned.
-    If the edges of ``D`` can be partitioned into ``k`` forests,
-    ``X`` is ``None`` and ``F_1, ..., F_k`` are these forests, each given as a set
+    A tuple ``(X, F_1, ..., F_K)`` is returned.
+    If the edges of ``D`` can be partitioned into ``K`` forests,
+    ``X`` is ``None`` and ``F_1, ..., F_K`` are these forests, each given as a set
     of edges.
-    Otherwise, ``X`` is a vertex set violating (``k``, ``k``)-sparsity
-    and ``F_1, ..., F_k`` are empty.
+    Otherwise, ``X`` is a vertex set violating (``K``, ``K``)-sparsity
+    and ``F_1, ..., F_K`` are empty.
 
     Parameters
     ----------
@@ -513,7 +513,7 @@ def _unit_capacity_digraph(D: nx.DiGraph) -> nx.DiGraph:
 
 def _bridge_separating_terminal(
     D: nx.DiGraph, s: Vertex, Z: set[Vertex]
-) -> set[Vertex | None]:
+) -> set[Vertex] | None:
     """
     Return the vertices cut off from ``s`` by a single arc, if one contains a terminal.
 
@@ -742,11 +742,8 @@ def _build_rooted_digraph(
     Return an auxiliary digraph for check_superset_sparsity.
 
     The vertices of ``U0`` are deleted from ``D0``, a new root ``s`` is added and,
-    for every remaining vertex ``v``, ``k - indegree(v)`` parallel arcs
+    for every remaining vertex ``v``, ``K - indegree(v)`` parallel arcs
     from ``s`` to ``v`` are inserted.
-    For a strict superset ``X`` of ``U0``, the set ``X - U0`` has fewer than
-    ``l - t*k`` entering arcs in ``D'_0`` if and only if ``X`` violates
-    (``k``, ``l``)-sparsity of the underlying graph of ``D0``, where ``t = |U0|``.
 
     A pair ``(D_prime, s)`` is returned, where ``D_prime`` is a
     :class:`networkx.MultiDiGraph` and ``s`` is its root.
@@ -792,22 +789,22 @@ def _check_superset_sparsity(
     D: nx.DiGraph, U0: set[Vertex], K: int, L: int
 ) -> set[Vertex] | None:
     """
-    Return a vertex set that violates (k, l)-sparsity of the graph.
+    Return a vertex set that violates (K, L)-sparsity of the graph.
 
-    The violating set strictly contains the given set U,
+    The violating set strictly contains the given set ``U0``,
     if such a set exists. Otherwise, return None.
-    It is required the inequality tk <= l <= (t+1)k and
+    It is required the inequality tK <= L <= (t+1)K and
     that D is :prf:ref:`U_0-source <def-U_0-source>`.
 
     Parameters
     ----------
     D:
         A k-indegree bounded digraph.
-    U:
+    U0:
         An indipendent vertex set with t elements.
-    k:
+    K:
         First parameter of the (k,l)-sparsity condition.
-    l:
+    L:
         Second parameter of the (k,l)-sparsity condition.
     """
     U0 = set() if U0 is None else set(U0)
@@ -828,8 +825,8 @@ def _reorient(
     D: nx.DiGraph, U: set[Vertex], K: int
 ) -> tuple[set[Vertex] | None, nx.DiGraph | None]:
     """
-    Return a k-indegree bounded :prf:ref:`U_0-source <def-U_0-source>` reorientation of D,
-    or a vertex set violating (k,k)-sparsity if no such reorientation exists.
+    Return a K-indegree bounded :prf:ref:`U_0-source <def-U_0-source>` reorientation of D,
+    or a vertex set violating (K,K)-sparsity if no such reorientation exists.
 
     Definitions
     -----------
@@ -933,7 +930,7 @@ def _check_sparsity_for_l_less_than_k(
     G: nx.Graph, K: int, L: int
 ) -> set[Vertex] | None:
     """
-    Check the (k,l)-sparsity of ``G`` for 0 <= l <= k.
+    Check the (K,L)-sparsity of ``G`` for 0 <= L <= K.
 
     Return a violating vertex set if it exists, otherwise None.
     Based on the algorithm
@@ -958,7 +955,7 @@ def _saturated_violation(
     D: nx.DiGraph, T: nx.Graph, K: int, L: int
 ) -> set[Vertex] | None:
     """
-    Return either None or a set violating (k, l)-sparsity in the underlying graph of D.
+    Return either None or a set violating (K, L)-sparsity in the underlying graph of D.
 
     Whenever the underlying graph of D contains a violating set that is saturated
     by T, the procedure returns it.
@@ -971,9 +968,9 @@ def _saturated_violation(
         A k-indegree bounded digraph.
     T:
         A spanning tree of the underlying graph of D.
-    k:
+    K:
         First parameter of the sparsity condition.
-    l:
+    L:
         Second parameter of the sparsity condition, with k < l <= 2k.
     """
     n = T.number_of_nodes()
@@ -1008,7 +1005,7 @@ def _check_sparsity_for_l_between_k_and_2k(
     G: nx.Graph, K: int, L: int
 ) -> set[Vertex] | None:
     """
-    Check the (k,l)-sparsity of ``G`` for k < l < 2k.
+    Check the (K,L)-sparsity of ``G`` for K < L < 2K.
 
     Return a violating vertex set if it exists, otherwise None.
     Based on the algorithm
@@ -1018,9 +1015,9 @@ def _check_sparsity_for_l_between_k_and_2k(
     ----------
     G:
         An undirected Graph.
-    k:
+    K:
         First Parameter in the sparsity condition.
-    l:
+    L:
         Second Parameter in the sparsity condition.
     """
     X, *F = _k_forest_decomposition(G, K)
@@ -1033,7 +1030,7 @@ def _check_sparsity_for_l_between_k_and_2k_with_decomp(
     G: nx.Graph, F: list, K: int, L: int
 ) -> set[Vertex] | None:
     """
-    Return a vertex set that violates the (k, l)-sparsity of G if it exists,
+    Return a vertex set that violates the (K, L)-sparsity of G if it exists,
     None otherwise.
 
     It is part of the algorithm
@@ -1083,7 +1080,8 @@ def _check_terminal_superset_sparsity(
         a vertex, source in D.
     Z:
         a set of vertices not containg c.
-    k:
+    K:
+        First parameter of the sparsity condition.
     """
 
     D_prime, s = _build_rooted_digraph(D, {c}, K)
@@ -1100,7 +1098,7 @@ def _saturated_violation_for_l_equal_2k(
     D: nx.DiGraph, T: nx.Graph, K: int, L: int
 ) -> set[Vertex] | None:
     """
-    Returns a set violating (k,2k)-sparsity if it exists, None otherwise.
+    Returns a set violating (K,2K)-sparsity if it exists, None otherwise.
 
     The procedure returns a violating set whenever the underlying graph of D contains one
     that is saturated by T.
@@ -1167,7 +1165,7 @@ def _saturated_violation_for_l_equal_2k(
 
 def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] | None:
     """
-    Check the (k,l)-sparsity of ``G`` for l = 2k.
+    Check the (K,L)-sparsity of ``G`` for L = 2K.
 
     Return a violating vertex set if it exists, otherwise None.
     Based on the algorithm
@@ -1205,7 +1203,7 @@ def _check_sparsity_for_l_between_2k_and_3k(
     G: nx.Graph, K: int, L: int
 ) -> set[Vertex] | None:
     """
-    Check the (k,l)-sparsity of ``G`` for 2k < l < 3k.
+    Check the (K,L)-sparsity of ``G`` for 2K < L < 3K.
 
     Return a violating vertex set if it exists, otherwise None.
     Based on the algorithm
