@@ -12,6 +12,12 @@ import networkx as nx
 import pyrigi._utils._input_check as _input_check
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph._sparsity._pebble_digraph import PebbleDiGraph
+from pyrigi.graph._sparsity._flow import (
+    _is_sparse_for_l_less_than_k,
+    _is_sparse_for_l_between_k_and_2k,
+    _is_sparse_for_l_equal_2k,
+    _is_sparse_for_l_between_2k_and_3k,
+)
 
 
 def _build_pebble_digraph(graph: nx.Graph, K: int, L: int) -> None:
@@ -209,6 +215,16 @@ def is_kl_sparse(
                     if G.number_of_edges() > K * G.number_of_nodes() - L:
                         return False
             return True
+
+    if algorithm == "flow":
+        _input_check.flow_values(K, L)
+        if L <= K:
+            return _is_sparse_for_l_less_than_k(graph, K, L)
+        if L < 2 * K:
+            return _is_sparse_for_l_between_k_and_2k(graph, K, L)
+        if L == 2 * K:
+            return _is_sparse_for_l_equal_2k(graph, K, L)
+        return _is_sparse_for_l_between_2k_and_3k(graph, K, L)
 
     # reaching this position means that the algorithm is unknown
     raise NotSupportedValueError(algorithm, "algorithm", is_kl_sparse)

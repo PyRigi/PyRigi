@@ -13,7 +13,10 @@ from test.graph.test_graph import read_sparsity
 graph_class = nx.Graph
 
 is_kl_sparse_algorithms_sparsity_all_kl = ["default", "subgraph"]
-is_kl_sparse_algorithms_sparsity_pebble = is_kl_sparse_algorithms_sparsity_all_kl + [
+is_kl_sparse_algorithms_sparsity_flow = is_kl_sparse_algorithms_sparsity_all_kl + [
+    "flow"
+]
+is_kl_sparse_algorithms_sparsity_pebble = is_kl_sparse_algorithms_sparsity_flow + [
     "pebble"
 ]
 
@@ -54,7 +57,7 @@ def test_is_kl_sparse(graph, K, L, algorithm):
         [Graph.from_int(2097136), 3, 6],
     ],
 )
-@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_all_kl)
+@pytest.mark.parametrize("algorithm", is_kl_sparse_algorithms_sparsity_flow)
 def test_is_not_kl_sparse(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) == 0
     graph2 = graph + Graph.from_vertices_and_edges([max(graph.vertex_list()) + 1], [])
