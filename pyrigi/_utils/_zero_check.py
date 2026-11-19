@@ -18,13 +18,20 @@ def is_zero(expr: Number, numerical: bool = False, tolerance: float = 1e-9) -> b
         Expression that is checked.
     numerical:
         If ``True``, then the check is done only numerically with the given tolerance.
-        If ``False`` (default), the check is done symbolically,
-        ``sympy`` method ``equals`` is used.
+        If ``False`` (default), the check is done symbolically:
+        numbers (integers, rationals, floats) are compared with zero directly,
+        otherwise the ``sympy`` method ``equals`` is used.
     tolerance:
         The tolerance that is used in the numerical check coordinate-wise.
     """
     if not numerical:
-        zero_bool = sp.cancel(sp.sympify(expr)).equals(0)
+        expr = sp.sympify(expr)
+        if expr.is_Number:
+            return expr == 0
+        # The attribute is_zero (assumption system) is not used on purpose:
+        # it can be orders of magnitude slower than equals
+        # for expressions with nested radicals.
+        zero_bool = sp.cancel(expr).equals(0)
         if zero_bool is None:
             raise RuntimeError(
                 "It could not be determined by sympy "
