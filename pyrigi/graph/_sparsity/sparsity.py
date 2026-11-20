@@ -12,6 +12,12 @@ import networkx as nx
 import pyrigi._utils._input_check as _input_check
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph._sparsity._pebble_digraph import PebbleDiGraph
+from pyrigi.graph._sparsity._flow import (
+    _is_sparse_for_l_less_than_k,
+    _is_sparse_for_l_between_k_and_2k,
+    _is_sparse_for_l_equal_2k,
+    _is_sparse_for_l_between_2k_and_3k,
+)
 
 
 def _build_pebble_digraph(graph: nx.Graph, K: int, L: int) -> None:
@@ -131,6 +137,44 @@ def _is_pebble_digraph_sparse(
     return graph.number_of_edges() == pebble_digraph.number_of_edges()
 
 
+def is_kl_sparse_subgraph(graph: nx.Graph, K: int, L: int) -> bool:
+    """
+    Return whether the graph is (``K``, ``L``)-sparse using subgraph algorithm"""
+
+    if nx.number_of_selfloops(graph) > 0:
+        _input_check.pebble_values(K, L)
+        for i in range(1, graph.number_of_nodes() + 1):
+            for vertex_set in combinations(graph.nodes, i):
+                G = graph.subgraph(vertex_set)
+                m = G.number_of_edges()
+                if m >= 1 and m > K * G.number_of_nodes() - L:
+                    return False
+        return True
+    else:
+        _input_check.integrality_and_range(
+            L, "L", min_val=0, max_val=math.comb(K + 1, 2)
+        )
+        for i in range(K, graph.number_of_nodes() + 1):
+            for vertex_set in combinations(graph.nodes, i):
+                G = graph.subgraph(vertex_set)
+                if G.number_of_edges() > K * G.number_of_nodes() - L:
+                    return False
+        return True
+
+
+def is_kl_sparse_flow(graph: nx.Graph, K: int, L: int) -> bool:
+    """
+    Return whether the graph is (``K``, ``L``)-sparse using flow algorithm
+    """
+    if L <= K:
+        return _is_sparse_for_l_less_than_k(graph, K, L)
+    if L < 2 * K:
+        return _is_sparse_for_l_between_k_and_2k(graph, K, L)
+    if L == 2 * K:
+        return _is_sparse_for_l_equal_2k(graph, K, L)
+    return _is_sparse_for_l_between_2k_and_3k(graph, K, L)
+
+
 def is_kl_sparse(
     graph: nx.Graph,
     K: int,
@@ -190,25 +234,11 @@ def is_kl_sparse(
         )
 
     if algorithm == "subgraph":
-        if nx.number_of_selfloops(graph) > 0:
-            _input_check.pebble_values(K, L)
-            for i in range(1, graph.number_of_nodes() + 1):
-                for vertex_set in combinations(graph.nodes, i):
-                    G = graph.subgraph(vertex_set)
-                    m = G.number_of_edges()
-                    if m >= 1 and m > K * G.number_of_nodes() - L:
-                        return False
-            return True
-        else:
-            _input_check.integrality_and_range(
-                L, "L", min_val=0, max_val=math.comb(K + 1, 2)
-            )
-            for i in range(K, graph.number_of_nodes() + 1):
-                for vertex_set in combinations(graph.nodes, i):
-                    G = graph.subgraph(vertex_set)
-                    if G.number_of_edges() > K * G.number_of_nodes() - L:
-                        return False
-            return True
+        return is_kl_sparse_subgraph(graph, K, L)
+
+    if algorithm == "flow":
+        _input_check.flow_values(K, L)
+        return is_kl_sparse_flow(graph, K, L)
 
     # reaching this position means that the algorithm is unknown
     raise NotSupportedValueError(algorithm, "algorithm", is_kl_sparse)
