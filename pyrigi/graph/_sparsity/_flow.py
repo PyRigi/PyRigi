@@ -615,6 +615,10 @@ def _eta_rooted_term_connectivity(
     Parallel arcs are allowed if ``D`` is a :class:`networkx.MultiDiGraph`;
     they are counted with multiplicity.
 
+    Definitions
+    -----------
+    :prf:ref:`Rooted arc-connectivity <def-rooted-arc-connectivity>`
+
     Parameters
     ----------
     D:
@@ -738,6 +742,10 @@ def _eta_rooted_arc_connectivity(
     Here, one maximum flow from ``s`` to every other vertex is used instead,
     which gives the same output but is not as fast.
 
+    Definitions
+    -----------
+    :prf:ref:`Rooted arc-connectivity <def-rooted-arc-connectivity>`
+
     Parameters
     ----------
     D:
@@ -797,6 +805,7 @@ def _build_rooted_digraph(
     -----------
     :prf:ref:`k-indegree bounded orientation <def-bounded-indegree-orientation>`
     :prf:ref:`U_0-source orientation <def-U_0-source>`
+    :prf:ref:`Auxiliary digraph <def-auxiliary-digraph>`
 
     Parameters
     ----------
@@ -851,6 +860,8 @@ def _check_superset_sparsity(
     :prf:ref:`k-indegree bounded orientation <def-bounded-indegree-orientation>`
     :prf:ref:`U_0-source orientation <def-U_0-source>`
     :prf:ref:`(k, l)-sparsity <def-kl-sparse-tight>`
+    :prf:ref:`Auxiliary digraph <def-auxiliary-digraph>`
+    :prf:ref:`Rooted arc-connectivity <def-rooted-arc-connectivity>`
 
     Parameters
     ----------
@@ -931,6 +942,10 @@ def _centroid(T: nx.Graph) -> Vertex:
     the first computes the subtree sizes, the second walks from the root
     towards the heavy subtree until no subtree has more than half of the vertices.
     The running time is linear.
+
+    Definitions
+    -----------
+    :prf:ref:`Centroid <def-centroid>`
 
     Parameters
     ----------
@@ -1021,6 +1036,11 @@ def _saturated_violation(
     by T, the procedure returns it.
     We say that a tree saturates a nonempty vertex set X
     if the induced graph T[X] is connected.
+
+    Definitions
+    -----------
+    :prf:ref:`Saturated set <def-saturated>`
+    :prf:ref:`Centroid <def-centroid>`
 
     Parameters
     ----------
@@ -1136,6 +1156,7 @@ def _check_terminal_superset_sparsity(
     -----------
     :prf:ref:`U_0-source orientation <def-U_0-source>`
     :prf:ref:`(k, l)-sparsity <def-kl-sparse-tight>`
+    :prf:ref:`Auxiliary digraph <def-auxiliary-digraph>`
 
     Parameters
     ----------
@@ -1169,6 +1190,11 @@ def _saturated_violation_for_l_equal_2k(
     that is saturated by T.
     Based on the algorithm
     :prf:ref:`Saturated Violation for l = 2k <alg-saturated-violation-2k>`.
+
+    Definitions
+    -----------
+    :prf:ref:`Saturated set <def-saturated>`
+    :prf:ref:`Centroid <def-centroid>`
 
     Parameters
     ----------

@@ -106,15 +106,43 @@ the capacity of a minimum $s$-$t$ cut.
 :label: def-bounded-indegree-orientation
 
 Let $G=(V,E)$ be a graph and $\kappa \in \NN$.
-An orientation $D$ of $G$ is a directed graph obtained by assigning a specific direction to each edge of G.
-We denote by $\varrho_D(v)$ the number of arcs in D entering the vertex $v$.
+An _orientation_ $D$ of $G$ is a directed graph obtained by assigning a direction to each edge of $G$.
+For $X \subseteq V$, we denote by $\varrho_D(X)$ the number of arcs of $D$ entering $X$ from $V \setminus X$,
+and we write $\varrho_D(v) = \varrho_D(\{v\})$ for the indegree of a vertex $v$.
 An orientation $D$ of $G$ is _$\kappa$-indegree-bounded_ if $\varrho_D(v) \leq \kappa$ for every $v \in V$.
 :::
 
 :::{prf:definition} U_0-source orientation
 :label: def-U_0-source
-Given a set of vertices $U_0 \subseteq V$, such that no vertex of $U_0$ is connected to another one by an edge, the {prf:ref}`orientation <def-bounded-indegree-orientation>` $D$ is said _$U_0$-source_
+
+Let $G=(V,E)$ be a graph and let $U_0 \subseteq V$ be a set of vertices such that no two vertices of $U_0$ are adjacent.
+An {prf:ref}`orientation <def-bounded-indegree-orientation>` $D$ of $G$ is called _$U_0$-source_
 if $\varrho_D(v) = 0$ for every $v \in U_0$.
+
+If $|U_0| = t$, then $G$ has a $k$-indegree-bounded $U_0$-source orientation if and only if
+every set $X \supsetneq U_0$ satisfies $i_G(X) \leq k|X| - tk$.
+Where for $X \subseteq V$, $i_G(X)$ denotes the number of edges of $G$ with both endpoints in $X$.
+:::
+
+:::{prf:definition} Rooted arc-connectivity
+:label: def-rooted-arc-connectivity
+
+Let $D=(V,A)$ be a directed graph, $s \in V$ and $\eta \in \NN$.
+The digraph $D$ is _rooted $\eta$-arc-connected_ with root $s$ if $\varrho_D(Y) \geq \eta$
+for every nonempty $Y \subseteq V \setminus \{s\}$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:definition} Auxiliary digraph
+:label: def-auxiliary-digraph
+Let $D_0$ be a $k$-indegree-bounded {prf:ref}`U_0-source <def-U_0-source>` orientation of a graph $G$, with $|U_0| = t$.
+The _auxiliary digraph_ $D_0'$ is obtained from $D_0$ by deleting $U_0$, adding a root $s$
+and adding $k - \varrho_{D_0}(v)$ parallel arcs from $s$ to every $v \in V \setminus U_0$.
+If $tk \leq \ell \leq (t+1)k$, then a set $X \supsetneq U_0$ violates {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$
+if and only if $\varrho_{D_0'}(X \setminus U_0) < \ell - tk$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
 :::
 
 :::{prf:definition} Indegree with respect to a set of forests
@@ -150,6 +178,15 @@ if $\mathrm{indeg}_F(v) \leq k$ for every $v \in V$
 {{references}} {cite:p}`ArkhipovKolmogorov2024`, {cite:p}`DeakMadarasi2026`
 :::
 
+:::{prf:definition} Saturated set
+:label: def-saturated
+
+Let $F=(V,E)$ be a forest. A nonempty set $X \subseteq V$ is _saturated_ by $F$
+if $F[X]$, the induced subgraph by X on F, is connected.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
 :::{prf:algorithm} Check Sparsity for $0 \leq \ell \leq k$
 :label: alg-check-sparsity-l-k
 
@@ -157,12 +194,21 @@ if $\mathrm{indeg}_F(v) \leq k$ for every $v \in V$
 
 **Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
 
-1. Obtain a {prf:ref}`$\k$-indegree-bounded orientation <def-bounded-indegree-orientation>` of G.
-   If it returns a vertex set $X$, return $X$ (it violates $(k,0)$-sparsity).
-   Otherwise let $D$ be the obtained $\k$-indegree-bounded orientation.
-2. Run Check Superset Sparsity on $(D, \emptyset)$ and return its output.
+1. Obtain a {prf:ref}`$k$-indegree-bounded orientation <def-bounded-indegree-orientation>` $D$ of $G$ via a {prf:ref}`maximum flow <def-max-flow>`.
+If no such orientation exists, the minimum cut gives a vertex set violating $(k,0)$-sparsity: return it.
+2. Let $D'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D$ with $U_0 = \emptyset$.
+   If $D'$ is not rooted $\ell$-arc-connected, return a nonempty set $Y$ with $\varrho_{D'}(Y) < \ell$.
+3. Return $\emptyset$.
 
 {{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:definition} Centroid
+:label: def-centroid
+
+Let $T=(V,E)$ be a tree with $n$ vertices.
+A vertex $c \in V$ is a _centroid_ of $T$ if every connected component of $T - c$ has at most $n/2$ vertices.
+Every tree has at least one centroid.
 :::
 
 :::{prf:algorithm} Saturated Violation
@@ -172,19 +218,18 @@ if $\mathrm{indeg}_F(v) \leq k$ for every $v \in V$
 and a spanning tree $T$ of the underlying graph $G$ of $D$
 
 **Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$, or $\emptyset$.
-A violating set is returned whenever $G$ has one saturated by $T$.
+A violating set is returned whenever $G$ has one {prf:ref}`saturated <def-saturated>` by $T$.
 
-1. Let $c$ be a centroid of $T$.
-2. Run Reorient on $(D, \{c\})$.
-   If it returns a set $X$, return $X$ (it violates $(k,k)$-sparsity).
-   Otherwise let $D_0$ be the obtained orientation, in which $c$ is a source.
-3. Run Check Superset Sparsity on $(D_0, \{c\})$.
-   If it returns a nonempty set $X$, return $X$ (it violates $(k,\ell)$-sparsity and contains $c$).
+1. Let $c$ be a {prf:ref}`centroid <def-centroid>` of $T$.
+2. Reorient $D$ to obtain a $k$-indegree-bounded {prf:ref}`$\{c\}$-source <def-U_0-source>` orientation $D_0$ of $G$.
+   If no such orientation exists, return a set $X \supsetneq \{c\}$ violating $(k,k)$-sparsity.
+3. Let $D_0'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D_0$ with $U_0=\{c\}$.
+   If $D_0'$ is not rooted $(\ell-k)$-arc-connected, take a nonempty $Y$ with $\varrho_{D_0'}(Y) < \ell - k$
+   and return $Y \cup \{c\}$ (it violates $(k,\ell)$-sparsity and contains $c$).
 4. Every remaining violating set saturated by $T$ avoids $c$, so it is contained in a component of $T - c$
    and saturated by it. For each connected component $T_i$ of $T - c$:
     * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
 5. Return $\emptyset$.
-Since $c$ is a centroid, the recursion depth is $O(\log n)$.
 
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
@@ -196,17 +241,14 @@ Since $c$ is a centroid, the recursion depth is $O(\log n)$.
 
 **Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
 
-1. Compute a {prf:ref}`$k$-Forest Decomposition <def-k-forest-decomposition>` of G.
-   If it returns a vertex set $X$, return $X$ (it violates $(k,k)$-sparsity).
-   Otherwise let $F_1,\dots,F_k$ be the forest decomposition.
+1. Compute a {prf:ref}`$k$-forest decomposition <def-k-forest-decomposition>` $F_1,\dots,F_k$ of $G$.
+   If it does not exist, return a vertex set violating $(k,k)$-sparsity.
 2. Obtain a {prf:ref}`$k$-indegree-bounded orientation <def-bounded-indegree-orientation>` $D$ of $G$ by rooting each tree of each $F_i$
    and orienting its edges from parent to child.
 3. For $i = 1, \dots, \ell - k$ and for each connected component $T$ of $F_i$:
     * Run {prf:ref}`Saturated Violation <alg-saturated-violation>` on $(D[V(T)], T)$;
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
-Steps 2--4 are referred to as $\mathrm{SCheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
-
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
 
@@ -227,21 +269,21 @@ the bound $k|X| - \ell \leq 0$ would be violated by any edge.
 **Input:** A {prf:ref}`$k$-indegree-bounded <def-bounded-indegree-orientation>` digraph $D=(V,A)$ with simple underlying graph $G$ and a spanning tree $T$ of $G$
 
 **Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-tight>` of $G$, or $\emptyset$.
-A violating set is returned whenever one saturated by $T$ exists.
+A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by $T$ exists.
 
-1. Let $c$ be the centroid of $T$.
-2. Run Reorient on $(D, \{c\})$.
-   If it returns a set $X$, return $X$.
-   Otherwise let $D_0$ be the obtained orientation.
-3. Run Check Terminal Superset Sparsity
-   on $(D_0, c, V \setminus (N_G(c) \cup \{c\}))$.
-   If it returns a nonempty set $X$, return $X$.
+1. Let $c$ be a {prf:ref}`centroid <def-centroid>` of $T$.
+2. Reorient $D$ to obtain a $k$-indegree-bounded {prf:ref}`$\{c\}$-source <def-U_0-source>` orientation $D_0$ of $G$.
+   If no such orientation exists, return a set $X \supsetneq \{c\}$ violating $(k,k)$-sparsity.
+3. Let $D_0'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D_0$ with $U_0=\{c\}$
+   and $Z = V \setminus (N_G(c) \cup \{c\})$. Where $N_G(c)$ are the neighbours of $c$ in $G$.
+   If there is a nonempty $Y$ with $Y \cap Z \neq \emptyset$ and $\varrho_{D_0'}(Y) < k$, return $Y \cup \{c\}$.
 4. Check the violating sets contained in $N_G(c) \cup \{c\}$:
     * If $k = 1$ and $|N_G(c)| \geq 2$, return $N_G(c) \cup \{c\}$.
     * If $k = 2$ and $G[N_G(c)]$ has an edge $uv$, return $\{u,v,c\}$.
-    * If $k \geq 3$, compute {prf:ref}`$\mathrm{BoundedForestDecomp}_{k-1}$ <def-k-forest-decomposition>`$(D_0[N_G(c)])$.
-      If it returns a set $X$, return $X \cup \{c\}$.
-      Otherwise, run {prf:ref}`$\mathrm{CheckSparsityWithDecomp}_{k-1,k}$ <alg-check-sparsity-k-l-2k>` on $G[N_G(c)]$ with the obtained forests.
+    * If $k \geq 3$, compute a {prf:ref}`$(k-1)$-indegree-bounded $(k-1)$-forest decomposition <def-k-forest-decomposition>` of $D_0[N_G(c)]$.
+      If it does not exist, return $X \cup \{c\}$, where $X$ violates $(k-1,k-1)$-sparsity of $G[N_G(c)]$.
+      Otherwise, run steps 2–4 of {prf:ref}`Check Sparsity for k < ℓ < 2k <alg-check-sparsity-k-l-2k>` with parameters $(k-1,k)$
+      on $G[N_G(c)]$ with the obtained forests; if it returns a nonempty set $X$, return $X \cup \{c\}$.
 5. For each connected component $T_i$ of $T \setminus \{c\}$:
     * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
 6. Return $\emptyset$.
@@ -255,15 +297,13 @@ A violating set is returned whenever one saturated by $T$ exists.
 
 **Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
 
-1. Compute {prf:ref}`$\mathrm{ForestDecomp}_k(G)$ <def-k-forest-decomposition>`.
-   If it returns a vertex set $X$, return $X$.
-   Otherwise let $F_1,\dots,F_k$ be the forest decomposition.
+1. Compute a {prf:ref}`$k$-forest decomposition <def-k-forest-decomposition>` $F_1,\dots,F_k$ of $G$.
+   If it does not exist, return a vertex set violating $(k,k)$-sparsity.
 2. Obtain a {prf:ref}`$k$-indegree-bounded orientation <def-bounded-indegree-orientation>` $D$ of $G$ from $F_1,\dots,F_k$.
 3. For $i = 1, \dots, k$ and for each connected component $T$ of $F_i$:
     * Run {prf:ref}`Saturated Violation for ℓ = 2k <alg-saturated-violation-2k>` on $(D[V(T)], T)$;
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
-
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
 
@@ -274,15 +314,15 @@ A violating set is returned whenever one saturated by $T$ exists.
 
 **Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
 
-1. Initialize the sparse  subgraph $H = (V, \emptyset)$ and its {prf:ref}`k-indegree-bounded orientation <def-bounded-indegree-orientation>` $D = (V, \emptyset)$.
+1. Initialize the sparse subgraph $H = (V, \emptyset)$ and its {prf:ref}`k-indegree-bounded orientation <def-bounded-indegree-orientation>` $D = (V, \emptyset)$.
 2. Loop over all edges of $G$. For an edge $uv$:
-    * Run Reorient on $(D, \{u,v\})$ and replace $D$ with the obtained orientation
-       (this always succeeds, since $H$ is $(k,2k)$-sparse).
-    * Run Check Superset Sparsity with parameters $(k, \ell+1)$ on $(D, \{u,v\})$.
-       If it returns a nonempty set $X$, return $X$.
+    * Reorient $D$ to obtain a $k$-indegree-bounded {prf:ref}`$\{u,v\}$-source <def-U_0-source>` orientation of $H$
+      (this always exists, since $H$ is $(k,2k)$-sparse).
+    * Let $D'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D$ with $U_0=\{u,v\}$.
+      If $D'$ is not rooted $(\ell+1-2k)$-arc-connected, take a nonempty $Y$ with $\varrho_{D'}(Y) < \ell+1-2k$
+      and return $Y \cup \{u,v\}$.
     * Add $uv$ to $H$ and the arc $(u,v)$ to $D$.
 3. Return $\emptyset$.
-
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
 
