@@ -113,7 +113,7 @@ An orientation $D$ of $G$ is _$\kappa$-indegree-bounded_ if $\varrho_D(v) \leq \
 
 :::{prf:definition} U_0-source orientation
 :label: def-U_0-source
-Given a set of vertices $U_0 \subseteq V$, such that no vertex of $U_0$ is connected to another one by an edge, the orientation $D$ is said _$U_0$-source_
+Given a set of vertices $U_0 \subseteq V$, such that no vertex of $U_0$ is connected to another one by an edge, the {prf:ref}`orientation <def-bounded-indegree-orientation>` $D$ is said _$U_0$-source_
 if $\varrho_D(v) = 0$ for every $v \in U_0$.
 :::
 
@@ -155,9 +155,9 @@ if $\mathrm{indeg}_F(v) \leq k$ for every $v \in V$
 
 **Input:** An undirected graph $G=(V,E)$, integers $k > 0$ and $0 \leq \ell \leq k$
 
-**Output:** A vertex set violating $(k,\ell)$-sparsity of $G$ if it exists; otherwise $\emptyset$
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
 
-1. Obtain a $\k$-indegree-bounded orientation of G.
+1. Obtain a {prf:ref}`$\k$-indegree-bounded orientation <def-bounded-indegree-orientation>` of G.
    If it returns a vertex set $X$, return $X$ (it violates $(k,0)$-sparsity).
    Otherwise let $D$ be the obtained $\k$-indegree-bounded orientation.
 2. Run Check Superset Sparsity on $(D, \emptyset)$ and return its output.
@@ -168,10 +168,10 @@ if $\mathrm{indeg}_F(v) \leq k$ for every $v \in V$
 :::{prf:algorithm} Saturated Violation
 :label: alg-saturated-violation
 
-**Input:** Integers $k < \ell < 2k$, a $k$-indegree-bounded digraph $D=(V,A)$
+**Input:** Integers $k < \ell < 2k$, a {prf:ref}`$k$-indegree-bounded <def-bounded-indegree-orientation>` digraph $D=(V,A)$
 and a spanning tree $T$ of the underlying graph $G$ of $D$
 
-**Output:** A vertex set violating $(k,\ell)$-sparsity of $G$, or $\emptyset$.
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$, or $\emptyset$.
 A violating set is returned whenever $G$ has one saturated by $T$.
 
 1. Let $c$ be a centroid of $T$.
@@ -194,15 +194,15 @@ Since $c$ is a centroid, the recursion depth is $O(\log n)$.
 
 **Input:** An undirected graph $G=(V,E)$, integers $k < \ell < 2k$
 
-**Output:** A vertex set violating $(k,\ell)$-sparsity of $G$ if it exists; otherwise $\emptyset$
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
 
-1. Compute a $k$-Forest Decomposition of G.
+1. Compute a {prf:ref}`$k$-Forest Decomposition <def-k-forest-decomposition>` of G.
    If it returns a vertex set $X$, return $X$ (it violates $(k,k)$-sparsity).
    Otherwise let $F_1,\dots,F_k$ be the forest decomposition.
-2. Obtain a $k$-indegree-bounded orientation $D$ of $G$ by rooting each tree of each $F_i$
+2. Obtain a {prf:ref}`$k$-indegree-bounded orientation <def-bounded-indegree-orientation>` $D$ of $G$ by rooting each tree of each $F_i$
    and orienting its edges from parent to child.
 3. For $i = 1, \dots, \ell - k$ and for each connected component $T$ of $F_i$:
-    * Run Saturated Violation on $(D[V(T)], T)$;
+    * Run {prf:ref}`Saturated Violation <alg-saturated-violation>` on $(D[V(T)], T)$;
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
 Steps 2--4 are referred to as $\mathrm{SCheckSparsityWithDecomp}_{k,\ell}(G, F_1, \dots, F_k)$.
@@ -213,7 +213,7 @@ Steps 2--4 are referred to as $\mathrm{SCheckSparsityWithDecomp}_{k,\ell}(G, F_1
 :::{prf:remark}
 
 In the range $2k \leq \ell < 3k$ we adopt an extended notion of sparsity:
-a simple graph $G=(V,E)$ is $(k,\ell)$-sparse if every set $X \subseteq V$ with $|X| \geq 3$
+a simple graph $G=(V,E)$ is {prf:ref}`$(k,\ell)$-sparse <def-kl-sparse-tight>` if every set $X \subseteq V$ with $|X| \geq 3$
 satisfies $i_G(X) \leq k|X| - \ell$.
 The restriction to sets of size at least three is necessary, since for $|X| = 2$
 the bound $k|X| - \ell \leq 0$ would be violated by any edge.
@@ -224,9 +224,9 @@ the bound $k|X| - \ell \leq 0$ would be violated by any edge.
 :::{prf:algorithm} Saturated Violation for $\ell = 2k$
 :label: alg-saturated-violation-2k
 
-**Input:** A $k$-indegree-bounded digraph $D=(V,A)$ with simple underlying graph $G$ and a spanning tree $T$ of $G$
+**Input:** A {prf:ref}`$k$-indegree-bounded <def-bounded-indegree-orientation>` digraph $D=(V,A)$ with simple underlying graph $G$ and a spanning tree $T$ of $G$
 
-**Output:** A vertex set violating $(k,2k)$-sparsity of $G$, or $\emptyset$.
+**Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-tight>` of $G$, or $\emptyset$.
 A violating set is returned whenever one saturated by $T$ exists.
 
 1. Let $c$ be the centroid of $T$.
@@ -239,9 +239,9 @@ A violating set is returned whenever one saturated by $T$ exists.
 4. Check the violating sets contained in $N_G(c) \cup \{c\}$:
     * If $k = 1$ and $|N_G(c)| \geq 2$, return $N_G(c) \cup \{c\}$.
     * If $k = 2$ and $G[N_G(c)]$ has an edge $uv$, return $\{u,v,c\}$.
-    * If $k \geq 3$, compute $\mathrm{BoundedForestDecomp}_{k-1}(D_0[N_G(c)])$.
+    * If $k \geq 3$, compute {prf:ref}`$\mathrm{BoundedForestDecomp}_{k-1}$ <def-k-forest-decomposition>`$(D_0[N_G(c)])$.
       If it returns a set $X$, return $X \cup \{c\}$.
-      Otherwise, run $\mathrm{CheckSparsityWithDecomp}_{k-1,k}$ on $G[N_G(c)]$ with the obtained forests.
+      Otherwise, run {prf:ref}`$\mathrm{CheckSparsityWithDecomp}_{k-1,k}$ <alg-check-sparsity-k-l-2k>` on $G[N_G(c)]$ with the obtained forests.
 5. For each connected component $T_i$ of $T \setminus \{c\}$:
     * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
 6. Return $\emptyset$.
@@ -253,12 +253,12 @@ A violating set is returned whenever one saturated by $T$ exists.
 
 **Input:** A simple graph $G=(V,E)$, an integer $k > 0$
 
-**Output:** A vertex set violating $(k,2k)$-sparsity of $G$ if it exists; otherwise $\emptyset$
+**Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
 
-1. Compute $\mathrm{ForestDecomp}_k(G)$.
+1. Compute {prf:ref}`$\mathrm{ForestDecomp}_k(G)$ <def-k-forest-decomposition>`.
    If it returns a vertex set $X$, return $X$.
    Otherwise let $F_1,\dots,F_k$ be the forest decomposition.
-2. Obtain a $k$-indegree-bounded orientation $D$ of $G$ from $F_1,\dots,F_k$.
+2. Obtain a {prf:ref}`$k$-indegree-bounded orientation <def-bounded-indegree-orientation>` $D$ of $G$ from $F_1,\dots,F_k$.
 3. For $i = 1, \dots, k$ and for each connected component $T$ of $F_i$:
     * Run {prf:ref}`Saturated Violation for ℓ = 2k <alg-saturated-violation-2k>` on $(D[V(T)], T)$;
       if it returns a nonempty set, return it.
@@ -272,9 +272,9 @@ A violating set is returned whenever one saturated by $T$ exists.
 
 **Input:** A simple graph $G=(V,E)$, integers $k > 0$ and $2k \leq \ell < 3k$
 
-**Output:** A vertex set violating $(k,\ell)$-sparsity of $G$ if it exists; otherwise $\emptyset$
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
 
-1. Initialize the sparse  subgraph $H = (V, \emptyset)$ and its k-indegree-bounded orientation $D = (V, \emptyset)$.
+1. Initialize the sparse  subgraph $H = (V, \emptyset)$ and its {prf:ref}`k-indegree-bounded orientation <def-bounded-indegree-orientation>` $D = (V, \emptyset)$.
 2. Loop over all edges of $G$. For an edge $uv$:
     * Run Reorient on $(D, \{u,v\})$ and replace $D$ with the obtained orientation
        (this always succeeds, since $H$ is $(k,2k)$-sparse).
