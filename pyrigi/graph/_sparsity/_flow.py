@@ -735,13 +735,6 @@ def _eta_rooted_arc_connectivity(
     with root ``s``, ``None`` is returned.
     Parallel arcs are allowed if ``D`` is a :class:`networkx.MultiDiGraph`.
 
-    For ``eta <= 3`` this is :func:`eta_rooted_term_connectivity` with all
-    vertices other than ``s`` as terminals.
-    For ``eta >= 4`` the paper adds ``eta`` parallel arcs from every vertex to
-    ``s`` and applies Gabow's algorithm.
-    Here, one maximum flow from ``s`` to every other vertex is used instead,
-    which gives the same output but is not as fast.
-
     Definitions
     -----------
     :prf:ref:`Rooted arc-connectivity <def-rooted-arc-connectivity>`
@@ -1004,12 +997,11 @@ def _check_sparsity_for_l_less_than_k(
     Check the (K,L)-sparsity of ``G`` for 0 <= L <= K.
 
     Return a violating vertex set if it exists, otherwise None.
-    Based on the algorithm
-    :prf:ref:`Check sparsity for 0 <= l <= k <alg-check-sparsity-l-k>`
 
     Definitions
     -----------
     :prf:ref:`(k, l)-sparsity <def-kl-sparse-tight>`
+    :prf:ref:`Check sparsity for 0 <= l <= k <alg-check-sparsity-l-k>`
 
     Parameters:
     ----------
@@ -1041,6 +1033,7 @@ def _saturated_violation(
     -----------
     :prf:ref:`Saturated set <def-saturated>`
     :prf:ref:`Centroid <def-centroid>`
+    :prf:ref:`Saturated Violation <alg-saturated-violation>`
 
     Parameters
     ----------
@@ -1088,7 +1081,9 @@ def _check_sparsity_for_l_between_k_and_2k(
     Check the (K,L)-sparsity of ``G`` for K < L < 2K.
 
     Return a violating vertex set if it exists, otherwise None.
-    Based on the algorithm
+
+    Definitions
+    -----------
     :prf:ref:`Check sparsity for k < l < 2k <alg-check-sparsity-k-l-2k>`
 
     Parameters
@@ -1113,7 +1108,8 @@ def _check_sparsity_for_l_between_k_and_2k_with_decomp(
     Return a vertex set that violates the (K, L)-sparsity of G if it exists,
     None otherwise.
 
-    It is part of the algorithm
+    Definitions
+    -----------
     :prf:ref:`Check sparsity for k < l < 2k <alg-check-sparsity-k-l-2k>`
 
     Parameters
@@ -1188,13 +1184,12 @@ def _saturated_violation_for_l_equal_2k(
 
     The procedure returns a violating set whenever the underlying graph of D contains one
     that is saturated by T.
-    Based on the algorithm
-    :prf:ref:`Saturated Violation for l = 2k <alg-saturated-violation-2k>`.
 
     Definitions
     -----------
     :prf:ref:`Saturated set <def-saturated>`
     :prf:ref:`Centroid <def-centroid>`
+    :prf:ref:`Saturated Violation for l = 2k <alg-saturated-violation-2k>`
 
     Parameters
     ----------
@@ -1259,8 +1254,10 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] |
     Check the (K,L)-sparsity of ``G`` for L = 2K.
 
     Return a violating vertex set if it exists, otherwise None.
-    Based on the algorithm
-    :prf:ref:`Check sparsity for l = 2k <alg-sparsity-2k>`.
+
+    Definitions
+    -----------
+    :prf:ref:`Check sparsity for l = 2k <alg-sparsity-2k>`
 
     Parameters
     ----------
@@ -1297,9 +1294,11 @@ def _check_sparsity_for_l_between_2k_and_3k(
     Check the (K,L)-sparsity of ``G`` for 2K < L < 3K.
 
     Return a violating vertex set if it exists, otherwise None.
-    Based on the algorithm
-    :prf:ref:`Check sparsity for 2k <= l < 3k <alg-check-sparsity-2k-3k>`.
 
+
+    Definitions
+    -----------
+    :prf:ref:`Check sparsity for 2k <= l < 3k <alg-check-sparsity-2k-3k>`
 
     Parameters
     ----------
