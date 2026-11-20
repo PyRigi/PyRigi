@@ -42,6 +42,11 @@ def _build_flow_network(G: nx.Graph, K: int) -> nx.DiGraph:
     """
     Return the flow network for the ``K``-indegree bounded orientation of ``G``.
 
+    Definitions
+    -----------
+    :prf:ref:`Maximum flow and minimum cut <def-max-flow>`
+    :prf:ref:`k-indegree bounded orientation <def-bounded-indegree-orientation>`
+
     Parameters
     ----------
     G:
@@ -123,6 +128,10 @@ def _indegree_F(v: Vertex, F: dict[DirectedEdge, int | None]) -> int:
     """
     Return the indegree of the vertex ``v`` in the labelled edges of ``F``.
 
+    Definitions
+    -----------
+    :prf:ref:`Indegree with respect to a set of forests <def-indegree-forest>`
+
     Parameters
     ----------
     v:
@@ -139,6 +148,10 @@ def _is_arc_joining_F(
 ) -> bool:
     """
     Return whether the edge ``e`` joins two components of the forest ``F[index]``.
+
+    Definitions
+    -----------
+    :prf:ref:`k-forest packing and k-forest decomposition <def-k-forest-decomposition>`
 
     Parameters
     ----------
@@ -164,6 +177,10 @@ def _build_auxiliary_graph(
 ) -> nx.DiGraph:
     """
     Return the auxiliary graph ``D(F)`` for the forest decomposition problem.
+
+    Definitions
+    -----------
+    :prf:ref:`k-forest packing and k-forest decomposition <def-k-forest-decomposition>`
 
     Parameters
     ----------
@@ -257,6 +274,10 @@ def _augment_F(
     """
     Update the labelling ``F`` along the augmenting path ``P`` and return it.
 
+    Definitions
+    -----------
+    :prf:ref:`k-forest packing and k-forest decomposition <def-k-forest-decomposition>`
+
     Parameters
     ----------
     P:
@@ -293,6 +314,10 @@ def _search_augmenting_path(
 
     If a path is found, the forest decomposition ``F`` is augmented along it
     and ``True`` is returned.
+
+    Definitions
+    -----------
+    :prf:ref:`k-forest packing and k-forest decomposition <def-k-forest-decomposition>`
 
     Parameters
     ----------
@@ -336,6 +361,11 @@ def _k_forest_packing(
     The labelling is modified in place and returned.
     The result is a packing, not necessarily a decomposition:
     edges that cannot be added to any of the ``K`` forests keep the label ``None``.
+
+    Definitions
+    -----------
+    :prf:ref:`k-forest packing and k-forest decomposition <def-k-forest-decomposition>`
+    :prf:ref:`Indegree with respect to a set of forests <def-indegree-forest>`
 
     Parameters
     ----------
@@ -422,6 +452,11 @@ def _k_forest_decomposition(G: nx.Graph, K: int) -> tuple:
     Otherwise, ``X`` is a vertex set violating (``K``, ``K``)-sparsity
     and ``F_1, ..., F_K`` are empty.
 
+    Definitions
+    -----------
+    :prf:ref:`k-forest packing and k-forest decomposition <def-k-forest-decomposition>`
+    :prf:ref:`k-indegree bounded orientation <def-bounded-indegree-orientation>`
+
     Parameters
     ----------
     G:
@@ -445,6 +480,11 @@ def _violating_set_of_unlabelled_edge(
     The labelled edges of ``F`` are put into a :class:`.PebbleDiGraph`
     (with reversed orientation, since the pebble game bounds outdegrees)
     and the pebble game is used to find the fundamental circuit of ``e``.
+
+    Definitions
+    -----------
+    :prf:ref:`k-forest packing and k-forest decomposition <def-k-forest-decomposition>`
+    :prf:ref:`(k, l)-sparsity <def-kl-sparse-tight>`
 
     Parameters
     ----------
@@ -478,6 +518,11 @@ def _k_bounded_forest_decomposition(D: nx.DiGraph, K: int) -> tuple:
     of edges.
     Otherwise, ``X`` is a vertex set violating (``K``, ``K``)-sparsity
     and ``F_1, ..., F_K`` are empty.
+
+    Definitions
+    -----------
+    :prf:ref:`k-forest packing and k-forest decomposition <def-k-forest-decomposition>`
+    :prf:ref:`k-indegree bounded orientation <def-bounded-indegree-orientation>`
 
     Parameters
     ----------
@@ -748,6 +793,11 @@ def _build_rooted_digraph(
     A pair ``(D_prime, s)`` is returned, where ``D_prime`` is a
     :class:`networkx.MultiDiGraph` and ``s`` is its root.
 
+    Definitions
+    -----------
+    :prf:ref:`k-indegree bounded orientation <def-bounded-indegree-orientation>`
+    :prf:ref:`U_0-source orientation <def-U_0-source>`
+
     Parameters
     ----------
     D0:
@@ -795,6 +845,12 @@ def _check_superset_sparsity(
     if such a set exists. Otherwise, return None.
     It is required the inequality tK <= L <= (t+1)K and
     that D is :prf:ref:`U_0-source <def-U_0-source>`.
+
+    Definitions
+    -----------
+    :prf:ref:`k-indegree bounded orientation <def-bounded-indegree-orientation>`
+    :prf:ref:`U_0-source orientation <def-U_0-source>`
+    :prf:ref:`(k, l)-sparsity <def-kl-sparse-tight>`
 
     Parameters
     ----------
@@ -936,6 +992,10 @@ def _check_sparsity_for_l_less_than_k(
     Based on the algorithm
     :prf:ref:`Check sparsity for 0 <= l <= k <alg-check-sparsity-l-k>`
 
+    Definitions
+    -----------
+    :prf:ref:`(k, l)-sparsity <def-kl-sparse-tight>`
+
     Parameters:
     ----------
     G:
@@ -1072,6 +1132,11 @@ def _check_terminal_superset_sparsity(
     X intersection Z is not None and X different from {c}.
     If such set doesn't exist returns None.
 
+    Definitions
+    -----------
+    :prf:ref:`U_0-source orientation <def-U_0-source>`
+    :prf:ref:`(k, l)-sparsity <def-kl-sparse-tight>`
+
     Parameters
     ----------
     D:
@@ -1169,7 +1234,7 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] |
 
     Return a violating vertex set if it exists, otherwise None.
     Based on the algorithm
-    :prf:ref:`Check sparsity for l = 2k <alg-check-sparsity-2k>`.
+    :prf:ref:`Check sparsity for l = 2k <alg-sparsity-2k>`.
 
     Parameters
     ----------
@@ -1226,7 +1291,7 @@ def _check_sparsity_for_l_between_2k_and_3k(
     D.add_nodes_from(G.nodes())
 
     for u, v in G.edges():
-        X, D = _reorient(D, {u, v}, K)
+        _, D = _reorient(D, {u, v}, K)
         X = _check_superset_sparsity(D, {u, v}, K, L + 1)
         if X is not None:
             return X
