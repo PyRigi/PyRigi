@@ -11,6 +11,7 @@ from pyrigi._utils.linear_algebra import (
     _generate_two_orthonormal_vectors,
     _normalize_flex,
     _vector_distance_pointwise,
+    _rank,
 )
 
 
@@ -59,3 +60,14 @@ def test_vector_distance_pointwise():
 
     with pytest.raises(ValueError):
         _vector_distance_pointwise({0: [1, 1]}, {1: [1, 1]})
+
+
+def test__rank():
+    M = sp.Matrix([[1, 2], [3, 4]])
+    assert _rank(M) == 2
+    M = sp.Matrix([[1, 2], [3, 4]]) / 7
+    assert _rank(M) == 2
+    M = sp.Matrix([["t", 1], ["2*t", 2]])
+    assert _rank(M) == 1
+    M = sp.Matrix([["sqrt(2)", "pi"], [1, 3]])
+    assert _rank(M) == 2

@@ -192,6 +192,29 @@ def _null_space(A: np.array, tolerance: float = 1e-9) -> np.array:
     return Q
 
 
+def _rank(A: Matrix) -> int:
+    """
+    Compute the exact rank of a symbolic matrix.
+
+    If all entries are integers or rationals, the rank is computed via
+    :class:`~sympy.polys.matrices.domainmatrix.DomainMatrix`,
+    which is considerably faster than :meth:`~sympy.matrices.matrixbase.MatrixBase.rank`.
+    Otherwise, :meth:`~sympy.matrices.matrixbase.MatrixBase.rank` is used.
+
+    Examples
+    --------
+    >>> from sympy import Matrix, Rational, sqrt
+    >>> _rank(Matrix([[1, Rational(1, 2)], [2, 1]]))
+    1
+    >>> _rank(Matrix([[sqrt(2), 1], [2, sqrt(2)]]))
+    1
+    """
+    D = A.to_DM()
+    if D.domain.is_ZZ or D.domain.is_QQ:
+        return D.rank()
+    return A.rank()
+
+
 def _reduced_null_space(
     A: np.ndarray | Matrix,
     free_columns: Sequence[int] = [],
