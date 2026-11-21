@@ -14,7 +14,7 @@ from sympy import Matrix, binomial
 import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi._utils._conversion import sympy_expr_to_float
 from pyrigi._utils._zero_check import is_zero_vector
-from pyrigi._utils.linear_algebra import _normalize_flex, _reduced_null_space
+from pyrigi._utils.linear_algebra import _normalize_flex, _rank, _reduced_null_space
 from pyrigi.data_type import (
     Edge,
     InfFlex,
@@ -124,7 +124,7 @@ def rigidity_matrix_rank(
         return np.linalg.matrix_rank(
             np.array(rigidity_matrix(F)).astype(np.float64), tol=tolerance
         )
-    return rigidity_matrix(framework).rank()
+    return _rank(rigidity_matrix(framework))
 
 
 def trivial_inf_flexes(
@@ -340,7 +340,8 @@ def inf_flexes(
         extend_basis_matrix = Matrix.hstack(*triv_inf_flexes)
         for inf_flex in all_inf_flexes:
             tmp_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
-            if not tmp_matrix.rank() == extend_basis_matrix.rank():
+            # extend_basis_matrix has full column rank by construction
+            if _rank(tmp_matrix) > extend_basis_matrix.cols:
                 extend_basis_matrix = Matrix.hstack(extend_basis_matrix, inf_flex)
         basis = extend_basis_matrix.columnspace()
         return basis[s:]

@@ -10,7 +10,7 @@ from sympy import Matrix
 
 import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi._utils._zero_check import is_zero_vector
-from pyrigi._utils.linear_algebra import _null_space
+from pyrigi._utils.linear_algebra import _null_space, _rank
 from pyrigi.data_type import (
     Edge,
     Number,
@@ -270,7 +270,7 @@ def stress_matrix_rank(
             ).astype(np.float64),
             tol=tolerance,
         )
-    return stress_matrix(framework, stress=stress, edge_order=edge_order).rank()
+    return _rank(stress_matrix(framework, stress=stress, edge_order=edge_order))
 
 
 def stresses(
