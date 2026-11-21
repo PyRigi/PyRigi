@@ -4,13 +4,17 @@ Python console in which integer literals are SymPy integers.
 In this console, divisions of integer literals give exact rational numbers,
 e.g., ``1/3`` is ``Rational(1, 3)`` instead of the float ``0.333...``.
 
-The console can be started from the command line by
+The console is started from a Python or IPython session by
 
-.. code-block:: console
+.. code-block:: python
 
-    python -m pyrigi._utils.rational_console
+    from pyrigi.rational_console import run_rational_console
+    run_rational_console(globals())
 
-It is left with Ctrl-D (Ctrl-Z followed by Enter on Windows).
+Passing ``globals()`` makes the variables of the calling session available
+in the console and keeps the variables defined in the console afterwards.
+The console is left with Ctrl-D (Ctrl-Z followed by Enter on Windows),
+which returns to the calling session.
 """
 
 import code
@@ -72,7 +76,3 @@ def run_rational_console(namespace: dict = None) -> None:
         ),
         exitmsg="",
     )
-
-
-if __name__ == "__main__":
-    run_rational_console()

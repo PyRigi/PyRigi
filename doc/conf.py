@@ -373,6 +373,7 @@ comments = {
         "graphDB.py": "database of graphs",
         "frameworkDB.py": "database of frameworks",
         "plot_style.py": "implementation of Plotstyle(2D/3D)",
+        "rational_console.py": "console with exact division of integers",
     },
     "graph": {
         "export.py": "functions for export to TikZ",
@@ -422,7 +423,6 @@ comments = {
         "_input_check.py": "functions for input checks",
         "_zero_check.py": "functions for checking symbolic zeros",
         "linear_algebra.py": "functions for linear algebra",
-        "rational_console.py": "console with exact division of integers",
         ".py": "",
     },
 }
