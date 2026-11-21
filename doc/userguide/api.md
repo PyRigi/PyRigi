@@ -16,5 +16,6 @@ api/plot_style
 :maxdepth: 1
 api/graphDB
 api/frameworkDB
+api/rational_console
 api/misc
 :::
