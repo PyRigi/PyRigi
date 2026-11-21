@@ -1,4 +1,4 @@
-from typing import Hashable
+from collections.abc import Hashable, Iterator
 
 
 class UnionFind[T: Hashable]:
@@ -21,6 +21,9 @@ class UnionFind[T: Hashable]:
     def __str__(self) -> str:
         return self._data.__str__()
 
+    def __iter__(self) -> Iterator[T]:
+        return iter(self._data)
+
     def same_set(self, a: T, b: T) -> bool:
         return self.find(a) == self.find(b)
 
@@ -33,15 +36,10 @@ class UnionFind[T: Hashable]:
             self._data[a] = a
             return a
 
-        # recursion end
-        val = self._data[a]
-        if val == a:
-            return a
-
-        res = self.find(val)
-        # used to collapse union find trees
-        self._data[a] = res
-        return res
+        while self._data[a] != a:
+            self._data[a] = self._data[self._data[a]]
+            a = self._data[a]
+        return a
 
     def join(self, a: T, b: T) -> bool:
         """
