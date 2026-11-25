@@ -22,6 +22,7 @@ from pyrigi.graph._sparsity._flow import (
     _check_superset_sparsity,
     _reorient,
     _check_sparsity_for_l_less_than_k,
+    _centroid,
     _saturated_violation,
     _check_sparsity_for_l_between_k_and_2k,
     _check_sparsity_for_l_between_k_and_2k_with_decomp,
@@ -451,6 +452,29 @@ def test_check_sparsity_for_l_less_than_k_true(G, K, L):
     assert X is None
 
 
+def test_centroid():
+    assert _centroid(nx.path_graph(5)) == 2
+    assert _centroid(nx.star_graph(4)) == 0
+    assert _centroid(nx.path_graph(1)) == 0
+
+
+def test_centroid_empty_tree():
+    with pytest.raises(ValueError, match="at least one vertex"):
+        _centroid(nx.Graph())
+
+
+@pytest.mark.parametrize(
+    "T",
+    [
+        nx.cycle_graph(3),  # too many edges
+        nx.Graph([(0, 1), (2, 3)]),  # disconnected
+    ],
+)
+def test_centroid_not_a_tree(T):
+    with pytest.raises(ValueError, match="must be a tree"):
+        _centroid(T)
+
+
 def test_saturated_violation_K4():
     K4_oriented = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2), (1, 3)]
     # K4 is not (2,3)-sparse and T saturates the graph
@@ -464,6 +488,25 @@ def test_saturated_violation_triangle():
     D = nx.DiGraph([(0, 1), (1, 2), (2, 0)])
     T = nx.path_graph(3)
     assert _saturated_violation(D, T, 2, 3) is None
+
+
+def test_saturated_violation_empty_tree():
+    with pytest.raises(ValueError, match="at least one vertex"):
+        _saturated_violation(nx.DiGraph(), nx.Graph(), 2, 3)
+
+
+@pytest.mark.parametrize(
+    "T",
+    [
+        nx.cycle_graph(3),  # too many edges
+        nx.Graph([(0, 1), (2, 3)]),  # disconnected
+    ],
+)
+def test_saturated_violation_not_a_tree(T):
+    D = nx.DiGraph()
+    D.add_nodes_from(T.nodes())
+    with pytest.raises(ValueError, match="must be a tree"):
+        _saturated_violation(D, T, 2, 3)
 
 
 @pytest.mark.parametrize(
