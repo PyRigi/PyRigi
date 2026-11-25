@@ -252,13 +252,20 @@ A violating set is returned whenever $G$ has one {prf:ref}`saturated <def-satura
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
 
-:::{prf:remark}
+:::{prf:definition} Extended $(k,\ell)$-sparsity
+:label: def-kl-sparse-extended
 
-In the range $2k \leq \ell < 3k$ we adopt an extended notion of sparsity:
-a simple graph $G=(V,E)$ is {prf:ref}`$(k,\ell)$-sparse <def-kl-sparse-tight>` if every set $X \subseteq V$ with $|X| \geq 3$
+Let $G=(V,E)$ be a simple graph without loops and let $k, \ell \in \NN$ such that $2k \leq \ell < 3k$.
+The graph $G$ is said to be _extended $(k,\ell)$-sparse_ if every set $X \subseteq V$ with $|X| \geq 3$
 satisfies $i_G(X) \leq k|X| - \ell$.
 The restriction to sets of size at least three is necessary, since for $|X| = 2$
 the bound $k|X| - \ell \leq 0$ would be violated by any edge.
+
+For $2k \leq \ell \leq \binom{k+1}{2}$ this notion differs from the definition of
+{prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` for simple graphs
+in the sets of fewer than $k$ vertices that are checked.
+The two definitions agree whenever $\ell \leq 3k-3$, but they can differ for larger $\ell$:
+for example, a triangle violates extended $(4,10)$-sparsity ($3 > 4\cdot 3 - 10$), but it is ignored by the definition for simple graphs.
 
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
