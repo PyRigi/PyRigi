@@ -14,9 +14,9 @@ jobs:
       pages: write
       id-token: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python 3.12
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.12"
     - name: Install dependencies
@@ -29,7 +29,7 @@ jobs:
       with:
         remove-skip-execution: true
     - id: deployment
-      uses: sphinx-notes/pages@3.3
+      uses: sphinx-notes/pages@3.6
       with:
         documentation_path: ./doc
         checkout: false
