@@ -553,6 +553,14 @@ def test_saturated_violation_for_l_equal_2k():
     assert res_ok is None
 
 
+@pytest.mark.parametrize("K, L", [(1, 1), (1, 3), (2, 3), (2, 5)])
+def test_saturated_violation_for_l_equal_2k_wrong_L(K, L):
+    D = nx.DiGraph([(0, 1), (1, 2)])
+    T = nx.Graph([(0, 1), (1, 2)])
+    with pytest.raises(ValueError):
+        _saturated_violation_for_l_equal_2k(D, T, K=K, L=L)
+
+
 @pytest.mark.parametrize(
     "G, K, L",
     [
@@ -585,6 +593,13 @@ def test_check_sparsity_for_l_equal_2k_false(G, K, L):
 def test_check_sparsity_for_l_equal_2k_true(G, K, L):
     X = _check_sparsity_for_l_equal_2k(G, K, L)
     assert X is None
+
+
+@pytest.mark.parametrize("K, L", [(1, 1), (1, 3), (2, 3), (2, 5)])
+def check_sparsity_for_l_equal_2k_wrong_L(K, L):
+    G = nx.Graph([(0, 1), (1, 2)])
+    with pytest.raises(ValueError):
+        _check_sparsity_for_l_equal_2k(G, K=K, L=L)
 
 
 C5_with_chord = nx.cycle_graph(5)
