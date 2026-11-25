@@ -72,7 +72,7 @@ For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity defi
         * If no such path is found for both vertices of the edge, reject the edge and return `False`.
 4. If no edge was rejected there are at least $\ell$ pebbles left.
    For Sparsity return `True`.
-   For Tighness return `True` only if there are exactly $\ell$ pebbles left.
+   For Tightness return `True` only if there are exactly $\ell$ pebbles left.
 
 {{references}} {cite:p}`JacobsHendrickson1997` {cite:p}`LeeStreinu2008`
 :::
@@ -120,8 +120,7 @@ An {prf:ref}`orientation <def-bounded-indegree-orientation>` $D$ of $G$ is calle
 if $\varrho_D(v) = 0$ for every $v \in U_0$.
 
 If $|U_0| = t$, then $G$ has a $k$-indegree-bounded $U_0$-source orientation if and only if
-every set $X \supsetneq U_0$ satisfies $i_G(X) \leq k|X| - tk$.
-Where for $X \subseteq V$, $i_G(X)$ denotes the number of edges of $G$ with both endpoints in $X$.
+every set $X \supsetneq U_0$ satisfies $i_G(X) \leq k|X| - tk$, where for $X \subseteq V$, $i_G(X)$ denotes the number of edges of $G$ with both endpoints in $X$.
 :::
 
 :::{prf:definition} Rooted arc-connectivity
@@ -182,7 +181,7 @@ if $\mathrm{indeg}_F(v) \leq k$ for every $v \in V$
 :label: def-saturated
 
 Let $F=(V,E)$ be a forest. A nonempty set $X \subseteq V$ is _saturated_ by $F$
-if $F[X]$, the induced subgraph by X on F, is connected.
+if $F[X]$, the subgraph of $F$ induced by $X$, is connected.
 
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
@@ -283,7 +282,7 @@ A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by
 2. Reorient $D$ to obtain a $k$-indegree-bounded {prf:ref}`$\{c\}$-source <def-U_0-source>` orientation $D_0$ of $G$.
    If no such orientation exists, return a set $X \supsetneq \{c\}$ violating $(k,k)$-sparsity.
 3. Let $D_0'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D_0$ with $U_0=\{c\}$
-   and $Z = V \setminus (N_G(c) \cup \{c\})$. Where $N_G(c)$ are the neighbours of $c$ in $G$.
+   and $Z = V \setminus (N_G(c) \cup \{c\})$, where $N_G(c)$ is the set of neighbors of $c$ in $G$.
    If there is a nonempty $Y$ with $Y \cap Z \neq \emptyset$ and $\varrho_{D_0'}(Y) < k$, return $Y \cup \{c\}$.
 4. Check the violating sets contained in $N_G(c) \cup \{c\}$:
     * If $k = 1$ and $|N_G(c)| \geq 2$, return $N_G(c) \cup \{c\}$.
@@ -304,7 +303,7 @@ A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by
 
 **Input:** A simple graph $G=(V,E)$, an integer $k > 0$
 
-**Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
+**Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-extended>` of $G$ if it exists; otherwise $\emptyset$
 
 1. Compute a {prf:ref}`$k$-forest decomposition <def-k-forest-decomposition>` $F_1,\dots,F_k$ of $G$.
    If it does not exist, return a vertex set violating $(k,k)$-sparsity.

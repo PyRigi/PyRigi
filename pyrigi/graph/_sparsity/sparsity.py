@@ -138,7 +138,7 @@ def _is_pebble_digraph_sparse(
     return graph.number_of_edges() == pebble_digraph.number_of_edges()
 
 
-def is_kl_sparse_subgraph(graph: nx.Graph, K: int, L: int) -> bool:
+def _is_kl_sparse_subgraph(graph: nx.Graph, K: int, L: int) -> bool:
     """
     Return whether the graph is (``K``, ``L``)-sparse using subgraph algorithm"""
 
@@ -163,7 +163,7 @@ def is_kl_sparse_subgraph(graph: nx.Graph, K: int, L: int) -> bool:
         return True
 
 
-def is_kl_sparse_flow(graph: nx.Graph, K: int, L: int) -> bool:
+def _is_kl_sparse_flow(graph: nx.Graph, K: int, L: int) -> bool:
     """
     Return whether the graph is (``K``, ``L``)-sparse using flow algorithm
     """
@@ -247,12 +247,12 @@ def is_kl_sparse(
         )
 
     if algorithm == "subgraph":
-        return is_kl_sparse_subgraph(graph, K, L)
+        return _is_kl_sparse_subgraph(graph, K, L)
 
     if algorithm == "flow":
         _graph_input_check.no_loop(graph)
         _input_check.flow_values(K, L)
-        return is_kl_sparse_flow(graph, K, L)
+        return _is_kl_sparse_flow(graph, K, L)
 
     # reaching this position means that the algorithm is unknown
     raise NotSupportedValueError(algorithm, "algorithm", is_kl_sparse)
