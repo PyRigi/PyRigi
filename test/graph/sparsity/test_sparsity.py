@@ -7,6 +7,7 @@ import pytest
 
 import pyrigi.graph._sparsity.sparsity as sparsity
 import pyrigi.graphDB as graphs
+from pyrigi.exception import LoopError
 from pyrigi.graph import Graph
 from test.graph.test_graph import read_sparsity
 
@@ -302,6 +303,21 @@ def test_is_kl_sparse_with_loops_type_error(graph, K, L, algorithm):
     assert nx.number_of_selfloops(graph) > 0
     with pytest.raises(TypeError):
         sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "graph, K, L",
+    [
+        [Graph([[0, 0]]), 2, 2],
+        [Graph([[0, 0], [0, 1], [1, 2], [2, 2], [2, 0]]), 2, 3],
+        [graphs.CompleteLooped(3), 2, 4],
+        [graphs.CompleteLooped(3), 2, 5],
+    ],
+)
+def test_is_kl_sparse_flow_loop_error(graph, K, L):
+    assert nx.number_of_selfloops(graph) > 0
+    with pytest.raises(LoopError):
+        sparsity.is_kl_sparse(graph_class(graph), K, L, algorithm="flow")
 
 
 ###############################################################
