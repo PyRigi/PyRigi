@@ -1314,8 +1314,6 @@ def _check_sparsity_for_l_between_2k_and_3k(
     L:
         Second parameter in the sparsity condition.
     """
-    H = nx.Graph()
-    H.add_nodes_from(G.nodes())
 
     D = nx.DiGraph()
     D.add_nodes_from(G.nodes())
@@ -1326,7 +1324,6 @@ def _check_sparsity_for_l_between_2k_and_3k(
         if X is not None:
             return X
 
-        H.add_edge(u, v)
         D.add_edge(u, v)
 
     return None
