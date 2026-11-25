@@ -1205,7 +1205,8 @@ def _saturated_violation_for_l_equal_2k(
         Second parameter of the sparsity condition.
     """
 
-    assert L == 2 * K
+    if L != 2 * K:
+        raise ValueError("This algorithm requires L = 2K.")
 
     G = D.to_undirected()
     c = _centroid(T)
@@ -1270,7 +1271,9 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] |
     L:
         Second parameter in the sparsity condition.
     """
-    assert L == 2 * K
+    if L != 2 * K:
+        raise ValueError("This algorithm requires L = 2K.")
+
     X, *F = _k_forest_decomposition(G, K)
     if X is not None:
         return X
