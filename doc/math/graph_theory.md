@@ -249,6 +249,7 @@ A violating set is returned whenever $G$ has one {prf:ref}`saturated <def-satura
     * Run {prf:ref}`Saturated Violation <alg-saturated-violation>` on $(D[V(T)], T)$;
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
+
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
 
@@ -275,7 +276,7 @@ for example, a triangle violates extended $(4,10)$-sparsity ($3 > 4\cdot 3 - 10$
 
 **Input:** A {prf:ref}`$k$-indegree-bounded <def-bounded-indegree-orientation>` digraph $D=(V,A)$ with simple underlying graph $G$ and a spanning tree $T$ of $G$
 
-**Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-tight>` of $G$, or $\emptyset$.
+**Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-extended>` of $G$, or $\emptyset$.
 A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by $T$ exists.
 
 1. Let $c$ be a {prf:ref}`centroid <def-centroid>` of $T$.
@@ -294,6 +295,7 @@ A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by
 5. For each connected component $T_i$ of $T \setminus \{c\}$:
     * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
 6. Return $\emptyset$.
+
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
 
@@ -311,6 +313,7 @@ A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by
     * Run {prf:ref}`Saturated Violation for ℓ = 2k <alg-saturated-violation-2k>` on $(D[V(T)], T)$;
       if it returns a nonempty set, return it.
 4. Return $\emptyset$.
+
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
 
@@ -319,7 +322,7 @@ A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by
 
 **Input:** A simple graph $G=(V,E)$, integers $k > 0$ and $2k \leq \ell < 3k$
 
-**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-extended>` of $G$ if it exists; otherwise $\emptyset$
 
 1. Initialize the sparse subgraph $H = (V, \emptyset)$ and its {prf:ref}`k-indegree-bounded orientation <def-bounded-indegree-orientation>` $D = (V, \emptyset)$.
 2. Loop over all edges of $G$. For an edge $uv$:
@@ -330,6 +333,7 @@ A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by
       and return $Y \cup \{u,v\}$.
     * Add $uv$ to $H$ and the arc $(u,v)$ to $D$.
 3. Return $\emptyset$.
+
 {{references}} {cite:p}`DeakMadarasi2026`
 :::
 
