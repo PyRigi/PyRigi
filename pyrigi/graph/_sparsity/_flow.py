@@ -405,16 +405,15 @@ def _k_forest_packing(
         ):
             break
 
-        components = nx.connected_components(H_k)
         active_components = [
-            C for C in components if sum(deficits.get(v) for v in C) > 0
+            C for C in nx.connected_components(H_k) if sum(deficits.get(v) for v in C) > 0
         ]
 
         if not active_components:
             break
 
         for C in active_components:
-            F_k_edges = [e for e, label in F.items() if F[e] == K - 1]
+            F_k_edges = [e for e, label in F.items() if label == K - 1]
             H_k = nx.Graph()
             H_k.add_nodes_from(G.nodes())
             H_k.add_edges_from(F_k_edges)
@@ -702,7 +701,6 @@ def _three_edge_connected_component(H: nx.DiGraph, s: Vertex) -> set[Vertex]:
 
     Two vertices are 3-edge-connected if there are three arc-disjoint paths
     between them in each direction.
-
 
     Parameters
     ----------
@@ -1047,11 +1045,6 @@ def _saturated_violation(
     L:
         Second parameter of the sparsity condition, with k < l <= 2k.
     """
-    n = T.number_of_nodes()
-    if n == 0:
-        raise ValueError("The tree must have at least one vertex.")
-    if T.number_of_edges() != n - 1 or not nx.is_connected(T):
-        raise ValueError("T must be a tree.")
 
     c = _centroid(T)
 
@@ -1174,8 +1167,7 @@ def _check_terminal_superset_sparsity(
 
     if not X:
         return None
-    else:
-        return X | {c}
+    return X | {c}
 
 
 def _saturated_violation_for_l_equal_2k(
@@ -1224,8 +1216,7 @@ def _saturated_violation_for_l_equal_2k(
         return neighbors_c | {c}
 
     induced_graph = G.subgraph(neighbors_c)
-    num_induced_edges = induced_graph.number_of_edges()
-    if K == 2 and num_induced_edges > 0:
+    if K == 2 and induced_graph.number_of_edges() > 0:
         u, v = next(iter(induced_graph.edges()))
         return {u, v, c}
 
@@ -1299,7 +1290,6 @@ def _check_sparsity_for_l_between_2k_and_3k(
     Check the (K,L)-sparsity of ``G`` for 2K < L < 3K.
 
     Return a violating vertex set if it exists, otherwise None.
-
 
     Definitions
     -----------
