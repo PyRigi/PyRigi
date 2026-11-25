@@ -10,6 +10,7 @@ from itertools import combinations
 import networkx as nx
 
 import pyrigi._utils._input_check as _input_check
+import pyrigi.graph._utils._input_check as _graph_input_check
 from pyrigi.exception import NotSupportedValueError
 from pyrigi.graph._sparsity._pebble_digraph import PebbleDiGraph
 from pyrigi.graph._sparsity._flow import (
@@ -246,6 +247,7 @@ def is_kl_sparse(
         return is_kl_sparse_subgraph(graph, K, L)
 
     if algorithm == "flow":
+        _graph_input_check.no_loop(graph)
         _input_check.flow_values(K, L)
         return is_kl_sparse_flow(graph, K, L)
 
