@@ -861,7 +861,7 @@ def _check_superset_sparsity(
     D:
         A k-indegree bounded digraph.
     U0:
-        An indipendent vertex set with t elements.
+        An independent vertex set with t elements.
     K:
         First parameter of the (k,l)-sparsity condition.
     L:
@@ -1003,14 +1003,15 @@ def _check_sparsity_for_l_less_than_k(
     :prf:ref:`(k, l)-sparsity <def-kl-sparse-tight>`
     :prf:ref:`Check sparsity for 0 <= l <= k <alg-check-sparsity-l-k>`
 
-    Parameters:
+    Parameters
     ----------
     G:
-        An undirected Graph
+        An undirected graph.
     K:
         First parameter of the sparsity condition.
     L:
-        Second paramater of the sparsity condition."""
+        Second parameter of the sparsity condition.
+    """
     X, D = _k_indegree_bounded_orientation(G, K)
     if X is not None:
         # X violates (k,0)-sparsity
@@ -1089,11 +1090,11 @@ def _check_sparsity_for_l_between_k_and_2k(
     Parameters
     ----------
     G:
-        An undirected Graph.
+        An undirected graph.
     K:
-        First Parameter in the sparsity condition.
+        First parameter in the sparsity condition.
     L:
-        Second Parameter in the sparsity condition.
+        Second parameter in the sparsity condition.
     """
     X, *F = _k_forest_decomposition(G, K)
     if X is not None:
@@ -1115,13 +1116,13 @@ def _check_sparsity_for_l_between_k_and_2k_with_decomp(
     Parameters
     ----------
     G:
-        An undirected Graph.
+        An undirected graph.
     F:
         A list of k sets of edges representing a forest decomposition of G.
     K:
-        First Parameter in the sparsity condition.
+        First parameter in the sparsity condition.
     L:
-        Second Parameter in the sparsity condition.
+        Second parameter in the sparsity condition.
     """
     _, D = _k_indegree_bounded_orientation(G, K)
     for i in range(L - K):
@@ -1144,9 +1145,10 @@ def _check_terminal_superset_sparsity(
     D: nx.DiGraph, c: Vertex, Z: set[Vertex], K: int
 ) -> set[Vertex] | None:
     """
-    Returns a violating set of the underlying graph of D such that in X,
-    X intersection Z is not None and X different from {c}.
-    If such set doesn't exist returns None.
+    Return a violating set ``X`` of the underlying graph of ``D``
+    such that ``c`` is in ``X``,
+    ``X`` intersects ``Z`` and ``X`` is different from ``{c}``.
+    If no such set exists, return None.
 
     Definitions
     -----------
@@ -1161,7 +1163,7 @@ def _check_terminal_superset_sparsity(
     c:
         a vertex, source in D.
     Z:
-        a set of vertices not containg c.
+        a set of vertices not containing c.
     K:
         First parameter of the sparsity condition.
     """
@@ -1180,7 +1182,7 @@ def _saturated_violation_for_l_equal_2k(
     D: nx.DiGraph, T: nx.Graph, K: int, L: int
 ) -> set[Vertex] | None:
     """
-    Returns a set violating (K,2K)-sparsity if it exists, None otherwise.
+    Return a set violating (K,2K)-sparsity if it exists, None otherwise.
 
     The procedure returns a violating set whenever the underlying graph of D contains one
     that is saturated by T.
@@ -1198,9 +1200,9 @@ def _saturated_violation_for_l_equal_2k(
     T:
         A spanning tree of the underlying graph of D.
     K:
-        First paramater of sparsity condition.
+        First parameter of the sparsity condition.
     L:
-        Second Parameter of sparsity condition.
+        Second parameter of the sparsity condition.
     """
 
     assert L == 2 * K
@@ -1266,7 +1268,7 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] |
     K:
         First parameter in the sparsity condition.
     L:
-        Second Parameter in the sparsity condition.
+        Second parameter in the sparsity condition.
     """
     assert L == 2 * K
     X, *F = _k_forest_decomposition(G, K)
@@ -1305,9 +1307,9 @@ def _check_sparsity_for_l_between_2k_and_3k(
     G:
         A graph.
     K:
-        First Parameter in the sparsity condition.
+        First parameter in the sparsity condition.
     L:
-        Second Parameter in the sparsity condition.
+        Second parameter in the sparsity condition.
     """
     H = nx.Graph()
     H.add_nodes_from(G.nodes())
