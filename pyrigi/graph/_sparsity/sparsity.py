@@ -188,6 +188,7 @@ def is_kl_sparse(
     Definitions
     -----------
     :prf:ref:`(K, L)-sparsity <def-kl-sparse-tight>`
+    :prf:ref:`Extended (K, L)-sparsity <def-kl-sparse-extended>`
 
     Parameters
     ----------
@@ -198,6 +199,14 @@ def is_kl_sparse(
         If ``"pebble"``, the function uses the pebble game algorithm to check
         for sparseness (see :prf:ref:`alg-pebble-game`).
         If ``"subgraph"``, it checks each subgraph following the definition.
+        If ``"flow"``, the function uses the algorithms based on maximum flow.
+        It requires ``K>0`` and ``0<=L<3K`` and, for ``2K<=L<3K``,
+        it follows the :prf:ref:`extended sparsity <def-kl-sparse-extended>`
+        of simple graphs without loops, which only checks the vertex sets
+        with at least three vertices.
+        For ``L>3K-3`` this can differ from the result of ``"subgraph"``,
+        which only checks the vertex sets with at least ``K`` vertices.
+        Graphs with loops are not supported by ``"flow"``.
         It defaults to ``"pebble"`` whenever ``K>0`` and ``0<=L<2K``,
         otherwise to ``"subgraph"``.
     use_precomputed_pebble_digraph:

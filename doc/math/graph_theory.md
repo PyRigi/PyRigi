@@ -289,7 +289,7 @@ A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by
     * If $k = 2$ and $G[N_G(c)]$ has an edge $uv$, return $\{u,v,c\}$.
     * If $k \geq 3$, compute a {prf:ref}`$(k-1)$-indegree-bounded $(k-1)$-forest decomposition <def-k-forest-decomposition>` of $D_0[N_G(c)]$.
       If it does not exist, return $X \cup \{c\}$, where $X$ violates $(k-1,k-1)$-sparsity of $G[N_G(c)]$.
-      Otherwise, run steps 2–4 of {prf:ref}`Check Sparsity for k < ℓ < 2k <alg-check-sparsity-k-l-2k>` with parameters $(k-1,k)$
+      Otherwise, run steps 2–4 of {prf:ref}`alg-check-sparsity-k-l-2k` with parameters $(k-1,k)$
       on $G[N_G(c)]$ with the obtained forests; if it returns a nonempty set $X$, return $X \cup \{c\}$.
 5. For each connected component $T_i$ of $T \setminus \{c\}$:
     * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
