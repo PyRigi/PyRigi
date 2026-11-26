@@ -140,8 +140,8 @@ def _is_pebble_digraph_sparse(
 
 def _is_kl_sparse_subgraph(graph: nx.Graph, K: int, L: int) -> bool:
     """
-    Return whether the graph is (``K``, ``L``)-sparse using subgraph algorithm"""
-
+    Return whether the graph is (``K``, ``L``)-sparse using subgraph algorithm
+    """
     if nx.number_of_selfloops(graph) > 0:
         _input_check.pebble_values(K, L)
         for i in range(1, graph.number_of_nodes() + 1):
