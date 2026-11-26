@@ -667,7 +667,7 @@ def test_check_sparsity_for_l_equal_2k_true(G, K, L):
 
 
 @pytest.mark.parametrize("K, L", [(1, 1), (1, 3), (2, 3), (2, 5)])
-def check_sparsity_for_l_equal_2k_wrong_L(K, L):
+def test_check_sparsity_for_l_equal_2k_wrong_L(K, L):
     G = nx.Graph([(0, 1), (1, 2)])
     with pytest.raises(ValueError):
         _check_sparsity_for_l_equal_2k(G, K=K, L=L)

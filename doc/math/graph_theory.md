@@ -299,7 +299,7 @@ A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by
 :::
 
 :::{prf:algorithm} Check Sparsity for $\ell = 2k$
-:label: alg-sparsity-2k
+:label: alg-check-sparsity-2k
 
 **Input:** A simple graph $G=(V,E)$, an integer $k > 0$
 
