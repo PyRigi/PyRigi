@@ -232,7 +232,7 @@ def test_k_forest_packing_2():
     ],
 )
 def test_forest_decomposition_exists(G, k):
-    X, *F = _k_forest_decomposition(G, k)
+    X, F = _k_forest_decomposition(G, k)
     assert X is None
     assert len(F) == k
     edges = [frozenset(e) for forest in F for e in forest]
@@ -251,7 +251,7 @@ def test_forest_decomposition_exists(G, k):
     ],
 )
 def test_forest_decomposition_does_not_exist(G, k):
-    X, *F = _k_forest_decomposition(G, k)
+    X, F = _k_forest_decomposition(G, k)
     assert X is not None
     assert G.subgraph(X).number_of_edges() > k * len(X) - k
     assert len(F) == k
@@ -261,14 +261,14 @@ def test_forest_decomposition_does_not_exist(G, k):
 def test_forest_decomposition_violating_set_with_pendant_path():
     G = nx.complete_graph(5)
     G.add_edges_from([(4, 5), (5, 6)])
-    X, *_ = _k_forest_decomposition(G, 2)
+    X, _ = _k_forest_decomposition(G, 2)
     assert X is not None
     assert G.subgraph(X).number_of_edges() > 2 * len(X) - 2
 
 
 def test_k_bounded_forest_decomposition():
     D = nx.DiGraph([(0, 1), (1, 2), (0, 2)])
-    X, *F = _k_bounded_forest_decomposition(D, 2)
+    X, F = _k_bounded_forest_decomposition(D, 2)
     assert X is None
     assert set().union(*F) == set(D.edges())
     assert not set(F[0]) & set(F[1])
@@ -278,7 +278,7 @@ def test_k_bounded_forest_decomposition():
 @pytest.mark.parametrize("k", [1, 2, 3])
 def test_violating_set_is_valid_random(seed, k):
     G = nx.gnm_random_graph(8, 6 * k, seed=seed)
-    X, *F = _k_forest_decomposition(G, k)
+    X, F = _k_forest_decomposition(G, k)
     if X is None:
         assert all(not f or nx.is_forest(nx.Graph(list(f))) for f in F)
     else:

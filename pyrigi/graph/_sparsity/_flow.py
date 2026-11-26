@@ -463,16 +463,18 @@ def _k_forest_packing(
     return F
 
 
-def _k_forest_decomposition(G: nx.Graph, K: int) -> tuple:
+def _k_forest_decomposition(
+    G: nx.Graph, K: int
+) -> tuple[set[Vertex] | None, list[set[DirectedEdge]]]:
     """
     Return a decomposition of ``G`` into ``K`` edge-disjoint forests.
 
-    A tuple ``(X, F_1, ..., F_K)`` is returned.
+    A tuple ``(X, F)`` is returned, where ``F`` is the list ``[F_1, ..., F_K]``.
     If the edges of ``G`` can be partitioned into ``K`` forests,
     ``X`` is ``None`` and ``F_1, ..., F_K`` are these forests, each given as a set
     of edges.
     Otherwise, ``X`` is a vertex set violating (``K``, ``K``)-sparsity
-    and ``F_1, ..., F_K`` are empty.
+    and ``F_1, ..., F_K`` are empty sets.
 
     Definitions
     -----------
@@ -489,7 +491,7 @@ def _k_forest_decomposition(G: nx.Graph, K: int) -> tuple:
     X, D = _k_indegree_bounded_orientation(G, K)
 
     if D is None:
-        return (X, *[set() for _ in range(K)])
+        return X, [set() for _ in range(K)]
     return _k_bounded_forest_decomposition(D, K)
 
 
@@ -530,11 +532,13 @@ def _violating_set_of_unlabelled_edge(
     return set(circuit)
 
 
-def _k_bounded_forest_decomposition(D: nx.DiGraph, K: int) -> tuple:
+def _k_bounded_forest_decomposition(
+    D: nx.DiGraph, K: int
+) -> tuple[set[Vertex] | None, list[set[DirectedEdge]]]:
     """
     Return a decomposition of the ``K``-indegree bounded digraph ``D`` into forests.
 
-    A tuple ``(X, F_1, ..., F_K)`` is returned.
+    A tuple ``(X, F)`` is returned, where ``F`` is the list ``[F_1, ..., F_K]``.
     If the edges of ``D`` can be partitioned into ``K`` forests,
     ``X`` is ``None`` and ``F_1, ..., F_K`` are these forests, each given as a set
     of edges.
@@ -559,9 +563,9 @@ def _k_bounded_forest_decomposition(D: nx.DiGraph, K: int) -> tuple:
     unlabelled = next((e for e, label in F.items() if label is None), None)
     if unlabelled is not None:
         X = _violating_set_of_unlabelled_edge(D, F, unlabelled, K)
-        return (X, *[set() for _ in range(K)])
+        return X, [set() for _ in range(K)]
 
-    return (None, *[{e for e, label in F.items() if label == i} for i in range(K)])
+    return None, [{e for e, label in F.items() if label == i} for i in range(K)]
 
 
 def _unit_capacity_digraph(D: nx.DiGraph) -> nx.DiGraph:
@@ -1112,7 +1116,7 @@ def _check_sparsity_for_l_between_k_and_2k(
     L:
         Second parameter in the sparsity condition.
     """
-    X, *F = _k_forest_decomposition(G, K)
+    X, F = _k_forest_decomposition(G, K)
     if X is not None:
         return X
     return _check_sparsity_for_l_between_k_and_2k_with_decomp(G, F, K, L)
@@ -1245,7 +1249,7 @@ def _saturated_violation_for_l_equal_2k(
 
     if K > 2:
         D0_N = D0.subgraph(neighbors_c).copy()
-        X, *F = _k_bounded_forest_decomposition(D0_N, K - 1)
+        X, F = _k_bounded_forest_decomposition(D0_N, K - 1)
         if X is not None:
             return X | {c}
         X = _check_sparsity_for_l_between_k_and_2k_with_decomp(
@@ -1288,7 +1292,7 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] |
     if L != 2 * K:
         raise ValueError("This algorithm requires L = 2K.")
 
-    X, *F = _k_forest_decomposition(G, K)
+    X, F = _k_forest_decomposition(G, K)
     if X is not None:
         return X
     _, D = _k_indegree_bounded_orientation(G, K)
