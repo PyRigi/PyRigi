@@ -45,15 +45,29 @@ def test_max_flow():
 
 def test_build_flow_network():
     G = nx.path_graph(3)  # edges (0,1), (1,2)
-    N, source, sink = _build_flow_network(G, 2)
-    # s, t, 3 vertices, 2 edge nodes
+    N, source, sink, edge_nodes = _build_flow_network(G, 2)
+    # source, sink, 3 vertices, 2 edge nodes
     assert N.number_of_nodes() == 2 + 3 + 2
-    # per edge: s->z, z->u, z->v; per vertex: v->t
+    # per edge: source->z, z->u, z->v; per vertex: v->sink
     assert N.number_of_edges() == 3 * 2 + 3
+    assert len(edge_nodes) == G.number_of_edges()
     for v in G.nodes():
         assert N[v][sink]["capacity"] == 2
     for e in G.edges():
-        assert N[source][f"z_{e}"]["capacity"] == 1
+        z = edge_nodes[e]
+        assert N[source][z]["capacity"] == 1
+        assert N[z][e[0]]["capacity"] == 1
+        assert N[z][e[1]]["capacity"] == 1
+
+
+def test_k_indegree_bounded_orientation_vertex_named_as_edge_node():
+    # a vertex labelled like the former edge nodes "z_(u, v)" must not collide
+    G = nx.Graph([(0, 1), (1, "z_(0, 1)"), ("z_(0, 1)", 0)])
+    X, D = _k_indegree_bounded_orientation(G, 1)
+    assert X is None
+    assert set(D.nodes()) == {0, 1, "z_(0, 1)"}
+    assert D.number_of_edges() == 3
+    assert all(D.in_degree(v) <= 1 for v in D.nodes())
 
 
 def test_k_indegree_bounded_orientation_vertices_named_s_t():

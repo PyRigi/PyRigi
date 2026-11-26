@@ -38,12 +38,16 @@ def _max_flow(D: nx.DiGraph, s: Vertex, t: Vertex, g: str) -> tuple[dict, set[Ve
 # SUBROUTINE 2: INDEGREE BOUNDED ORIENTATIONS
 
 
-def _build_flow_network(G: nx.Graph, K: int) -> tuple[nx.DiGraph, object, object]:
+def _build_flow_network(
+    G: nx.Graph, K: int
+) -> tuple[nx.DiGraph, object, object, dict[tuple[Vertex, Vertex], object]]:
     """
     Return the flow network for the ``K``-indegree bounded orientation of ``G``.
 
-    A triple ``(N, source, sink)`` is returned, where ``source`` and ``sink``
-    are unique sentinel nodes of ``N``, so that they cannot collide
+    A tuple ``(N, source, sink, edge_nodes)`` is returned, where ``source``
+    and ``sink`` are unique sentinel nodes of ``N`` and ``edge_nodes`` maps
+    every edge ``e`` of ``G`` to the unique sentinel node of ``N``
+    representing ``e``. Using sentinel nodes ensures that they cannot collide
     with the vertices of ``G``.
 
     Definitions
@@ -66,16 +70,18 @@ def _build_flow_network(G: nx.Graph, K: int) -> tuple[nx.DiGraph, object, object
     flow_network.add_node(sink)
     flow_network.add_nodes_from(G.nodes())
 
-    for e in G.edges():
-        flow_network.add_node(f"z_{e}")
-        flow_network.add_edge(source, f"z_{e}", capacity=1)
-        flow_network.add_edge(f"z_{e}", e[0], capacity=1)
-        flow_network.add_edge(f"z_{e}", e[1], capacity=1)
+    edge_nodes = {e: object() for e in G.edges()}
+
+    for e, z in edge_nodes.items():
+        flow_network.add_node(z)
+        flow_network.add_edge(source, z, capacity=1)
+        flow_network.add_edge(z, e[0], capacity=1)
+        flow_network.add_edge(z, e[1], capacity=1)
 
     for v in G.nodes():
         flow_network.add_edge(v, sink, capacity=K)
 
-    return flow_network, source, sink
+    return flow_network, source, sink, edge_nodes
 
 
 def _k_indegree_bounded_orientation(
@@ -106,7 +112,7 @@ def _k_indegree_bounded_orientation(
     if len(G.edges()) > K * len(G.nodes()):
         return (set(G.nodes()), None)
 
-    flow_network, source, sink = _build_flow_network(G, K)
+    flow_network, source, sink, edge_nodes = _build_flow_network(G, K)
     f, S = _max_flow(flow_network, source, sink, "capacity")
     x = maximum_flow_value(flow_network, source, sink, "capacity")
 
@@ -114,7 +120,8 @@ def _k_indegree_bounded_orientation(
         D = nx.DiGraph()
         D.add_nodes_from(G.nodes())
         D.add_edges_from(
-            (e[1], e[0]) if f[f"z_{e}"][e[0]] == 1 else (e[0], e[1]) for e in G.edges()
+            (e[1], e[0]) if f[z][e[0]] == 1 else (e[0], e[1])
+            for e, z in edge_nodes.items()
         )
         return (None, D)
     else:
