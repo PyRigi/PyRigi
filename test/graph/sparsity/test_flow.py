@@ -45,15 +45,29 @@ def test_max_flow():
 
 def test_build_flow_network():
     G = nx.path_graph(3)  # edges (0,1), (1,2)
-    N = _build_flow_network(G, 2)
+    N, source, sink = _build_flow_network(G, 2)
     # s, t, 3 vertices, 2 edge nodes
     assert N.number_of_nodes() == 2 + 3 + 2
     # per edge: s->z, z->u, z->v; per vertex: v->t
     assert N.number_of_edges() == 3 * 2 + 3
     for v in G.nodes():
-        assert N[v]["t"]["capacity"] == 2
+        assert N[v][sink]["capacity"] == 2
     for e in G.edges():
-        assert N["s"][f"z_{e}"]["capacity"] == 1
+        assert N[source][f"z_{e}"]["capacity"] == 1
+
+
+def test_k_indegree_bounded_orientation_vertices_named_s_t():
+    # vertices labelled "s" and "t" must not collide with source/sink
+    G = nx.Graph([("s", "t"), ("t", "a"), ("a", "s")])
+    X, D = _k_indegree_bounded_orientation(G, 1)
+    assert X is None
+    assert set(D.nodes()) == {"s", "t", "a"}
+    assert D.number_of_edges() == 3
+    assert all(D.in_degree(v) <= 1 for v in D.nodes())
+
+    X, D = _k_indegree_bounded_orientation(nx.complete_graph(["s", "t", "a", "b"]), 1)
+    assert D is None
+    assert X == {"s", "t", "a", "b"}
 
 
 @pytest.mark.parametrize(
@@ -112,10 +126,10 @@ def test_is_arc_joining_F():
 def test_build_auxiliary_graph_1():
     G = nx.DiGraph([(0, 1), (1, 2)])
     F = {(0, 1): None, (1, 2): None}
-    D = _build_auxiliary_graph(G, F, {}, 1)
-    assert set(D.nodes()) == {0, 1, 2, (0, 1), (1, 2), "t"}
-    assert D.has_edge((0, 1), "t")
-    assert D.has_edge((1, 2), "t")
+    D, sink = _build_auxiliary_graph(G, F, {}, 1)
+    assert set(D.nodes()) == {0, 1, 2, (0, 1), (1, 2), sink}
+    assert D.has_edge((0, 1), sink)
+    assert D.has_edge((1, 2), sink)
     assert D.has_edge(1, (0, 1))
     assert D.has_edge(2, (1, 2))
 
@@ -123,7 +137,7 @@ def test_build_auxiliary_graph_1():
 def test_build_auxiliary_graph_2():
     G = nx.DiGraph([(0, 1), (1, 2), (2, 3), (0, 2)])
     F = {(0, 1): 0, (1, 2): 0, (2, 3): 0, (0, 2): 1}
-    D = _build_auxiliary_graph(G, F, {}, 2)
+    D, _ = _build_auxiliary_graph(G, F, {}, 2)
 
     assert D.has_edge((0, 2), (0, 1))
     assert D.has_edge((0, 2), (1, 2))

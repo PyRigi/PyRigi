@@ -38,9 +38,13 @@ def _max_flow(D: nx.DiGraph, s: Vertex, t: Vertex, g: str) -> tuple[dict, set[Ve
 # SUBROUTINE 2: INDEGREE BOUNDED ORIENTATIONS
 
 
-def _build_flow_network(G: nx.Graph, K: int) -> nx.DiGraph:
+def _build_flow_network(G: nx.Graph, K: int) -> tuple[nx.DiGraph, object, object]:
     """
     Return the flow network for the ``K``-indegree bounded orientation of ``G``.
+
+    A triple ``(N, source, sink)`` is returned, where ``source`` and ``sink``
+    are unique sentinel nodes of ``N``, so that they cannot collide
+    with the vertices of ``G``.
 
     Definitions
     -----------
@@ -56,8 +60,8 @@ def _build_flow_network(G: nx.Graph, K: int) -> nx.DiGraph:
     """
     flow_network = nx.DiGraph()
 
-    source = "s"
-    sink = "t"
+    source = object()
+    sink = object()
     flow_network.add_node(source)
     flow_network.add_node(sink)
     flow_network.add_nodes_from(G.nodes())
@@ -71,7 +75,7 @@ def _build_flow_network(G: nx.Graph, K: int) -> nx.DiGraph:
     for v in G.nodes():
         flow_network.add_edge(v, sink, capacity=K)
 
-    return flow_network
+    return flow_network, source, sink
 
 
 def _k_indegree_bounded_orientation(
@@ -102,9 +106,9 @@ def _k_indegree_bounded_orientation(
     if len(G.edges()) > K * len(G.nodes()):
         return (set(G.nodes()), None)
 
-    flow_network = _build_flow_network(G, K)
-    f, S = _max_flow(flow_network, "s", "t", "capacity")
-    x = maximum_flow_value(flow_network, "s", "t", "capacity")
+    flow_network, source, sink = _build_flow_network(G, K)
+    f, S = _max_flow(flow_network, source, sink, "capacity")
+    x = maximum_flow_value(flow_network, source, sink, "capacity")
 
     if x == len(G.edges()):
         D = nx.DiGraph()
@@ -174,9 +178,12 @@ def _is_arc_joining_F(
 
 def _build_auxiliary_graph(
     G: nx.DiGraph, F: dict[DirectedEdge, int | None], tau: dict[Vertex, int], K: int
-) -> nx.DiGraph:
+) -> tuple[nx.DiGraph, object]:
     """
     Return the auxiliary graph ``D(F)`` for the forest decomposition problem.
+
+    A pair ``(D, sink)`` is returned, where ``sink`` is a unique sentinel node
+    of ``D``, so that it cannot collide with the vertices or edges of ``G``.
 
     Definitions
     -----------
@@ -196,14 +203,15 @@ def _build_auxiliary_graph(
     D = nx.DiGraph()
     D.add_nodes_from(G.nodes())
     D.add_nodes_from(G.edges())
-    D.add_node("t")
+    sink = object()
+    D.add_node(sink)
 
     _add_vertex_to_edge_arcs(D, G, F, tau, K)
-    _add_edge_to_sink_arcs(D, G, F, K)
+    _add_edge_to_sink_arcs(D, G, F, K, sink)
     _add_edge_to_edge_arcs_same_head(D, G, F)
     _add_edge_to_edge_arcs_swap(D, G, F)
 
-    return D
+    return D, sink
 
 
 def _add_vertex_to_edge_arcs(
@@ -225,13 +233,19 @@ def _add_vertex_to_edge_arcs(
 
 
 def _add_edge_to_sink_arcs(
-    D: nx.DiGraph, G: nx.DiGraph, F: dict[DirectedEdge, int | None], K: int
+    D: nx.DiGraph,
+    G: nx.DiGraph,
+    F: dict[DirectedEdge, int | None],
+    K: int,
+    sink: object,
 ):
     """
-    Add arcs ``(e, "t")`` for every edge ``e`` joining two components of some forest.
+    Add arcs ``(e, sink)`` for every edge ``e`` joining two components of some forest.
     """
     D.add_edges_from(
-        (e, "t") for e in G.edges() if any(_is_arc_joining_F(e, F, i) for i in range(K))
+        (e, sink)
+        for e in G.edges()
+        if any(_is_arc_joining_F(e, F, i) for i in range(K))
     )
 
 
@@ -281,7 +295,7 @@ def _augment_F(
     Parameters
     ----------
     P:
-        A path in the auxiliary graph, from a vertex to the sink ``"t"``.
+        A path in the auxiliary graph, from a vertex to the sink of the auxiliary graph.
     F:
         A dictionary mapping edges to their forest index or ``None``.
     K:
@@ -339,10 +353,10 @@ def _search_augmenting_path(
     if v is None:
         return False
 
-    aux_graph = _build_auxiliary_graph(G, F, tau, K)
+    aux_graph, sink = _build_auxiliary_graph(G, F, tau, K)
 
     try:
-        P = nx.shortest_path(aux_graph, source=v, target="t")
+        P = nx.shortest_path(aux_graph, source=v, target=sink)
         _augment_F(P, F, K)
         deficits[v] -= 1
         return True
@@ -406,7 +420,9 @@ def _k_forest_packing(
             break
 
         active_components = [
-            C for C in nx.connected_components(H_k) if sum(deficits.get(v) for v in C) > 0
+            C
+            for C in nx.connected_components(H_k)
+            if sum(deficits.get(v) for v in C) > 0
         ]
 
         if not active_components:
