@@ -905,7 +905,10 @@ def _reorient(
 ) -> tuple[set[Vertex] | None, nx.DiGraph | None]:
     """
     Return a K-indegree bounded :prf:ref:`U_0-source <def-U_0-source>` reorientation of D,
-    or a vertex set violating (K,K)-sparsity if no such reorientation exists.
+    or, if no such reorientation exists, a vertex set ``T`` strictly containing ``U``
+    that violates the (K, tK)-sparsity bound of the underlying graph of D,
+    i.e. ``i(T) > K|T| - tK`` where ``t = |U|``
+    (cf. the characterization in :prf:ref:`def-U_0-source`).
 
     Definitions
     -----------
@@ -915,7 +918,7 @@ def _reorient(
     Parameters
     ----------
     D:
-        A k-indegree bounded digraph.
+        A K-indegree bounded digraph.
     U:
         An independent vertex set with t elements.
     K:
