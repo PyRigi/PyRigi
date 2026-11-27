@@ -72,7 +72,7 @@ For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity defi
         * If no such path is found for both vertices of the edge, reject the edge and return `False`.
 4. If no edge was rejected there are at least $\ell$ pebbles left.
    For Sparsity return `True`.
-   For Tighness return `True` only if there are exactly $\ell$ pebbles left.
+   For Tightness return `True` only if there are exactly $\ell$ pebbles left.
 
 {{references}} {cite:p}`JacobsHendrickson1997` {cite:p}`LeeStreinu2008`
 :::
@@ -81,6 +81,259 @@ For simple graphs without loops and with $0\leq \ell < 2k$ the two sparsity defi
 :label: def-pebble-digraph
 The graph $G'$ after running the {prf:ref}`pebble game algorithm <alg-pebble-game>` is called the _pebble digraph_.
 
+:::
+
+### Sparsity via flow
+
+:::{prf:definition} Maximum flow and minimum cut
+:label: def-max-flow
+
+Let $D = (V, A)$ be a directed graph with a source $s \in V$, a sink $t \in V \setminus \{s\}$
+and a capacity function $g \colon A \to \NN$.
+A _flow_ is a function $x \colon A \to \NN$ such that $x(a) \leq g(a)$ for every arc $a \in A$
+and the flow entering $v$ equals the flow leaving $v$ for every vertex $v \in V \setminus \{s, t\}$.
+The _value_ of $x$ is the net flow leaving $s$.
+A _maximum flow_ is a flow of maximum value.
+
+An _$s$-$t$ cut_ is a set $S \subseteq V$ with $s \in S$ and $t \notin S$.
+Its capacity is the sum of $g(a)$ over all arcs $a$ leaving $S$.
+A _minimum $s$-$t$ cut_ is an $s$-$t$ cut of minimum capacity.
+By the max-flow min-cut theorem, the value of a maximum flow equals
+the capacity of a minimum $s$-$t$ cut.
+:::
+
+:::{prf:definition} Bounded-indegree orientation
+:label: def-bounded-indegree-orientation
+
+Let $G=(V,E)$ be a graph and $\kappa \in \NN$.
+An _orientation_ $D$ of $G$ is a directed graph obtained by assigning a direction to each edge of $G$.
+For $X \subseteq V$, we denote by $\varrho_D(X)$ the number of arcs of $D$ entering $X$ from $V \setminus X$,
+and we write $\varrho_D(v) = \varrho_D(\{v\})$ for the indegree of a vertex $v$.
+An orientation $D$ of $G$ is _$\kappa$-indegree-bounded_ if $\varrho_D(v) \leq \kappa$ for every $v \in V$.
+:::
+
+:::{prf:definition} U_0-source orientation
+:label: def-U_0-source
+
+Let $G=(V,E)$ be a graph and let $U_0 \subseteq V$ be a set of vertices such that no two vertices of $U_0$ are adjacent.
+An {prf:ref}`orientation <def-bounded-indegree-orientation>` $D$ of $G$ is called _$U_0$-source_
+if $\varrho_D(v) = 0$ for every $v \in U_0$.
+
+If $|U_0| = t$, then $G$ has a $k$-indegree-bounded $U_0$-source orientation if and only if
+every set $X \supsetneq U_0$ satisfies $i_G(X) \leq k|X| - tk$, where for $X \subseteq V$, $i_G(X)$ denotes the number of edges of $G$ with both endpoints in $X$.
+:::
+
+:::{prf:definition} Rooted arc-connectivity
+:label: def-rooted-arc-connectivity
+
+Let $D=(V,A)$ be a directed graph, $s \in V$ and $\eta \in \NN$.
+The digraph $D$ is _rooted $\eta$-arc-connected_ with root $s$ if $\varrho_D(Y) \geq \eta$
+for every nonempty $Y \subseteq V \setminus \{s\}$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:definition} Auxiliary digraph
+:label: def-auxiliary-digraph
+Let $D_0$ be a $k$-indegree-bounded {prf:ref}`U_0-source <def-U_0-source>` orientation of a graph $G$, with $|U_0| = t$.
+The _auxiliary digraph_ $D_0'$ is obtained from $D_0$ by deleting $U_0$, adding a root $s$
+and adding $k - \varrho_{D_0}(v)$ parallel arcs from $s$ to every $v \in V \setminus U_0$.
+If $tk \leq \ell \leq (t+1)k$, then a set $X \supsetneq U_0$ violates {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$
+if and only if $\varrho_{D_0'}(X \setminus U_0) < \ell - tk$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:definition} Indegree with respect to a set of forests
+:label: def-indegree-forest
+
+Let $D=(V,A)$ be a directed graph.
+A set of arcs $F \subseteq A$ is a _forest_ if the undirected underlying graph is acyclic.
+For $F \subseteq A$ and $v \in V$, the _indegree of $v$ in $F$_, denoted $\mathrm{indeg}_F(v)$,
+is the indegree of $v$ in the digraph $(V, F)$.
+If $F_1, \dots, F_k \subseteq A$ are edge-disjoint forests and $F = F_1 \cup \dots \cup F_k$,
+then $\mathrm{indeg}_F(v) = \sum_{i=1}^k \mathrm{indeg}_{F_i}(v)$.
+
+{{references}} {cite:p}`ArkhipovKolmogorov2024`
+:::
+
+:::{prf:definition} $k$-forest packing and $k$-forest decomposition
+:label: def-k-forest-decomposition
+
+Let $G=(V,E)$ be a graph and $k \in \NN$ with $k \geq 1$.
+A _$k$-forest packing_ of $G$ is a collection of $k$ edge-disjoint forests $F_1, \dots, F_k \subseteq E$.
+It is _maximum_ if $|F_1 \cup \dots \cup F_k|$ is maximum among all $k$-forest packings of $G$.
+If $E = F_1 \cup \dots \cup F_k$, i.e., the forests partition $E$,
+the packing is called a _$k$-forest decomposition_ of $G$.
+
+By a theorem of Nash-Williams, $G$ admits a $k$-forest decomposition if and only if
+$G$ is $(k,k)$-{prf:ref}`sparse <def-kl-sparse-tight>`.
+In this case, every maximum $k$-forest packing is a $k$-forest decomposition.
+
+If $G$ is a directed graph, a $k$-forest packing $F = F_1 \cup \dots \cup F_k$ is _$k$-indegree-bounded_
+if $\mathrm{indeg}_F(v) \leq k$ for every $v \in V$
+(see {prf:ref}`def-indegree-forest`).
+
+{{references}} {cite:p}`ArkhipovKolmogorov2024`, {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:definition} Saturated set
+:label: def-saturated
+
+Let $F=(V,E)$ be a forest. A nonempty set $X \subseteq V$ is _saturated_ by $F$
+if $F[X]$, the subgraph of $F$ induced by $X$, is connected.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:algorithm} Check Sparsity for $0 \leq \ell \leq k$
+:label: alg-check-sparsity-l-k
+
+**Input:** An undirected graph $G=(V,E)$, integers $k > 0$ and $0 \leq \ell \leq k$
+
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
+
+1. Obtain a {prf:ref}`$k$-indegree-bounded orientation <def-bounded-indegree-orientation>` $D$ of $G$ via a {prf:ref}`maximum flow <def-max-flow>`.
+If no such orientation exists, the minimum cut gives a vertex set violating $(k,0)$-sparsity: return it.
+2. Let $D'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D$ with $U_0 = \emptyset$.
+   If $D'$ is not rooted $\ell$-arc-connected, return a nonempty set $Y$ with $\varrho_{D'}(Y) < \ell$.
+3. Return $\emptyset$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:definition} Centroid
+:label: def-centroid
+
+Let $T=(V,E)$ be a tree with $n$ vertices.
+A vertex $c \in V$ is a _centroid_ of $T$ if every connected component of $T - c$ has at most $n/2$ vertices.
+Every tree has at least one centroid.
+:::
+
+:::{prf:algorithm} Saturated Violation
+:label: alg-saturated-violation
+
+**Input:** Integers $k < \ell < 2k$, a {prf:ref}`$k$-indegree-bounded <def-bounded-indegree-orientation>` digraph $D=(V,A)$
+and a spanning tree $T$ of the underlying graph $G$ of $D$
+
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$, or $\emptyset$.
+A violating set is returned whenever $G$ has one {prf:ref}`saturated <def-saturated>` by $T$.
+
+1. Let $c$ be a {prf:ref}`centroid <def-centroid>` of $T$.
+2. Reorient $D$ to obtain a $k$-indegree-bounded {prf:ref}`$\{c\}$-source <def-U_0-source>` orientation $D_0$ of $G$.
+   If no such orientation exists, return a set $X \supsetneq \{c\}$ violating $(k,k)$-sparsity.
+3. Let $D_0'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D_0$ with $U_0=\{c\}$.
+   If $D_0'$ is not rooted $(\ell-k)$-arc-connected, take a nonempty $Y$ with $\varrho_{D_0'}(Y) < \ell - k$
+   and return $Y \cup \{c\}$ (it violates $(k,\ell)$-sparsity and contains $c$).
+4. Every remaining violating set saturated by $T$ avoids $c$, so it is contained in a component of $T - c$
+   and saturated by it. For each connected component $T_i$ of $T - c$:
+    * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
+5. Return $\emptyset$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:algorithm} Check Sparsity for $k < \ell < 2k$
+:label: alg-check-sparsity-k-l-2k
+
+**Input:** An undirected graph $G=(V,E)$, integers $k < \ell < 2k$
+
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` of $G$ if it exists; otherwise $\emptyset$
+
+1. Compute a {prf:ref}`$k$-forest decomposition <def-k-forest-decomposition>` $F_1,\dots,F_k$ of $G$.
+   If it does not exist, return a vertex set violating $(k,k)$-sparsity.
+2. Obtain a {prf:ref}`$k$-indegree-bounded orientation <def-bounded-indegree-orientation>` $D$ of $G$ by rooting each tree of each $F_i$
+   and orienting its edges from parent to child.
+3. For $i = 1, \dots, \ell - k$ and for each connected component $T$ of $F_i$:
+    * Run {prf:ref}`Saturated Violation <alg-saturated-violation>` on $(D[V(T)], T)$;
+      if it returns a nonempty set, return it.
+4. Return $\emptyset$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:definition} Extended $(k,\ell)$-sparsity
+:label: def-kl-sparse-extended
+
+Let $G=(V,E)$ be a simple graph without loops and let $k, \ell \in \NN$ such that $2k \leq \ell < 3k$.
+The graph $G$ is said to be _extended $(k,\ell)$-sparse_ if every set $X \subseteq V$ with $|X| \geq 3$
+satisfies $i_G(X) \leq k|X| - \ell$.
+The restriction to sets of size at least three is necessary, since for $|X| = 2$
+the bound $k|X| - \ell \leq 0$ would be violated by any edge.
+
+For $2k \leq \ell \leq \binom{k+1}{2}$ this notion differs from the definition of
+{prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-tight>` for simple graphs
+in the sets of fewer than $k$ vertices that are checked.
+The two definitions agree whenever $\ell \leq 3k-3$, but they can differ for larger $\ell$:
+for example, a triangle violates extended $(4,10)$-sparsity ($3 > 4\cdot 3 - 10$), but it is ignored by the definition for simple graphs.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:algorithm} Saturated Violation for $\ell = 2k$
+:label: alg-saturated-violation-2k
+
+**Input:** A {prf:ref}`$k$-indegree-bounded <def-bounded-indegree-orientation>` digraph $D=(V,A)$ with simple underlying graph $G$ and a spanning tree $T$ of $G$
+
+**Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-extended>` of $G$, or $\emptyset$.
+A violating set is returned whenever one {prf:ref}`saturated <def-saturated>` by $T$ exists.
+
+1. Let $c$ be a {prf:ref}`centroid <def-centroid>` of $T$.
+2. Reorient $D$ to obtain a $k$-indegree-bounded {prf:ref}`$\{c\}$-source <def-U_0-source>` orientation $D_0$ of $G$.
+   If no such orientation exists, return a set $X \supsetneq \{c\}$ violating $(k,k)$-sparsity.
+3. Let $D_0'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D_0$ with $U_0=\{c\}$
+   and $Z = V \setminus (N_G(c) \cup \{c\})$, where $N_G(c)$ is the set of neighbors of $c$ in $G$.
+   If there is a nonempty $Y$ with $Y \cap Z \neq \emptyset$ and $\varrho_{D_0'}(Y) < k$, return $Y \cup \{c\}$.
+4. Check the violating sets contained in $N_G(c) \cup \{c\}$:
+    * If $k = 1$ and $|N_G(c)| \geq 2$, return $N_G(c) \cup \{c\}$.
+    * If $k = 2$ and $G[N_G(c)]$ has an edge $uv$, return $\{u,v,c\}$.
+    * If $k \geq 3$, compute a {prf:ref}`$(k-1)$-indegree-bounded $(k-1)$-forest decomposition <def-k-forest-decomposition>` of $D_0[N_G(c)]$.
+      If it does not exist, return $X \cup \{c\}$, where $X$ violates $(k-1,k-1)$-sparsity of $G[N_G(c)]$.
+      Otherwise, run steps 2–4 of {prf:ref}`alg-check-sparsity-k-l-2k` with parameters $(k-1,k)$
+      on $G[N_G(c)]$ with the obtained forests; if it returns a nonempty set $X$, return $X \cup \{c\}$.
+5. For each connected component $T_i$ of $T \setminus \{c\}$:
+    * Run the algorithm recursively on $(D[V(T_i)], T_i)$; if it returns a nonempty set, return it.
+6. Return $\emptyset$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:algorithm} Check Sparsity for $\ell = 2k$
+:label: alg-check-sparsity-2k
+
+**Input:** A simple graph $G=(V,E)$, an integer $k > 0$
+
+**Output:** A vertex set violating {prf:ref}`$(k,2k)$-sparsity <def-kl-sparse-extended>` of $G$ if it exists; otherwise $\emptyset$
+
+1. Compute a {prf:ref}`$k$-forest decomposition <def-k-forest-decomposition>` $F_1,\dots,F_k$ of $G$.
+   If it does not exist, return a vertex set violating $(k,k)$-sparsity.
+2. Obtain a {prf:ref}`$k$-indegree-bounded orientation <def-bounded-indegree-orientation>` $D$ of $G$ from $F_1,\dots,F_k$.
+3. For $i = 1, \dots, k$ and for each connected component $T$ of $F_i$:
+    * Run {prf:ref}`Saturated Violation for ℓ = 2k <alg-saturated-violation-2k>` on $(D[V(T)], T)$;
+      if it returns a nonempty set, return it.
+4. Return $\emptyset$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
+:::
+
+:::{prf:algorithm} Check Sparsity for $2k \leq \ell < 3k$
+:label: alg-check-sparsity-2k-3k
+
+**Input:** A simple graph $G=(V,E)$, integers $k > 0$ and $2k \leq \ell < 3k$
+
+**Output:** A vertex set violating {prf:ref}`$(k,\ell)$-sparsity <def-kl-sparse-extended>` of $G$ if it exists; otherwise $\emptyset$
+
+1. Initialize the sparse subgraph $H = (V, \emptyset)$ and its {prf:ref}`k-indegree-bounded orientation <def-bounded-indegree-orientation>` $D = (V, \emptyset)$.
+2. Loop over all edges of $G$. For an edge $uv$:
+    * Reorient $D$ to obtain a $k$-indegree-bounded {prf:ref}`$\{u,v\}$-source <def-U_0-source>` orientation of $H$
+      (this always exists, since $H$ is $(k,2k)$-sparse).
+    * Let $D'$ be the {prf:ref}`auxiliary digraph <def-auxiliary-digraph>` of $D$ with $U_0=\{u,v\}$.
+      If $D'$ is not rooted $(\ell+1-2k)$-arc-connected, take a nonempty $Y$ with $\varrho_{D'}(Y) < \ell+1-2k$
+      and return $Y \cup \{u,v\}$.
+    * Add $uv$ to $H$ and the arc $(u,v)$ to $D$.
+3. Return $\emptyset$.
+
+{{references}} {cite:p}`DeakMadarasi2026`
 :::
 
 ## Graph extensions
@@ -168,7 +421,7 @@ $G-U$ is not {prf:ref}`connected <def-connected>`.
 In particular, if $|U| = 2$ then U is called a _separating pair_.
 
 We say that $U$ _separates_ the vertices $u$ and $v$, or that $U$ is a _$(u,v)$-separating set_,
-if $u$ and $v$ are in different connected components of $G-U$. 
+if $u$ and $v$ are in different connected components of $G-U$.
 
 {{pyrigi_crossref}} {meth}`~.Graph.is_separating_set`
 {meth}`~.Graph.is_uv_separating_set`
