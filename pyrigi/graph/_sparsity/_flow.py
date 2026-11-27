@@ -1278,7 +1278,8 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] |
 
     Definitions
     -----------
-    :prf:ref:`Check sparsity for l = 2k <alg-check-sparsity-2k>`
+    :prf:ref:`Check sparsity for L = 2K <alg-check-sparsity-2k>`
+    :prf:ref:`Extended (K, L)-sparsity <def-kl-sparse-extended>`
 
     Parameters
     ----------
@@ -1320,7 +1321,8 @@ def _check_sparsity_for_l_between_2k_and_3k(
 
     Definitions
     -----------
-    :prf:ref:`Check sparsity for 2k <= l < 3k <alg-check-sparsity-2k-3k>`
+    :prf:ref:`Check sparsity for 2K <= L < 3K <alg-check-sparsity-2k-3k>`
+    :prf:ref:`Extended (K, L)-sparsity <def-kl-sparse-extended>`
 
     Parameters
     ----------
