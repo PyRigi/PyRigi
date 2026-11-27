@@ -1069,6 +1069,10 @@ def _saturated_violation(
     L:
         Second parameter of the sparsity condition, with k < l <= 2k.
     """
+    # a violating set has at least two vertices
+    # (an empty T is left to _centroid, which raises an error)
+    if 0 < T.number_of_nodes() < 2:
+        return None
 
     c = _centroid(T)
 
@@ -1147,8 +1151,6 @@ def _check_sparsity_for_l_between_k_and_2k_with_decomp(
         forest.add_nodes_from(G.nodes())
         forest.add_edges_from(F[i])
         for component in nx.connected_components(forest):
-            if len(component) < 2:
-                continue
             X = _saturated_violation(
                 D.subgraph(component).copy(), forest.subgraph(component).copy(), K, L
             )
@@ -1223,6 +1225,11 @@ def _saturated_violation_for_l_equal_2k(
 
     if L != 2 * K:
         raise ValueError("This algorithm requires L = 2K.")
+
+    # a violating set for extended (K, 2K)-sparsity has at least three vertices
+    # (an empty T is left to _centroid, which raises an error)
+    if 0 < T.number_of_nodes() < 3:
+        return None
 
     G = D.to_undirected()
     c = _centroid(T)
@@ -1300,7 +1307,7 @@ def _check_sparsity_for_l_equal_2k(G: nx.Graph, K: int, L: int) -> set[Vertex] |
         forest.add_edges_from(F[i])
         for component in nx.connected_components(forest):
             X = _saturated_violation_for_l_equal_2k(
-                D.subgraph(component), forest.subgraph(component), K, L
+                D.subgraph(component).copy(), forest.subgraph(component).copy(), K, L
             )
             if X is not None:
                 return X
