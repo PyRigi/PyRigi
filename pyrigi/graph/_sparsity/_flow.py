@@ -227,7 +227,7 @@ def _add_vertex_to_edge_arcs(
     F: dict[DirectedEdge, int | None],
     tau: dict[Vertex, int],
     K: int,
-):
+) -> None:
     """
     Add arcs ``(v, e)`` for every unlabelled edge ``e`` whose head ``v``
     has fewer than ``K - tau(v)`` labelled incoming edges.
@@ -245,7 +245,7 @@ def _add_edge_to_sink_arcs(
     F: dict[DirectedEdge, int | None],
     K: int,
     sink: object,
-):
+) -> None:
     """
     Add arcs ``(e, sink)`` for every edge ``e`` joining two components of some forest.
     """
@@ -258,7 +258,7 @@ def _add_edge_to_sink_arcs(
 
 def _add_edge_to_edge_arcs_same_head(
     D: nx.DiGraph, G: nx.DiGraph, F: dict[DirectedEdge, int | None]
-):
+) -> None:
     """
     Add arcs ``(e, f)`` for every labelled edge ``e`` and unlabelled edge ``f``
     that have the same head.
@@ -274,7 +274,7 @@ def _add_edge_to_edge_arcs_same_head(
 
 def _add_edge_to_edge_arcs_swap(
     D: nx.DiGraph, G: nx.DiGraph, F: dict[DirectedEdge, int | None]
-):
+) -> None:
     """
     Add arcs ``(f, e)`` for every edge ``e`` in a forest ``F_i`` and edge ``f``
     not in ``F_i`` such that replacing ``e`` by ``f`` in ``F_i`` gives a forest.
