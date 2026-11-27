@@ -355,10 +355,7 @@ def _search_augmenting_path(
     deficits:
         A dictionary mapping vertices to their current deficit values.
     """
-    v = next((node for node in C if deficits.get(node, 0) > 0), None)
-
-    if v is None:
-        return False
+    v = next(node for node in C if deficits.get(node, 0) > 0)
 
     aux_graph, sink = _build_auxiliary_graph(G, F, tau, K)
 
@@ -431,9 +428,6 @@ def _k_forest_packing(
             for C in nx.connected_components(H_k)
             if sum(deficits.get(v) for v in C) > 0
         ]
-
-        if not active_components:
-            break
 
         for C in active_components:
             F_k_edges = [e for e, label in F.items() if label == K - 1]
