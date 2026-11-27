@@ -1259,7 +1259,7 @@ def _saturated_violation_for_l_equal_2k(
     T_without_c.remove_node(c)
     for component in nx.connected_components(T_without_c):
         X = _saturated_violation_for_l_equal_2k(
-            D.subgraph(component), T.subgraph(component), K, L
+            D.subgraph(component).copy(), T.subgraph(component).copy(), K, L
         )
         if X is not None:
             return X
